@@ -1017,6 +1017,7 @@
             padding: 0.65rem 0;
             margin-right: 1.5rem;
             background: transparent;
+            transition: $ml-transition;
 
             &:hover {
                 color: $ml-text;

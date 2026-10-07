@@ -15,9 +15,9 @@ $o-gray-100: $ml-bg;
 $o-view-background-color: $ml-surface;
 $o-main-text-color: $ml-text;
 $o-main-color-muted: $ml-text-muted;
-$o-main-link-color: $ml-accent;
+$o-main-link-color: $ml-accent-dark;
 $o-main-favorite-color: $ml-favorite;
-$o-main-headings-color: $ml-text;
+$o-main-headings-color: $ml-secondary;
 
 $o-theme-text-colors: (
     "success": $ml-success,
@@ -33,7 +33,7 @@ $o-border-radius-lg: $ml-radius;
 $o-btns-bs-override: (
     "primary": (
         background: $ml-primary,
-        border: $ml-primary-dark,
+        border: $ml-primary,
         color: $ml-text-on-primary,
 
         hover-background: $ml-primary-dark,
@@ -47,15 +47,15 @@ $o-btns-bs-override: (
     "secondary": (
         background: $ml-surface,
         border: $ml-border-strong,
-        color: $ml-text,
+        color: $ml-secondary,
 
-        hover-background: $ml-bg,
+        hover-background: $ml-secondary-light,
         hover-border: $ml-border-strong,
-        hover-color: $ml-text,
+        hover-color: $ml-secondary,
 
-        active-background: $ml-bg,
+        active-background: $ml-secondary-light,
         active-border: $ml-border-strong,
-        active-color: $ml-text,
+        active-color: $ml-secondary,
     ),
     "light": (
         background: $ml-surface,

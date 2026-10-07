@@ -60,7 +60,7 @@ body.bg-100 main {
     background: $ml-surface !important;
     border: 1px solid rgba($ml-border, 0.9) !important;
     border-radius: 24px !important;
-    box-shadow: 0 28px 70px rgba(15, 24, 41, 0.16) !important;
+    box-shadow: 0 28px 70px rgba($ml-secondary, 0.16) !important;
 }
 
 .ml_auth_brand {
@@ -71,7 +71,7 @@ body.bg-100 main {
     padding: clamp(2.5rem, 5vw, 4rem);
     overflow: hidden;
     color: $ml-text-on-primary;
-    background: linear-gradient(150deg, $ml-primary 0%, $ml-primary-dark 62%, mix($ml-primary-dark, $ml-accent, 70%) 100%);
+    background: linear-gradient(150deg, $ml-primary 0%, $ml-primary-dark 55%, $ml-secondary 100%);
 
     &::before,
     &::after {
@@ -86,7 +86,7 @@ body.bg-100 main {
         right: -8rem;
         width: 22rem;
         height: 22rem;
-        background: rgba($ml-accent, 0.22);
+        background: rgba($ml-accent-light, 0.18);
     }
 
     &::after {
@@ -114,26 +114,20 @@ body.bg-100 main {
 
     p {
         margin: 0;
-        color: rgba(255, 255, 255, 0.78);
+        color: rgba(255, 255, 255, 0.9);
         font-size: 1rem;
         line-height: 1.7;
     }
 }
 
 .ml_auth_brand_icon {
-    display: inline-grid;
+    display: block;
     width: 4rem;
     height: 4rem;
-    color: $ml-text-on-primary;
-    background: rgba($ml-primary-dark, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 18px;
-    place-items: center;
-    backdrop-filter: blur(8px);
-
-    iconify-icon {
-        font-size: 2rem;
-    }
+    border-radius: 22%;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.4),
+        0 12px 28px rgba($ml-secondary, 0.3);
 }
 
 .ml_auth_logo {
@@ -247,11 +241,11 @@ body.bg-100 main {
         padding: 0.7rem 1.25rem;
         font-weight: 650;
         border-radius: 12px;
-        box-shadow: 0 8px 18px rgba($ml-primary, 0.16);
-        transition: box-shadow 160ms ease, transform 160ms ease;
+        box-shadow: 0 8px 18px rgba($ml-primary, 0.2);
+        transition: $ml-transition;
 
         &:hover {
-            box-shadow: 0 10px 22px rgba($ml-primary-dark, 0.22);
+            box-shadow: 0 10px 24px rgba($ml-primary, 0.32);
             transform: translateY(-1px);
         }
 
@@ -413,7 +407,7 @@ body.bg-100 main {
 
     .ml_auth_shell {
         border-radius: 18px !important;
-        box-shadow: 0 18px 48px rgba(15, 24, 41, 0.13) !important;
+        box-shadow: 0 18px 48px rgba($ml-secondary, 0.13) !important;
     }
 
     .ml_auth_form_panel {
@@ -488,5 +482,5 @@ body.bg-100 main {
 }
 
 body.o_home_menu_background {
-    background: linear-gradient(160deg, $ml-primary 0%, $ml-primary-dark 45%, mix($ml-primary-dark, $ml-accent, 65%) 100%);
+    background: linear-gradient(160deg, $ml-primary 0%, $ml-primary-dark 50%, $ml-secondary 100%);
 }

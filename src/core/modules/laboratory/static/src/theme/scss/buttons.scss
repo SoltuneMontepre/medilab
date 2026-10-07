@@ -1,6 +1,14 @@
 .btn {
     transition: $ml-transition;
     font-weight: 500;
+
+    &:active:not(:disabled):not(.disabled) {
+        transform: translateY(1px);
+    }
+}
+
+.btn-primary:not(:disabled):not(.disabled):hover {
+    box-shadow: $ml-shadow-primary;
 }
 
 .btn-link.btn-danger {

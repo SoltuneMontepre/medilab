@@ -11,7 +11,6 @@ Rules every document and every module states and implements the same way. If a d
 - [Payment and quotation](payment-and-quotation.md): accepting a quotation, VAT
 - [Module boundaries](module-boundaries.md): which module owns what
 
-
 ## Conventions
 
 Code conventions for agents and the system.
@@ -36,7 +35,7 @@ Business domain features, actors and business rules.
 - [Overview](functional/index.md): the project and its modules
 - [Shared technical features](functional/shared.md): requirements shared by all modules and external integrations
 - [E-commerce module](functional/ecommerce_module/overview.md)
-- [Analysis module](functional/analysis_module/overview.md)
+- [Laboratory module](functional/laboratory_module/overview.md)
 - [Inventory module](functional/inventory_module/overview.md)
 
 ## Reports

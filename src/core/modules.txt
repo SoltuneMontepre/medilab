@@ -1,5 +1,5 @@
 base
-analysis
+laboratory
 commerce
 inventory
 demo

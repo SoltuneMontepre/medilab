@@ -1,7 +1,7 @@
 # Module boundaries
 
-- E-commerce and Inventory depend on Analysis; Analysis depends on neither.
-- Machines and chemical information belong to Analysis. Inventory manages chemical stock, expiry dates, internal movement and suppliers.
+- E-commerce and Inventory depend on Laboratory; Laboratory depends on neither.
+- Machines and chemical information belong to Laboratory. Inventory manages chemical stock, expiry dates, internal movement and suppliers.
 
 ## Related documents
 

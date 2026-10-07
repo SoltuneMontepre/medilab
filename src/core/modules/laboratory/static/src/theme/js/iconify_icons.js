@@ -33,6 +33,9 @@ window.__medilabIconifyCollections = [
     "close-circle": {
       "body": "<path fill=\"currentColor\" d=\"M12 2c5.53 0 10 4.47 10 10s-4.47 10-10 10S2 17.53 2 12S6.47 2 12 2m3.59 5L12 10.59L8.41 7L7 8.41L10.59 12L7 15.59L8.41 17L12 13.41L15.59 17L17 15.59L13.41 12L17 8.41z\"/>"
     },
+    "magnify": {
+      "body": "<path fill=\"currentColor\" d=\"M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5l-1.5 1.5l-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16A6.5 6.5 0 0 1 3 9.5A6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14S14 12 14 9.5S12 5 9.5 5\"/>"
+    },
     "alert": {
       "body": "<path fill=\"currentColor\" d=\"M13 14h-2V9h2m0 9h-2v-2h2M1 21h22L12 2z\"/>"
     },

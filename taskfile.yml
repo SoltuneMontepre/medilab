@@ -17,3 +17,11 @@ tasks:
     cmds:
       - task --list
     silent: true
+
+  setup:
+    desc: "Set up repository & start the app"
+    silent: true
+    cmds:
+      - task: doppler
+      - task: dev:setup
+      - task: up

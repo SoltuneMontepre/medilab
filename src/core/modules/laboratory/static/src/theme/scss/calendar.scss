@@ -78,7 +78,7 @@
         .fc-event:not(.o_event_dot):not(.fc-dragging) {
             &.o_cw_custom_highlight,
             &.o_calendar_popover_open {
-                box-shadow: 0 8px 16px -8px rgba(15, 24, 41, 0.35);
+                box-shadow: 0 8px 16px -8px rgba($ml-secondary, 0.35);
             }
         }
 
@@ -164,7 +164,7 @@
 
         thead > tr > th {
             background: $ml-bg;
-            color: #374151;
+            color: $ml-text-secondary;
             font-weight: 600;
             font-size: 0.8125rem;
             border-color: $ml-border !important;

@@ -2,6 +2,6 @@
 <odoo>
     <record id="base.main_company" model="res.company">
         <field name="name">Medilab</field>
-        <field name="logo" type="base64" file="analysis/static/src/theme/img/icons/icon-512x512.png"/>
+        <field name="logo" type="base64" file="laboratory/static/src/theme/img/icons/icon-512x512.png"/>
     </record>
 </odoo>

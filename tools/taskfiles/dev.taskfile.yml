@@ -7,6 +7,8 @@ vars:
   ODOO_SOURCE_REVISION: 7bbce824a1897a912441a7f0511ffec505cbe1d5
   ODOO_ADDONS: [web]
   LINT_TARGET: src/core/modules
+  DOPPLER_PROJECT: medilab
+  DOPPLER_CONFIG: dev
 
 tasks:
   dev:setup:
@@ -15,6 +17,47 @@ tasks:
     cmds:
       - task: dev:venv
       - task: dev:odoo-source
+
+  doppler:
+    desc: "Authenticate Doppler (paste token or browser login) and select the project and config"
+    silent: true
+    interactive: true
+    status:
+      - doppler whoami
+      - '[ "$(doppler configure get project --plain)" = "{{.DOPPLER_PROJECT}}" ]'
+      - '[ "$(doppler configure get config --plain)" = "{{.DOPPLER_CONFIG}}" ]'
+    cmds:
+      - |
+        if ! command -v doppler >/dev/null 2>&1; then
+          echo "[ERROR] doppler not found. Install: winget install Doppler.doppler" >&2
+          exit 1
+        fi
+        if ! doppler whoami >/dev/null 2>&1; then
+          echo "How would you like to authenticate with Doppler?"
+          echo "  1) Paste an existing service token"
+          echo "  2) Run 'doppler login' (browser)"
+          cr=$(printf '\r')
+          printf "Choose [1/2]: "
+          read -r choice
+          choice="${choice%"$cr"}"
+          case "$choice" in
+            1)
+              printf "Doppler token: "
+              read -r token
+              token="${token%"$cr"}"
+              doppler configure set token "$token"
+              ;;
+            2)
+              doppler login
+              ;;
+            *)
+              echo "[ERROR] Invalid choice." >&2 && exit 1
+              ;;
+          esac
+          doppler whoami || (echo "[ERROR] Doppler authentication failed." >&2 && exit 1)
+        fi
+        doppler setup --no-interactive --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_CONFIG}}
+        echo "[COMPLETED] Doppler ready ({{.DOPPLER_PROJECT}}/{{.DOPPLER_CONFIG}})."
 
   dev:venv:
     desc: "Create .venv (Python {{.PYTHON_VERSION}}) and install requirements-dev.txt"

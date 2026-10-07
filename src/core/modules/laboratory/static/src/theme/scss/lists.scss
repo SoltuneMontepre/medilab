@@ -73,7 +73,7 @@
                 border-bottom: 1px solid $ml-border !important;
 
                 th {
-                    color: #374151 !important;
+                    color: $ml-text-secondary !important;
                     font-weight: 600;
                     font-size: 0.75rem;
                     letter-spacing: 0.02em;
@@ -89,7 +89,7 @@
 
                 .o_list_sortable_icon {
                     background: $ml-bg !important;
-                    color: #4b5563;
+                    color: $ml-text-secondary;
                 }
 
                 .o_advanced_search_row {
@@ -107,7 +107,7 @@
                         background: $ml-surface !important;
 
                         &::placeholder {
-                            color: #4b5563 !important;
+                            color: $ml-text-secondary !important;
                             opacity: 1;
                         }
 
@@ -150,6 +150,10 @@
 
                     &:hover > td {
                         background: $ml-primary-light !important;
+                    }
+
+                    &:hover > td:first-child {
+                        box-shadow: inset 3px 0 0 $ml-accent !important;
                     }
 
                     &.o_selected_row > td,

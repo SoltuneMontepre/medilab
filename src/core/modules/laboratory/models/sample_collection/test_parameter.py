@@ -1,5 +1,5 @@
 from odoo import fields, models
-from odoo.addons.analysis.constants.models import MODEL_TEST_PARAMETER
+from odoo.addons.laboratory.constants.models import MODEL_TEST_PARAMETER
 
 
 class TestParameter(models.Model):

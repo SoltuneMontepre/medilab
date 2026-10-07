@@ -2,7 +2,7 @@
 
 In a testing laboratory, everything begins with a sale. Sales generates the lab's income and tracks every client order from the first request until the samples are ready to be collected. In MediLab the E-commerce module covers the customer portal, customer profiles, quotations, test requests, invoices, payments, tax calculation, discounts and sales analytics.
 
-Dependencies: [core analysis module](../analysis_module/overview.md).
+Dependencies: [core laboratory module](../laboratory_module/overview.md).
 
 ## Purpose
 

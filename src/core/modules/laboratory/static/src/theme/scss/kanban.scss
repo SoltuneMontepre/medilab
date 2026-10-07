@@ -21,9 +21,10 @@
         transition: $ml-transition;
         margin-bottom: 0.5rem;
 
-        &:hover {
-            border-color: $ml-border-strong !important;
-            box-shadow: $ml-shadow;
+        &:hover:not(.o_dragged) {
+            border-color: rgba($ml-accent, 0.35) !important;
+            box-shadow: $ml-shadow-lift;
+            transform: translateY(-2px);
         }
 
         &.o_record_selected {

@@ -3,29 +3,40 @@
 
     <t t-inherit="web.NavBar" t-inherit-mode="extension">
         <xpath expr="//header" position="after">
-            <div class="ml_apps_home" t-if="appDrawer.open">
-                <div class="ml_apps_home_toolbar">
-                    <h2 class="ml_apps_home_title">Applications</h2>
-                    <button type="button"
-                            class="btn btn-link ml_apps_home_close"
-                            t-on-click="closeAppDrawer"
-                            aria-label="Close">
-                        <iconify-icon icon="mdi:close-circle" class="ml_icon_md"/>
-                    </button>
+            <t t-if="appDrawer.open">
+                <div class="ml_apps_scrim" t-on-click="closeAppDrawer"/>
+                <div class="ml_apps_panel"
+                     role="dialog"
+                     aria-label="Applications"
+                     t-on-keydown="onAppDrawerKeydown">
+                    <label class="ml_apps_search">
+                        <iconify-icon icon="mdi:magnify" class="ml_icon_sm"/>
+                        <input type="search"
+                               class="ml_apps_search_input"
+                               placeholder="Find an app"
+                               aria-label="Find an app"
+                               autocomplete="off"
+                               t-ref="appSearch"
+                               t-model="appDrawer.query"/>
+                        <kbd>Esc</kbd>
+                    </label>
+                    <div class="ml_apps_grid">
+                        <t t-foreach="filteredApps" t-as="app" t-key="app.id">
+                            <a t-att-href="getMenuItemHref(app)"
+                               class="ml_app_tile"
+                               t-att-class="{ 'ml_app_tile_current': app.id === currentAppId }"
+                               t-att-aria-current="app.id === currentAppId ? 'page' : false"
+                               t-on-click.prevent="() => this.onAppDrawerClick(app)">
+                                <span class="ml_app_tile_icon">
+                                    <iconify-icon t-att-icon="getAppIcon(app)" class="ml_icon_md"/>
+                                </span>
+                                <span class="ml_app_tile_name" t-esc="app.name"/>
+                            </a>
+                        </t>
+                        <p t-if="!filteredApps.length" class="ml_apps_empty">No app matches your search.</p>
+                    </div>
                 </div>
-                <div class="ml_apps_home_grid">
-                    <t t-foreach="menuService.getApps()" t-as="app" t-key="app.id">
-                        <a t-att-href="getMenuItemHref(app)"
-                           class="ml_app_card"
-                           t-on-click.prevent="() => this.onAppDrawerClick(app)">
-                            <div class="ml_app_card_icon">
-                                <iconify-icon t-att-icon="getAppIcon(app)" class="ml_icon_lg"/>
-                            </div>
-                            <span class="ml_app_card_name" t-esc="app.name"/>
-                        </a>
-                    </t>
-                </div>
-            </div>
+            </t>
         </xpath>
     </t>
 

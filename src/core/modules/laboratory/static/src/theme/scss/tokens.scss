@@ -1,19 +1,24 @@
-$ml-primary: #1a2744;
-$ml-primary-dark: #0f1829;
-$ml-primary-mid: #243556;
-$ml-primary-light: #e8edf5;
+$ml-primary: #0a4d8c;
+$ml-primary-dark: #083d70;
+$ml-primary-mid: #0e5797;
+$ml-primary-light: #e6eff8;
 
-$ml-accent: #1b9aaa;
+$ml-secondary: #13294b;
+$ml-secondary-light: #e8ecf3;
+
+$ml-accent: #0083ef;
+$ml-accent-light: #5ab0f5;
 $ml-accent-dark: darken($ml-accent, 8%);
-$ml-accent-soft: #e6f6f8;
+$ml-accent-soft: #e6f3fe;
 
-$ml-bg: #f4f6f9;
+$ml-bg: #f2f5f9;
 $ml-surface: #ffffff;
-$ml-border: #e2e6ee;
-$ml-border-strong: #cfd6e2;
+$ml-border: #dce3ec;
+$ml-border-strong: #c5d0de;
 
-$ml-text: #1f2937;
-$ml-text-muted: #6b7280;
+$ml-text: #16223a;
+$ml-text-secondary: #33415a;
+$ml-text-muted: #5b6880;
 $ml-text-on-primary: #ffffff;
 
 $ml-danger: #c0392b;
@@ -34,14 +39,25 @@ $ml-radius: 10px;
 $ml-radius-lg: 14px;
 $ml-radius-pill: 999px;
 
-$ml-shadow-sm: 0 1px 2px rgba(15, 24, 41, 0.04);
-$ml-shadow: 0 4px 16px rgba(15, 24, 41, 0.06);
-$ml-shadow-form: 0 1px 3px rgba(15, 24, 41, 0.05);
-$ml-transition: all 0.2s ease;
+$ml-shadow-sm: 0 1px 2px rgba($ml-secondary, 0.05);
+$ml-shadow: 0 6px 20px rgba($ml-secondary, 0.08);
+$ml-shadow-form: 0 1px 3px rgba($ml-secondary, 0.06);
+$ml-shadow-lift: 0 10px 24px rgba($ml-secondary, 0.12);
+$ml-shadow-primary: 0 6px 16px rgba($ml-primary, 0.28);
 
-$ml-tint-1: #e8f1fb;
-$ml-tint-2: #eef0f4;
-$ml-tint-3: #ebe8f8;
+$ml-ease: cubic-bezier(0.2, 0, 0, 1);
+$ml-duration: 0.16s;
+$ml-transition:
+    color $ml-duration $ml-ease,
+    background-color $ml-duration $ml-ease,
+    border-color $ml-duration $ml-ease,
+    box-shadow $ml-duration $ml-ease,
+    transform $ml-duration $ml-ease,
+    opacity $ml-duration $ml-ease;
+
+$ml-tint-1: #e6f3fe;
+$ml-tint-2: #e8ecf3;
+$ml-tint-3: #eeebfb;
 $ml-tint-4: #fdecea;
-$ml-tint-5: #e6f6f8;
+$ml-tint-5: #e0f5f8;
 $ml-tint-6: #e8f5ef;

@@ -7,7 +7,7 @@ env:
 
 tasks:
   up:
-    aliases: [setup, start]
+    aliases: [start]
     desc: "Start the local infrastrucure and application"
     silent: true
     cmds:
@@ -35,7 +35,7 @@ tasks:
       - docker compose logs -f odoo
 
   upgrade:
-    desc: "Upgrade installed modules (all by default); task upgrade MODULES=a,b installs and upgrades those"
+    desc: "Upgrade installed modules; task upgrade MODULES=a,b installs and upgrades those"
     silent: true
     vars:
       MODULES: '{{.MODULES | default "all"}}'

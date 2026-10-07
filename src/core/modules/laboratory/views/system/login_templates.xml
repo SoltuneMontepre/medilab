@@ -20,9 +20,7 @@
             position="before">
             <aside class="ml_auth_brand" aria-label="System introduction">
                 <div class="ml_auth_brand_content">
-                    <span class="ml_auth_brand_icon" aria-hidden="true">
-                        <iconify-icon icon="mdi:flask" />
-                    </span>
+                    <img class="ml_auth_brand_icon" src="/laboratory/static/description/icon.svg" alt="" />
                     <h1>Laboratory management system</h1>
                     <p>Manage samples, testing processes and results on a unified platform.</p>
                 </div>
