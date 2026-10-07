@@ -8,37 +8,29 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  schedule:
-    - cron: "0 3 * * *"
+  pull_request:
+    types: [closed]
   workflow_dispatch:
 
 jobs:
   cleanup:
+    if: github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 5
     permissions:
       packages: write
-      pull-requests: read
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PACKAGE: orgs/${{ github.repository_owner }}/packages/container/medilab-odoo
+      TAG: ${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || '' }}
     steps:
-      - name: Delete images of closed pull requests
+      - name: Delete the pull request image and untagged images
         run: |
           set -euo pipefail
-          cutoff=$(date -u -d '1 day ago' +%Y-%m-%dT%H:%M:%SZ)
           gh api --paginate "$PACKAGE/versions" \
-            --jq '.[] | [.id, .updated_at, (.metadata.container.tags | join(","))] | @tsv' |
-          while IFS=$'\t' read -r id updated tags; do
-            [[ "$updated" < "$cutoff" ]] || continue
-            delete=false
-            if [[ -z "$tags" ]]; then
-              delete=true
-            elif [[ "$tags" =~ ^pr-([0-9]+)$ ]]; then
-              state=$(gh api "repos/${{ github.repository }}/pulls/${BASH_REMATCH[1]}" --jq .state 2>/dev/null || echo missing)
-              [[ "$state" == "open" ]] || delete=true
-            fi
-            if [[ "$delete" == true ]]; then
+            --jq '.[] | [.id, (.metadata.container.tags | join(","))] | @tsv' |
+          while IFS=$'\t' read -r id tags; do
+            if [[ -z "$tags" || ( -n "$TAG" && "$tags" == "$TAG" ) ]]; then
               echo "Deleting version $id (${tags:-untagged})"
               gh api --method DELETE "$PACKAGE/versions/$id"
             fi
