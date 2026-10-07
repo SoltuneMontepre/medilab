@@ -11,6 +11,10 @@ includes:
     taskfile: tools/taskfiles/dev.taskfile.yml
     dir: .
     flatten: true
+  tf:
+    taskfile: tools/taskfiles/tf.taskfile.yml
+    dir: .
+    flatten: true
 
 tasks:
   default:

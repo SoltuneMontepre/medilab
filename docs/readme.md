@@ -25,6 +25,10 @@ Code conventions for agents and the system.
 - [Frontend](conventions/frontend.md)
 - [Styling](conventions/styling.md)
 
+## Infrastructure
+
+- [Secrets](infrastructure/secrets.md): Doppler config and the secrets published to GitHub
+
 ## Glossaries
 
 - [Glossaries](glossaries.md): shared terms in English and Vietnamese

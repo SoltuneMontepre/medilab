@@ -10,6 +10,7 @@ vars:
   DOPPLER_PROJECT: medilab
   DOPPLER_CONFIG: dev
   LOG: tools/scripts/log.sh
+  DOPPLER: tools/scripts/doppler.sh
 
 tasks:
   dev:setup:
@@ -30,35 +31,9 @@ tasks:
     cmds:
       - |
         . {{.LOG}}
+        . {{.DOPPLER}}
         log_step "Doppler"
-        if ! command -v doppler >/dev/null 2>&1; then
-          log_error "doppler not found. Install: winget install Doppler.doppler"
-          exit 1
-        fi
-        if ! doppler whoami >/dev/null 2>&1; then
-          printf 'How would you like to authenticate?\n'
-          log_option 1 "Paste an existing service token"
-          log_option 2 "Authenticate with browser"
-          cr=$(printf '\r')
-          log_prompt "Choose [1/2]:"
-          read -r choice
-          choice="${choice%"$cr"}"
-          case "$choice" in
-            1)
-              log_prompt "Doppler token:"
-              read -r token
-              token="${token%"$cr"}"
-              doppler configure set token "$token"
-              ;;
-            2)
-              doppler login
-              ;;
-            *)
-              log_error "Invalid choice." && exit 1
-              ;;
-          esac
-          doppler whoami || (log_error "Doppler authentication failed." && exit 1)
-        fi
+        doppler_login
         doppler setup --no-interactive --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_CONFIG}}
         log_ok "Doppler ready ({{.DOPPLER_PROJECT}}/{{.DOPPLER_CONFIG}})."
 

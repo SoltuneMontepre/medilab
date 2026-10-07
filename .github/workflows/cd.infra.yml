@@ -1,0 +1,45 @@
+name: cd-infra
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medilab-cd-infra
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "infra/**"
+      - ".github/workflows/cd.infra.yml"
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.15.8
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v4
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform apply
+        run: doppler run --project medilab --config tf --name-transformer tf-var -- terraform apply -auto-approve
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}

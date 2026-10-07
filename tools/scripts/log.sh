@@ -1,4 +1,3 @@
-# Output helpers sourced by the taskfiles. Set NO_COLOR=1 to print without colors.
 if [ -z "${NO_COLOR:-}" ]; then
   C_RESET=$'\033[0m'
   C_BOLD=$'\033[1m'
