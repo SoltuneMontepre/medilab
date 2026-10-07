@@ -9,15 +9,25 @@ How the GitHub Actions workflows in `.github/workflows/` are written.
 - The concurrency group is `medilab-<name>`, with `-${{ github.ref }}` for CI. CI sets `cancel-in-progress: true`; CD sets `false`, so a deployment is never cut off.
 - Every workflow can also be started by hand with `workflow_dispatch`.
 
-## Runs on every change, works only on relevant ones
+## Triggers and change detection
 
-Branch protection requires these jobs, and a workflow that a `paths:` filter keeps from starting never reports them. So:
+The relevant paths of a workflow are its area's folders and the workflow file itself.
 
-- Do not filter the trigger with `paths:`. The workflow starts on every pull request, or every push to `main`.
+### CI: runs on every change, works only on relevant ones
+
+Branch protection requires CI jobs, and a workflow that a `paths:` filter keeps from starting never reports them. So:
+
+- Do not filter the trigger with `paths:`. A CI workflow starts on every pull request.
 - Each job always starts. The first steps detect whether the change is relevant with `dorny/paths-filter`; every later step has `if: <relevant> || github.event_name == 'workflow_dispatch'`.
 - A change that is not relevant finishes green without doing anything. A manual run always does the work.
-- The relevant paths of a workflow are its area's folders and the workflow file itself.
 - When several jobs share the detection, or a rule needs more than path patterns, put it in a `changes` job and have the others depend on it with `needs`. `ci-core` does this to ignore Markdown under `src/core`.
+
+### CD: runs only on relevant changes
+
+CD jobs are not required checks, so a CD workflow filters its trigger instead:
+
+- Trigger on `push` to `main` with `paths:` listing the relevant paths.
+- Steps have no relevance conditions; a CD run always does the work.
 
 ## Jobs
 
