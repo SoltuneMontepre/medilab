@@ -31,6 +31,12 @@ Branch protection requires these jobs, and a workflow that a `paths:` filter kee
 - Name every step with a short action: "Terraform fmt check".
 - Pin actions to a major version tag: `actions/checkout@v7`. SonarQube ignores its rule S7637 (full commit SHA) for `.github/`, set in `sonar-project.properties`.
 
+## Images
+
+- `ci-core` pushes the image it builds to GitHub Container Registry as `ghcr.io/soltunemontepre/medilab-odoo:pr-<number>`, overwritten on each push to the pull request, and later jobs pull it instead of building again.
+- A fork pull request cannot push, so its `build` job only builds and its `test` job rebuilds the image from the build cache.
+- `cd-registry` runs daily and deletes images of closed pull requests and untagged images older than a day.
+
 ## Secrets
 
 - Credentials come from the `secrets` context. Doppler is their source; see [Secrets](../infrastructure/secrets.md).

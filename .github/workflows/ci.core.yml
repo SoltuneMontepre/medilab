@@ -11,6 +11,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  MEDILAB_ODOO_IMAGE: ghcr.io/soltunemontepre/medilab-odoo:pr-${{ github.event.pull_request.number || github.run_id }}
+
 jobs:
   changes:
     runs-on: ubuntu-24.04
@@ -73,6 +76,9 @@ jobs:
     needs: changes
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Check out repository
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
@@ -86,33 +92,34 @@ jobs:
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/setup-buildx-action@v4
 
+      - name: Log in to GitHub Container Registry
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build image
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v7
         with:
           context: .
           file: tools/dockerfiles/prod.dockerfile
-          tags: medilab-odoo:ci
-          outputs: type=docker,dest=${{ runner.temp }}/medilab-odoo.tar
+          tags: ${{ env.MEDILAB_ODOO_IMAGE }}
+          push: ${{ github.event.pull_request.head.repo.fork != true }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
           sbom: false
 
-      - name: Upload image
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v7
-        with:
-          name: medilab-odoo-image
-          path: ${{ runner.temp }}/medilab-odoo.tar
-          retention-days: 1
-
   test:
     needs: [changes, build]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    env:
-      MEDILAB_ODOO_IMAGE: medilab-odoo:ci
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: Checkout
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
@@ -124,16 +131,33 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download image
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
-        uses: actions/download-artifact@v8
+      - name: Log in to GitHub Container Registry
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        uses: docker/login-action@v4
         with:
-          name: medilab-odoo-image
-          path: ${{ runner.temp }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load image
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
-        run: docker load --input "$RUNNER_TEMP/medilab-odoo.tar"
+      - name: Pull image
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        run: docker pull "$MEDILAB_ODOO_IMAGE"
+
+      - name: Set up Docker Build
+        if: github.event.pull_request.head.repo.fork == true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build image from cache
+        if: github.event.pull_request.head.repo.fork == true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: tools/dockerfiles/prod.dockerfile
+          tags: ${{ env.MEDILAB_ODOO_IMAGE }}
+          load: true
+          cache-from: type=gha
+          provenance: false
+          sbom: false
 
       - name: Odoo module tests
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
