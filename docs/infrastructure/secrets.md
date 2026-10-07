@@ -31,9 +31,7 @@ Terraform owns these secrets: a value edited in GitHub is overwritten on the nex
 
 ## Pipelines
 
-- `ci-infra` runs `terraform fmt`, `validate` and `plan` on pull requests that change `infra/`.
-- `cd-infra` runs `terraform apply` when `infra/` changes on `main`.
-- Both read the `dev` config through the `DOPPLER_TOKEN` Actions secret, a Doppler service token with read access to `dev`. Terraform publishes it; the first run that creates it needs the value in the Actions secrets already, so set it by hand once to bootstrap the pipelines.
+- `ci-infra` and `cd-infra`, described in [Pipelines](pipelines.md), read the `dev` config through the `DOPPLER_TOKEN` Actions secret, a Doppler service token with read access to `dev`. Terraform publishes it; the first run that creates it needs the value in the Actions secrets already, so set it by hand once to bootstrap the pipelines.
 
 ## Commands
 

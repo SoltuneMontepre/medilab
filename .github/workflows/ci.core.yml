@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  MEDILAB_ODOO_IMAGE: ghcr.io/soltunemontepre/medilab-odoo:pr-${{ github.event.pull_request.number || github.run_id }}
+  MEDILAB_ODOO_IMAGE: medilab-odoo:ci
 
 jobs:
   changes:
@@ -76,9 +76,6 @@ jobs:
     needs: changes
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Check out repository
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
@@ -92,14 +89,6 @@ jobs:
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/setup-buildx-action@v4
 
-      - name: Log in to GitHub Container Registry
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build image
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v7
@@ -109,7 +98,6 @@ jobs:
           context: .
           file: tools/dockerfiles/prod.dockerfile
           tags: ${{ env.MEDILAB_ODOO_IMAGE }}
-          push: ${{ github.event.pull_request.head.repo.fork != true }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
@@ -119,9 +107,6 @@ jobs:
     needs: [changes, build]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    permissions:
-      contents: read
-      packages: read
     steps:
       - name: Checkout
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
@@ -133,24 +118,12 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log in to GitHub Container Registry
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull image
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
-        run: docker pull "$MEDILAB_ODOO_IMAGE"
-
       - name: Set up Docker Build
-        if: github.event.pull_request.head.repo.fork == true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/setup-buildx-action@v4
 
       - name: Build image from cache
-        if: github.event.pull_request.head.repo.fork == true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false

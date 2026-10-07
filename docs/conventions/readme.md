@@ -10,7 +10,7 @@ Code conventions for agents and the system.
 - [Database](database.md): model naming, fields, relationships, constraints
 - [Testing](testing.md): test layers, locations and the commands that run them
 - [Git](git.md): branch names and pull request titles that CI accepts
-- [Pipelines](pipeline.md): GitHub Actions workflow names, change detection, jobs, secrets
+- [Pipelines](pipeline.md): how GitHub Actions workflows are written: names, change detection, jobs, images, secrets
 - [Taskfiles](taskfiles.md): task layout, shell rules, colored output helpers
 - [Terraform](terraform.md): provider pinning, lock file, deprecations
 - [Frontend](frontend.md): frontend code rules
