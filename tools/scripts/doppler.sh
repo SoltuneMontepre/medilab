@@ -18,14 +18,23 @@ doppler_login() {
       log_prompt "Doppler token:"
       read -r token
       token="${token%"$cr"}"
-      MSYS_NO_PATHCONV=1 doppler configure set token "$token" --scope /
+      doppler configure set token "$token"
       ;;
     2)
-      MSYS_NO_PATHCONV=1 doppler login --scope /
+      doppler login
       ;;
     *)
       log_error "Invalid choice." && exit 1
       ;;
   esac
   doppler whoami >/dev/null 2>&1 || { log_error "Doppler authentication failed."; exit 1; }
+}
+
+doppler_user_token() {
+  token=$(doppler configs tokens create "mcp-$COMPUTERNAME" --project "$1" --config "$2" --plain)
+  if [ -z "$token" ]; then
+    log_error "Could not create a Doppler service token."
+    exit 1
+  fi
+  setx DOPPLER_TOKEN "$token" >/dev/null
 }

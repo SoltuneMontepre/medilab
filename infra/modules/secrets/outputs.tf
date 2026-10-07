@@ -6,6 +6,6 @@ output "github_token" {
 
 output "sonar_token" {
   description = "SonarQube analysis token published as the SONAR_TOKEN Actions secret"
-  value       = data.doppler_secrets.this.map["SONAR_TOKEN"]
+  value       = data.doppler_secrets.this.map["SONARQUBE_TOKEN"]
   sensitive   = true
 }

@@ -3,10 +3,13 @@ version: "3"
 vars:
   TF_DIR: infra
   TF_DOPPLER_PROJECT: medilab
-  TF_DOPPLER_CONFIG: tf
+  TF_DOPPLER_CONFIG: dev
   TF_RUN: "doppler run --project {{.TF_DOPPLER_PROJECT}} --config {{.TF_DOPPLER_CONFIG}} --name-transformer tf-var -- terraform -chdir={{.TF_DIR}}"
   LOG: tools/scripts/log.sh
   DOPPLER: tools/scripts/doppler.sh
+
+env:
+  TF_VAR_doppler_config: "{{.TF_DOPPLER_CONFIG}}"
 
 tasks:
   tf:setup:

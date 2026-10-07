@@ -25,7 +25,7 @@ tasks:
     silent: true
     interactive: true
     status:
-      - '[ -n "$(doppler configure get token --scope / --plain)" ]'
+      - reg query "HKCU\Environment" /v DOPPLER_TOKEN
       - doppler whoami
       - '[ "$(doppler configure get project --plain)" = "{{.DOPPLER_PROJECT}}" ]'
       - '[ "$(doppler configure get config --plain)" = "{{.DOPPLER_CONFIG}}" ]'
@@ -36,7 +36,8 @@ tasks:
         log_step "Doppler"
         doppler_login
         doppler setup --no-interactive --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_CONFIG}}
-        log_ok "Doppler ready."
+        doppler_user_token {{.DOPPLER_PROJECT}} {{.DOPPLER_CONFIG}}
+        log_ok "Doppler ready. Restart your editor so it picks up DOPPLER_TOKEN."
 
   dev:venv:
     desc: "Create .venv (Python {{.PYTHON_VERSION}}) and install requirements-dev.txt"

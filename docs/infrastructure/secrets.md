@@ -2,21 +2,27 @@
 
 Doppler is the only store for credentials. Terraform in `infra/` reads the `tf` config and publishes secrets to the GitHub repository's Actions secrets.
 
+## Local development
+
+`task setup` creates a read-only service token for `medilab` `dev` and stores it in the user environment variable `DOPPLER_TOKEN`, so tools started by the editor, such as the SonarQube MCP server, can run `doppler run` from any directory. Restart the editor afterwards.
+
 ## Doppler config
 
-| Project   | Config | Contains                                       | Read by           |
-| --------- | ------ | ---------------------------------------------- | ----------------- |
-| `medilab` | `tf`   | `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONAR_TOKEN` | every `task tf:*` |
+| Project   | Config | Contains                                           | Read by                                  |
+| --------- | ------ | -------------------------------------------------- | ---------------------------------------- |
+| `medilab` | `dev`  | `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN` | every `task tf:*` on a developer machine |
+| `medilab` | `tf`   | `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN` | the pipelines                            |
 
-- Seed `tf` by hand; Terraform cannot create the config it reads.
-- `DOPPLER_TOKEN` is the token Terraform's Doppler provider authenticates with. It needs read access to `tf`.
+- Seed `dev` and `tf` by hand; Terraform cannot create the configs it reads.
+- `task tf:*` reads `dev`, the config the developer's token can access. Run `task tf:plan TF_DOPPLER_CONFIG=tf` to read `tf` instead.
+- `DOPPLER_TOKEN` is the token Terraform's Doppler provider authenticates with. It needs read access to the config being read.
 - `GITHUB_TOKEN` needs permission to write Actions secrets on the repository.
 
 ## Published to GitHub
 
-| Actions secret | Doppler source |
-| -------------- | -------------- |
-| `SONAR_TOKEN`  | `SONAR_TOKEN`  |
+| Actions secret | Doppler source    |
+| -------------- | ----------------- |
+| `SONAR_TOKEN`  | `SONARQUBE_TOKEN` |
 
 Terraform owns these secrets: a value edited in GitHub is overwritten on the next `task tf:apply`. To change one, edit it in Doppler and apply.
 
