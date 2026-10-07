@@ -27,7 +27,7 @@ tasks:
       MODULES: '{{.MODULES | default "laboratory"}}'
       TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
     cmds:
-      - docker compose up -d postgres
+      - docker compose up -d --wait postgres
       - docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
       - defer: docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
       - |
