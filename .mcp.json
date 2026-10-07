@@ -11,17 +11,26 @@
       ]
     },
     "sonarqube": {
-      "command": "docker",
+      "command": "doppler",
       "args": [
+        "run",
+        "--project",
+        "medilab",
+        "--config",
+        "dev",
+        "--",
+        "docker",
         "run",
         "--init",
         "--pull=always",
         "-i",
         "--rm",
+        "--name",
+        "sonarqube-mcp",
         "-e",
         "SONARQUBE_TOKEN",
         "-e",
-        "soltunemontepre",
+        "SONARQUBE_ORG=soltunemontepre",
         "sonarsource/sonarqube-mcp"
       ]
     }

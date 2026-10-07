@@ -2,6 +2,8 @@
 
 ![MediLab banner](docs/assets/banner.svg)
 
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=SoltuneMontepre_medilab2)
+
 Laboratory Information Management System (LIMS) for testing laboratories, built on Odoo 19.0. Modules:
 
 - [E-commerce](docs/functional/ecommerce_module/overview.md)
