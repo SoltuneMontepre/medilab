@@ -37,13 +37,17 @@ runs:
         ODOO_LINT_ADVISORY: ${{ inputs.advisory == 'true' && '1' || '' }}
       run: |
         set -euo pipefail
+        EXCLUDED_FILE="${{ github.workspace }}/tools/lint/excluded-modules.txt"
+        EXCLUDED_ARGS=()
+        if [ -f "$EXCLUDED_FILE" ]; then
+          EXCLUDED_ARGS=(-v "${EXCLUDED_FILE}:/tmp/excluded-modules.txt:ro" -e EXCLUDED_MODULES_FILE=/tmp/excluded-modules.txt)
+        fi
         docker run --rm -u root \
           -v "${{ github.workspace }}/${ADDONS}:/mnt/extra-addons:ro" \
           -v "${ACTION_PATH}/lint.sh:/tmp/lint.sh:ro" \
-          -v "${{ github.workspace }}/tools/lint/excluded-modules.txt:/tmp/excluded-modules.txt:ro" \
+          "${EXCLUDED_ARGS[@]}" \
           -e ODOO_VERSION \
           -e ODOO_LINT_ADVISORY \
-          -e EXCLUDED_MODULES_FILE=/tmp/excluded-modules.txt \
           --entrypoint bash \
           "${IMAGE}" \
           -c "pip3 install --no-cache-dir --break-system-packages --quiet 'pylint-odoo${PYLINT_ODOO_VERSION}' && bash /tmp/lint.sh"

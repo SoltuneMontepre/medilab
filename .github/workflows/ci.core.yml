@@ -11,7 +11,6 @@ concurrency:
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-
   workflow_dispatch:
 
 jobs:
@@ -33,6 +32,7 @@ jobs:
             core:
               - "src/core/**"
               - "tools/dockerfiles/**"
+              - ".github/actions/odoo-lint/**"
               - ".github/workflows/ci.core.yml"
 
       - name: Ignore Markdown under src/core
@@ -48,6 +48,25 @@ jobs:
             esac
           done
           echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
+
+  lint:
+    needs: changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            src/core/modules
+            .github/actions/odoo-lint
+            tools/lint
+
+      - name: Odoo lint
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: ./.github/actions/odoo-lint
+        with:
+          addons-path: src/core/modules
 
   build:
     needs: changes
