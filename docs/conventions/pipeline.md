@@ -33,10 +33,9 @@ Branch protection requires these jobs, and a workflow that a `paths:` filter kee
 
 ## Images
 
-- `ci-core` pushes the image it builds to GitHub Container Registry as `ghcr.io/soltunemontepre/medilab-odoo:pr-<number>`, overwritten on each push to the pull request, and later jobs pull it instead of building again.
-- `cd-core` publishes the release image `ghcr.io/soltunemontepre/medilab` when `src/core` or the Dockerfile changes on `main`, tagged with the full commit SHA and `latest`. Deploy and roll back by the SHA tag. Release images are a separate package from the pull request images, and no cleanup deletes them.
-- A fork pull request cannot push, so its `build` job only builds and its `test` job rebuilds the image from the build cache.
-- `cd-cleanup` runs when a pull request is closed, merged or not, and can be run by hand. It deletes the images, artifacts and build caches of every pull request that is no longer open, and untagged images left by overwritten tags. GitHub does not delete the last tagged version of a package, so when no open pull request has an image the whole `medilab-odoo` package is deleted; the next pull request build creates it again.
+- `build` in `ci-core` builds the image into the GitHub Actions cache (`mode=max`) and does not push it. `test` builds it again from that cache and loads it locally as `medilab-odoo:ci`, so no pull request image is published to a registry.
+- `cd-core` publishes the release image `ghcr.io/soltunemontepre/medilab` when `src/core` or the Dockerfile changes on `main`, tagged with the full commit SHA and `latest`. Deploy and roll back by the SHA tag.
+- `cd-cleanup` runs when a pull request is closed, merged or not, and can be run by hand. It deletes the artifacts and build caches of every pull request that is no longer open.
 - Artifacts are kept for one day, and `docker/build-push-action` does not upload build records (`DOCKER_BUILD_RECORD_UPLOAD: false`).
 
 ## Secrets

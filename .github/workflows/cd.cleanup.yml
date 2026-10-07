@@ -19,12 +19,10 @@ jobs:
     timeout-minutes: 5
     permissions:
       actions: write
-      packages: write
       pull-requests: read
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
-      PACKAGE: orgs/${{ github.repository_owner }}/packages/container/medilab-odoo
     steps:
       - name: Find open pull requests
         id: open
@@ -35,37 +33,7 @@ jobs:
             echo "branches=$(gh pr list --state open --limit 1000 --json headRefName --jq '[.[].headRefName] | join(" ")')"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Delete images of closed pull requests
-        env:
-          OPEN: ${{ steps.open.outputs.numbers }}
-        run: |
-          set -euo pipefail
-          if ! versions=$(gh api --paginate "$PACKAGE/versions" --jq '.[] | [.id, (.metadata.container.tags | join(","))] | @tsv' 2>/dev/null); then
-            echo "No medilab-odoo package, nothing to delete."
-            exit 0
-          fi
-          stale=()
-          kept=0
-          while IFS=$'\t' read -r id tags; do
-            [[ -n "$id" ]] || continue
-            if [[ "$tags" =~ ^pr-([0-9]+)$ && " $OPEN " == *" ${BASH_REMATCH[1]} "* ]]; then
-              kept=$((kept + 1))
-            else
-              stale+=("$id:${tags:-untagged}")
-            fi
-          done <<< "$versions"
-          if [[ "$kept" -eq 0 ]]; then
-            echo "No open pull request has an image; deleting the package."
-            gh api --method DELETE "$PACKAGE"
-            exit 0
-          fi
-          for entry in "${stale[@]}"; do
-            echo "Deleting image version ${entry%%:*} (${entry#*:})"
-            gh api --method DELETE "$PACKAGE/versions/${entry%%:*}"
-          done
-
       - name: Delete artifacts of closed pull requests
-        if: ${{ !cancelled() }}
         env:
           OPEN: ${{ steps.open.outputs.branches }}
         run: |
