@@ -11,11 +11,6 @@ on:
   pull_request:
     types: [closed]
   workflow_dispatch:
-    inputs:
-      pull_request:
-        description: "Pull request number to clean up; leave empty to delete only untagged images"
-        required: false
-        type: string
 
 jobs:
   cleanup:
@@ -30,47 +25,70 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
       PACKAGE: orgs/${{ github.repository_owner }}/packages/container/medilab-odoo
-      PR: ${{ github.event.pull_request.number || inputs.pull_request }}
     steps:
-      - name: Find the pull request branch
-        id: pr
-        if: env.PR != ''
-        run: echo "branch=$(gh api "repos/$GH_REPO/pulls/$PR" --jq .head.ref)" >> "$GITHUB_OUTPUT"
+      - name: Find open pull requests
+        id: open
+        run: |
+          set -euo pipefail
+          {
+            echo "numbers=$(gh pr list --state open --limit 1000 --json number --jq '[.[].number] | join(" ")')"
+            echo "branches=$(gh pr list --state open --limit 1000 --json headRefName --jq '[.[].headRefName] | join(" ")')"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Delete images
-        if: ${{ !cancelled() }}
+      - name: Delete images of closed pull requests
+        env:
+          OPEN: ${{ steps.open.outputs.numbers }}
         run: |
           set -euo pipefail
           if ! versions=$(gh api --paginate "$PACKAGE/versions" --jq '.[] | [.id, (.metadata.container.tags | join(","))] | @tsv' 2>/dev/null); then
             echo "No medilab-odoo package, nothing to delete."
             exit 0
           fi
-          tagged=$(awk -F'\t' '$2 != ""' <<< "$versions" | wc -l)
-          if [[ -n "$PR" && "$tagged" -eq 1 ]] && awk -F'\t' -v t="pr-$PR" '$2 == t' <<< "$versions" | grep -q .; then
-            echo "pr-$PR is the only tagged image; deleting the package."
+          stale=()
+          kept=0
+          while IFS=$'\t' read -r id tags; do
+            [[ -n "$id" ]] || continue
+            if [[ "$tags" =~ ^pr-([0-9]+)$ && " $OPEN " == *" ${BASH_REMATCH[1]} "* ]]; then
+              kept=$((kept + 1))
+            else
+              stale+=("$id:${tags:-untagged}")
+            fi
+          done <<< "$versions"
+          if [[ "$kept" -eq 0 ]]; then
+            echo "No open pull request has an image; deleting the package."
             gh api --method DELETE "$PACKAGE"
             exit 0
           fi
-          while IFS=$'\t' read -r id tags; do
-            if [[ -z "$tags" || ( -n "$PR" && "$tags" == "pr-$PR" ) ]]; then
-              echo "Deleting image version $id (${tags:-untagged})"
-              gh api --method DELETE "$PACKAGE/versions/$id"
-            fi
-          done <<< "$versions"
+          for entry in "${stale[@]}"; do
+            echo "Deleting image version ${entry%%:*} (${entry#*:})"
+            gh api --method DELETE "$PACKAGE/versions/${entry%%:*}"
+          done
 
-      - name: Delete artifacts
-        if: ${{ !cancelled() && steps.pr.outputs.branch != '' }}
+      - name: Delete artifacts of closed pull requests
+        if: ${{ !cancelled() }}
         env:
-          BRANCH: ${{ steps.pr.outputs.branch }}
+          OPEN: ${{ steps.open.outputs.branches }}
         run: |
           set -euo pipefail
           gh api --paginate "repos/$GH_REPO/actions/artifacts" \
-            --jq ".artifacts[] | select(.workflow_run.head_branch == \"$BRANCH\") | [.id, .name] | @tsv" |
-          while IFS=$'\t' read -r id name; do
-            echo "Deleting artifact $id ($name)"
+            --jq '.artifacts[] | select(.workflow_run.head_branch != "main") | [.id, .name, .workflow_run.head_branch] | @tsv' |
+          while IFS=$'\t' read -r id name branch; do
+            [[ " $OPEN " == *" $branch "* ]] && continue
+            echo "Deleting artifact $id ($name from $branch)"
             gh api --method DELETE "repos/$GH_REPO/actions/artifacts/$id"
           done
 
-      - name: Delete caches
-        if: ${{ !cancelled() && env.PR != '' }}
-        run: gh cache delete --all --ref "refs/pull/$PR/merge" --succeed-on-no-caches
+      - name: Delete caches of closed pull requests
+        if: ${{ !cancelled() }}
+        env:
+          OPEN: ${{ steps.open.outputs.numbers }}
+        run: |
+          set -euo pipefail
+          gh cache list --limit 1000 --json ref --jq '[.[].ref | select(startswith("refs/pull/"))] | unique | .[]' |
+          while read -r ref; do
+            number=${ref#refs/pull/}
+            number=${number%%/*}
+            [[ " $OPEN " == *" $number "* ]] && continue
+            echo "Deleting caches of $ref"
+            gh cache delete --all --ref "$ref" --succeed-on-no-caches
+          done
