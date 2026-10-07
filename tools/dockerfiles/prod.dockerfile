@@ -23,6 +23,5 @@ RUN python3 /tmp/fix_mail_manifest_rst.py && rm /tmp/fix_mail_manifest_rst.py
 
 COPY ./src/modules /mnt/extra-addons
 COPY ./src/config /etc/odoo
-COPY ./src/templates /mnt/templates
 
 USER odoo
