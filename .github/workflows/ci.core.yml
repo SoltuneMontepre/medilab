@@ -2,7 +2,6 @@ name: ci-core
 
 permissions:
   contents: read
-  pull-requests: read
 
 concurrency:
   group: medilab-ci-core-${{ github.ref }}
@@ -16,6 +15,9 @@ jobs:
   changes:
     runs-on: ubuntu-24.04
     timeout-minutes: 2
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       relevant: ${{ steps.result.outputs.relevant }}
     steps:
@@ -115,7 +117,3 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v8.3.0
         env:
           SONAR_HOST_URL: https://sonarcloud.io
-        with:
-          args: >
-            -Dsonar.organization=soltunemontepre
-            -Dsonar.projectKey=SoltuneMontepre_medilab2

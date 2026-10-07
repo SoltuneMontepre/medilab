@@ -94,7 +94,7 @@
         gap: 0.4rem;
 
         &::before {
-            font-family: "FontAwesome";
+            font-family: "FontAwesome", sans-serif;
             content: "\f067";
             font-size: 0.75rem;
         }

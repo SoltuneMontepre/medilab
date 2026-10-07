@@ -18,14 +18,16 @@
         }
 
         var collections = window.__medilabIconifyCollections || [];
-        for (var i = 0; i < collections.length; i++) {
-            IconifyIcon.addCollection(collections[i]);
+        for (var collection of collections) {
+            IconifyIcon.addCollection(collection);
         }
     }
 
     if (customElements.get("iconify-icon")) {
         boot();
     } else if (customElements.whenDefined) {
-        customElements.whenDefined("iconify-icon").then(boot);
+        customElements.whenDefined("iconify-icon").then(boot).catch(function (error) {
+            console.error("[theme] iconify-icon failed to initialise", error);
+        });
     }
 })();

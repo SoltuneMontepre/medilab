@@ -113,7 +113,7 @@ fi
 echo
 echo "==> Summary"
 echo "    pylint-odoo : $odoo_count issue(s)$([[ -n "${ODOO_LINT_ADVISORY:-}" ]] && echo " (advisory)")"
-echo "    pylint      : $core_count error(s)"
+echo "    pylint      : $core_count issue(s)"
 echo
 
 if [[ "$status" -ne 0 ]]; then

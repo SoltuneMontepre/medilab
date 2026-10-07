@@ -23,10 +23,10 @@ Branch protection requires these jobs, and a workflow that a `paths:` filter kee
 ## Jobs
 
 - Run on `ubuntu-24.04` and set `timeout-minutes`.
-- Set the least `permissions`. `contents: read` is the default; add `pull-requests: read` where change detection reads pull request files.
+- Set the least `permissions`. `contents: read` is the workflow default; a job that needs more declares it itself, such as `pull-requests: read` on the job whose change detection reads pull request files.
 - Use `defaults.run.working-directory` for a job that works in one folder, such as `infra`.
 - Name every step with a short action: "Terraform fmt check".
-- Pin actions to a major version tag: `actions/checkout@v7`.
+- Pin actions to a major version tag: `actions/checkout@v7`. SonarQube ignores its rule S7637 (full commit SHA) for `.github/`, set in `sonar-project.properties`.
 
 ## Secrets
 
@@ -36,5 +36,6 @@ Branch protection requires these jobs, and a workflow that a `paths:` filter kee
 ## Related documents
 
 - [Git](git.md)
+- [Creating a pull request](../workflows/creating-pr.md)
 - [Taskfiles](taskfiles.md)
 - [Secrets](../infrastructure/secrets.md)

@@ -1,4 +1,4 @@
-if [ -z "${NO_COLOR:-}" ]; then
+if [[ -z "${NO_COLOR:-}" ]]; then
   C_RESET=$'\033[0m'
   C_BOLD=$'\033[1m'
   C_DIM=$'\033[2m'
@@ -13,28 +13,35 @@ fi
 
 log_step() {
   printf '\n%s==>%s %s%s%s\n' "$C_CYAN" "$C_RESET" "$C_BOLD" "$*" "$C_RESET"
+  return 0
 }
 
 log_info() {
   printf '    %s%s%s\n' "$C_DIM" "$*" "$C_RESET"
+  return 0
 }
 
 log_ok() {
   printf '%s[COMPLETED]%s %s\n' "$C_GREEN" "$C_RESET" "$*"
+  return 0
 }
 
 log_error() {
   printf '%s[ERROR]%s %s\n' "$C_RED" "$C_RESET" "$*" >&2
+  return 0
 }
 
 log_option() {
   printf '    %s%s)%s %s\n' "$C_CYAN" "$1" "$C_RESET" "$2"
+  return 0
 }
 
 log_prompt() {
   printf '%s?%s %s ' "$C_YELLOW" "$C_RESET" "$*"
+  return 0
 }
 
 log_link() {
   printf '    %-12s %s%s%s\n' "$1" "$C_LINK" "$2" "$C_RESET"
+  return 0
 }

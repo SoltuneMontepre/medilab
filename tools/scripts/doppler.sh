@@ -32,7 +32,7 @@ doppler_login() {
 
 doppler_user_token() {
   token=$(doppler configs tokens create "mcp-$COMPUTERNAME" --project "$1" --config "$2" --plain)
-  if [ -z "$token" ]; then
+  if [[ -z "$token" ]]; then
     log_error "Could not create a Doppler service token."
     exit 1
   fi
