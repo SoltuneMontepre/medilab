@@ -10,7 +10,7 @@ tools/
 ├── taskfiles/
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint
-│   └── tf.taskfile.yml         Terraform with secrets from Doppler: setup, init, plan, apply, output
+│   └── tf.taskfile.yml         Terraform: setup, init, plan, apply, output
 └── scripts/
     ├── log.sh                  output helpers sourced by the tasks
     └── doppler.sh              Doppler login helper sourced by the tasks

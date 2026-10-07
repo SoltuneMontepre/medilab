@@ -1,9 +1,3 @@
-variable "doppler_token" {
-  description = "Doppler token that can read the tf config"
-  type        = string
-  sensitive   = true
-}
-
 variable "doppler_project" {
   description = "The Doppler project holding the secrets Terraform publishes"
   type        = string
@@ -13,7 +7,7 @@ variable "doppler_project" {
 variable "doppler_config" {
   description = "The Doppler config Terraform reads its secrets from"
   type        = string
-  default     = "tf"
+  default     = "dev"
 }
 
 variable "github_owner" {

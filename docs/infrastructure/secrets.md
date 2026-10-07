@@ -1,6 +1,6 @@
 # Secrets
 
-Doppler is the only store for credentials. Terraform in `infra/` reads the `tf` config and publishes secrets to the GitHub repository's Actions secrets.
+Doppler is the only store for credentials. Terraform in `infra/` reads the `dev` config and publishes secrets to the GitHub repository's Actions secrets.
 
 ## Local development
 
@@ -8,14 +8,13 @@ Doppler is the only store for credentials. Terraform in `infra/` reads the `tf` 
 
 ## Doppler config
 
-| Project   | Config | Contains                                                              | Read by                                  |
-| --------- | ------ | --------------------------------------------------------------------- | ---------------------------------------- |
-| `medilab` | `dev`  | `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN` | every `task tf:*` on a developer machine |
-| `medilab` | `tf`   | `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN` | the pipelines                            |
+| Project   | Config | Contains                                                              | Read by                             |
+| --------- | ------ | --------------------------------------------------------------------- | ----------------------------------- |
+| `medilab` | `dev`  | `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN` | every `task tf:*` and the pipelines |
 
-- Seed `dev` and `tf` by hand; Terraform cannot create the configs it reads.
-- `task tf:*` reads `dev`, the config the developer's token can access. Run `task tf:plan TF_DOPPLER_CONFIG=tf` to read `tf` instead.
-- `DOPPLER_TOKEN` is the token Terraform's Doppler provider authenticates with. It needs read access to the config being read.
+- Seed `dev` by hand; Terraform cannot create the config it reads.
+- Set `TF_VAR_doppler_config=<config>` to read another config.
+- `DOPPLER_TOKEN` is read from the environment by Terraform's Doppler provider: the user environment variable on a developer machine, the Actions secret in the pipelines. It needs read access to the config being read.
 - `GITHUB_TOKEN` needs permission to write Actions secrets on the repository.
 - `TERRAFORM_TOKEN` is an HCP Terraform team token with write access to the workspace.
 - Every token has the least access it needs, an expiry, and is entered through a prompt or a pipe, never printed or pasted into chat.
@@ -34,11 +33,11 @@ Terraform owns these secrets: a value edited in GitHub is overwritten on the nex
 
 - `ci-infra` runs `terraform fmt`, `validate` and `plan` on pull requests that change `infra/`.
 - `cd-infra` runs `terraform apply` when `infra/` changes on `main`.
-- Both read the `tf` config through the `DOPPLER_TOKEN` Actions secret, a Doppler service token with read access to `tf`. Terraform publishes it; the first run that creates it needs the value in the Actions secrets already, so set it by hand once to bootstrap the pipelines.
+- Both read the `dev` config through the `DOPPLER_TOKEN` Actions secret, a Doppler service token with read access to `dev`. Terraform publishes it; the first run that creates it needs the value in the Actions secrets already, so set it by hand once to bootstrap the pipelines.
 
 ## Commands
 
-See [Taskfiles](../conventions/taskfiles.md): `task tf:setup` once, then `task tf:plan` and `task tf:apply`.
+See [Taskfiles](../conventions/taskfiles.md): `task setup` once to store `DOPPLER_TOKEN`, `task tf:setup` once, then `task tf:plan` and `task tf:apply`.
 
 ## State
 

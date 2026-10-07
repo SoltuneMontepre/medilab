@@ -1,6 +1,4 @@
-provider "doppler" {
-  doppler_token = var.doppler_token
-}
+provider "doppler" {}
 
 provider "github" {
   token = module.secrets.github_token

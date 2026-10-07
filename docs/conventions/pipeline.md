@@ -31,7 +31,7 @@ Branch protection requires these jobs, and a workflow that a `paths:` filter kee
 ## Secrets
 
 - Credentials come from the `secrets` context. Doppler is their source; see [Secrets](../infrastructure/secrets.md).
-- A job that needs Doppler installs the CLI and passes `DOPPLER_TOKEN` to the steps that use it.
+- Secrets are created via Terraform in Github Actions. If an action needs a secret, add it to the workflow's `env:` and use it from there. Do not read secrets from files or defaults.
 
 ## Related documents
 
