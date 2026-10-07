@@ -9,7 +9,7 @@
 
 ## Menus
 
-- Each functional area is its own app on the home screen. A module can own several apps.
+- Each functional area is its own app in the app launcher. A module can own several apps.
 - An app is added only when it has at least one working menu item; Odoo hides root menus that have no action.
 - Menu names reuse the glossary names. A new app or item with a domain term adds that term to the glossaries.
 

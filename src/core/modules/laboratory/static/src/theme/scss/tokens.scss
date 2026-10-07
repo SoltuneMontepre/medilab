@@ -1,0 +1,63 @@
+$ml-primary: #0a4d8c;
+$ml-primary-dark: #083d70;
+$ml-primary-mid: #0e5797;
+$ml-primary-light: #e6eff8;
+
+$ml-secondary: #13294b;
+$ml-secondary-light: #e8ecf3;
+
+$ml-accent: #0083ef;
+$ml-accent-light: #5ab0f5;
+$ml-accent-dark: darken($ml-accent, 8%);
+$ml-accent-soft: #e6f3fe;
+
+$ml-bg: #f2f5f9;
+$ml-surface: #ffffff;
+$ml-border: #dce3ec;
+$ml-border-strong: #c5d0de;
+
+$ml-text: #16223a;
+$ml-text-secondary: #33415a;
+$ml-text-muted: #5b6880;
+$ml-text-on-primary: #ffffff;
+
+$ml-danger: #c0392b;
+$ml-danger-soft: #fdecea;
+$ml-success: #0b6e4f;
+$ml-success-soft: #e6f4ef;
+$ml-warning: #d97706;
+$ml-warning-soft: #fff8e8;
+$ml-favorite: #c9a227;
+
+$ml-navbar-height: 52px;
+
+$ml-form-statusbar-offset: 4.5rem;
+$ml-form-field-scroll-margin: 5.5rem;
+
+$ml-radius-sm: 6px;
+$ml-radius: 10px;
+$ml-radius-lg: 14px;
+$ml-radius-pill: 999px;
+
+$ml-shadow-sm: 0 1px 2px rgba($ml-secondary, 0.05);
+$ml-shadow: 0 6px 20px rgba($ml-secondary, 0.08);
+$ml-shadow-form: 0 1px 3px rgba($ml-secondary, 0.06);
+$ml-shadow-lift: 0 10px 24px rgba($ml-secondary, 0.12);
+$ml-shadow-primary: 0 6px 16px rgba($ml-primary, 0.28);
+
+$ml-ease: cubic-bezier(0.2, 0, 0, 1);
+$ml-duration: 0.16s;
+$ml-transition:
+    color $ml-duration $ml-ease,
+    background-color $ml-duration $ml-ease,
+    border-color $ml-duration $ml-ease,
+    box-shadow $ml-duration $ml-ease,
+    transform $ml-duration $ml-ease,
+    opacity $ml-duration $ml-ease;
+
+$ml-tint-1: #e6f3fe;
+$ml-tint-2: #e8ecf3;
+$ml-tint-3: #eeebfb;
+$ml-tint-4: #fdecea;
+$ml-tint-5: #e0f5f8;
+$ml-tint-6: #e8f5ef;

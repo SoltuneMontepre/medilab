@@ -1,0 +1,53 @@
+name: "Odoo lint"
+description: "Run pylint-odoo and core pylint against Odoo addons inside the Odoo image, where the ORM is importable."
+
+inputs:
+  image:
+    description: "Odoo image to lint inside. Must have the Odoo runtime importable."
+    required: false
+    default: "docker.io/library/odoo:19.0"
+  addons-path:
+    description: "Host path containing the Odoo addons to lint (one directory per module)."
+    required: false
+    default: "src/modules"
+  odoo-version:
+    description: "Version passed to pylint-odoo's --valid-odoo-versions. Keep in sync with the base image."
+    required: false
+    default: "19.0"
+  pylint-odoo-version:
+    description: "pylint-odoo version constraint."
+    required: false
+    default: ">=10.0.2"
+  advisory:
+    description: "When true, pylint-odoo (pass 1, conventions) reports but does not fail the build. Core pylint (pass 2, real errors) always fails the build."
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Run pylint-odoo + core pylint
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+        ADDONS: ${{ inputs.addons-path }}
+        ODOO_VERSION: ${{ inputs.odoo-version }}
+        PYLINT_ODOO_VERSION: ${{ inputs.pylint-odoo-version }}
+        ACTION_PATH: ${{ github.action_path }}
+        ODOO_LINT_ADVISORY: ${{ inputs.advisory == 'true' && '1' || '' }}
+      run: |
+        set -euo pipefail
+        EXCLUDED_FILE="${{ github.workspace }}/tools/lint/excluded-modules.txt"
+        EXCLUDED_ARGS=()
+        if [ -f "$EXCLUDED_FILE" ]; then
+          EXCLUDED_ARGS=(-v "${EXCLUDED_FILE}:/tmp/excluded-modules.txt:ro" -e EXCLUDED_MODULES_FILE=/tmp/excluded-modules.txt)
+        fi
+        docker run --rm -u root \
+          -v "${{ github.workspace }}/${ADDONS}:/mnt/extra-addons:ro" \
+          -v "${ACTION_PATH}/lint.sh:/tmp/lint.sh:ro" \
+          "${EXCLUDED_ARGS[@]}" \
+          -e ODOO_VERSION \
+          -e ODOO_LINT_ADVISORY \
+          --entrypoint bash \
+          "${IMAGE}" \
+          -c "pip3 install --no-cache-dir --break-system-packages --quiet 'pylint-odoo${PYLINT_ODOO_VERSION}' && bash /tmp/lint.sh"

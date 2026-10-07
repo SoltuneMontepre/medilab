@@ -1,0 +1,42 @@
+version: "3"
+
+vars:
+  TF_DIR: infra
+  TF_RUN: "terraform -chdir={{.TF_DIR}}"
+  LOG: tools/scripts/log.sh
+
+tasks:
+  tf:setup:
+    desc: "Initialize Terraform"
+    silent: true
+    interactive: true
+    status:
+      - test -d {{.TF_DIR}}/.terraform
+    cmds:
+      - |
+        set -e
+        . {{.LOG}}
+        log_step "Terraform"
+        {{.TF_RUN}} init
+        log_ok "Terraform initialized."
+
+  tf:init:
+    desc: "Initialize Terraform after changing providers or modules"
+    cmds:
+      - "{{.TF_RUN}} init"
+
+  tf:plan:
+    desc: "Preview Terraform changes"
+    cmds:
+      - "{{.TF_RUN}} plan"
+
+  tf:apply:
+    desc: "Apply Terraform changes"
+    interactive: true
+    cmds:
+      - "{{.TF_RUN}} apply"
+
+  tf:output:
+    desc: "Print the Terraform outputs"
+    cmds:
+      - "{{.TF_RUN}} output"

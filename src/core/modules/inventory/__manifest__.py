@@ -5,6 +5,6 @@
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
-    "depends": ["analysis"],
+    "depends": ["laboratory"],
     "application": True,
 }
