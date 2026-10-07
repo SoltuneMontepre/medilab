@@ -23,6 +23,7 @@ How tests are written, where they live and how they run.
 
 ## Pipeline
 
+- The `build` job exports the production image as an artifact; the `test` job loads it and sets `MEDILAB_ODOO_IMAGE`, so the tests run on the image that ships, with its Python requirements. Locally, `task test:core` uses the stock Odoo image unless `MEDILAB_ODOO_IMAGE` is set.
 - The `test` job of `ci-core` runs after `build`, runs `task test:core` and uploads the coverage report. The `sonarqube` job runs after it, downloads the report and fails the pipeline when the quality gate fails, so SonarQube Cloud measures coverage of the Odoo modules.
 - Static assets, the applications and the tests themselves are excluded from SonarQube coverage in `sonar-project.properties`, because no coverage report exists for them.
 - Browser tests do not run in the pipeline.

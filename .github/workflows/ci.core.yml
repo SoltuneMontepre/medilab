@@ -72,7 +72,7 @@ jobs:
   build:
     needs: changes
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
@@ -92,16 +92,27 @@ jobs:
         with:
           context: .
           file: tools/dockerfiles/prod.dockerfile
-          push: false
+          tags: medilab-odoo:ci
+          outputs: type=docker,dest=${{ runner.temp }}/medilab-odoo.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
           sbom: false
 
+      - name: Upload image
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v7
+        with:
+          name: medilab-odoo-image
+          path: ${{ runner.temp }}/medilab-odoo.tar
+          retention-days: 1
+
   test:
     needs: [changes, build]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      MEDILAB_ODOO_IMAGE: medilab-odoo:ci
     steps:
       - name: Checkout
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
@@ -112,6 +123,17 @@ jobs:
         uses: arduino/setup-task@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download image
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/download-artifact@v8
+        with:
+          name: medilab-odoo-image
+          path: ${{ runner.temp }}
+
+      - name: Load image
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: docker load --input "$RUNNER_TEMP/medilab-odoo.tar"
 
       - name: Odoo module tests
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
