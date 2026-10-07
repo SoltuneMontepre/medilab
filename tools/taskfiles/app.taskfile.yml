@@ -5,6 +5,9 @@ set: [pipefail]
 env:
   COMPOSE_FILE: tools/infrastructure/docker-compose.yml
 
+vars:
+  LOG: tools/scripts/log.sh
+
 tasks:
   up:
     aliases: [start]
@@ -13,9 +16,11 @@ tasks:
     cmds:
       - docker compose up -d
       - |
-        echo -e "\n[COMPLETED] Local infrastructure is started:"
-        echo "  Odoo        http://localhost:8069"
-        echo "  CloudBeaver http://localhost:8978"
+        . {{.LOG}}
+        printf '\n'
+        log_ok "Local infrastructure is started:"
+        log_link "Odoo" "http://localhost:8069"
+        log_link "CloudBeaver" "http://localhost:8978"
 
   stop:
     desc: "Stop the running container."
@@ -49,7 +54,7 @@ tasks:
           docker compose run --rm -T odoo --stop-after-init -i "{{.MODULES | replace " " ","}}" -u "{{.MODULES | replace " " ","}}"
         fi
       - docker compose up -d odoo
-      - echo "[COMPLETED] Modules upgraded ({{.MODULES}})."
+      - . {{.LOG}} && log_ok "Modules upgraded ({{.MODULES}})."
 
   reset:
     aliases: [wipe]

@@ -9,6 +9,7 @@ vars:
   LINT_TARGET: src/core/modules
   DOPPLER_PROJECT: medilab
   DOPPLER_CONFIG: dev
+  LOG: tools/scripts/log.sh
 
 tasks:
   dev:setup:
@@ -28,21 +29,23 @@ tasks:
       - '[ "$(doppler configure get config --plain)" = "{{.DOPPLER_CONFIG}}" ]'
     cmds:
       - |
+        . {{.LOG}}
+        log_step "Doppler"
         if ! command -v doppler >/dev/null 2>&1; then
-          echo "[ERROR] doppler not found. Install: winget install Doppler.doppler" >&2
+          log_error "doppler not found. Install: winget install Doppler.doppler"
           exit 1
         fi
         if ! doppler whoami >/dev/null 2>&1; then
-          echo "How would you like to authenticate with Doppler?"
-          echo "  1) Paste an existing service token"
-          echo "  2) Run 'doppler login' (browser)"
+          printf 'How would you like to authenticate?\n'
+          log_option 1 "Paste an existing service token"
+          log_option 2 "Authenticate with browser"
           cr=$(printf '\r')
-          printf "Choose [1/2]: "
+          log_prompt "Choose [1/2]:"
           read -r choice
           choice="${choice%"$cr"}"
           case "$choice" in
             1)
-              printf "Doppler token: "
+              log_prompt "Doppler token:"
               read -r token
               token="${token%"$cr"}"
               doppler configure set token "$token"
@@ -51,13 +54,13 @@ tasks:
               doppler login
               ;;
             *)
-              echo "[ERROR] Invalid choice." >&2 && exit 1
+              log_error "Invalid choice." && exit 1
               ;;
           esac
-          doppler whoami || (echo "[ERROR] Doppler authentication failed." >&2 && exit 1)
+          doppler whoami || (log_error "Doppler authentication failed." && exit 1)
         fi
         doppler setup --no-interactive --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_CONFIG}}
-        echo "[COMPLETED] Doppler ready ({{.DOPPLER_PROJECT}}/{{.DOPPLER_CONFIG}})."
+        log_ok "Doppler ready ({{.DOPPLER_PROJECT}}/{{.DOPPLER_CONFIG}})."
 
   dev:venv:
     desc: "Create .venv (Python {{.PYTHON_VERSION}}) and install requirements-dev.txt"
@@ -65,13 +68,15 @@ tasks:
     cmds:
       - |
         set -e
+        . {{.LOG}}
+        log_step "Python environment"
         if ! command -v uv >/dev/null 2>&1; then
-          echo "[ERROR] uv not found. Install: winget install astral-sh.uv" >&2
+          log_error "uv not found. Install: winget install astral-sh.uv"
           exit 1
         fi
         uv venv --python {{.PYTHON_VERSION}} {{.VENV_DIR}}
         uv pip install --python {{.VENV_DIR}} -r src/core/requirements-dev.txt
-        echo "[COMPLETED] .venv ready. Select it as the interpreter in your editor."
+        log_ok ".venv ready. Select it as the interpreter in your editor."
 
   dev:odoo-source:
     desc: "Fetch the pinned Odoo 19 source (no Docker) so the editor and pyright can resolve odoo imports"
@@ -79,13 +84,17 @@ tasks:
     cmds:
       - |
         set -e
+        . {{.LOG}}
         DIR="{{.ODOO_SOURCE_DIR}}"
         REV="{{.ODOO_SOURCE_REVISION}}"
+        log_step "Odoo source"
         if [ ! -d "$DIR" ]; then
-          git clone --depth 1 --filter=blob:none --sparse --branch 19.0 https://github.com/odoo/odoo.git "$DIR"
-          git -C "$DIR" fetch --depth 1 origin "$REV"
-          git -C "$DIR" checkout --detach "$REV"
+          log_info "Downloading Odoo 19.0 at ${REV:0:7}. This takes a minute."
+          git clone --quiet --depth 1 --filter=blob:none --sparse --branch 19.0 https://github.com/odoo/odoo.git "$DIR"
+          git -C "$DIR" fetch --quiet --depth 1 origin "$REV"
+          git -C "$DIR" -c advice.detachedHead=false checkout --quiet --detach "$REV"
         fi
+        log_info "Checking out odoo and addons: {{.ODOO_ADDONS | join ", "}}"
         git -C "$DIR" sparse-checkout set odoo {{range .ODOO_ADDONS}}addons/{{.}} {{end}}
         # pyright resolves odoo.addons.<name> only inside odoo/addons, so copy the addons there.
         for ADDON in {{range .ODOO_ADDONS}}{{.}} {{end}}; do
@@ -93,10 +102,10 @@ tasks:
           cp -r "$DIR/addons/$ADDON" "$DIR/odoo/addons/$ADDON"
         done
         if [ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ] || [ ! -f "$DIR/odoo/fields/__init__.py" ]; then
-          echo "[ERROR] $DIR is not at $REV; delete it and run again." >&2
+          log_error "$DIR is not at $REV; delete it and run again."
           exit 1
         fi
-        echo "[COMPLETED] Odoo source ready in $DIR."
+        log_ok "Odoo source ready in $DIR."
 
   typecheck:
     desc: "Type check the addons with pyright"

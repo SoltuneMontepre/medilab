@@ -25,6 +25,8 @@ Documentation index: [docs/readme.md](docs/readme.md).
 task setup
 ```
 
+`task setup` creates `.venv`, fetches the Odoo source, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
+
 Open http://localhost:8069 and create the `medilab` database. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=laboratory`.
 
 ## Services

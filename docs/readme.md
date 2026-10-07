@@ -21,6 +21,7 @@ Code conventions for agents and the system.
 - [Module structure](conventions/module_structure.md): models and views grouped by concern, constants
 - [Python](conventions/python.md): tooling, file structure, imports, naming, constants, code rules
 - [Database](conventions/database.md): model naming, fields, relationships, constraints
+- [Taskfiles](conventions/taskfiles.md): task layout, shell rules, colored output helpers
 - [Frontend](conventions/frontend.md)
 - [Styling](conventions/styling.md)
 
