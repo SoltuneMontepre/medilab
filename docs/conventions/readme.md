@@ -11,5 +11,6 @@ Code conventions for agents and the system.
 - [Git](git.md): branch names and pull request titles that CI accepts
 - [Pipelines](pipeline.md): GitHub Actions workflow names, change detection, jobs, secrets
 - [Taskfiles](taskfiles.md): task layout, shell rules, colored output helpers
+- [Terraform](terraform.md): provider pinning, lock file, deprecations
 - [Frontend](frontend.md): frontend code rules
 - [Styling](styling.md): styling rules

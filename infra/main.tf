@@ -11,6 +11,8 @@ module "github_actions" {
   repository_name = var.github_repository
 
   secrets = {
-    SONAR_TOKEN = module.secrets.sonar_token
+    SONAR_TOKEN   = module.secrets.sonar_token
+    DOPPLER_TOKEN = module.secrets.doppler_token
+    TF_API_TOKEN  = module.secrets.tf_api_token
   }
 }

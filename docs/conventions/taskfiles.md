@@ -32,6 +32,7 @@ tools/
 ## Shell
 
 - Task runs commands in its built-in shell, which understands Bash syntax on every platform, including Windows without Git Bash. Do not rely on programs that are missing from a plain Windows install.
+- A program started through a wrapper such as `doppler run -- <program>` runs directly, not in a shell, so shell builtins and Unix tools like `env` fail on Windows. Set its environment with the taskfile's `env:` block.
 - Use `printf`, not `echo -e`; it behaves the same in every shell.
 - A multi-line command starts with `set -e` when a failed step must stop the task.
 - Check that an external tool exists before using it, and say how to install it when it does not.
