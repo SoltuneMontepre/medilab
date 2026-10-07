@@ -157,3 +157,8 @@ kubeconfig.yml
 .$*.bkp
 *.lck
 ~$*
+
+# Cypress
+src/tests/cypress/screenshots/
+src/tests/cypress/videos/
+src/core/modules/coverage.xml

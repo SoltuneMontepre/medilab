@@ -1,0 +1,13 @@
+{
+  "name": "medilab-core-tests",
+  "private": true,
+  "scripts": {
+    "test": "cypress run"
+  },
+  "devDependencies": {
+    "cypress": "^15.21.0"
+  },
+  "trustedDependencies": [
+    "cypress"
+  ]
+}
