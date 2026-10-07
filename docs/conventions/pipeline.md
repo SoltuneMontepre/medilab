@@ -11,23 +11,27 @@ How the GitHub Actions workflows in `.github/workflows/` are written.
 
 ## Triggers and change detection
 
-The relevant paths of a workflow are its area's folders and the workflow file itself.
+A workflow only does work when its relevant paths change: its area's folders and the workflow file itself. There are two ways to skip the rest.
 
-### CI: runs on every change, works only on relevant ones
+| Use               | When                                                           | Example               |
+| ----------------- | -------------------------------------------------------------- | --------------------- |
+| Change detection  | A job of the workflow is a required check, as every CI job is. | `ci-core`, `ci-infra` |
+| A `paths:` filter | No job is a required check, as with CD on `main`.              | `cd-core`, `cd-infra` |
+| Neither           | The workflow is not about a set of files, such as cleanup.     | `cd-cleanup`          |
 
-Branch protection requires CI jobs, and a workflow that a `paths:` filter keeps from starting never reports them. So:
+A required check must always report, and a workflow that a `paths:` filter keeps from starting never reports, which blocks the pull request.
 
-- Do not filter the trigger with `paths:`. A CI workflow starts on every pull request.
+### Change detection
+
+- Do not filter the trigger with `paths:`; the workflow starts on every pull request.
 - Each job always starts. The first steps detect whether the change is relevant with `dorny/paths-filter`; every later step has `if: <relevant> || github.event_name == 'workflow_dispatch'`.
 - A change that is not relevant finishes green without doing anything. A manual run always does the work.
 - When several jobs share the detection, or a rule needs more than path patterns, put it in a `changes` job and have the others depend on it with `needs`. `ci-core` does this to ignore Markdown under `src/core`.
 
-### CD: runs only on relevant changes
-
-CD jobs are not required checks, so a CD workflow filters its trigger instead:
+### A `paths:` filter
 
 - Trigger on `push` to `main` with `paths:` listing the relevant paths.
-- Steps have no relevance conditions; a CD run always does the work.
+- Steps have no relevance conditions; every run does the work.
 
 ## Jobs
 
