@@ -5,7 +5,7 @@
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
-    "depends": ["medilab_analysis"],
+    "depends": ["laboratory"],
     "data": [],
     "application": True,
     "installable": True,

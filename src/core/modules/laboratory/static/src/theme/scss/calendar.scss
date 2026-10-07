@@ -1,0 +1,268 @@
+.o_calendar_container {
+    background: transparent;
+
+    .o_calendar_header {
+        background: $ml-surface;
+        border-bottom: 1px solid $ml-border !important;
+        border-radius: $ml-radius-lg $ml-radius-lg 0 0;
+
+        h5 {
+            color: $ml-primary;
+            font-weight: 700;
+        }
+
+        .o_current_week {
+            background: $ml-primary-light !important;
+            color: $ml-primary !important;
+            border: 1px solid $ml-border;
+            font-weight: 600;
+        }
+
+        .o_calendar_button_prev,
+        .o_calendar_button_next,
+        .o_calendar_button_today {
+            border-radius: $ml-radius-sm;
+        }
+    }
+
+    .o_sidebar_toggler {
+        background: $ml-surface;
+        border-bottom: 1px solid $ml-border !important;
+    }
+}
+
+.o_calendar_wrapper {
+    gap: 0.75rem;
+    margin: 0 1rem 1rem;
+}
+
+.o_calendar_renderer {
+    --o-cw-border-color: #{$ml-border};
+    background: $ml-surface !important;
+    border: 1px solid $ml-border;
+    border-radius: $ml-radius-lg;
+    box-shadow: $ml-shadow;
+    overflow: hidden;
+
+    .o_calendar_widget {
+        --fc-page-bg-color: #{$ml-surface};
+        --fc-border-color: #{$ml-border};
+        --fc-today-bg-color: transparent;
+        --o-cw-bg: #{$ml-primary};
+        --o-cw-color: #{$ml-text-on-primary};
+
+        .fc-col-header-cell a {
+            color: $ml-text-muted;
+            font-weight: 600;
+        }
+
+        .fc-day-today .o_cw_day_number,
+        .fc-day-today .fc-daygrid-day-number {
+            color: $ml-text-on-primary !important;
+            background-color: $ml-primary !important;
+        }
+
+        .fc-timegrid-now-indicator-line {
+            border-color: $ml-accent !important;
+        }
+
+        .fc-timeGridWeek-view .fc-timegrid-now-indicator-line::before {
+            background-color: $ml-accent !important;
+            border-color: $ml-surface !important;
+        }
+
+        .fc-more-link {
+            color: $ml-accent !important;
+        }
+
+        .fc-event:not(.o_event_dot):not(.fc-dragging) {
+            &.o_cw_custom_highlight,
+            &.o_calendar_popover_open {
+                box-shadow: 0 8px 16px -8px rgba($ml-secondary, 0.35);
+            }
+        }
+
+        .fc-event.o_past_event::after {
+            background-color: rgba($ml-surface, 0.45);
+        }
+    }
+}
+
+.o_calendar_sidebar_container {
+    background: transparent !important;
+    border: none;
+    margin-right: 0;
+
+    .o_calendar_sidebar {
+        background: $ml-surface;
+        border: 1px solid $ml-border;
+        border-radius: $ml-radius-lg;
+        box-shadow: $ml-shadow-sm;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .o_datetime_picker {
+        .o_selected,
+        .o_today {
+            font-weight: 600;
+        }
+
+        .o_today {
+            color: $ml-primary;
+        }
+
+        .o_selected {
+            background: $ml-primary !important;
+            color: $ml-text-on-primary !important;
+            border-radius: $ml-radius-pill;
+        }
+
+        .o_day:hover:not(.o_selected) {
+            background: $ml-primary-light;
+            border-radius: $ml-radius-pill;
+        }
+    }
+
+    .o_calendar_filter {
+        .o_cw_filter_label {
+            color: $ml-text;
+            font-size: 0.8125rem;
+        }
+
+        .form-check-input {
+            border-color: $ml-border-strong;
+
+            &:checked {
+                background-color: $ml-primary;
+                border-color: $ml-primary;
+            }
+
+            &:focus {
+                box-shadow: 0 0 0 3px rgba($ml-primary, 0.15);
+            }
+        }
+
+        .o_calendar_filter_item:hover {
+            background: $ml-bg;
+            border-radius: $ml-radius-sm;
+        }
+    }
+}
+
+.o_activity_view {
+    background: transparent;
+    padding: 0 1rem 1rem;
+
+    .o_activity_view_table {
+        background: $ml-surface !important;
+        border: 1px solid $ml-border !important;
+        border-radius: $ml-radius-lg;
+        box-shadow: $ml-shadow;
+        overflow: hidden;
+        margin-bottom: 0 !important;
+
+        thead > tr > th {
+            background: $ml-bg;
+            color: $ml-text-secondary;
+            font-weight: 600;
+            font-size: 0.8125rem;
+            border-color: $ml-border !important;
+            vertical-align: top;
+        }
+
+        tbody > tr > td {
+            border-color: $ml-border !important;
+        }
+
+        .o_activity_record:hover {
+            background: $ml-primary-light;
+        }
+
+        .o_activity_type_cell {
+            .o_template_element:hover {
+                color: $ml-success !important;
+                background: $ml-success-soft;
+                border-radius: $ml-radius-sm;
+            }
+        }
+    }
+
+    .o_activity_summary_cell {
+        &.planned {
+            background-color: $ml-success-soft !important;
+            color: $ml-success !important;
+
+            a {
+                color: $ml-success !important;
+            }
+        }
+
+        &.today {
+            background-color: $ml-warning-soft !important;
+            color: darken($ml-warning, 16%) !important;
+
+            a {
+                color: darken($ml-warning, 16%) !important;
+            }
+        }
+
+        &.overdue {
+            background-color: $ml-danger-soft !important;
+            color: $ml-danger !important;
+
+            a {
+                color: $ml-danger !important;
+            }
+        }
+
+        &.done {
+            background-color: $ml-bg !important;
+            color: $ml-text-muted !important;
+
+            a {
+                color: $ml-text !important;
+            }
+        }
+
+        &.o_activity_empty_cell:hover {
+            background-color: $ml-primary-light !important;
+
+            > i {
+                color: $ml-primary !important;
+            }
+        }
+
+        .o-mail-ActivityCell-counter {
+            background: $ml-surface !important;
+            color: $ml-text !important;
+            border: 1px solid $ml-border !important;
+        }
+    }
+
+    .o_activity_filter_planned {
+        background-color: mix($ml-success, $ml-bg, 8%) !important;
+    }
+
+    .o_activity_filter_today {
+        background-color: mix($ml-warning, $ml-bg, 8%) !important;
+    }
+
+    .o_activity_filter_overdue {
+        background-color: mix($ml-danger, $ml-bg, 8%) !important;
+    }
+
+    .o_activity_view_table_footer {
+        background: $ml-bg !important;
+        border-color: $ml-border !important;
+
+        .o_record_selector {
+            color: $ml-accent !important;
+            font-weight: 500;
+
+            &:hover {
+                color: $ml-accent-dark !important;
+            }
+        }
+    }
+}

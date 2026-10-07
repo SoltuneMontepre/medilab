@@ -1,0 +1,55 @@
+name: cd-cleanup
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medilab-cd-cleanup
+  cancel-in-progress: false
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    if: github.event.pull_request.head.repo.fork != true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      packages: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      PACKAGE: orgs/${{ github.repository_owner }}/packages/container/medilab-odoo
+      PR: ${{ github.event.pull_request.number }}
+      BRANCH: ${{ github.event.pull_request.head.ref }}
+    steps:
+      - name: Delete images
+        run: |
+          set -euo pipefail
+          gh api --paginate "$PACKAGE/versions" \
+            --jq '.[] | [.id, (.metadata.container.tags | join(","))] | @tsv' |
+          while IFS=$'\t' read -r id tags; do
+            if [[ -z "$tags" || ( -n "$PR" && "$tags" == "pr-$PR" ) ]]; then
+              echo "Deleting image version $id (${tags:-untagged})"
+              gh api --method DELETE "$PACKAGE/versions/$id"
+            fi
+          done
+
+      - name: Delete artifacts
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          gh api --paginate "repos/$GH_REPO/actions/artifacts" \
+            --jq ".artifacts[] | select(.workflow_run.head_branch == \"$BRANCH\") | [.id, .name] | @tsv" |
+          while IFS=$'\t' read -r id name; do
+            echo "Deleting artifact $id ($name)"
+            gh api --method DELETE "repos/$GH_REPO/actions/artifacts/$id"
+          done
+
+      - name: Delete caches
+        if: github.event_name == 'pull_request'
+        run: gh cache delete --all --ref "refs/pull/$PR/merge" --succeed-on-no-caches

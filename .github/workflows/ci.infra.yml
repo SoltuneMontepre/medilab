@@ -1,0 +1,60 @@
+name: ci-infra
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medilab-ci-infra-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "infra/**"
+              - ".github/workflows/ci.infra.yml"
+
+      - name: Setup Terraform
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.15.8
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform fmt check
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: terraform fmt -check -diff -recursive
+
+      - name: Terraform init
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: terraform init
+
+      - name: Terraform validate
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: terraform validate
+
+      - name: Terraform plan
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: terraform plan
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}

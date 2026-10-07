@@ -11,9 +11,25 @@ includes:
     taskfile: tools/taskfiles/dev.taskfile.yml
     dir: .
     flatten: true
+  tf:
+    taskfile: tools/taskfiles/tf.taskfile.yml
+    dir: .
+    flatten: true
+  test:
+    taskfile: tools/taskfiles/test.taskfile.yml
+    dir: .
+    flatten: true
 
 tasks:
   default:
     cmds:
       - task --list
     silent: true
+
+  setup:
+    desc: "Set up repository & start the app"
+    silent: true
+    cmds:
+      - task: doppler
+      - task: dev:setup
+      - task: upgrade

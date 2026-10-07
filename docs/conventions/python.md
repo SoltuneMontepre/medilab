@@ -41,7 +41,7 @@ How a module is laid out, from its root:
 
 - Order: standard library, `odoo`, then `odoo.addons`, then relative imports. Ruff sorts them.
 - Import `odoo.addons.<module>` by its full path, not relatively, when importing across modules or from `constants/`.
-- A module imports only from itself and from modules it depends on in `__manifest__.py`. Analysis imports from no other MediLab module.
+- A module imports only from itself and from modules it depends on in `__manifest__.py`.
 
 ## Naming
 

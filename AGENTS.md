@@ -17,4 +17,5 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 - **No leftovers.** Replace old code, requirements and diagrams instead of commenting them out or noting what they used to be. Git history and commit messages explain changes.
 - **Comment sparingly.** Only comment "what does this do?" if it is not obvious from the code itself. Do not comment on every line of code, only at the start of a block/function/class.
 - **No obvious additions.** Do not add descriptions, labels or explanations that the name or context already makes clear, such as "(database viewer)" after CloudBeaver, in code, scripts, output messages or documents.
+- **No co-author trailers.** Do not add `Co-Authored-By` or other attribution lines to commit messages or pull request descriptions.
 - **No session details.** Leave out notes tied to the current work, such as idea numbers or obvious qualifiers like "(one-time)".

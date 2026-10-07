@@ -1,6 +1,6 @@
 # Shared technical implementations
 
-This document describes the technical capabilities shared by every module (E-commerce, Storage and Analysis). They are not specific to any actor: users meet them as behaviour of the whole system, and developers and system administrators build and configure them once. It is a reference for developers and system administrators.
+This document describes the technical capabilities shared by every module (E-commerce, Storage and Laboratory). They are not specific to any actor: users meet them as behaviour of the whole system, and developers and system administrators build and configure them once. It is a reference for developers and system administrators.
 
 Each requirement has an ID (`SH-nn`) so that module documents can refer to it.
 
@@ -10,18 +10,18 @@ Each requirement has an ID (`SH-nn`) so that module documents can refer to it.
 
 #### SH-01 Modular installation and integration
 
-The system consists of three modules (E-commerce, Storage, Analysis) that can be installed independently and work together when installed together.
+The system consists of three modules (E-commerce, Storage, Laboratory) that can be installed independently and work together when installed together.
 
-- E-commerce and Storage depend on Analysis; Analysis depends on neither.
+- E-commerce and Storage depend on Laboratory; Laboratory depends on neither.
 - Installing a module never requires installing a module that depends on it.
 - When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
 - Each module can be upgraded without losing the data of the others.
 
 Acceptance criteria:
 
-- Analysis installs and runs alone.
-- E-commerce and Storage each install on top of Analysis without the other being present.
-- Uninstalling E-commerce or Storage leaves Analysis data intact.
+- Laboratory installs and runs alone.
+- E-commerce and Storage each install on top of Laboratory without the other being present.
+- Uninstalling E-commerce or Storage leaves Laboratory data intact.
 
 #### SH-02 Simple installation and configuration
 
@@ -211,4 +211,4 @@ The system digitally signs printed documents through Viettel Sign (SH-04). It do
 - [Overview](index.md)
 - [E-commerce module](ecommerce_module/overview.md)
 - [Inventory module](inventory_module/overview.md)
-- [Analysis module](analysis_module/overview.md)
+- [Laboratory module](laboratory_module/overview.md)

@@ -12,6 +12,19 @@ MediLab is split into three modules that can each be installed from the Odoo mar
 
 [Inventory Module](./inventory_module/overview.md): The Inventory module provides tools for managing laboratory inventory, including tracking chemical stock levels, managing expiration dates and maintenance schedules, managing internal movement of materials, and generating reports on inventory performance. It also allows users to manage suppliers.
 
-[Analysis Module](./analysis_module/overview.md): The Analysis module is the core of the system, providing functionality for managing laboratory tests, samples, and results. It includes features for creating and managing parameters, testing procedures, tracking sample progress, and generating reports on testing activities.
+[Laboratory Module](./laboratory_module/overview.md): The Laboratory module is the core of the system, providing functionality for managing laboratory tests, samples, and results. It includes features for creating and managing parameters, testing procedures, tracking sample progress, and generating reports on testing activities.
 
 It also includes a set of shared technical features that are used by all modules, see [Shared Technical Features](./shared.md).
+
+## Documents
+
+- [Shared technical features](shared.md): requirements shared by all modules and external integrations
+- E-commerce module
+  - [Overview](ecommerce_module/overview.md)
+  - Actors: [Customer](ecommerce_module/features/customer.md), [Sales](ecommerce_module/features/sales.md), [Accountant](ecommerce_module/features/accountant.md), [Admin](ecommerce_module/features/admin.md)
+- Inventory module
+  - [Overview](inventory_module/overview.md)
+- Laboratory module
+  - [Overview](laboratory_module/overview.md)
+  - Actors: [Admin](laboratory_module/features/admin.md)
+  - Applications: [Medilab Mobile](laboratory_module/applications/medilab-mobile.md), [Medilab Sync](laboratory_module/applications/medilab-sync.md)

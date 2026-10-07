@@ -29,7 +29,7 @@ How database models are defined in the Odoo ORM. For where model files live, see
 
 - Use `Many2one`, `One2many` and `Many2many` to relate models.
 - A `One2many` always has its `Many2one` on the other model as the inverse.
-- A relationship to a model of another module is allowed only toward a module the current one depends on; Analysis depends on no other module.
+- A relationship to a model of another module is allowed only toward a module the current one depends on; Laboratory depends on no other module.
 
 ## Constraints and indexes
 

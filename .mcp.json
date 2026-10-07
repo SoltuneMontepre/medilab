@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "doppler": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@dopplerhq/mcp-server",
+        "--project",
+        "medilab"
+      ]
+    },
+    "sonarqube": {
+      "command": "doppler",
+      "args": [
+        "run",
+        "--project",
+        "medilab",
+        "--config",
+        "dev",
+        "--",
+        "docker",
+        "run",
+        "--init",
+        "--pull=always",
+        "-i",
+        "--rm",
+        "-e",
+        "SONARQUBE_TOKEN",
+        "-e",
+        "SONARQUBE_ORG=soltunemontepre",
+        "sonarsource/sonarqube-mcp"
+      ]
+    }
+  }
+}
