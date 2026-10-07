@@ -1,0 +1,19 @@
+version: "3"
+
+set: [pipefail]
+
+includes:
+  app:
+    taskfile: tools/taskfiles/app.taskfile.yml
+    dir: .
+    flatten: true
+  dev:
+    taskfile: tools/taskfiles/dev.taskfile.yml
+    dir: .
+    flatten: true
+
+tasks:
+  default:
+    cmds:
+      - task --list
+    silent: true

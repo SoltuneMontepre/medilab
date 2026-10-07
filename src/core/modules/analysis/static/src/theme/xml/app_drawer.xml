@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.NavBar" t-inherit-mode="extension">
+        <xpath expr="//header" position="after">
+            <div class="ml_apps_home" t-if="appDrawer.open">
+                <div class="ml_apps_home_toolbar">
+                    <h2 class="ml_apps_home_title">Applications</h2>
+                    <button type="button"
+                            class="btn btn-link ml_apps_home_close"
+                            t-on-click="closeAppDrawer"
+                            aria-label="Close">
+                        <iconify-icon icon="mdi:close-circle" class="ml_icon_md"/>
+                    </button>
+                </div>
+                <div class="ml_apps_home_grid">
+                    <t t-foreach="menuService.getApps()" t-as="app" t-key="app.id">
+                        <a t-att-href="getMenuItemHref(app)"
+                           class="ml_app_card"
+                           t-on-click.prevent="() => this.onAppDrawerClick(app)">
+                            <div class="ml_app_card_icon">
+                                <iconify-icon t-att-icon="getAppIcon(app)" class="ml_icon_lg"/>
+                            </div>
+                            <span class="ml_app_card_name" t-esc="app.name"/>
+                        </a>
+                    </t>
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+    <t t-inherit="web.NavBar.AppsMenu" t-inherit-mode="extension">
+        <xpath expr="//div[contains(@class, 'o_navbar_apps_menu')]" position="replace">
+            <div t-if="!isScopedApp" class="o_navbar_apps_menu d-flex align-items-center">
+                <button type="button"
+                        class="btn ml_navbar_apps_btn"
+                        t-att-class="{ 'ml_navbar_apps_btn_active': appDrawer.open }"
+                        t-on-click="toggleAppDrawer"
+                        title="Applications"
+                        aria-label="Applications"
+                        t-att-aria-expanded="appDrawer.open ? 'true' : 'false'">
+                    <iconify-icon icon="mdi:apps" class="ml_icon_md"/>
+                </button>
+            </div>
+        </xpath>
+    </t>
+
+    <t t-inherit="web.NavBar.SectionsMenu" t-inherit-mode="extension">
+        <xpath expr="//DropdownItem[@class=&quot;'o_nav_entry'&quot;]" position="attributes">
+            <attribute name="class">{
+                'o_nav_entry': true,
+                'o_nav_entry_active': isSectionActive(section),
+            }</attribute>
+        </xpath>
+        <xpath expr="//button[@t-att-data-menu-xmlid]" position="attributes">
+            <attribute name="t-att-class">{ 'o_nav_entry_active': isSectionActive(section) }</attribute>
+        </xpath>
+    </t>
+
+</templates>

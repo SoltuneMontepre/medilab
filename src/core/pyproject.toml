@@ -1,0 +1,114 @@
+[project]
+name = "medilab"
+version = "0.0.0"
+description = "MediLab LIMS — Odoo 19 addons"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+src = ["modules"]
+extend-exclude = [
+    "**/static/lib/**",
+    "**/.venv/**",
+    "**/venv/**",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.ruff.lint]
+preview = true
+external = ["OLS"]
+select = [
+    "BLE",
+    "C",
+    "COM",
+    "E",
+    "EM",
+    "EXE",
+    "F",
+    "FA",
+    "FLY",
+    "G",
+    "I",
+    "ICN",
+    "INT",
+    "ISC",
+    "LOG",
+    "PGH",
+    "PIE",
+    "PLC",
+    "PLE",
+    "PLW",
+    "PYI",
+    "RET",
+    "RUF",
+    "SIM",
+    "SLOT",
+    "T",
+    "TC",
+    "TID",
+    "TRY",
+    "UP",
+    "W",
+    "YTT",
+]
+ignore = [
+    "C408",
+    "C420",
+    "C901",
+    "BLE001",
+    "COM812",
+    "E266",
+    "E402",
+    "E501",
+    "E713",
+    "EM101",
+    "EM102",
+    "FA100",
+    "G002",
+    "G003",
+    "G004",
+    "PGH003",
+    "PIE790",
+    "PIE808",
+    "PLC0415",
+    "PLC2701",
+    "PLW0642",
+    "PLW0717",
+    "PLW1510",
+    "PLW2901",
+    "RUF001",
+    "RUF005",
+    "RUF012",
+    "RUF067",
+    "RUF100",
+    "SIM102",
+    "SIM108",
+    "SIM113",
+    "SIM117",
+    "TID252",
+    "TRY003",
+    "TRY300",
+    "TRY400",
+    "UP022",
+    "UP030",
+    "UP031",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+known-first-party = ["odoo"]
+known-local-folder = ["odoo.addons"]

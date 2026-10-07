@@ -1,0 +1,57 @@
+# --- VCS / editor / OS ---
+.git
+.github
+.agents
+.claude
+.codex
+.cursor
+.vscode
+.idea
+.mcp.json
+**/AGENTS.md
+**/CLAUDE.md
+**/.DS_Store
+**/Thumbs.db
+
+# --- Docs ---
+docs
+src/modules/docs
+src/modules/*/docs
+README.md
+
+# --- Infra ----
+infra
+
+# --- Other apps  ---
+applications
+
+# --- Dev-only tooling  ---
+tools/dbeaver
+tools/taskfiles
+
+# --- App: only requirements.txt, modules/, config/, templates/ are COPYed in ---
+src/reference
+src/docker-compose.yml
+src/modules.txt
+src/.env*
+
+# --- Python ---
+**/__pycache__
+**/*.py[cod]
+**/*.egg-info
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+
+# --- Node (Odoo web asset tooling, if any) ---
+**/node_modules
+
+# --- Terraform (repo-wide safety net) ---
+**/.terraform
+**/*.tfstate*
+
+# --- Logs / dumps ---
+*.log
+*.sql
+*.dump
+*.backup

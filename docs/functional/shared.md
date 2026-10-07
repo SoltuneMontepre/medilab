@@ -1,0 +1,214 @@
+# Shared technical implementations
+
+This document describes the technical capabilities shared by every module (E-commerce, Storage and Analysis). They are not specific to any actor: users meet them as behaviour of the whole system, and developers and system administrators build and configure them once. It is a reference for developers and system administrators.
+
+Each requirement has an ID (`SH-nn`) so that module documents can refer to it.
+
+## I. Business requirements
+
+### 1. Platform
+
+#### SH-01 Modular installation and integration
+
+The system consists of three modules (E-commerce, Storage, Analysis) that can be installed independently and work together when installed together.
+
+- E-commerce and Storage depend on Analysis; Analysis depends on neither.
+- Installing a module never requires installing a module that depends on it.
+- When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
+- Each module can be upgraded without losing the data of the others.
+
+Acceptance criteria:
+
+- Analysis installs and runs alone.
+- E-commerce and Storage each install on top of Analysis without the other being present.
+- Uninstalling E-commerce or Storage leaves Analysis data intact.
+
+#### SH-02 Simple installation and configuration
+
+Anyone with Odoo 19 experience can install and configure the system without developer help.
+
+- Installation follows the standard Odoo way: add the module, update the app list, install.
+- Everything a laboratory needs to adapt (company details, numbering, deadlines, e-mail, payment and signing providers, languages) is available in the settings screens, not in code.
+- A fresh installation has working defaults and, optionally, demo data to try the system.
+- A setup guide lists the steps in order and what to check after each.
+
+Acceptance criteria:
+
+- A new installation can run the full order-to-result flow after following the setup guide, without editing any code.
+
+#### SH-03 Configuration through settings and system parameters
+
+The system's behaviour is driven by configuration, not by hard-coded values.
+
+- **System parameters** hold values such as the quotation payment deadline, reminder intervals, upload size limits and numbering formats.
+- **Configuration files** (environment variables) hold deployment settings and secrets, such as provider credentials. Secrets never appear in the database, logs or documents.
+- Settings are changed from the settings screens by administrators; every change is audited (SH-05).
+- A new option is added by declaring it with a default, so existing installations keep working after an upgrade.
+- Settings that change behaviour of existing documents apply to future documents only.
+
+Acceptance criteria:
+
+- Changing the payment deadline setting changes the deadline of the next quotation, not of those already sent.
+- A missing optional setting falls back to its documented default.
+
+### 2. Trust and traceability
+
+#### SH-04 Signatures and digital signing
+
+**Approving a document is signing it.** There is one concept: a user with the right role signs a document in the system, and that signature is the approval. There is no separate approval step and no separate signing step.
+
+| Item             | Rule                                                                                                                                                                                                                     |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Who signs        | The role required by the document's approval chain, for example the Head of Sales for an order or the Lab Head for a test result. Chains can have several levels, each signing in turn.                                  |
+| What is recorded | For every signature: the signer, their role and level, the time, and the document version signed. The signer is the logged-in user; signing needs a deliberate action (and confirmation), not just opening the document. |
+| Rejection        | A signer can reject with a reason instead of signing. The reason is kept and the requester is notified.                                                                                                                  |
+| Documents        | Invoices, quotations, orders, test results and any other document type that has an approval chain.                                                                                                                       |
+
+**Digital signature is applied automatically when a document is printed.** When a signed document is printed or exported as PDF (for sending, downloading or archiving), the system sends the PDF to the signature provider (see Viettel Sign below), which applies the digital signature with the laboratory's certificate and returns the signed file. Users do not sign certificates by hand.
+
+- The signed PDF is stored with the document, together with the signature details and the time, so the same file is returned every time it is downloaded.
+- Only documents that have been fully signed (final level approved) are digitally signed on print. A document still under approval prints as a draft, clearly marked, without a digital signature.
+- Every signed PDF can be verified: it shows who approved it (from the signature records), that the digital signature is valid, and that the content has not changed. Verification is available to the customer without logging in to the back office.
+- If the provider is unavailable, the document is not printed as signed; the user is told and can retry. Nothing is shown as digitally signed unless the provider confirmed it.
+
+Acceptance criteria:
+
+- Printing a fully signed document returns a digitally signed PDF without any extra step from the user.
+- Printing a document that is still under approval returns an unsigned, marked draft.
+- A signed PDF fails verification if any of its content is changed.
+- The signature record shows the signer, role, time and document version for every level.
+
+#### SH-05 Audit trail
+
+Every action in the system is recorded and can be reported on.
+
+- **What is recorded:** user actions (login, create, edit, delete, approve, sign, download), system events (scheduled jobs, integrations, errors) and data changes with the old and the new value.
+- **Each entry has:** who (user or system), when, what (document and field), the old and new value, and the source (screen, API or job).
+- Audit entries cannot be edited or deleted by any user, including administrators.
+- Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document.
+- **Audit reports** can be generated for a period and exported for compliance purposes.
+- Personal data in the trail is limited to what is needed to identify who acted.
+
+Acceptance criteria:
+
+- Changing a price shows who changed it, when, and from what to what.
+- An administrator cannot remove an entry from the trail.
+- A report for a given period lists every signature, approval and deletion in that period.
+
+#### SH-06 Locking of documents in use
+
+Two users cannot change the same document at the same time.
+
+- When a user starts editing a document, the document is locked for others; they can still read it.
+- Others who try to edit see who holds the lock and since when, and can ask to be notified when it is released.
+- The lock is released on save, on cancel, when the user leaves, or automatically after a period of inactivity, so a closed browser does not block the document.
+- An administrator can release a lock that is stuck; this is audited.
+- Long operations, such as sending a quotation or confirming a payment, lock the document for their duration so they cannot run twice.
+
+Acceptance criteria:
+
+- A second user opening a locked document sees who is editing it and cannot save changes.
+- A lock abandoned by a closed browser is released after the inactivity period.
+
+#### SH-07 Signed documents are locked
+
+Once a document is signed it cannot be modified. Because approving is signing (SH-04), this applies from the first signature of the approval chain.
+
+- From the first signature the document is read-only for everyone, including administrators.
+- **Before the final level has signed**, a signer may withdraw their own signature, which reopens the document for editing and removes the later requests; every withdrawal is audited and the document must be signed again from that level.
+- **After the final level has signed**, the document can no longer be reopened. To change it, a user raises a **change request** stating what to change and why.
+- The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Lab Head for a test result.
+- When the chain approves, the system creates a **new version** of the document, unsigned, linked to the signed one; the signed version is kept unchanged and marked as replaced. The new version must be signed again.
+- Anyone concerned can follow the status of the change request: requested, approved, rejected, applied.
+- A rejected request leaves the signed document untouched and records the reason.
+
+Acceptance criteria:
+
+- No screen or API changes a signed document.
+- A signer can withdraw their signature only while the next level has not signed, and the document is then editable again.
+- An approved change request produces a new version linked to the old one; the old one stays readable.
+- The status of a change request is visible to the requester at every step.
+
+### 3. Operations
+
+#### SH-08 Multiple languages
+
+All user-facing text can be translated, and users choose their language.
+
+- Every label, message, e-mail template, document template and report can be translated.
+- A user switches language from their profile at any time; the screen changes immediately and the choice is remembered.
+- Customers receive e-mails and documents in their own preferred language.
+- A new language is added by installing it and translating the texts; no code change is needed.
+- Fall back to the default language when a text is not translated yet.
+- Dates, numbers and currency follow the language's format.
+
+Acceptance criteria:
+
+- A user who switches to another language sees no untranslated labels in the screens that have been translated.
+- Adding a language does not affect users of other languages.
+
+#### SH-09 Scheduled tasks
+
+Recurring work runs by itself, and its health is visible.
+
+Typical jobs: payment reminders, quotation expiry, retention and expiry checks (Storage), report generation, e-mail retries.
+
+- Each job has a schedule (interval or fixed time) that an administrator can change.
+- Administrators see every job with its last run, next run, result and duration, and can open the log of each run.
+- A failed job is retried automatically a limited number of times with a growing delay; after that it is marked failed and an administrator is notified.
+- An administrator can run a job by hand and retry a failed one.
+- A job is safe to run twice: running it again never sends a duplicate reminder or creates a duplicate record.
+- Jobs do not run on top of themselves: a second run waits or is skipped while the first is running.
+
+Acceptance criteria:
+
+- A job that fails shows its error in the run log and is retried.
+- Running a payment-reminder job twice in a row sends each reminder once.
+
+## II. External systems integration
+
+All integrations are optional and enabled in the settings. Credentials come from configuration files (SH-03), never from the database. Every call is logged in the audit trail (SH-05), and a provider outage never loses a business action: it is queued and retried (SH-09).
+
+### 1. Brevo (email)
+
+The system sends all e-mail through Brevo.
+
+- Used for: notifications, alerts, quotations and invoices with attachments, reminders and reports.
+- Administrators configure the sender, the Brevo account and the templates. Templates are translatable (SH-08) and use the customer's contact (Sales documents) and notification preferences.
+- Delivery status (sent, delivered, opened, bounced, failed) is recorded against the message, so staff can see whether a customer received a quotation.
+- Bounced or invalid addresses are flagged on the customer's contact so that they are not used again.
+- If Brevo is unavailable the message stays queued and is retried; the business action that triggered it is not rolled back.
+
+### 2. PayOS (payments)
+
+The system takes online payments through PayOS.
+
+- Used for the advance and final invoices. The customer pays from the portal or from a payment link in an e-mail.
+- Payment methods are whatever PayOS offers (for example bank transfer by QR code); administrators enable or disable them in the settings, and the portal shows only those enabled.
+- A payment is confirmed only by the provider's signed notification, never by the customer's browser returning to the website. The signature is verified, and a repeated notification creates no second payment.
+- A confirmed payment is recorded against the invoice and updates its payment status automatically; partial payments are supported.
+- The status of each payment (created, pending, paid, failed, cancelled, expired) is stored and shown to the accountant.
+- If notifications are missed, a scheduled job (SH-09) asks the provider for the status of pending payments.
+- Refunds are outside this integration; see the open questions in the Sales documents.
+
+### 3. Viettel Sign (digital signature)
+
+The system digitally signs printed documents through Viettel Sign (SH-04). It does not ask users to sign; approval in the system already did that.
+
+- Administrators configure the provider account and the laboratory's certificate, and see its expiry. An expired or revoked certificate stops digital signing and alerts administrators before and when it happens.
+- When a fully signed document is printed or exported, the system sends the PDF to the provider, which applies the digital signature automatically and returns the signed file; the file is stored with the document and the signature details.
+- Verification of a signed PDF checks the digital signature against the provider and the approval records of the document, and shows the result to anyone who opens the document.
+- If the provider is unavailable, the document is not issued as signed; the user is told and can retry, and the request is retried automatically (SH-09). No document is shown as digitally signed unless the provider confirmed it.
+
+## III. Open questions
+
+- **Certificate holder.** Whose certificate signs the printed documents: one laboratory certificate for all documents, or a certificate per signer or role (for example the Head of Sales for quotations)? This decides how many certificates Viettel Sign must hold.- **SMS.** The customer notification preferences include SMS. Brevo can be used for it, or another provider; this is not decided.
+- **Audit retention.** How long audit entries and signed documents are kept, and whether older entries are archived.
+- **Lock timeout.** The inactivity period after which an editing lock is released.
+
+## IV. Related documents
+
+- [Overview](index.md)
+- [E-commerce module](ecommerce_module/overview.md)
+- [Inventory module](inventory_module/overview.md)
+- [Analysis module](analysis_module/overview.md)

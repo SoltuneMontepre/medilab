@@ -1,0 +1,152 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* analysis
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-05 01:14+0000\n"
+"PO-Revision-Date: 2026-10-05 01:14+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: analysis
+#. odoo-javascript
+#: code:addons/analysis/static/src/theme/xml/app_drawer.xml:0
+msgid "Applications"
+msgstr ""
+
+#. module: analysis
+#. odoo-javascript
+#: code:addons/analysis/static/src/theme/xml/app_drawer.xml:0
+msgid "Close"
+msgstr ""
+
+#. module: analysis
+#: model:ir.model.fields,field_description:analysis.field_medilab_test_parameter__code
+msgid "Code"
+msgstr ""
+
+#. module: analysis
+#: model:ir.model.fields,field_description:analysis.field_medilab_test_parameter__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: analysis
+#: model:ir.model.fields,field_description:analysis.field_medilab_test_parameter__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: analysis
+#. odoo-javascript
+#: code:addons/analysis/static/src/theme/xml/form_status_indicator.xml:0
+msgid "Discard"
+msgstr ""
+
+#. module: analysis
+#. odoo-javascript
+#: code:addons/analysis/static/src/theme/xml/form_status_indicator.xml:0
+msgid "Discard all changes"
+msgstr ""
+
+#. module: analysis
+#: model:ir.model.fields,field_description:analysis.field_medilab_test_parameter__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: analysis
+#: model:ir.model.fields,field_description:analysis.field_medilab_test_parameter__id
+msgid "ID"
+msgstr ""
+
+#. module: analysis
+#: model_terms:ir.ui.view,arch_db:analysis.login_layout
+msgid "Laboratory management system"
+msgstr ""
+
+#. module: analysis
+#: model:ir.model.fields,field_description:analysis.field_medilab_test_parameter__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: analysis
+#: model:ir.model.fields,field_description:analysis.field_medilab_test_parameter__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: analysis
+#: model_terms:ir.ui.view,arch_db:analysis.login_layout
+msgid "Log in"
+msgstr ""
+
+#. module: analysis
+#: model_terms:ir.ui.view,arch_db:analysis.login_layout
+msgid "Manage samples, testing processes and results on a unified platform."
+msgstr ""
+
+#. module: analysis
+#: model:ir.model.fields,field_description:analysis.field_medilab_test_parameter__name
+msgid "Name"
+msgstr ""
+
+#. module: analysis
+#. odoo-javascript
+#: code:addons/analysis/static/src/theme/js/boolean_button_group_field.js:0
+msgid "No"
+msgstr ""
+
+#. module: analysis
+#. odoo-javascript
+#: code:addons/analysis/static/src/theme/xml/user_switch.xml:0
+msgid "Remove user from switcher"
+msgstr ""
+
+#. module: analysis
+#: model:ir.ui.menu,name:analysis.menu_sample_collection_root
+msgid "Sample Collection"
+msgstr ""
+
+#. module: analysis
+#. odoo-javascript
+#: code:addons/analysis/static/src/theme/xml/form_status_indicator.xml:0
+msgid "Save"
+msgstr ""
+
+#. module: analysis
+#. odoo-javascript
+#: code:addons/analysis/static/src/theme/xml/form_status_indicator.xml:0
+msgid "Save manually"
+msgstr ""
+
+#. module: analysis
+#: model_terms:ir.ui.view,arch_db:analysis.login_layout
+msgid "System administration"
+msgstr ""
+
+#. module: analysis
+#: model_terms:ir.ui.view,arch_db:analysis.login_layout
+msgid "System introduction"
+msgstr ""
+
+#. module: analysis
+#: model:ir.actions.act_window,name:analysis.action_medilab_test_parameter
+#: model:ir.model,name:analysis.model_medilab_test_parameter
+#: model:ir.ui.menu,name:analysis.menu_test_parameter
+msgid "Test Parameters"
+msgstr ""
+
+#. module: analysis
+#: model:ir.model.constraint,message:analysis.constraint_medilab_test_parameter_code_unique
+msgid "The code of a test parameter must be unique."
+msgstr ""
+
+#. module: analysis
+#. odoo-javascript
+#: code:addons/analysis/static/src/theme/js/boolean_button_group_field.js:0
+msgid "Yes"
+msgstr ""

@@ -1,0 +1,66 @@
+name: medilab
+
+services:
+  odoo:
+    container_name: medilab-odoo
+    image: docker.io/library/odoo:19.0
+    restart: unless-stopped
+    environment:
+      HOST: postgres
+      USER: ${MEDILAB_DB_USER:-root}
+      PASSWORD: ${MEDILAB_DB_PASSWORD:-root}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+    volumes:
+      - medilab-app:/var/lib/odoo
+      - ../../src/core/config:/etc/odoo:z
+      - ../../src/core/modules:/mnt/extra-addons:z
+
+  postgres:
+    container_name: medilab-postgres
+    restart: always
+    image: docker.io/library/postgres:18
+    environment:
+      POSTGRES_USER: ${MEDILAB_DB_USER:-root}
+      POSTGRES_PASSWORD: ${MEDILAB_DB_PASSWORD:-root}
+      POSTGRES_DB: ${MEDILAB_DB_NAME:-medilab}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${MEDILAB_DB_USER:-root} -d ${MEDILAB_DB_NAME:-medilab}",
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    volumes:
+      - medilab-db:/var/lib/postgresql
+    ports:
+      - "15432:5432"
+
+  cloudbeaver:
+    container_name: medilab-cloudbeaver
+    image: docker.io/dbeaver/cloudbeaver:latest
+    restart: unless-stopped
+    environment:
+      CB_SERVER_NAME: MediLab
+      CB_SERVER_URL: http://localhost:8978
+      CB_ADMIN_NAME: ${CLOUDBEAVER_ADMIN_NAME:-medilab}
+      CB_ADMIN_PASSWORD: ${CLOUDBEAVER_ADMIN_PASSWORD:-admin}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8978:8978"
+    volumes:
+      - medilab-cloudbeaver:/opt/cloudbeaver/workspace
+      - ./cloudbeaver/data-sources.json:/opt/cloudbeaver/workspace/GlobalConfiguration/.dbeaver/data-sources.json:z
+
+volumes:
+  medilab-app:
+  medilab-db:
+  medilab-cloudbeaver:

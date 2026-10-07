@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>MediLab</title>
+<defs>
+<clipPath id="flaskClip">
+<path d="M27 8 H37 V22 L47 47 Q50 56 41 56 H23 Q14 56 17 47 L27 22 Z"/>
+</clipPath>
+</defs>
+<rect x="0" y="0" width="64" height="64" rx="14" fill="#1a2744"/>
+<path d="M27 8 H37 V22 L47 47 Q50 56 41 56 H23 Q14 56 17 47 L27 22 Z" fill="#f5f8fc"/>
+<rect x="14" y="38" width="36" height="19" fill="#1b9aaa" clip-path="url(#flaskClip)"/>
+<rect x="24" y="6" width="16" height="4" rx="2" fill="#f5f8fc"/>
+</svg>

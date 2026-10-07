@@ -1,0 +1,4 @@
+[[config]]
+name = "default"
+odoo_path = "${workspaceFolder}/.local/odoo-source"
+addons_paths = ["${workspaceFolder}/.local/odoo-source/addons", "${workspaceFolder}/src/core/modules"]

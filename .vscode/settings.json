@@ -1,0 +1,58 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.prettierPath": "./node_modules/prettier",
+  "[markdown]": {
+    "editor.formatOnSave": false
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "editor.unicodeHighlight.nonBasicASCII": false,
+  "files.exclude": {
+    "**/.ruff_cache": true,
+    "**/__pycache__": true,
+    "**/.local": true
+  },
+  "files.watcherExclude": {
+    "**/.local/**": true,
+    "**/src/reference/**": true,
+    "**/graphify-out/**": true,
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "src/reference": true,
+    ".local": true,
+    "graphify-out": true,
+    ".worktrees": true
+  },
+  "git.branchProtection": [
+    "main"
+  ],
+  "git.smartCommitChanges": "tracked",
+  "git.confirmForcePush": true,
+  "git.useForcePushWithLease": true,
+  "git.useForcePushIfIncludes": true,
+  "git-graph.repository.commits.fetchAvatars": true,
+  "workbench.tree.indent": 12,
+  "workbench.tree.renderIndentGuides": "always",
+  "workbench.list.smoothScrolling": true
+}

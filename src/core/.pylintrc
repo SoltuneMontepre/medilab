@@ -1,0 +1,84 @@
+[MASTER]
+load-plugins=pylint_odoo
+score=n
+
+[ODOOLINT]
+valid-odoo-versions=19.0
+manifest-deprecated-keys=description,active
+manifest-required-keys=version
+license-allowed=AGPL-3,GPL-2,GPL-2 or any later version,GPL-3,GPL-3 or any later version,LGPL-3,OPL-1,Other proprietary
+
+[MESSAGES CONTROL]
+disable=all
+
+enable=anomalous-backslash-in-string,
+    assignment-from-none,
+    attribute-deprecated,
+    bad-builtin-groupby,
+    consider-merging-classes-inherited,
+    context-overridden,
+    dangerous-default-value,
+    deprecated-inselect-operator,
+    deprecated-name-get,
+    deprecated-odoo-model-method,
+    deprecated-self-cr,
+    duplicate-key,
+    eval-used,
+    except-pass,
+    external-request-timeout,
+    inheritable-method-lambda,
+    inheritable-method-string,
+    invalid-commit,
+    invalid-email,
+    license-allowed,
+    manifest-author-string,
+    manifest-behind-migrations,
+    manifest-data-duplicated,
+    manifest-deprecated-key,
+    manifest-external-assets,
+    manifest-maintainers-list,
+    manifest-required-key,
+    manifest-summary-multiline,
+    manifest-superfluous-key,
+    manifest-version-format,
+    method-compute,
+    method-inverse,
+    method-required-super,
+    method-search,
+    missing-return,
+    no-search-all,
+    no-write-in-compute,
+    odoo-addons-relative-import,
+    odoo-exception-warning,
+    pointless-statement,
+    pointless-string-statement,
+    prefer-env-translation,
+    print-used,
+    prohibited-method-override,
+    redefined-builtin,
+    redundant-keyword-arg,
+    reimported,
+    renamed-field-parameter,
+    return-in-init,
+    sql-injection,
+    super-method-mismatch,
+    test-folder-imported,
+    too-few-format-args,
+    translation-contains-variable,
+    translation-field,
+    translation-format-interpolation,
+    translation-format-truncated,
+    translation-fstring-interpolation,
+    translation-injection,
+    translation-too-few-args,
+    translation-too-many-args,
+    translation-unsupported-format,
+    undefined-variable,
+    unreachable,
+    use-vim-comment,
+    website-manifest-key-not-valid-uri
+
+[REPORTS]
+msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+output-format=colorized
+reports=no

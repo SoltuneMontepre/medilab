@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="analysis.BooleanButtonGroupField">
+        <div class="o_boolean_button_group btn-group" role="group">
+            <button type="button"
+                class="btn"
+                t-att-class="{ 'btn-primary': !value, 'btn-outline-secondary': value }"
+                t-att-disabled="props.readonly"
+                t-on-click="() => this.setValue(false)">
+                <t t-esc="falseLabel"/>
+            </button>
+            <button type="button"
+                class="btn"
+                t-att-class="{ 'btn-primary': value, 'btn-outline-secondary': !value }"
+                t-att-disabled="props.readonly"
+                t-on-click="() => this.setValue(true)">
+                <t t-esc="trueLabel"/>
+            </button>
+        </div>
+    </t>
+
+</templates>

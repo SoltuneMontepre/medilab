@@ -1,0 +1,35 @@
+name: medilab
+
+services:
+  onlyoffice:
+    image: docker.io/onlyoffice/documentserver:8.3
+    container_name: medilab-onlyoffice
+    restart: unless-stopped
+    ports:
+      - "28880:80"
+    environment:
+      JWT_ENABLED: "true"
+      JWT_SECRET: ${ONLYOFFICE_JWT_SECRET:-medilab-onlyoffice-local}
+      JWT_HEADER: Authorization
+      JWT_IN_BODY: "true"
+      ALLOW_PRIVATE_IP_ADDRESS: "true"
+      USE_UNAUTHORIZED_STORAGE: "true"
+    links:
+      - odoo
+    volumes:
+      - medilab-onlyoffice:/var/www/onlyoffice/Data
+      - medilab-onlyoffice-lib:/var/lib/onlyoffice
+      - medilab-onlyoffice-logs:/var/log/onlyoffice
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost/healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 90s
+    mem_limit: 2g
+    mem_reservation: 512m
+
+volumes:
+  medilab-onlyoffice:
+  medilab-onlyoffice-lib:
+  medilab-onlyoffice-logs:

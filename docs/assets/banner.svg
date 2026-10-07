@@ -1,0 +1,49 @@
+<svg width="100%" viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>MediLab banner</title>
+<desc>A banner illustration for MediLab, a laboratory management system, showing flat-style lab equipment icons alongside the product name and tagline.</desc>
+<defs>
+<clipPath id="bannerClip"><rect x="0" y="0" width="680" height="220" rx="14"/></clipPath>
+</defs>
+<g clip-path="url(#bannerClip)">
+<rect x="0" y="0" width="680" height="220" fill="#0e3b43"/>
+<rect x="0" y="0" width="680" height="220" fill="#12525c" opacity="0.5"/>
+<circle cx="600" cy="40" r="120" fill="#156570" opacity="0.35"/>
+<circle cx="60" cy="200" r="90" fill="#0a2c33" opacity="0.5"/>
+
+<g transform="translate(48,58)">
+<rect x="18" y="0" width="14" height="34" rx="2" fill="#dff3f0"/>
+<path d="M6 34 L44 34 L54 96 Q54 108 40 108 L10 108 Q-4 108 -4 96 Z" fill="#dff3f0" opacity="0.95"/>
+<path d="M-4 78 Q25 68 54 78 L54 96 Q54 108 40 108 L10 108 Q-4 108 -4 96 Z" fill="#f4a340"/>
+<circle cx="14" cy="88" r="4" fill="#0e3b43"/>
+<circle cx="30" cy="96" r="3" fill="#0e3b43"/>
+<circle cx="22" cy="78" r="3" fill="#0e3b43"/>
+</g>
+
+<g transform="translate(150,44)">
+<rect x="0" y="0" width="14" height="90" rx="4" fill="#7fd8cf"/>
+<rect x="2" y="46" width="10" height="42" fill="#f4a340"/>
+<circle cx="7" cy="98" r="10" fill="none" stroke="#7fd8cf" stroke-width="3"/>
+</g>
+
+<g transform="translate(196,50)">
+<rect x="0" y="0" width="18" height="14" rx="2" fill="#dff3f0"/>
+<rect x="4" y="12" width="10" height="60" fill="#dff3f0"/>
+<ellipse cx="9" cy="80" rx="17" ry="12" fill="#dff3f0"/>
+<rect x="0" y="60" width="18" height="20" fill="#4fb8ac"/>
+</g>
+
+<g transform="translate(600,150)" opacity="0.9">
+<path d="M0 0 Q20 20 0 40 Q-20 60 0 80" fill="none" stroke="#7fd8cf" stroke-width="3"/>
+<path d="M20 0 Q0 20 20 40 Q40 60 20 80" fill="none" stroke="#f4a340" stroke-width="3"/>
+<line x1="0" y1="4" x2="20" y2="4" stroke="#4fb8ac" stroke-width="2"/>
+<line x1="0" y1="20" x2="20" y2="20" stroke="#4fb8ac" stroke-width="2"/>
+<line x1="0" y1="36" x2="20" y2="36" stroke="#4fb8ac" stroke-width="2"/>
+<line x1="0" y1="52" x2="20" y2="52" stroke="#4fb8ac" stroke-width="2"/>
+<line x1="0" y1="68" x2="20" y2="68" stroke="#4fb8ac" stroke-width="2"/>
+</g>
+
+<text x="280" y="98" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#f5fbfa">MediLab</text>
+<text x="280" y="130" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#a9d9d2">Laboratory management system</text>
+<text x="280" y="164" font-family="Arial, sans-serif" font-size="13" font-weight="400" fill="#7fb8b0">Samples · Test results · Workflows · Compliance</text>
+</g>
+</svg>

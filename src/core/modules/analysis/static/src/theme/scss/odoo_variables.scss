@@ -1,0 +1,76 @@
+$o-community-color: $ml-primary;
+$o-enterprise-color: $ml-primary;
+$o-enterprise-action-color: $ml-accent;
+
+$o-brand-odoo: $ml-primary;
+$o-brand-primary: $ml-primary;
+$o-action: $ml-accent;
+
+$o-success: $ml-success;
+$o-info: $ml-accent;
+$o-warning: $ml-warning;
+$o-danger: $ml-danger;
+
+$o-gray-100: $ml-bg;
+$o-view-background-color: $ml-surface;
+$o-main-text-color: $ml-text;
+$o-main-color-muted: $ml-text-muted;
+$o-main-link-color: $ml-accent;
+$o-main-favorite-color: $ml-favorite;
+$o-main-headings-color: $ml-text;
+
+$o-theme-text-colors: (
+    "success": $ml-success,
+    "info": $ml-accent,
+    "warning": $ml-warning,
+    "danger": $ml-danger,
+);
+
+$o-border-radius: $ml-radius-sm;
+$o-border-radius-sm: 4px;
+$o-border-radius-lg: $ml-radius;
+
+$o-btns-bs-override: (
+    "primary": (
+        background: $ml-primary,
+        border: $ml-primary-dark,
+        color: $ml-text-on-primary,
+
+        hover-background: $ml-primary-dark,
+        hover-border: $ml-primary-dark,
+        hover-color: $ml-text-on-primary,
+
+        active-background: $ml-primary-dark,
+        active-border: $ml-primary-dark,
+        active-color: $ml-text-on-primary,
+    ),
+    "secondary": (
+        background: $ml-surface,
+        border: $ml-border-strong,
+        color: $ml-text,
+
+        hover-background: $ml-bg,
+        hover-border: $ml-border-strong,
+        hover-color: $ml-text,
+
+        active-background: $ml-bg,
+        active-border: $ml-border-strong,
+        active-color: $ml-text,
+    ),
+    "light": (
+        background: $ml-surface,
+        border: $ml-border-strong,
+        color: $ml-text,
+
+        hover-background: $ml-bg,
+        hover-border: $ml-border-strong,
+        hover-color: $ml-text,
+
+        active-background: $ml-bg,
+        active-border: $ml-border-strong,
+        active-color: $ml-text,
+    ),
+);
+
+$o-form-view-sheet-max-width: none;
+$o-form-renderer-max-width: none;

@@ -1,0 +1,140 @@
+.o-mail-Discuss {
+    background: $ml-bg;
+}
+
+.o-mail-DiscussSidebar {
+    background: $ml-surface;
+    border-color: $ml-border !important;
+}
+
+.o-mail-DiscussSidebarCategory-title {
+    color: $ml-text-muted !important;
+}
+
+.o-mail-DiscussSidebarChannel {
+    border-radius: $ml-radius;
+    transition: $ml-transition;
+
+    &:hover {
+        background: $ml-bg;
+    }
+
+    &.o-active {
+        background: $ml-primary-light !important;
+        color: $ml-primary !important;
+    }
+}
+
+.o-mail-Message {
+    border-radius: $ml-radius;
+
+    &:hover {
+        background: $ml-bg;
+    }
+}
+
+.o-mail-Message-author {
+    color: $ml-text;
+}
+
+.o-mail-Message-date {
+    color: $ml-text-muted;
+}
+
+.o-mail-Composer-inputContainer {
+    background: $ml-surface !important;
+    border-color: $ml-border !important;
+
+    &:has(.o-mail-Composer-input:focus) {
+        border-color: rgba($ml-primary, 0.4) !important;
+        box-shadow: 0 0 0 3px rgba($ml-primary, 0.1);
+    }
+}
+
+.o-mail-Composer-input {
+    color: $ml-text;
+
+    &::placeholder {
+        color: $ml-text-muted;
+    }
+}
+
+.o-mail-Chatter {
+    background: $ml-surface;
+    border: 1px solid $ml-border;
+    border-radius: $ml-radius-lg;
+    box-shadow: $ml-shadow-form;
+}
+
+.o-mail-Chatter-topbar {
+    border-bottom: 1px solid $ml-border;
+
+    .btn-secondary {
+        border-color: $ml-border !important;
+    }
+}
+
+.o-mail-Followers-button {
+    color: $ml-accent !important;
+
+    &.active {
+        color: $ml-primary !important;
+    }
+}
+
+.o-mail-Follower-details:hover {
+    background: $ml-bg;
+}
+
+.o-mail-Activity {
+    border-radius: $ml-radius;
+    padding: 0.5rem 0.25rem;
+
+    &:hover {
+        background: $ml-bg;
+    }
+}
+
+.o-mail-Activity-iconContainer {
+    &.text-bg-success {
+        background-color: $ml-success !important;
+    }
+
+    &.text-bg-danger {
+        background-color: $ml-danger !important;
+    }
+}
+
+.o-mail-MessagingMenu,
+.o-mail-ActivityMenu {
+    border-radius: $ml-radius-lg;
+    box-shadow: $ml-shadow;
+    overflow: hidden;
+}
+
+.o-mail-NotificationItem {
+    border-bottom: 1px solid $ml-border;
+
+    &:hover,
+    &.o-active {
+        background: $ml-bg;
+    }
+}
+
+.o-mail-ActivityGroup:hover {
+    background: $ml-bg !important;
+}
+
+.o-mail-ActionList {
+    .o-dropdown-item.btn-danger.o-tag-PRIMARY,
+    .o-dropdown-item.btn-danger.focus,
+    .o-dropdown-item.btn-success.o-tag-PRIMARY,
+    .o-dropdown-item.btn-success.focus {
+        color: $ml-text-on-primary !important;
+
+        i {
+            color: $ml-text-on-primary !important;
+            opacity: 1 !important;
+        }
+    }
+}

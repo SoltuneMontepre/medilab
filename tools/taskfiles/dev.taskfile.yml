@@ -1,0 +1,72 @@
+version: "3"
+
+vars:
+  VENV_DIR: .venv
+  PYTHON_VERSION: "3.12"
+  ODOO_SOURCE_DIR: .local/odoo-source
+  ODOO_SOURCE_REVISION: 7bbce824a1897a912441a7f0511ffec505cbe1d5
+  ODOO_ADDONS: [web]
+  LINT_TARGET: src/core/modules
+
+tasks:
+  dev:setup:
+    aliases: [setup-dev]
+    desc: "Create .venv, install dev tools and fetch the Odoo source for type checking"
+    cmds:
+      - task: dev:venv
+      - task: dev:odoo-source
+
+  dev:venv:
+    desc: "Create .venv (Python {{.PYTHON_VERSION}}) and install requirements-dev.txt"
+    silent: true
+    cmds:
+      - |
+        set -e
+        if ! command -v uv >/dev/null 2>&1; then
+          echo "[ERROR] uv not found. Install: winget install astral-sh.uv" >&2
+          exit 1
+        fi
+        uv venv --python {{.PYTHON_VERSION}} {{.VENV_DIR}}
+        uv pip install --python {{.VENV_DIR}} -r src/core/requirements-dev.txt
+        echo "[COMPLETED] .venv ready. Select it as the interpreter in your editor."
+
+  dev:odoo-source:
+    desc: "Fetch the pinned Odoo 19 source (no Docker) so the editor and pyright can resolve odoo imports"
+    silent: true
+    cmds:
+      - |
+        set -e
+        DIR="{{.ODOO_SOURCE_DIR}}"
+        REV="{{.ODOO_SOURCE_REVISION}}"
+        if [ ! -d "$DIR" ]; then
+          git clone --depth 1 --filter=blob:none --sparse --branch 19.0 https://github.com/odoo/odoo.git "$DIR"
+          git -C "$DIR" fetch --depth 1 origin "$REV"
+          git -C "$DIR" checkout --detach "$REV"
+        fi
+        git -C "$DIR" sparse-checkout set odoo {{range .ODOO_ADDONS}}addons/{{.}} {{end}}
+        # pyright resolves odoo.addons.<name> only inside odoo/addons, so copy the addons there.
+        for ADDON in {{range .ODOO_ADDONS}}{{.}} {{end}}; do
+          rm -rf "$DIR/odoo/addons/$ADDON"
+          cp -r "$DIR/addons/$ADDON" "$DIR/odoo/addons/$ADDON"
+        done
+        if [ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ] || [ ! -f "$DIR/odoo/fields/__init__.py" ]; then
+          echo "[ERROR] $DIR is not at $REV; delete it and run again." >&2
+          exit 1
+        fi
+        echo "[COMPLETED] Odoo source ready in $DIR."
+
+  typecheck:
+    desc: "Type check the addons with pyright"
+    cmds:
+      - "{{.VENV_DIR}}/Scripts/pyright.exe"
+
+  lint:
+    desc: "Ruff check and pylint-odoo on the addons"
+    cmds:
+      - "{{.VENV_DIR}}/Scripts/ruff.exe check {{.LINT_TARGET}}"
+      - "{{.VENV_DIR}}/Scripts/pylint.exe --rcfile=src/core/.pylintrc {{.LINT_TARGET}}/*"
+
+  format:
+    desc: "Ruff format the addons"
+    cmds:
+      - "{{.VENV_DIR}}/Scripts/ruff.exe format {{.LINT_TARGET}}"

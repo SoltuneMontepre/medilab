@@ -1,0 +1,21 @@
+{
+  "connections": {
+    "medilab-postgres": {
+      "provider": "postgresql",
+      "driver": "postgres-jdbc",
+      "name": "Medilab",
+      "save-password": true,
+      "configuration": {
+        "host": "postgres",
+        "port": "5432",
+        "database": "medilab",
+        "configurationType": "MANUAL",
+        "auth-model": "native",
+        "auth-properties": {
+          "userName": "root",
+          "password": "root"
+        }
+      }
+    }
+  }
+}

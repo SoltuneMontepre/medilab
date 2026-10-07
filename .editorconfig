@@ -1,0 +1,54 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Odoo Python, module XML, translations
+[*.{py,xml,po}]
+indent_style = space
+indent_size = 4
+
+# Camunda BPMN (XML; edited in Modeler — 2-space layout)
+[*.{bpmn,bpmn2}]
+indent_style = space
+indent_size = 2
+
+# Nest orchestrator, research-app, Taskfile, CI, config
+[*.{ts,tsx,js,jsx,mjs,cjs,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# package.json, lock metadata, OpenAPI, i18n, tokens
+[*.json]
+indent_style = space
+indent_size = 2
+
+# Python tooling
+[*.toml]
+indent_style = space
+indent_size = 4
+
+[{Dockerfile*,*.dockerfile}]
+indent_style = space
+indent_size = 2
+
+[*.{sh,ps1}]
+indent_style = space
+indent_size = 2
+
+[*.ps1]
+end_of_line = crlf
+
+# Generated
+[{*.{min.js,min.css},**/node_modules/**,**/dist/**,**/.venv/**}]
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset

@@ -1,0 +1,179 @@
+.modal {
+    .modal-content {
+        border: 1px solid $ml-border;
+        border-radius: $ml-radius-lg;
+        box-shadow: $ml-shadow;
+        background: $ml-surface;
+        color: $ml-text;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid $ml-border;
+        background: $ml-surface;
+
+        .modal-title {
+            font-weight: 600;
+            color: $ml-text;
+        }
+    }
+
+    .modal-body {
+        padding-top: 1rem !important;
+    }
+
+    .modal-footer {
+        border-top: 1px solid $ml-border;
+        background: $ml-surface;
+        padding-top: 0.75rem !important;
+    }
+}
+
+.o_dialog,
+.o_technical_modal {
+    .modal-content {
+        border-radius: $ml-radius-lg;
+    }
+}
+
+.modal .o_form_nosheet {
+    > .o_group:not(:has(.o_field_one2many)):not(:has(.o_field_x2many)):not(:has(.o_list_renderer)),
+    > .o_inner_group {
+        background: $ml-surface;
+        border: 1px solid $ml-border;
+        border-radius: $ml-radius-lg;
+        box-shadow: $ml-shadow-form;
+        padding: 0.85rem 1.25rem 0.65rem;
+        margin: 0 0 1rem !important;
+        box-sizing: border-box;
+    }
+
+    > .o_group:has(.o_field_one2many),
+    > .o_group:has(.o_field_x2many),
+    > .o_group:has(.o_list_renderer) {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin: 0 0 1rem !important;
+    }
+}
+
+.o_notification_manager {
+    .o_notification {
+        --Notification__background-color: #{$ml-surface};
+        background: $ml-surface !important;
+        border-radius: $ml-radius !important;
+        box-shadow: $ml-shadow !important;
+        overflow: hidden;
+        color: $ml-text;
+
+        > .border {
+            border-color: $ml-border !important;
+            background: $ml-surface;
+        }
+
+        .o_notification_content {
+            color: $ml-text;
+            font-size: 0.875rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .o_notification_close {
+            opacity: 0.45;
+
+            &:hover {
+                opacity: 0.85;
+            }
+        }
+
+        .o_notification_buttons .btn-link {
+            color: $ml-accent !important;
+            font-weight: 600;
+        }
+
+        .o_notification_bar {
+            width: 0.35rem;
+        }
+
+        .o_notification_progress {
+            height: 2px;
+            opacity: 1 !important;
+        }
+
+        &:has(.o_notification_bar.bg-danger) {
+            --Notification__background-color: #{$ml-danger-soft};
+
+            > .border {
+                background: $ml-danger-soft;
+                border-color: rgba($ml-danger, 0.22) !important;
+            }
+
+            .o_notification_bar.bg-danger,
+            .o_notification_progress.bg-danger {
+                background-color: $ml-danger !important;
+            }
+
+            .o_notification_content {
+                color: darken($ml-danger, 8%);
+            }
+        }
+
+        &:has(.o_notification_bar.bg-success) {
+            --Notification__background-color: #{$ml-success-soft};
+
+            > .border {
+                background: $ml-success-soft;
+                border-color: rgba($ml-success, 0.22) !important;
+            }
+
+            .o_notification_bar.bg-success,
+            .o_notification_progress.bg-success {
+                background-color: $ml-success !important;
+            }
+
+            .o_notification_content {
+                color: $ml-success;
+            }
+        }
+
+        &:has(.o_notification_bar.bg-warning) {
+            --Notification__background-color: #{$ml-warning-soft};
+
+            > .border {
+                background: $ml-warning-soft;
+                border-color: rgba($ml-warning, 0.28) !important;
+            }
+
+            .o_notification_bar.bg-warning,
+            .o_notification_progress.bg-warning {
+                background-color: $ml-warning !important;
+            }
+
+            .o_notification_content {
+                color: darken($ml-warning, 16%);
+            }
+        }
+
+        &:has(.o_notification_bar.bg-info),
+        &:has(.o_notification_bar.bg-primary) {
+            --Notification__background-color: #{$ml-primary-light};
+
+            > .border {
+                background: $ml-primary-light;
+                border-color: rgba($ml-primary, 0.18) !important;
+            }
+
+            .o_notification_bar.bg-info,
+            .o_notification_bar.bg-primary,
+            .o_notification_progress.bg-info,
+            .o_notification_progress.bg-primary {
+                background-color: $ml-primary !important;
+            }
+
+            .o_notification_content {
+                color: $ml-primary;
+            }
+        }
+    }
+}
