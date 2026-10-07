@@ -10,6 +10,10 @@ How documents in `docs/` are written and formatted. These rules apply to people 
 - **Say what was and was not checked.** Report what you read and ran. Do not claim a diagram renders, a link works or a behaviour is verified unless you checked it.
 - **Stay in scope.** A module document says only what belongs to that module. The module split and each module's purpose are described once, in [functional/index.md](../functional/index.md). Requirements shared by all modules live in [functional/shared.md](../functional/shared.md).
 
+## Indexes
+
+Each folder in `docs/` has an index (`readme.md`, or `functional/index.md`) that lists every document in it with a one-line summary. `docs/readme.md` links only to these indexes. When you add, rename or remove a document, update the index of its folder in the same change.
+
 ## Module documents
 
 Each module has an overview and one feature document per actor:

@@ -4,8 +4,8 @@ Doppler is the only store for credentials. Terraform in `infra/` reads the `tf` 
 
 ## Doppler config
 
-| Project   | Config | Contains                                      | Read by           |
-| --------- | ------ | --------------------------------------------- | ----------------- |
+| Project   | Config | Contains                                       | Read by           |
+| --------- | ------ | ---------------------------------------------- | ----------------- |
 | `medilab` | `tf`   | `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONAR_TOKEN` | every `task tf:*` |
 
 - Seed `tf` by hand; Terraform cannot create the config it reads.
