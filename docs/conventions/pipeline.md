@@ -1,0 +1,40 @@
+# Pipelines
+
+How the GitHub Actions workflows in `.github/workflows/` are written.
+
+## Files and names
+
+- One workflow per area and stage: `ci.<area>.yml` checks a change, `cd.<area>.yml` deploys it.
+- The workflow `name` is the file name without the extension and dots: `ci-core`, `cd-infra`.
+- The concurrency group is `medilab-<name>`, with `-${{ github.ref }}` for CI. CI sets `cancel-in-progress: true`; CD sets `false`, so a deployment is never cut off.
+- Every workflow can also be started by hand with `workflow_dispatch`.
+
+## Runs on every change, works only on relevant ones
+
+Branch protection requires these jobs, and a workflow that a `paths:` filter keeps from starting never reports them. So:
+
+- Do not filter the trigger with `paths:`. The workflow starts on every pull request, or every push to `main`.
+- Each job always starts. The first steps detect whether the change is relevant with `dorny/paths-filter`; every later step has `if: <relevant> || github.event_name == 'workflow_dispatch'`.
+- A change that is not relevant finishes green without doing anything. A manual run always does the work.
+- The relevant paths of a workflow are its area's folders and the workflow file itself.
+- When several jobs share the detection, or a rule needs more than path patterns, put it in a `changes` job and have the others depend on it with `needs`. `ci-core` does this to ignore Markdown under `src/core`.
+- A job that only applies to some pull requests uses a job-level `if`, such as the SonarQube scan skipping pull requests from forks.
+
+## Jobs
+
+- Run on `ubuntu-24.04` and set `timeout-minutes`.
+- Set the least `permissions`. `contents: read` is the default; add `pull-requests: read` where change detection reads pull request files.
+- Use `defaults.run.working-directory` for a job that works in one folder, such as `infra`.
+- Name every step with a short action: "Terraform fmt check".
+- Pin actions to a major version tag: `actions/checkout@v7`.
+
+## Secrets
+
+- Credentials come from the `secrets` context. Doppler is their source; see [Secrets](../infrastructure/secrets.md).
+- A job that needs Doppler installs the CLI and passes `DOPPLER_TOKEN` to the steps that use it.
+
+## Related documents
+
+- [Git](git.md)
+- [Taskfiles](taskfiles.md)
+- [Secrets](../infrastructure/secrets.md)
