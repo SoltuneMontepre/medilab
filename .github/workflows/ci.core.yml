@@ -103,6 +103,8 @@ jobs:
       - name: Build image
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v7
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           context: .
           file: tools/dockerfiles/prod.dockerfile
@@ -150,6 +152,8 @@ jobs:
       - name: Build image from cache
         if: github.event.pull_request.head.repo.fork == true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
         uses: docker/build-push-action@v7
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           context: .
           file: tools/dockerfiles/prod.dockerfile
@@ -170,6 +174,7 @@ jobs:
           name: coverage
           path: src/core/modules/coverage.xml
           if-no-files-found: ignore
+          retention-days: 1
 
   sonarqube:
     needs: [changes, test]

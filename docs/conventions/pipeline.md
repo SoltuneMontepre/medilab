@@ -35,7 +35,8 @@ Branch protection requires these jobs, and a workflow that a `paths:` filter kee
 
 - `ci-core` pushes the image it builds to GitHub Container Registry as `ghcr.io/soltunemontepre/medilab-odoo:pr-<number>`, overwritten on each push to the pull request, and later jobs pull it instead of building again.
 - A fork pull request cannot push, so its `build` job only builds and its `test` job rebuilds the image from the build cache.
-- `cd-registry` runs when a pull request is closed, merged or not, and deletes its image and the untagged images left by overwritten tags. Run it by hand to delete only untagged images.
+- `cd-cleanup` runs when a pull request is closed, merged or not. It deletes the pull request's image and the untagged images left by overwritten tags, the artifacts of its branch and its build caches. Run it by hand to delete only untagged images.
+- Artifacts are kept for one day, and `docker/build-push-action` does not upload build records (`DOCKER_BUILD_RECORD_UPLOAD: false`).
 
 ## Secrets
 
