@@ -11,6 +11,11 @@ on:
   pull_request:
     types: [closed]
   workflow_dispatch:
+    inputs:
+      pull_request:
+        description: "Pull request number to clean up; leave empty to delete only untagged images"
+        required: false
+        type: string
 
 jobs:
   cleanup:
@@ -20,27 +25,43 @@ jobs:
     permissions:
       actions: write
       packages: write
+      pull-requests: read
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
       PACKAGE: orgs/${{ github.repository_owner }}/packages/container/medilab-odoo
-      PR: ${{ github.event.pull_request.number }}
-      BRANCH: ${{ github.event.pull_request.head.ref }}
+      PR: ${{ github.event.pull_request.number || inputs.pull_request }}
     steps:
+      - name: Find the pull request branch
+        id: pr
+        if: env.PR != ''
+        run: echo "branch=$(gh api "repos/$GH_REPO/pulls/$PR" --jq .head.ref)" >> "$GITHUB_OUTPUT"
+
       - name: Delete images
+        if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
-          gh api --paginate "$PACKAGE/versions" \
-            --jq '.[] | [.id, (.metadata.container.tags | join(","))] | @tsv' |
+          if ! versions=$(gh api --paginate "$PACKAGE/versions" --jq '.[] | [.id, (.metadata.container.tags | join(","))] | @tsv' 2>/dev/null); then
+            echo "No medilab-odoo package, nothing to delete."
+            exit 0
+          fi
+          tagged=$(awk -F'\t' '$2 != ""' <<< "$versions" | wc -l)
+          if [[ -n "$PR" && "$tagged" -eq 1 ]] && awk -F'\t' -v t="pr-$PR" '$2 == t' <<< "$versions" | grep -q .; then
+            echo "pr-$PR is the only tagged image; deleting the package."
+            gh api --method DELETE "$PACKAGE"
+            exit 0
+          fi
           while IFS=$'\t' read -r id tags; do
             if [[ -z "$tags" || ( -n "$PR" && "$tags" == "pr-$PR" ) ]]; then
               echo "Deleting image version $id (${tags:-untagged})"
               gh api --method DELETE "$PACKAGE/versions/$id"
             fi
-          done
+          done <<< "$versions"
 
       - name: Delete artifacts
-        if: github.event_name == 'pull_request'
+        if: ${{ !cancelled() && steps.pr.outputs.branch != '' }}
+        env:
+          BRANCH: ${{ steps.pr.outputs.branch }}
         run: |
           set -euo pipefail
           gh api --paginate "repos/$GH_REPO/actions/artifacts" \
@@ -51,5 +72,5 @@ jobs:
           done
 
       - name: Delete caches
-        if: github.event_name == 'pull_request'
+        if: ${{ !cancelled() && env.PR != '' }}
         run: gh cache delete --all --ref "refs/pull/$PR/merge" --succeed-on-no-caches
