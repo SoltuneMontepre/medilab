@@ -25,6 +25,7 @@ tasks:
     silent: true
     interactive: true
     status:
+      - '[ -n "$(doppler configure get token --scope / --plain)" ]'
       - doppler whoami
       - '[ "$(doppler configure get project --plain)" = "{{.DOPPLER_PROJECT}}" ]'
       - '[ "$(doppler configure get config --plain)" = "{{.DOPPLER_CONFIG}}" ]'
@@ -35,7 +36,7 @@ tasks:
         log_step "Doppler"
         doppler_login
         doppler setup --no-interactive --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_CONFIG}}
-        log_ok "Doppler ready ({{.DOPPLER_PROJECT}}/{{.DOPPLER_CONFIG}})."
+        log_ok "Doppler ready."
 
   dev:venv:
     desc: "Create .venv (Python {{.PYTHON_VERSION}}) and install requirements-dev.txt"
@@ -49,7 +50,7 @@ tasks:
           log_error "uv not found. Install: winget install astral-sh.uv"
           exit 1
         fi
-        uv venv --python {{.PYTHON_VERSION}} {{.VENV_DIR}}
+        uv venv --allow-existing --python {{.PYTHON_VERSION}} {{.VENV_DIR}}
         uv pip install --python {{.VENV_DIR}} -r src/core/requirements-dev.txt
         log_ok ".venv ready. Select it as the interpreter in your editor."
 

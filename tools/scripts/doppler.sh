@@ -18,10 +18,10 @@ doppler_login() {
       log_prompt "Doppler token:"
       read -r token
       token="${token%"$cr"}"
-      doppler configure set token "$token"
+      MSYS_NO_PATHCONV=1 doppler configure set token "$token" --scope /
       ;;
     2)
-      doppler login
+      MSYS_NO_PATHCONV=1 doppler login --scope /
       ;;
     *)
       log_error "Invalid choice." && exit 1

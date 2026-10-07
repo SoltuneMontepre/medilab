@@ -15,12 +15,7 @@ tasks:
     silent: true
     cmds:
       - docker compose up -d
-      - |
-        . {{.LOG}}
-        printf '\n'
-        log_ok "Local infrastructure is started:"
-        log_link "Odoo" "http://localhost:8069"
-        log_link "CloudBeaver" "http://localhost:8978"
+      - task: print
 
   stop:
     desc: "Stop the running container."
@@ -53,8 +48,9 @@ tasks:
         else
           docker compose run --rm -T odoo --stop-after-init -i "{{.MODULES | replace " " ","}}" -u "{{.MODULES | replace " " ","}}"
         fi
-      - docker compose up -d odoo
+      - docker compose up -d
       - . {{.LOG}} && log_ok "Modules upgraded ({{.MODULES}})."
+      - task: print
 
   reset:
     aliases: [wipe]
@@ -63,3 +59,15 @@ tasks:
     cmds:
       - docker compose down -v
       - task: up
+      - task: upgrade
+
+  print:
+    silent: true
+    internal: true
+    cmds:
+      - |
+        . {{.LOG}}
+        printf '\n'
+        log_ok "Local infrastructure is started:"
+        log_link "Odoo" "http://localhost:8069"
+        log_link "CloudBeaver" "http://localhost:8978"

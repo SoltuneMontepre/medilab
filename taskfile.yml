@@ -28,4 +28,4 @@ tasks:
     cmds:
       - task: doppler
       - task: dev:setup
-      - task: up
+      - task: upgrade
