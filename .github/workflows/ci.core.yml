@@ -98,22 +98,65 @@ jobs:
           provenance: false
           sbom: false
 
+  test:
+    needs: [changes, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v7
+
+      - name: Set up Task
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Odoo module tests
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: task test:core
+
+      - name: Upload coverage report
+        if: always() && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: src/core/modules/coverage.xml
+          if-no-files-found: ignore
+
   sonarqube:
-    needs: changes
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    needs: [changes, test]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
+      - name: Reject fork pull request
+        if: github.event.pull_request.head.repo.fork == true
+        run: |
+          echo "::error::SonarQube Cloud needs repository secrets, which fork pull requests cannot read. Push the branch to this repository and open the pull request from it."
+          exit 1
+
       - name: Checkout
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
+      - name: Download coverage report
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage
+          path: src/core/modules
+
       - name: SonarQube Cloud scan
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
         uses: SonarSource/sonarqube-scan-action@v8.3.0
         env:
           SONAR_HOST_URL: https://sonarcloud.io
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300

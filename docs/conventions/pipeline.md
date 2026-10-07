@@ -24,6 +24,9 @@ Branch protection requires these jobs, and a workflow that a `paths:` filter kee
 
 - Run on `ubuntu-24.04` and set `timeout-minutes`.
 - Set the least `permissions`. `contents: read` is the workflow default; a job that needs more declares it itself, such as `pull-requests: read` on the job whose change detection reads pull request files.
+- Order jobs so cheap checks fail first. `ci-core` runs `changes`, then `lint` and `build`, then `test`, then `sonarqube`; each stage needs the one before it.
+- A pull request from a fork cannot read secrets, so the `sonarqube` job fails on it with a message instead of being skipped; a skipped required check counts as passing and would let the quality gate be bypassed. Contributors push a branch to the repository instead.
+- The `sonarqube` job waits for the SonarQube Cloud quality gate (`-Dsonar.qualitygate.wait=true` in the scan step) and fails when the gate fails, including on coverage.
 - Use `defaults.run.working-directory` for a job that works in one folder, such as `infra`.
 - Name every step with a short action: "Terraform fmt check".
 - Pin actions to a major version tag: `actions/checkout@v7`. SonarQube ignores its rule S7637 (full commit SHA) for `.github/`, set in `sonar-project.properties`.
