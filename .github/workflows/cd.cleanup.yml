@@ -20,36 +20,75 @@ jobs:
     permissions:
       actions: write
       packages: write
+      pull-requests: read
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
       PACKAGE: orgs/${{ github.repository_owner }}/packages/container/medilab-odoo
-      PR: ${{ github.event.pull_request.number }}
-      BRANCH: ${{ github.event.pull_request.head.ref }}
     steps:
-      - name: Delete images
+      - name: Find open pull requests
+        id: open
         run: |
           set -euo pipefail
-          gh api --paginate "$PACKAGE/versions" \
-            --jq '.[] | [.id, (.metadata.container.tags | join(","))] | @tsv' |
+          {
+            echo "numbers=$(gh pr list --state open --limit 1000 --json number --jq '[.[].number] | join(" ")')"
+            echo "branches=$(gh pr list --state open --limit 1000 --json headRefName --jq '[.[].headRefName] | join(" ")')"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Delete images of closed pull requests
+        env:
+          OPEN: ${{ steps.open.outputs.numbers }}
+        run: |
+          set -euo pipefail
+          if ! versions=$(gh api --paginate "$PACKAGE/versions" --jq '.[] | [.id, (.metadata.container.tags | join(","))] | @tsv' 2>/dev/null); then
+            echo "No medilab-odoo package, nothing to delete."
+            exit 0
+          fi
+          stale=()
+          kept=0
           while IFS=$'\t' read -r id tags; do
-            if [[ -z "$tags" || ( -n "$PR" && "$tags" == "pr-$PR" ) ]]; then
-              echo "Deleting image version $id (${tags:-untagged})"
-              gh api --method DELETE "$PACKAGE/versions/$id"
+            [[ -n "$id" ]] || continue
+            if [[ "$tags" =~ ^pr-([0-9]+)$ && " $OPEN " == *" ${BASH_REMATCH[1]} "* ]]; then
+              kept=$((kept + 1))
+            else
+              stale+=("$id:${tags:-untagged}")
             fi
+          done <<< "$versions"
+          if [[ "$kept" -eq 0 ]]; then
+            echo "No open pull request has an image; deleting the package."
+            gh api --method DELETE "$PACKAGE"
+            exit 0
+          fi
+          for entry in "${stale[@]}"; do
+            echo "Deleting image version ${entry%%:*} (${entry#*:})"
+            gh api --method DELETE "$PACKAGE/versions/${entry%%:*}"
           done
 
-      - name: Delete artifacts
-        if: github.event_name == 'pull_request'
+      - name: Delete artifacts of closed pull requests
+        if: ${{ !cancelled() }}
+        env:
+          OPEN: ${{ steps.open.outputs.branches }}
         run: |
           set -euo pipefail
           gh api --paginate "repos/$GH_REPO/actions/artifacts" \
-            --jq ".artifacts[] | select(.workflow_run.head_branch == \"$BRANCH\") | [.id, .name] | @tsv" |
-          while IFS=$'\t' read -r id name; do
-            echo "Deleting artifact $id ($name)"
+            --jq '.artifacts[] | select(.workflow_run.head_branch != "main") | [.id, .name, .workflow_run.head_branch] | @tsv' |
+          while IFS=$'\t' read -r id name branch; do
+            [[ " $OPEN " == *" $branch "* ]] && continue
+            echo "Deleting artifact $id ($name from $branch)"
             gh api --method DELETE "repos/$GH_REPO/actions/artifacts/$id"
           done
 
-      - name: Delete caches
-        if: github.event_name == 'pull_request'
-        run: gh cache delete --all --ref "refs/pull/$PR/merge" --succeed-on-no-caches
+      - name: Delete caches of closed pull requests
+        if: ${{ !cancelled() }}
+        env:
+          OPEN: ${{ steps.open.outputs.numbers }}
+        run: |
+          set -euo pipefail
+          gh cache list --limit 1000 --json ref --jq '[.[].ref | select(startswith("refs/pull/"))] | unique | .[]' |
+          while read -r ref; do
+            number=${ref#refs/pull/}
+            number=${number%%/*}
+            [[ " $OPEN " == *" $number "* ]] && continue
+            echo "Deleting caches of $ref"
+            gh cache delete --all --ref "$ref" --succeed-on-no-caches
+          done
