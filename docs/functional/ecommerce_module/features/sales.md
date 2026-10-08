@@ -17,7 +17,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 - **US-S06** As a salesperson, I want to adjust prices with a discount before sending, so that I can offer the customer an agreed price.
 - **US-S07** As a salesperson, I want to send the quotation together with the advance payment request, so that the customer can accept by paying.
 - **US-S08** As a salesperson, I want to revise a quotation that has been sent, so that I can correct it without losing the earlier version.
-- **US-S09** As a salesperson, I want to save a quotation as a template and create new quotations from it, so that I do not re-enter common packages of parameters.
+- **US-S09** As a salesperson, I want to save a returning customer's order as a template and create their next orders from it, so that repeat orders are faster.
 - **US-S10** As a salesperson, I want to see whether the customer has paid, declined or let the quotation expire, so that I know when to follow up.
 
 ### Payment collection
@@ -46,7 +46,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 ### 1. Orders and customers (US-S01 to US-S04)
 
 - **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson (and the Head of Sales) sees and edits it. A claimed order is not visible to other salespeople.
-- **Order on behalf of a customer.** Sales selects the customer, adds parameters in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
+- **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
 - **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below).
 - **Portal invitation and duplicates.** Sales can invite a customer to the portal. A self-registered account that matches an existing profile is flagged; sales reviews it and merges the two so that the history stays on one profile.
 
@@ -72,18 +72,19 @@ stateDiagram-v2
 
 | Rule             | Description                                                                                                                                                                                       |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Parameters       | A quotation needs at least one parameter. Sales may add or remove parameters; the customer sees the change on the quotation.                                                                      |
-| Prices           | Prices come from the catalog per parameter. Sales may apply a discount (percentage or fixed) to a parameter or to the whole quotation. Tax is added by the system.                                |
+| Parameters       | A quotation needs at least one parameter or service package. Sales may add or remove parameters and packages; the customer sees the change on the quotation. A package is added or removed whole. |
+| Prices           | Prices come from the catalog: per parameter, and per package for a package line. All prices are in VND. Sales may apply a discount (percentage or fixed) to a line or to the whole quotation; special prices for partners or promotions are given this way. |
+| Tax              | Each line takes the tax of its parameter or package, at the rate in force on the quotation date. Sales can change a line's tax, such as 0% for a foreign customer. The system adds the tax. |
 | Advance payment  | When sending, sales chooses the collection method (online, bank transfer, cash) and the amount (full, percentage, fixed). The system creates the advance invoice and sends it with the quotation. |
 | Manager shortcut | The Head of Sales can send without an advance payment, for customers with an agreement.                                                                                                           |
 | Payment deadline | Default 3 days from sending, configurable by the administrator. Sales can set another date. An expired quotation is flagged, not cancelled; sales can extend it.                                  |
 | Revisions        | A revision copies the quotation into a new draft linked to the one it replaces. The old version becomes read-only and the customer sees the revision list.                                        |
-| Templates        | A quotation can be saved as a template (named set of parameters). Templates are never sent or confirmed.                                                                                          |
+| Templates        | A returning customer's order can be saved as a template (named set of parameters and packages) to create their next orders faster. A template has no price of its own; a new order takes current catalog prices. Templates are never sent or confirmed. |
 | Acceptance       | There is no customer signature. Payment of the advance invoice means acceptance. A declined quotation carries the customer's reason and notifies sales.                                           |
 
 Acceptance criteria:
 
-- A quotation without parameters cannot be sent.
+- A quotation without parameters or packages cannot be sent.
 - Sending a quotation with an advance request creates exactly one advance invoice and one notification to the customer.
 - A revised quotation cannot be sent or confirmed in its old version.
 - Sales sees at a glance whether a sent quotation is unpaid, paid, declined or expired.
@@ -126,7 +127,7 @@ Acceptance criteria:
 - A customer's [cancellation request](customer.md#request-cancel-us-c12) reaches the owning salesperson as a task with the customer's reason.
 - Sales accepts or declines and writes a reply to the customer. Accepting cancels the order and everything the laboratory created for it.
 - Cancellation is blocked once any testing is completed or its results are released, or while the approval is still signed.
-- If an advance was paid, cancelling does not return the money automatically; see the open questions.
+- If an advance was paid, cancelling does not return the money automatically. The money stays on the invoice and is settled outside the system.
 
 ### 6. Follow-up and analytics (US-S18, US-S19)
 
@@ -135,12 +136,7 @@ Acceptance criteria:
 - **Performance.** Per salesperson and period: quotations sent, accepted, declined, revenue, and the time between each step (claim, send, payment, approval).
 - **Visibility.** A salesperson sees their own figures; the Head of Sales sees everyone's.
 
-## III. Open questions
-
-- **Refunds.** If a customer paid an advance and the order is cancelled, who refunds and how is it recorded? Until decided, the money stays on the invoice and is settled outside the system.
-- **Samples in a parameter-first order.** Who groups the selected parameters into physical samples (see the [customer](customer.md#iii-open-questions) document)? Sales would be the natural owner at quotation time.
-
-## IV. Related documents
+## III. Related documents
 
 - [E-commerce module overview](../overview.md)
 - [Customer features](customer.md)

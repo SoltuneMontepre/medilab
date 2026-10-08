@@ -1,0 +1,800 @@
+// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results and signing. Odoo owns the schema; this file only draws it.
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// A single property the laboratory tests on a sample; the unit customers order and pay for.
+model TestParameter {
+  /// Row identifier.
+  id           Int                       @id @default(autoincrement())
+  /// Unique code staff and documents use for the parameter; filled from a sequence when left empty.
+  code         String                    @unique @db.VarChar
+  /// Parameter name in each language.
+  name         Json
+  /// The group revenue reports count the parameter under; one of the parameter's groups.
+  main_group_id Int
+  /// False when the parameter is archived and no longer offered.
+  active       Boolean                   @default(true)
+  /// The group revenue reports count the parameter under.
+  main_group   ParameterGroup            @relation("MainGroup", fields: [main_group_id], references: [id], onDelete: Restrict)
+  /// Groups the parameter belongs to.
+  groups       TestParameterGroup[]
+  /// Sample types the parameter can be tested on.
+  sample_types TestParameterSampleType[]
+  /// Ways the parameter can be tested.
+  methods      ParameterMethod[]
+  /// Limits regulations set for the parameter.
+  regulation_limits RegulationLimit[]
+  /// Sample tests of this parameter.
+  sample_tests      SampleTest[]
+
+  @@index([main_group_id])
+  @@map("medilab_test_parameter")
+}
+
+/// A kind of analysis that organises the catalog, such as Pesticides with the sub-group Organophosphates. Sets no price.
+model ParameterGroup {
+  /// Row identifier.
+  id          Int                  @id @default(autoincrement())
+  /// Unique code of the group, such as NCT.0001; filled from a sequence when left empty.
+  code        String               @unique @db.VarChar
+  /// Group name in each language.
+  name        Json
+  /// The group this one is a sub-group of; empty for a top-level group.
+  parent_id   Int?
+  /// Ids of the group and all its ancestors, such as 1/4/9/, so filtering by a group finds its sub-groups in one query.
+  parent_path String?              @db.VarChar
+  /// False when the group is archived.
+  active      Boolean              @default(true)
+  /// The group this one is a sub-group of.
+  parent      ParameterGroup?      @relation("GroupTree", fields: [parent_id], references: [id], onDelete: Restrict)
+  /// Sub-groups of this group.
+  children    ParameterGroup[]     @relation("GroupTree")
+  /// Parameters in the group.
+  parameters  TestParameterGroup[]
+  /// Parameters whose revenue is reported under this group.
+  main_parameters TestParameter[]  @relation("MainGroup")
+
+  @@index([parent_id])
+  @@index([parent_path])
+  @@map("medilab_parameter_group")
+}
+
+/// The kind of material a sample is, such as Vegetables with the child Cabbage; filters the catalog.
+model SampleType {
+  /// Row identifier.
+  id          Int                       @id @default(autoincrement())
+  /// Unique code of the sample type, such as LM.0001; filled from a sequence when left empty.
+  code        String                    @unique @db.VarChar
+  /// Sample type name in each language.
+  name        Json
+  /// The broader sample type this one belongs to; empty for a top-level type.
+  parent_id   Int?
+  /// Ids of the sample type and all its ancestors, such as 2/7/, so filtering by a type finds its children in one query.
+  parent_path String?                   @db.VarChar
+  /// Smallest amount of sample to collect, in minimum_quantity_unit.
+  minimum_quantity         Float?
+  /// Unit of the minimum amount, such as g or mL.
+  minimum_quantity_unit_id Int?
+  /// How to collect the sample, in each language.
+  sampling_requirements    Json?
+  /// How to store the sample before and after testing, such as "2–8 °C, away from light", in each language.
+  storage_conditions       Json?
+  /// True when the laboratory keeps the sample after testing.
+  is_retained              Boolean                   @default(false)
+  /// Number of days the sample is kept after testing.
+  retention_days           Int?
+  /// What to do with the sample right after testing, in each language.
+  post_test_requirements   Json?
+  /// How to dispose of the sample after the retention period, in each language.
+  disposal_method          Json?
+  /// False when the sample type is archived.
+  active      Boolean                   @default(true)
+  /// The broader sample type this one belongs to.
+  parent      SampleType?               @relation("SampleTypeTree", fields: [parent_id], references: [id], onDelete: Restrict)
+  /// Narrower sample types under this one.
+  children    SampleType[]              @relation("SampleTypeTree")
+  /// Unit of the minimum amount.
+  minimum_quantity_unit    MeasurementUnit?          @relation(fields: [minimum_quantity_unit_id], references: [id], onDelete: Restrict)
+  /// Parameters that can be tested on this sample type.
+  parameters  TestParameterSampleType[]
+  /// Samples of this type.
+  samples     Sample[]
+  /// Regulations that apply to this sample type.
+  regulations RegulationSampleType[]
+
+  @@index([parent_id])
+  @@index([parent_path])
+  @@map("medilab_sample_type")
+}
+
+/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter.
+model Regulation {
+  /// Row identifier.
+  id                Int                    @id @default(autoincrement())
+  /// Unique reference of the regulation, such as QCVN 6-1:2010/BYT.
+  code              String                 @unique @db.VarChar
+  /// Title of the regulation in each language.
+  name              Json
+  /// The ministry or body that issued the regulation.
+  issuing_authority String?                @db.VarChar
+  /// False when the regulation is archived.
+  active            Boolean                @default(true)
+  /// Sample types the regulation applies to.
+  sample_types      RegulationSampleType[]
+  /// Limits the regulation sets, one per parameter.
+  limits            RegulationLimit[]
+  /// Samples compared with the regulation.
+  samples           Sample[]
+
+  @@map("medilab_regulation")
+}
+
+/// The limit a regulation sets for one parameter. Unique on (regulation_id, parameter_id).
+model RegulationLimit {
+  /// Row identifier.
+  id            Int             @id @default(autoincrement())
+  /// The regulation that sets the limit.
+  regulation_id Int
+  /// The parameter the limit applies to.
+  parameter_id  Int
+  /// The unit of min_value and max_value.
+  unit_id       Int
+  /// Lowest allowed value; empty when there is no lower limit.
+  min_value     Float?
+  /// Highest allowed value; empty when there is no upper limit.
+  max_value     Float?
+  /// The limit as printed on the report when it is not a number, such as "Not detected", in each language.
+  limit_text    Json?
+  /// The regulation that sets the limit.
+  regulation    Regulation      @relation(fields: [regulation_id], references: [id], onDelete: Cascade)
+  /// The parameter the limit applies to.
+  parameter     TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+  /// The unit of the limit values.
+  unit          MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+
+  @@unique([regulation_id, parameter_id])
+  @@index([parameter_id])
+  @@map("medilab_regulation_limit")
+}
+
+/// Links regulations to the sample types they apply to.
+model RegulationSampleType {
+  /// The regulation.
+  regulation_id  Int
+  /// A sample type the regulation applies to.
+  sample_type_id Int
+  /// The regulation.
+  regulation     Regulation @relation(fields: [regulation_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type    SampleType @relation(fields: [sample_type_id], references: [id], onDelete: Cascade)
+
+  @@id([regulation_id, sample_type_id])
+  @@index([sample_type_id])
+  @@map("medilab_regulation_sample_type_rel")
+}
+
+/// The procedure the laboratory follows to test a parameter.
+model TestingMethod {
+  /// Row identifier.
+  id         Int               @id @default(autoincrement())
+  /// Unique standard reference of the method, such as TCVN 6187-1:2009.
+  code       String            @unique @db.VarChar
+  /// Title of the standard in each language, such as "Water quality — Detection of coliforms".
+  name       Json
+  /// The testing field the method belongs to.
+  field_id   Int
+  /// False when the method is archived.
+  active     Boolean           @default(true)
+  /// The testing field the method belongs to.
+  field      TestingField      @relation(fields: [field_id], references: [id], onDelete: Restrict)
+  /// Parameters tested with this method.
+  parameters ParameterMethod[]
+  /// Chemicals the method uses.
+  chemicals  ChemicalMethod[]
+
+  @@index([field_id])
+  @@map("medilab_testing_method")
+}
+
+/// A field of testing that classifies methods, such as Chemistry or Microbiology.
+model TestingField {
+  /// Row identifier.
+  id      Int             @id @default(autoincrement())
+  /// Unique code of the field.
+  code    String          @unique @db.VarChar
+  /// Field name in each language.
+  name    Json
+  /// False when the field is archived.
+  active  Boolean         @default(true)
+  /// Methods in the field.
+  methods TestingMethod[]
+
+  @@map("medilab_testing_field")
+}
+
+/// A department of the laboratory, as given by the active people data source.
+/// With the Laboratory source the row is the department itself; with another source it is the copy this system keeps.
+/// Unique on (source, source_ref).
+model Department {
+  /// Row identifier.
+  id                Int               @id @default(autoincrement())
+  /// The people data source the department comes from: laboratory or hr.
+  source            String            @db.VarChar
+  /// Identifier of the department in its source.
+  source_ref        String            @db.VarChar
+  /// Department name, read from the source and kept as a copy.
+  name              String            @db.VarChar
+  /// False when the department was removed from its source; the row is never deleted.
+  active            Boolean           @default(true)
+  /// Parameter and method pairs the department tests in-house.
+  parameter_methods ParameterMethod[]
+  /// People in the department.
+  people            Person[]
+
+  @@unique([source, source_ref])
+  @@map("medilab_department")
+}
+
+/// The unit in which a measured value is expressed.
+model MeasurementUnit {
+  /// Row identifier.
+  id                Int               @id @default(autoincrement())
+  /// Unique unit symbol, such as mg/kg.
+  name              String            @unique @db.VarChar
+  /// The kind of quantity the unit measures; units convert only within one category.
+  category_id       Int
+  /// Number of reference units in one of this unit, such as 0.001 for µg/L when mg/L is the reference; 1 for the reference unit.
+  factor            Float             @default(1)
+  /// False when the unit is archived.
+  active            Boolean           @default(true)
+  /// The kind of quantity the unit measures.
+  category          UnitCategory      @relation(fields: [category_id], references: [id], onDelete: Restrict)
+  /// Parameter and method pairs whose results use this unit.
+  parameter_methods ParameterMethod[]
+  /// Sample types whose minimum amount uses this unit.
+  sample_types      SampleType[]
+  /// Regulation limits expressed in this unit.
+  regulation_limits RegulationLimit[]
+  /// Results expressed in this unit.
+  results           TestResult[]
+
+  @@index([category_id])
+  @@map("medilab_measurement_unit")
+}
+
+/// A kind of quantity, such as mass concentration in liquid; units in one category convert into each other.
+model UnitCategory {
+  /// Row identifier.
+  id     Int               @id @default(autoincrement())
+  /// Category name in each language.
+  name   Json
+  /// False when the category is archived.
+  active Boolean           @default(true)
+  /// Units in the category.
+  units  MeasurementUnit[]
+
+  @@map("medilab_unit_category")
+}
+
+/// How one parameter is tested with one method, by the laboratory or by a subcontractor, and the unit of its result.
+/// Unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)).
+/// At most one row per parameter is the default (partial unique index on parameter_id where is_default).
+model ParameterMethod {
+  /// Row identifier.
+  id               Int             @id @default(autoincrement())
+  /// The parameter being tested.
+  parameter_id     Int
+  /// The method used to test it.
+  method_id        Int
+  /// The unit the result is expressed in.
+  unit_id          Int
+  /// The subcontractor that tests it; empty when the laboratory tests it in-house.
+  subcontractor_id Int?
+  /// The department that tests it in-house; empty when a subcontractor tests it.
+  department_id    Int?
+  /// True when this way of testing is within an ISO 17025 accreditation scope.
+  is_accredited    Boolean         @default(false)
+  /// Limit of detection: the lowest value this method can detect, in the row's unit.
+  lod              Float?
+  /// Limit of quantification: the lowest value this method can measure reliably, in the row's unit.
+  loq              Float?
+  /// True for the way the parameter is normally tested.
+  is_default       Boolean         @default(false)
+  /// False when this way of testing is archived.
+  active           Boolean         @default(true)
+  /// The parameter being tested.
+  parameter        TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  /// The method used to test it.
+  method           TestingMethod   @relation(fields: [method_id], references: [id], onDelete: Restrict)
+  /// The unit the result is expressed in.
+  unit             MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+  /// The subcontractor that tests it.
+  subcontractor    Subcontractor?  @relation(fields: [subcontractor_id], references: [id], onDelete: Restrict)
+  /// The department that tests it in-house.
+  department       Department?     @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// Machines that can run it.
+  machines         ParameterMethodMachine[]
+  /// Quality registration dossiers that cover it.
+  registrations    QualityRegistrationParameterMethod[]
+  /// Sample tests done this way.
+  sample_tests     SampleTest[]
+
+  @@index([parameter_id])
+  @@index([method_id])
+  @@index([subcontractor_id])
+  @@index([department_id])
+  @@map("medilab_parameter_method")
+}
+
+/// An outside laboratory that tests parameters for the laboratory. Its name, address and people are its contact.
+model Subcontractor {
+  /// Row identifier.
+  id                    Int               @id @default(autoincrement())
+  /// Unique code of the subcontractor, such as TP.0001; filled from a sequence when left empty.
+  code                  String            @unique @db.VarChar
+  /// The company contact of the subcontractor.
+  partner_id            Int               @unique
+  /// The person the laboratory deals with by default; usually one of the company's people, but any person contact is allowed.
+  contact_person_id     Int?
+  /// Number of the subcontractor's accreditation certificate, such as VILAS 123.
+  accreditation_number  String?           @db.VarChar
+  /// Date the accreditation certificate expires; empty when it does not expire.
+  accreditation_expiry  DateTime?         @db.Date
+  /// Reference of the contract between the laboratory and the subcontractor.
+  contract_reference    String?           @db.VarChar
+  /// Free notes about working with the subcontractor.
+  note                  String?           @db.Text
+  /// False when the laboratory no longer uses the subcontractor.
+  active                Boolean           @default(true)
+  /// The company contact of the subcontractor.
+  partner               Contact           @relation("SubcontractorCompany", fields: [partner_id], references: [id], onDelete: Restrict)
+  /// The person the laboratory deals with by default.
+  contact_person       Contact?          @relation("SubcontractorContactPerson", fields: [contact_person_id], references: [id], onDelete: SetNull)
+  /// Parameter and method pairs the subcontractor tests.
+  parameter_methods     ParameterMethod[]
+
+  @@index([contact_person_id])
+  @@map("medilab_subcontractor")
+}
+
+/// Odoo's contact table for companies and people, shown with the columns this schema uses.
+model Contact {
+  /// Row identifier.
+  id                         Int             @id @default(autoincrement())
+  /// Name of the company or person.
+  name                       String          @db.VarChar
+  /// True for a company, false for a person.
+  is_company                 Boolean         @default(false)
+  /// The company a person works for.
+  parent_id                  Int?
+  /// The company a person works for.
+  company                    Contact?        @relation("CompanyPeople", fields: [parent_id], references: [id])
+  /// People who work for this company.
+  people                     Contact[]       @relation("CompanyPeople")
+  /// The subcontractor record when this company is a subcontractor.
+  subcontractor              Subcontractor?  @relation("SubcontractorCompany")
+  /// Subcontractors for which this person is the contact person.
+  subcontractor_contact_for  Subcontractor[] @relation("SubcontractorContactPerson")
+  /// Test requests of this customer.
+  test_requests              TestRequest[]
+
+  @@map("res_partner")
+}
+
+/// Links parameters to the groups they belong to.
+model TestParameterGroup {
+  /// The parameter.
+  parameter_id Int
+  /// A group the parameter belongs to.
+  group_id     Int
+  /// The parameter.
+  parameter    TestParameter  @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  /// The group.
+  group        ParameterGroup @relation(fields: [group_id], references: [id], onDelete: Cascade)
+
+  @@id([parameter_id, group_id])
+  @@index([group_id])
+  @@map("medilab_test_parameter_group_rel")
+}
+
+/// Links parameters to the sample types they can be tested on.
+model TestParameterSampleType {
+  /// The parameter.
+  parameter_id   Int
+  /// A sample type the parameter can be tested on.
+  sample_type_id Int
+  /// The parameter.
+  parameter      TestParameter @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type    SampleType    @relation(fields: [sample_type_id], references: [id], onDelete: Cascade)
+
+  @@id([parameter_id, sample_type_id])
+  @@index([sample_type_id])
+  @@map("medilab_test_parameter_sample_type_rel")
+}
+
+/// Laboratory equipment used to run tests.
+model Machine {
+  /// Row identifier.
+  id                    Int                    @id @default(autoincrement())
+  /// Unique code of the machine.
+  code                  String                 @unique @db.VarChar
+  /// Name of the machine, such as "HPLC 1".
+  name                  String                 @db.VarChar
+  /// Model of the machine, as named by the manufacturer.
+  model                 String?                @db.VarChar
+  /// Company that made the machine.
+  manufacturer          String?                @db.VarChar
+  /// Serial number given by the manufacturer.
+  serial_number         String?                @db.VarChar
+  /// Where the machine is, such as "Room 203, bench 2".
+  location              String?                @db.VarChar
+  /// in_use, under_repair or retired.
+  status                String                 @db.VarChar
+  /// Date the next calibration is due, taken from the latest calibration record; the machine cannot be used after it.
+  next_calibration_date DateTime?              @db.Date
+  /// Days between two maintenance visits; empty when the machine has no schedule.
+  maintenance_interval_days Int?
+  /// Date the next maintenance is due, from the latest maintenance record and the interval.
+  next_maintenance_date DateTime?              @db.Date
+  /// False when the machine is archived.
+  active                Boolean                @default(true)
+  /// Calibration, maintenance and repair records of the machine.
+  services              MachineService[]
+  /// Parameter and method pairs the machine can run.
+  parameter_methods     ParameterMethodMachine[]
+
+  @@index([next_calibration_date])
+  @@map("medilab_machine")
+}
+
+/// One calibration, maintenance or repair done on a machine.
+model MachineService {
+  /// Row identifier.
+  id           Int       @id @default(autoincrement())
+  /// The machine serviced.
+  machine_id   Int
+  /// calibration, maintenance or repair.
+  kind         String    @db.VarChar
+  /// Date the service was done.
+  service_date DateTime  @db.Date
+  /// Date the next service of this kind is due, such as the calibration certificate's expiry.
+  next_due_date DateTime? @db.Date
+  /// Person or company that did the service.
+  performed_by String?   @db.VarChar
+  /// Number of the calibration certificate or service report.
+  reference    String?   @db.VarChar
+  /// What was done and found.
+  note         String?   @db.Text
+  /// The machine serviced.
+  machine      Machine   @relation(fields: [machine_id], references: [id], onDelete: Restrict)
+
+  @@index([machine_id, kind, service_date])
+  @@map("medilab_machine_service")
+}
+
+/// Links parameter and method pairs to the machines that can run them.
+model ParameterMethodMachine {
+  /// The parameter and method pair.
+  parameter_method_id Int
+  /// A machine that can run it.
+  machine_id          Int
+  /// The parameter and method pair.
+  parameter_method    ParameterMethod @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+  /// The machine.
+  machine             Machine         @relation(fields: [machine_id], references: [id], onDelete: Cascade)
+
+  @@id([parameter_method_id, machine_id])
+  @@index([machine_id])
+  @@map("medilab_parameter_method_machine_rel")
+}
+
+/// A chemical substance the laboratory keeps and uses for testing. Stock, expiry and suppliers are kept by Inventory.
+model Chemical {
+  /// Row identifier.
+  id                 Int              @id @default(autoincrement())
+  /// Unique code of the chemical.
+  code               String           @unique @db.VarChar
+  /// Chemical name in each language.
+  name               Json
+  /// CAS registry number, such as 7647-14-5.
+  cas_number         String?          @db.VarChar
+  /// Chemical formula, such as NaCl.
+  formula            String?          @db.VarChar
+  /// Grade or purity, such as "AR, ≥ 99.5 %".
+  grade              String?          @db.VarChar
+  /// How the chemical must be stored, in each language.
+  storage_conditions Json?
+  /// False when the chemical is archived.
+  active             Boolean          @default(true)
+  /// Testing methods that use the chemical.
+  methods            ChemicalMethod[]
+
+  @@index([cas_number])
+  @@map("medilab_chemical")
+}
+
+/// Links chemicals to the testing methods that use them.
+model ChemicalMethod {
+  /// The chemical.
+  chemical_id Int
+  /// A testing method that uses it.
+  method_id   Int
+  /// The chemical.
+  chemical    Chemical      @relation(fields: [chemical_id], references: [id], onDelete: Cascade)
+  /// The testing method.
+  method      TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
+
+  @@id([chemical_id, method_id])
+  @@index([method_id])
+  @@map("medilab_chemical_method_rel")
+}
+
+/// A quality registration dossier with an authority that covers some ways of testing; its mark is printed after the parameter name on the report.
+model QualityRegistration {
+  /// Row identifier.
+  id                Int                                  @id @default(autoincrement())
+  /// Unique code of the dossier; filled from a sequence when left empty.
+  code              String                               @unique @db.VarChar
+  /// Dossier name in each language.
+  name              Json
+  /// The ministry or body the dossier is registered with.
+  issuing_authority String?                              @db.VarChar
+  /// First day the registration is valid.
+  valid_from        DateTime?                            @db.Date
+  /// Last day the registration is valid; it counts as expired after this date.
+  valid_until       DateTime?                            @db.Date
+  /// Mark printed after the name of each covered parameter on the report, such as (*).
+  report_mark       String?                              @db.VarChar
+  /// False when the dossier is archived.
+  active            Boolean                              @default(true)
+  /// Parameter and method pairs the dossier covers.
+  parameter_methods QualityRegistrationParameterMethod[]
+
+  @@index([valid_until])
+  @@map("medilab_quality_registration")
+}
+
+/// Links quality registration dossiers to the parameter and method pairs they cover.
+model QualityRegistrationParameterMethod {
+  /// The dossier.
+  registration_id     Int
+  /// A parameter and method pair it covers.
+  parameter_method_id Int
+  /// The dossier.
+  registration        QualityRegistration @relation(fields: [registration_id], references: [id], onDelete: Cascade)
+  /// The parameter and method pair.
+  parameter_method    ParameterMethod     @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+
+  @@id([registration_id, parameter_method_id])
+  @@index([parameter_method_id])
+  @@map("medilab_quality_registration_parameter_method_rel")
+}
+
+/// A request for the laboratory to test the samples of one customer. E-commerce creates it from a confirmed order; without E-commerce the laboratory creates it.
+model TestRequest {
+  /// Row identifier.
+  id           Int      @id @default(autoincrement())
+  /// Unique code of the request; filled from a sequence when left empty.
+  code         String   @unique @db.VarChar
+  /// The customer who asks for the tests.
+  customer_id  Int
+  /// Date the request was made.
+  request_date DateTime @db.Date
+  /// Free notes about the request.
+  note         String?  @db.Text
+  /// The customer who asks for the tests.
+  customer     Contact  @relation(fields: [customer_id], references: [id], onDelete: Restrict)
+  /// Samples of the request.
+  samples      Sample[]
+
+  @@index([customer_id])
+  @@map("medilab_test_request")
+}
+
+/// Material a customer submits to be tested: the thing someone holds in their hand.
+model Sample {
+  /// Row identifier.
+  id                   Int          @id @default(autoincrement())
+  /// Unique laboratory code (mã PTN) from a sequence; the only name testers see.
+  code                 String       @unique @db.VarChar
+  /// The test request the sample belongs to.
+  request_id           Int
+  /// Name the customer gives the sample, such as "Lavie bottled water 1 L"; hidden from testers.
+  customer_sample_name String       @db.VarChar
+  /// The sample type (nền mẫu), such as bottled drinking water.
+  sample_type_id       Int
+  /// solid, liquid, gas or semi_solid.
+  physical_state       String       @db.VarChar
+  /// Form the sample comes in, such as "whole bottle".
+  sample_form          String?      @db.VarChar
+  /// Container the sample comes in, such as "1 L bottle".
+  container_type       String?      @db.VarChar
+  /// The regulation the sample's results are compared with; empty when none.
+  regulation_id        Int?
+  /// Free notes about the sample.
+  note                 String?      @db.Text
+  /// The test request the sample belongs to.
+  request              TestRequest  @relation(fields: [request_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type          SampleType   @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// The regulation the results are compared with.
+  regulation           Regulation?  @relation(fields: [regulation_id], references: [id], onDelete: Restrict)
+  /// Parameters tested on the sample.
+  tests                SampleTest[]
+
+  @@index([request_id])
+  @@index([sample_type_id])
+  @@map("medilab_sample")
+}
+
+/// One parameter tested on one sample, and the way it is tested once the laboratory has chosen it.
+model SampleTest {
+  /// Row identifier.
+  id                  Int              @id @default(autoincrement())
+  /// The sample tested.
+  sample_id           Int
+  /// The parameter tested.
+  parameter_id        Int
+  /// The way of testing chosen for it; empty until the laboratory chooses. Must be a way of testing this parameter.
+  parameter_method_id Int?
+  /// How many times the parameter is tested on the sample; at least 1.
+  quantity            Int              @default(1)
+  /// The sample tested.
+  sample              Sample           @relation(fields: [sample_id], references: [id], onDelete: Cascade)
+  /// The parameter tested.
+  parameter           TestParameter    @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+  /// The way of testing chosen.
+  parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
+  /// Results of the test, one per attempt.
+  results             TestResult[]
+
+  @@index([sample_id])
+  @@index([parameter_id])
+  @@index([parameter_method_id])
+  @@map("medilab_sample_test")
+}
+
+/// One attempt at measuring a sample test. Earlier attempts are kept; one per sample test is the reported result. Its content is to be extended.
+/// At most one reported result per sample test (partial unique index on sample_test_id where is_reported).
+model TestResult {
+  /// Row identifier.
+  id             Int              @id @default(autoincrement())
+  /// The sample test measured.
+  sample_test_id Int
+  /// Attempt number, 1 for the first measurement and higher for retests.
+  attempt        Int              @default(1)
+  /// True for the result reported to the customer.
+  is_reported    Boolean          @default(false)
+  /// Measured value, in unit_id; empty for a text result.
+  value          Float?
+  /// Result as text when it is not a number, such as "Not detected", in each language.
+  value_text     Json?
+  /// The unit of the value, taken from the way of testing.
+  unit_id        Int?
+  /// Lowest allowed value, copied from the sample's regulation when the result is created.
+  limit_min      Float?
+  /// Highest allowed value, copied from the sample's regulation when the result is created.
+  limit_max      Float?
+  /// Limit as text, copied from the sample's regulation, in each language.
+  limit_text     Json?
+  /// Version of the result, raised each time a change request creates a new version.
+  version        Int              @default(1)
+  /// The sample test measured.
+  sample_test    SampleTest       @relation(fields: [sample_test_id], references: [id], onDelete: Cascade)
+  /// The unit of the value.
+  unit           MeasurementUnit? @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+
+  @@unique([sample_test_id, attempt])
+  @@map("medilab_test_result")
+}
+
+/// A person from the active people data source, with the copy this system keeps. Unique on (source, source_ref).
+model Person {
+  /// Row identifier.
+  id            Int         @id @default(autoincrement())
+  /// The people data source the person comes from: laboratory or hr.
+  source        String      @db.VarChar
+  /// Identifier of the person in its source.
+  source_ref    String      @db.VarChar
+  /// Name of the person, read from the source and kept as a copy.
+  name          String      @db.VarChar
+  /// Role of the person, read from the source.
+  role          String?     @db.VarChar
+  /// Department of the person, read from the source.
+  department_id Int?
+  /// The Odoo user the person logs in as; empty for people who never sign in.
+  user_id       Int?        @unique
+  /// False when the person was removed from the source; the row is never deleted.
+  active        Boolean     @default(true)
+  /// Department of the person.
+  department    Department? @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// Signatures the person gave.
+  signatures    Signature[]
+
+  @@unique([source, source_ref])
+  @@index([department_id])
+  @@map("medilab_person")
+}
+
+/// The ordered signing levels a document type needs, such as tester then head of department for a test result.
+model ApprovalChain {
+  /// Row identifier.
+  id             Int             @id @default(autoincrement())
+  /// Technical name of the document type, such as medilab.test.result.
+  document_model String          @unique @db.VarChar
+  /// Chain name in each language.
+  name           Json
+  /// False when the chain is archived.
+  active         Boolean         @default(true)
+  /// Levels of the chain, in signing order.
+  levels         ApprovalLevel[]
+
+  @@map("medilab_approval_chain")
+}
+
+/// One level of an approval chain. Unique on (chain_id, sequence).
+model ApprovalLevel {
+  /// Row identifier.
+  id              Int           @id @default(autoincrement())
+  /// The chain the level belongs to.
+  chain_id        Int
+  /// Position in the chain; lower levels sign first.
+  sequence        Int
+  /// Level name in each language, such as "Head of department".
+  name            Json
+  /// Role a person needs to sign at this level, as named by the people data source.
+  role            String        @db.VarChar
+  /// True when the signer must belong to the department that did the work.
+  same_department Boolean       @default(false)
+  /// True when the signer may reject instead of signing.
+  can_reject      Boolean       @default(true)
+  /// The chain the level belongs to.
+  chain           ApprovalChain @relation(fields: [chain_id], references: [id], onDelete: Cascade)
+  /// Signatures given at this level.
+  signatures      Signature[]
+
+  @@unique([chain_id, sequence])
+  @@map("medilab_approval_level")
+}
+
+/// One signature or rejection on one version of a document. Records are never deleted; a withdrawal sets withdrawn_at.
+/// Points to its document by document_model and document_id, indexed together.
+model Signature {
+  /// Row identifier.
+  id               Int           @id @default(autoincrement())
+  /// Technical name of the signed document's model, such as medilab.test.result.
+  document_model   String        @db.VarChar
+  /// Id of the signed document.
+  document_id      Int
+  /// Version of the document that was signed.
+  document_version Int
+  /// The level signed at.
+  level_id         Int
+  /// The person who signed.
+  signer_id        Int
+  /// Signer's name at the time of signing.
+  signer_name      String        @db.VarChar
+  /// Signer's role at the time of signing.
+  signer_role      String        @db.VarChar
+  /// Level name at the time of signing.
+  level_name       String        @db.VarChar
+  /// signed or rejected.
+  decision         String        @db.VarChar
+  /// Reason given for a rejection.
+  reason           String?       @db.Text
+  /// When the signature or rejection was given.
+  signed_at        DateTime
+  /// When the signer withdrew the signature; empty while it stands.
+  withdrawn_at     DateTime?
+  /// The level signed at.
+  level            ApprovalLevel @relation(fields: [level_id], references: [id], onDelete: Restrict)
+  /// The person who signed.
+  signer           Person        @relation(fields: [signer_id], references: [id], onDelete: Restrict)
+
+  @@index([document_model, document_id])
+  @@index([signer_id])
+  @@map("medilab_signature")
+}

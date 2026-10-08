@@ -11,5 +11,6 @@ Open the index of the folder that matches what you are looking for; each index l
 - [Infrastructure](infrastructure/readme.md): secrets, Terraform and CI
 - [Workflows](workflows/readme.md): step-by-step procedures for recurring tasks
 - [Functional](functional/index.md): the project, its modules, actors and features, and shared technical features
+- [Specs](specs/readme.md): designs agreed before they are coded
 - [Reports](reports/): everything else: documents, diagrams and supporting material
 - [Glossaries](glossaries.md): shared terms in English and Vietnamese

@@ -40,8 +40,8 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 - An advance invoice is posted automatically; the accountant does not need to create or post it.
 - The final invoice deducts the advance already paid, so the customer is never billed twice for the same parameters.
 - Invoices are sent by email with the PDF attached, and can be downloaded at any time. Customers see their posted invoices on the portal.
-- Tax follows the configured tax rules and fiscal position for the customer. Prices in the catalog exclude VAT; the invoice shows net, tax and total separately.
-- A posted invoice cannot be edited. A correction is made with a credit note (see the open questions).
+- Tax follows the tax of each quotation line: the parameter's or package's tax, or the one sales set on the quotation. Prices in the catalog exclude VAT; the invoice shows net, tax and total separately.
+- A posted invoice cannot be edited. A correction is made with a credit note.
 
 Acceptance criteria:
 
@@ -86,7 +86,7 @@ Acceptance criteria:
 
 | Report                 | Content                                                                 |
 | ---------------------- | ----------------------------------------------------------------------- |
-| Revenue                | Invoiced and collected amounts per period, customer and parameter group |
+| Revenue                | Invoiced and collected amounts per period, customer and main parameter group |
 | Outstanding            | Unpaid and overdue invoices, with age of the debt                       |
 | Cash flow              | Money received per period, per payment method                           |
 | Collection performance | Time from invoice sent to payment, share of invoices paid on time       |

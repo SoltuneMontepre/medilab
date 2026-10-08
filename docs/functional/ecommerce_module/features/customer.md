@@ -99,7 +99,7 @@ Acceptance criteria:
 
 ### 2. Placing an order (US-C08 to US-C12)
 
-The customer builds an order from the test catalog, like a cart. The unit of selection is the **parameter** (test): the customer searches the catalog and adds the parameters they need to the cart. Sample types and other catalog categories are **filters** that narrow the catalog, not things the customer has to pick first. The total price is shown while composing.
+The customer builds an order from the test catalog, like a cart. The unit of selection is the **parameter** (test) or a **service package**: the customer searches the catalog and adds the parameters or packages they need to the cart. Sample types and other catalog categories are **filters** that narrow the catalog, not things the customer has to pick first. The total price is shown while composing.
 
 Catalog filters:
 
@@ -123,7 +123,7 @@ Parameters are grouped by kind of analysis. The catalog shows the group and its 
 #### Pricing
 
 - **Price per parameter.** Every parameter has its own specific price in the catalog; the group only organises the catalog and does not set a price.
-- **Total = sum of the selected parameters' prices.** For a parameter ordered in a quantity, the price is multiplied by the quantity. The cart shows each parameter's price and a running total as parameters are added or removed.
+- **Total = sum of the selected parameters' and packages' prices.** A package line uses the package price, not the sum of its parameters. For a parameter ordered in a quantity, the price is multiplied by the quantity. The cart shows each parameter's price and a running total as parameters are added or removed.
 - **Prices exclude VAT.** Tax is added on the quotation and the invoice, not in the cart.
 - **The cart total matches the quotation.** The prices come from the catalog, so the quotation uses the same prices unless sales adjusts them (for example a discount) before sending.
 
@@ -140,28 +140,28 @@ stateDiagram-v2
 
 | Rule                  | Description                                                                                                                            |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Complete order        | Submitting requires at least one parameter in the cart.                                                                                |
-| No duplicates         | An **open** order with the same content (parameters and quantities) cannot be created or submitted twice.                              |
+| Complete order        | Submitting requires at least one parameter or service package in the cart.                                                             |
+| No duplicates         | An **open** order with the same content (parameters, packages and quantities) cannot be created or submitted twice.                    |
 | Submit is not confirm | Submitting only puts the order in the sales queue. Sales then prepares the quotation.                                                  |
 | Cancel                | The customer can cancel until the order is confirmed; after that the customer can only [request cancellation](#request-cancel-us-c12). |
 | Reorder               | See [Reorder](#reorder-us-c10).                                                                                                        |
 
 #### Reorder (US-C10)
 
-The customer opens a past order in the order history and chooses **Reorder**. The system creates a new draft order with the same parameters and quantities. The customer can edit the draft (add or remove parameters, change quantities) and then submit it like any new order.
+The customer opens a past order in the order history and chooses **Reorder**. The system creates a new draft order with the same parameters, packages and quantities. The customer can edit the draft (add or remove parameters and packages, change quantities) and then submit it like any new order.
 
 | Rule                         | Description                                                                                                                                                                                        |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source                       | Any order of the customer's own partner; it does not have to be completed.                                                                                                                         |
 | New draft                    | The result is always a new draft, never submitted automatically. The original order does not change.                                                                                               |
-| Current prices               | Prices come from the current catalog, not from the original quotation, so the total can differ. Parameters that no longer exist in the catalog are not copied and the customer is told which ones. |
+| Current prices               | Prices come from the current catalog, not from the original quotation, so the total can differ. Parameters and packages that are no longer in the catalog are not copied and the customer is told which ones. |
 | No payment or results copied | Invoices, payments, approvals, sample data and results stay with the original order.                                                                                                               |
 | No duplicates                | Reordering is refused while the source order is still open or when another open order has the same content, to prevent the same request being submitted twice.                                     |
 | Ownership                    | The new draft belongs to the customer and is not assigned to a salesperson until sales claims it after submission.                                                                                 |
 
 Acceptance criteria:
 
-- Reordering a completed order creates a draft with the same parameters at current prices.
+- Reordering a completed order creates a draft with the same parameters and packages at current prices.
 - Reordering an order that is still open, or one that would duplicate an open order, is refused with a message naming the existing order.
 - The original order, its invoices and its results are unchanged.
 

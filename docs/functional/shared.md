@@ -1,6 +1,6 @@
 # Shared technical implementations
 
-This document describes the technical capabilities shared by every module (E-commerce, Storage and Laboratory). They are not specific to any actor: users meet them as behaviour of the whole system, and developers and system administrators build and configure them once. It is a reference for developers and system administrators.
+This document describes the technical capabilities shared by every module (E-commerce, Inventory and Laboratory). They are not specific to any actor: users meet them as behaviour of the whole system, and developers and system administrators build and configure them once. It is a reference for developers and system administrators.
 
 Each requirement has an ID (`SH-nn`) so that module documents can refer to it.
 
@@ -10,9 +10,9 @@ Each requirement has an ID (`SH-nn`) so that module documents can refer to it.
 
 #### SH-01 Modular installation and integration
 
-The system consists of three modules (E-commerce, Storage, Laboratory) that can be installed independently and work together when installed together.
+The system consists of three modules (E-commerce, Inventory, Laboratory) that can be installed independently and work together when installed together.
 
-- E-commerce and Storage depend on Laboratory; Laboratory depends on neither.
+- E-commerce and Inventory depend on Laboratory; Laboratory depends on neither.
 - Installing a module never requires installing a module that depends on it.
 - When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
 - Each module can be upgraded without losing the data of the others.
@@ -20,8 +20,8 @@ The system consists of three modules (E-commerce, Storage, Laboratory) that can 
 Acceptance criteria:
 
 - Laboratory installs and runs alone.
-- E-commerce and Storage each install on top of Laboratory without the other being present.
-- Uninstalling E-commerce or Storage leaves Laboratory data intact.
+- E-commerce and Inventory each install on top of Laboratory without the other being present.
+- Uninstalling E-commerce or Inventory leaves Laboratory data intact.
 
 #### SH-02 Simple installation and configuration
 
@@ -151,7 +151,7 @@ Acceptance criteria:
 
 Recurring work runs by itself, and its health is visible.
 
-Typical jobs: payment reminders, quotation expiry, retention and expiry checks (Storage), report generation, e-mail retries.
+Typical jobs: payment reminders, quotation expiry, retention and expiry checks (Inventory), report generation, e-mail retries.
 
 - Each job has a schedule (interval or fixed time) that an administrator can change.
 - Administrators see every job with its last run, next run, result and duration, and can open the log of each run.
@@ -189,7 +189,7 @@ The system takes online payments through PayOS.
 - A confirmed payment is recorded against the invoice and updates its payment status automatically; partial payments are supported.
 - The status of each payment (created, pending, paid, failed, cancelled, expired) is stored and shown to the accountant.
 - If notifications are missed, a scheduled job (SH-09) asks the provider for the status of pending payments.
-- Refunds are outside this integration; see the open questions in the Sales documents.
+- Refunds are outside this integration.
 
 ### 3. Viettel Sign (digital signature)
 
@@ -200,13 +200,7 @@ The system digitally signs printed documents through Viettel Sign (SH-04). It do
 - Verification of a signed PDF checks the digital signature against the provider and the approval records of the document, and shows the result to anyone who opens the document.
 - If the provider is unavailable, the document is not issued as signed; the user is told and can retry, and the request is retried automatically (SH-09). No document is shown as digitally signed unless the provider confirmed it.
 
-## III. Open questions
-
-- **Certificate holder.** Whose certificate signs the printed documents: one laboratory certificate for all documents, or a certificate per signer or role (for example the Head of Sales for quotations)? This decides how many certificates Viettel Sign must hold.- **SMS.** The customer notification preferences include SMS. Brevo can be used for it, or another provider; this is not decided.
-- **Audit retention.** How long audit entries and signed documents are kept, and whether older entries are archived.
-- **Lock timeout.** The inactivity period after which an editing lock is released.
-
-## IV. Related documents
+## III. Related documents
 
 - [Overview](index.md)
 - [E-commerce module](ecommerce_module/overview.md)

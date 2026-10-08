@@ -69,7 +69,7 @@ How a module is laid out, from its root:
 - Search with `search`, `search_fetch`, `search_count` or `read_group` rather than looping over `search([])`; filter in the domain, not in Python.
 - Do not run raw SQL unless the ORM cannot express the query; when you do, use parameters, never string formatting.
 - Raise Odoo exceptions (`UserError`, `ValidationError`) for errors a user can act on, with a translated message.
-- Comments explain why, not what. Do not leave commented-out code.
+- Comments explain why, not what, except on model fields, which each say what data they hold (see [Database](database.md#models)). Do not leave commented-out code.
 
 ## Related documents
 
