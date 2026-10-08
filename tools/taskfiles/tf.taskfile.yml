@@ -3,6 +3,7 @@ version: "3"
 vars:
   TF_DIR: infra
   TF_RUN: "terraform -chdir={{.TF_DIR}}"
+  TF_RUN_WITH_SECRETS: "{{.DOPPLER_RUN}} {{.TF_RUN}}"
   LOG: tools/scripts/log.sh
 
 tasks:
@@ -28,15 +29,15 @@ tasks:
   tf:plan:
     desc: "Preview Terraform changes"
     cmds:
-      - "{{.TF_RUN}} plan"
+      - "{{.TF_RUN_WITH_SECRETS}} plan"
 
   tf:apply:
     desc: "Apply Terraform changes"
     interactive: true
     cmds:
-      - "{{.TF_RUN}} apply"
+      - "{{.TF_RUN_WITH_SECRETS}} apply"
 
   tf:output:
     desc: "Print the Terraform outputs"
     cmds:
-      - "{{.TF_RUN}} output"
+      - "{{.TF_RUN_WITH_SECRETS}} output"

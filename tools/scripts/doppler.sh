@@ -1,6 +1,6 @@
 doppler_login() {
   if ! command -v doppler >/dev/null 2>&1; then
-    log_error "doppler not found. Install: winget install Doppler.doppler"
+    log_error "doppler not found. Install: https://docs.doppler.com/docs/install-cli"
     exit 1
   fi
   if doppler whoami >/dev/null 2>&1; then
@@ -28,13 +28,4 @@ doppler_login() {
       ;;
   esac
   doppler whoami >/dev/null 2>&1 || { log_error "Doppler authentication failed."; exit 1; }
-}
-
-doppler_user_token() {
-  token=$(doppler configs tokens create "mcp-$COMPUTERNAME" --project "$1" --config "$2" --plain)
-  if [[ -z "$token" ]]; then
-    log_error "Could not create a Doppler service token."
-    exit 1
-  fi
-  setx DOPPLER_TOKEN "$token" >/dev/null
 }

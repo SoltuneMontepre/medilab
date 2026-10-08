@@ -46,7 +46,7 @@ Open http://localhost:8069 and create the `medilab` database. Modules are instal
 | `task`                      | List all tasks                                                               |
 | `task setup`                | Run `dev:setup`, `doppler` and `up`                                          |
 | `task up`                   | Start Odoo, Postgres and CloudBeaver                                         |
-| `task doppler`              | Authenticate Doppler and select project `medilab`, config `dev`              |
+| `task doppler`              | Log the Doppler CLI in and select project `medilab`, config `dev`            |
 | `task stop`                 | Stop the containers and keep the volumes                                     |
 | `task restart`              | Restart Odoo after changing Python, XML or config                            |
 | `task logs`                 | Follow the Odoo log                                                          |

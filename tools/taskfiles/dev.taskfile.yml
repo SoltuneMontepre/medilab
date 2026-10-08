@@ -7,8 +7,6 @@ vars:
   ODOO_SOURCE_REVISION: 7bbce824a1897a912441a7f0511ffec505cbe1d5
   ODOO_ADDONS: [web]
   LINT_TARGET: src/core/modules
-  DOPPLER_PROJECT: medilab
-  DOPPLER_CONFIG: dev
   LOG: tools/scripts/log.sh
   DOPPLER: tools/scripts/doppler.sh
 
@@ -25,7 +23,6 @@ tasks:
     silent: true
     interactive: true
     status:
-      - reg query "HKCU\Environment" /v DOPPLER_TOKEN
       - doppler whoami
       - '[ "$(doppler configure get project --plain)" = "{{.DOPPLER_PROJECT}}" ]'
       - '[ "$(doppler configure get config --plain)" = "{{.DOPPLER_CONFIG}}" ]'
@@ -36,8 +33,7 @@ tasks:
         log_step "Doppler"
         doppler_login
         doppler setup --no-interactive --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_CONFIG}}
-        doppler_user_token {{.DOPPLER_PROJECT}} {{.DOPPLER_CONFIG}}
-        log_ok "Doppler ready. Restart your editor so it picks up DOPPLER_TOKEN."
+        log_ok "Doppler ready."
 
   dev:sync:
     desc: "Create {{.PROJECT_DIR}}/.venv from pyproject.toml and uv.lock, runtime and dev dependencies"
@@ -48,7 +44,7 @@ tasks:
         . {{.LOG}}
         log_step "Python environment"
         if ! command -v uv >/dev/null 2>&1; then
-          log_error "uv not found. Install: winget install astral-sh.uv"
+          log_error "uv not found. Install: https://docs.astral.sh/uv/getting-started/installation/"
           exit 1
         fi
         {{.UV}} sync
