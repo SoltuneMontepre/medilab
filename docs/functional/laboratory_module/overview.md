@@ -39,7 +39,9 @@ erDiagram
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Attempts        | Every measurement of a sample test is its own result. Retests add a result; earlier results are kept. One result per sample test is the reported one. |
 | Value           | A result is a number in the unit of the way of testing, or a text such as "Not detected".                                         |
-| Limit copy      | When a result is created, the limit of the sample's regulation for its parameter is copied onto it. Later changes to the regulation do not change existing results. |
+| Limit copy      | When a result is created, the limit of the sample's regulation for its parameter is copied onto it with its unit. Later changes to the regulation do not change existing results. |
+| Versions        | A change request on a signed result creates a new version that replaces it. The signed version stays unchanged and is marked as replaced. |
+| No deletion     | A result cannot be deleted, and neither can the sample test, sample or test request it belongs to. |
 
 ## Signing
 
@@ -47,7 +49,7 @@ Signing follows [Approval and signing chain](../../business/approval-and-signing
 
 | Rule            | Description                                                                                                                       |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Approval chain  | Each document type, such as test result or sample, has one chain of levels signed in order. Each level names the role that signs it, whether the signer must belong to the department that did the work, and whether the level can reject. |
+| Approval chain  | Each document type, such as test result, has one chain of levels for signing it and one for change requests on it, each signed in order. Each level names the role that signs it, whether the signer must belong to the department that did the work, and whether the level can reject. |
 | Signature       | A signature records the document and its version, the level, the signer and, as they were at signing, the signer's name, role and level name. A rejection records its reason. |
 | Withdrawal      | A withdrawn signature is kept with the time it was withdrawn; signature records are never deleted.                               |
 | People          | Signers are people from the active people data source. The system keeps a copy of each person it has recorded, and never deletes it. |

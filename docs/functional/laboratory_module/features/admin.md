@@ -25,6 +25,11 @@ The administrator maintains the master data of the Laboratory module: test param
 
 - **US-AD12** As an administrator, I want to maintain subcontractors with their accreditation, contract and contact person, so that the laboratory only sends work to subcontractors it may use.
 
+### People and signing
+
+- **US-AD13** As an administrator, I want to choose the people data source and, with the Laboratory source, maintain people and departments, so that signers and departments come from one place.
+- **US-AD14** As an administrator, I want to maintain the approval chain of each document type, for signing it and for change requests on it, so that every document is signed by the right roles in the right order.
+
 ## II. Feature details
 
 ### 1. Catalog (US-AD01 to US-AD08)
@@ -45,7 +50,7 @@ The administrator maintains the master data of the Laboratory module: test param
 | Sampling and storage | A sample type carries how to collect it, its minimum amount, storage conditions, whether and for how many days it is kept after testing, and how it is disposed of. A sample type without instructions has none; it does not use its parent's. |
 | Unit conversion      | Each unit belongs to a category, such as mass concentration in liquid, and has a factor to the category's reference unit. Units convert only within their category. The system ships with common units and conversions, and suggests the category and factor of a new unit; the administrator confirms or edits them. |
 | Converted values     | When a value is compared in another unit, such as a result against a regulation limit, the converted value is a suggestion that the user can edit before it is used. |
-| Regulations          | A regulation, such as QCVN 6-1:2010/BYT, applies to sample types and sets at most one limit per parameter: a minimum, a maximum, or both, in a unit, or a text such as "Not detected". |
+| Regulations          | A regulation, such as QCVN 6-1:2010/BYT, applies to sample types and sets at most one limit per parameter: a minimum, a maximum, or both, in a unit, or a text such as "Not detected" without a unit. A limit has at least one of them. |
 | Quality registration | A dossier is registered with an authority, has validity dates and covers parameter and method pairs. Its mark is printed after the name of each covered parameter on the report. A dossier counts as expired after its last valid day, and its mark is no longer printed. |
 | Expiry warning       | Administrators are warned a number of days before a dossier expires and on the day it expires. The number of days is a system setting the administrator configures. |
 | Permissions          | Only administrators create, edit and archive master data. Everyone else reads it.                                                                |
@@ -99,6 +104,24 @@ Acceptance criteria:
 - A subcontractor with an accreditation expiry date in the past cannot be chosen on a parameter and method pair.
 - A subcontractor with no expiry date can be chosen.
 - An archived subcontractor does not appear in selection lists.
+
+### 4. People and signing (US-AD13, US-AD14)
+
+Follows [Approval and signing chain](../../../business/approval-and-signing-chain.md).
+
+| Rule              | Description                                                                                                                       |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| People source     | One people data source is active at a time. With the Laboratory source, the administrator creates people and departments here. With another source, they are read from it and a copy is kept. |
+| Person and user   | A person who signs is linked to the user they log in as.                                                                          |
+| Approval chain    | Each document type has one chain for signing it and one for change requests on it.                                               |
+| Levels            | A chain has levels signed in order. Each level names the role that signs it, whether the signer must belong to the department that did the work, and whether it can reject. |
+| No deletion       | People and departments removed from the source are archived, never deleted.                                                       |
+
+Acceptance criteria:
+
+- With the Laboratory source, a department created by the administrator can be named on a parameter and method pair.
+- A document type cannot have two chains for the same purpose.
+- A chain cannot have two levels in the same position.
 
 ## III. Related documents
 

@@ -4,7 +4,7 @@
 - For the user, signing is one click of a button.
 - When a document or report is generated, the signatures of the people its approval rules name are attached automatically.
 - A signed document is locked: it cannot be changed or discarded, even by its owner.
-- A signer can withdraw their own signature only after every higher level has withdrawn theirs.
+- Before the final level has signed, a signer can withdraw their own signature only after every higher level has withdrawn theirs. Once the final level has signed, no signature can be withdrawn.
 - Once the final level has signed, changes go through a change request that produces a new linked version.
 - Each signature keeps its own record of who signed and at what level when it was applied. A later change to the signer's role or account does not change an existing signature.
 

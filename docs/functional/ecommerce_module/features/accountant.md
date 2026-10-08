@@ -86,7 +86,7 @@ Acceptance criteria:
 
 | Report                 | Content                                                                 |
 | ---------------------- | ----------------------------------------------------------------------- |
-| Revenue                | Invoiced and collected amounts per period, customer and main parameter group |
+| Revenue                | Invoiced and collected amounts per period, customer and main parameter group. A group's revenue is the revenue of its parameters; a package line's amount is spread over its parameters in proportion to their own prices times quantities. |
 | Outstanding            | Unpaid and overdue invoices, with age of the debt                       |
 | Cash flow              | Money received per period, per payment method                           |
 | Collection performance | Time from invoice sent to payment, share of invoices paid on time       |

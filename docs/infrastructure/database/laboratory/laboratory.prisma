@@ -2,6 +2,7 @@
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 /// A single property the laboratory tests on a sample; the unit customers order and pay for.
@@ -132,6 +133,7 @@ model Regulation {
 }
 
 /// The limit a regulation sets for one parameter. Unique on (regulation_id, parameter_id).
+/// At least one of min_value, max_value and limit_text is set; unit_id is set when min_value or max_value is.
 model RegulationLimit {
   /// Row identifier.
   id            Int             @id @default(autoincrement())
@@ -139,8 +141,8 @@ model RegulationLimit {
   regulation_id Int
   /// The parameter the limit applies to.
   parameter_id  Int
-  /// The unit of min_value and max_value.
-  unit_id       Int
+  /// The unit of min_value and max_value; empty for a text-only limit.
+  unit_id       Int?
   /// Lowest allowed value; empty when there is no lower limit.
   min_value     Float?
   /// Highest allowed value; empty when there is no upper limit.
@@ -152,7 +154,7 @@ model RegulationLimit {
   /// The parameter the limit applies to.
   parameter     TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The unit of the limit values.
-  unit          MeasurementUnit @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+  unit          MeasurementUnit? @relation(fields: [unit_id], references: [id], onDelete: Restrict)
 
   @@unique([regulation_id, parameter_id])
   @@index([parameter_id])
@@ -216,14 +218,14 @@ model TestingField {
 
 /// A department of the laboratory, as given by the active people data source.
 /// With the Laboratory source the row is the department itself; with another source it is the copy this system keeps.
-/// Unique on (source, source_ref).
+/// Unique on (source, source_ref) when source_ref is set.
 model Department {
   /// Row identifier.
   id                Int               @id @default(autoincrement())
   /// The people data source the department comes from: laboratory or hr.
   source            String            @db.VarChar
-  /// Identifier of the department in its source.
-  source_ref        String            @db.VarChar
+  /// Identifier of the department in its source; empty for the Laboratory source, where the row is the department itself.
+  source_ref        String?           @db.VarChar
   /// Department name, read from the source and kept as a copy.
   name              String            @db.VarChar
   /// False when the department was removed from its source; the row is never deleted.
@@ -258,7 +260,9 @@ model MeasurementUnit {
   /// Regulation limits expressed in this unit.
   regulation_limits RegulationLimit[]
   /// Results expressed in this unit.
-  results           TestResult[]
+  results           TestResult[] @relation("ResultUnit")
+  /// Results whose copied limits are in this unit.
+  result_limits     TestResult[] @relation("ResultLimitUnit")
 
   @@index([category_id])
   @@map("medilab_measurement_unit")
@@ -657,8 +661,9 @@ model SampleTest {
   @@map("medilab_sample_test")
 }
 
-/// One attempt at measuring a sample test. Earlier attempts are kept; one per sample test is the reported result. Its content is to be extended.
-/// At most one reported result per sample test (partial unique index on sample_test_id where is_reported).
+/// One version of one attempt at measuring a sample test. Earlier attempts are kept; one per sample test is the reported result.
+/// A change request on a signed result creates a new row with the next version that replaces it; the signed row stays unchanged and is marked as replaced.
+/// At most one reported result per sample test among rows not replaced (partial unique index on sample_test_id where is_reported and not is_replaced).
 model TestResult {
   /// Row identifier.
   id             Int              @id @default(autoincrement())
@@ -674,31 +679,43 @@ model TestResult {
   value_text     Json?
   /// The unit of the value, taken from the way of testing.
   unit_id        Int?
+  /// The unit of limit_min and limit_max, copied from the sample's regulation.
+  limit_unit_id  Int?
   /// Lowest allowed value, copied from the sample's regulation when the result is created.
   limit_min      Float?
   /// Highest allowed value, copied from the sample's regulation when the result is created.
   limit_max      Float?
   /// Limit as text, copied from the sample's regulation, in each language.
   limit_text     Json?
-  /// Version of the result, raised each time a change request creates a new version.
+  /// Version of the result, 1 for the first and one higher for each version a change request creates.
   version        Int              @default(1)
-  /// The sample test measured.
-  sample_test    SampleTest       @relation(fields: [sample_test_id], references: [id], onDelete: Cascade)
+  /// The version this row replaces; empty for version 1.
+  replaces_id    Int?             @unique
+  /// True when a newer version replaces this row.
+  is_replaced    Boolean          @default(false)
+  /// The sample test measured. A result cannot be deleted through its sample test, sample or request.
+  sample_test    SampleTest       @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
   /// The unit of the value.
-  unit           MeasurementUnit? @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+  unit           MeasurementUnit? @relation("ResultUnit", fields: [unit_id], references: [id], onDelete: Restrict)
+  /// The unit of the copied limits.
+  limit_unit     MeasurementUnit? @relation("ResultLimitUnit", fields: [limit_unit_id], references: [id], onDelete: Restrict)
+  /// The version this row replaces.
+  replaces       TestResult?      @relation("ResultVersions", fields: [replaces_id], references: [id], onDelete: Restrict)
+  /// The version that replaces this row.
+  replaced_by    TestResult?      @relation("ResultVersions")
 
-  @@unique([sample_test_id, attempt])
+  @@unique([sample_test_id, attempt, version])
   @@map("medilab_test_result")
 }
 
-/// A person from the active people data source, with the copy this system keeps. Unique on (source, source_ref).
+/// A person from the active people data source, with the copy this system keeps. Unique on (source, source_ref) when source_ref is set.
 model Person {
   /// Row identifier.
   id            Int         @id @default(autoincrement())
   /// The people data source the person comes from: laboratory or hr.
   source        String      @db.VarChar
-  /// Identifier of the person in its source.
-  source_ref    String      @db.VarChar
+  /// Identifier of the person in its source; empty for the Laboratory source, where the row is the person itself.
+  source_ref    String?     @db.VarChar
   /// Name of the person, read from the source and kept as a copy.
   name          String      @db.VarChar
   /// Role of the person, read from the source.
@@ -719,12 +736,15 @@ model Person {
   @@map("medilab_person")
 }
 
-/// The ordered signing levels a document type needs, such as tester then head of department for a test result.
+/// The ordered signing levels a document type needs for one purpose, such as tester then head of department to sign a test result.
+/// Unique on (document_model, purpose).
 model ApprovalChain {
   /// Row identifier.
   id             Int             @id @default(autoincrement())
   /// Technical name of the document type, such as medilab.test.result.
-  document_model String          @unique @db.VarChar
+  document_model String          @db.VarChar
+  /// signing for the document itself, or change_request for change requests on it.
+  purpose        String          @db.VarChar
   /// Chain name in each language.
   name           Json
   /// False when the chain is archived.
@@ -732,6 +752,7 @@ model ApprovalChain {
   /// Levels of the chain, in signing order.
   levels         ApprovalLevel[]
 
+  @@unique([document_model, purpose])
   @@map("medilab_approval_chain")
 }
 

@@ -3,6 +3,7 @@
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 /// Laboratory's test parameter, shown with the columns this module uses.

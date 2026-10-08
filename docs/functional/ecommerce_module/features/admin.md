@@ -10,23 +10,23 @@ E-commerce keeps prices, taxes and packages in its own tables and does not add c
 
 ### Prices and taxes
 
-- **US-AD13** As an administrator, I want to set the price and tax of each test parameter, so that the catalog, cart, quotation and invoice show the same price and tax.
-- **US-AD14** As an administrator, I want to maintain taxes and their rates over time, so that each quotation and invoice uses the rate in force on its date.
-- **US-AD15** As an administrator, I want to record what each subcontractor charges per test, so that margin can be reported for subcontracted work.
+- **US-AD15** As an administrator, I want to set the price and tax of each test parameter, so that the catalog, cart, quotation and invoice show the same price and tax.
+- **US-AD16** As an administrator, I want to maintain taxes and their rates over time, so that each quotation uses the rate in force on its date.
+- **US-AD17** As an administrator, I want to record what each subcontractor charges per test, so that margin can be reported for subcontracted work.
 
 ### Service packages
 
-- **US-AD16** As an administrator, I want to maintain service packages with their parameters, quantities, price and tax, so that customers can order common sets of tests at one price.
+- **US-AD18** As an administrator, I want to maintain service packages with their parameters, quantities, price and tax, so that customers can order common sets of tests at one price.
 
 ## II. Feature details
 
-### 1. Prices and taxes (US-AD13 to US-AD15)
+### 1. Prices and taxes (US-AD15 to US-AD17)
 
 | Rule               | Description                                                                                                                                              |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Parameter price    | A parameter has one price, excluding VAT, the same whichever method tests it, whichever sample type it is tested on and whether a subcontractor tests it. Groups do not set a price. |
 | Tax                | Every parameter price and package has one tax, such as VAT 10% or not subject to VAT. Tax is added on quotations and invoices, never in the cart.         |
-| Tax rate over time | A tax's rate is recorded with the period it applies, so a rate change, such as a temporary VAT reduction, is a new period. The periods of one tax do not overlap. A quotation or invoice uses the rate in force on its date. |
+| Tax rate over time | A tax's rate is recorded with the period it applies, so a rate change, such as a temporary VAT reduction, is a new period. The periods of one tax do not overlap. A quotation uses the rate in force on its date, and its invoices use the quotation's rates. |
 | Currency           | All prices are in VND.                                                                                                                                   |
 | Special prices     | There are no customer price lists. Special prices, such as for partners or promotions, are discounts sales gives on the quotation.                     |
 | Tax on a quotation | A quotation line takes the tax of its parameter or package. Sales can change it on the quotation, such as 0% for a foreign customer.                    |
@@ -36,9 +36,10 @@ Acceptance criteria:
 
 - A parameter without a price and tax cannot be added to a cart or quotation.
 - A quotation dated during a reduced VAT period shows the reduced rate; one dated after it shows the normal rate.
+- An invoice posted after a reduced VAT period ends keeps the reduced rate of its quotation.
 - Adding a second rate period that overlaps an existing one for the same tax is refused with a message.
 
-### 2. Service packages (US-AD16)
+### 2. Service packages (US-AD18)
 
 Ordering packages follows [Sales order and customer order](../../../business/sales-order-and-customer-order.md).
 

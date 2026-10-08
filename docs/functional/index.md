@@ -4,7 +4,7 @@
 
 Medilab is a laboratory management system built on Odoo 19. It is designed to help laboratories manage their laboratory testing processes efficiently. The system provides a comprehensive solution for managing sales, inventory, and laboratory operations.
 
-The system serves laboratories testing in four fields: food (thực phẩm), cosmetics (mỹ phẩm), pharmaceuticals (dược phẩm) and environment (môi trường).
+The system serves laboratories testing in four sectors: food (thực phẩm), cosmetics (mỹ phẩm), pharmaceuticals (dược phẩm) and environment (môi trường).
 
 ## Modules
 
