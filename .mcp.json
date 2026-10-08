@@ -2,8 +2,15 @@
   "mcpServers": {
     "doppler": {
       "type": "stdio",
-      "command": "npx",
+      "command": "doppler",
       "args": [
+        "run",
+        "--project",
+        "medilab",
+        "--config",
+        "dev",
+        "--",
+        "npx",
         "-y",
         "@dopplerhq/mcp-server",
         "--project",
