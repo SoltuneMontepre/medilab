@@ -2,6 +2,13 @@ version: "3"
 
 set: [pipefail]
 
+dotenv: [src/core/.env.local]
+
+vars:
+  DOPPLER_PROJECT: medilab
+  DOPPLER_CONFIG: dev
+  DOPPLER_RUN: doppler run --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_CONFIG}} --
+
 includes:
   app:
     taskfile: tools/taskfiles/app.taskfile.yml

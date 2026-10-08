@@ -1,7 +1,7 @@
 {
   "include": ["src/core/modules"],
   "extraPaths": [".local/odoo-source", "src/core/modules"],
-  "venvPath": ".",
+  "venvPath": "src/core",
   "venv": ".venv",
   "pythonVersion": "3.12",
   "typeCheckingMode": "basic",

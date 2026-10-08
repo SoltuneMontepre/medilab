@@ -29,7 +29,7 @@ applications
 tools/dbeaver
 tools/taskfiles
 
-# --- App: only requirements.txt, modules/, config/, templates/ are COPYed in ---
+# --- App: only pyproject.toml, uv.lock, modules/, config/, templates/ are COPYed in ---
 src/reference
 src/docker-compose.yml
 src/modules.txt

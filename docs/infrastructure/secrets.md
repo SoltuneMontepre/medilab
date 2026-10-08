@@ -4,7 +4,9 @@ Doppler is the only store for credentials. Terraform in `infra/` reads the `dev`
 
 ## Local development
 
-`task setup` creates a read-only service token for `medilab` `dev` and stores it in the user environment variable `DOPPLER_TOKEN`, so tools started by the editor, such as the SonarQube MCP server, can run `doppler run` from any directory. Restart the editor afterwards.
+`task doppler` logs the Doppler CLI in and selects `medilab` `dev` for the repository. The login is stored by the CLI, so nothing is written to the shell or the user environment, and the same steps work on Windows, Linux and macOS.
+
+Every local program that needs a secret is started through `doppler run --project medilab --config dev -- <program>`: the `task tf:*` commands, and the MCP servers in `.mcp.json`. `doppler run` injects the secrets of `dev`, including `DOPPLER_TOKEN`, into that program only.
 
 ## Doppler config
 
@@ -14,7 +16,7 @@ Doppler is the only store for credentials. Terraform in `infra/` reads the `dev`
 
 - Seed `dev` by hand; Terraform cannot create the config it reads.
 - Set `TF_VAR_doppler_config=<config>` to read another config.
-- `DOPPLER_TOKEN` is read from the environment by Terraform's Doppler provider: the user environment variable on a developer machine, the Actions secret in the pipelines. It needs read access to the config being read.
+- `DOPPLER_TOKEN` is read from the environment by Terraform's Doppler provider: injected by `doppler run` on a developer machine, the Actions secret in the pipelines. It needs read access to the config being read.
 - `GITHUB_TOKEN` needs permission to write Actions secrets on the repository.
 - `TERRAFORM_TOKEN` is an HCP Terraform team token with write access to the workspace.
 - Every token has the least access it needs, an expiry, and is entered through a prompt or a pipe, never printed or pasted into chat.
@@ -35,7 +37,7 @@ Terraform owns these secrets: a value edited in GitHub is overwritten on the nex
 
 ## Commands
 
-See [Taskfiles](../conventions/taskfiles.md): `task setup` once to store `DOPPLER_TOKEN`, `task tf:setup` once, then `task tf:plan` and `task tf:apply`.
+See [Taskfiles](../conventions/taskfiles.md): `task doppler` once to log in, `task tf:setup` once, then `task tf:plan` and `task tf:apply`.
 
 ## State
 

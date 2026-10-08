@@ -2,12 +2,14 @@ FROM docker.io/library/odoo:19.0 AS builder
 
 USER root
 
-COPY ./src/core/requirements.txt /tmp/requirements.txt
+COPY --from=ghcr.io/astral-sh/uv:0.12.17 /uv /bin/uv
+COPY ./src/core/pyproject.toml ./src/core/uv.lock /tmp/core/
 
-RUN pip3 install --no-cache-dir --break-system-packages \
-    --ignore-installed --only-binary :all: \
-    --target /opt/python-packages \
-    -r /tmp/requirements.txt
+RUN uv export --directory /tmp/core --frozen --no-dev \
+        --output-file /tmp/requirements.txt \
+    && uv pip install --python /usr/bin/python3 --no-cache --require-hashes \
+        --only-binary :all: --target /opt/python-packages \
+        -r /tmp/requirements.txt
 
 
 FROM docker.io/library/odoo:19.0
