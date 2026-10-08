@@ -43,6 +43,7 @@ A required check must always report, and a workflow that a `paths:` filter keeps
 - Use `defaults.run.working-directory` for a job that works in one folder, such as `infra`.
 - Name every step with a short action: "Terraform fmt check".
 - Pin actions to a major version tag: `actions/checkout@v7`. SonarQube ignores its rule S7637 (full commit SHA) for `.github/`, set in `sonar-project.properties`.
+- SonarQube also ignores rule S8544 (locked dependency versions) for `tools/dockerfiles/`, set in `sonar-project.properties`; the image installs from `uv.lock`, which the rule does not recognise behind `uv export`.
 
 ## Images and artifacts
 
