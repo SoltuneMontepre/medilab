@@ -13,6 +13,7 @@
 - A source provides only people, with their role and department. Permission-based access control, signing levels and approval rules belong to this system and are configured here, whichever source is active.
 - The signing chain reads people through one source interface. It never reads them from a source directly.
 - The laboratory module is the default source. An admin can configure the system to take people from the HR module instead. Other sources can be added by implementing the same interface.
+- Laboratory does not depend on any source. A source that reads another Odoo app, such as HR, is its own module that depends on Laboratory and that app and implements the source interface.
 - One source is active at a time. Choosing the source is the only source configuration; if a source lacks data this system needs, the admin reconfigures it.
 - People taken from the HR module are not recreated in the laboratory module. This system refers to people and departments by the source's identifier and reads their current names from the source.
 - A person or department removed from the source is never deleted here. This system keeps a copy of the data it has recorded, for legal retention. Approval rules that name a removed department are repointed by an admin.
