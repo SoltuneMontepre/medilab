@@ -662,7 +662,7 @@ model SampleTest {
 }
 
 /// One version of one attempt at measuring a sample test. Earlier attempts are kept; one per sample test is the reported result.
-/// A change request on a signed result creates a new row with the next version that replaces it; the signed row stays unchanged and is marked as replaced.
+/// A change request on a result whose process is completed creates a new row with the next version that replaces it; the signed row stays unchanged and is marked as replaced.
 /// At most one reported result per sample test among rows not replaced (partial unique index on sample_test_id where is_reported and not is_replaced).
 model TestResult {
   /// Row identifier.

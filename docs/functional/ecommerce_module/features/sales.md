@@ -102,6 +102,7 @@ stateDiagram-v2
     requested --> approved: Head of Sales signs
     requested --> rejected: Head of Sales rejects with a reason
     requested --> confirmed: sales withdraws the request
+    approved --> requested: Head of Sales withdraws their signature
     rejected --> requested: sales corrects and requests again
     approved --> [*]: sample collection can start
 ```
@@ -112,7 +113,7 @@ stateDiagram-v2
 | Credit gate    | The laboratory core cannot confirm the test request of an order that has no payment unless the customer is marked as allowed to order on credit. Only the Head of Sales sets that flag.                                                                                                                                                                |
 | Approval       | Two levels: the salesperson requests, the Head of Sales signs or rejects. Approval can only be requested on a confirmed order.                                                                                                                                                                                                                         |
 | Separation     | The person who requested approval cannot also approve the same order.                                                                                                                                                                                                                                                                                  |
-| Frozen content | Requesting approval is the salesperson's signature, so from the request on, customer, prices, validity date and parameters cannot be changed. To edit before the Head of Sales has signed, sales withdraws their signature first. After the Head of Sales has signed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
+| Frozen content | Requesting approval is the salesperson's signature, so from the request on, customer, prices, validity date and parameters cannot be changed. To edit, the signers withdraw from the top level down: the Head of Sales first if they have signed, then sales. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
 | Collection     | **Start sample collection** is available only when the order is approved.                                                                                                                                                                                                                                                                              |
 | Cancel guard   | An approved (fully signed) order cannot be cancelled directly; cancelling it goes through a change request that the Head of Sales approves.                                                                                                                                                                                                            |
 
