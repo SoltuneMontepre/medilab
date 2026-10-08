@@ -27,7 +27,7 @@ Documentation index: [docs/readme.md](docs/readme.md).
 task setup
 ```
 
-`task setup` creates `.venv`, fetches the Odoo source, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
+`task setup` creates `src/core/.venv`, fetches the Odoo source, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
 
 Open http://localhost:8069 and create the `medilab` database. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=laboratory`.
 
@@ -53,10 +53,13 @@ Open http://localhost:8069 and create the `medilab` database. Modules are instal
 | `task upgrade`              | Upgrade all installed modules                                                |
 | `task upgrade MODULES=a,b`  | Install and upgrade the listed modules                                       |
 | `task reset`                | Delete the database and volumes, then start again                            |
-| `task dev:setup`            | Create `.venv`, install dev tools and fetch the Odoo source for type checks  |
+| `task dev:setup`            | Sync `src/core/.venv` from `uv.lock` and fetch the Odoo source for type checks |
+| `task dev:lock`             | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`          |
 | `task lint`                 | Run ruff and pylint-odoo on `src/core/modules`                               |
 | `task format`               | Format `src/core/modules` with ruff                                          |
 | `task typecheck`            | Type check the addons with pyright                                           |
+
+Every task loads `src/core/.env.local`. To run a tool outside Task: `uv run --project src/core --env-file src/core/.env.local <command>`.
 
 ## Layout
 
@@ -69,6 +72,8 @@ medilab/
       config/odoo.conf          # mounted as /etc/odoo
       modules/                  # Odoo addons, mounted as /mnt/extra-addons
       modules.txt               # module list
+      pyproject.toml            # Python dependencies and Ruff config
+      uv.lock
       .env.local                # local credentials
     applications/               # other applications
       medilab-mobile/

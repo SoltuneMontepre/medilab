@@ -2,6 +2,8 @@ version: "3"
 
 set: [pipefail]
 
+dotenv: [src/core/.env.local]
+
 includes:
   app:
     taskfile: tools/taskfiles/app.taskfile.yml

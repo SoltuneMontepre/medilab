@@ -5,6 +5,7 @@
   "[markdown]": {
     "editor.formatOnSave": false
   },
+  "python.venvPath": "${workspaceFolder}/src/core",
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff"
   },

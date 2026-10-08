@@ -3,6 +3,34 @@ name = "medilab"
 version = "0.0.0"
 description = "MediLab LIMS — Odoo 19 addons"
 requires-python = ">=3.12"
+dependencies = [
+    "a2wsgi==1.10.10",
+    "boto3==1.43.94",
+    "docxtpl==0.20.2",
+    "fastapi==0.141.1",
+    "html2text==2025.4.15",
+    "httpx2==2.13.0",
+    "ipython==9.17.1",
+    "packaging==26.3",
+    "parse-accept-language==0.1.2",
+    "pillow==12.3.0",
+    "python-docx==1.2.0",
+    "python-multipart==0.0.32",
+    "qrcode==8.2",
+    "ujson==6.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pylint-odoo>=10.0.3",
+    "pyright>=1.1.400",
+    "ruff>=0.15.0",
+]
+
+# The addons are loaded by Odoo from addons_path, not installed as a package,
+# so uv only manages the environment and the lock file.
+[tool.uv]
+package = false
 
 [tool.ruff]
 target-version = "py312"
