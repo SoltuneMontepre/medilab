@@ -8,6 +8,9 @@ type: Feature
 
 ---
 
+### Stories:
+<user story IDs the issue covers, such as US-AD01, US-AD02>
+
 ### Purpose:
 <purpose of the feature, the problems A, B, C it solves, etc.>
 
@@ -18,4 +21,4 @@ type: Feature
 <to be considered done, it must include...>
 
 ### References:
-<URLs, reference files, etc. to read when building this feature>
+<the spec, if the feature has one; URLs, reference files, etc. to read when building this feature>

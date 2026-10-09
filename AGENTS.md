@@ -8,6 +8,13 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 - Documents describe what the system should do. They are not a description of existing code.
 - `questions/` holds the owner's open questions, one file per topic: `questions/<topic>.md`.
 
+## Commands
+
+The owner runs these by name, such as `/create-issue`. Each is a skill in `.agent/skills/<command>/SKILL.md` that follows a workflow in [docs/workflows](docs/workflows/readme.md); Claude Code and Cursor load them from `.claude/skills/` and `.cursor/commands/`.
+
+- `create-issue`: turn a documented feature into a GitHub feature issue ([creating an issue](docs/workflows/creating-issue.md))
+- `resolve-issue`: implement the lowest open issue and open its pull request ([resolving an issue](docs/workflows/resolving-issue.md))
+
 ## Hard Rules
 
 - **Read first.** Read the current state of the files before changing anything; they may have changed since you last saw them.
