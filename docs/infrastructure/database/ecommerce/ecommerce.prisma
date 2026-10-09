@@ -146,3 +146,29 @@ model ServicePackageLine {
   @@index([parameter_id])
   @@map("medilab_service_package_line")
 }
+
+/// Laboratory's customer, shown with the columns this module uses.
+model Customer {
+  /// Row identifier.
+  id          Int                 @id @default(autoincrement())
+  /// Unique code of the customer.
+  code        String              @unique @db.VarChar
+  /// The customer's sales settings.
+  sales_terms CustomerSalesTerms?
+
+  @@map("medilab_customer")
+}
+
+/// How sales may deal with one customer.
+model CustomerSalesTerms {
+  /// Row identifier.
+  id           Int      @id @default(autoincrement())
+  /// The customer.
+  customer_id  Int      @unique
+  /// True when the customer may order on credit, so an order proceeds without payment; set by the Head of Sales.
+  allow_credit Boolean  @default(false)
+  /// The customer.
+  customer     Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+
+  @@map("medilab_customer_sales_terms")
+}

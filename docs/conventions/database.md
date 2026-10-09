@@ -25,6 +25,18 @@ Code-first: changes and updates are available later.
 - Set `_order` when records are normally listed in a fixed order.
 - Each field uses the field type that matches its data (`fields.Char`, `fields.Integer`, `fields.Datetime`, and so on).
 - Odoo adds the primary key `id`; do not declare it.
+- Every model class has a comment on the line above it with its Vietnamese term from the [glossary](../glossaries.md). A model that only links two others says what the link is for:
+
+  ```python
+  # Chỉ Tiêu
+  class TestParameter(models.Model):
+  ```
+
+  ```python
+  # Links parameter and method pairs to the machines that can run them, with the run time.
+  class ParameterMethodMachine(models.Model):
+  ```
+
 - Every field has a comment on the line above it saying what data it holds, including relational fields:
 
   ```python

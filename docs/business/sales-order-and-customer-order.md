@@ -6,6 +6,7 @@
 - A package is ordered whole. To drop one of its parameters, the package is removed and the wanted parameters are added one by one.
 - An order can mix package lines and single parameter lines.
 - A package is not a quotation template. A template is a saved order a returning customer reuses to create the next order faster; it has no price of its own.
+- Sales maintains customers and states, on each order, the date the customer expects the results.
 - A customer can cancel an order until it is confirmed; after that the customer can only request cancellation, and sales decides.
 
 ## Related documents

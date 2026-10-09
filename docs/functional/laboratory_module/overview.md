@@ -27,11 +27,89 @@ erDiagram
 
 | Rule              | Description                                                                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Customer          | A customer is a company or an individual. Their details are their contact; a company's people are the contact's people. A customer has a code from a sequence, a tax code for a company and a citizen ID for an individual. People who use the customer portal sign in with Odoo users linked to those contacts. Sales maintains customers. |
 | Test request      | A test request groups the samples of one customer. E-commerce creates it from a confirmed order; without E-commerce the laboratory creates it. |
 | Lab code          | Each sample gets a unique lab code (mã PTN) from a sequence. Testers see only the lab code, never the customer or the customer's name for the sample. |
 | Sample details    | A sample has the customer's name for it, its sample type, its physical state (solid, liquid, gas or semi-solid), and its form and container as text. |
 | Regulation        | A sample can name the regulation its results are compared with.                                                                               |
-| Sample test       | Each parameter tested on a sample is a sample test, with a quantity. The way of testing is chosen later by the laboratory, helped by the scheduling system, and must be a way of testing that parameter. |
+| Sample test       | Each parameter tested on a sample is a sample test, with a quantity and a due date. The way of testing is chosen later by the laboratory, helped by the scheduling system, and must be a way of testing that parameter. |
+
+## Lifecycles
+
+Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-10](../shared.md#sh-10-tasks-and-to-do-list)).
+
+### Test request
+
+```mermaid
+stateDiagram-v2
+    [*] --> draft
+    draft --> confirmed: request confirmed
+    confirmed --> paid: payment received or customer allowed credit
+    confirmed --> sample_received: no payment step
+    paid --> sample_received: first sample received
+    sample_received --> testing: first sample test started
+    testing --> awaiting_approval: every sample test has a result entered
+    awaiting_approval --> testing: a result is rejected
+    awaiting_approval --> completed: every result approved
+    completed --> reported: report issued
+    draft --> cancelled
+    confirmed --> cancelled
+    paid --> cancelled
+    sample_received --> cancelled
+    testing --> cancelled
+```
+
+- The paid step comes from E-commerce. Without E-commerce, a confirmed request goes straight to sample received.
+
+### Sample
+
+```mermaid
+stateDiagram-v2
+    [*] --> expected
+    expected --> received: sample received
+    received --> rejected: unusable on arrival
+    received --> on_hold: insufficient on arrival
+    on_hold --> received: more sample collected
+    received --> testing: first sample test started
+    testing --> awaiting_approval: every sample test has a result entered
+    awaiting_approval --> testing: a result is rejected
+    awaiting_approval --> completed: every result approved
+    completed --> reported: report issued
+    reported --> retained: kept after testing
+    reported --> disposed: not kept
+    retained --> disposed: retention period over
+    expected --> cancelled
+    received --> cancelled
+    testing --> cancelled
+```
+
+### Sample test
+
+```mermaid
+stateDiagram-v2
+    [*] --> waiting
+    waiting --> assigned: assigned to a person
+    waiting --> outsourced: sent to a subcontractor
+    assigned --> outsourced: sent to a subcontractor
+    assigned --> testing: test started
+    testing --> result_entered: result entered and sent for approval
+    outsourced --> result_entered: subcontractor result entered
+    result_entered --> testing: result rejected
+    result_entered --> approved: result approved
+    waiting --> cancelled
+    assigned --> cancelled
+    testing --> cancelled
+```
+
+## Reception
+
+| Rule            | Description                                                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Receipt         | When a sample arrives, the laboratory records when and by whom it was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
+| Rejection       | A sample that cannot be tested on arrival is rejected with its condition note.                                                         |
+| Insufficient    | A sample that arrives insufficient is put on hold and reported to the head of department, who asks for it to be collected again. The request schedules a sample collection task for a sample collector. The sample goes back to received when more sample arrives. |
+| Retention       | A sample kept after testing is retained until the report date plus its sample type's retention days. Its disposal is recorded with when, by whom and how. |
+| Handover        | A received sample is handed over to each department that tests it. Each department records when and by whom it received the sample. |
 
 ## Results
 
@@ -41,7 +119,17 @@ erDiagram
 | Value           | A result is a number in the unit of the way of testing, or a text such as "Not detected".                                         |
 | Limit copy      | When a result is created, the limit of the sample's regulation for its parameter is copied onto it with its unit. Later changes to the regulation do not change existing results. |
 | Versions        | A change request on a result whose process is completed creates a new version that replaces it. The signed version stays unchanged and is marked as replaced. |
+| Conclusion      | The tester sets each result's conclusion, pass or fail, when the sample has a regulation.                                         |
 | No deletion     | A result cannot be deleted, and neither can the sample test, sample or test request it belongs to. |
+
+## Reports and change requests
+
+| Rule            | Description                                                                                                                       |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Test report     | A test request has one test report (certificate of analysis, CoA) covering all its samples, issued in Vietnamese, English or both side by side. Samples have no sign-off of their own: once a sample's results are approved, the next signature is the lab head's on the report. It is signed through its approval chain and issued with a report number from a sequence and the digitally signed PDF ([SH-04](../shared.md#sh-04-signatures-and-digital-signing)). |
+| Delivery        | The test request records the report language (Vietnamese, English or bilingual, bilingual by default), how the report is delivered (in person by default, by post, by email or another way with a note) and the contact who receives it. The report records when it was delivered. Issued reports can always be downloaded from the customer portal. |
+| Change request  | A change to a document whose process is completed is a change request: what to change, why, who asked and when. It is signed through the change-request chain of the document's type ([SH-07](../shared.md#sh-07-signed-documents-are-locked)). |
+| New version     | An applied change request creates a new version of the document, such as a result or a report, that replaces the old one. The old version is kept unchanged. |
 
 ## Signing
 
@@ -52,7 +140,43 @@ Signing follows [Approval and signing chain](../../business/approval-and-signing
 | Approval chain  | Each document type, such as test result, has one chain of levels for signing it and one for change requests on it, each signed in order. Each level names the role that signs it, whether the signer must belong to the department that did the work, and whether the level can reject. |
 | Signature       | A signature records the document and its version, the level, the signer and, as they were at signing, the signer's name, role and level name. A rejection records its reason. |
 | Withdrawal      | A withdrawn signature is kept with the time it was withdrawn; signature records are never deleted.                               |
-| People          | Signers are people from the active people data source. The system keeps a copy of each person it has recorded, and never deletes it. |
+| People          | A person is someone who works for the laboratory, maintained by the administrator. Their details are their contact; if they sign in, they have an Odoo user. |
+| Permissions     | A permission is an action on a document type (read, create, edit, archive, delete or sign) on every record or only those of the person's department. |
+| Roles           | A role is a set of permissions the administrator defines. A person holds roles and can also be given permissions directly; they have every permission of their roles plus their own. |
+| Enforcement     | Permissions are enforced in the API and in the interface: a person does not see menus, records, fields or buttons for what they are not allowed to do. |
+| Global rules    | Some rules hold for everyone whatever their permissions, such as a signed document not being edited, archived or deleted. See [Security](../../security/readme.md). |
+| Signing levels  | Each approval level names the role that signs it. |
+
+## Testing work and scheduling
+
+Testing work follows [SH-10](../shared.md#sh-10-tasks-and-to-do-list) tasks and [SH-11](../shared.md#sh-11-schedules-and-reminders) schedules.
+
+```mermaid
+flowchart LR
+    received[Sample received] --> queue[Testing task in the department queue]
+    queue --> assign[Head of department assigns a person]
+    assign --> recommend[Scheduler recommends a way of testing and a machine slot]
+    recommend --> book[Person schedules the booking]
+    recommend -->|no machine in time| outsource[Scheduler suggests outsourcing to a subcontractor]
+    book --> test[Person tests and enters the result]
+    test --> approve[Result sent for approval]
+    approve --> done[Task done when the result is approved]
+```
+
+| Rule               | Description                                                                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Testing tasks      | When a sample is received, the system creates a testing task for each sample test and puts it in the queue of the department that does the work. |
+| Assignment         | The head of department assigns each testing task to a person in the department.                                                               |
+| Due date           | Sales states the date the customer expects the results on the test request. Each sample test's due date is that date minus a safety margin in days, kept for handling incidents. A test is urgent when its due date is within a number of hours. The safety margin and the urgency threshold are [system parameters](../shared.md#sh-03-configuration-through-settings-and-system-parameters) administrators change. |
+| Recommendation     | When a task is assigned, the scheduler recommends the way of testing and machine that can finish it soonest within its due date, from the machines that can run it and are fit to use. |
+| Run time and slots | Each way of testing has a run time on each machine that can run it. A booking takes the run time rounded up to whole slots of 15 minutes.     |
+| Machine queue      | Tests waiting for a machine join its queue. The scheduler gives each the next free slot: urgent tests first, then in the order they joined the queue. |
+| No overlap         | The bookings of one machine do not overlap. A machine that is overdue for calibration, under repair or retired gets no bookings.              |
+| Suggest outsourcing | When no machine that can run a test is available, or none has a free slot that finishes before the test's due date, the scheduler suggests outsourcing it through one of the parameter's subcontracted ways of testing. |
+| Machine unavailable | When a machine becomes under repair or overdue for calibration, its scheduled bookings go back to the queue and are rescheduled on other machines; those that cannot finish in time get an outsourcing suggestion. |
+| Adjusting          | The person running a test, and the head of their department, can move or cancel its booking; the slot goes back to the queue.                 |
+| Bookings as tasks  | A scheduled booking appears on the person's schedule and in their to-do list as part of their testing task, due at its start.                |
+| Outsourcing        | Sample tests tested by a subcontractor are sent in a dispatch with the date sent and the date results are expected back.                      |
 
 ## Actors
 

@@ -166,6 +166,43 @@ Acceptance criteria:
 - A job that fails shows its error in the run log and is retried.
 - Running a payment-reminder job twice in a row sends each reminder once.
 
+#### SH-10 Tasks and to-do list
+
+Work waiting for someone is a task with a deadline, and every person sees their tasks in one to-do list.
+
+- **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. A task type says what creates its tasks (an event, or people by hand), where new tasks go (a department's queue, the holders of a role, or a person), and the deadline when the document gives none. Administrators can turn automatic creation of a task type on or off.
+- **Created by the system or by people.** The system creates a task when its event happens, such as a sample being received. People can also create a task and assign it with a deadline, such as sales scheduling a sample collection on an order.
+- **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person.
+- **To-do list.** A person's to-do list shows their open tasks, soonest deadline first. Clicking a task opens its document at the action to take, such as entering a result or signing.
+- **Lifecycle.** Every task goes through the same statuses: open, assigned, in progress, then done or cancelled. The state of the work itself, such as a sample or a result, belongs to that document.
+- **Done.** A task created by the system is done when its work is done, such as when the result it asked for is approved. A task created by hand is marked done by its assignee. Done tasks move to the person's completed list.
+
+Acceptance criteria:
+
+- A task assigned to a person appears in their to-do list with its deadline.
+- Clicking a task opens its document at its action.
+- A testing task is done when its result is approved, without anyone marking it.
+- Turning off automatic creation for a task type stops new tasks of that type; existing tasks are unchanged.
+
+#### SH-11 Schedules and reminders
+
+Tasks with a planned time and machine bookings appear on schedules, and people are reminded before they start.
+
+| Schedule              | Shows                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| Personal schedule     | A person's planned tasks and machine bookings                                             |
+| Machine schedule      | A machine's bookings and its queue                                                        |
+| Test request schedule | The tasks, bookings and due dates of the samples of one test request                     |
+| Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
+
+- A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator.
+- A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
+
+Acceptance criteria:
+
+- A booking appears on the personal schedule of the person who runs it and on the machine's schedule.
+- A reminder arrives 15 minutes before a booking starts, once on each channel.
+
 ## II. External systems integration
 
 All integrations are optional and enabled in the settings. Credentials come from configuration files (SH-03), never from the database. Every call is logged in the audit trail (SH-05), and a provider outage never loses a business action: it is queued and retried (SH-09).
@@ -200,6 +237,14 @@ The system digitally signs printed documents through Viettel Sign (SH-04). It do
 - When a fully signed document is printed or exported, the system sends the PDF to the provider, which applies the digital signature automatically and returns the signed file; the file is stored with the document and the signature details.
 - Verification of a signed PDF checks the digital signature against the provider and the approval records of the document, and shows the result to anyone who opens the document.
 - If the provider is unavailable, the document is not issued as signed; the user is told and can retry, and the request is retried automatically (SH-09). No document is shown as digitally signed unless the provider confirmed it.
+
+### 4. Firebase Cloud Messaging (mobile push)
+
+The system pushes reminders and notifications to the Medilab Mobile app through Firebase Cloud Messaging (SH-11).
+
+- When a person signs in on the app, the app registers the device's token for their user; signing out turns the token off.
+- A push sent to a token Firebase rejects turns that token off.
+- The Firebase credentials are configuration, not data (SH-03).
 
 ## III. Related documents
 
