@@ -180,7 +180,12 @@ flowchart LR
 
 ## Actors
 
-- [Administrator](features/admin.md)
+- [Administrator](features/admin.md): master data, people, roles, approval chains and task types
+- [Sample collector](features/sample-collector.md): collects samples at the customer's site
+- [Sample receiver](features/sample-receiver.md): receives samples and hands them over to departments
+- [Tester](features/tester.md): schedules and runs tests, enters and signs results
+- [Head of department](features/head-of-department.md): assigns testing work, manages the department's schedule, approves results
+- [Lab head](features/lab-head.md): signs test reports and approves their change requests
 
 ## Related documents
 

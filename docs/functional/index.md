@@ -28,5 +28,5 @@ It also includes a set of shared technical features that are used by all modules
   - [Overview](inventory_module/overview.md)
 - Laboratory module
   - [Overview](laboratory_module/overview.md)
-  - Actors: [Admin](laboratory_module/features/admin.md)
+  - Actors: [Admin](laboratory_module/features/admin.md), [Sample collector](laboratory_module/features/sample-collector.md), [Sample receiver](laboratory_module/features/sample-receiver.md), [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md), [Lab head](laboratory_module/features/lab-head.md)
   - Applications: [Medilab Mobile](laboratory_module/applications/medilab-mobile.md), [Medilab Sync](laboratory_module/applications/medilab-sync.md)
