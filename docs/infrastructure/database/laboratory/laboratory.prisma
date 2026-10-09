@@ -1371,7 +1371,7 @@ model MobileDevice {
   @@map("medilab_mobile_device")
 }
 
-/// One recorded action or event (SH-05). Entries are never edited or deleted.
+/// One recorded action or event (SH-05). Entries are never edited; only the cleanup job removes them after the audit retention period.
 /// Points to its document by document_model and document_id, indexed together. A BRIN index on create_date serves period reports.
 /// Logins are read from Odoo's login log (res.users.log), not written here.
 model AuditEntry {
