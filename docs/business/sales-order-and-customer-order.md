@@ -7,6 +7,7 @@
 - An order can mix package lines and single parameter lines.
 - A package is not a quotation template. A template is a saved order a returning customer reuses to create the next order faster; it has no price of its own.
 - Sales maintains customers and states, on each order, the date the customer expects the results.
+- Sales groups the quoted parameters and packages into the samples the customer will send. Confirming the order creates the test request with those samples.
 - A customer can cancel an order until it is confirmed; after that the customer can only request cancellation, and sales decides.
 
 ## Related documents

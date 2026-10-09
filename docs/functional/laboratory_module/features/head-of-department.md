@@ -14,7 +14,7 @@ The head of department runs the testing work of one department: they assign its 
 
 ### Samples and results
 
-- **US-HD06** As a head of department, I want to record that my department received a sample handed over to it, so that the handover is on record.
+- **US-HD06** As a head of department, I want my department to record that it received a sample handed over to it by scanning the sample's label, so that the handover is on record.
 - **US-HD07** As a head of department, I want to ask for an insufficient sample to be collected again, so that its tests can go ahead.
 - **US-HD08** As a head of department, I want to approve or reject the results of my department with a reason, so that only checked results reach the report.
 
@@ -48,12 +48,13 @@ Follows [Reception](../overview.md#reception), [Results](../overview.md#results)
 
 | Rule          | Description                                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------------------------------ |
-| Handover      | The department records when and by whom it received a handed-over sample.                                    |
+| Handover      | A person of the department records when and by whom it received a handed-over sample by scanning its label, on the web or the mobile app. |
 | Collect again | Asking for an insufficient sample to be collected again schedules a sample collection task for sample delivery staff. |
 | Approval      | The head signs or rejects results at their level of the test result's approval chain; a rejection records its reason. |
 
 Acceptance criteria:
 
+- Scanning a sample's label records the handover for the scanner's department; a person outside the department is refused.
 - Asking for a sample to be collected again creates a sample collection task and records who asked and when.
 - Rejecting a result sends its sample test back to testing and tells the tester the reason.
 - Once every result of a sample is approved, the sample is completed.

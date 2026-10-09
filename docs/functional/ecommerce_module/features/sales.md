@@ -13,7 +13,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 
 ### Quotation
 
-- **US-S05** As a salesperson, I want to prepare a quotation from an order, checking the selected parameters and adding or removing them, so that the quotation matches what the customer needs.
+- **US-S05** As a salesperson, I want to prepare a quotation from an order, checking the selected parameters, adding or removing them and grouping them into the samples the customer will send, so that the quotation matches what the customer needs and the laboratory knows which samples to expect.
 - **US-S06** As a salesperson, I want to adjust prices with a discount before sending, so that I can offer the customer an agreed price.
 - **US-S07** As a salesperson, I want to send the quotation together with the advance payment request, so that the customer can accept by paying.
 - **US-S08** As a salesperson, I want to revise a quotation that has been sent, so that I can correct it without losing the earlier version.
@@ -77,6 +77,7 @@ stateDiagram-v2
 | Rule             | Description                                                                                                                                                                                       |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Parameters       | A quotation needs at least one parameter or service package. Sales may add or remove parameters and packages; the customer sees the change on the quotation. A package is added or removed whole. |
+| Samples          | Sales groups the quotation into the samples the customer will send. Each sample has the customer's name for it, its sample type, its physical state and the regulation its results are compared with, if any. Each line is tested on one sample; a parameter tested on two samples is two lines. Every line must be on a sample before the quotation is sent. |
 | Prices           | Prices come from the catalog: per parameter, and per package for a package line. All prices are in VND. Sales may apply a discount (percentage or fixed) to a line or to the whole quotation; special prices for partners or promotions are given this way. |
 | Tax              | Each line takes the tax of its parameter or package, at the rate in force on the quotation date. Sales can change a line's tax, such as 0% for a foreign customer. The system adds the tax. |
 | Advance payment  | When sending, sales chooses the collection method (online, bank transfer, cash) and the amount (full, percentage, fixed). The system creates the advance invoice and sends it with the quotation. |
@@ -89,6 +90,7 @@ stateDiagram-v2
 Acceptance criteria:
 
 - A quotation without parameters or packages cannot be sent.
+- A quotation with a line that is not on a sample cannot be sent.
 - Sending a quotation with an advance request creates exactly one advance invoice and one notification to the customer.
 - A revised quotation cannot be sent or confirmed in its old version.
 - Sales sees at a glance whether a sent quotation is unpaid, paid, declined or expired.
@@ -113,6 +115,7 @@ stateDiagram-v2
 
 | Rule           | Description                                                                                                                                                                                                                                                                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Test request   | Confirming creates the order's test request with one expected sample for each sample on the accepted quotation, and a sample test for each of its parameters; a package line becomes the parameters of its package. Sales sets the expected date, report language, delivery method and report recipient on it. |
 | Confirm        | Confirming does not wait for approval or payment. An order with no payment shows a warning, because the customer may have an agreement.                                                                                                                                                                                                                |
 | Credit gate    | The laboratory core cannot confirm the test request of an order that has no payment unless the customer is marked as allowed to order on credit. Only the Head of Sales sets that flag.                                                                                                                                                                |
 | Approval       | Two levels: the salesperson requests, the Head of Sales signs or rejects. Approval can only be requested on a confirmed order.                                                                                                                                                                                                                         |

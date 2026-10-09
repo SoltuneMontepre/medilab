@@ -28,7 +28,7 @@ erDiagram
 | Rule              | Description                                                                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Customer          | A customer is a company or an individual. Their details are their contact; a company's people are the contact's people. A customer has a code from a sequence, the tax ID on its contact, and a citizen ID for an individual, which is masked in the audit trail. People who use the customer portal sign in with Odoo users linked to those contacts. Sales maintains customers. |
-| Test request      | A test request groups the samples of one customer. E-commerce creates it from a confirmed order; without E-commerce the laboratory creates it. |
+| Test request      | A test request groups the samples of one customer. E-commerce creates it from a confirmed order, with the samples sales defined on the quotation; without E-commerce, sample delivery staff create it with its samples and parameters. |
 | Lab code          | Each sample gets a unique lab code (mã PTN) from a sequence. Testers see only the lab code, never the customer or the customer's name for the sample. |
 | Sample details    | A sample has the customer's name for it, its sample type, its physical state (solid, liquid, gas or semi-solid), and its form and container as text. |
 | Regulation        | A sample can name the regulation its results are compared with.                                                                               |
@@ -106,10 +106,13 @@ stateDiagram-v2
 | Rule            | Description                                                                                                                          |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Receipt         | When a sample arrives, the laboratory records when and by whom it was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
+| Label           | Each sample has a label with its lab code as text and as a QR code, printed by sample delivery staff. The label shows nothing else about the customer. |
+| Photos          | Sample delivery staff attach photos of a sample when they collect or receive it, on the web or the mobile app. Photos are shown wherever the customer's name for the sample is shown, so testers never see them. |
+| Handover record | When a customer hands samples over, sample delivery staff fill in a handover record (biên bản giao nhận mẫu) listing each sample with the amount and condition handed over. The customer signs it by hand on the mobile app, and the signed PDF is emailed to the customer. A signed record is never edited; a correction is a new record and the old one is kept. |
 | Rejection       | A sample that cannot be tested on arrival is rejected with its condition note.                                                         |
 | Insufficient    | A sample that arrives insufficient is put on hold and reported to the head of department, who asks for it to be collected again. The request schedules a sample collection task for sample delivery staff. The sample goes back to received when more sample arrives. |
 | Retention       | A sample kept after testing is retained until the report date plus its sample type's retention days. Its disposal is recorded with when, by whom and how. |
-| Handover        | A received sample is handed over to each department that tests it. Each department records when and by whom it received the sample. |
+| Handover        | A received sample is handed over to each department that tests it. A person of that department records when and by whom it was received by scanning the sample's label, on the web or the mobile app; a person outside the department is refused. |
 
 ## Results
 
