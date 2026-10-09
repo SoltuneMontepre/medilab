@@ -21,12 +21,13 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 - **US-A10** As an accountant, I want a payment receipt to be issued for every payment, so that the customer has proof of payment.
 - **US-A11** As an accountant, I want to see the payment status of every order (not paid, partially paid, paid), so that I can follow up on what is owed.
 - **US-A12** As an accountant, I want the system to remind customers of overdue payments, so that I do not chase them one by one.
+- **US-A13** As an accountant, I want to reconcile each day's PayOS transactions with the payments in the system and lock the day once it matches, so that no online payment is missing or changed afterwards.
 
 ### Reports and KPIs
 
-- **US-A13** As an accountant, I want revenue, outstanding amounts and cash-flow reports for a period, so that I can manage the laboratory's finances.
-- **US-A14** As an accountant, I want to export reports to a spreadsheet, so that I can use them in the laboratory's accounting records.
-- **US-A15** As an accountant, I want to see how long payments take after an invoice is sent, so that I can measure collection performance.
+- **US-A14** As an accountant, I want revenue, outstanding amounts and cash-flow reports for a period, so that I can manage the laboratory's finances.
+- **US-A15** As an accountant, I want to export reports to a spreadsheet, so that I can use them in the laboratory's accounting records.
+- **US-A16** As an accountant, I want to see how long payments take after an invoice is sent, so that I can measure collection performance.
 
 ## II. Feature Details
 
@@ -49,7 +50,7 @@ Acceptance criteria:
 - The final invoice total equals the order total minus the advance.
 - An invoice shows net, tax and total, and can be downloaded as PDF.
 
-### 2. Payments (US-A06 to US-A12)
+### 2. Payments (US-A06 to US-A13)
 
 ```mermaid
 stateDiagram-v2
@@ -82,7 +83,23 @@ Acceptance criteria:
 - A repeated gateway notification for the same payment is ignored.
 - A payment larger than the remaining amount is refused.
 
-### 3. Reports and KPIs (US-A13 to US-A15)
+#### Reconciliation (US-A13)
+
+The accountant reconciles each day's PayOS transactions with the payments in the system.
+
+| Rule     | Description                                                                                                                                                                                               |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Day view | For a chosen day, every PayOS transaction is listed with its PayOS reference, amount, invoice, the matching payment and whether they match.                                                               |
+| Mismatch | A transaction PayOS reports as paid with no payment in the system, or a payment with no PayOS transaction, is flagged. The accountant creates the missing payment from a flagged transaction in one step. |
+| Lock     | Once a day is reconciled, the accountant locks it, and its online payments can no longer be changed.                                                                                                      |
+
+Acceptance criteria:
+
+- A PayOS transaction paid with no payment in the system is flagged as a mismatch.
+- Creating the payment from a flagged transaction confirms it against the right invoice and clears the flag.
+- An online payment of a locked day cannot be changed.
+
+### 3. Reports and KPIs (US-A14 to US-A16)
 
 | Report                 | Content                                                                 |
 | ---------------------- | ----------------------------------------------------------------------- |

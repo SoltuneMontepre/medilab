@@ -218,6 +218,8 @@ model User {
   recorded_payments     Payment[]              @relation("PaymentRecorder")
   /// Payments the user confirmed or rejected.
   reviewed_payments     Payment[]              @relation("PaymentReviewer")
+  /// Reconciliation days the user locked.
+  locked_days           ReconciliationDay[]    @relation("ReconciliationLocker")
   /// Cancellation requests the user sent.
   cancellation_requests CancellationRequest[]  @relation("CancellationRequester")
   /// Cancellation requests the user decided.
@@ -616,6 +618,24 @@ model PaymentLink {
 
   @@index([status])
   @@map("medilab_payment_link")
+}
+
+/// One day of PayOS transactions reconciled by the accountant. A locked day's online payments can no longer be changed.
+model ReconciliationDay {
+  /// Row identifier.
+  id           Int       @id @default(autoincrement())
+  /// The day reconciled.
+  day          DateTime  @unique @db.Date
+  /// open or locked.
+  status       String    @db.VarChar
+  /// The accountant who locked the day.
+  locked_by_id Int?
+  /// When the day was locked.
+  locked_at    DateTime?
+  /// The accountant who locked the day.
+  locked_by    User?     @relation("ReconciliationLocker", fields: [locked_by_id], references: [id], onDelete: Restrict)
+
+  @@map("medilab_reconciliation_day")
 }
 
 /// A customer's request to cancel a confirmed order, decided by sales.
