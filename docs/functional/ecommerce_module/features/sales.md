@@ -41,13 +41,17 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 - **US-S18** As a salesperson, I want to track the progress of my orders through testing and result release, so that I can answer customers' questions.
 - **US-S19** As a salesperson, I want to see my pipeline and my performance, so that I can plan my work and see my results.
 
+### Support
+
+- **US-S20** As a salesperson, I want to take and answer customers' support requests, so that every customer question gets a reply.
+
 ## II. Feature Details
 
 ### 1. Orders and customers (US-S01 to US-S04)
 
 - **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson (and the Head of Sales) sees and edits it. A claimed order is not visible to other salespeople.
 - **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
-- **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below).
+- **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below). The customer itself is kept by the [Laboratory module](../../laboratory_module/overview.md#test-requests-and-samples); E-commerce keeps the customer's sales terms.
 - **Portal invitation and duplicates.** Sales can invite a customer to the portal. A self-registered account that matches an existing profile is flagged; sales reviews it and merges the two so that the history stays on one profile.
 
 Acceptance criteria:
@@ -136,6 +140,18 @@ Acceptance criteria:
 - **Pipeline.** Counts by stage: unclaimed, draft, sent and unpaid, accepted, awaiting approval, approved.
 - **Performance.** Per salesperson and period: quotations sent, accepted, declined, revenue, and the time between each step (claim, send, payment, approval).
 - **Visibility.** A salesperson sees their own figures; the Head of Sales sees everyone's.
+
+### 7. Support (US-S20)
+
+| Rule     | Description                                                                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------------------- |
+| Handling | Sales handles support requests. A request about an order goes to the order's salesperson; any other request waits until a salesperson takes it. |
+| Reply    | A reply sets the request to answered and notifies the customer. Sales closes a request once the customer's question is settled. |
+
+Acceptance criteria:
+
+- A support request about an order appears in the to-do list of the order's salesperson.
+- A support request about no order is visible to every salesperson until one takes it.
 
 ## III. Related documents
 

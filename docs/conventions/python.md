@@ -37,7 +37,7 @@ How a module is laid out, from its root:
 
 - Models, views and the concern folders are described in [Module structure](module_structure.md); models themselves in [Database](database.md).
 - Every folder with Python files is a package with an `__init__.py`. The `__init__.py` only imports; it holds no logic.
-- `__init__.py` imports the sub-packages or files in alphabetical order: `from . import management, sample_collection, system`.
+- `__init__.py` imports the sub-packages or files in alphabetical order: `from . import management, master_data, sample_collection`.
 - One class per file, named after its file: `test_parameter.py` holds `TestParameter`. A controller file holds one controller class, for example `webmanifest.py` holds `MedilabWebManifest`.
 - A new Python folder is added to the `__init__.py` of its parent, otherwise Odoo does not load it.
 
@@ -73,7 +73,7 @@ How a module is laid out, from its root:
 - Search with `search`, `search_fetch`, `search_count` or `read_group` rather than looping over `search([])`; filter in the domain, not in Python.
 - Do not run raw SQL unless the ORM cannot express the query; when you do, use parameters, never string formatting.
 - Raise Odoo exceptions (`UserError`, `ValidationError`) for errors a user can act on, with a translated message.
-- Comments explain why, not what, except on model fields, which each say what data they hold (see [Database](database.md#models)). Do not leave commented-out code.
+- Comments explain why, not what, except on model classes and fields: a class names its Vietnamese term and a field says what data it holds (see [Database](database.md#models)). Do not leave commented-out code.
 
 ## Related documents
 

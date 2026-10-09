@@ -11,7 +11,7 @@ The administrator maintains the master data of the Laboratory module: test param
 - **US-AD03** As an administrator, I want to organise sample types under broader types, such as Cabbage under Vegetables, so that filtering by a broad type also finds the parameters of its narrower types.
 - **US-AD04** As an administrator, I want to define how each parameter is tested, with its method, unit, detection limits, department or subcontractor and accreditation, so that every test is done and reported the same way.
 - **US-AD05** As an administrator, I want codes to be generated in a format I configure, so that codes are consistent and readable without typing them.
-- **US-AD06** As an administrator, I want to archive master data instead of deleting it, so that past quotations and results keep their references while new ones cannot use it.
+- **US-AD06** As an administrator, I want to delete master data that nothing refers to and archive master data that only finished documents still use, so that selection lists stay short while past quotations and results keep their references.
 - **US-AD07** As an administrator, I want to maintain regulations with their limit per parameter, so that results can be compared with the limit that applies to the sample.
 - **US-AD08** As an administrator, I want to maintain quality registration dossiers and the ways of testing they cover, so that reports print the right mark and the laboratory knows when a registration expires.
 
@@ -27,8 +27,10 @@ The administrator maintains the master data of the Laboratory module: test param
 
 ### People and signing
 
-- **US-AD13** As an administrator, I want to choose the people data source and, with the Laboratory source, maintain people and departments, so that signers and departments come from one place.
+- **US-AD13** As an administrator, I want to maintain departments and people with their contact details, login account and department, so that everyone who works for the laboratory is recorded in one place.
 - **US-AD14** As an administrator, I want to maintain the approval chain of each document type, for signing it and for change requests on it, so that every document is signed by the right roles in the right order.
+- **US-AD15** As an administrator, I want to group permissions into roles, assign roles to people and give a person extra permissions, so that everyone can do exactly their part of the work.
+- **US-AD16** As an administrator, I want to configure task types, what creates their tasks and where the tasks go, so that work reaches the right people automatically.
 
 ## II. Feature details
 
@@ -43,22 +45,23 @@ The administrator maintains the master data of the Laboratory module: test param
 | Sample type tree     | A sample type can have a broader parent type. Filtering by a sample type also finds the parameters of its narrower types. A type cannot be its own ancestor. |
 | Way of testing       | Each parameter is tested by one or more pairs of parameter and testing method. Each pair has a unit, LOD and LOQ, and is tested either in-house or by one subcontractor. One pair per parameter is the default. |
 | Testing method       | A method has its standard reference as its code, such as TCVN 6187-1:2009, and the title of the standard in each language. Each method belongs to one testing field, such as Chemistry or Microbiology. |
-| Department           | An in-house pair of parameter and method names the department that tests it. Departments come from the active [people data source](../../../business/approval-and-signing-chain.md#people-data-source). |
+| Department           | An in-house pair of parameter and method names the department that tests it. Departments are maintained by the administrator (US-AD13). |
 | Accreditation        | Each pair of parameter and method is marked as within an ISO 17025 accreditation scope or not.                                                  |
 | Detection limits     | LOD and LOQ are recorded per parameter and method pair, in that pair's unit.                                                                     |
-| Codes                | Parameters, groups, sample types, dossiers and subcontractors get a code from a sequence when none is typed, such as `NCT.0001` for groups, `LM.0001` for sample types and `TP.0001` for subcontractors. The administrator can change the prefix and length; existing codes keep their value. A typed code must still be unique. |
+| Codes                | Parameters, groups, sample types, dossiers, subcontractors, customers and subcontract dispatches get a code from a sequence when none is typed, such as `NCT.0001` for groups, `LM.0001` for sample types, `TP.0001` for subcontractors and `KH.0001` for customers. The administrator can change the prefix and length; existing codes keep their value. A typed code must still be unique. |
 | Sampling and storage | A sample type carries how to collect it, its minimum amount, storage conditions, whether and for how many days it is kept after testing, and how it is disposed of. A sample type without instructions has none; it does not use its parent's. |
 | Unit conversion      | Each unit belongs to a category, such as mass concentration in liquid, and has a factor to the category's reference unit. Units convert only within their category. The system ships with common units and conversions, and suggests the category and factor of a new unit; the administrator confirms or edits them. |
 | Converted values     | When a value is compared in another unit, such as a result against a regulation limit, the converted value is a suggestion that the user can edit before it is used. |
 | Regulations          | A regulation, such as QCVN 6-1:2010/BYT, applies to sample types and sets at most one limit per parameter: a minimum, a maximum, or both, in a unit, or a text such as "Not detected" without a unit. A limit has at least one of them. |
 | Quality registration | A dossier is registered with an authority, has validity dates and covers parameter and method pairs. Its mark is printed after the name of each covered parameter on the report. A dossier counts as expired after its last valid day, and its mark is no longer printed. |
 | Expiry warning       | Administrators are warned a number of days before a dossier expires and on the day it expires. The number of days is a system setting the administrator configures. |
-| Permissions          | Only administrators create, edit and archive master data. Everyone else reads it.                                                                |
-| Archiving            | Archived records do not appear in selection lists. Records in use cannot be deleted, only archived.                                              |
+| Permissions          | Only administrators create, edit, archive and delete master data. Everyone else reads it.                                                        |
+| Archiving            | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Test parameters, their parameter and method pairs and subcontractors are archived, never deleted. |
+| Deleting             | Units, unit categories, testing fields, testing methods, parameter groups, sample types, regulations, quality registration dossiers, machines and chemicals can also be deleted when nothing refers to them, such as a sample type no parameter, sample or regulation names. |
 
 Acceptance criteria:
 
-- Creating a group, sample type, parameter, dossier or subcontractor without a code fills the code from its sequence.
+- Creating a group, sample type, parameter, dossier, subcontractor or customer without a code fills the code from its sequence.
 - Saving a code that already exists is refused with a message.
 - A parameter in the sub-group Organophosphates appears when filtering by its parent group Pesticides.
 - A parameter assigned to Cabbage appears when filtering by Vegetables.
@@ -68,6 +71,9 @@ Acceptance criteria:
 - Saving a parameter whose main group is not one of its groups is refused with a message.
 - A regulation cannot hold two limits for the same parameter.
 - An archived record no longer appears when choosing records on a quotation or a parameter.
+- A unit used by an active parameter and method pair cannot be archived or deleted; the message lists the pairs.
+- A sample type that only finished samples use can be archived but not deleted.
+- A test parameter, a parameter and method pair or a subcontractor cannot be deleted, only archived.
 
 ### 2. Machines and chemicals (US-AD09 to US-AD11)
 
@@ -77,7 +83,7 @@ Acceptance criteria:
 | Service history | Each calibration, maintenance or repair is recorded with its date, who did it, its certificate or report number and when the next one is due. Records are kept, not overwritten. |
 | Calibration     | A machine whose next calibration date has passed cannot be used until a new calibration is recorded.                                          |
 | Maintenance     | A machine can have a maintenance interval in days; its next maintenance date follows from the latest maintenance record.                      |
-| Machine use     | A machine is linked to the parameter and method pairs it can run.                                                                             |
+| Machine use     | A machine is linked to the parameter and method pairs it can run, with the minutes one run takes.                                                                             |
 | Chemical        | A chemical has a code, name, CAS number, formula, grade, storage conditions and the testing methods that use it. Stock, expiry, suppliers and how much of a chemical one test uses belong to the [Inventory module](../../../business/module-boundaries.md). |
 
 Acceptance criteria:
@@ -86,6 +92,9 @@ Acceptance criteria:
 - Recording a calibration with a new due date makes the machine usable again.
 - A machine that is under repair or retired cannot be chosen to run a test.
 - A testing method shows the chemicals it uses, and a chemical shows the methods that use it.
+- A machine with a queued, scheduled or running booking cannot be archived; once its bookings are done or cancelled, it can be archived.
+- A machine that is in use, has any booking or service record, or is linked to a parameter and method pair cannot be deleted.
+- A chemical cannot be deleted while a testing method uses it.
 
 ### 3. Subcontractors (US-AD12)
 
@@ -105,23 +114,36 @@ Acceptance criteria:
 - A subcontractor with no expiry date can be chosen.
 - An archived subcontractor does not appear in selection lists.
 
-### 4. People and signing (US-AD13, US-AD14)
+### 4. People and signing (US-AD13 to US-AD16)
 
 Follows [Approval and signing chain](../../../business/approval-and-signing-chain.md).
 
 | Rule              | Description                                                                                                                       |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| People source     | One people data source is active at a time. With the Laboratory source, the administrator creates people and departments here. With another source, they are read from it and a copy is kept. |
-| Person and user   | A person who signs is linked to the user they log in as.                                                                          |
+| Departments       | The administrator creates the laboratory's departments and puts people in them.                                                   |
+| Person            | A person's details are their contact. A person who signs in is linked to their Odoo user, which holds only the login.             |
+| Permissions       | A permission is an action on a document type: read, create, edit, archive, delete or sign. Each covers every record or only those of the person's department. |
+| Roles             | A role is a set of permissions. The administrator assigns roles to people and can give a person extra permissions directly. |
 | Approval chain    | Each document type has one chain for signing it and one for change requests on it.                                               |
-| Levels            | A chain has levels signed in order. Each level names the role that signs it, whether the signer must belong to the department that did the work, and whether it can reject. |
-| No deletion       | People and departments removed from the source are archived, never deleted.                                                       |
+| Levels            | A chain has levels signed in order. Each level names one of the roles that signs it, whether the signer must belong to the department that did the work, and whether it can reject. |
+| Task types        | Each task type has its trigger, whether the system creates its tasks, the document and action they open, where they go and their default deadline. See [SH-10](../../shared.md#sh-10-tasks-and-to-do-list). |
+| Archiving         | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Task types are archived, never deleted. Roles are never archived. |
+| Deleting          | The administrator can delete a department, person, role or approval chain when nothing refers to it: a department with no people, parameter and method pairs or tasks; a person with no tasks, bookings or signatures; a role that no person holds and no approval level or task type names; a chain none of whose levels has been signed. Deleting a person also removes their roles, a role its permissions, and a chain its levels. |
 
 Acceptance criteria:
 
-- With the Laboratory source, a department created by the administrator can be named on a parameter and method pair.
+- A department created by the administrator can be named on a parameter and method pair.
 - A document type cannot have two chains for the same purpose.
 - A chain cannot have two levels in the same position.
+- A person without a permission for an action, through a role or directly, cannot take it and does not see it in the interface.
+- A permission given to a person directly adds to the permissions of their roles.
+- A task type with automatic creation turned off creates no tasks.
+- A permission limited to the person's department hides the records of other departments.
+- A department, person, role or approval chain that nothing refers to can be deleted.
+- Deleting a department that has people, parameter and method pairs or tasks, or a role that a person holds or an approval level or task type names, is refused with a message listing them.
+- A role cannot be archived; it is removed from people, approval levels and task types, then deleted.
+- A person who has signed a document, or a chain with a signed level, cannot be deleted; the message lists the signatures.
+- A task type cannot be deleted, only archived.
 
 ## III. Related documents
 

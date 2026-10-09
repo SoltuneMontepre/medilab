@@ -44,6 +44,7 @@ The system's behaviour is driven by configuration, not by hard-coded values.
 - **Configuration files** (environment variables) hold deployment settings and secrets, such as provider credentials. Secrets never appear in the database, logs or documents.
 - Settings are changed from the settings screens by administrators; every change is audited (SH-05).
 - A new option is added by declaring it with a default, so existing installations keep working after an upgrade.
+- Each system parameter is a settings field declared by its module, with a type, a default and a help text in each language, and stored in Odoo's system parameter table.
 - Settings that change behaviour of existing documents apply to future documents only.
 
 Acceptance criteria:
@@ -84,10 +85,12 @@ Every action in the system is recorded and can be reported on.
 
 - **What is recorded:** user actions (login, create, edit, delete, approve, sign, download), system events (scheduled jobs, integrations, errors) and data changes with the old and the new value.
 - **Each entry has:** who (user or system), when, what (document and field), the old and new value, and the source (screen, API or job).
-- Audit entries cannot be edited or deleted by any user, including administrators.
+- Audit entries cannot be edited or deleted by any user, including administrators. Only the cleanup job removes them, once they are older than the audit retention period and written to an archive file (SH-09).
+- The audit retention period is a system parameter. Until an administrator sets it, entries are kept for ever.
 - Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document.
 - **Audit reports** can be generated for a period and exported for compliance purposes.
 - Personal data in the trail is limited to what is needed to identify who acted.
+- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. Logins come from Odoo's own login log.
 
 Acceptance criteria:
 
@@ -104,6 +107,7 @@ Two users cannot change the same document at the same time.
 - The lock is released on save, on cancel, when the user leaves, or automatically after a period of inactivity, so a closed browser does not block the document.
 - An administrator can release a lock that is stuck; this is audited.
 - Long operations, such as sending a quotation or confirming a payment, lock the document for their duration so they cannot run twice.
+- A document has at most one active lock. The inactivity period is a system parameter (SH-03).
 
 Acceptance criteria:
 
@@ -160,11 +164,54 @@ Typical jobs: payment reminders, quotation expiry, retention and expiry checks (
 - An administrator can run a job by hand and retry a failed one.
 - A job is safe to run twice: running it again never sends a duplicate reminder or creates a duplicate record.
 - Jobs do not run on top of themselves: a second run waits or is skipped while the first is running.
+- **Job and queue.** Each job has a unique key and is scheduled by an Odoo cron that administrators configure. A job works through a queue of items: each item is one unit of work, such as one reminder to send, with a key unique within the job, so the same work is never queued twice. An item is retried with a growing delay up to the job's number of attempts, then marked failed. A run claims the items it takes; an item claimed longer than the job's claim timeout, such as after a crash, goes back to the queue.
+- Each run records when it started and ended, its result, its log, and who ran it by hand; how many items were done and remain comes from Odoo's cron progress.
+- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their deliveries, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter. It never removes business records or signatures.
+- **Archive files.** Before it removes audit entries, the cleanup job writes them to a compressed archive file per period in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
+- Backups of the whole database and file store belong to the hosting, not to the application.
 
 Acceptance criteria:
 
 - A job that fails shows its error in the run log and is retried.
 - Running a payment-reminder job twice in a row sends each reminder once.
+
+#### SH-10 Tasks and to-do list
+
+Work waiting for someone is a task with a deadline, and every person sees their tasks in one to-do list.
+
+- **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. A task type says what creates its tasks (an event, or people by hand), where new tasks go (a department's queue, the holders of a role, or a person), and the deadline when the document gives none. Administrators can turn automatic creation of a task type on or off.
+- **Created by the system or by people.** The system creates a task when its event happens, such as a sample being received. People can also create a task and assign it with a deadline, such as sales scheduling a sample collection on an order.
+- **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person.
+- **To-do list.** A person's to-do list shows their open tasks, soonest deadline first. Clicking a task opens its document at the action to take, such as entering a result or signing.
+- **Lifecycle.** Every task goes through the same statuses: open, assigned, in progress, then done or cancelled. The state of the work itself, such as a sample or a result, belongs to that document.
+- **Done.** A task created by the system is done when its work is done, such as when the result it asked for is approved. A task created by hand is marked done by its assignee. Done tasks move to the person's completed list.
+
+Acceptance criteria:
+
+- A task assigned to a person appears in their to-do list with its deadline.
+- Clicking a task opens its document at its action.
+- A testing task is done when its result is approved, without anyone marking it.
+- Turning off automatic creation for a task type stops new tasks of that type; existing tasks are unchanged.
+
+#### SH-11 Schedules and reminders
+
+Tasks with a planned time and machine bookings appear on schedules, and people are reminded before they start.
+
+| Schedule              | Shows                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| Personal schedule     | A person's planned tasks and machine bookings                                             |
+| Machine schedule      | A machine's bookings and its queue                                                        |
+| Test request schedule | The tasks, bookings and due dates of the samples of one test request                     |
+| Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
+
+- A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator.
+- A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
+- **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event; the deliveries are sent by a scheduled job (SH-09). Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
+
+Acceptance criteria:
+
+- A booking appears on the personal schedule of the person who runs it and on the machine's schedule.
+- A reminder arrives 15 minutes before a booking starts, once on each channel.
 
 ## II. External systems integration
 
@@ -200,6 +247,14 @@ The system digitally signs printed documents through Viettel Sign (SH-04). It do
 - When a fully signed document is printed or exported, the system sends the PDF to the provider, which applies the digital signature automatically and returns the signed file; the file is stored with the document and the signature details.
 - Verification of a signed PDF checks the digital signature against the provider and the approval records of the document, and shows the result to anyone who opens the document.
 - If the provider is unavailable, the document is not issued as signed; the user is told and can retry, and the request is retried automatically (SH-09). No document is shown as digitally signed unless the provider confirmed it.
+
+### 4. Firebase Cloud Messaging (mobile push)
+
+The system pushes reminders and notifications to the Medilab Mobile app through Firebase Cloud Messaging (SH-11).
+
+- When a person signs in on the app, the app registers the device's token for their user; signing out turns the token off.
+- A push sent to a token Firebase rejects turns that token off.
+- The Firebase credentials are configuration, not data (SH-03).
 
 ## III. Related documents
 

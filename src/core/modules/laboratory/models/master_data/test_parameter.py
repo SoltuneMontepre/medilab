@@ -1,7 +1,7 @@
 from odoo import fields, models
 from odoo.addons.laboratory.constants.models import MODEL_TEST_PARAMETER
 
-
+# Chỉ Tiêu
 class TestParameter(models.Model):
     _name = MODEL_TEST_PARAMETER
     _description = "Test Parameters"

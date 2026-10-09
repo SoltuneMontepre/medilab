@@ -13,7 +13,7 @@
         "views/system/favicon_templates.xml",
         "views/system/login_templates.xml",
         "views/system/res_users_views.xml",
-        "views/sample_collection/test_parameter_views.xml",
+        "views/master_data/test_parameter_views.xml",
         "views/system/menus.xml",
     ],
     "assets": {

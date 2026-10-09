@@ -53,6 +53,26 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md).
 - Revenue, outstanding payments and cash-flow reports for the accountant.
 - KPI indicators for sales and approval turnaround, based on timestamps recorded at each step.
 
+## Orders, quotations and invoices
+
+The tables are drawn in [ecommerce.prisma](../../infrastructure/database/ecommerce/ecommerce.prisma).
+
+| Rule             | Description                                                                                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cart             | A customer's draft order is their cart. Submitting it puts it in the sales queue.                                                              |
+| Order lines      | An order line is one parameter or one package, with a quantity.                                                                                |
+| Order lifecycle  | An order is draft, submitted, claimed, confirmed, completed or cancelled. Confirming it creates its test request in the Laboratory module; it is completed when that request's report is issued. Its approval by the Head of Sales follows its signatures. |
+| Quotation lines  | When a quotation is priced, each line copies its catalog price, discount, tax and the tax rate in force on the quotation date, so a sent quotation never changes with the catalog. |
+| Revisions        | A revision is a new quotation that replaces the previous one; the previous one becomes read-only.                                              |
+| Numbers          | Orders, quotations, invoices and receipts get numbers from sequences whose format the administrator configures, such as `0001 26/BG-VTT` for quotations. Quotation, invoice and receipt numbers start again each year. |
+| Invoices         | An invoice is an advance invoice, a final invoice or a credit note, and uses its quotation's prices and tax rates. The final invoice deducts the advance on a line of its own. A posted invoice is never edited. |
+| Payments         | A payment is pending, confirmed or rejected; only confirmed payments count toward an invoice's paid amount. Each confirmed payment gets a receipt number. The order keeps its payment status (not paid, partially paid, paid) up to date. |
+| Online payment   | Each online payment is a PayOS payment link for an invoice with a unique order code, so a repeated PayOS notification never records a second payment. |
+| Templates        | An order template belongs to one customer and holds parameters, packages and quantities, without prices.                                      |
+| Cancellation     | An order has at most one open cancellation request.                                                                                           |
+| Support          | A support request is a conversation of messages between the customer and sales, optionally about one order.                       |
+| Feedback         | A completed order has at most one feedback, a rating from 1 to 5 with a comment.                                                              |
+
 ## Actors
 
 Each actor has its own feature document under `features/<actor>/`, listing the user stories, the feature details and the acceptance criteria for that actor.
