@@ -3,5 +3,6 @@
 - Database diagrams, one Prisma schema per module:
   - [Laboratory](database/laboratory/laboratory.prisma): master data, test requests, samples, results, signing, tasks, scheduling and the shared platform tables
   - [E-commerce](database/ecommerce/ecommerce.prisma): prices, taxes, service packages, orders, quotations, invoices, payments, support and feedback
+  - [Inventory](database/inventory/inventory.prisma): stock items, locations, lots, moves, use per test, suppliers, purchase orders and receipts
 - [Pipelines](pipelines.md): what each GitHub Actions workflow does, images, artifacts and caches
 - [Secrets](secrets.md): Doppler config and the secrets published to GitHub
