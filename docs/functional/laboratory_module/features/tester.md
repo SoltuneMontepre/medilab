@@ -19,6 +19,10 @@ The tester, also called lab QA, runs the tests assigned to them on the laborator
 - **US-T08** As a tester, I want to retest when a result is rejected, so that the reported result is correct, while the rejected one stays on record.
 - **US-T09** As a tester, I want to enter the results a subcontractor sends back for an outsourced test, so that they reach the report when the subcontractor does not enter them itself.
 
+### Samples
+
+- **US-T10** As a tester, I want to be reminded of samples whose retention ends soon and record their disposal, so that no sample is kept longer than needed.
+
 ## II. Feature details
 
 ### 1. Planning (US-T01 to US-T04)
@@ -56,6 +60,21 @@ Acceptance criteria:
 - A result entered on a sample with a regulation shows the copied limit and needs a conclusion before it is sent for approval.
 - A rejected result stays on record, and the sample test goes back to testing.
 - Approving the reported result closes the tester's testing task.
+
+### 3. Samples (US-T10)
+
+Follows [Reception](../overview.md#reception).
+
+| Rule     | Description                                                                                                       |
+| -------- | ----------------------------------------------------------------------------------------------------------------- |
+| Disposal | A sample is disposed of once it is not kept, its retention period is over or its request is cancelled. The method is the one entered on the sample, or else its sample type's disposal method. Disposal cannot be undone. |
+| Reminder | A daily job gives testers a to-do listing samples whose retention ends within the reminder days, a system parameter (7 by default), or has ended. Running it again does not add a second to-do for the same sample. |
+
+Acceptance criteria:
+
+- Disposing of a sample with no method on it and none on its sample type is refused.
+- A disposed sample cannot be disposed of again or changed back.
+- A sample whose retention ends in 3 days appears on the reminder; a disposed one does not.
 
 ## III. Related documents
 

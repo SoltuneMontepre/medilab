@@ -16,7 +16,7 @@ Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the cus
 
 - **US-SD06** As sample delivery staff, I want to create a test request for a customer with its samples, parameters, expected date and report delivery, so that the laboratory can take work that does not come through an order.
 - **US-SD07** As sample delivery staff, I want to see the samples expected for each test request, so that I know what should arrive.
-- **US-SD08** As sample delivery staff, I want to print a label with the lab code as a QR code for each sample, so that the sample can be identified and scanned without showing the customer.
+- **US-SD08** As sample delivery staff, I want to print a label for each sample with its lab code, test request, results due date and a QR code, so that the sample can be identified and scanned without showing the customer.
 - **US-SD09** As sample delivery staff, I want to record a sample's receipt with the amount, its condition and where it is stored, so that its state on arrival is on record.
 - **US-SD10** As sample delivery staff, I want to reject a sample that cannot be tested, with the reason, so that nobody works on it.
 - **US-SD11** As sample delivery staff, I want to put an insufficient sample on hold and report it to the head of department, so that it can be collected again.
@@ -55,7 +55,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | Test request  | Without an order, sample delivery staff create the test request: customer, samples with their sample type, physical state and regulation, the parameters of each sample, expected date, report language, delivery method and report recipient. |
-| Label         | Each sample's label shows its lab code as text and as a QR code, and nothing else about the customer.                       |
+| Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
 | Receipt       | Receipt records when and by whom the sample was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
 | Testing tasks | Receiving a sample creates a testing task for each of its sample tests in the queue of the department that does the work.   |
 | Handover      | The sample is handed over to each department that tests it; the department records when and by whom it received it.         |
@@ -63,7 +63,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 Acceptance criteria:
 
 - A test request created by sample delivery staff skips the paid step.
-- A sample's label shows its lab code and QR code but not the customer's name for it.
+- A sample's label shows its lab code, test request code, results due date and QR code, but not the customer or the customer's name for the sample.
 - Recording a sample's receipt sets it to received and creates its testing tasks in each department's queue.
 - A rejected sample keeps its condition note and gets no testing tasks.
 - An insufficient sample is on hold, and its head of department is told.
