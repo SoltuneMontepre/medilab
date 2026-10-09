@@ -860,7 +860,7 @@ model User {
   /// The person this account belongs to.
   person     Person?
   /// Mobile devices the user receives reminders on.
-  devices    PushDevice[]
+  devices    MobileDevice[]
 
   @@map("res_users")
 }
@@ -1302,7 +1302,7 @@ model ChangeRequest {
 }
 
 /// A mobile device registered with Firebase Cloud Messaging to receive reminders for one Odoo user. Unique on token.
-model PushDevice {
+model MobileDevice {
   /// Row identifier.
   id           Int       @id @default(autoincrement())
   /// The Odoo user signed in on the device.
@@ -1319,5 +1319,5 @@ model PushDevice {
   user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
-  @@map("medilab_push_device")
+  @@map("medilab_mobile_device")
 }
