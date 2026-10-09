@@ -23,6 +23,10 @@ The tester, also called lab QA, runs the tests assigned to them on the laborator
 
 - **US-T10** As a tester, I want to be reminded of samples whose retention ends soon and record their disposal, so that no sample is kept longer than needed.
 
+### Corrections
+
+- **US-T11** As a tester, I want to raise a change request on a result whose process is completed, stating what to change and why, so that a mistake is corrected as a new version.
+
 ## II. Feature details
 
 ### 1. Planning (US-T01 to US-T04)
@@ -78,6 +82,19 @@ Acceptance criteria:
 - Disposing of a sample with no method on it and none on its sample type is refused.
 - A disposed sample cannot be disposed of again or changed back.
 - A sample whose retention ends in 3 days appears on the reminder; a disposed one does not.
+
+### 4. Corrections (US-T11)
+
+Follows [Reports and change requests](../overview.md#reports-and-change-requests) and [SH-07](../../shared.md#sh-07-signed-documents-are-locked).
+
+| Rule           | Description                                                                                                       |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Change request | A tester or head who can edit results raises a change request on a completed result with what to change and why. Once its chain approves it, a new unsigned version of the result replaces the old one and is signed again; the old version is kept. |
+
+Acceptance criteria:
+
+- A change request without what to change or why is refused.
+- An approved change request on a result creates a new version linked to the old one, which stays readable and is marked as replaced.
 
 ## III. Related documents
 

@@ -120,7 +120,7 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 
 - From the first signature the document is read-only for everyone, including administrators.
 - **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature once every higher level has withdrawn theirs. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
-- **After the document's process is completed**, such as a test request completed, an order completed or an invoice paid, the document can no longer be reopened. To change it, a user raises a **change request** stating what to change and why.
+- **After the document's process is completed**, such as a test request completed, an order completed or an invoice paid, the document can no longer be reopened. To change it, a person who can edit that type of document raises a **change request** stating what to change and why.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Lab Head for a test result.
 - When the chain approves, the system creates a **new version** of the document, unsigned, linked to the signed one; the signed version is kept unchanged and marked as replaced. The new version must be signed again.
 - Anyone concerned can follow the status of the change request: requested, approved, rejected, applied.

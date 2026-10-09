@@ -26,6 +26,10 @@ Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the cus
 
 - **US-SD13** As sample delivery staff, I want to see the dispatches I carry to subcontractors, so that the outsourced samples arrive when expected.
 
+### Delivering reports
+
+- **US-SD14** As sample delivery staff, I want to see the issued reports waiting for delivery and record each delivery, so that every customer gets their report the way they asked.
+
 ## II. Feature details
 
 ### 1. Collecting samples (US-SD01 to US-SD05)
@@ -78,6 +82,21 @@ Acceptance criteria:
 Acceptance criteria:
 
 - A dispatch assigned to sample delivery staff appears in their list of dispatches to carry, with the subcontractor and the date sent.
+
+### 4. Delivering reports (US-SD14)
+
+Follows [Reports and change requests](../overview.md#reports-and-change-requests).
+
+| Rule     | Description                                                                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------------------- |
+| Waiting  | Issued reports not yet delivered are listed with their delivery method, note and the contact who receives them.     |
+| Delivery | Sample delivery staff deliver the report as the test request says and record when it was delivered; they are recorded as who delivered it. A report sent by email is emailed to its recipient from the system. |
+
+Acceptance criteria:
+
+- An issued report appears in the list waiting for delivery until its delivery is recorded.
+- Recording a delivery stores when and by whom.
+- A report not yet issued cannot be delivered.
 
 ## III. Related documents
 
