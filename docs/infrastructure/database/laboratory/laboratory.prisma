@@ -1,11 +1,11 @@
-// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, system parameters, audit, locks, notifications and scheduled jobs. Odoo owns the schema; this file only draws it.
+// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, audit, locks, notifications and scheduled jobs. System parameters are Odoo settings stored in ir.config_parameter. Odoo owns the schema; this file only draws it.
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-/// A single property the laboratory tests on a sample; the unit customers order and pay for.
+/// A single property the laboratory tests on a sample; the unit customers order and pay for. Trigram indexes on code and name serve catalog search.
 model TestParameter {
   /// Row identifier.
   id           Int                       @id @default(autoincrement())
@@ -75,7 +75,7 @@ model SampleType {
   /// Ids of the sample type and all its ancestors, such as 2/7/, so filtering by a type finds its children in one query.
   parent_path String?                   @db.VarChar
   /// Smallest amount of sample to collect, in minimum_quantity_unit.
-  minimum_quantity         Float?
+  minimum_quantity         Decimal? @db.Decimal
   /// Unit of the minimum amount, such as g or mL.
   minimum_quantity_unit_id Int?
   /// How to collect the sample, in each language.
@@ -144,9 +144,11 @@ model RegulationLimit {
   /// The unit of min_value and max_value; empty for a text-only limit.
   unit_id       Int?
   /// Lowest allowed value; empty when there is no lower limit.
-  min_value     Float?
+  min_value     Decimal? @db.Decimal
   /// Highest allowed value; empty when there is no upper limit.
-  max_value     Float?
+  max_value     Decimal? @db.Decimal
+  /// Decimals the limit shows on the report, such as 2 for 0.50.
+  decimals      Int?
   /// The limit as printed on the report when it is not a number, such as "Not detected", in each language.
   limit_text    Json?
   /// The regulation that sets the limit.
@@ -245,7 +247,7 @@ model MeasurementUnit {
   /// The kind of quantity the unit measures; units convert only within one category.
   category_id       Int
   /// Number of reference units in one of this unit, such as 0.001 for µg/L when mg/L is the reference; 1 for the reference unit.
-  factor            Float             @default(1)
+  factor            Decimal @db.Decimal             @default(1)
   /// False when the unit is archived.
   active            Boolean           @default(true)
   /// The kind of quantity the unit measures.
@@ -298,9 +300,11 @@ model ParameterMethod {
   /// True when this way of testing is within an ISO 17025 accreditation scope.
   is_accredited    Boolean         @default(false)
   /// Limit of detection: the lowest value this method can detect, in the row's unit.
-  lod              Float?
+  lod              Decimal? @db.Decimal
   /// Limit of quantification: the lowest value this method can measure reliably, in the row's unit.
-  loq              Float?
+  loq              Decimal? @db.Decimal
+  /// Decimals a result of this way of testing shows, such as 2 for 0.50; results copy it.
+  result_decimals  Int?
   /// True for the way the parameter is normally tested.
   is_default       Boolean         @default(false)
   /// False when this way of testing is archived.
@@ -322,7 +326,6 @@ model ParameterMethod {
   /// Sample tests done this way.
   sample_tests     SampleTest[]
 
-  @@index([parameter_id])
   @@index([method_id])
   @@index([subcontractor_id])
   @@index([department_id])
@@ -368,6 +371,8 @@ model Contact {
   id                         Int             @id @default(autoincrement())
   /// Name of the company or person.
   name                       String          @db.VarChar
+  /// Tax ID of a company, or of an individual who has one: Odoo's own field.
+  vat                        String?         @db.VarChar
   /// True for a company, false for a person.
   is_company                 Boolean         @default(false)
   /// The company a person works for.
@@ -598,9 +603,7 @@ model Customer {
   code          String        @unique @db.VarChar
   /// The contact holding the customer's details: name, address, email, phone, and for a company its people.
   partner_id    Int           @unique
-  /// Tax code of a company, or of an individual who has one.
-  tax_code      String?       @db.VarChar
-  /// Citizen ID of an individual.
+  /// Citizen ID of an individual: personal data, masked in the audit trail and read only by those who maintain customers.
   citizen_id    String?       @db.VarChar
   /// False when the customer is archived.
   active        Boolean       @default(true)
@@ -609,7 +612,6 @@ model Customer {
   /// Test requests of the customer.
   test_requests TestRequest[]
 
-  @@index([tax_code])
   @@map("medilab_customer")
 }
 
@@ -768,7 +770,9 @@ model TestResult {
   /// True for the result reported to the customer.
   is_reported    Boolean          @default(false)
   /// Measured value, in unit_id; empty for a text result.
-  value          Float?
+  value          Decimal? @db.Decimal
+  /// Decimals the value shows, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
+  value_decimals Int?
   /// Result as text when it is not a number, such as "Not detected", in each language.
   value_text     Json?
   /// The unit of the value, taken from the way of testing.
@@ -776,9 +780,9 @@ model TestResult {
   /// The unit of limit_min and limit_max, copied from the sample's regulation.
   limit_unit_id  Int?
   /// Lowest allowed value, copied from the sample's regulation when the result is created.
-  limit_min      Float?
+  limit_min      Decimal? @db.Decimal
   /// Highest allowed value, copied from the sample's regulation when the result is created.
-  limit_max      Float?
+  limit_max      Decimal? @db.Decimal
   /// Limit as text, copied from the sample's regulation, in each language.
   limit_text     Json?
   /// The Odoo user who entered the result: a lab QA, or a subcontractor's user for an outsourced test.
@@ -1039,7 +1043,8 @@ model ApprovalLevel {
 }
 
 /// One signature or rejection on one version of a document. Records are never deleted; a withdrawal sets withdrawn_at.
-/// Points to its document by document_model and document_id, indexed together.
+/// Points to its document by document_model and document_id: partial index on them where withdrawn_at is empty, for the signatures in force.
+/// When it was signed is Odoo's creation time of the row.
 model Signature {
   /// Row identifier.
   id               Int           @id @default(autoincrement())
@@ -1063,8 +1068,6 @@ model Signature {
   decision         String        @db.VarChar
   /// Reason given for a rejection.
   reason           String?       @db.Text
-  /// When the signature or rejection was given.
-  signed_at        DateTime
   /// When the signer withdrew the signature; empty while it stands.
   withdrawn_at     DateTime?
   /// The level signed at.
@@ -1072,7 +1075,6 @@ model Signature {
   /// The person who signed.
   signer           Person        @relation(fields: [signer_id], references: [id], onDelete: Restrict)
 
-  @@index([document_model, document_id])
   @@index([signer_id])
   @@map("medilab_signature")
 }
@@ -1161,7 +1163,7 @@ model Task {
 }
 
 /// A sample test waiting for, or holding, a slot on a machine.
-/// Scheduled and running bookings of one machine do not overlap.
+/// Scheduled and running bookings of one machine do not overlap: an exclusion constraint on (machine_id, time range) where status is scheduled or in_progress, using btree_gist.
 model MachineBooking {
   /// Row identifier.
   id               Int        @id @default(autoincrement())
@@ -1173,6 +1175,8 @@ model MachineBooking {
   task_id          Int?
   /// Person who runs the test.
   person_id        Int?
+  /// Due date of the sample test, copied so the queue is ordered without a join.
+  due_date         DateTime?
   /// When the booking joined the machine's queue; earlier bookings come first among equally urgent ones.
   queued_at        DateTime
   /// Start of the slot; empty while the booking waits in the queue.
@@ -1194,7 +1198,7 @@ model MachineBooking {
 
   @@index([machine_id, starts_at])
   @@index([person_id, starts_at])
-  @@index([machine_id, status, queued_at])
+  @@index([machine_id, status, due_date, queued_at])
   @@map("medilab_machine_booking")
 }
 
@@ -1323,10 +1327,8 @@ model ChangeRequest {
   document_id      Int
   /// Version of the document the change is asked for.
   document_version Int
-  /// Person who asked for the change.
+  /// Person who asked for the change; when is Odoo's creation time of the row.
   requested_by_id  Int
-  /// When the change was asked for.
-  requested_at     DateTime
   /// What to change.
   requested_change String    @db.Text
   /// Why the change is needed.
@@ -1346,6 +1348,7 @@ model ChangeRequest {
 }
 
 /// A mobile device registered with Firebase Cloud Messaging to receive reminders for one Odoo user. Unique on token.
+/// The cleanup job removes devices turned off longer than their retention period.
 model MobileDevice {
   /// Row identifier.
   id           Int       @id @default(autoincrement())
@@ -1368,36 +1371,14 @@ model MobileDevice {
   @@map("medilab_mobile_device")
 }
 
-/// A value the system's behaviour depends on, changed by administrators on the settings screens (SH-03). Every change is audited.
-model SystemParameter {
-  /// Row identifier.
-  id            Int     @id @default(autoincrement())
-  /// Unique key code reads it by, such as scheduling.urgency_threshold_hours.
-  key           String  @unique @db.VarChar
-  /// Parameter name in each language.
-  name          Json
-  /// What the parameter controls, in each language.
-  description   Json?
-  /// integer, decimal, boolean, text or duration_minutes.
-  value_type    String  @db.VarChar
-  /// Current value, written as text in its type's format.
-  value         String  @db.Text
-  /// Value used when none is set; declared with the parameter so upgrades keep working.
-  default_value String  @db.Text
-  /// Technical name of the module that declares the parameter, such as laboratory.
-  module        String  @db.VarChar
-
-  @@index([module])
-  @@map("medilab_system_parameter")
-}
-
 /// One recorded action or event (SH-05). Entries are never edited or deleted.
-/// Points to its document by document_model and document_id, indexed together.
+/// Points to its document by document_model and document_id, indexed together. A BRIN index on create_date serves period reports.
+/// Logins are read from Odoo's login log (res.users.log), not written here.
 model AuditEntry {
   /// Row identifier.
   id             Int           @id @default(autoincrement())
-  /// When it happened.
-  at             DateTime
+  /// When it happened: Odoo's creation time of the entry.
+  create_date    DateTime
   /// The Odoo user who acted; empty when the system acted.
   user_id        Int?
   /// screen, api or job.
@@ -1420,8 +1401,8 @@ model AuditEntry {
   changes        AuditChange[]
 
   @@index([document_model, document_id])
-  @@index([user_id, at])
-  @@index([action, at])
+  @@index([user_id, create_date])
+  @@index([action, create_date])
   @@map("medilab_audit_entry")
 }
 
@@ -1444,7 +1425,8 @@ model AuditChange {
   @@map("medilab_audit_change")
 }
 
-/// A lock on a document while one user edits it or a long operation runs on it (SH-06).
+/// A lock on a document while one user edits it or a long operation runs on it (SH-06). When it was taken is Odoo's creation time of the row.
+/// The cleanup job removes released and expired locks after their retention period.
 /// At most one active lock per document (partial unique index on document_model, document_id where status is active).
 model DocumentLock {
   /// Row identifier.
@@ -1457,8 +1439,6 @@ model DocumentLock {
   user_id          Int
   /// edit for a user editing, or operation for a long operation such as sending a quotation.
   kind             String              @db.VarChar
-  /// When the lock was taken.
-  acquired_at      DateTime
   /// Last activity of the holder; the lock expires after the inactivity period from here.
   last_activity_at DateTime
   /// active, released or expired.
@@ -1536,6 +1516,7 @@ model NotificationPreference {
 }
 
 /// One message to one user about one event, delivered on each of their channels.
+/// Partial index on user_id where read_at is empty, for unread counts. The cleanup job removes read notifications after their retention period.
 model Notification {
   /// Row identifier.
   id             Int                    @id @default(autoincrement())
@@ -1564,11 +1545,10 @@ model Notification {
   /// Deliveries of the notification, one per channel.
   deliveries     NotificationDelivery[]
 
-  @@index([user_id, read_at])
   @@map("medilab_notification")
 }
 
-/// Sending one notification on one channel. Unique on (notification_id, channel).
+/// Sending one notification on one channel. Unique on (notification_id, channel). Partial index on id where status is pending.
 model NotificationDelivery {
   /// Row identifier.
   id               Int           @id @default(autoincrement())
@@ -1590,11 +1570,11 @@ model NotificationDelivery {
   mobile_device    MobileDevice? @relation(fields: [mobile_device_id], references: [id], onDelete: SetNull)
 
   @@unique([notification_id, channel])
-  @@index([status])
   @@map("medilab_notification_delivery")
 }
 
 /// A recurring job identified by its key, scheduled by an Odoo cron and working through a queue of items (SH-09).
+/// The cron holds the schedule and the on or off switch, and stops two runs overlapping; Odoo's cron progress counts the items done and remaining.
 model ScheduledJob {
   /// Row identifier.
   id                  Int       @id @default(autoincrement())
@@ -1612,10 +1592,6 @@ model ScheduledJob {
   claim_timeout_minutes Int     @default(30)
   /// Minutes before the first retry; each later retry waits twice as long.
   retry_delay_minutes Int       @default(5)
-  /// When the running run started; empty when the job is not running, so a second run is skipped.
-  running_since       DateTime?
-  /// False when the job is turned off.
-  active              Boolean   @default(true)
   /// Items queued for the job.
   items               JobItem[]
   /// Runs of the job.
@@ -1626,6 +1602,7 @@ model ScheduledJob {
 
 /// One unit of work queued for a job, such as one reminder to send. Unique on (job_id, item_key), so the same work is never queued twice.
 /// Points to its document by document_model and document_id.
+/// Partial index on (job_id, next_attempt_at) where status is pending or running. The cleanup job removes finished items after their retention period.
 model JobItem {
   /// Row identifier.
   id              Int          @id @default(autoincrement())
@@ -1655,11 +1632,10 @@ model JobItem {
   job             ScheduledJob @relation(fields: [job_id], references: [id], onDelete: Restrict)
 
   @@unique([job_id, item_key])
-  @@index([job_id, status, next_attempt_at])
   @@map("medilab_job_item")
 }
 
-/// One run of a job, with its result and log (SH-09).
+/// One run of a job, with its result and log (SH-09). Items done and remaining are counted by Odoo's cron progress.
 model JobRun {
   /// Row identifier.
   id              Int          @id @default(autoincrement())
@@ -1671,10 +1647,6 @@ model JobRun {
   ended_at        DateTime?
   /// running, succeeded, partly_failed or failed.
   status          String       @db.VarChar
-  /// Items done in the run.
-  items_done      Int          @default(0)
-  /// Items that failed in the run.
-  items_failed    Int          @default(0)
   /// Log of the run.
   log             String?      @db.Text
   /// Administrator who ran the job by hand; empty for a scheduled run.

@@ -44,7 +44,7 @@ The system's behaviour is driven by configuration, not by hard-coded values.
 - **Configuration files** (environment variables) hold deployment settings and secrets, such as provider credentials. Secrets never appear in the database, logs or documents.
 - Settings are changed from the settings screens by administrators; every change is audited (SH-05).
 - A new option is added by declaring it with a default, so existing installations keep working after an upgrade.
-- Each system parameter has a key, a typed value (integer, decimal, boolean, text or duration), its default and a description in each language, and belongs to the module that declares it.
+- Each system parameter is a settings field declared by its module, with a type, a default and a help text in each language, and stored in Odoo's system parameter table.
 - Settings that change behaviour of existing documents apply to future documents only.
 
 Acceptance criteria:
@@ -89,7 +89,7 @@ Every action in the system is recorded and can be reported on.
 - Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document.
 - **Audit reports** can be generated for a period and exported for compliance purposes.
 - Personal data in the trail is limited to what is needed to identify who acted.
-- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run.
+- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. Logins come from Odoo's own login log.
 
 Acceptance criteria:
 
@@ -164,7 +164,8 @@ Typical jobs: payment reminders, quotation expiry, retention and expiry checks (
 - A job is safe to run twice: running it again never sends a duplicate reminder or creates a duplicate record.
 - Jobs do not run on top of themselves: a second run waits or is skipped while the first is running.
 - **Job and queue.** Each job has a unique key and is scheduled by an Odoo cron that administrators configure. A job works through a queue of items: each item is one unit of work, such as one reminder to send, with a key unique within the job, so the same work is never queued twice. An item is retried with a growing delay up to the job's number of attempts, then marked failed. A run claims the items it takes; an item claimed longer than the job's claim timeout, such as after a crash, goes back to the queue.
-- Each run records when it started and ended, its result, how many items were done and failed, its log, and who ran it by hand.
+- Each run records when it started and ended, its result, its log, and who ran it by hand; how many items were done and remain comes from Odoo's cron progress.
+- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their deliveries, and mobile devices turned off. Each retention period is a system parameter. It never removes business records, signatures or audit entries.
 
 Acceptance criteria:
 

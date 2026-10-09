@@ -141,7 +141,6 @@ stateDiagram-v2
 | Rule                  | Description                                                                                                                            |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Complete order        | Submitting requires at least one parameter or service package in the cart.                                                             |
-| No duplicates         | An **open** order with the same content (parameters, packages and quantities) cannot be created or submitted twice.                    |
 | Submit is not confirm | Submitting only puts the order in the sales queue. Sales then prepares the quotation.                                                  |
 | Cancel                | The customer can cancel until the order is confirmed; after that the customer can only [request cancellation](#request-cancel-us-c12). |
 | Reorder               | See [Reorder](#reorder-us-c10).                                                                                                        |
@@ -156,13 +155,11 @@ The customer opens a past order in the order history and chooses **Reorder**. Th
 | New draft                    | The result is always a new draft, never submitted automatically. The original order does not change.                                                                                               |
 | Current prices               | Prices come from the current catalog, not from the original quotation, so the total can differ. Parameters and packages that are no longer in the catalog are not copied and the customer is told which ones. |
 | No payment or results copied | Invoices, payments, approvals, sample data and results stay with the original order.                                                                                                               |
-| No duplicates                | Reordering is refused while the source order is still open or when another open order has the same content, to prevent the same request being submitted twice.                                     |
 | Ownership                    | The new draft belongs to the customer and is not assigned to a salesperson until sales claims it after submission.                                                                                 |
 
 Acceptance criteria:
 
 - Reordering a completed order creates a draft with the same parameters and packages at current prices.
-- Reordering an order that is still open, or one that would duplicate an open order, is refused with a message naming the existing order.
 - The original order, its invoices and its results are unchanged.
 
 #### Request cancel (US-C12)

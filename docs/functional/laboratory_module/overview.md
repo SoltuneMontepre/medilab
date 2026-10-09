@@ -27,7 +27,7 @@ erDiagram
 
 | Rule              | Description                                                                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Customer          | A customer is a company or an individual. Their details are their contact; a company's people are the contact's people. A customer has a code from a sequence, a tax code for a company and a citizen ID for an individual. People who use the customer portal sign in with Odoo users linked to those contacts. Sales maintains customers. |
+| Customer          | A customer is a company or an individual. Their details are their contact; a company's people are the contact's people. A customer has a code from a sequence, the tax ID on its contact, and a citizen ID for an individual, which is masked in the audit trail. People who use the customer portal sign in with Odoo users linked to those contacts. Sales maintains customers. |
 | Test request      | A test request groups the samples of one customer. E-commerce creates it from a confirmed order; without E-commerce the laboratory creates it. |
 | Lab code          | Each sample gets a unique lab code (mã PTN) from a sequence. Testers see only the lab code, never the customer or the customer's name for the sample. |
 | Sample details    | A sample has the customer's name for it, its sample type, its physical state (solid, liquid, gas or semi-solid), and its form and container as text. |
@@ -116,7 +116,7 @@ stateDiagram-v2
 | Rule            | Description                                                                                                                       |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Attempts        | Every measurement of a sample test is its own result. Retests add a result; earlier results are kept. One result per sample test is the reported one. |
-| Value           | A result is a number in the unit of the way of testing, or a text such as "Not detected".                                         |
+| Value           | A result is a number in the unit of the way of testing, shown with the number of decimals its way of testing sets, or a text such as "Not detected". Numbers are stored exactly, never rounded by floating point. |
 | Limit copy      | When a result is created, the limit of the sample's regulation for its parameter is copied onto it with its unit. Later changes to the regulation do not change existing results. |
 | Versions        | A change request on a result whose process is completed creates a new version that replaces it. The signed version stays unchanged and is marked as replaced. |
 | Measurement     | A result records the machine it ran on and when it started, both taken from its booking and correctable by the lab QA; an outsourced result has no machine. The time the result is entered is when the measurement is done. |

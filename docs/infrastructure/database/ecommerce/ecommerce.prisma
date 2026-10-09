@@ -1,4 +1,5 @@
 // E-commerce module tables as the Odoo ORM creates them: prices, taxes, packages, orders, quotations, invoices, payments, support and feedback. Odoo owns the schema; this file only draws it.
+// Money columns are Odoo Monetary fields in VND, rounded by the currency.
 // Laboratory tables appear only with the columns this module uses; the full tables are in ../laboratory/laboratory.prisma.
 
 datasource db {
@@ -112,7 +113,7 @@ model TaxRate {
   @@map("medilab_tax_rate")
 }
 
-/// A set of parameters from any groups sold together at its own price.
+/// A set of parameters from any groups sold together at its own price. A trigram index on name serves catalog search.
 model ServicePackage {
   /// Row identifier.
   id         Int                  @id @default(autoincrement())
@@ -259,6 +260,8 @@ model CustomerOrder {
   source          String                @db.VarChar
   /// draft, submitted, claimed, confirmed, completed or cancelled.
   status          String                @db.VarChar
+  /// not_paid, partially_paid or paid, from the confirmed payments on the order's posted invoices; kept on the order for filtering.
+  payment_status  String                @default("not_paid") @db.VarChar
   /// none, requested, approved or rejected: where the order stands in its approval chain, kept in step with its signatures.
   approval_status String                @default("none") @db.VarChar
   /// The salesperson who claimed the order; empty while it waits in the queue.
@@ -595,7 +598,7 @@ model PaymentLink {
   /// The invoice to pay.
   invoice_id          Int
   /// Order code sent to PayOS; unique, so a repeated notification is recognised.
-  provider_order_code String    @unique @db.VarChar
+  provider_order_code BigInt    @unique
   /// Amount the link asks for.
   amount              Decimal   @db.Decimal
   /// Checkout page PayOS returned.
@@ -626,10 +629,8 @@ model CancellationRequest {
   reason          String        @db.Text
   /// requested, accepted, declined or withdrawn.
   status          String        @db.VarChar
-  /// The Odoo user who sent the request.
+  /// The Odoo user who sent the request; when is Odoo's creation time of the row.
   requested_by_id Int
-  /// When the request was sent.
-  requested_at    DateTime
   /// The salesperson who decided.
   decided_by_id   Int?
   /// When it was decided.
@@ -663,8 +664,6 @@ model SupportRequest {
   status        String           @db.VarChar
   /// The Odoo user who opened the request.
   opened_by_id  Int
-  /// When the request was opened.
-  opened_at     DateTime
   /// The salesperson handling the request: the order's salesperson, or whoever takes it; empty until then.
   handled_by_id Int?
   /// When the request was closed.
@@ -681,7 +680,7 @@ model SupportRequest {
   messages      SupportMessage[]
 
   @@index([customer_id, status])
-  @@index([status, opened_at])
+  @@index([status])
   @@map("medilab_support_request")
 }
 
@@ -695,14 +694,14 @@ model SupportMessage {
   author_id  Int
   /// Text of the message.
   body       String         @db.Text
-  /// When the message was sent.
-  sent_at    DateTime
+  /// When the message was sent: Odoo's creation time of the message.
+  create_date DateTime
   /// The support request.
   request    SupportRequest @relation(fields: [request_id], references: [id], onDelete: Cascade)
   /// The Odoo user who wrote the message.
   author     User           @relation("SupportAuthor", fields: [author_id], references: [id], onDelete: Restrict)
 
-  @@index([request_id, sent_at])
+  @@index([request_id, create_date])
   @@map("medilab_support_message")
 }
 
@@ -718,8 +717,6 @@ model Feedback {
   comment     String?       @db.Text
   /// The Odoo user who gave the feedback.
   given_by_id Int
-  /// When the feedback was given.
-  given_at    DateTime
   /// The completed order rated.
   order       CustomerOrder @relation(fields: [order_id], references: [id], onDelete: Restrict)
   /// The Odoo user who gave the feedback.

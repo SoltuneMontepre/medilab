@@ -24,7 +24,10 @@ Code-first: changes and updates are available later.
 - Every model sets `_description`, a short human-readable name.
 - Set `_order` when records are normally listed in a fixed order.
 - Each field uses the field type that matches its data (`fields.Char`, `fields.Integer`, `fields.Datetime`, and so on).
-- Odoo adds the primary key `id`; do not declare it.
+- Odoo adds the primary key `id`, and `create_uid`, `create_date`, `write_uid` and `write_date`; do not declare them, and do not add a field that only repeats when or by whom a record was created.
+- Measured values, limits, factors and money are numeric (`fields.Float` with digits, or `fields.Monetary`), never stored where floating point can round them; a measured value keeps how many decimals it shows.
+- A field searched with "contains", such as a catalog name, gets `index="trigram"`.
+- Use what Odoo `base` gives before adding a table: `res.partner` for contacts and tax IDs, `res.users` for logins, settings fields for system parameters, `ir.cron` for schedules, `ir.sequence` for numbers, `ir.attachment` for files, `res.currency` for money.
 - Every model class has a comment on the line above it with its Vietnamese term from the [glossary](../glossaries.md). A model that only links two others says what the link is for:
 
   ```python
