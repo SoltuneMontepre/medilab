@@ -206,6 +206,7 @@ Tasks with a planned time and machine bookings appear on schedules, and people a
 
 - A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
+- The application shows a pop-up by checking for new notifications at a regular interval while it is open; it needs no live connection to the server.
 - **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event; the deliveries are sent by a scheduled job (SH-09). Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
 
 Acceptance criteria:
