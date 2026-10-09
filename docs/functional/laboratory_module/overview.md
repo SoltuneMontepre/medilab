@@ -119,6 +119,7 @@ stateDiagram-v2
 | Value           | A result is a number in the unit of the way of testing, or a text such as "Not detected".                                         |
 | Limit copy      | When a result is created, the limit of the sample's regulation for its parameter is copied onto it with its unit. Later changes to the regulation do not change existing results. |
 | Versions        | A change request on a result whose process is completed creates a new version that replaces it. The signed version stays unchanged and is marked as replaced. |
+| Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA. |
 | Conclusion      | The tester sets each result's conclusion, pass or fail, when the sample has a regulation.                                         |
 | No deletion     | A result cannot be deleted, and neither can the sample test, sample or test request it belongs to. |
 
@@ -186,6 +187,7 @@ flowchart LR
 - [Tester](features/tester.md): schedules and runs tests, enters and signs results
 - [Head of department](features/head-of-department.md): assigns testing work, manages the department's schedule, approves results
 - [Lab head](features/lab-head.md): signs test reports and approves their change requests
+- [Subcontractor](features/subcontractor.md): sees the tests sent to it and enters their results
 
 ## Related documents
 

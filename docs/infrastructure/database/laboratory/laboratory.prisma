@@ -779,6 +779,8 @@ model TestResult {
   limit_max      Float?
   /// Limit as text, copied from the sample's regulation, in each language.
   limit_text     Json?
+  /// The Odoo user who entered the result: a lab QA, or a subcontractor's user for an outsourced test.
+  entered_by_id  Int
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
   /// Version of the result, 1 for the first and one higher for each version a change request creates.
@@ -789,6 +791,8 @@ model TestResult {
   is_replaced    Boolean          @default(false)
   /// The sample test measured. A result cannot be deleted through its sample test, sample or request.
   sample_test    SampleTest       @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
+  /// The Odoo user who entered the result.
+  entered_by     User             @relation(fields: [entered_by_id], references: [id], onDelete: Restrict)
   /// The unit of the value.
   unit           MeasurementUnit? @relation("ResultUnit", fields: [unit_id], references: [id], onDelete: Restrict)
   /// The unit of the copied limits.
@@ -861,6 +865,8 @@ model User {
   partner    Contact @relation("UserPartner", fields: [partner_id], references: [id], onDelete: Restrict)
   /// The person this account belongs to.
   person     Person?
+  /// Results the user entered.
+  entered_results TestResult[]
   /// Mobile devices the user receives reminders on.
   devices    MobileDevice[]
 

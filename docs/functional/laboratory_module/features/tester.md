@@ -17,6 +17,7 @@ The tester, also called lab QA, runs the tests assigned to them on the laborator
 - **US-T06** As a tester, I want to set a result's conclusion, pass or fail, against the sample's regulation, so that the report states whether the sample complies.
 - **US-T07** As a tester, I want to send my result for approval and sign it, so that the head of department can review it.
 - **US-T08** As a tester, I want to retest when a result is rejected, so that the reported result is correct, while the rejected one stays on record.
+- **US-T09** As a tester, I want to enter the results a subcontractor sends back for an outsourced test, so that they reach the report when the subcontractor does not enter them itself.
 
 ## II. Feature details
 
@@ -36,7 +37,7 @@ Acceptance criteria:
 - A reminder arrives before the booking starts.
 - A tester sees the lab code of a sample, not its customer or the customer's name for it.
 
-### 2. Results (US-T05 to US-T08)
+### 2. Results (US-T05 to US-T09)
 
 Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 
@@ -46,6 +47,7 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 | Conclusion  | The tester sets pass or fail when the sample has a regulation.                                       |
 | Retest      | A retest adds a result; the earlier one is kept.                                                     |
 | Task done   | The testing task is done when the reported result is approved.                                       |
+| Outsourced  | The results of an outsourced test are entered by the subcontractor or by a lab QA; each result records who entered it. |
 
 Acceptance criteria:
 

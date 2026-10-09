@@ -1,6 +1,5 @@
 # Laboratory questions
 
-- **Subcontractor results.** Does the subcontractor enter the results it sends back into the system itself, or does a lab QA enter them? (blocks US-HD10)
 - **Sample delivery staff.** Are the sample delivery staff (nhân viên giao nhận mẫu) who carry dispatches the same people as the sample collectors and receivers, or a role of their own?
 - **Sample disposal.** Who disposes of retained samples, how, and how is it recorded?
 - **Report delivery.** No one delivers reports as a role of their own. Is a report's delivery recorded at all, and by whom?
