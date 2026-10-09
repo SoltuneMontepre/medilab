@@ -1,6 +1,6 @@
 # Shared technical implementations
 
-This document describes the technical capabilities shared by every module (E-commerce, Storage and Laboratory). They are not specific to any actor: users meet them as behaviour of the whole system, and developers and system administrators build and configure them once. It is a reference for developers and system administrators.
+This document describes the technical capabilities shared by every module (E-commerce, Inventory and Laboratory). They are not specific to any actor: users meet them as behaviour of the whole system, and developers and system administrators build and configure them once. It is a reference for developers and system administrators.
 
 Each requirement has an ID (`SH-nn`) so that module documents can refer to it.
 
@@ -10,9 +10,9 @@ Each requirement has an ID (`SH-nn`) so that module documents can refer to it.
 
 #### SH-01 Modular installation and integration
 
-The system consists of three modules (E-commerce, Storage, Laboratory) that can be installed independently and work together when installed together.
+The system consists of three modules (E-commerce, Inventory, Laboratory) that can be installed independently and work together when installed together.
 
-- E-commerce and Storage depend on Laboratory; Laboratory depends on neither.
+- E-commerce and Inventory depend on Laboratory; Laboratory depends on neither.
 - Installing a module never requires installing a module that depends on it.
 - When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
 - Each module can be upgraded without losing the data of the others.
@@ -20,8 +20,8 @@ The system consists of three modules (E-commerce, Storage, Laboratory) that can 
 Acceptance criteria:
 
 - Laboratory installs and runs alone.
-- E-commerce and Storage each install on top of Laboratory without the other being present.
-- Uninstalling E-commerce or Storage leaves Laboratory data intact.
+- E-commerce and Inventory each install on top of Laboratory without the other being present.
+- Uninstalling E-commerce or Inventory leaves Laboratory data intact.
 
 #### SH-02 Simple installation and configuration
 
@@ -115,8 +115,8 @@ Acceptance criteria:
 Once a document is signed it cannot be modified. Because approving is signing (SH-04), this applies from the first signature of the approval chain.
 
 - From the first signature the document is read-only for everyone, including administrators.
-- **Before the final level has signed**, a signer may withdraw their own signature, which reopens the document for editing and removes the later requests; every withdrawal is audited and the document must be signed again from that level.
-- **After the final level has signed**, the document can no longer be reopened. To change it, a user raises a **change request** stating what to change and why.
+- **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature once every higher level has withdrawn theirs. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
+- **After the document's process is completed**, such as a test request completed, an order completed or an invoice paid, the document can no longer be reopened. To change it, a user raises a **change request** stating what to change and why.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Lab Head for a test result.
 - When the chain approves, the system creates a **new version** of the document, unsigned, linked to the signed one; the signed version is kept unchanged and marked as replaced. The new version must be signed again.
 - Anyone concerned can follow the status of the change request: requested, approved, rejected, applied.
@@ -125,7 +125,8 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 Acceptance criteria:
 
 - No screen or API changes a signed document.
-- A signer can withdraw their signature only while the next level has not signed, and the document is then editable again.
+- A signer can withdraw their signature only while no higher level has a standing signature and the document's process is not completed, and the document is then editable again.
+- After the document's process is completed, no signature can be withdrawn.
 - An approved change request produces a new version linked to the old one; the old one stays readable.
 - The status of a change request is visible to the requester at every step.
 
@@ -151,7 +152,7 @@ Acceptance criteria:
 
 Recurring work runs by itself, and its health is visible.
 
-Typical jobs: payment reminders, quotation expiry, retention and expiry checks (Storage), report generation, e-mail retries.
+Typical jobs: payment reminders, quotation expiry, retention and expiry checks (Inventory), report generation, e-mail retries.
 
 - Each job has a schedule (interval or fixed time) that an administrator can change.
 - Administrators see every job with its last run, next run, result and duration, and can open the log of each run.
@@ -189,7 +190,7 @@ The system takes online payments through PayOS.
 - A confirmed payment is recorded against the invoice and updates its payment status automatically; partial payments are supported.
 - The status of each payment (created, pending, paid, failed, cancelled, expired) is stored and shown to the accountant.
 - If notifications are missed, a scheduled job (SH-09) asks the provider for the status of pending payments.
-- Refunds are outside this integration; see the open questions in the Sales documents.
+- Refunds are outside this integration.
 
 ### 3. Viettel Sign (digital signature)
 
@@ -200,13 +201,7 @@ The system digitally signs printed documents through Viettel Sign (SH-04). It do
 - Verification of a signed PDF checks the digital signature against the provider and the approval records of the document, and shows the result to anyone who opens the document.
 - If the provider is unavailable, the document is not issued as signed; the user is told and can retry, and the request is retried automatically (SH-09). No document is shown as digitally signed unless the provider confirmed it.
 
-## III. Open questions
-
-- **Certificate holder.** Whose certificate signs the printed documents: one laboratory certificate for all documents, or a certificate per signer or role (for example the Head of Sales for quotations)? This decides how many certificates Viettel Sign must hold.- **SMS.** The customer notification preferences include SMS. Brevo can be used for it, or another provider; this is not decided.
-- **Audit retention.** How long audit entries and signed documents are kept, and whether older entries are archived.
-- **Lock timeout.** The inactivity period after which an editing lock is released.
-
-## IV. Related documents
+## III. Related documents
 
 - [Overview](index.md)
 - [E-commerce module](ecommerce_module/overview.md)

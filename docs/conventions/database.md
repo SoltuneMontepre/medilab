@@ -2,6 +2,8 @@
 
 How database models are defined in the Odoo ORM. For where model files live, see [Module structure](module_structure.md).
 
+Code-first: changes and updates are available later.
+
 ## Naming
 
 | Thing        | Form                  | Example                     |
@@ -23,6 +25,18 @@ How database models are defined in the Odoo ORM. For where model files live, see
 - Set `_order` when records are normally listed in a fixed order.
 - Each field uses the field type that matches its data (`fields.Char`, `fields.Integer`, `fields.Datetime`, and so on).
 - Odoo adds the primary key `id`; do not declare it.
+- Every field has a comment on the line above it saying what data it holds, including relational fields:
+
+  ```python
+  # Unique code staff and documents use for the parameter; filled from a sequence when left empty.
+  code = fields.Char(required=True)
+  # The group revenue reports count the parameter under; one of the parameter's groups.
+  main_group_id = fields.Many2one(MODEL_PARAMETER_GROUP, required=True)
+  ```
+
+- The same applies to the [database diagrams](../infrastructure/readme.md), with a `///` comment above every field.
+- Each module has its own diagram in `docs/infrastructure/database/<module>/<module>.prisma`, in its own folder. A table another module owns appears only with the columns the module uses.
+- A module keeps its data in its own tables rather than adding columns to tables of another module.
 - Terms from the business domain follow the [glossary](../glossaries.md).
 
 ## Relationships

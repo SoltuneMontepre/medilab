@@ -1,0 +1,148 @@
+// E-commerce module tables as the Odoo ORM creates them. Odoo owns the schema; this file only draws it.
+// Laboratory tables appear only with the columns this module uses; the full tables are in ../laboratory/laboratory.prisma.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Laboratory's test parameter, shown with the columns this module uses.
+model TestParameter {
+  /// Row identifier.
+  id            Int                  @id @default(autoincrement())
+  /// Unique code of the parameter.
+  code          String               @unique @db.VarChar
+  /// The parameter's catalog price.
+  price         ParameterPrice?
+  /// Packages that include the parameter.
+  package_lines ServicePackageLine[]
+
+  @@map("medilab_test_parameter")
+}
+
+/// Laboratory's way of testing a parameter, shown with the columns this module uses.
+model ParameterMethod {
+  /// Row identifier.
+  id               Int               @id @default(autoincrement())
+  /// The subcontractor that tests it; empty when the laboratory tests it in-house.
+  subcontractor_id Int?
+  /// What the subcontractor charges for it.
+  subcontract_cost SubcontractCost?
+
+  @@map("medilab_parameter_method")
+}
+
+/// The catalog price of one test parameter.
+model ParameterPrice {
+  /// Row identifier.
+  id           Int           @id @default(autoincrement())
+  /// The parameter the price is for.
+  parameter_id Int           @unique
+  /// Price of one test, excluding VAT.
+  list_price   Decimal       @db.Decimal
+  /// The tax added to the price on quotations and invoices.
+  tax_id       Int
+  /// The parameter the price is for.
+  parameter    TestParameter @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  /// The tax added to the price.
+  tax          Tax           @relation(fields: [tax_id], references: [id], onDelete: Restrict)
+
+  @@index([tax_id])
+  @@map("medilab_parameter_price")
+}
+
+/// What a subcontractor charges the laboratory for one test of a parameter and method pair, for margin reporting.
+model SubcontractCost {
+  /// Row identifier.
+  id                  Int             @id @default(autoincrement())
+  /// The subcontracted parameter and method pair.
+  parameter_method_id Int             @unique
+  /// Cost of one test, excluding VAT.
+  cost                Decimal         @db.Decimal
+  /// The subcontracted parameter and method pair.
+  parameter_method    ParameterMethod @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+
+  @@map("medilab_subcontract_cost")
+}
+
+/// A tax added to prices, such as VAT 10% or not subject to VAT.
+model Tax {
+  /// Row identifier.
+  id               Int              @id @default(autoincrement())
+  /// Unique code of the tax, such as VAT10 or KCT.
+  code             String           @unique @db.VarChar
+  /// Tax name as printed on quotations and invoices, in each language.
+  name             Json
+  /// False when the tax is archived.
+  active           Boolean          @default(true)
+  /// The tax's rate over time.
+  rates            TaxRate[]
+  /// Parameter prices that use the tax.
+  parameter_prices ParameterPrice[]
+  /// Packages that use the tax.
+  packages         ServicePackage[]
+
+  @@map("medilab_tax")
+}
+
+/// The rate of a tax for a period. Periods of one tax do not overlap.
+model TaxRate {
+  /// Row identifier.
+  id          Int       @id @default(autoincrement())
+  /// The tax.
+  tax_id      Int
+  /// Rate in percent, such as 8 or 10; 0 for a tax that adds nothing.
+  rate        Decimal   @db.Decimal
+  /// First day the rate applies.
+  valid_from  DateTime  @db.Date
+  /// Last day the rate applies; empty when it applies until further notice.
+  valid_until DateTime? @db.Date
+  /// The tax.
+  tax         Tax       @relation(fields: [tax_id], references: [id], onDelete: Cascade)
+
+  @@index([tax_id, valid_from])
+  @@map("medilab_tax_rate")
+}
+
+/// A set of parameters from any groups sold together at its own price.
+model ServicePackage {
+  /// Row identifier.
+  id         Int                  @id @default(autoincrement())
+  /// Short unique code of the package.
+  code       String               @unique @db.VarChar
+  /// Package name in each language.
+  name       Json
+  /// Price of the whole package, excluding VAT.
+  list_price Decimal              @db.Decimal
+  /// The tax added to the price on quotations and invoices.
+  tax_id     Int
+  /// False when the package is archived and no longer offered.
+  active     Boolean              @default(true)
+  /// The tax added to the price.
+  tax        Tax                  @relation(fields: [tax_id], references: [id], onDelete: Restrict)
+  /// Parameters in the package.
+  lines      ServicePackageLine[]
+
+  @@index([tax_id])
+  @@map("medilab_service_package")
+}
+
+/// One parameter a package includes, and how many times. Unique on (package_id, parameter_id).
+model ServicePackageLine {
+  /// Row identifier.
+  id           Int            @id @default(autoincrement())
+  /// The package.
+  package_id   Int
+  /// A parameter the package includes.
+  parameter_id Int
+  /// How many times the package includes the parameter; at least 1.
+  quantity     Int            @default(1)
+  /// The package.
+  package      ServicePackage @relation(fields: [package_id], references: [id], onDelete: Cascade)
+  /// The parameter.
+  parameter    TestParameter  @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+
+  @@unique([package_id, parameter_id])
+  @@index([parameter_id])
+  @@map("medilab_service_package_line")
+}

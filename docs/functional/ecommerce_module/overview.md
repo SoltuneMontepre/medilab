@@ -19,7 +19,7 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md).
 - Self-service portal where customers view their account information, place orders and track the order status.
 - Secure login and authentication to protect customer data; customers only see their own documents.
 - Responsive design that works on desktop and mobile.
-- Test catalog with a cart: the customer selects parameters (tests), filtered by sample type and parameter group, and the price is calculated per parameter.
+- Test catalog with a cart: the customer selects parameters (tests) and service packages, filtered by sample type and parameter group. A parameter has its own price and a package has one price for all its parameters.
 - Reorder a past order, request the cancellation of a confirmed order, and receive notifications at every step.
 
 ### II. Quotation Management
@@ -63,4 +63,4 @@ Each actor has its own feature document under `features/<actor>/`, listing the u
 | Sales | Claims orders, prepares and sends quotations, confirms orders, requests approval | [sales](features/sales.md) |
 | Head of Sales | Approves or rejects confirmed orders, handles exceptions | Not written yet |
 | Accountant | Records payments, manages invoices and reports | [accountant](features/accountant.md) |
-| Administrator | Manages accounts, catalog prices and settings | Not written yet |
+| Administrator | Manages accounts, prices, taxes, service packages and settings | [admin](features/admin.md) |
