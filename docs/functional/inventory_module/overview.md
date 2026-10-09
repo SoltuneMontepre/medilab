@@ -12,6 +12,7 @@ The Inventory module keeps the laboratory's stock: chemicals and reagents, consu
 | Stock on hand | The quantity of each item, lot and location is kept up to date by moves.                                                                      |
 | Moves         | Every change of stock is a move: a receipt, a transfer between locations, a use, a disposal or a count correction. Moves are never edited; a mistake is corrected by another move. |
 | Value         | Stock is valued at the purchase price of its lot. There are no accounting entries.                                                             |
+| Counts        | Stock is counted periodically. A count covers one location and everything inside it, with a line per item, lot and location: the quantity expected when the count started and the quantity found. When the count is done, every difference becomes a count correction move. Counts are scheduled as tasks at an interval the administrator sets. |
 
 ## Use
 

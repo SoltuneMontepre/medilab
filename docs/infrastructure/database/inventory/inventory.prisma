@@ -1,4 +1,4 @@
-// Inventory module tables as the Odoo ORM creates them: stock items, locations, lots, stock, moves, consumption, suppliers, purchase orders and receipts. Odoo owns the schema; this file only draws it.
+// Inventory module tables as the Odoo ORM creates them: stock items, locations, lots, stock, moves, consumption, counts, suppliers, purchase orders and receipts. Odoo owns the schema; this file only draws it.
 // Money columns are Odoo Monetary fields in VND, rounded by the currency.
 // Laboratory tables appear only with the columns this module uses; the full tables are in ../laboratory/laboratory.prisma.
 
@@ -129,6 +129,8 @@ model StockItem {
   purchase_lines               PurchaseOrderLine[]
   /// Receipt lines of the item.
   receipt_lines                ReceiptLine[]
+  /// Count lines of the item.
+  count_lines                  StockCountLine[]
 
   @@index([kind])
   @@map("medilab_stock_item")
@@ -166,6 +168,10 @@ model StockLocation {
   moves_in      StockMove[]     @relation("MoveTo")
   /// Receipts put away in the location.
   receipts      Receipt[]
+  /// Counts of the location.
+  counts        StockCount[]
+  /// Count lines at the location.
+  count_lines   StockCountLine[] @relation("CountLineLocation")
 
   @@index([parent_path])
   @@map("medilab_stock_location")
@@ -197,6 +203,8 @@ model StockLot {
   quants            StockQuant[]
   /// Moves of the lot.
   moves             StockMove[]
+  /// Count lines of the lot.
+  count_lines       StockCountLine[]
 
   @@unique([item_id, lot_number])
   @@index([status, usable_until])
@@ -269,6 +277,8 @@ model StockMove {
   machine_service   MachineService? @relation(fields: [machine_service_id], references: [id], onDelete: Restrict)
   /// The receipt line the stock came in on.
   receipt_line      ReceiptLine?    @relation(fields: [receipt_line_id], references: [id], onDelete: Restrict)
+  /// The count line the correction came from.
+  count_line        StockCountLine?
 
   @@index([item_id])
   @@index([lot_id])
@@ -462,4 +472,61 @@ model ReceiptLine {
 
   @@index([receipt_id])
   @@map("medilab_receipt_line")
+}
+
+/// A stock count of one location and everything inside it. When it is done, every difference becomes a count correction move.
+model StockCount {
+  /// Row identifier.
+  id           Int              @id @default(autoincrement())
+  /// Unique code of the count; filled from a sequence.
+  code         String           @unique @db.VarChar
+  /// The location counted, with every location inside it.
+  location_id  Int
+  /// Date the count is planned for.
+  planned_date DateTime         @db.Date
+  /// draft, in_progress, done or cancelled.
+  status       String           @db.VarChar
+  /// When the count was done.
+  done_at      DateTime?
+  /// The location counted.
+  location     StockLocation    @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// Lines of the count.
+  lines        StockCountLine[]
+
+  @@index([status, planned_date])
+  @@map("medilab_stock_count")
+}
+
+/// One item, lot and location in a count: what the system expected and what was found.
+/// Unique on (count_id, item_id, COALESCE(lot_id, 0), location_id).
+model StockCountLine {
+  /// Row identifier.
+  id                Int           @id @default(autoincrement())
+  /// The count.
+  count_id          Int
+  /// The item counted.
+  item_id           Int
+  /// The lot counted; empty for an item not tracked by lot.
+  lot_id            Int?
+  /// The location counted.
+  location_id       Int
+  /// Quantity on hand when the count started, in the item's unit.
+  expected_quantity Decimal       @db.Decimal
+  /// Quantity found; empty until counted.
+  counted_quantity  Decimal?      @db.Decimal
+  /// The correction move created for the difference, when there is one.
+  move_id           Int?          @unique
+  /// The count.
+  count             StockCount    @relation(fields: [count_id], references: [id], onDelete: Cascade)
+  /// The item counted.
+  item              StockItem     @relation(fields: [item_id], references: [id], onDelete: Restrict)
+  /// The lot counted.
+  lot               StockLot?     @relation(fields: [lot_id], references: [id], onDelete: Restrict)
+  /// The location counted.
+  location          StockLocation @relation("CountLineLocation", fields: [location_id], references: [id], onDelete: Restrict)
+  /// The correction move created for the difference.
+  move              StockMove?    @relation(fields: [move_id], references: [id], onDelete: Restrict)
+
+  @@index([count_id])
+  @@map("medilab_stock_count_line")
 }
