@@ -37,7 +37,7 @@ How a module is laid out, from its root:
 
 - Models, views and the concern folders are described in [Module structure](module_structure.md); models themselves in [Database](database.md).
 - Every folder with Python files is a package with an `__init__.py`. The `__init__.py` only imports; it holds no logic.
-- `__init__.py` imports the sub-packages or files in alphabetical order: `from . import management, sample_collection, system`.
+- `__init__.py` imports the sub-packages or files in alphabetical order: `from . import management, master_data, sample_collection`.
 - One class per file, named after its file: `test_parameter.py` holds `TestParameter`. A controller file holds one controller class, for example `webmanifest.py` holds `MedilabWebManifest`.
 - A new Python folder is added to the `__init__.py` of its parent, otherwise Odoo does not load it.
 

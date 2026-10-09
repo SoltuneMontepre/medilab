@@ -4,9 +4,18 @@ How code inside an Odoo module is laid out.
 
 ## Group by concern
 
-- A model and its views live in folders of the same name, for example `models/sample_collection/test_parameter.py` and `views/sample_collection/test_parameter_views.xml`.
+- A model and its views live in folders of the same name, for example `models/master_data/test_parameter.py` and `views/master_data/test_parameter_views.xml`.
 - Folder names are snake_case, because model folders are Python packages.
 - A new concern adds a folder in both `models/` and `views/` and a row to this table.
+
+| Concern             | Contains                                                                                                                      |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `master_data`       | What the laboratory can test and with what: parameters, groups, sample types, methods, units, regulations, quality registrations, machines, chemicals, subcontractors, customers |
+| `sample_collection` | Test requests and samples: reception, handover, recollection, subcontract dispatches                                          |
+| `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                       |
+| `tasks`             | Task types and tasks                                                                                                          |
+| `management`        | Features only managers use                                                                                                    |
+| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, menus and the theme                      |
 
 ## Files
 
