@@ -33,21 +33,24 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 
 ### 1. Invoices (US-A01 to US-A05)
 
-| Invoice         | Created by                                                   | Purpose                                                                                  |
-| --------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| Advance invoice | System, when sales sends a quotation with an advance request | Collect the amount (full, percentage or fixed) the customer pays to accept the quotation |
-| Final invoice   | Accountant, from the confirmed order                         | Bill the remaining amount once the work is done                                          |
+| Invoice                                 | Created by                                                   | Purpose                                                                                  |
+| --------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Advance invoice                         | System, when sales sends a quotation with an advance request | Collect the amount (full, percentage or fixed) the customer pays to accept the quotation |
+| Final invoice                           | Accountant, from the confirmed order                         | Bill the remaining amount once the work is done                                          |
+| Adjustment invoice (hóa đơn điều chỉnh) | Accountant, from a posted invoice                            | Correct a posted invoice with only the difference, raising or lowering the amount        |
 
 - An advance invoice is posted automatically; the accountant does not need to create or post it.
 - The final invoice deducts the advance already paid, so the customer is never billed twice for the same parameters.
 - Invoices are sent by email with the PDF attached, and can be downloaded at any time. Customers see their posted invoices on the portal.
 - Tax follows the tax of each quotation line: the parameter's or package's tax, or the one sales set on the quotation. Prices in the catalog exclude VAT; the invoice shows net, tax and total separately.
-- A posted invoice cannot be edited. A correction is made with a credit note.
+- A posted invoice cannot be edited. The accountant corrects it with an adjustment invoice that holds only the difference, as positive or negative lines. It is posted, emailed and shown on the portal like any other invoice, and the amount owed on the corrected invoice includes its adjustments.
 
 Acceptance criteria:
 
 - Sending a quotation with an advance request creates one posted advance invoice.
 - The final invoice total equals the order total minus the advance.
+- An adjustment invoice of −500,000 VND on a 5,000,000 VND invoice leaves 4,500,000 VND owed, and the original invoice is unchanged.
+- A posted invoice cannot be edited; only an adjustment invoice changes what is owed.
 - An invoice shows net, tax and total, and can be downloaded as PDF.
 
 ### 2. Payments (US-A06 to US-A13)
