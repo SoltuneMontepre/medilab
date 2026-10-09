@@ -12,11 +12,11 @@ Rules that hold for everyone, whatever their roles and permissions:
 
 ## Permissions
 
-A permission is an action on a document type: read, create, edit, archive, delete or sign, on every record or only those of the person's department. A role is a set of permissions. A person holds roles and can be given extra permissions directly.
+A permission is an action on a document type: read, create, edit, archive, delete or sign, on every record or only those of the person's department. A role is a set of permissions. A person holds roles and can be given extra permissions directly. The administrator role is the exception: it holds every permission.
 
 One document per role, in `permissions/<role>.md`.
 
-- [Administrator](permissions/admin.md): master data, people, roles, approval chains, prices and settings
+- [Administrator](permissions/admin.md): every permission, as Odoo's default administrator
 
 ## Related documents
 

@@ -1,36 +1,8 @@
 # Administrator
 
-The administrator maintains master data, people, roles, approval chains, prices and settings. All permissions cover every record. The administrator signs nothing unless they also hold a role that signs.
+The administrator role is an exception to permission checks: it holds every permission on every record of every module, including those that come with new features. It is Odoo's default administrator; the Odoo user created with the database holds it.
 
-## Laboratory
-
-| Document type                                   | Read | Create | Edit | Archive | Delete | Sign |
-| ----------------------------------------------- | ---- | ------ | ---- | ------- | ------ | ---- |
-| Test parameter, parameter and method pair       | ✓    | ✓      | ✓    | ✓       |        |      |
-| Parameter group, sample type                    | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Testing field, testing method                   | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Measurement unit, unit category                 | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Regulation and its limits                       | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Quality registration                            | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Machine                                         | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Machine service record                          | ✓    | ✓      | ✓    | ✓       |        |      |
-| Chemical                                        | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Subcontractor                                   | ✓    | ✓      | ✓    | ✓       |        |      |
-| Person                                          | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Department                                      | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Role and its permissions                        | ✓    | ✓      | ✓    |         | ✓      |      |
-| Approval chain and its levels                   | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Task type                                       | ✓    | ✓      | ✓    | ✓       |        |      |
-| Customer                                        | ✓    |        |      |         |        |      |
-
-## E-commerce
-
-| Document type                  | Read | Create | Edit | Archive | Delete | Sign |
-| ------------------------------ | ---- | ------ | ---- | ------- | ------ | ---- |
-| Parameter price                | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Tax and its rates              | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Subcontract cost               | ✓    | ✓      | ✓    | ✓       | ✓      |      |
-| Service package                | ✓    | ✓      | ✓    | ✓       | ✓      |      |
+The [global rules](../readme.md#global-rules) still hold for the administrator: a signed document cannot be edited, archived or deleted, and signatures, audit entries, people and results are never deleted.
 
 ## System
 
