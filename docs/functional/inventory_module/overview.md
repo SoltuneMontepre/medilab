@@ -31,6 +31,7 @@ The Inventory module keeps the laboratory's stock: chemicals and reagents, consu
 | Below minimum   | When the stock of an item falls below its minimum quantity, a warning is raised and a purchase is suggested.         |
 | Expiring soon   | Lots whose usable date is within a number of days, a system parameter, are listed and notified.                     |
 | Expired         | Lots that expire are marked expired by a scheduled job and notified.                                                |
+| Who is warned   | The roles and departments notified of each warning are configured by the administrator ([SH-11](../shared.md#sh-11-schedules-and-reminders)); by default the storekeepers. |
 
 ## Purchasing
 
@@ -40,6 +41,10 @@ The Inventory module keeps the laboratory's stock: chemicals and reagents, consu
 | Purchase orders | A purchase order to one supplier lists items, quantities and prices. It is signed through its approval chain before it is sent.     |
 | Receipts        | Goods that arrive are received against a purchase order, or without one, into a location, with their lot, expiry, quantity, price and certificate. A done receipt creates the lots and moves. |
 | Received amount | A purchase order is partially received or received from the quantities its receipts brought in.                                     |
+
+## Actors
+
+- [Storekeeper](features/storekeeper.md): items, locations, suppliers, purchase orders, receipts, transfers and disposal
 
 ## Related documents
 

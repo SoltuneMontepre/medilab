@@ -230,6 +230,8 @@ model Department {
   parameter_methods ParameterMethod[]
   /// People in the department.
   people            Person[]
+  /// Notification events whose notifications go to the department.
+  notification_recipients NotificationEventRecipient[]
   /// Tasks in the department's queue.
   tasks             Task[]
   /// Samples handed over to the department.
@@ -919,6 +921,8 @@ model Role {
   approval_levels ApprovalLevel[]
   /// Task types whose tasks go to the role.
   task_types      TaskType[]
+  /// Notification events whose notifications go to the role.
+  notification_recipients NotificationEventRecipient[]
 
   @@map("medilab_role")
 }
@@ -1490,8 +1494,32 @@ model NotificationEvent {
   notifications Notification[]
   /// People's channel choices for this event.
   preferences   NotificationPreference[]
+  /// Roles and departments notified of this event.
+  recipients    NotificationEventRecipient[]
 
   @@map("medilab_notification_event")
+}
+
+/// Who receives the notifications of one event: everyone holding a role, everyone in a department, or both. Configured by the administrator.
+/// Exactly one of role_id and department_id is set.
+model NotificationEventRecipient {
+  /// Row identifier.
+  id            Int               @id @default(autoincrement())
+  /// The event.
+  event_id      Int
+  /// A role whose holders are notified.
+  role_id       Int?
+  /// A department whose people are notified.
+  department_id Int?
+  /// The event.
+  event         NotificationEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  /// A role whose holders are notified.
+  role          Role?             @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  /// A department whose people are notified.
+  department    Department?       @relation(fields: [department_id], references: [id], onDelete: Cascade)
+
+  @@index([event_id])
+  @@map("medilab_notification_event_recipient")
 }
 
 /// Whether one user receives one event on one channel. Unique on (user_id, event_id, channel).
