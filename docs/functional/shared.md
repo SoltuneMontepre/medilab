@@ -85,7 +85,7 @@ Every action in the system is recorded and can be reported on.
 
 - **What is recorded:** user actions (login, create, edit, delete, approve, sign, download), system events (scheduled jobs, integrations, errors) and data changes with the old and the new value.
 - **Each entry has:** who (user or system), when, what (document and field), the old and new value, and the source (screen, API or job).
-- Audit entries cannot be edited or deleted by any user, including administrators. Only the cleanup job removes them, once they are older than the audit retention period (SH-09).
+- Audit entries cannot be edited or deleted by any user, including administrators. Only the cleanup job removes them, once they are older than the audit retention period and written to an archive file (SH-09).
 - The audit retention period is a system parameter. Until an administrator sets it, entries are kept for ever.
 - Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document.
 - **Audit reports** can be generated for a period and exported for compliance purposes.
@@ -167,6 +167,8 @@ Typical jobs: payment reminders, quotation expiry, retention and expiry checks (
 - **Job and queue.** Each job has a unique key and is scheduled by an Odoo cron that administrators configure. A job works through a queue of items: each item is one unit of work, such as one reminder to send, with a key unique within the job, so the same work is never queued twice. An item is retried with a growing delay up to the job's number of attempts, then marked failed. A run claims the items it takes; an item claimed longer than the job's claim timeout, such as after a crash, goes back to the queue.
 - Each run records when it started and ended, its result, its log, and who ran it by hand; how many items were done and remain comes from Odoo's cron progress.
 - **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their deliveries, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter. It never removes business records or signatures.
+- **Archive files.** Before it removes audit entries, the cleanup job writes them to a compressed archive file per period in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
+- Backups of the whole database and file store belong to the hosting, not to the application.
 
 Acceptance criteria:
 

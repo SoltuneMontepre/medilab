@@ -1371,7 +1371,7 @@ model MobileDevice {
   @@map("medilab_mobile_device")
 }
 
-/// One recorded action or event (SH-05). Entries are never edited; only the cleanup job removes them after the audit retention period.
+/// One recorded action or event (SH-05). Entries are never edited; only the cleanup job removes them after the audit retention period, once they are in an archive file.
 /// Points to its document by document_model and document_id, indexed together. A BRIN index on create_date serves period reports.
 /// Logins are read from Odoo's login log (res.users.log), not written here.
 model AuditEntry {
@@ -1657,7 +1657,37 @@ model JobRun {
   triggered_by    User?        @relation("JobTrigger", fields: [triggered_by_id], references: [id], onDelete: Restrict)
   /// Audit entries written by the run.
   audit_entries   AuditEntry[]
+  /// Archive files the run wrote.
+  archive_files   ArchiveFile[]
 
   @@index([job_id, started_at])
   @@map("medilab_job_run")
+}
+
+/// A compressed export of the records of one kind and period, written to object storage by the cleanup job before it removes them. Archives are read only: they can be listed and downloaded, never loaded back.
+/// Unique on (kind, period_start, period_end).
+model ArchiveFile {
+  /// Row identifier.
+  id           Int       @id @default(autoincrement())
+  /// Kind of records archived, such as audit_entry.
+  kind         String    @db.VarChar
+  /// First day of the period archived.
+  period_start DateTime  @db.Date
+  /// Last day of the period archived.
+  period_end   DateTime  @db.Date
+  /// Number of records in the file.
+  row_count    Int
+  /// Key of the file in object storage.
+  storage_key  String    @unique @db.VarChar
+  /// SHA-256 of the file, checked before the archived records are removed.
+  checksum     String    @db.VarChar
+  /// Size of the file in bytes.
+  size_bytes   BigInt
+  /// The cleanup run that wrote the file.
+  job_run_id   Int
+  /// The cleanup run that wrote the file.
+  job_run      JobRun    @relation(fields: [job_run_id], references: [id], onDelete: Restrict)
+
+  @@unique([kind, period_start, period_end])
+  @@map("medilab_archive_file")
 }
