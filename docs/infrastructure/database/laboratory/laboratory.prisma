@@ -742,12 +742,20 @@ model SampleTest {
   status              String           @db.VarChar
   /// When the laboratory plans to finish the test: the request's expected date minus the safety margin. A test whose due date is close is scheduled first.
   due_date            DateTime?
+  /// Why the test was cancelled, such as the parameter cannot be tested on this sample.
+  cancel_reason       String?          @db.Text
+  /// Head of department who cancelled the test.
+  cancelled_by_id     Int?
+  /// When the test was cancelled.
+  cancelled_at        DateTime?
   /// The sample tested.
   sample              Sample           @relation(fields: [sample_id], references: [id], onDelete: Cascade)
   /// The parameter tested.
   parameter           TestParameter    @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The way of testing chosen.
   parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
+  /// Head of department who cancelled the test.
+  cancelled_by        Person?          @relation("SampleTestCanceller", fields: [cancelled_by_id], references: [id], onDelete: Restrict)
   /// Results of the test, one per attempt.
   results             TestResult[]
   /// Machine bookings for the test.
@@ -850,6 +858,8 @@ model Person {
   tasks         Task[]           @relation("TaskAssignee")
   /// Tasks the person assigned.
   assigned_tasks Task[]          @relation("TaskAssigner")
+  /// Sample tests the person cancelled.
+  cancelled_sample_tests SampleTest[] @relation("SampleTestCanceller")
   /// Machine bookings the person runs.
   bookings      MachineBooking[]
   /// Samples the person received.
@@ -1138,8 +1148,10 @@ model Task {
   department_id  Int?
   /// Person who does the task; empty while it waits in the department's queue.
   assignee_id    Int?
-  /// Person who assigned the task.
+  /// Person who assigned the task; the assignee themselves when they claimed it.
   assigned_by_id Int?
+  /// Why the task was last moved to another person or department.
+  reassign_reason String?     @db.Text
   /// When the task must be done.
   deadline       DateTime?
   /// Planned start on the assignee's schedule.

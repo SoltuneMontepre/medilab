@@ -6,7 +6,7 @@ The tester, also called lab QA, runs the tests assigned to them on the laborator
 
 ### Planning
 
-- **US-T01** As a tester, I want to see my testing tasks in my to-do list, soonest deadline first, so that I work on what is due first.
+- **US-T01** As a tester, I want to see my testing tasks in my to-do list, soonest deadline first, and claim unassigned testing tasks of my department, so that I work on what is due first.
 - **US-T02** As a tester, I want to schedule a test from the scheduler's recommendation of way of testing, machine and slot, so that it finishes before its due date.
 - **US-T03** As a tester, I want to move or cancel my booking, so that my schedule matches what I can do.
 - **US-T04** As a tester, I want to be reminded before a booking starts, so that I am at the machine on time.
@@ -31,6 +31,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 
 | Rule           | Description                                                                                                              |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Claiming       | A tester sees the unassigned testing tasks of their department and can claim one; a task someone else claimed first cannot be claimed. |
 | Recommendation | When a task is assigned to the tester, the scheduler recommends the way of testing and machine that finish it soonest within its due date. |
 | Booking        | Scheduling takes the next free slot in the machine's queue: urgent tests first, then first in, first out.                |
 | Adjusting      | Moving or cancelling a booking puts its slot back in the queue.                                                          |
@@ -38,6 +39,8 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 Acceptance criteria:
 
 - A scheduled booking appears on the tester's personal schedule, on the machine's schedule and in the tester's to-do list.
+- Claiming a task assigns it to the tester; a second tester claiming it at the same time is told it is already claimed.
+- A tester cannot claim a task of another department.
 - A reminder arrives before the booking starts.
 - A tester sees the lab code of a sample, not its customer or the customer's name for it.
 

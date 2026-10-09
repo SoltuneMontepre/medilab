@@ -127,6 +127,8 @@ stateDiagram-v2
 | Measurement     | A result records the machine it ran on and when it started, both taken from its booking and correctable by the lab QA; an outsourced result has no machine. The time the result is entered is when the measurement is done. |
 | Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA. |
 | Conclusion      | The tester sets each result's conclusion, pass or fail, when the sample has a regulation.                                         |
+| No self-approval | The person who entered a result cannot approve it; another person who signs that level must. |
+| Cancelling      | The head of department can cancel a sample test of their department that has no approved result, with a reason, such as the parameter cannot be tested on the sample. Its task and bookings are cancelled. A cancelled test is left out of the report; its reason stays on the test request. |
 | No deletion     | A result cannot be deleted, and neither can the sample test, sample or test request it belongs to. |
 
 ## Reports and change requests
@@ -173,7 +175,7 @@ flowchart LR
 | Rule               | Description                                                                                                                                     |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Testing tasks      | When a sample is received, the system creates a testing task for each sample test and puts it in the queue of the department that does the work. |
-| Assignment         | The head of department assigns each testing task to a person in the department.                                                               |
+| Assignment         | Testers claim unassigned testing tasks of their department, or the head of department assigns them: all of a sample's testing tasks in the department to one person at once, or a single task. Moving a task to another person or department needs a reason. |
 | Due date           | Sales states the date the customer expects the results on the test request. Each sample test's due date is that date minus a safety margin in days, kept for handling incidents. A test is urgent when its due date is within a number of hours. The safety margin and the urgency threshold are [system parameters](../shared.md#sh-03-configuration-through-settings-and-system-parameters) administrators change. |
 | Recommendation     | When a task is assigned, the scheduler recommends the way of testing and machine that can finish it soonest within its due date, from the machines that can run it and are fit to use. |
 | Run time and slots | Each way of testing has a run time on each machine that can run it. A booking takes the run time rounded up to whole slots of 15 minutes.     |
