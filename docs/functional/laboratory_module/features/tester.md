@@ -1,6 +1,6 @@
 # Features of: Tester
 
-The tester runs the tests assigned to them. Testers see samples only by their lab code, never the customer or the customer's name for the sample.
+The tester, also called lab QA, runs the tests assigned to them on the laboratory's machines. Testers see samples only by their lab code, never the customer or the customer's name for the sample.
 
 ## I. User stories
 

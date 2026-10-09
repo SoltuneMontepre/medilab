@@ -1,6 +1,6 @@
 # Features of: Head of department
 
-The head of department runs the testing work of one department: they assign its tasks, manage its schedule, approve its results and handle samples that arrive insufficient. A head of department also has every feature of a [tester](tester.md).
+The head of department runs the testing work of one department: they assign its tasks, manage its schedule, decide on outsourcing, approve its results and handle samples that arrive insufficient. A head of department also has every feature of a [tester](tester.md).
 
 ## I. User stories
 
@@ -17,6 +17,11 @@ The head of department runs the testing work of one department: they assign its 
 - **US-HD06** As a head of department, I want to record that my department received a sample handed over to it, so that the handover is on record.
 - **US-HD07** As a head of department, I want to ask for an insufficient sample to be collected again, so that its tests can go ahead.
 - **US-HD08** As a head of department, I want to approve or reject the results of my department with a reason, so that only checked results reach the report.
+
+### Outsourcing
+
+- **US-HD09** As a head of department, I want to accept an outsourcing suggestion and put its sample tests in a dispatch to the subcontractor, so that tests that cannot finish in time in-house still meet their due date.
+- **US-HD10** As a head of department, I want to record when a dispatch is sent, who or which delivery service takes it, and when its results are expected back, so that the outsourcing schedule shows where every outsourced test is.
 
 ## II. Feature details
 
@@ -52,6 +57,22 @@ Acceptance criteria:
 - Asking for a sample to be collected again creates a sample collection task and records who asked and when.
 - Rejecting a result sends its sample test back to testing and tells the tester the reason.
 - Once every result of a sample is approved, the sample is completed.
+
+### 3. Outsourcing (US-HD09, US-HD10)
+
+Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling) and the [subcontractor rules](admin.md#3-subcontractors-us-ad12).
+
+| Rule        | Description                                                                                                                 |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Accept      | Accepting a suggestion marks its sample tests as outsourced through the suggested subcontracted way of testing.              |
+| Dispatch    | Outsourced sample tests for one subcontractor go in a dispatch: date sent, date results are expected back, and sample delivery staff (nhân viên giao nhận mẫu) or a delivery service with its tracking number. |
+| Accreditation | A subcontractor whose accreditation has expired cannot be chosen.                                                          |
+
+Acceptance criteria:
+
+- Accepting an outsourcing suggestion sets its sample tests to outsourced.
+- A sent dispatch appears on the outsourcing schedule with its expected date.
+- A dispatch records either the sample delivery staff who took it or the delivery service and tracking number.
 
 ## III. Related documents
 

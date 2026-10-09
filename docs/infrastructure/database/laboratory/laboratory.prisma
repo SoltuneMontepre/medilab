@@ -836,6 +836,8 @@ model Person {
   recollection_requests Sample[]  @relation("RecollectionRequester")
   /// Samples the person disposed of.
   disposed_samples Sample[]       @relation("SampleDisposer")
+  /// Subcontract dispatches the person carried.
+  carried_dispatches SubcontractDispatch[] @relation("DispatchCourier")
   /// Sample handovers the person received for their department.
   received_handovers SampleHandover[] @relation("HandoverReceiver")
   /// Change requests the person asked for.
@@ -1174,6 +1176,10 @@ model SubcontractDispatch {
   subcontractor_id Int
   /// Date the samples were sent.
   sent_date        DateTime?                 @db.Date
+  /// Sample delivery staff (nhân viên giao nhận mẫu) who takes the samples; empty when a delivery service does.
+  courier_id       Int?
+  /// Delivery service and tracking number, when a delivery service takes the samples.
+  delivery_service String?                   @db.VarChar
   /// Date the results are expected back.
   expected_date    DateTime?                 @db.Date
   /// Date the results came back.
@@ -1184,6 +1190,8 @@ model SubcontractDispatch {
   note             String?                   @db.Text
   /// The subcontractor the tests are sent to.
   subcontractor    Subcontractor             @relation(fields: [subcontractor_id], references: [id], onDelete: Restrict)
+  /// Sample delivery staff who takes the samples.
+  courier          Person?                   @relation("DispatchCourier", fields: [courier_id], references: [id], onDelete: Restrict)
   /// Sample tests in the dispatch.
   tests            SubcontractDispatchTest[]
 
