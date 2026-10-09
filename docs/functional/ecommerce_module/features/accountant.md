@@ -94,13 +94,14 @@ The accountant reconciles each day's PayOS transactions with the payments in the
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Day view | For a chosen day, every PayOS transaction is listed with its PayOS reference, amount, invoice, the matching payment and whether they match.                                                               |
 | Mismatch | A transaction PayOS reports as paid with no payment in the system, or a payment with no PayOS transaction, is flagged. The accountant creates the missing payment from a flagged transaction in one step. |
-| Lock     | Once a day is reconciled, the accountant locks it, and its online payments can no longer be changed.                                                                                                      |
+| Lock     | Once a day is reconciled, the accountant locks it, and its online payments can no longer be changed. The day's PayOS total can be printed.                                                                |
 
 Acceptance criteria:
 
 - A PayOS transaction paid with no payment in the system is flagged as a mismatch.
 - Creating the payment from a flagged transaction confirms it against the right invoice and clears the flag.
 - An online payment of a locked day cannot be changed.
+- A locked day prints its PayOS total.
 
 ### 3. Reports and KPIs (US-A14 to US-A16)
 
