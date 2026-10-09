@@ -10,9 +10,9 @@ The Inventory module keeps the laboratory's stock: chemicals and reagents, consu
 | Locations     | Stock is kept in a tree of locations, such as a warehouse, a room and a fridge. A location can belong to a department and states its storage conditions. |
 | Lots          | Chemicals are kept by lot, with the expiry date printed on the container and the manufacturer's certificate. Consumables and spare parts can be kept without lots. |
 | Stock on hand | The quantity of each item, lot and location is kept up to date by moves.                                                                      |
-| Moves         | Every change of stock is a move: a receipt, a transfer between locations, a use, a disposal or a count correction. Moves are never edited; a mistake is corrected by another move. |
+| Moves         | Every change of stock is a move: a receipt, a transfer between locations, a use, a disposal or a stock take correction. Moves are never edited; a mistake is corrected by another move. |
 | Value         | Stock is valued at the purchase price of its lot. There are no accounting entries.                                                             |
-| Counts        | Stock is counted periodically. A count covers one location and everything inside it, with a line per item, lot and location: the quantity expected when the count started and the quantity found. When the count is done, every difference becomes a count correction move. Counts are scheduled as tasks at an interval the administrator sets. |
+| Stock takes   | Stock is checked periodically by a stock take (kiểm kê kho). A stock take covers one location and everything inside it, with a line per item, lot and location: the quantity expected when it started and the quantity found. When it is done, every difference becomes a correction move. Stock takes are scheduled as tasks at an interval the administrator sets. |
 
 ## Use
 

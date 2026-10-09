@@ -19,10 +19,10 @@ The storekeeper (thủ kho) runs the laboratory's stock: items, locations and su
 ### Stock
 
 - **US-SK07** As a storekeeper, I want to move stock between locations, so that the system shows where every lot is.
-- **US-SK08** As a storekeeper, I want to record a use or correct a count with a reason, so that stock on hand matches what is on the shelf.
+- **US-SK08** As a storekeeper, I want to record a use or correct a quantity with a reason, so that stock on hand matches what is on the shelf.
 - **US-SK09** As a storekeeper, I want to see expired lots and dispose of them, so that nobody uses an expired chemical.
 - **US-SK10** As a storekeeper, I want to see stock on hand and its value per item, lot and location, so that I know what the laboratory holds.
-- **US-SK11** As a storekeeper, I want to count the stock of a location as one count and have the differences corrected, so that stock on hand matches the shelves.
+- **US-SK11** As a storekeeper, I want to do a stock take of a location as one document and have the differences corrected, so that stock on hand matches the shelves.
 
 ## II. Feature details
 
@@ -68,8 +68,8 @@ Acceptance criteria:
 - A transfer moves the quantity from one location to the other and leaves the total unchanged.
 - An expired lot appears in the disposal list and cannot be chosen for a use.
 - Stock value per item equals the quantity of each lot times its purchase price.
-- Starting a count lists every item, lot and location inside the counted location with its expected quantity.
-- Finishing a count creates one correction move for each line whose found quantity differs from the expected one, and none for the others.
+- Starting a stock take lists every item, lot and location inside its location with its expected quantity.
+- Finishing a stock take creates one correction move for each line whose found quantity differs from the expected one, and none for the others.
 
 ## III. Related documents
 
