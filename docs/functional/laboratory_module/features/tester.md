@@ -44,6 +44,7 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 | Rule        | Description                                                                                          |
 | ----------- | ---------------------------------------------------------------------------------------------------- |
 | Limit copy  | A result copies the sample's regulation limit for its parameter, with its unit, when it is created.   |
+| Measurement | A result takes the machine and start time from its booking; the tester can correct them. Entering the result marks the measurement done. |
 | Conclusion  | The tester sets pass or fail when the sample has a regulation.                                       |
 | Retest      | A retest adds a result; the earlier one is kept.                                                     |
 | Task done   | The testing task is done when the reported result is approved.                                       |
@@ -51,6 +52,7 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 
 Acceptance criteria:
 
+- A result entered for a booked test shows the booking's machine and start time, and the tester can correct them.
 - A result entered on a sample with a regulation shows the copied limit and needs a conclusion before it is sent for approval.
 - A rejected result stays on record, and the sample test goes back to testing.
 - Approving the reported result closes the tester's testing task.

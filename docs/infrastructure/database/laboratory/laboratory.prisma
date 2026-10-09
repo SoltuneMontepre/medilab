@@ -456,6 +456,8 @@ model Machine {
   parameter_methods     ParameterMethodMachine[]
   /// Bookings of the machine.
   bookings              MachineBooking[]
+  /// Results measured on the machine.
+  results               TestResult[]
 
   @@index([next_calibration_date])
   @@map("medilab_machine")
@@ -781,6 +783,12 @@ model TestResult {
   limit_text     Json?
   /// The Odoo user who entered the result: a lab QA, or a subcontractor's user for an outsourced test.
   entered_by_id  Int
+  /// When the result was entered, which is when the measurement counts as done.
+  entered_at     DateTime
+  /// The machine the measurement ran on, taken from the booking and correctable by the lab QA; empty for an outsourced test.
+  machine_id     Int?
+  /// When the measurement started, taken from the booking's start and correctable by the lab QA.
+  started_at     DateTime?
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
   /// Version of the result, 1 for the first and one higher for each version a change request creates.
@@ -793,6 +801,8 @@ model TestResult {
   sample_test    SampleTest       @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
   /// The Odoo user who entered the result.
   entered_by     User             @relation(fields: [entered_by_id], references: [id], onDelete: Restrict)
+  /// The machine the measurement ran on.
+  machine        Machine?         @relation(fields: [machine_id], references: [id], onDelete: Restrict)
   /// The unit of the value.
   unit           MeasurementUnit? @relation("ResultUnit", fields: [unit_id], references: [id], onDelete: Restrict)
   /// The unit of the copied limits.

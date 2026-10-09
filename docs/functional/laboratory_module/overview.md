@@ -119,6 +119,7 @@ stateDiagram-v2
 | Value           | A result is a number in the unit of the way of testing, or a text such as "Not detected".                                         |
 | Limit copy      | When a result is created, the limit of the sample's regulation for its parameter is copied onto it with its unit. Later changes to the regulation do not change existing results. |
 | Versions        | A change request on a result whose process is completed creates a new version that replaces it. The signed version stays unchanged and is marked as replaced. |
+| Measurement     | A result records the machine it ran on and when it started, both taken from its booking and correctable by the lab QA; an outsourced result has no machine. The time the result is entered is when the measurement is done. |
 | Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA. |
 | Conclusion      | The tester sets each result's conclusion, pass or fail, when the sample has a regulation.                                         |
 | No deletion     | A result cannot be deleted, and neither can the sample test, sample or test request it belongs to. |
