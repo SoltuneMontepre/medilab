@@ -4,7 +4,6 @@
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 /// Laboratory's test parameter, shown with the columns this module uses.
@@ -466,6 +465,8 @@ model QuotationLine {
   package        ServicePackage? @relation(fields: [package_id], references: [id], onDelete: Restrict)
   /// The tax of the line.
   tax            Tax             @relation(fields: [tax_id], references: [id], onDelete: Restrict)
+  /// Invoice lines that bill this line.
+  invoice_lines  InvoiceLine[]
 
   @@index([quotation_id])
   @@map("medilab_quotation_line")
