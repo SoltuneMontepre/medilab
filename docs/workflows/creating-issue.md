@@ -44,7 +44,7 @@ The [medilab Trello board](https://trello.com/b/mk5Pnyu3/medilab) holds business
    - **Acceptance criteria:** the feature's acceptance criteria from its document as a checklist, plus tests that cover them.
    - **References:** the spec, then the documents, diagram and existing code. Link documents on `main`; if they are only in an open pull request, say the issue is read after it is merged.
 4. **Ask who to assign**, from the people below. The owner can choose several people or nobody.
-5. **Create the issue** once the owner has seen the title and summary: `gh issue create --title "<title>" --body-file <file> --label feature --assignee <login>`. Then set the issue type to Feature if the repository has issue types.
+5. **Create the issue** once the owner has seen the title and summary: `gh issue create --title "<title>" --body-file <file> --assignee <login>`. Then set the issue type to Feature.
 6. Reply with the issue link, the stories it covers, the assignees, and the dependencies found in step 2.
 
 ## People

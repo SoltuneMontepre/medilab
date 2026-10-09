@@ -1,4 +1,4 @@
-// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports and change requests. Odoo owns the schema; this file only draws it.
+// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, system parameters, audit, locks, notifications and scheduled jobs. Odoo owns the schema; this file only draws it.
 
 datasource db {
   provider = "postgresql"
@@ -879,6 +879,20 @@ model User {
   person     Person?
   /// Results the user entered.
   entered_results TestResult[]
+  /// Audit entries of the user's actions.
+  audit_entries  AuditEntry[] @relation("AuditUser")
+  /// Locks the user holds or held.
+  locks          DocumentLock[] @relation("LockHolder")
+  /// Stuck locks the user released.
+  released_locks DocumentLock[] @relation("LockReleaser")
+  /// Locks the user waits on.
+  watched_locks  DocumentLockWatcher[] @relation("LockWatcher")
+  /// The user's notification channel choices.
+  notification_preferences NotificationPreference[] @relation("PreferenceUser")
+  /// Notifications sent to the user.
+  notifications  Notification[] @relation("NotificationUser")
+  /// Job runs the user started by hand.
+  triggered_runs JobRun[]     @relation("JobTrigger")
   /// Mobile devices the user receives reminders on.
   devices    MobileDevice[]
 
@@ -1345,9 +1359,333 @@ model MobileDevice {
   last_seen_at DateTime
   /// False when the user signed out or the token was rejected; no reminder is pushed to it.
   active       Boolean   @default(true)
+  /// Push deliveries sent to the device.
+  deliveries   NotificationDelivery[]
   /// The Odoo user signed in on the device.
   user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
   @@map("medilab_mobile_device")
+}
+
+/// A value the system's behaviour depends on, changed by administrators on the settings screens (SH-03). Every change is audited.
+model SystemParameter {
+  /// Row identifier.
+  id            Int     @id @default(autoincrement())
+  /// Unique key code reads it by, such as scheduling.urgency_threshold_hours.
+  key           String  @unique @db.VarChar
+  /// Parameter name in each language.
+  name          Json
+  /// What the parameter controls, in each language.
+  description   Json?
+  /// integer, decimal, boolean, text or duration_minutes.
+  value_type    String  @db.VarChar
+  /// Current value, written as text in its type's format.
+  value         String  @db.Text
+  /// Value used when none is set; declared with the parameter so upgrades keep working.
+  default_value String  @db.Text
+  /// Technical name of the module that declares the parameter, such as laboratory.
+  module        String  @db.VarChar
+
+  @@index([module])
+  @@map("medilab_system_parameter")
+}
+
+/// One recorded action or event (SH-05). Entries are never edited or deleted.
+/// Points to its document by document_model and document_id, indexed together.
+model AuditEntry {
+  /// Row identifier.
+  id             Int           @id @default(autoincrement())
+  /// When it happened.
+  at             DateTime
+  /// The Odoo user who acted; empty when the system acted.
+  user_id        Int?
+  /// screen, api or job.
+  source         String        @db.VarChar
+  /// login, logout, create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
+  action         String        @db.VarChar
+  /// Technical name of the document acted on.
+  document_model String?       @db.VarChar
+  /// Id of the document acted on.
+  document_id    Int?
+  /// The job run that acted, when the source is a job.
+  job_run_id     Int?
+  /// What happened, for actions without field changes, such as an integration error.
+  note           String?       @db.Text
+  /// The Odoo user who acted.
+  user           User?         @relation("AuditUser", fields: [user_id], references: [id], onDelete: Restrict)
+  /// The job run that acted.
+  job_run        JobRun?       @relation(fields: [job_run_id], references: [id], onDelete: Restrict)
+  /// Field changes of the entry.
+  changes        AuditChange[]
+
+  @@index([document_model, document_id])
+  @@index([user_id, at])
+  @@index([action, at])
+  @@map("medilab_audit_entry")
+}
+
+/// The old and new value of one field changed by an audited action.
+model AuditChange {
+  /// Row identifier.
+  id         Int        @id @default(autoincrement())
+  /// The audit entry the change belongs to.
+  entry_id   Int
+  /// Technical name of the field changed.
+  field_name String     @db.VarChar
+  /// Value before the change, as text.
+  old_value  String?    @db.Text
+  /// Value after the change, as text.
+  new_value  String?    @db.Text
+  /// The audit entry the change belongs to.
+  entry      AuditEntry @relation(fields: [entry_id], references: [id], onDelete: Restrict)
+
+  @@index([entry_id])
+  @@map("medilab_audit_change")
+}
+
+/// A lock on a document while one user edits it or a long operation runs on it (SH-06).
+/// At most one active lock per document (partial unique index on document_model, document_id where status is active).
+model DocumentLock {
+  /// Row identifier.
+  id               Int                 @id @default(autoincrement())
+  /// Technical name of the locked document.
+  document_model   String              @db.VarChar
+  /// Id of the locked document.
+  document_id      Int
+  /// The Odoo user holding the lock; for a long operation, the user who started it.
+  user_id          Int
+  /// edit for a user editing, or operation for a long operation such as sending a quotation.
+  kind             String              @db.VarChar
+  /// When the lock was taken.
+  acquired_at      DateTime
+  /// Last activity of the holder; the lock expires after the inactivity period from here.
+  last_activity_at DateTime
+  /// active, released or expired.
+  status           String              @db.VarChar
+  /// When the lock was released or expired.
+  released_at      DateTime?
+  /// saved, cancelled, left, expired or released_by_administrator.
+  release_reason   String?             @db.VarChar
+  /// Administrator who released a stuck lock.
+  released_by_id   Int?
+  /// The Odoo user holding the lock.
+  user             User                @relation("LockHolder", fields: [user_id], references: [id], onDelete: Restrict)
+  /// Administrator who released a stuck lock.
+  released_by      User?               @relation("LockReleaser", fields: [released_by_id], references: [id], onDelete: Restrict)
+  /// Users waiting to be told when the lock is released.
+  watchers         DocumentLockWatcher[]
+
+  @@index([document_model, document_id])
+  @@index([status, last_activity_at])
+  @@map("medilab_document_lock")
+}
+
+/// Links locks to the users who asked to be told when they are released.
+model DocumentLockWatcher {
+  /// The lock.
+  lock_id Int
+  /// A user waiting for the lock to be released.
+  user_id Int
+  /// The lock.
+  lock    DocumentLock @relation(fields: [lock_id], references: [id], onDelete: Cascade)
+  /// The user waiting.
+  user    User         @relation("LockWatcher", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([lock_id, user_id])
+  @@map("medilab_document_lock_watcher_rel")
+}
+
+/// A kind of event people are notified about, such as a booking reminder or a quotation sent.
+model NotificationEvent {
+  /// Row identifier.
+  id            Int                      @id @default(autoincrement())
+  /// Unique code of the event, such as booking.reminder.
+  code          String                   @unique @db.VarChar
+  /// Event name in each language.
+  name          Json
+  /// True for events people cannot turn off, such as a password reset or a payment receipt.
+  mandatory     Boolean                  @default(false)
+  /// Notifications of this event.
+  notifications Notification[]
+  /// People's channel choices for this event.
+  preferences   NotificationPreference[]
+
+  @@map("medilab_notification_event")
+}
+
+/// Whether one user receives one event on one channel. Unique on (user_id, event_id, channel).
+model NotificationPreference {
+  /// Row identifier.
+  id       Int               @id @default(autoincrement())
+  /// The Odoo user.
+  user_id  Int
+  /// The event.
+  event_id Int
+  /// popup, email, sms or push.
+  channel  String            @db.VarChar
+  /// False when the user turned this channel off for the event; ignored for mandatory events.
+  enabled  Boolean           @default(true)
+  /// The Odoo user.
+  user     User              @relation("PreferenceUser", fields: [user_id], references: [id], onDelete: Cascade)
+  /// The event.
+  event    NotificationEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, event_id, channel])
+  @@map("medilab_notification_preference")
+}
+
+/// One message to one user about one event, delivered on each of their channels.
+model Notification {
+  /// Row identifier.
+  id             Int                    @id @default(autoincrement())
+  /// Unique key that stops the same notification being created twice, such as booking:42:reminder.
+  key            String                 @unique @db.VarChar
+  /// The event notified.
+  event_id       Int
+  /// The Odoo user notified.
+  user_id        Int
+  /// Title in the user's language.
+  title          String                 @db.VarChar
+  /// Message in the user's language.
+  body           String?                @db.Text
+  /// Technical name of the document the notification opens.
+  document_model String?                @db.VarChar
+  /// Id of the document the notification opens.
+  document_id    Int?
+  /// Action the notification opens on the document.
+  action         String?                @db.VarChar
+  /// When the user read it in the application; empty while unread.
+  read_at        DateTime?
+  /// The event notified.
+  event          NotificationEvent      @relation(fields: [event_id], references: [id], onDelete: Restrict)
+  /// The Odoo user notified.
+  user           User                   @relation("NotificationUser", fields: [user_id], references: [id], onDelete: Cascade)
+  /// Deliveries of the notification, one per channel.
+  deliveries     NotificationDelivery[]
+
+  @@index([user_id, read_at])
+  @@map("medilab_notification")
+}
+
+/// Sending one notification on one channel. Unique on (notification_id, channel).
+model NotificationDelivery {
+  /// Row identifier.
+  id               Int           @id @default(autoincrement())
+  /// The notification sent.
+  notification_id  Int
+  /// popup, email, sms or push.
+  channel          String        @db.VarChar
+  /// pending, sent, failed or skipped.
+  status           String        @db.VarChar
+  /// When it was sent.
+  sent_at          DateTime?
+  /// Error the provider returned on the last failed attempt.
+  error            String?       @db.Text
+  /// The mobile device pushed to, for the push channel.
+  mobile_device_id Int?
+  /// The notification sent.
+  notification     Notification  @relation(fields: [notification_id], references: [id], onDelete: Cascade)
+  /// The mobile device pushed to.
+  mobile_device    MobileDevice? @relation(fields: [mobile_device_id], references: [id], onDelete: SetNull)
+
+  @@unique([notification_id, channel])
+  @@index([status])
+  @@map("medilab_notification_delivery")
+}
+
+/// A recurring job identified by its key, scheduled by an Odoo cron and working through a queue of items (SH-09).
+model ScheduledJob {
+  /// Row identifier.
+  id                  Int       @id @default(autoincrement())
+  /// Unique key of the job, such as notifications.send or bookings.remind.
+  key                 String    @unique @db.VarChar
+  /// Job name in each language.
+  name                Json
+  /// The Odoo cron that runs the job; its schedule is the job's schedule.
+  cron_id             Int       @unique
+  /// Most items handled in one run.
+  batch_size          Int       @default(100)
+  /// Attempts before an item is marked failed and an administrator is told.
+  max_attempts        Int       @default(5)
+  /// Minutes after which an item still running is treated as abandoned and goes back to pending.
+  claim_timeout_minutes Int     @default(30)
+  /// Minutes before the first retry; each later retry waits twice as long.
+  retry_delay_minutes Int       @default(5)
+  /// When the running run started; empty when the job is not running, so a second run is skipped.
+  running_since       DateTime?
+  /// False when the job is turned off.
+  active              Boolean   @default(true)
+  /// Items queued for the job.
+  items               JobItem[]
+  /// Runs of the job.
+  runs                JobRun[]
+
+  @@map("medilab_scheduled_job")
+}
+
+/// One unit of work queued for a job, such as one reminder to send. Unique on (job_id, item_key), so the same work is never queued twice.
+/// Points to its document by document_model and document_id.
+model JobItem {
+  /// Row identifier.
+  id              Int          @id @default(autoincrement())
+  /// The job the item is queued for.
+  job_id          Int
+  /// Key of the work within the job, such as delivery:812.
+  item_key        String       @db.VarChar
+  /// Technical name of the document the work is about.
+  document_model  String?      @db.VarChar
+  /// Id of the document the work is about.
+  document_id     Int?
+  /// Data the job needs to do the work.
+  payload         Json?
+  /// pending, running, done, failed or cancelled.
+  status          String       @db.VarChar
+  /// When a run took the item; a running item claimed longer ago than the job's claim timeout goes back to pending.
+  claimed_at      DateTime?
+  /// Attempts made so far.
+  attempts        Int          @default(0)
+  /// Earliest time the item is tried again.
+  next_attempt_at DateTime
+  /// Error of the last failed attempt.
+  last_error      String?      @db.Text
+  /// When the item was done.
+  done_at         DateTime?
+  /// The job the item is queued for.
+  job             ScheduledJob @relation(fields: [job_id], references: [id], onDelete: Restrict)
+
+  @@unique([job_id, item_key])
+  @@index([job_id, status, next_attempt_at])
+  @@map("medilab_job_item")
+}
+
+/// One run of a job, with its result and log (SH-09).
+model JobRun {
+  /// Row identifier.
+  id              Int          @id @default(autoincrement())
+  /// The job run.
+  job_id          Int
+  /// When the run started.
+  started_at      DateTime
+  /// When the run ended; empty while it runs.
+  ended_at        DateTime?
+  /// running, succeeded, partly_failed or failed.
+  status          String       @db.VarChar
+  /// Items done in the run.
+  items_done      Int          @default(0)
+  /// Items that failed in the run.
+  items_failed    Int          @default(0)
+  /// Log of the run.
+  log             String?      @db.Text
+  /// Administrator who ran the job by hand; empty for a scheduled run.
+  triggered_by_id Int?
+  /// The job run.
+  job             ScheduledJob @relation(fields: [job_id], references: [id], onDelete: Restrict)
+  /// Administrator who ran the job by hand.
+  triggered_by    User?        @relation("JobTrigger", fields: [triggered_by_id], references: [id], onDelete: Restrict)
+  /// Audit entries written by the run.
+  audit_entries   AuditEntry[]
+
+  @@index([job_id, started_at])
+  @@map("medilab_job_run")
 }

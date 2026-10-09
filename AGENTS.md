@@ -14,6 +14,8 @@ The owner runs these by name, such as `/create-issue`. Each is a skill in `.agen
 
 - `create-issue`: turn a documented feature into a GitHub feature issue ([creating an issue](docs/workflows/creating-issue.md))
 - `resolve-issue`: implement the lowest open issue and open its pull request ([resolving an issue](docs/workflows/resolving-issue.md))
+- `create-bug`: turn a defect into a GitHub bug issue ([reporting a bug](docs/workflows/reporting-bug.md))
+- `bug-fixing`: fix the lowest open bug and open its pull request ([fixing a bug](docs/workflows/fixing-bug.md))
 
 ## Hard Rules
 

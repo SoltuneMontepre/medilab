@@ -24,5 +24,8 @@ A clear, short description of what you expected to happen.
 **Screenshots**
 If any, add screenshots to help explain the problem.
 
+**Affected stories**
+The user story IDs the bug breaks, and the document rule that says what should happen.
+
 **Additional context**
 Add any other context about the problem here.

@@ -44,6 +44,7 @@ The system's behaviour is driven by configuration, not by hard-coded values.
 - **Configuration files** (environment variables) hold deployment settings and secrets, such as provider credentials. Secrets never appear in the database, logs or documents.
 - Settings are changed from the settings screens by administrators; every change is audited (SH-05).
 - A new option is added by declaring it with a default, so existing installations keep working after an upgrade.
+- Each system parameter has a key, a typed value (integer, decimal, boolean, text or duration), its default and a description in each language, and belongs to the module that declares it.
 - Settings that change behaviour of existing documents apply to future documents only.
 
 Acceptance criteria:
@@ -88,6 +89,7 @@ Every action in the system is recorded and can be reported on.
 - Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document.
 - **Audit reports** can be generated for a period and exported for compliance purposes.
 - Personal data in the trail is limited to what is needed to identify who acted.
+- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run.
 
 Acceptance criteria:
 
@@ -104,6 +106,7 @@ Two users cannot change the same document at the same time.
 - The lock is released on save, on cancel, when the user leaves, or automatically after a period of inactivity, so a closed browser does not block the document.
 - An administrator can release a lock that is stuck; this is audited.
 - Long operations, such as sending a quotation or confirming a payment, lock the document for their duration so they cannot run twice.
+- A document has at most one active lock. The inactivity period is a system parameter (SH-03).
 
 Acceptance criteria:
 
@@ -160,6 +163,8 @@ Typical jobs: payment reminders, quotation expiry, retention and expiry checks (
 - An administrator can run a job by hand and retry a failed one.
 - A job is safe to run twice: running it again never sends a duplicate reminder or creates a duplicate record.
 - Jobs do not run on top of themselves: a second run waits or is skipped while the first is running.
+- **Job and queue.** Each job has a unique key and is scheduled by an Odoo cron that administrators configure. A job works through a queue of items: each item is one unit of work, such as one reminder to send, with a key unique within the job, so the same work is never queued twice. An item is retried with a growing delay up to the job's number of attempts, then marked failed. A run claims the items it takes; an item claimed longer than the job's claim timeout, such as after a crash, goes back to the queue.
+- Each run records when it started and ended, its result, how many items were done and failed, its log, and who ran it by hand.
 
 Acceptance criteria:
 
@@ -197,6 +202,7 @@ Tasks with a planned time and machine bookings appear on schedules, and people a
 
 - A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
+- **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event; the deliveries are sent by a scheduled job (SH-09). Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
 
 Acceptance criteria:
 
