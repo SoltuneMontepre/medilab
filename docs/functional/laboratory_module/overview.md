@@ -107,7 +107,7 @@ stateDiagram-v2
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Receipt         | When a sample arrives, the laboratory records when and by whom it was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
 | Rejection       | A sample that cannot be tested on arrival is rejected with its condition note.                                                         |
-| Insufficient    | A sample that arrives insufficient is put on hold and reported to the head of department, who asks for it to be collected again. The request schedules a sample collection task for a sample collector. The sample goes back to received when more sample arrives. |
+| Insufficient    | A sample that arrives insufficient is put on hold and reported to the head of department, who asks for it to be collected again. The request schedules a sample collection task for sample delivery staff. The sample goes back to received when more sample arrives. |
 | Retention       | A sample kept after testing is retained until the report date plus its sample type's retention days. Its disposal is recorded with when, by whom and how. |
 | Handover        | A received sample is handed over to each department that tests it. Each department records when and by whom it received the sample. |
 
@@ -128,7 +128,7 @@ stateDiagram-v2
 | Rule            | Description                                                                                                                       |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Test report     | A test request has one test report (certificate of analysis, CoA) covering all its samples, issued in Vietnamese, English or both side by side. Samples have no sign-off of their own: once a sample's results are approved, the next signature is the lab head's on the report. It is signed through its approval chain and issued with a report number from a sequence and the digitally signed PDF ([SH-04](../shared.md#sh-04-signatures-and-digital-signing)). |
-| Delivery        | The test request records the report language (Vietnamese, English or bilingual, bilingual by default), how the report is delivered (in person by default, by post, by email or another way with a note) and the contact who receives it. The report records when it was delivered. Issued reports can always be downloaded from the customer portal. |
+| Delivery        | The test request records the report language (Vietnamese, English or bilingual, bilingual by default), how the report is delivered (in person by default, by post, by email or another way with a note) and the contact who receives it. The report records when it was delivered and who recorded the delivery. Issued reports can always be downloaded from the customer portal. |
 | Change request  | A change to a document whose process is completed is a change request: what to change, why, who asked and when. It is signed through the change-request chain of the document's type ([SH-07](../shared.md#sh-07-signed-documents-are-locked)). |
 | New version     | An applied change request creates a new version of the document, such as a result or a report, that replaces the old one. The old version is kept unchanged. |
 
@@ -182,8 +182,7 @@ flowchart LR
 ## Actors
 
 - [Administrator](features/admin.md): master data, people, roles, approval chains and task types
-- [Sample collector](features/sample-collector.md): collects samples at the customer's site
-- [Sample receiver](features/sample-receiver.md): receives samples and hands them over to departments
+- [Sample delivery staff](features/sample-delivery-staff.md): collect, receive and hand over samples, and carry outsourced samples to subcontractors
 - [Tester](features/tester.md): schedules and runs tests, enters and signs results
 - [Head of department](features/head-of-department.md): assigns testing work, manages the department's schedule, approves results
 - [Lab head](features/lab-head.md): signs test reports and approves their change requests

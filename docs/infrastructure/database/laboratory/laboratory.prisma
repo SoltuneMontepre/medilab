@@ -840,6 +840,8 @@ model Person {
   recollection_requests Sample[]  @relation("RecollectionRequester")
   /// Samples the person disposed of.
   disposed_samples Sample[]       @relation("SampleDisposer")
+  /// Report deliveries the person recorded.
+  delivered_reports TestReport[] @relation("ReportDeliverer")
   /// Subcontract dispatches the person carried.
   carried_dispatches SubcontractDispatch[] @relation("DispatchCourier")
   /// Sample handovers the person received for their department.
@@ -1269,12 +1271,16 @@ model TestReport {
   attachment_id   Int?
   /// When the report was delivered to the customer by the request's delivery method.
   delivered_at    DateTime?
+  /// Person who recorded the delivery.
+  delivered_by_id Int?
   /// The test request reported.
   request         TestRequest @relation(fields: [request_id], references: [id], onDelete: Restrict)
   /// The version this report replaces.
   replaces        TestReport? @relation("ReportVersions", fields: [replaces_id], references: [id], onDelete: Restrict)
   /// The version that replaces this report.
   replaced_by     TestReport? @relation("ReportVersions")
+  /// Person who recorded the delivery.
+  delivered_by    Person?     @relation("ReportDeliverer", fields: [delivered_by_id], references: [id], onDelete: Restrict)
 
   @@unique([request_id, version])
   @@map("medilab_test_report")

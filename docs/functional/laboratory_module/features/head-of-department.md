@@ -49,7 +49,7 @@ Follows [Reception](../overview.md#reception), [Results](../overview.md#results)
 | Rule          | Description                                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------------------------------ |
 | Handover      | The department records when and by whom it received a handed-over sample.                                    |
-| Collect again | Asking for an insufficient sample to be collected again schedules a sample collection task for a sample collector. |
+| Collect again | Asking for an insufficient sample to be collected again schedules a sample collection task for sample delivery staff. |
 | Approval      | The head signs or rejects results at their level of the test result's approval chain; a rejection records its reason. |
 
 Acceptance criteria:
@@ -78,5 +78,5 @@ Acceptance criteria:
 
 - [Laboratory overview](../overview.md)
 - [Tester](tester.md)
-- [Sample receiver](sample-receiver.md)
+- [Sample delivery staff](sample-delivery-staff.md)
 - [Lab head](lab-head.md)
