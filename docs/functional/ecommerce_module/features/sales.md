@@ -41,6 +41,10 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 - **US-S18** As a salesperson, I want to track the progress of my orders through testing and result release, so that I can answer customers' questions.
 - **US-S19** As a salesperson, I want to see my pipeline and my performance, so that I can plan my work and see my results.
 
+### Support
+
+- **US-S20** As a salesperson, I want to take and answer customers' support requests, so that every customer question gets a reply.
+
 ## II. Feature Details
 
 ### 1. Orders and customers (US-S01 to US-S04)
@@ -136,6 +140,18 @@ Acceptance criteria:
 - **Pipeline.** Counts by stage: unclaimed, draft, sent and unpaid, accepted, awaiting approval, approved.
 - **Performance.** Per salesperson and period: quotations sent, accepted, declined, revenue, and the time between each step (claim, send, payment, approval).
 - **Visibility.** A salesperson sees their own figures; the Head of Sales sees everyone's.
+
+### 7. Support (US-S20)
+
+| Rule     | Description                                                                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------------------- |
+| Handling | Sales handles support requests. A request about an order goes to the order's salesperson; any other request waits until a salesperson takes it. |
+| Reply    | A reply sets the request to answered and notifies the customer. Sales closes a request once the customer's question is settled. |
+
+Acceptance criteria:
+
+- A support request about an order appears in the to-do list of the order's salesperson.
+- A support request about no order is visible to every salesperson until one takes it.
 
 ## III. Related documents
 

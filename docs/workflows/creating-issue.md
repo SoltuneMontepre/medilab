@@ -43,19 +43,20 @@ The [medilab Trello board](https://trello.com/b/mk5Pnyu3/medilab) holds business
    - **Description:** what to build as a checklist: models with their tables from the diagram, views, menus, access rules. Then the rules that apply to every part, the conventions to follow and what is out of scope.
    - **Acceptance criteria:** the feature's acceptance criteria from its document as a checklist, plus tests that cover them.
    - **References:** the spec, then the documents, diagram and existing code. Link documents on `main`; if they are only in an open pull request, say the issue is read after it is merged.
-4. **Ask who to assign**, from the people below. The owner can choose several people or nobody.
+4. **Ask who to assign**, from the people below, as a lettered list the owner answers with letters, such as "A, C". F is nobody.
 5. **Create the issue** once the owner has seen the title and summary: `gh issue create --title "<title>" --body-file <file> --assignee <login>`. Then set the issue type to Feature.
 6. Reply with the issue link, the stories it covers, the assignees, and the dependencies found in step 2.
 
 ## People
 
-| GitHub login  | Name                |
-| ------------- | ------------------- |
-| `hatohui`     | Le Sy Tuyen         |
-| `HuyDG160205` | Dinh Gia Huy        |
-| `KietPham-VN` | Pham Anh Kiet       |
-| `nnh53`       | Nguyen Nam Hoang    |
-| `hzanhle`     | Le Nguyen Hoang Anh |
+|     | GitHub login  | Name                |
+| --- | ------------- | ------------------- |
+| A   | `hatohui`     | Le Sy Tuyen         |
+| B   | `HuyDG160205` | Dinh Gia Huy        |
+| C   | `KietPham-VN` | Pham Anh Kiet       |
+| D   | `nnh53`       | Nguyen Nam Hoang    |
+| E   | `hzanhle`     | Le Nguyen Hoang Anh |
+| F   |               | Nobody              |
 
 ## Related documents
 

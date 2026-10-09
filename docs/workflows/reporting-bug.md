@@ -14,7 +14,7 @@ A bug is behaviour that differs from what the documents say. Behaviour the docum
    - Title: `[Defect | <scope>] <short description>`, where the scope is the module, such as `Laboratory`.
    - The template's sections, with the expected behaviour linked to the document rule it comes from.
    - **Affected stories:** the user story IDs the bug breaks.
-6. **Ask who to assign**, from the people in [Creating an issue](creating-issue.md#people). The owner can choose several people or nobody.
+6. **Ask who to assign**, as the lettered list in [Creating an issue](creating-issue.md#people); the owner answers with letters.
 7. **Create the issue** once the owner has seen the title and summary: `gh issue create --title "<title>" --body-file <file> --label bug --assignee <login>`. Then set the issue type to Bug.
 8. Reply with the issue link, the rule it breaks and whether it reproduced.
 

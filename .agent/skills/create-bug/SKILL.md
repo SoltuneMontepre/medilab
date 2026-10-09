@@ -10,5 +10,5 @@ Read [AGENTS.md](../../../AGENTS.md) and the docs index first, then follow [docs
 - Ask for whatever the report lacks: what happened, the steps, what was expected, where it happened.
 - A bug breaks a rule the documents state. When no document says what should happen, report it as a gap in the documents instead of a bug.
 - Write the draft body to a temporary file, then show the owner the title, the rule it breaks and a short summary.
-- Ask who to assign in a plain message listing every person in the People table of [creating-issue.md](../../../docs/workflows/creating-issue.md#people). Accept several people or nobody.
+- Ask who to assign with your tool's selection prompt when it has one, so the owner picks instead of typing; otherwise as a lettered list the owner answers with letters, such as "A, C": A to E for the people in the People table of [creating-issue.md](../../../docs/workflows/creating-issue.md#people), each with their login and name, and F for nobody.
 - Create the issue only after the owner has answered, and reply with its link.

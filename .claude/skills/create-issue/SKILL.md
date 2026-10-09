@@ -11,4 +11,4 @@ In Claude Code:
 
 - Search Trello with the Trello search tool when it is connected; load it with tool search first.
 - Write the draft body to the scratchpad directory.
-- Ask who to assign in a plain message, not a multiple-choice question: there are more people than it holds.
+- Ask who to assign with AskUserQuestion in one call with two multi-select questions, since a question holds four options: the first offers `hatohui`, `HuyDG160205`, `KietPham-VN` and `nnh53`, the second `hzanhle` and Nobody. Label each person with their login and name.

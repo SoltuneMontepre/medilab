@@ -11,4 +11,4 @@ In Claude Code:
 
 - Reproduce in the built-in browser at `http://localhost:8069` when the app is running, and attach what you saw.
 - Write the draft body to the scratchpad directory.
-- Ask who to assign in a plain message, not a multiple-choice question: there are more people than it holds.
+- Ask who to assign with AskUserQuestion in one call with two multi-select questions, since a question holds four options: the first offers `hatohui`, `HuyDG160205`, `KietPham-VN` and `nnh53`, the second `hzanhle` and Nobody. Label each person with their login and name.

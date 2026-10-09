@@ -12,5 +12,5 @@ Read [AGENTS.md](../../../AGENTS.md) and the docs index first, then follow [docs
 - When the user names no feature, list the stories that are not started and ready, grouped by feature, and ask which one.
 - Report the status check before drafting. Stop and ask when the feature is already covered, not ready, or needs a spec that does not exist.
 - Write the draft body to a temporary file, then show the owner the title, the stories and a short summary.
-- Ask who to assign in a plain message listing every person in the workflow's People table with their login and name. Accept several people or nobody.
+- Ask who to assign with your tool's selection prompt when it has one, so the owner picks instead of typing; otherwise as a lettered list the owner answers with letters, such as "A, C": A to E for the people in the People table of [creating-issue.md](../../../docs/workflows/creating-issue.md#people), each with their login and name, and F for nobody.
 - Create the issue only after the owner has answered, and reply with its link.
