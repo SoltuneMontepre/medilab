@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-05 01:14+0000\n"
+"POT-Creation-Date: 2026-10-10 03:46+0000\n"
 "PO-Revision-Date: 2026-10-05 01:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
@@ -15,6 +15,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/permission.py:0
+msgid ""
+"%s has no department, so a permission on it cannot be limited to the "
+"person's department."
+msgstr ""
+"%s không có phòng ban, nên quyền trên loại chứng từ này không thể giới hạn "
+"trong phòng ban của nhân sự."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/master_data/parameter_method.py:0
+msgid ""
+"%s is tested either in-house by a department or by a subcontractor, not both."
+msgstr ""
+"%s được thử tại phòng thí nghiệm bởi một phòng ban hoặc bởi một thầu phụ, "
+"không thể cả hai."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/master_data/archive_mixin.py:0
+msgid "%s more"
+msgstr "và %s bản ghi khác"
 
 #. module: laboratory
 #. odoo-python
@@ -28,9 +53,25 @@ msgid "A measurement unit with this symbol already exists."
 msgstr "Đã có đơn vị đo với ký hiệu này."
 
 #. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_permission_identity_unique
+msgid ""
+"A permission for this action on this document type and scope already exists."
+msgstr "Đã có quyền cho hành động này trên loại chứng từ và phạm vi này."
+
+#. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_permission_code_unique
+msgid "A permission with this code already exists."
+msgstr "Đã có quyền với mã này."
+
+#. module: laboratory
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_regulation_limit_regulation_parameter_unique
 msgid "A regulation sets at most one limit per parameter."
 msgstr "Mỗi quy chuẩn chỉ đặt tối đa một giới hạn cho mỗi chỉ tiêu."
+
+#. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_role_code_unique
+msgid "A role with this code already exists."
+msgstr "Đã có vai trò với mã này."
 
 #. module: laboratory
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_parameter_method_machine_run_minutes_positive
@@ -63,11 +104,19 @@ msgid "Accredited"
 msgstr "Được công nhận"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__action
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_permission_search
+msgid "Action"
+msgstr "Hành động"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__active
+#: model:ir.model.fields,field_description:laboratory.field_medilab_department__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__active
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__active
@@ -95,11 +144,22 @@ msgid "Address Type Description"
 msgstr "Mô tả loại địa chỉ"
 
 #. module: laboratory
+#: model:medilab.role,name:laboratory.role_administrator
+msgid "Administrator"
+msgstr "Quản Trị Viên"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__scope__all
+msgid "All records"
+msgstr "Mọi bản ghi"
+
+#. module: laboratory
 #: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__lang
 msgid ""
-"All the emails and documents sent to this contact will be translated in this"
-" language."
-msgstr "Tất cả email và tài liệu gửi cho liên hệ này sẽ được dịch sang ngôn ngữ này."
+"All the emails and documents sent to this contact will be translated in this "
+"language."
+msgstr ""
+"Tất cả email và tài liệu gửi cho liên hệ này sẽ được dịch sang ngôn ngữ này."
 
 #. module: laboratory
 #. odoo-javascript
@@ -108,14 +168,38 @@ msgid "Applications"
 msgstr "Ứng dụng"
 
 #. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__action__archive
+msgid "Archive"
+msgstr "Lưu trữ"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_department_archive_all
+msgid "Archive departments"
+msgstr "Lưu trữ phòng ban"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_archive_all
+msgid "Archive people"
+msgstr "Lưu trữ nhân sự"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_archive_own_department
+msgid "Archive people of their department"
+msgstr "Lưu trữ nhân sự của phòng ban mình"
+
+#. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_chemical_form
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_chemical_search
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_department_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_department_search
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_machine_form
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_machine_search
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_measurement_unit_form
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_measurement_unit_search
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_parameter_group_form
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_parameter_group_search
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_person_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_quality_registration_form
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_quality_registration_search
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_regulation_form
@@ -233,8 +317,10 @@ msgstr "Thành phố"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__code
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__code
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__code
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__code
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__code
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__code
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__code
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__code
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__code
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__code
@@ -304,6 +390,7 @@ msgid "Complete Name"
 msgstr "Tên đầy đủ"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__partner_id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__child_ids
 msgid "Contact"
 msgstr "Liên hệ"
@@ -335,16 +422,50 @@ msgid "Covered Ways of Testing"
 msgstr "Các cách thử được áp dụng"
 
 #. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__action__create
+msgid "Create"
+msgstr "Tạo"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_department_create_all
+msgid "Create departments"
+msgstr "Tạo phòng ban"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_create_all
+msgid "Create people"
+msgstr "Tạo nhân sự"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_create_own_department
+msgid "Create people of their department"
+msgstr "Tạo nhân sự của phòng ban mình"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_permission_create_all
+msgid "Create permissions"
+msgstr "Tạo quyền"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_role_create_all
+msgid "Create roles"
+msgstr "Tạo vai trò"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__create_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_department__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method_machine__create_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__create_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__create_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__create_uid
@@ -356,15 +477,19 @@ msgstr "Người tạo"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__create_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_department__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method_machine__create_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__create_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__create_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__create_date
@@ -385,6 +510,56 @@ msgid "Default"
 msgstr "Mặc định"
 
 #. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__action__delete
+msgid "Delete"
+msgstr "Xóa"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_department_delete_all
+msgid "Delete departments"
+msgstr "Xóa phòng ban"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_delete_all
+msgid "Delete people"
+msgstr "Xóa nhân sự"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_delete_own_department
+msgid "Delete people of their department"
+msgstr "Xóa nhân sự của phòng ban mình"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_permission_delete_all
+msgid "Delete permissions"
+msgstr "Xóa quyền"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_role_delete_all
+msgid "Delete roles"
+msgstr "Xóa vai trò"
+
+#. module: laboratory
+#: model:ir.model,name:laboratory.model_medilab_department
+#: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__department_id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__department_id
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_person_search
+msgid "Department"
+msgstr "Phòng Ban"
+
+#. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_department
+#: model:ir.ui.menu,name:laboratory.menu_department
+msgid "Departments"
+msgstr "Phòng Ban"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__permission_ids
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_person_form
+msgid "Direct Permissions"
+msgstr "Quyền Trực Tiếp"
+
+#. module: laboratory
 #. odoo-javascript
 #: code:addons/laboratory/static/src/theme/xml/form_status_indicator.xml:0
 msgid "Discard"
@@ -400,15 +575,20 @@ msgstr "Hủy tất cả thay đổi"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_archive_mixin__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_code_mixin__display_name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_department__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method_machine__display_name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__display_name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission_mixin__display_name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__display_name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__display_name
@@ -424,14 +604,64 @@ msgid "Disposal Method"
 msgstr "Cách hủy mẫu"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__document_model
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_permission_search
+msgid "Document Type"
+msgstr "Loại Chứng Từ"
+
+#. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_permission_group_unique
+msgid "Each permission has its own group."
+msgstr "Mỗi quyền có nhóm riêng."
+
+#. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_role_group_unique
+msgid "Each role has its own group."
+msgstr "Mỗi vai trò có nhóm riêng."
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__action__edit
+msgid "Edit"
+msgstr "Sửa"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_department_edit_all
+msgid "Edit departments"
+msgstr "Sửa phòng ban"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_edit_all
+msgid "Edit people"
+msgstr "Sửa nhân sự"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_edit_own_department
+msgid "Edit people of their department"
+msgstr "Sửa nhân sự của phòng ban mình"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_permission_edit_all
+msgid "Edit permissions"
+msgstr "Sửa quyền"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_role_edit_all
+msgid "Edit roles"
+msgstr "Sửa vai trò"
+
+#. module: laboratory
 #: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__partner_share
 msgid ""
 "Either customer (not a user), either shared user. Indicated the current "
 "partner is a customer without access or with a limited access created for "
 "sharing data."
-msgstr "Khách hàng (không phải người dùng) hoặc người dùng được chia sẻ. Cho biết đối tác hiện tại là khách hàng không có quyền truy cập hoặc có quyền truy cập hạn chế được tạo để chia sẻ dữ liệu."
+msgstr ""
+"Khách hàng (không phải người dùng) hoặc người dùng được chia sẻ. Cho biết "
+"đối tác hiện tại là khách hàng không có quyền truy cập hoặc có quyền truy "
+"cập hạn chế được tạo để chia sẻ dữ liệu."
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__email
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__email
 msgid "Email"
 msgstr "Email"
@@ -503,6 +733,12 @@ msgid "Grade"
 msgstr "Cấp độ tinh khiết"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__group_id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__group_id
+msgid "Group"
+msgstr "Nhóm"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__group_ids
 msgid "Groups"
 msgstr "Nhóm Chỉ Tiêu"
@@ -511,15 +747,20 @@ msgstr "Nhóm Chỉ Tiêu"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_archive_mixin__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_code_mixin__id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_department__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method_machine__id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission_mixin__id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__id
@@ -612,15 +853,19 @@ msgstr "Ngôn ngữ"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__write_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_department__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method_machine__write_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__write_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__write_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__write_uid
@@ -632,15 +877,19 @@ msgstr "Cập nhật lần cuối bởi"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__write_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_department__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method_machine__write_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__write_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__write_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__write_date
@@ -670,6 +919,11 @@ msgstr "Vị trí"
 #: model_terms:ir.ui.view,arch_db:laboratory.login_layout
 msgid "Log in"
 msgstr "Đăng nhập"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__login
+msgid "Login"
+msgstr "Tên đăng nhập"
 
 #. module: laboratory
 #: model:ir.model,name:laboratory.model_medilab_machine
@@ -723,7 +977,8 @@ msgstr "Chu kỳ bảo trì (ngày)"
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.login_layout
 msgid "Manage samples, testing processes and results on a unified platform."
-msgstr "Quản lý mẫu, quy trình thử nghiệm và kết quả trên một nền tảng thống nhất."
+msgstr ""
+"Quản lý mẫu, quy trình thử nghiệm và kết quả trên một nền tảng thống nhất."
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__manufacturer
@@ -773,11 +1028,15 @@ msgstr "Model máy"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_department__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__name
@@ -835,6 +1094,16 @@ msgstr "Ghi chú"
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_subcontractor_form
 msgid "Notes"
 msgstr "Ghi chú"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_permission_search
+msgid "Own Department"
+msgstr "Phòng Ban Của Mình"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__scope__own_department
+msgid "Own department"
+msgstr "Phòng ban của mình"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__parameter_id
@@ -898,11 +1167,163 @@ msgid "Partner with same Tax ID"
 msgstr "Đối tác có cùng mã số thuế"
 
 #. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_person
+#: model:ir.model.fields,field_description:laboratory.field_medilab_department__person_ids
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__person_ids
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__person_ids
+#: model:ir.ui.menu,name:laboratory.menu_people_root
+#: model:ir.ui.menu,name:laboratory.menu_person
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_department_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_permission_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_role_form
+msgid "People"
+msgstr "Nhân Sự"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__performed_by
 msgid "Performed By"
 msgstr "Người thực hiện"
 
 #. module: laboratory
+#: model:ir.model,name:laboratory.model_medilab_permission
+msgid "Permission"
+msgstr "Quyền"
+
+#. module: laboratory
+#: model:ir.model,name:laboratory.model_medilab_permission_mixin
+msgid "Permission Checks"
+msgstr "Kiểm Tra Quyền"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_department_archive_all
+msgid "Permission: department.archive.all"
+msgstr "Quyền: department.archive.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_department_create_all
+msgid "Permission: department.create.all"
+msgstr "Quyền: department.create.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_department_delete_all
+msgid "Permission: department.delete.all"
+msgstr "Quyền: department.delete.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_department_edit_all
+msgid "Permission: department.edit.all"
+msgstr "Quyền: department.edit.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_department_read_all
+msgid "Permission: department.read.all"
+msgstr "Quyền: department.read.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_permission_create_all
+msgid "Permission: permission.create.all"
+msgstr "Quyền: permission.create.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_permission_delete_all
+msgid "Permission: permission.delete.all"
+msgstr "Quyền: permission.delete.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_permission_edit_all
+msgid "Permission: permission.edit.all"
+msgstr "Quyền: permission.edit.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_permission_read_all
+msgid "Permission: permission.read.all"
+msgstr "Quyền: permission.read.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_archive_all
+msgid "Permission: person.archive.all"
+msgstr "Quyền: person.archive.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_archive_own_department
+msgid "Permission: person.archive.own_department"
+msgstr "Quyền: person.archive.own_department"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_create_all
+msgid "Permission: person.create.all"
+msgstr "Quyền: person.create.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_create_own_department
+msgid "Permission: person.create.own_department"
+msgstr "Quyền: person.create.own_department"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_delete_all
+msgid "Permission: person.delete.all"
+msgstr "Quyền: person.delete.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_delete_own_department
+msgid "Permission: person.delete.own_department"
+msgstr "Quyền: person.delete.own_department"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_edit_all
+msgid "Permission: person.edit.all"
+msgstr "Quyền: person.edit.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_edit_own_department
+msgid "Permission: person.edit.own_department"
+msgstr "Quyền: person.edit.own_department"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_read_all
+msgid "Permission: person.read.all"
+msgstr "Quyền: person.read.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_person_read_own_department
+msgid "Permission: person.read.own_department"
+msgstr "Quyền: person.read.own_department"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_role_create_all
+msgid "Permission: role.create.all"
+msgstr "Quyền: role.create.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_role_delete_all
+msgid "Permission: role.delete.all"
+msgstr "Quyền: role.delete.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_role_edit_all
+msgid "Permission: role.edit.all"
+msgstr "Quyền: role.edit.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_role_read_all
+msgid "Permission: role.read.all"
+msgstr "Quyền: role.read.all"
+
+#. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_permission
+#: model:ir.model.fields,field_description:laboratory.field_medilab_role__permission_ids
+#: model:ir.ui.menu,name:laboratory.menu_permission
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_role_form
+msgid "Permissions"
+msgstr "Quyền"
+
+#. module: laboratory
+#: model:ir.model,name:laboratory.model_medilab_person
+msgid "Person"
+msgstr "Nhân Sự"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__phone
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__phone
 msgid "Phone"
 msgstr "Điện thoại"
@@ -932,6 +1353,36 @@ msgstr "Hồ Sơ Đăng Ký Chất Lượng"
 #: model:ir.ui.menu,name:laboratory.menu_quality_registration
 msgid "Quality Registrations"
 msgstr "Hồ Sơ Đăng Ký Chất Lượng"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__action__read
+msgid "Read"
+msgstr "Xem"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_department_read_all
+msgid "Read departments"
+msgstr "Xem phòng ban"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_read_all
+msgid "Read people"
+msgstr "Xem nhân sự"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_person_read_own_department
+msgid "Read people of their department"
+msgstr "Xem nhân sự của phòng ban mình"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_permission_read_all
+msgid "Read permissions"
+msgstr "Xem quyền"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_role_read_all
+msgid "Read roles"
+msgstr "Xem vai trò"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__reference
@@ -998,6 +1449,26 @@ msgid "Retired"
 msgstr "Ngừng sử dụng"
 
 #. module: laboratory
+#: model:ir.model,name:laboratory.model_medilab_role
+msgid "Role"
+msgstr "Vai Trò"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_role_administrator
+msgid "Role: administrator"
+msgstr "Vai Trò: administrator"
+
+#. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_role
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__role_ids
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__role_ids
+#: model:ir.ui.menu,name:laboratory.menu_role
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_permission_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_person_form
+msgid "Roles"
+msgstr "Vai Trò"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method_machine__run_minutes
 msgid "Run Minutes"
 msgstr "Thời gian chạy (phút)"
@@ -1043,6 +1514,11 @@ msgid "Save manually"
 msgstr "Lưu thủ công"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_permission__scope
+msgid "Scope"
+msgstr "Phạm vi"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__self
 msgid "Self"
 msgstr "Chính nó"
@@ -1067,6 +1543,11 @@ msgstr "Lịch sử bảo trì"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_share
 msgid "Share Partner"
 msgstr "Đối tác chia sẻ"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__action__sign
+msgid "Sign"
+msgstr "Ký"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__state_id
@@ -1191,6 +1672,24 @@ msgstr ""
 "Bạn có thể dùng trường này để tìm kiếm nhanh."
 
 #. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/role.py:0
+msgid "The administrator role cannot be deleted."
+msgstr "Không thể xóa vai trò quản trị viên."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/role.py:0
+msgid "The administrator role cannot be renamed."
+msgstr "Không thể đổi tên vai trò quản trị viên."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/role.py:0
+msgid "The administrator role holds every permission; none can be removed."
+msgstr "Vai trò quản trị viên nắm mọi quyền; không thể gỡ quyền nào."
+
+#. module: laboratory
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_chemical_code_unique
 msgid "The code of a chemical must be unique."
 msgstr "Mã hóa chất phải là duy nhất."
@@ -1209,6 +1708,12 @@ msgstr "Mã nhóm chỉ tiêu phải là duy nhất."
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_quality_registration_code_unique
 msgid "The code of a quality registration must be unique."
 msgstr "Mã hồ sơ đăng ký chất lượng phải là duy nhất."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/role.py:0
+msgid "The code of a role cannot change; create another role."
+msgstr "Không thể đổi mã của vai trò; hãy tạo vai trò khác."
 
 #. module: laboratory
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_sample_type_code_unique
@@ -1236,9 +1741,24 @@ msgid "The code of a testing method must be unique."
 msgstr "Mã phương pháp thử phải là duy nhất."
 
 #. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/permission.py:0
+msgid ""
+"The document type, action and scope of %s cannot change; create another "
+"permission."
+msgstr ""
+"Không thể đổi loại chứng từ, hành động và phạm vi của %s; hãy tạo quyền khác."
+
+#. module: laboratory
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_measurement_unit_factor_positive
 msgid "The factor of a unit must be greater than zero."
 msgstr "Hệ số của đơn vị phải lớn hơn 0."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/role.py:0
+msgid "The group of a role cannot change."
+msgstr "Không thể đổi nhóm của vai trò."
 
 #. module: laboratory
 #: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__user_id
@@ -1281,6 +1801,33 @@ msgid ""
 msgstr "Chỉ tiêu đã có cách thử với phương pháp này tại cùng phòng thí nghiệm."
 
 #. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/person.py:0
+msgid "The person of Odoo's default administrator cannot be archived."
+msgstr "Không thể lưu trữ nhân sự của quản trị viên mặc định của Odoo."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/person.py:0
+msgid "The person of Odoo's default administrator cannot be deleted."
+msgstr "Không thể xóa nhân sự của quản trị viên mặc định của Odoo."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/person.py:0
+msgid ""
+"The person of Odoo's default administrator keeps the administrator role."
+msgstr ""
+"Nhân sự của quản trị viên mặc định của Odoo phải giữ vai trò quản trị viên."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/person.py:0
+msgid "The person of Odoo's default administrator keeps their user."
+msgstr ""
+"Nhân sự của quản trị viên mặc định của Odoo phải giữ tài khoản của mình."
+
+#. module: laboratory
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_regulation_code_unique
 msgid "The reference of a regulation must be unique."
 msgstr "Số hiệu quy chuẩn phải là duy nhất."
@@ -1290,14 +1837,34 @@ msgstr "Số hiệu quy chuẩn phải là duy nhất."
 msgid ""
 "The registry number of the company. Use it if it is different from the Tax "
 "ID. It must be unique across all partners of a same country"
-msgstr "Số đăng ký của công ty. Dùng khi khác với mã số thuế. Số này phải là duy nhất trong các đối tác của cùng một quốc gia"
+msgstr ""
+"Số đăng ký của công ty. Dùng khi khác với mã số thuế. Số này phải là duy "
+"nhất trong các đối tác của cùng một quốc gia"
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/role.py:0
+msgid ""
+"The role code %s may contain only lowercase letters, digits and underscores, "
+"and starts with a letter."
+msgstr ""
+"Mã vai trò %s chỉ gồm chữ thường, chữ số và dấu gạch dưới, và bắt đầu bằng "
+"một chữ cái."
 
 #. module: laboratory
 #: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__main_user_id
 msgid ""
 "There can be several users related to the same partner. When a single user "
 "is needed, this field attempts to find the most appropriate one."
-msgstr "Có thể có nhiều người dùng liên kết với cùng một đối tác. Khi cần một người dùng duy nhất, trường này sẽ tìm người dùng phù hợp nhất."
+msgstr ""
+"Có thể có nhiều người dùng liên kết với cùng một đối tác. Khi cần một người "
+"dùng duy nhất, trường này sẽ tìm người dùng phù hợp nhất."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/permission.py:0
+msgid "These permissions come with a module and cannot be deleted: %s"
+msgstr "Các quyền này đi kèm một phân hệ và không thể xóa: %s"
 
 #. module: laboratory
 #. odoo-python
@@ -1323,6 +1890,16 @@ msgstr ""
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_subcontractor_partner_unique
 msgid "This company is already a subcontractor."
 msgstr "Công ty này đã là thầu phụ."
+
+#. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_person_partner_unique
+msgid "This contact is already a person."
+msgstr "Liên hệ này đã là một nhân sự."
+
+#. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_person_user_unique
+msgid "This user already belongs to another person."
+msgstr "Tài khoản này đã thuộc về một nhân sự khác."
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__tz
@@ -1372,6 +1949,17 @@ msgid "Use a barcode to identify this contact."
 msgstr "Dùng mã vạch để nhận diện liên hệ này."
 
 #. module: laboratory
+#: model:ir.model.fields,help:laboratory.field_medilab_person__login
+msgid "Used to log into the system"
+msgstr "Dùng để đăng nhập vào hệ thống"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_person__user_id
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_person_form
+msgid "User"
+msgstr "Tài khoản"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__user_ids
 msgid "Users"
 msgstr "Người dùng"
@@ -1408,9 +1996,11 @@ msgstr "Liên kết website"
 #. module: laboratory
 #: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__tz
 msgid ""
-"When printing documents and exporting/importing data, time values are computed according to this timezone.\n"
+"When printing documents and exporting/importing data, time values are "
+"computed according to this timezone.\n"
 "If the timezone is not set, UTC (Coordinated Universal Time) is used.\n"
-"Anywhere else, time values are computed according to the time offset of your web client."
+"Anywhere else, time values are computed according to the time offset of your "
+"web client."
 msgstr ""
 "Khi in tài liệu và xuất/nhập dữ liệu, thời gian được tính theo múi giờ này.\n"
 "Nếu chưa đặt múi giờ, hệ thống dùng UTC (Giờ phối hợp quốc tế).\n"
@@ -1421,6 +2011,14 @@ msgstr ""
 #: code:addons/laboratory/static/src/theme/js/boolean_button_group_field.js:0
 msgid "Yes"
 msgstr "Có"
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/permission_mixin.py:0
+msgid "You are not allowed to %(action)s these records: %(records)s"
+msgstr ""
+"Bạn không được phép thực hiện hành động %(action)s trên các bản ghi này: %"
+"(records)s"
 
 #. module: laboratory
 #: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__vat
