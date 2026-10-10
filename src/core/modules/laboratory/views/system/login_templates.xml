@@ -2,8 +2,8 @@
 <odoo>
     <template id="login_layout" inherit_id="web.login_layout" name="MediLab Authentication Layout"
         priority="40">
-        <xpath expr="//t[@t-call='web.frontend_layout']/t[@t-set='html_data']" position="before">
-            <t t-set="title">Log in</t>
+        <xpath expr="//t[@t-call='web.frontend_layout']" position="attributes">
+            <attribute name="title.translate">Log in</attribute>
         </xpath>
 
         <xpath expr="//div[hasclass('container') and hasclass('py-5')]" position="attributes">

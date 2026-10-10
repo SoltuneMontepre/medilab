@@ -15,7 +15,7 @@ class TestingMethod(models.Model):
     _description = "Testing Method"
     _rec_name = "code"
     _order = "code"
-    _rec_names_search = ["code", "name"]
+    _rec_names_search = ("code", "name")
 
     # Unique standard reference of the method, such as TCVN 6187-1:2009.
     code = fields.Char(required=True, copy=False)

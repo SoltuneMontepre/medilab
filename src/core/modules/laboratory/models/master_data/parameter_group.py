@@ -17,7 +17,7 @@ class ParameterGroup(models.Model):
     _description = "Parameter Group"
     _parent_store = True
     _order = "code"
-    _rec_names_search = ["name", "code"]
+    _rec_names_search = ("name", "code")
 
     # Unique code of the group, such as NCT.0001; filled from a sequence when left empty.
     code = fields.Char(required=True, copy=False)

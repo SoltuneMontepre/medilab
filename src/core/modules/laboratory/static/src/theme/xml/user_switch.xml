@@ -4,7 +4,7 @@
         <xpath expr="//div[hasclass('list-group')]/t/button" position="attributes">
             <attribute name="t-att-aria-label">user.name</attribute>
         </xpath>
-        <xpath expr="//i[hasclass('fa-times')]" position="attributes">
+        <xpath expr="//i[@data-icon='close']" position="attributes">
             <attribute name="role">button</attribute>
             <attribute name="aria-label">Remove user from switcher</attribute>
         </xpath>

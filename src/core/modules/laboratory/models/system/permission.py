@@ -1,4 +1,4 @@
-from odoo import api, fields, models, tools
+from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
 from odoo.tools import format_list
@@ -10,8 +10,7 @@ from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINI
 
 DOCUMENT_MODEL_PREFIX = "medilab."
 IR_MODEL = "ir.model"
-IR_MODEL_ACCESS = "ir.model.access"
-IR_RULE = "ir.rule"
+IR_ACCESS = "ir.access"
 IDENTITY_FIELDS = ("document_model", "action", "scope", "group_id")
 HOLDER_FIELDS = ("role_ids", "person_ids")
 WRITE_ACTIONS = ("edit", "archive")
@@ -48,7 +47,7 @@ class Permission(models.Model):
     scope = fields.Selection(
         [("all", "All records"), ("own_department", "Own department")], required=True, default="all"
     )
-    # The Odoo group generated for the permission, which carries its access rule and record rule.
+    # The Odoo group generated for the permission, which carries its access.
     group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
     # Roles that contain the permission.
     role_ids = fields.Many2many(
@@ -87,7 +86,7 @@ class Permission(models.Model):
         return sorted((name, labels.get(name, name)) for name in names)
 
     @api.model
-    @tools.ormcache("document_model", "action")
+    @api.ormcache("document_model", "action")
     def _permission_scopes(self, document_model, action):
         # Cached because a permission never changes its document type, action or scope.
         permissions = self.sudo().search([("document_model", "=", document_model), ("action", "=", action)])
@@ -113,7 +112,7 @@ class Permission(models.Model):
             vals["group_id"] = groups.create({"name": f"Permission: {code}"}).id
         permissions = super().create(vals_list)
         permissions._generate_access()
-        self.env.registry.clear_cache()
+        self.env.transaction.invalidate_ormcache()
         self.env.ref(ADMINISTRATOR_ROLE).sudo().permission_ids = [Command.link(p.id) for p in permissions]
         return permissions
 
@@ -149,12 +148,12 @@ class Permission(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_group_in_use(self):
-        generated = self._generated_records("rule")
-        shared = self.env[IR_RULE].sudo().search([("groups", "in", self.group_id.ids), ("id", "not in", generated.ids)])
+        generated = self._generated_records()
+        shared = self.env[IR_ACCESS].sudo().search([("group_id", "in", self.group_id.ids), ("id", "not in", generated.ids)])
         if shared:
             raise UserError(
                 self.env._(
-                    "These record rules still use the permission's group: %s",
+                    "These accesses still use the permission's group: %s",
                     format_list(self.env, shared.mapped("name")),
                 )
             )
@@ -163,20 +162,18 @@ class Permission(models.Model):
         # At uninstall the generated records go through their own external ids.
         if self.env.context.get(MODULE_UNINSTALL_FLAG):
             return super().unlink()
-        rules, accesses = self._generated_records("rule"), self._generated_records("access")
+        accesses = self._generated_records()
         groups = self.group_id.sudo()
         result = super().unlink()
-        rules.unlink()
         accesses.unlink()
         groups.unlink()
-        self.env.registry.clear_cache()
+        self.env.transaction.invalidate_ormcache()
         return result
 
-    def _generated_records(self, kind):
-        model = IR_RULE if kind == "rule" else IR_MODEL_ACCESS
-        records = self.env[model].sudo()
+    def _generated_records(self):
+        records = self.env[IR_ACCESS].sudo()
         for permission in self:
-            records |= self.env.ref(permission._generated_xml_id(kind), raise_if_not_found=False) or records.browse()
+            records |= self.env.ref(permission._generated_xml_id("access"), raise_if_not_found=False) or records.browse()
         return records
 
     def _check_holders(self, vals):
@@ -210,13 +207,12 @@ class Permission(models.Model):
             )
 
     def _generate_access(self):
-        # Group first: uninstall deletes the newest external id first, so the rules go before their group.
+        # Group first: uninstall deletes the newest external id first, so the access goes before its group.
         xml_ids = []
         for permission in self.sudo():
             records = {"group": permission.group_id}
             if permission.action in OPERATIONS:
-                records["access"] = self.env[IR_MODEL_ACCESS].sudo().create(permission._access_values())
-                records["rule"] = self.env[IR_RULE].sudo().create(permission._rule_values())
+                records["access"] = self.env[IR_ACCESS].sudo().create(permission._access_values())
             xml_ids += [
                 {"xml_id": permission._generated_xml_id(kind), "record": record, "noupdate": True}
                 for kind, record in records.items()
@@ -224,7 +220,7 @@ class Permission(models.Model):
         self.env["ir.model.data"].sudo()._update_xmlids(xml_ids)
 
     def _generated_xml_id(self, kind):
-        # The external id of the group, access rule or record rule generated for the permission.
+        # The external id of the group or access generated for the permission.
         return f"{MODULE}.{kind}_permission_{self.code.replace('.', '_')}"
 
     @api.model
@@ -248,16 +244,6 @@ class Permission(models.Model):
             "name": f"Permission: {self.code}",
             "model_id": self.env[IR_MODEL]._get(self.document_model).id,
             "group_id": self.group_id.id,
-            f"perm_{OPERATIONS[self.action]}": True,
-        }
-
-    def _rule_values(self):
-        self.ensure_one()
-        operation = OPERATIONS[self.action]
-        return {
-            "name": f"Permission: {self.code}",
-            "model_id": self.env[IR_MODEL]._get(self.document_model).id,
-            "groups": [Command.link(self.group_id.id)],
-            "domain_force": SCOPE_DOMAINS[self.scope],
-            **{f"perm_{mode}": mode == operation for mode in ("read", "write", "create", "unlink")},
+            "operation": OPERATIONS[self.action],
+            "domain": SCOPE_DOMAINS[self.scope],
         }
