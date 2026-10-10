@@ -2,14 +2,14 @@
 <templates xml:space="preserve">
 
     <t t-inherit="web.Breadcrumbs" t-inherit-mode="extension">
-        <xpath expr="//t[@t-slot='breadcrumb-status-indicator']" position="replace"/>
+        <xpath expr="//t[@t-call-slot='breadcrumb-status-indicator']" position="replace"/>
 
         <xpath expr="//div[hasclass('o_last_breadcrumb_item') and hasclass('lh-sm')]/.." position="inside">
-            <t t-slot="breadcrumb-status-indicator"/>
+            <t t-call-slot="breadcrumb-status-indicator"/>
         </xpath>
 
-        <xpath expr="//div[hasclass('o_breadcrumb') and hasclass('text-truncate')]/t[@t-call='web.Breadcrumb.Actions']" position="after">
-            <t t-slot="breadcrumb-status-indicator"/>
+        <xpath expr="//div[@t-else and hasclass('o_breadcrumb')]/t[@t-call='web.Breadcrumb.Actions']" position="after">
+            <t t-call-slot="breadcrumb-status-indicator"/>
         </xpath>
     </t>
 

@@ -4,57 +4,56 @@ Stories: US-AD13, US-AD15
 
 ## Goal
 
-Departments, people, roles and permissions are records administrators maintain. This spec states how those records become Odoo groups, access rules and record rules, so that the API and the interface enforce every permission without code per feature, how the administrator holds every permission, and how a permission limited to the person's department is applied.
+Departments, people, roles and permissions are records administrators maintain. This spec states how those records become Odoo groups and accesses, so that the API and the interface enforce every permission without code per feature, how the administrator holds every permission, and how a permission limited to the person's department is applied.
 
 ## Design
 
 ### Records and the Odoo objects they produce
 
-| Record       | Odoo objects                                                                                             |
-| ------------ | -------------------------------------------------------------------------------------------------------- |
-| `Permission` | One group, one access rule and one record rule, created with the permission and deleted with it.         |
-| `Role`       | One group whose implied groups are the groups of the role's permissions.                                 |
-| `Person`     | The person's Odoo user holds the groups of the person's roles and of their direct permissions.           |
+| Record       | Odoo objects                                                                                   |
+| ------------ | ---------------------------------------------------------------------------------------------- |
+| `Permission` | One group and one access, created with the permission and deleted with it.                     |
+| `Role`       | One group whose implied groups are the groups of the role's permissions.                       |
+| `Person`     | The person's Odoo user holds the groups of the person's roles and of their direct permissions. |
 
-Odoo checks a user's groups transitively: a role group implies its permission groups, so a user holding the role group holds every access rule and record rule of those permissions. Access rules decide which operations a model allows; record rules decide which records; menus whose action model the user cannot read are hidden by Odoo. Generated groups have no privilege, so the user form shows them as independent extra rights, which matches permissions adding up.
+Odoo checks a user's groups transitively: a role group implies its permission groups, so a user holding the role group holds every access of those permissions. An access (Odoo's `ir.access`) gives its group one operation on a model, limited to the records of its domain; menus whose action model the user cannot read are hidden by Odoo. Generated groups have no privilege, so the user form shows them as independent extra rights, which matches permissions adding up.
 
 ### Permission
 
 A permission is one action on one document type within one scope. Its code is derived from the three: the document type is the model name without `medilab.`, so a permission to edit people of the person's department is `person.edit.own_department`. No two permissions share the same document type, action and scope. The document type, action and scope cannot change once the permission exists; the name can.
 
-| Action    | Odoo operation of the access rule and record rule                               |
-| --------- | ------------------------------------------------------------------------------- |
-| `read`    | read                                                                            |
-| `create`  | create                                                                          |
-| `edit`    | write                                                                           |
-| `archive` | write; the shared mixin below limits it to the `active` field                   |
-| `delete`  | unlink                                                                          |
-| `sign`    | none: the group alone marks who may sign; the signing feature checks it         |
+| Action    | Operation of the access                                                 |
+| --------- | ----------------------------------------------------------------------- |
+| `read`    | `r`                                                                     |
+| `create`  | `c`                                                                     |
+| `edit`    | `u`                                                                     |
+| `archive` | `u`; the shared mixin below limits it to the `active` field             |
+| `delete`  | `d`                                                                     |
+| `sign`    | none: the group alone marks who may sign; the signing feature checks it |
 
-| Scope            | Record rule domain                                                                                       |
-| ---------------- | -------------------------------------------------------------------------------------------------------- |
-| `all`            | every record: `[(1, '=', 1)]`                                                                            |
-| `own_department` | `[('department_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]`             |
+| Scope            | Domain of the access                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| `all`            | every record: `[(1, '=', 1)]`                                                               |
+| `own_department` | `[('department_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]` |
 
 The team scope (`own_team`) planned for teams within departments follows the same mechanism through the person's team and is built with teams.
 
-A scope-`all` permission needs its always-true rule because Odoo applies only the rules of groups the user holds and combines them with "or": a person holding `person.read.all` and `person.read.own_department` reads every person. The own-department scope exists only for document types that have a `department_id` field; creating such a permission for another document type is refused. A record without a department belongs to nobody's department, so an own-department permission does not show it.
+Odoo combines the accesses of the groups a user holds with "or": a person holding `person.read.all` and `person.read.own_department` reads every person. The own-department scope exists only for document types that have a `department_id` field; creating such a permission for another document type is refused. A record without a department belongs to nobody's department, so an own-department permission does not show it.
 
-The generated group, access rule and record rule carry external identifiers of the laboratory module that are not updated on upgrade:
+The generated group and access carry external identifiers of the laboratory module that are not updated on upgrade:
 
-| Object      | External identifier                        | Name                        |
-| ----------- | ------------------------------------------ | --------------------------- |
-| Group       | `laboratory.group_permission_<code>`       | `Permission: <code>`        |
-| Access rule | `laboratory.access_permission_<code>`      | `Permission: <code>`        |
-| Record rule | `laboratory.rule_permission_<code>`        | `Permission: <code>`        |
+| Object | External identifier                   | Name                 |
+| ------ | ------------------------------------- | -------------------- |
+| Group  | `laboratory.group_permission_<code>`  | `Permission: <code>` |
+| Access | `laboratory.access_permission_<code>` | `Permission: <code>` |
 
 The dots of the code become underscores in the identifier. Because the identifiers are stable, views refer to a permission's group as any other group: a field or button with `groups="laboratory.group_permission_person_sign_all"` is removed from the view for everyone else.
 
 Every feature declares the permissions of its document types in its module's `data/permission_data.xml`: `read`, `create`, `edit` and `delete` for every document type, `archive` for a type that can be archived, `sign` for a type that is signed, each with scope `all`, and the same actions with scope `own_department` for a type that has a department. A document type lists the actions it has permissions for in `_permission_actions`, and a test walks every model that inherits the shared mixin below and fails when one of those actions has no scope-`all` permission, so a feature cannot lock the administrator out of a new document type.
 
-The permission catalogue belongs to the modules: users read permissions, rename them and give them to roles and people, but never create or delete them on the screen, so the permission document type has only the `read` and `edit` permissions. A permission a module no longer needs is deleted by that module, and its rule, access rule and group go with it, unless another record rule still uses its group, in which case the refusal names that rule.
+The permission catalogue belongs to the modules: users read permissions, rename them and give them to roles and people, but never create or delete them on the screen, so the permission document type has only the `read` and `edit` permissions. A permission a module no longer needs is deleted by that module, and its access and group go with it, unless another access still uses its group, in which case the refusal names that access.
 
-A permission is refused when Odoo cannot enforce it as stated: `archive` on a document type that cannot be archived, and `edit` or `archive` on a document type that does not inherit the shared mixin, since Odoo alone cannot tell editing from archiving there. The master data of the laboratory still uses its own access rules and joins the mixin when its access moves to permissions.
+A permission is refused when Odoo cannot enforce it as stated: `archive` on a document type that cannot be archived, and `edit` or `archive` on a document type that does not inherit the shared mixin, since Odoo alone cannot tell editing from archiving there. The master data of the laboratory still uses its own accesses and joins the mixin when its access moves to permissions.
 
 ### Role
 
@@ -78,26 +77,26 @@ Archiving a person archives their Odoo user, so they can no longer sign in; unar
 
 ### Enforcement in the API
 
-Access rules and record rules enforce `read`, `create` and `delete`, and record rules limit `create` to the person's department when that is the scope. `edit` and `archive` share Odoo's write operation, so the shared mixin `medilab.permission.mixin`, inherited by departments, people, roles and permissions and by every document model of later features, splits them:
+Accesses enforce `read`, `create` and `delete`, and their domain limits `create` to the person's department when that is the scope. `edit` and `archive` share Odoo's write operation, so the shared mixin `medilab.permission.mixin`, inherited by departments, people, roles and permissions and by every document model of later features, splits them:
 
 - Writing `active` needs the archive permission; writing any other field needs the edit permission.
-- Each is checked against the records inside that action's scope, found from the permissions of the user's groups for the model and action, so a person with `edit` on every record and `archive` on their own department cannot archive another department's records, even though Odoo combines the two write rules with "or".
+- Each is checked against the records inside that action's scope, found from the permissions of the user's groups for the model and action, so a person with `edit` on every record and `archive` on their own department cannot archive another department's records, even though Odoo combines the two write accesses with "or".
 - Without the archive permission, `active` is read-only for the user, which also keeps the interface from offering Archive. A user with `create` but without `archive` still creates records: the field keeps its default and is not written.
 - The mixin offers `_has_permission(action)` and `_permission_domain(action)` to features with their own actions, such as signing.
 - Permissions and roles inherit the mixin too, so their screens follow the same rules.
 
-There is no administrator bypass in the mixin: the administrator holds every permission, and the global rules hold for them. The signing feature (US-AD14) adds the rule that a signed document cannot be edited, archived or deleted to the same write and delete path, for everyone.
+There is no administrator bypass in the mixin: the administrator holds every permission, and the restrictions, accesses without a group, hold for them. The signing feature (US-AD14) adds the rule that a signed document cannot be edited, archived or deleted to the same write and delete path, for everyone.
 
 ### Enforcement in the interface
 
-| Element                          | Hidden by                                                                                                  |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Menu                             | Odoo hides a menu whose action opens a model the user cannot read.                                         |
-| Record                           | Record rules: it is neither listed, found by search nor opened by its address.                             |
-| Create, Delete buttons           | The view's root attributes, which Odoo sets from the access rules.                                         |
-| Edit                             | The same attribute, which the mixin also sets off when the edit permission is missing.                     |
-| Archive                          | The Archive action appears only while `active` is writable for the user.                                   |
-| Field, button, other view parts  | `groups="laboratory.group_permission_<code>"` on the view node.                                           |
+| Element                         | Hidden by                                                                                     |
+| ------------------------------- | --------------------------------------------------------------------------------------------- |
+| Menu                            | Odoo hides a menu whose action opens a model the user cannot read.                            |
+| Record                          | The domains of the accesses: it is neither listed, found by search nor opened by its address. |
+| Create, Delete buttons          | The view's root attributes, which Odoo sets from the accesses.                                |
+| Edit                            | The same attribute, which the mixin also sets off when the edit permission is missing.        |
+| Archive                         | The Archive action appears only while `active` is writable for the user.                      |
+| Field, button, other view parts | `groups="laboratory.group_permission_<code>"` on the view node.                               |
 
 ### Archiving and deleting
 
@@ -109,26 +108,26 @@ A way of testing names the department that tests it in-house, or a subcontractor
 
 ### Shipped, user and demo data
 
-| Data                    | Records                                                    | Who creates it                                                                                                   |
-| ----------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Shipped with the module | Permissions, the administrator role, the administrator person | The module, on every install. Users choose among them and assign them; they cannot delete them on the screen.    |
-| User data               | Departments, people, roles other than the administrator    | Administrators and the people they give the permissions to.                                                      |
-| Demo data               | Departments, people with their users, roles                | Only the `demo` module. It assigns shipped permissions to its roles and people and never creates a permission. |
+| Data                    | Records                                                       | Who creates it                                                                                                 |
+| ----------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Shipped with the module | Permissions, the administrator role, the administrator person | The module, on every install. Users choose among them and assign them; they cannot delete them on the screen.  |
+| User data               | Departments, people, roles other than the administrator       | Administrators and the people they give the permissions to.                                                    |
+| Demo data               | Departments, people with their users, roles                   | Only the `demo` module. It assigns shipped permissions to its roles and people and never creates a permission. |
 
 The master data of the laboratory still gives its access through Odoo's settings group and the internal user group, until its access moves to permissions.
 
 ### Lifecycle
 
-Installing the module loads its permissions and generates their objects. Shipped permissions are loaded once and never overwritten by an upgrade, so a name an administrator changed stays; the generated objects stay as well, because their external identifiers are not updated. Uninstalling removes every record with an external identifier of the module: the access rules and record rules before the groups they refer to, then the groups.
+Installing the module loads its permissions and generates their objects. Shipped permissions are loaded once and never overwritten by an upgrade, so a name an administrator changed stays; the generated objects stay as well, because their external identifiers are not updated. Uninstalling removes every record with an external identifier of the module: the accesses before the groups they refer to, then the groups.
 
 ### Document types of this feature
 
-| Document type | Actions                                   | Scopes                               |
-| ------------- | ----------------------------------------- | ------------------------------------ |
-| Department    | read, create, edit, archive, delete       | all                                  |
-| Person        | read, create, edit, archive, delete       | all, own_department                  |
-| Role          | read, create, edit, delete                | all                                  |
-| Permission    | read, edit                                | all                                  |
+| Document type | Actions                             | Scopes              |
+| ------------- | ----------------------------------- | ------------------- |
+| Department    | read, create, edit, archive, delete | all                 |
+| Person        | read, create, edit, archive, delete | all, own_department |
+| Role          | read, create, edit, delete          | all                 |
+| Permission    | read, edit                          | all                 |
 
 ## Related documents
 

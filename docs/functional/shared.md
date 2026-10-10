@@ -25,7 +25,7 @@ Acceptance criteria:
 
 #### SH-02 Simple installation and configuration
 
-Anyone with Odoo 19 experience can install and configure the system without developer help.
+Anyone with Odoo 20 experience can install and configure the system without developer help.
 
 - Installation follows the standard Odoo way: add the module, update the app list, install.
 - Everything a laboratory needs to adapt (company details, numbering, deadlines, e-mail, payment and signing providers, languages) is available in the settings screens, not in code.

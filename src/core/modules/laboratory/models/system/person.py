@@ -21,7 +21,7 @@ class Person(models.Model):
     _name = MODEL_PERSON
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
     _description = "Person"
-    _rec_names_search = ["name", "email"]
+    _rec_names_search = ("name", "email")
 
     # The contact holding the person's details: name, email, phone, address.
     partner_id = fields.Many2one(RES_PARTNER, string="Contact", required=True, ondelete="restrict", copy=False)
@@ -72,7 +72,7 @@ class Person(models.Model):
             elif contact:
                 self.env[RES_PARTNER].browse(vals["partner_id"]).write(contact)
             if vals.get("login"):
-                self._check_field_access(self._fields["login"], "write")
+                self.check_field_access(self._fields["login"], "write")
             logins.append(vals.pop("login", False))
         people = super().create(vals_list)
         for person, login in zip(people, logins, strict=True):
@@ -120,7 +120,7 @@ class Person(models.Model):
 
     def _check_write(self, vals, contact, login):
         if login is not None:
-            self._check_field_access(self._fields["login"], "write")
+            self.check_field_access(self._fields["login"], "write")
             if login and len(self) > 1:
                 raise UserError(self.env._("A login belongs to one person only."))
         if "partner_id" in vals and any(person.partner_id.id != vals["partner_id"] for person in self):
