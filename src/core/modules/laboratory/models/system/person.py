@@ -70,7 +70,6 @@ class Person(models.Model):
             if not vals.get("partner_id"):
                 vals["partner_id"] = self.env[RES_PARTNER].sudo().create(contact).id
             elif contact:
-                # An existing contact may belong to anyone, so only administrators change it with full rights.
                 self.env[RES_PARTNER].browse(vals["partner_id"]).write(contact)
             if vals.get("login"):
                 self._check_field_access(self._fields["login"], "write")
@@ -120,7 +119,6 @@ class Person(models.Model):
         return result
 
     def _check_write(self, vals, contact, login):
-        # Contact details and the login are written outside Odoo's own field checks, so their access is checked here.
         if login is not None:
             self._check_field_access(self._fields["login"], "write")
             if login and len(self) > 1:
@@ -149,7 +147,6 @@ class Person(models.Model):
         return self & self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False)
 
     def _set_login(self, login):
-        # The Odoo user is created on the person's own contact, as an internal user.
         self.ensure_one()
         person = self.sudo()
         if not login:

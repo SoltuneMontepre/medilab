@@ -13,9 +13,7 @@ IR_MODEL = "ir.model"
 IR_MODEL_ACCESS = "ir.model.access"
 IR_RULE = "ir.rule"
 IDENTITY_FIELDS = ("document_model", "action", "scope", "group_id")
-# Who holds a permission is set from the role or the person, where the groups are kept in sync.
 HOLDER_FIELDS = ("role_ids", "person_ids")
-# Actions enforced through Odoo's write operation, which only the permission mixin splits into edit and archive.
 WRITE_ACTIONS = ("edit", "archive")
 
 
@@ -46,8 +44,7 @@ class Permission(models.Model):
         ],
         required=True,
     )
-    # all for every record, or own_department for records of the person's department only; cannot change once
-    # the permission exists.
+    # all for every record, or own_department for the person's department only; cannot change once it exists.
     scope = fields.Selection(
         [("all", "All records"), ("own_department", "Own department")], required=True, default="all"
     )
@@ -92,8 +89,7 @@ class Permission(models.Model):
     @api.model
     @tools.ormcache("document_model", "action")
     def _permission_scopes(self, document_model, action):
-        # (group id, scope) of every permission for the action on the document type. A permission keeps its document
-        # type, action and scope, so the cache is cleared only when permissions are created or deleted.
+        # Cached because a permission never changes its document type, action or scope.
         permissions = self.sudo().search([("document_model", "=", document_model), ("action", "=", action)])
         return tuple((permission.group_id.id, permission.scope) for permission in permissions)
 
@@ -164,7 +160,7 @@ class Permission(models.Model):
             )
 
     def unlink(self):
-        # When the module is uninstalled, the generated records go through their own external ids, newest first.
+        # At uninstall the generated records go through their own external ids.
         if self.env.context.get(MODULE_UNINSTALL_FLAG):
             return super().unlink()
         rules, accesses = self._generated_records("rule"), self._generated_records("access")
@@ -214,8 +210,7 @@ class Permission(models.Model):
             )
 
     def _generate_access(self):
-        # External ids are created in the order group, access rule, record rule: uninstalling deletes the newest
-        # first, so the rules go before the group they refer to.
+        # Group first: uninstall deletes the newest external id first, so the rules go before their group.
         xml_ids = []
         for permission in self.sudo():
             records = {"group": permission.group_id}
@@ -238,8 +233,7 @@ class Permission(models.Model):
 
     @api.model
     def _group_commands(self, current, wanted):
-        # Commands that make the groups of roles and permissions among current exactly wanted; any other group is
-        # left as it is.
+        # Only groups of roles and permissions are touched.
         managed = (
             self.env[MODEL_ROLE].sudo().search([("group_id", "in", current.ids)]).group_id
             | self.sudo().search([("group_id", "in", current.ids)]).group_id

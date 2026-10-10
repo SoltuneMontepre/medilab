@@ -55,8 +55,7 @@ class ArchiveMixin(models.AbstractModel):
         ]
 
     def _referrer_names(self, field, archiving):
-        # Every referrer blocks, including those the user cannot see; only those the user can read are named, and
-        # the rest are given as a count.
+        # Hidden referrers block too, but only readable ones are named.
         referrers = self.env[field.model_name].with_context(active_test=False)
         domain = Domain(field.name, "in", self.ids)
         if field.model_name == self._name:

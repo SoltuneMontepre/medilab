@@ -88,7 +88,7 @@ class Role(models.Model):
     def unlink(self):
         groups = self.group_id.sudo()
         result = super().unlink()
-        # When the module is uninstalled, the groups go through their own external ids, after the roles.
+        # At uninstall the groups go through their own external ids.
         if not self.env.context.get(MODULE_UNINSTALL_FLAG):
             groups.unlink()
         return result
@@ -109,8 +109,7 @@ class Role(models.Model):
             )
 
     def _sync_groups(self):
-        # A role group implies exactly the groups of its permissions; other implied groups, such as Odoo's settings
-        # group implied by the administrator, are left as they are.
+        # Other implied groups, such as Odoo's settings group on the administrator, are left as they are.
         for role in self.sudo():
             commands = self.env[MODEL_PERMISSION]._group_commands(
                 role.group_id.implied_ids, role.permission_ids.group_id

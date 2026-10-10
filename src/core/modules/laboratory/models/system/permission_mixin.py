@@ -12,7 +12,7 @@ from odoo.addons.laboratory.constants.permissions import SCOPE_DOMAINS
 EDITABLE_VIEW_TYPES = ("form", "list", "kanban")
 
 
-# Splits Odoo's write right into the edit and archive permissions and checks each within its scope.
+# Permission checks shared by document models.
 class PermissionMixin(models.AbstractModel):
     _name = MODEL_PERMISSION_MIXIN
     _description = "Permission Checks"
@@ -20,8 +20,7 @@ class PermissionMixin(models.AbstractModel):
     _permission_actions = ("read", "create", "edit", "archive", "delete")
 
     def _has_field_access(self, field, operation):
-        # Without the archive permission, active is read-only, so the interface does not offer Archive. Other fields
-        # stay open here because creating a record checks field write access too; write() checks the edit permission.
+        # Only active is gated here, because create() checks field access too; write() checks edit.
         if field.name == "active" and operation == "write" and not self._has_permission("archive"):
             return False
         return super()._has_field_access(field, operation)
@@ -29,7 +28,6 @@ class PermissionMixin(models.AbstractModel):
     @api.model
     def get_view(self, view_id=None, view_type="form", **options):
         result = super().get_view(view_id, view_type, **options)
-        # Archive also needs Odoo's write right, so the view is made read-only when only archiving is allowed.
         if view_type in EDITABLE_VIEW_TYPES and not self._has_permission("edit"):
             root = etree.fromstring(result["arch"])
             root.set("edit", "False")
