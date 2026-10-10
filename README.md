@@ -14,12 +14,13 @@ Documentation index: [docs/readme.md](docs/readme.md).
 
 ## Prerequisites
 
-| Tool                                       | Purpose                                      |
-| ------------------------------------------ | -------------------------------------------- |
-| Docker or Podman                           | Runs the container stack                     |
-| [Task](https://taskfile.dev/installation/) | `task` CLI for setup and daily commands      |
-| [uv](https://docs.astral.sh/uv/)           | Python environment for linting and typecheck |
-| [Doppler CLI](https://docs.doppler.com/docs/install-cli) | Secrets                        |
+| Tool                                                     | Purpose                                            |
+| -------------------------------------------------------- | -------------------------------------------------- |
+| Docker or Podman                                         | Runs the container stack                           |
+| [Task](https://taskfile.dev/installation/)               | `task` CLI for setup and daily commands            |
+| [uv](https://docs.astral.sh/uv/)                         | Python environment for linting and typecheck       |
+| [Doppler CLI](https://docs.doppler.com/docs/install-cli) | Secrets                                            |
+| [Node.js](https://nodejs.org/en/download)                | `npx` for the `doppler` and `context7` MCP servers |
 
 ## Quick start
 
@@ -27,7 +28,7 @@ Documentation index: [docs/readme.md](docs/readme.md).
 task setup
 ```
 
-`task setup` creates `src/core/.venv`, fetches the Odoo source, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
+`task setup` creates `src/core/.venv`, fetches the Odoo source, installs Serena with the Odoo Language Server, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
 
 Open http://localhost:8069 and create the `medilab` database. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=laboratory`.
 
@@ -35,31 +36,33 @@ Open http://localhost:8069 and create the `medilab` database. Modules are instal
 
 ## Services
 
-| Service     | URL                    | Notes                                  |
-| ----------- | ---------------------- | -------------------------------------- |
-| Odoo        | http://localhost:8069  |                                        |
-| Postgres    | `localhost:15432`      | see [Environment](#environment)        |
-| CloudBeaver | http://localhost:8978  | `medilab` / `admin` unless overridden  |
+| Service     | URL                   | Notes                                 |
+| ----------- | --------------------- | ------------------------------------- |
+| Odoo        | http://localhost:8069 |                                       |
+| Postgres    | `localhost:15432`     | see [Environment](#environment)       |
+| CloudBeaver | http://localhost:8978 | `medilab` / `admin` unless overridden |
 
 ## Commands
 
-| Command                     | Purpose                                                                      |
-| --------------------------- | ---------------------------------------------------------------------------- |
-| `task`                      | List all tasks                                                               |
-| `task setup`                | Run `dev:setup`, `doppler` and `up`                                          |
-| `task up`                   | Start Odoo, Postgres and CloudBeaver                                         |
-| `task doppler`              | Log the Doppler CLI in and select project `medilab`, config `dev`            |
-| `task stop`                 | Stop the containers and keep the volumes                                     |
-| `task restart`              | Restart Odoo after changing Python, XML or config                            |
-| `task logs`                 | Follow the Odoo log                                                          |
-| `task upgrade`              | Upgrade all installed modules                                                |
-| `task upgrade MODULES=a,b`  | Install and upgrade the listed modules                                       |
-| `task reset`                | Delete the database and volumes, then start again                            |
-| `task dev:setup`            | Sync `src/core/.venv` from `uv.lock` and fetch the Odoo source for type checks |
-| `task dev:lock`             | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`          |
-| `task lint`                 | Run ruff and pylint-odoo on `src/core/modules`                               |
-| `task format`               | Format `src/core/modules` with ruff                                          |
-| `task typecheck`            | Type check the addons with pyright                                           |
+| Command                    | Purpose                                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `task`                     | List all tasks                                                                                           |
+| `task setup`               | Run `doppler`, `dev:setup`, `ai:setup` and `upgrade`                                                     |
+| `task up`                  | Start Odoo, Postgres and CloudBeaver                                                                     |
+| `task doppler`             | Log the Doppler CLI in and select project `medilab`, config `dev`                                        |
+| `task stop`                | Stop the containers and keep the volumes                                                                 |
+| `task restart`             | Restart Odoo after changing Python, XML or config                                                        |
+| `task logs`                | Follow the Odoo log                                                                                      |
+| `task upgrade`             | Upgrade all installed modules                                                                            |
+| `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                   |
+| `task reset`               | Delete the database and volumes, then start again                                                        |
+| `task dev:setup`           | Sync `src/core/.venv` from `uv.lock` and fetch the Odoo source for type checks                           |
+| `task ai:setup`            | Check `npx` for the MCP servers, install Serena with the OdooLS adapter and run `ai:odoo-ls`             |
+| `task ai:odoo-ls`          | Download the pinned Odoo Language Server that Serena uses for Python and XML in the modules              |
+| `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                      |
+| `task lint`                | Run ruff and pylint-odoo on `src/core/modules`                                                           |
+| `task format`              | Format `src/core/modules` with ruff                                                                      |
+| `task typecheck`           | Type check the addons with pyright                                                                       |
 
 Every task loads `src/core/.env.local`. To run a tool outside Task: `uv run --project src/core --env-file src/core/.env.local <command>`.
 

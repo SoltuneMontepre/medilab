@@ -38,6 +38,43 @@
         "SONARQUBE_ORG=soltunemontepre",
         "sonarsource/sonarqube-mcp"
       ]
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--with",
+        "mcp<2",
+        "postgres-mcp",
+        "--access-mode=unrestricted",
+        "postgresql://root:root@localhost:15432/medilab"
+      ]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "doppler",
+      "args": [
+        "run",
+        "--project",
+        "medilab",
+        "--config",
+        "dev",
+        "--",
+        "sh",
+        "-c",
+        "CONTEXT7_API_KEY=$CONTEXT7_TOKEN exec npx -y @upstash/context7-mcp"
+      ]
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "serena",
+      "args": [
+        "start-mcp-server",
+        "--context",
+        "claude-code",
+        "--project",
+        "."
+      ]
     }
   }
 }
