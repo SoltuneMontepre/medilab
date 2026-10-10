@@ -45,6 +45,7 @@ The customer is an external user of the laboratory. A customer has an account li
 ### 1. Account and profile (US-C01 to US-C07)
 
 - A customer can **self-register** or be **invited** by sales. Self-registration creates an account and a new customer profile; a business is identified by tax code and an individual by citizen ID plus tax code.
+- Self-registration asks for the name, address, phone and email, and the tax code of a business or the citizen ID and tax code of an individual. Registration with any of them missing is refused.
 - If the identity matches an existing profile, the account is flagged for sales to review instead of being merged automatically.
 - The account page shows contact details, tax and identity information, and additional addresses.
 - Order history is a single list of every quotation and order of the customer, with a customer-facing status.
@@ -89,6 +90,7 @@ Rules:
 Acceptance criteria:
 
 - A newly registered user can log in and sees only their own documents.
+- Registering without a required field is refused.
 - A customer cannot open another customer's quotation, invoice or result; access is denied.
 - A customer can update their contact information, and the changes are saved.
 - A customer can reset their password without help from the laboratory, and an old reset link stops working after use.
