@@ -66,13 +66,16 @@ Each module also has every app its own apps depend on, such as `bus` through `ma
 
 ### Menus
 
-People see the Odoo apps with their own menus, and MediLab adds its menus inside the app that holds the concept, next to the app's own: master data under the app's configuration, analysis under its reporting.
+People see the Odoo apps with their own menus, and MediLab adds its menus to them. Master data has its own Master Data app, where every installed module adds its master data. Analysis goes under the Reporting menu of the app it is about.
 
-| Module     | Menus                                                                                                                                          |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Laboratory | Its own Laboratory app for master data, test requests, samples, results and their analysis; its Tasks app, which opens on the person's day; people, departments and roles in Odoo's Employees app; machines in Odoo's Maintenance app |
-| E-commerce | Odoo's Sales app, and the shop and portal on the website                                                                                       |
-| Inventory  | Odoo's Inventory app                                                                                                                           |
+| App                      | MediLab menus                                                                                                                                                                                                                          |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Master Data              | Laboratory: test parameters, parameter groups, sample types, testing fields and methods, units, regulations, quality registrations, machines, chemicals and subcontractors. E-commerce: prices, taxes and service packages. Inventory: stock items, stores and locations, suppliers, recipes and cost centres |
+| Laboratory               | Test requests, samples, results, test reports and their analysis under its Reporting menu                                                                                                                                             |
+| Tasks                    | The person's day, their tasks and the queues they can claim from                                                                                                                                                                       |
+| Odoo's Employees         | People, departments, teams, roles and permissions                                                                                                                                                                                      |
+| Odoo's Sales             | E-commerce orders, quotations, invoices, payments, support and sales analysis under its Reporting menu; the shop and portal are on the website                                                                                       |
+| Odoo's Inventory         | Stock, moves, requisitions, transfers, receipts, stock takes, charges and stock analysis under its Reporting menu                                                                                                                     |
 
 What no Odoo Community app holds stays MediLab's own: the test catalog, test requests, samples, sample tests and results, test reports, handover records, approval chains and signatures, change requests, machine bookings and the scheduler, subcontract dispatches, task types, the audit trail, document locks, notification preferences and pushes to Medilab Mobile, run logs of scheduled jobs, the samples and quotation revisions of an order, cancellation and support requests, reconciliation days, stock takes, how much each method uses, budgets, stock charges and the accounting export, and digital signing through Viettel Sign.
 

@@ -9,7 +9,7 @@
 
 ## Menus
 
-- A MediLab module adds its menus to the Odoo app that holds the concept, as [Module boundaries](../business/module-boundaries.md#menus) lists, and keeps the app's own menus. Only an area no Odoo app holds, such as the laboratory's testing work, is its own app in the app launcher.
+- A MediLab module adds its menus to the apps [Module boundaries](../business/module-boundaries.md#menus) lists and keeps the Odoo apps' own menus. Master data goes in the Master Data app, and analysis under the Reporting menu of the app it is about. An area no Odoo app holds, such as the laboratory's testing work, is its own app in the app launcher.
 - An app is added only when it has at least one working menu item; Odoo hides root menus that have no action.
 - Menu names reuse the glossary names. A new app or item with a domain term adds that term to the glossaries.
 
