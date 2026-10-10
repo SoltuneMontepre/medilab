@@ -33,7 +33,7 @@ task setup
 
 Open http://localhost:8069 and create the `medilab` database. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=sol_laboratory`.
 
-`task upgrade MODULES=sol_laboratory,sol_demo` adds demo data and a `demo.<role>` user per role; their password is `MEDILAB_DEMO_PASSWORD` at install, or the login when it is unset.
+`task upgrade MODULES=sol_laboratory,sol_demo` adds demo data and a `demo.<role>` user per role; their password is `demo`, or `MEDILAB_DEMO_PASSWORD` at install when it is set.
 
 ## Services
 

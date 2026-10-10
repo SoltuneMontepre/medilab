@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Passwords are set by the post-init hook from MEDILAB_DEMO_PASSWORD. -->
+<!-- Passwords are set by the post-init hook: demo, or MEDILAB_DEMO_PASSWORD when it is set. -->
 <odoo noupdate="1">
     <record id="demo_res_users_administrator" model="res.users">
         <field name="login">sol_demo.administrator</field>
