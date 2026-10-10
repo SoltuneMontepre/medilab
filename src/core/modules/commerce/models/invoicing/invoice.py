@@ -3,11 +3,12 @@ from datetime import timedelta
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
-from odoo.tools import format_list
+from odoo.tools import SQL, format_list
 
 from odoo.addons.commerce.constants.models import (
     MODEL_INVOICE,
     MODEL_INVOICE_LINE,
+    MODEL_PAYMENT,
     MODEL_PAYMENT_LINK,
     MODEL_VND_MIXIN,
 )
@@ -59,6 +60,8 @@ class Invoice(models.Model):
     line_ids = fields.One2many(MODEL_INVOICE_LINE, "invoice_id", string="Lines")
     # Online payment links asking PayOS for the invoice's amounts.
     payment_link_ids = fields.One2many(MODEL_PAYMENT_LINK, "invoice_id", string="Payment links")
+    # Payments recorded against the invoice.
+    payment_ids = fields.One2many(MODEL_PAYMENT, "invoice_id", string="Payments")
     # Total excluding VAT.
     amount_untaxed = fields.Monetary(compute="_compute_amounts", store=True)
     # Total VAT.
@@ -67,8 +70,24 @@ class Invoice(models.Model):
     amount_total = fields.Monetary(compute="_compute_amounts", store=True)
     # Sum of the totals of the posted adjustment invoices that correct this invoice.
     amount_adjustment = fields.Monetary(compute="_compute_amount_adjustment", store=True)
-    # What the customer still owes on the invoice: its total and its adjustments; 0 on an adjustment invoice itself.
+    # Sum of the confirmed payments.
+    amount_paid = fields.Monetary(compute="_compute_amount_paid", store=True)
+    # Sum of the pending payments, shown so the same payment is not recorded twice.
+    amount_pending = fields.Monetary(compute="_compute_amount_paid", store=True)
+    # What the customer still owes: the total and its adjustments minus the confirmed payments; 0 on an adjustment
+    # invoice itself, and negative when a late online payment overpaid it.
     amount_owed = fields.Monetary(compute="_compute_amount_owed", store=True)
+    # not_paid, partially_paid or paid, from the confirmed payments; an adjustment mirrors the invoice it corrects.
+    payment_status = fields.Selection(
+        [("not_paid", "Not paid"), ("partially_paid", "Partially paid"), ("paid", "Paid")],
+        compute="_compute_payment_status",
+        store=True,
+        index=True,
+    )
+    # True when the confirmed payments exceed what the invoice asks for.
+    is_overpaid = fields.Boolean(compute="_compute_is_overpaid")
+    # True for a posted invoice not paid by its due date.
+    is_overdue = fields.Boolean(compute="_compute_is_overdue", search="_search_is_overdue")
     # When the invoice was last emailed to the customer.
     sent_at = fields.Datetime(readonly=True, copy=False)
     # The invoice's PDF, stored when it is emailed.
@@ -89,12 +108,68 @@ class Invoice(models.Model):
             posted = invoice.adjustment_ids.filtered(lambda adjustment: adjustment.status == "posted")
             invoice.amount_adjustment = invoice.currency_id.round(sum(posted.mapped("amount_total")))
 
-    @api.depends("kind", "amount_total", "amount_adjustment")
+    @api.depends("payment_ids.status", "payment_ids.amount")
+    def _compute_amount_paid(self):
+        for invoice in self:
+            payments = invoice.payment_ids
+            confirmed = payments.filtered(lambda payment: payment.status == "confirmed")
+            pending = payments.filtered(lambda payment: payment.status == "pending")
+            invoice.amount_paid = invoice.currency_id.round(sum(confirmed.mapped("amount")))
+            invoice.amount_pending = invoice.currency_id.round(sum(pending.mapped("amount")))
+
+    @api.depends("kind", "amount_total", "amount_adjustment", "amount_paid")
     def _compute_amount_owed(self):
         for invoice in self:
             invoice.amount_owed = (
-                0 if invoice.kind == "adjustment" else invoice.amount_total + invoice.amount_adjustment
+                0
+                if invoice.kind == "adjustment"
+                else invoice.amount_total + invoice.amount_adjustment - invoice.amount_paid
             )
+
+    @api.depends("status", "kind", "adjusts_id.payment_status", "amount_total", "amount_adjustment", "amount_paid")
+    def _compute_payment_status(self):
+        for invoice in self:
+            currency = invoice.currency_id
+            asked = invoice.amount_total + invoice.amount_adjustment
+            if invoice.kind == "adjustment":
+                invoice.payment_status = invoice.adjusts_id.payment_status
+            elif invoice.status != "posted" or currency.compare_amounts(invoice.amount_paid, 0) <= 0:
+                invoice.payment_status = "not_paid"
+            elif currency.compare_amounts(invoice.amount_paid, asked) >= 0:
+                invoice.payment_status = "paid"
+            else:
+                invoice.payment_status = "partially_paid"
+
+    @api.depends("amount_owed")
+    def _compute_is_overpaid(self):
+        for invoice in self:
+            invoice.is_overpaid = invoice.currency_id.compare_amounts(invoice.amount_owed, 0) < 0
+
+    @api.depends("status", "kind", "payment_status", "due_date")
+    def _compute_is_overdue(self):
+        today = fields.Date.context_today(self)
+        for invoice in self:
+            invoice.is_overdue = bool(
+                invoice.status == "posted"
+                and invoice.kind != "adjustment"
+                and invoice.payment_status != "paid"
+                and invoice.due_date
+                and invoice.due_date < today
+            )
+
+    def _search_is_overdue(self, operator, value):
+        if operator not in ("=", "!=", "in", "not in"):
+            raise NotImplementedError
+        wanted = any(value) if isinstance(value, (list, tuple, set)) else bool(value)
+        if operator in ("!=", "not in"):
+            wanted = not wanted
+        overdue = (
+            Domain("status", "=", "posted")
+            & Domain("kind", "!=", "adjustment")
+            & Domain("payment_status", "!=", "paid")
+            & Domain("due_date", "<", fields.Date.context_today(self))
+        )
+        return overdue if wanted else ~overdue
 
     @api.depends("code", "kind")
     def _compute_display_name(self):
@@ -152,6 +227,18 @@ class Invoice(models.Model):
 
     def _in_use_domain(self):
         return Domain("status", "=", "draft")
+
+    def _lock(self):
+        # Every path that moves money locks the invoice row first, then touches links, transactions and payments,
+        # so the owed amount it checks cannot change under it. No HTTP call ever runs while the lock is held.
+        self.flush_recordset()
+        self.env.cr.execute(
+            SQL(
+                "SELECT id FROM %(table)s WHERE id IN %(ids)s FOR NO KEY UPDATE",
+                table=SQL.identifier(self._table),
+                ids=tuple(self.ids),
+            )
+        )
 
     def _check_lines_editable(self):
         frozen = self.filtered(lambda invoice: invoice.status != "draft")
@@ -224,6 +311,20 @@ class Invoice(models.Model):
             "target": "current",
         }
 
+    def action_register_payment(self):
+        self.ensure_one()
+        self.env[MODEL_PAYMENT].check_access("create")
+        if self.status != "posted" or self.kind == "adjustment":
+            raise UserError(self.env._("A payment is recorded on a posted advance or final invoice."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.env._("Register payment"),
+            "res_model": MODEL_PAYMENT,
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_invoice_id": self.id, "default_amount": self.amount_owed},
+        }
+
     def action_create_payment_link(self):
         self.ensure_one()
         link = self.env[MODEL_PAYMENT_LINK]._create_for_invoice(self, self.amount_owed)
@@ -236,8 +337,9 @@ class Invoice(models.Model):
         }
 
     def action_print(self):
-        # config=False skips Odoo's layout configurator; the laboratory header comes from the theme.
-        return self.env.ref(REPORT_INVOICE).report_action(self, config=False)
+        # config=False skips Odoo's layout configurator; the laboratory header comes from the theme. The report
+        # action is read with sudo, since only Odoo's administrators may read actions; the documents are not.
+        return self.env.ref(REPORT_INVOICE).sudo().report_action(self, config=False)
 
     def tax_totals_by_rate(self):
         """The net and tax amounts per tax rate, from the lines' rounded amounts, so they add up to the totals."""

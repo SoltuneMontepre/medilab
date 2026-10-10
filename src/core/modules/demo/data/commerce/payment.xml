@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The advance of Sao Mai, paid through PayOS in two transfers: one online payment and receipt per transfer. -->
+    <record id="demo_payment_sao_mai_advance_first" model="medilab.payment">
+        <field name="invoice_id" ref="demo_invoice_advance_sao_mai" />
+        <field name="payment_link_id" ref="demo_payment_link_advance_sao_mai_paid" />
+        <field name="transaction_ids" eval="[Command.link(ref('demo_payment_link_transaction_sao_mai_first'))]" />
+        <field name="amount">1700000</field>
+        <field name="payment_date">2026-03-03</field>
+        <field name="method">online</field>
+        <field name="status">confirmed</field>
+        <field name="reviewed_at">2026-03-03 03:15:04</field>
+        <field name="receipt_code">0001 26/PT</field>
+    </record>
+    <record id="demo_payment_sao_mai_advance_second" model="medilab.payment">
+        <field name="invoice_id" ref="demo_invoice_advance_sao_mai" />
+        <field name="payment_link_id" ref="demo_payment_link_advance_sao_mai_paid" />
+        <field name="transaction_ids" eval="[Command.link(ref('demo_payment_link_transaction_sao_mai_second'))]" />
+        <field name="amount">1000000</field>
+        <field name="payment_date">2026-03-03</field>
+        <field name="method">online</field>
+        <field name="status">confirmed</field>
+        <field name="reviewed_at">2026-03-03 09:40:02</field>
+        <field name="receipt_code">0002 26/PT</field>
+    </record>
+    <!-- The final invoice of Sao Mai, paid in part by cash and by bank transfer; a pending and a rejected payment from sales. -->
+    <record id="demo_payment_sao_mai_final_cash" model="medilab.payment">
+        <field name="invoice_id" ref="demo_invoice_final_sao_mai" />
+        <field name="amount">1000000</field>
+        <field name="payment_date">2026-03-28</field>
+        <field name="method">cash</field>
+        <field name="status">confirmed</field>
+        <field name="recorded_by_id" ref="demo_res_users_accountant" />
+        <field name="reviewed_by_id" ref="demo_res_users_accountant" />
+        <field name="reviewed_at">2026-03-28 03:10:00</field>
+        <field name="receipt_code">0003 26/PT</field>
+    </record>
+    <record id="demo_payment_sao_mai_final_transfer" model="medilab.payment">
+        <field name="invoice_id" ref="demo_invoice_final_sao_mai" />
+        <field name="amount">1500000</field>
+        <field name="payment_date">2026-04-02</field>
+        <field name="method">bank_transfer</field>
+        <field name="status">confirmed</field>
+        <field name="recorded_by_id" ref="demo_res_users_accountant" />
+        <field name="reviewed_by_id" ref="demo_res_users_accountant" />
+        <field name="reviewed_at">2026-04-02 07:45:00</field>
+        <field name="receipt_code">0004 26/PT</field>
+    </record>
+    <record id="demo_payment_sao_mai_final_rejected" model="medilab.payment">
+        <field name="invoice_id" ref="demo_invoice_final_sao_mai" />
+        <field name="amount">524000</field>
+        <field name="payment_date">2026-04-08</field>
+        <field name="method">bank_transfer</field>
+        <field name="status">rejected</field>
+        <field name="recorded_by_id" ref="demo_res_users_sales" />
+        <field name="reviewed_by_id" ref="demo_res_users_accountant" />
+        <field name="reviewed_at">2026-04-09 02:30:00</field>
+        <field name="rejection_reason">No transfer of this amount on the bank statement of 8 April.</field>
+    </record>
+    <record id="demo_payment_sao_mai_final_pending" model="medilab.payment">
+        <field name="invoice_id" ref="demo_invoice_final_sao_mai" />
+        <field name="amount">500000</field>
+        <field name="payment_date">2026-04-10</field>
+        <field name="method">cash</field>
+        <field name="status">pending</field>
+        <field name="recorded_by_id" ref="demo_res_users_sales" />
+    </record>
+</odoo>

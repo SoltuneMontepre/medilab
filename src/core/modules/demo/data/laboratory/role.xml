@@ -10,6 +10,8 @@
                 ref('commerce.permission_invoice_line_read_all'),
                 ref('commerce.permission_payment_link_read_all'),
                 ref('commerce.permission_payment_link_transaction_read_all'),
+                ref('commerce.permission_payment_read_all'),
+                ref('commerce.permission_payment_create_all'),
             ])]"
         />
     </record>
@@ -35,6 +37,13 @@
                 ref('commerce.permission_payment_link_create_all'),
                 ref('commerce.permission_payment_link_edit_all'),
                 ref('commerce.permission_payment_link_transaction_read_all'),
+                ref('commerce.permission_payment_read_all'),
+                ref('commerce.permission_payment_create_all'),
+                ref('commerce.permission_payment_edit_all'),
+                ref('commerce.permission_payment_delete_all'),
+                ref('commerce.permission_reconciliation_day_read_all'),
+                ref('commerce.permission_reconciliation_day_create_all'),
+                ref('commerce.permission_reconciliation_day_edit_all'),
             ])]"
         />
     </record>

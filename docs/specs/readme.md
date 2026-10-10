@@ -23,7 +23,7 @@ Stories: US-AD13, US-AD15
 ## Specs
 
 - [Audit trail](audit-trail.md): how actions on documents are recorded, protected, gathered into a document's history and reported
-- [Invoicing](invoicing.md): how invoices and their lines are posted, numbered, frozen, corrected by adjustment invoices and printed
+- [Invoicing](invoicing.md): how invoices are posted, numbered, frozen, corrected by adjustment invoices and printed, how payments are recorded, confirmed and receipted, and how a day's PayOS transfers are reconciled and locked
 - [PayOS](payos.md): how payment links are created, verified, polled and kept in step with what PayOS reports, and how the credentials stay out of the database
 - [Permissions](permissions.md): how permission, role and person records become Odoo groups and accesses, and how the own-department scope is applied
 - [Scheduled jobs](scheduled-jobs.md): how jobs, their item queues and runs work: handlers, claiming, retries, running by hand and the no-overlap rule

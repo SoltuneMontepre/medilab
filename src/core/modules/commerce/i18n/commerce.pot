@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 17:18+0000\n"
-"PO-Revision-Date: 2026-10-10 17:18+0000\n"
+"POT-Creation-Date: 2026-10-10 17:46+0000\n"
+"PO-Revision-Date: 2026-10-10 17:46+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -23,10 +23,63 @@ msgstr ""
 
 #. module: commerce
 #. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "%(reference)s: %(state)s, to be acknowledged"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "%(status)s payment on %(invoice)s"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "%(what)s of a locked reconciliation day cannot be changed: %(days)s"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "%s cannot be changed once confirmed or rejected."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
 #: code:addons/commerce/models/invoicing/invoice.py:0
 msgid ""
 "%s cannot be changed once posted or cancelled; correct a posted invoice with"
 " an adjustment invoice."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "%s is already locked."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "%s is not an overpayment."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "%s is not underpaid."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "%s: no payment recorded; use Record payments"
+msgstr ""
+
+#. module: commerce
+#: model:ir.actions.report,print_report_name:commerce.action_report_reconciliation_day
+msgid "'Reconciliation %s' % object.day"
 msgstr ""
 
 #. module: commerce
@@ -37,6 +90,16 @@ msgstr ""
 #. module: commerce
 #: model:ir.actions.report,print_report_name:commerce.action_report_invoice
 msgid "(object.code or 'Draft invoice').replace('/', '-')"
+msgstr ""
+
+#. module: commerce
+#: model:ir.actions.report,print_report_name:commerce.action_report_receipt
+msgid "(object.receipt_code or 'Receipt').replace('/', '-')"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "(recorded after the lock)"
 msgstr ""
 
 #. module: commerce
@@ -59,7 +122,63 @@ msgstr ""
 
 #. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Payments received</strong>"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "<strong>Received by</strong>"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "<strong>Received from</strong>"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
 msgid "<strong>Supplier</strong>"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link_transaction.py:0
+msgid "A PayOS transaction"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "A locked day is never changed: %s"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "A locked day is never deleted: %s"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_amount_positive
+msgid "A payment has a positive amount."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "A payment is recorded on a posted advance or final invoice, not on %s."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "A payment is recorded on a posted advance or final invoice."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "A payment link"
 msgstr ""
 
 #. module: commerce
@@ -86,8 +205,66 @@ msgstr ""
 
 #. module: commerce
 #. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "A receipt exists for a confirmed payment only."
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_receipt_unique
+msgid "A receipt with this number already exists."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
 #: code:addons/commerce/models/invoicing/invoice_line.py:0
 msgid "A tax rate cannot be negative."
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "Acknowledge"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Acknowledge overpayment"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "Acknowledged"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__acknowledged_amount_paid
+msgid "Acknowledged Amount Paid"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__acknowledged_at
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__acknowledged_at
+msgid "Acknowledged At"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__acknowledged_by_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__acknowledged_by_id
+msgid "Acknowledged by"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__acknowledgement_reason
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__acknowledgement_reason
+msgid "Acknowledgement Reason"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid ""
+"Acknowledging a reconciliation row needs the edit permission on "
+"reconciliation days."
 msgstr ""
 
 #. module: commerce
@@ -143,8 +320,11 @@ msgid "Advance invoice"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__amount
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__amount
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__amount
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_list
 msgid "Amount"
 msgstr ""
@@ -160,8 +340,14 @@ msgid "Amount Owed"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_paid
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__amount_paid
 msgid "Amount Paid"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_pending
+msgid "Amount Pending"
 msgstr ""
 
 #. module: commerce
@@ -233,13 +419,35 @@ msgid "An invoice with this number already exists."
 msgstr ""
 
 #. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "An online payment"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "An online payment is recorded from a PayOS transaction, never by hand."
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__attachment_id
 msgid "Attachment"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__method__bank_transfer
+msgid "Bank transfer"
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_res_config_settings__payos_method_qr_transfer
 msgid "Bank transfer by QR code"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__blocking_count
+msgid "Blocking Count"
 msgstr ""
 
 #. module: commerce
@@ -261,6 +469,16 @@ msgid "Cancelled"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__method__cash
+msgid "Cash"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Cash or bank transfer"
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__checkout_url
 msgid "Checkout Url"
 msgstr ""
@@ -273,6 +491,22 @@ msgstr ""
 #. module: commerce
 #: model:ir.model,name:commerce.model_res_config_settings
 msgid "Config Settings"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Confirm"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__status__confirmed
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Confirmed"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "Confirmed by"
 msgstr ""
 
 #. module: commerce
@@ -307,6 +541,16 @@ msgid "Create payment links"
 msgstr ""
 
 #. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_create_all
+msgid "Create payments"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_reconciliation_day_create_all
+msgid "Create reconciliation days"
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__created
 msgid "Created"
 msgstr ""
@@ -314,16 +558,20 @@ msgstr ""
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__create_uid
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__create_uid
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__create_uid
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__create_date
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__create_date
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__create_date
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__create_date
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_list
 msgid "Created on"
@@ -332,17 +580,31 @@ msgstr ""
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__currency_id
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__currency_id
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__currency_id
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__currency_id
 #: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__currency_id
 msgid "Currency"
 msgstr ""
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__partner_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__partner_id
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__partner_id
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
 msgid "Customer"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "Date"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__day
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_search
+msgid "Day"
 msgstr ""
 
 #. module: commerce
@@ -362,6 +624,11 @@ msgid "Delete invoices"
 msgstr ""
 
 #. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_delete_all
+msgid "Delete payments"
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__description
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
 msgid "Description"
@@ -370,8 +637,10 @@ msgstr ""
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__display_name
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__display_name
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__display_name
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__display_name
 #: model:ir.model.fields,field_description:commerce.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__display_name
 #: model:ir.model.fields,field_description:commerce.field_res_config_settings__display_name
@@ -424,6 +693,16 @@ msgid "Edit payment links"
 msgstr ""
 
 #. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_edit_all
+msgid "Edit payments"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_reconciliation_day_edit_all
+msgid "Edit reconciliation days"
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__expired
 msgid "Expired"
 msgstr ""
@@ -455,6 +734,24 @@ msgid "Final"
 msgstr ""
 
 #. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Give the reason for accepting the overpayment first."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "Give the reason for accepting the underpaid link first."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Give the reason for rejecting the payment first."
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields,help:commerce.field_res_config_settings__payos_link_expiry_hours
 msgid "Hours a payment link stays payable after it is created."
 msgstr ""
@@ -462,8 +759,10 @@ msgstr ""
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__id
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__id
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__id
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__id
 #: model:ir.model.fields,field_description:commerce.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__id
 #: model:ir.model.fields,field_description:commerce.field_res_config_settings__id
@@ -474,10 +773,14 @@ msgstr ""
 #: model:ir.actions.report,name:commerce.action_report_invoice
 #: model:ir.model,name:commerce.model_medilab_invoice
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__invoice_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__invoice_id
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__invoice_id
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__invoice_id
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
 msgid "Invoice"
 msgstr ""
 
@@ -508,6 +811,31 @@ msgid "Invoicing"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__is_acknowledged
+msgid "Is Acknowledged"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__is_day_locked
+msgid "Is Day Locked"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__is_overdue
+msgid "Is Overdue"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__is_overpaid
+msgid "Is Overpaid"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__is_overpaying
+msgid "Is Overpaying"
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__kind
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__kind
 msgid "Kind"
@@ -516,16 +844,20 @@ msgstr ""
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__write_uid
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__write_uid
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__write_uid
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__write_date
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__write_date
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__write_date
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -541,8 +873,64 @@ msgid "Lines"
 msgstr ""
 
 #. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "Lock"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "Lock this day? Its online payments can no longer be changed."
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_reconciliation_day__status__locked
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_search
+msgid "Locked"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__locked_at
+msgid "Locked At"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__locked_by_id
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "Locked by"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__match_state
+msgid "Match State"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__match_status
+msgid "Match Status"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__match_status__matched
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link_transaction__match_state__matched
+msgid "Matched"
+msgstr ""
+
+#. module: commerce
 #: model:ir.module.module,shortdesc:base.module_commerce
 msgid "Medilab - E-commerce"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__method
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Method"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__match_status__missing_payment
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link_transaction__match_state__missing_payment
+msgid "Missing payment"
 msgstr ""
 
 #. module: commerce
@@ -551,8 +939,19 @@ msgid "Month"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__needs_acknowledgement
+msgid "Needs Acknowledgement"
+msgstr ""
+
+#. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
 msgid "Net"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__payment_status__not_paid
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Not paid"
 msgstr ""
 
 #. module: commerce
@@ -565,6 +964,12 @@ msgstr ""
 #. module: commerce
 #: model:ir.model.fields,help:commerce.field_res_config_settings__payos_method_qr_transfer
 msgid "Offer bank transfer by QR code on the payment page."
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__method__online
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Online"
 msgstr ""
 
 #. module: commerce
@@ -583,14 +988,57 @@ msgstr ""
 
 #. module: commerce
 #. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Only a pending payment can be confirmed."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Only a pending payment can be deleted: %s"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Only a pending payment can be rejected."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
 #: code:addons/commerce/models/invoicing/invoice_line.py:0
 msgid ""
 "Only an adjustment invoice or an advance deduction has a negative amount."
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_reconciliation_day__status__open
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_search
 msgid "Open"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Overdue"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Overpaid"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link_transaction__match_state__overpaying
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Overpaying"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Overpayment"
 msgstr ""
 
 #. module: commerce
@@ -599,10 +1047,26 @@ msgid "Owed"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__payment_status__paid
 #: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__paid
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_list
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
 msgid "Paid"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Paid on"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__payment_status__partially_paid
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Partially paid"
 msgstr ""
 
 #. module: commerce
@@ -616,6 +1080,11 @@ msgstr ""
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__provider_payment_link_id
 msgid "PayOS link id"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "PayOS order code"
 msgstr ""
 
 #. module: commerce
@@ -636,6 +1105,12 @@ msgid "PayOS queued calls"
 msgstr ""
 
 #. module: commerce
+#: model:ir.actions.report,name:commerce.action_report_reconciliation_day
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "PayOS reconciliation"
+msgstr ""
+
+#. module: commerce
 #. odoo-python
 #: code:addons/commerce/models/invoicing/payment_link.py:0
 msgid "PayOS refused the payment link: %s"
@@ -647,6 +1122,16 @@ msgid "PayOS status check"
 msgstr ""
 
 #. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "PayOS total"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "PayOS transactions"
+msgstr ""
+
+#. module: commerce
 #: model:ir.actions.server,name:commerce.cron_payos_poll_ir_actions_server
 msgid "PayOS: check pending payment links"
 msgstr ""
@@ -654,6 +1139,17 @@ msgstr ""
 #. module: commerce
 #: model:ir.actions.server,name:commerce.cron_payos_calls_ir_actions_server
 msgid "PayOS: replay queued calls"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_payment
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__payment_id
+msgid "Payment"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__payment_date
+msgid "Payment Date"
 msgstr ""
 
 #. module: commerce
@@ -673,11 +1169,17 @@ msgid "Payment Links"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__payment_status
+msgid "Payment Status"
+msgstr ""
+
+#. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.payos_return_page
 msgid "Payment cancelled"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__payment_link_id
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__link_id
 msgid "Payment link"
 msgstr ""
@@ -686,6 +1188,20 @@ msgstr ""
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__payment_link_ids
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
 msgid "Payment links"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Payment status"
+msgstr ""
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_payment
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__payment_ids
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__payment_ids
+#: model:ir.ui.menu,name:commerce.menu_payment
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Payments"
 msgstr ""
 
 #. module: commerce
@@ -699,7 +1215,10 @@ msgid "Payos Link Expiry Hours"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__status__pending
 #: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__pending
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
 msgid "Pending"
 msgstr ""
 
@@ -732,7 +1251,13 @@ msgstr ""
 
 #. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
 msgid "Print"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Print receipt"
 msgstr ""
 
 #. module: commerce
@@ -761,8 +1286,129 @@ msgid "Read payment links"
 msgstr ""
 
 #. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_read_all
+msgid "Read payments"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_reconciliation_day_read_all
+msgid "Read reconciliation days"
+msgstr ""
+
+#. module: commerce
+#: model:ir.actions.report,name:commerce.action_report_receipt
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "Receipt"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__receipt_attachment_id
+msgid "Receipt Attachment"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__receipt_code
+msgid "Receipt Code"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Receipt number on confirmation"
+msgstr ""
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_reconciliation_day
+#: model:ir.ui.menu,name:commerce.menu_reconciliation_day
+msgid "Reconciliation"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_reconciliation_day
+msgid "Reconciliation Day"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__day_id
+msgid "Reconciliation day"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "Record payments"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__recorded_after_lock
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__recorded_after_lock
+msgid "Recorded After Lock"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__recorded_by_id
+msgid "Recorded by"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid ""
+"Recording payments from PayOS transactions needs the edit permission on "
+"payments."
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__reference
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
 msgid "Reference"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Register payment"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Reject"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Reject this payment with the reason given below?"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__status__rejected
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Rejected"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__rejection_reason
+msgid "Rejection Reason"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Required to acknowledge the overpayment"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Required to reject the payment"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__reviewed_at
+msgid "Reviewed At"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__reviewed_by_id
+msgid "Reviewed by"
 msgstr ""
 
 #. module: commerce
@@ -781,12 +1427,26 @@ msgid "Sequence"
 msgstr ""
 
 #. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "State"
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__status
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__invoice_status
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__status
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__status
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__status
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
 msgid "Status"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "Still owed on the invoice"
 msgstr ""
 
 #. module: commerce
@@ -826,6 +1486,20 @@ msgstr ""
 
 #. module: commerce
 #. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid ""
+"The day cannot be locked yet:\n"
+"%s"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "The day of a reconciliation cannot change; open another day instead."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
 #: code:addons/commerce/models/invoicing/invoice.py:0
 msgid "The lines of a posted or cancelled invoice cannot be changed."
 msgstr ""
@@ -846,15 +1520,44 @@ msgid ""
 msgstr ""
 
 #. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid ""
+"The payment of %(amount)s exceeds the %(owed)s still owed on %(invoice)s."
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.constraint,message:commerce.constraint_medilab_payment_link_transaction_reference_unique
 msgid "This PayOS transaction is already stored."
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_reconciliation_day_day_unique
+msgid "This day is already being reconciled."
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_link_transaction_payment_unique
+msgid "This payment already records another transaction."
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "Time"
 msgstr ""
 
 #. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_list
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
 msgid "Total"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__total_amount
+msgid "Total Amount"
 msgstr ""
 
 #. module: commerce
@@ -868,9 +1571,36 @@ msgid "Transacted Date"
 msgstr ""
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__transaction_ids
+msgid "Transaction"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__transaction_count
+msgid "Transaction Count"
+msgstr ""
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__transaction_ids
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__transaction_ids
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_form
 msgid "Transactions"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__unacknowledged_count
+msgid "Unacknowledged Count"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__match_status__underpaid
+msgid "Underpaid"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link_transaction__match_state__underpaid
+msgid "Underpaid link"
 msgstr ""
 
 #. module: commerce
@@ -888,4 +1618,10 @@ msgstr ""
 msgid ""
 "Your payment is recorded as soon as PayOS confirms it. You can close this "
 "page."
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "on"
 msgstr ""

@@ -11,7 +11,10 @@
                 <field name="posted_at" />
                 <field name="due_date" />
                 <field name="amount_total" sum="Total" />
+                <field name="amount_paid" sum="Paid" />
+                <field name="amount_pending" sum="Pending" optional="show" />
                 <field name="amount_owed" sum="Owed" />
+                <field name="payment_status" widget="badge" decoration-success="payment_status == 'paid'" decoration-warning="payment_status == 'partially_paid'" />
                 <field name="status" widget="badge" decoration-info="status == 'draft'" decoration-success="status == 'posted'" />
                 <field name="currency_id" column_invisible="1" />
             </list>
@@ -27,11 +30,14 @@
                     <button name="action_post" type="object" string="Post" class="btn-primary" invisible="status != 'draft'" />
                     <button name="action_cancel" type="object" string="Cancel" invisible="status != 'draft'" />
                     <button name="action_create_adjustment" type="object" string="Create adjustment" invisible="status != 'posted' or kind == 'adjustment'" />
-                    <button name="action_create_payment_link" type="object" string="Create payment link" invisible="status != 'posted' or kind == 'adjustment'" />
+                    <button name="action_register_payment" type="object" string="Register payment" invisible="status != 'posted' or kind == 'adjustment' or payment_status == 'paid'" />
+                    <button name="action_create_payment_link" type="object" string="Create payment link" invisible="status != 'posted' or kind == 'adjustment' or payment_status == 'paid'" />
                     <button name="action_print" type="object" string="Print" icon="fa-print" />
                     <field name="status" widget="statusbar" statusbar_visible="draft,posted" />
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Overpaid" bg_color="text-bg-danger" invisible="not is_overpaid" />
+                    <widget name="web_ribbon" title="Paid" bg_color="text-bg-success" invisible="payment_status != 'paid' or is_overpaid" />
                     <div class="oe_title">
                         <h1><field name="code" placeholder="Draft" /></h1>
                     </div>
@@ -44,6 +50,9 @@
                         <group name="dates">
                             <field name="posted_at" />
                             <field name="due_date" readonly="status != 'draft'" />
+                            <field name="payment_status" invisible="status != 'posted'" />
+                            <field name="is_overdue" invisible="not is_overdue" />
+                            <field name="is_overpaid" invisible="1" />
                             <field name="currency_id" invisible="1" />
                         </group>
                     </group>
@@ -65,8 +74,23 @@
                                 <field name="amount_tax" />
                                 <field name="amount_total" class="oe_subtotal_footer_separator" />
                                 <field name="amount_adjustment" invisible="kind == 'adjustment'" />
-                                <field name="amount_owed" invisible="kind == 'adjustment'" />
+                                <field name="amount_paid" invisible="kind == 'adjustment'" />
+                                <field name="amount_pending" invisible="kind == 'adjustment'" />
+                                <field name="amount_owed" invisible="kind == 'adjustment'" class="oe_subtotal_footer_separator" />
                             </group>
+                        </page>
+                        <page string="Payments" name="payments" invisible="kind == 'adjustment'" groups="laboratory.group_permission_payment_read_all">
+                            <field name="payment_ids" readonly="1">
+                                <list>
+                                    <field name="payment_date" />
+                                    <field name="receipt_code" />
+                                    <field name="method" />
+                                    <field name="amount" />
+                                    <field name="recorded_by_id" />
+                                    <field name="status" widget="badge" decoration-warning="status == 'pending'" decoration-success="status == 'confirmed'" decoration-danger="status == 'rejected'" />
+                                    <field name="currency_id" column_invisible="1" />
+                                </list>
+                            </field>
                         </page>
                         <page string="Payment links" name="payment_links" invisible="kind == 'adjustment'" groups="laboratory.group_permission_payment_link_read_all">
                             <field name="payment_link_ids" readonly="1">
@@ -108,6 +132,12 @@
                 <filter name="draft" string="Draft" domain="[('status', '=', 'draft')]" />
                 <filter name="posted" string="Posted" domain="[('status', '=', 'posted')]" />
                 <filter name="cancelled" string="Cancelled" domain="[('status', '=', 'cancelled')]" />
+                <separator />
+                <filter name="not_paid" string="Not paid" domain="[('payment_status', '=', 'not_paid'), ('status', '=', 'posted')]" />
+                <filter name="partially_paid" string="Partially paid" domain="[('payment_status', '=', 'partially_paid')]" />
+                <filter name="paid" string="Paid" domain="[('payment_status', '=', 'paid')]" />
+                <filter name="overdue" string="Overdue" domain="[('is_overdue', '=', True)]" />
+                <filter name="overpaid" string="Overpaid" domain="[('amount_owed', '&lt;', 0)]" />
                 <separator />
                 <filter name="advance" string="Advance" domain="[('kind', '=', 'advance')]" />
                 <filter name="final" string="Final" domain="[('kind', '=', 'final')]" />

@@ -5,14 +5,15 @@ from datetime import UTC, datetime, timedelta
 import pytz
 
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.fields import Domain
-from odoo.tools import SQL
 
 from odoo.addons.commerce.constants.models import (
     MODEL_INVOICE,
+    MODEL_PAYMENT,
     MODEL_PAYMENT_LINK,
     MODEL_PAYMENT_LINK_TRANSACTION,
+    MODEL_RECONCILIATION_DAY,
     MODEL_VND_MIXIN,
 )
 from odoo.addons.commerce.constants.payos import (
@@ -48,6 +49,8 @@ _logger = logging.getLogger(__name__)
 # Context key of the writes made from what PayOS reported; the reconciliation lock lets only those through.
 PROVIDER_UPDATE_KEY = "payos_provider_update"
 OPEN_STATUSES = ("created", "pending")
+# The acknowledgement of an underpaid link is the accountant's; everything else on a link comes from PayOS.
+ACKNOWLEDGEMENT_FIELDS = {"acknowledged_by_id", "acknowledged_at", "acknowledgement_reason", "acknowledged_amount_paid"}
 
 
 # Liên Kết Thanh Toán
@@ -92,6 +95,23 @@ class PaymentLink(models.Model):
     transaction_ids = fields.One2many(MODEL_PAYMENT_LINK_TRANSACTION, "link_id", string="Transactions")
     # Sum of the transfers PayOS reported.
     amount_paid = fields.Monetary(compute="_compute_amount_paid", store=True)
+    # The online payments recorded from the link's transfers, one per transfer.
+    payment_ids = fields.One2many(MODEL_PAYMENT, "payment_link_id", string="Payments")
+    # matched, missing_payment or underpaid: how the link's transfers reconcile; empty without a transfer.
+    match_status = fields.Selection(
+        [("matched", "Matched"), ("missing_payment", "Missing payment"), ("underpaid", "Underpaid")],
+        compute="_compute_match_status",
+    )
+    # The accountant who acknowledged that the link stays underpaid.
+    acknowledged_by_id = fields.Many2one("res.users", string="Acknowledged by", readonly=True, ondelete="restrict")
+    # When the underpaid link was acknowledged.
+    acknowledged_at = fields.Datetime(readonly=True)
+    # Why the underpaid link is accepted as it is.
+    acknowledgement_reason = fields.Text()
+    # The amount paid the acknowledgement was given for; a later transfer needs a new acknowledgement.
+    acknowledged_amount_paid = fields.Monetary(readonly=True)
+    # True while the acknowledgement covers the transfers received so far.
+    is_acknowledged = fields.Boolean(compute="_compute_match_status")
 
     _order_code_unique = models.Constraint(
         "UNIQUE(provider_order_code)", "A payment link with this order code already exists."
@@ -102,6 +122,25 @@ class PaymentLink(models.Model):
     def _compute_amount_paid(self):
         for link in self:
             link.amount_paid = link.currency_id.round(sum(link.transaction_ids.mapped("amount")))
+
+    @api.depends(
+        "status", "amount", "amount_paid", "transaction_ids.payment_id", "acknowledged_at", "acknowledged_amount_paid"
+    )
+    def _compute_match_status(self):
+        for link in self:
+            transactions = link.transaction_ids
+            if not transactions:
+                link.match_status = False
+            elif any(not transaction.payment_id for transaction in transactions):
+                link.match_status = "missing_payment"
+            elif link.status != "paid" and link.currency_id.compare_amounts(link.amount_paid, link.amount) < 0:
+                link.match_status = "underpaid"
+            else:
+                link.match_status = "matched"
+            link.is_acknowledged = (
+                bool(link.acknowledged_at)
+                and link.currency_id.compare_amounts(link.acknowledged_amount_paid, link.amount_paid) == 0
+            )
 
     @api.depends("invoice_id.code", "provider_order_code")
     def _compute_display_name(self):
@@ -123,6 +162,14 @@ class PaymentLink(models.Model):
                 self.env._("The payment link order code must be a number; check its format in Code formats.")
             )
         return int(number)
+
+    def write(self, vals):
+        # What PayOS reported about a locked day stays as it is; the acknowledgement is the accountant's own.
+        if set(vals) - ACKNOWLEDGEMENT_FIELDS:
+            self.env[MODEL_RECONCILIATION_DAY]._check_unlocked(
+                self.transaction_ids.mapped("transacted_date"), self.env._("A payment link")
+            )
+        return super().write(vals)
 
     def _in_use_domain(self):
         return Domain("status", "in", OPEN_STATUSES)
@@ -266,21 +313,11 @@ class PaymentLink(models.Model):
             if STATUS_ORDER[status] > STATUS_ORDER[link.status]:
                 link.write({"status": status})
 
-    def _lock_invoice(self):
-        # Every path that moves money locks the invoice row first, then touches links, transactions and payments.
-        self.env.cr.execute(
-            SQL(
-                "SELECT id FROM %(table)s WHERE id = %(id)s FOR NO KEY UPDATE",
-                table=SQL.identifier(self.env[MODEL_INVOICE]._table),
-                id=self.invoice_id.id,
-            )
-        )
-
     def _apply_provider_update(self, transactions, status=None):
         """Store what PayOS reported: each transfer once by its reference, then the status; safe to repeat."""
         self.ensure_one()
         link = self.sudo().with_context(**{PROVIDER_UPDATE_KEY: True})
-        link._lock_invoice()
+        link.invoice_id._lock()
         link._store_transactions(transactions)
         if status is None:
             # A notification carries one transfer and no link status: the sum tells whether the link is paid.
@@ -323,7 +360,49 @@ class PaymentLink(models.Model):
         return parsed.astimezone(UTC).replace(tzinfo=None)
 
     def _record_payments(self):
-        """Hook of the payments feature: one online payment per transfer without one, under the invoice lock."""
+        """One confirmed online payment per transfer that has none; called under the invoice row lock."""
+        self.ensure_one()
+        payments = self.env[MODEL_PAYMENT]
+        for transaction in self.transaction_ids.filtered(lambda transaction: not transaction.payment_id):
+            payment = payments.create(
+                {
+                    "invoice_id": self.invoice_id.id,
+                    "payment_link_id": self.id,
+                    "amount": transaction.amount,
+                    "payment_date": transaction.transacted_date,
+                    "method": "online",
+                }
+            )
+            transaction.write({"payment_id": payment.id})
+
+    def action_record_payments(self):
+        """Reconciliation: record the transfers that have no payment yet, one payment each, never a lump sum."""
+        if not self.env[MODEL_PAYMENT]._has_permission("edit"):
+            raise AccessError(
+                self.env._("Recording payments from PayOS transactions needs the edit permission on payments.")
+            )
+        for link in self.sudo().with_context(**{PROVIDER_UPDATE_KEY: True}):
+            link.invoice_id._lock()
+            link._record_payments()
+
+    def action_acknowledge(self):
+        """Accept that the link stays underpaid for the transfers received so far, so its day can be locked."""
+        if not self.env[MODEL_RECONCILIATION_DAY]._has_permission("edit"):
+            raise AccessError(
+                self.env._("Acknowledging a reconciliation row needs the edit permission on reconciliation days.")
+            )
+        for link in self:
+            if link.match_status != "underpaid":
+                raise UserError(self.env._("%s is not underpaid.", link.display_name))
+            if not link.acknowledgement_reason:
+                raise UserError(self.env._("Give the reason for accepting the underpaid link first."))
+            link.sudo().write(
+                {
+                    "acknowledged_by_id": self.env.user.id,
+                    "acknowledged_at": fields.Datetime.now(),
+                    "acknowledged_amount_paid": link.amount_paid,
+                }
+            )
 
     @api.model
     def _handle_webhook(self, data):

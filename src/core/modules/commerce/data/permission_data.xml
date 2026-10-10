@@ -60,4 +60,39 @@
         <field name="document_model">medilab.payment.link.transaction</field>
         <field name="action">read</field>
     </record>
+    <record id="permission_payment_read_all" model="medilab.permission">
+        <field name="name">Read payments</field>
+        <field name="document_model">medilab.payment</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_payment_create_all" model="medilab.permission">
+        <field name="name">Create payments</field>
+        <field name="document_model">medilab.payment</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_payment_edit_all" model="medilab.permission">
+        <field name="name">Edit payments</field>
+        <field name="document_model">medilab.payment</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_payment_delete_all" model="medilab.permission">
+        <field name="name">Delete payments</field>
+        <field name="document_model">medilab.payment</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_reconciliation_day_read_all" model="medilab.permission">
+        <field name="name">Read reconciliation days</field>
+        <field name="document_model">medilab.reconciliation.day</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_reconciliation_day_create_all" model="medilab.permission">
+        <field name="name">Create reconciliation days</field>
+        <field name="document_model">medilab.reconciliation.day</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_reconciliation_day_edit_all" model="medilab.permission">
+        <field name="name">Edit reconciliation days</field>
+        <field name="document_model">medilab.reconciliation.day</field>
+        <field name="action">edit</field>
+    </record>
 </odoo>

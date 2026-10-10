@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The day of the two Sao Mai transfers, reconciled and locked by the accountant. -->
+    <record id="demo_reconciliation_day_locked" model="medilab.reconciliation.day">
+        <field name="day">2026-03-03</field>
+        <field name="status">locked</field>
+        <field name="locked_by_id" ref="demo_res_users_accountant" />
+        <field name="locked_at">2026-03-04 02:00:00</field>
+    </record>
+    <!-- The day of the partial Bình An transfer, still open because its payment is not recorded. -->
+    <record id="demo_reconciliation_day_open" model="medilab.reconciliation.day">
+        <field name="day">2026-07-12</field>
+    </record>
+</odoo>

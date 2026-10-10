@@ -43,6 +43,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/models.py`      | Database model names, such as `MODEL_TEST_PARAMETER`                       |
 | `constants/payos.py`       | PayOS endpoints, environment variable names, status mapping and limits     |
 | `constants/permissions.py` | Actions, scopes and access domains of permissions, such as `SCOPE_DOMAINS` |
+| `constants/sequences.py`   | Codes of sequences that do not number a model's own records, such as `SEQUENCE_RECEIPT` |
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`           |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.

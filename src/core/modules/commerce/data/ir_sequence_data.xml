@@ -15,4 +15,12 @@
         <field name="implementation">standard</field>
         <field name="padding">1</field>
     </record>
+    <record id="sequence_receipt" model="ir.sequence">
+        <field name="name">Receipt</field>
+        <field name="code">medilab.payment.receipt</field>
+        <field name="implementation">no_gap</field>
+        <field name="padding">4</field>
+        <field name="suffix"> %(range_y)s/PT</field>
+        <field name="use_date_range" eval="True" />
+    </record>
 </odoo>

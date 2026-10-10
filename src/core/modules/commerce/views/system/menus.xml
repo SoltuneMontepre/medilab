@@ -3,7 +3,9 @@
     <menuitem id="menu_commerce_root" name="E-commerce" sequence="40">
         <menuitem id="menu_invoicing" name="Invoicing" sequence="20">
             <menuitem id="menu_invoice" action="action_medilab_invoice" sequence="10" />
+            <menuitem id="menu_payment" action="action_medilab_payment" sequence="20" />
             <menuitem id="menu_payment_link" action="action_medilab_payment_link" sequence="30" />
+            <menuitem id="menu_reconciliation_day" action="action_medilab_reconciliation_day" sequence="40" />
         </menuitem>
     </menuitem>
 </odoo>

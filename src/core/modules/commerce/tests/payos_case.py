@@ -5,7 +5,7 @@ from unittest.mock import patch
 from odoo import fields
 
 from .invoicing_case import InvoicingCase
-from odoo.addons.commerce.constants.models import MODEL_PAYMENT_LINK
+from odoo.addons.commerce.constants.models import MODEL_PAYMENT, MODEL_PAYMENT_LINK, MODEL_RECONCILIATION_DAY
 from odoo.addons.commerce.constants.payos import JOB_CALLS, JOB_POLL, SUCCESS_CODE
 from odoo.addons.commerce.services.payos_client import PayosClient, sign
 from odoo.addons.laboratory.constants.models import MODEL_JOB_ITEM, MODEL_RES_CONFIG_SETTINGS, MODEL_SCHEDULED_JOB
@@ -21,6 +21,13 @@ PAYMENT_LINK_PERMISSIONS = (
     "payment.link.edit.all",
     "payment.link.transaction.read.all",
 )
+PAYMENT_PERMISSIONS = ("payment.read.all", "payment.create.all", "payment.edit.all", "payment.delete.all")
+RECONCILIATION_PERMISSIONS = (
+    "reconciliation.day.read.all",
+    "reconciliation.day.create.all",
+    "reconciliation.day.edit.all",
+)
+SALES_PAYMENT_PERMISSIONS = ("payment.read.all", "payment.create.all", "payment.link.read.all")
 LINK_LOGGER = "odoo.addons.commerce.models.invoicing.payment_link"
 JOB_LOGGER = "odoo.addons.laboratory.models.system.scheduled_job"
 CREATE_PATH = ("POST", "/v2/payment-requests")
@@ -161,13 +168,14 @@ def fake_payos(test, answers=None):
 
 
 class PayosCase(InvoicingCase):
-    """PayOS enabled with test credentials, the accountant holding the payment link permissions."""
+    """PayOS enabled with test credentials; the accountant holds every payment permission, sales records payments."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         enable_payos(cls)
-        cls.grant(cls.accountant, *PAYMENT_LINK_PERMISSIONS)
+        cls.grant(cls.accountant, *PAYMENT_LINK_PERMISSIONS, *PAYMENT_PERMISSIONS, *RECONCILIATION_PERMISSIONS)
+        cls.grant(cls.salesperson, *SALES_PAYMENT_PERMISSIONS)
         # The demo data may hold queued PayOS items; the tests start from an empty queue.
         cls.env[MODEL_JOB_ITEM].search([("job_id.key", "in", (JOB_CALLS, JOB_POLL))]).unlink()
 
@@ -181,6 +189,32 @@ class PayosCase(InvoicingCase):
         links = self.env[MODEL_PAYMENT_LINK].with_user((user or self.accountant).user_id)
         link = links._create_for_invoice(invoice, invoice.amount_owed if amount is None else amount)
         return link.with_env(self.env), fake
+
+    def pay(self, invoice, amount, method="cash", user=None, **vals):
+        """A payment recorded by the accountant (confirmed at once) or by the given person."""
+        payments = self.env[MODEL_PAYMENT].with_user((user or self.accountant).user_id)
+        payment = payments.create({"invoice_id": invoice.id, "amount": amount, "method": method, **vals})
+        return payment.with_env(self.env)
+
+    def notify(self, link, amount, reference, when="2026-05-11 10:15:00"):
+        """What the webhook does once the signature is verified: apply one transfer to the link."""
+        self.env[MODEL_PAYMENT_LINK]._handle_webhook(
+            {
+                "orderCode": link.provider_order_code,
+                "code": "00",
+                "reference": reference,
+                "amount": amount,
+                "transactionDateTime": when,
+            }
+        )
+
+    def open_day(self, day):
+        return (
+            self.env[MODEL_RECONCILIATION_DAY]
+            .with_user(self.accountant.user_id)
+            .create({"day": day})
+            .with_env(self.env)
+        )
 
     def run_job(self, key):
         job = self.env[MODEL_SCHEDULED_JOB]._by_key(key)

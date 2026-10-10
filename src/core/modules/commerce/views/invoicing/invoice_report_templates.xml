@@ -25,7 +25,9 @@
                     <tr><th>Due on</th><td><span t-field="o.due_date" /></td></tr>
                     <tr t-if="o.adjusts_id"><th>Corrects</th><td><span t-field="o.adjusts_id.code" /></td></tr>
                     <tr><th>Total</th><td><span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
+                    <tr t-if="o.kind != 'adjustment'"><th>Paid</th><td><span t-field="o.amount_paid" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
                     <tr t-if="o.kind != 'adjustment'"><th>Amount owed</th><td><span t-field="o.amount_owed" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
+                    <tr t-if="o.kind != 'adjustment'"><th>Payment status</th><td><span t-field="o.payment_status" /></td></tr>
                 </table>
                 <table class="table table-sm mt-4">
                     <thead>
@@ -59,9 +61,22 @@
                             </tr>
                             <tr class="border-top"><th>Total</th><td class="text-end"><span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
                             <tr t-if="o.kind != 'adjustment' and o.amount_adjustment"><th>Adjustments</th><td class="text-end"><span t-field="o.amount_adjustment" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
+                            <tr t-if="o.kind != 'adjustment' and o.amount_paid"><th>Paid</th><td class="text-end"><span t-field="o.amount_paid" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
                             <tr t-if="o.kind != 'adjustment'"><th>Amount owed</th><td class="text-end"><span t-field="o.amount_owed" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
                         </table>
                     </div>
+                </div>
+                <t t-set="confirmed" t-value="o.payment_ids.filtered(lambda payment: payment.status == 'confirmed')" />
+                <div class="mt-4" t-if="confirmed">
+                    <strong>Payments received</strong>
+                    <table class="table table-sm w-auto">
+                        <tr t-foreach="confirmed" t-as="payment">
+                            <td><span t-field="payment.payment_date" /></td>
+                            <td><span t-field="payment.method" /></td>
+                            <td><span t-field="payment.receipt_code" /></td>
+                            <td class="text-end"><span t-field="payment.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td>
+                        </tr>
+                    </table>
                 </div>
                 <div class="mt-4" t-if="company.partner_id.bank_ids">
                     <strong>Payment details</strong>

@@ -2,6 +2,8 @@
 
 MODEL_INVOICE = "medilab.invoice"
 MODEL_INVOICE_LINE = "medilab.invoice.line"
+MODEL_PAYMENT = "medilab.payment"
 MODEL_PAYMENT_LINK = "medilab.payment.link"
 MODEL_PAYMENT_LINK_TRANSACTION = "medilab.payment.link.transaction"
+MODEL_RECONCILIATION_DAY = "medilab.reconciliation.day"
 MODEL_VND_MIXIN = "medilab.vnd.mixin"

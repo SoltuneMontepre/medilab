@@ -11,7 +11,9 @@
 - **Invoice template.** A Trello card asks that administrators edit the invoice template themselves. The PDF is a fixed layout today. Is editing it on the screen wanted, and what may change: texts, logo, columns? (blocks US-A04)
 - **Due date after posting.** The due date is fixed when the invoice is posted (the posting date plus the invoice due days setting). May the accountant extend it afterwards, and does an extension change the overdue reminders? (blocks US-A12)
 - **Refunds.** If a customer paid an advance and the order is cancelled, who refunds and how is it recorded? (blocks US-S16, US-S17)
-- **Credit notes.** How is a posted invoice corrected with a credit note? (blocks US-A02)
+- **Overpayment.** A late online payment is always recorded, so an invoice can end overpaid; the payment is flagged and acknowledged at reconciliation. Is the excess refunded or kept as a credit on the customer's next invoice, and who decides? (blocks US-A06, US-A13)
+- **Unlocking a reconciled day.** A locked day cannot be unlocked. Is an unlock by an administrator wanted, with its reason recorded? (blocks US-A13)
+- **Credit notes.** Adjustment invoices correct a posted invoice with the difference; is a separate credit note still wanted? (blocks US-A02)
 - **Samples in a parameter-first order.** Who groups the selected parameters into physical samples of the [test request](../docs/functional/laboratory_module/overview.md#test-requests-and-samples)? Sales would be the natural owner at quotation time.
 - **Customer templates.** Can customers save their own orders as templates in the portal, or does only sales create templates for them? (blocks US-S09)
 - **Sales data retention.** Orders, quotations and invoices older than a year could be archived and removed, keeping the last year in the system for trends. Which records, after how long, and does Vietnamese accounting law require keeping invoices longer in the system?

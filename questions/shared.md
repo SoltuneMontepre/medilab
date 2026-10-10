@@ -5,7 +5,7 @@
 - **Lock timeout.** The inactivity period after which an editing lock is released. (blocks SH-06)
 - **Archived kinds.** Besides audit entries, which records does the cleanup job archive before removing them: job runs and items, notifications, locks, devices? (blocks SH-09)
 - **Failed items before notifications.** When an item fails its last attempt, the job logs it and the Jobs screen lists it until the notifications feature sends administrators a notification. Is that enough meanwhile, or should the job also e-mail someone? (blocks SH-09)
-- **Platform terms.** The glossary proposes Vietnamese terms for the platform records: Tác Vụ Định Kỳ (scheduled job), Mục Tác Vụ (job item), Lượt Chạy Tác Vụ (job run), Tham Số Hệ Thống (system parameter), Liên Kết Thanh Toán (payment link), Giao Dịch Liên Kết Thanh Toán (payment link transaction). Are they the terms the laboratory uses? (blocks SH-03, SH-09)
+- **Platform terms.** The glossary proposes Vietnamese terms for the platform records: Tác Vụ Định Kỳ (scheduled job), Mục Tác Vụ (job item), Lượt Chạy Tác Vụ (job run), Tham Số Hệ Thống (system parameter), Liên Kết Thanh Toán (payment link), Giao Dịch Liên Kết Thanh Toán (payment link transaction), Thanh Toán (payment), Ngày Đối Soát (reconciliation day). Are they the terms the laboratory uses? (blocks SH-03, SH-09)
 
 ## Related documents
 

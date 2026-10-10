@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_reconciliation_day_list" model="ir.ui.view">
+        <field name="name">medilab.reconciliation.day.list</field>
+        <field name="model">medilab.reconciliation.day</field>
+        <field name="arch" type="xml">
+            <list duplicate="0">
+                <field name="day" />
+                <field name="transaction_count" />
+                <field name="total_amount" />
+                <field name="blocking_count" />
+                <field name="unacknowledged_count" />
+                <field name="locked_by_id" />
+                <field name="locked_at" />
+                <field name="status" widget="badge" decoration-info="status == 'open'" decoration-success="status == 'locked'" />
+                <field name="currency_id" column_invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_reconciliation_day_form" model="ir.ui.view">
+        <field name="name">medilab.reconciliation.day.form</field>
+        <field name="model">medilab.reconciliation.day</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <header>
+                    <button name="action_lock" type="object" string="Lock" class="btn-primary" invisible="status != 'open'" confirm="Lock this day? Its online payments can no longer be changed." />
+                    <button name="action_print" type="object" string="Print" icon="fa-print" />
+                    <field name="status" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="day" readonly="id" /></h1>
+                    </div>
+                    <group>
+                        <group name="totals">
+                            <field name="transaction_count" />
+                            <field name="total_amount" />
+                            <field name="blocking_count" />
+                            <field name="unacknowledged_count" />
+                            <field name="currency_id" invisible="1" />
+                        </group>
+                        <group name="lock">
+                            <field name="locked_by_id" />
+                            <field name="locked_at" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="PayOS transactions" name="transactions">
+                            <field name="transaction_ids" readonly="1">
+                                <list>
+                                    <field name="reference" />
+                                    <field name="transacted_at" />
+                                    <field name="amount" sum="Total" />
+                                    <field name="link_id" />
+                                    <field name="invoice_id" />
+                                    <field name="payment_id" />
+                                    <field name="match_state" widget="badge" decoration-success="match_state == 'matched'" decoration-danger="match_state == 'missing_payment'" decoration-warning="match_state in ('underpaid', 'overpaying')" />
+                                    <field name="needs_acknowledgement" />
+                                    <field name="recorded_after_lock" />
+                                    <button name="action_record_payments" type="object" string="Record payments" icon="fa-plus" invisible="match_state != 'missing_payment'" />
+                                    <button name="action_acknowledge" type="object" string="Acknowledge" icon="fa-check" invisible="not needs_acknowledgement" />
+                                    <field name="currency_id" column_invisible="1" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_reconciliation_day_search" model="ir.ui.view">
+        <field name="name">medilab.reconciliation.day.search</field>
+        <field name="model">medilab.reconciliation.day</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="day" />
+                <filter name="open" string="Open" domain="[('status', '=', 'open')]" />
+                <filter name="locked" string="Locked" domain="[('status', '=', 'locked')]" />
+                <separator />
+                <filter name="day" string="Day" date="day" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_reconciliation_day" model="ir.actions.act_window">
+        <field name="name">Reconciliation</field>
+        <field name="res_model">medilab.reconciliation.day</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

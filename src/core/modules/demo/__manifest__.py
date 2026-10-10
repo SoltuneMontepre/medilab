@@ -25,6 +25,8 @@
         "data/commerce/invoice.xml",
         "data/commerce/payment_link.xml",
         "data/commerce/payment_link_transaction.xml",
+        "data/commerce/payment.xml",
+        "data/commerce/reconciliation_day.xml",
         "data/laboratory/job_item.xml",
         "data/laboratory/job_run.xml",
     ],

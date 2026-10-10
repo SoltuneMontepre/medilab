@@ -248,6 +248,8 @@ model User {
   locked_days           ReconciliationDay[]    @relation("ReconciliationLocker")
   /// Underpaid payment links the user acknowledged.
   acknowledged_links    PaymentLink[]          @relation("PaymentLinkAcknowledger")
+  /// Overpaying payments the user acknowledged.
+  acknowledged_payments Payment[]              @relation("PaymentAcknowledger")
   /// Cancellation requests the user sent.
   cancellation_requests CancellationRequest[]  @relation("CancellationRequester")
   /// Cancellation requests the user decided.
@@ -571,7 +573,9 @@ model Invoice {
   amount_owed     Decimal       @default(0) @db.Decimal
   /// Sum of the confirmed payments.
   amount_paid     Decimal       @default(0) @db.Decimal
-  /// not_paid, partially_paid or paid, from the confirmed payments.
+  /// Sum of the pending payments, shown so the same payment is not recorded twice.
+  amount_pending  Decimal       @default(0) @db.Decimal
+  /// not_paid, partially_paid or paid, from the confirmed payments; an adjustment mirrors the invoice it corrects.
   payment_status  String        @default("not_paid") @db.VarChar
   /// When the invoice was last emailed to the customer.
   sent_at         DateTime?
@@ -634,7 +638,7 @@ model Payment {
   id               Int          @id @default(autoincrement())
   /// The invoice paid.
   invoice_id       Int
-  /// Amount paid; never more than the invoice's remaining amount.
+  /// Amount paid; a manual payment never exceeds the invoice's remaining amount, an online payment is recorded as PayOS confirmed it.
   amount           Decimal      @db.Decimal
   /// Date the money was received.
   payment_date     DateTime     @db.Date
@@ -652,14 +656,26 @@ model Payment {
   rejection_reason String?      @db.Text
   /// Unique receipt number, filled from a sequence when the payment is confirmed.
   receipt_code     String?      @unique @db.VarChar
-  /// The receipt's PDF.
+  /// The receipt's PDF, stored at confirmation.
   receipt_attachment_id Int?
+  /// True when this payment took the invoice's owed amount below zero; decided once, when it was recorded.
+  is_overpaying    Boolean      @default(false)
+  /// True when the online payment was recorded after its reconciliation day was locked; decided once.
+  recorded_after_lock Boolean   @default(false)
+  /// The accountant who acknowledged the overpayment before locking its day.
+  acknowledged_by_id Int?
+  /// When the overpayment was acknowledged.
+  acknowledged_at  DateTime?
+  /// Why the overpayment is accepted as it is.
+  acknowledgement_reason String? @db.Text
   /// The invoice paid.
   invoice          Invoice      @relation(fields: [invoice_id], references: [id], onDelete: Restrict)
   /// The Odoo user who recorded the payment.
   recorded_by      User?        @relation("PaymentRecorder", fields: [recorded_by_id], references: [id], onDelete: Restrict)
   /// The accountant who confirmed or rejected it.
   reviewed_by      User?        @relation("PaymentReviewer", fields: [reviewed_by_id], references: [id], onDelete: Restrict)
+  /// The accountant who acknowledged the overpayment.
+  acknowledged_by  User?        @relation("PaymentAcknowledger", fields: [acknowledged_by_id], references: [id], onDelete: Restrict)
   /// The payment link the online payment came from; empty for a manual payment.
   payment_link_id  Int?
   /// The payment link the online payment came from.
@@ -728,10 +744,14 @@ model PaymentLinkTransaction {
   transacted_date DateTime    @db.Date
   /// The online payment that records the transfer; empty until the payments feature records it.
   payment_id      Int?        @unique
+  /// The reconciliation day of the transfer's Vietnam day, once the accountant opens it.
+  day_id          Int?
   /// The payment link the transfer paid.
   link            PaymentLink @relation(fields: [link_id], references: [id], onDelete: Restrict)
   /// The online payment that records the transfer.
   payment         Payment?    @relation(fields: [payment_id], references: [id], onDelete: Restrict)
+  /// The reconciliation day of the transfer.
+  day             ReconciliationDay? @relation(fields: [day_id], references: [id], onDelete: SetNull)
 
   @@index([transacted_date])
   @@map("medilab_payment_link_transaction")
@@ -751,6 +771,8 @@ model ReconciliationDay {
   locked_at    DateTime?
   /// The accountant who locked the day.
   locked_by    User?     @relation("ReconciliationLocker", fields: [locked_by_id], references: [id], onDelete: Restrict)
+  /// The PayOS transfers of the day.
+  transactions PaymentLinkTransaction[]
 
   @@map("medilab_reconciliation_day")
 }
