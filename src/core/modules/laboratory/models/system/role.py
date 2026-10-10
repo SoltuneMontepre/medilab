@@ -2,7 +2,6 @@ import re
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.fields import Command
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.laboratory.constants.models import (
@@ -113,11 +112,8 @@ class Role(models.Model):
         # A role group implies exactly the groups of its permissions; other implied groups, such as Odoo's settings
         # group implied by the administrator, are left as they are.
         for role in self.sudo():
-            wanted = role.permission_ids.group_id
-            implied = role.group_id.implied_ids
-            permission_groups = self.env[MODEL_PERMISSION].sudo().search([("group_id", "in", implied.ids)]).group_id
-            stale = permission_groups - wanted
-            commands = [Command.unlink(group.id) for group in stale]
-            commands += [Command.link(group.id) for group in wanted - implied]
+            commands = self.env[MODEL_PERMISSION]._group_commands(
+                role.group_id.implied_ids, role.permission_ids.group_id
+            )
             if commands:
                 role.group_id.implied_ids = commands

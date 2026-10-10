@@ -3,6 +3,7 @@ from lxml import etree
 from odoo import api, models
 from odoo.exceptions import AccessError
 from odoo.fields import Domain
+from odoo.tools import format_list
 from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN
@@ -46,34 +47,26 @@ class PermissionMixin(models.AbstractModel):
     def _supported_permission_actions(self):
         return tuple(action for action in self._permission_actions if action != "archive" or self._active_name)
 
-    def _user_permissions(self, action):
-        return (
-            self.env[MODEL_PERMISSION]
-            .sudo()
-            .search(
-                [
-                    ("document_model", "=", self._name),
-                    ("action", "=", action),
-                    ("group_id", "in", self.env.user.all_group_ids.ids),
-                ]
-            )
-        )
+    def _user_scopes(self, action):
+        group_ids = set(self.env.user._get_group_ids())
+        return {
+            scope
+            for group_id, scope in self.env[MODEL_PERMISSION]._permission_scopes(self._name, action)
+            if group_id in group_ids
+        }
 
     def _has_permission(self, action):
-        return self.env.su or bool(self._user_permissions(action))
+        return self.env.su or bool(self._user_scopes(action))
 
     def _permission_domain(self, action):
         # The records the user may take the action on: the union of the scopes of their permissions for it.
         if self.env.su:
             return Domain.TRUE
-        eval_context = {"user": self.env.user}
-        return Domain.OR(
-            Domain(safe_eval(SCOPE_DOMAINS[scope], eval_context))
-            for scope in set(self._user_permissions(action).mapped("scope"))
-        )
+        eval_context = self.env["ir.rule"]._eval_context()
+        return Domain.OR(Domain(safe_eval(SCOPE_DOMAINS[scope], eval_context)) for scope in self._user_scopes(action))
 
     def _check_permission(self, action):
-        if self.env.su or not self:
+        if self.env.su or not self or "all" in self._user_scopes(action):
             return
         allowed = (
             self.sudo()
@@ -85,7 +78,7 @@ class PermissionMixin(models.AbstractModel):
             raise AccessError(
                 self.env._(
                     "You are not allowed to %(action)s these records: %(records)s",
-                    action=dict(self.env[MODEL_PERMISSION]._fields["action"]._description_selection(self.env))[action],
-                    records=", ".join(forbidden.sudo().mapped("display_name")),
+                    action=self.env[MODEL_PERMISSION]._action_label(action),
+                    records=format_list(self.env, forbidden.sudo().mapped("display_name")),
                 )
             )

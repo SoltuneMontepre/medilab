@@ -70,7 +70,7 @@ class Person(models.Model):
                 vals["partner_id"] = self.env["res.partner"].sudo().create(contact).id
             elif contact:
                 # An existing contact may belong to anyone, so only administrators change it with full rights.
-                self._contact_env()["res.partner"].browse(vals["partner_id"]).write(contact)
+                self.env["res.partner"].browse(vals["partner_id"]).write(contact)
             if vals.get("login"):
                 self._check_field_access(self._fields["login"], "write")
             logins.append(vals.pop("login", False))
@@ -90,7 +90,7 @@ class Person(models.Model):
             if login and len(self) > 1:
                 raise UserError(self.env._("A login belongs to one person only."))
         if "partner_id" in vals and any(person.partner_id.id != vals["partner_id"] for person in self):
-            self._contact_env()["res.partner"].browse(vals["partner_id"]).check_access("write")
+            self.env["res.partner"].browse(vals["partner_id"]).check_access("write")
         self._check_administrator_change(vals)
         previous_users = self.sudo().user_id
         if contact or login is not None:
@@ -113,17 +113,11 @@ class Person(models.Model):
     def action_open_user(self):
         # The user form is where Odoo administrators set the password.
         self.ensure_one()
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": "res.users",
-            "res_id": self.user_id.id,
-            "view_mode": "form",
-            "target": "current",
-        }
+        return self.user_id._get_records_action()
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_administrator(self):
-        if self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False) in self:
+        if self._administrator():
             raise UserError(self.env._("The person of Odoo's default administrator cannot be deleted."))
 
     def unlink(self):
@@ -133,7 +127,7 @@ class Person(models.Model):
         return result
 
     def _check_administrator_change(self, vals):
-        administrator = self & self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False)
+        administrator = self._administrator()
         if not administrator:
             return
         if vals.get("active") is False:
@@ -142,14 +136,12 @@ class Person(models.Model):
             raise UserError(self.env._("The person of Odoo's default administrator keeps their user."))
 
     def _check_administrator_role(self):
-        administrator = self & self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False)
+        administrator = self._administrator()
         if administrator and self.env.ref(ADMINISTRATOR_ROLE) not in administrator.sudo().role_ids:
             raise UserError(self.env._("The person of Odoo's default administrator keeps the administrator role."))
 
-    def _contact_env(self):
-        if self.env.su or self.env.user.has_group(ADMINISTRATOR_GROUP):
-            return self.sudo().env
-        return self.env
+    def _administrator(self):
+        return self & self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False)
 
     def _set_login(self, login):
         # The Odoo user is created on the person's own contact, as an internal user.
@@ -178,26 +170,17 @@ class Person(models.Model):
             )
         )
 
-    def _managed_groups(self, groups):
-        # Groups that belong to a role or a permission; any other group of a user is never touched.
-        return (
-            self.env[MODEL_ROLE].sudo().search([("group_id", "in", groups.ids)]).group_id
-            | self.env[MODEL_PERMISSION].sudo().search([("group_id", "in", groups.ids)]).group_id
-        )
-
     def _sync_user_groups(self):
         internal = self.env.ref("base.group_user")
         for person in self.sudo().filtered("user_id"):
             user = person.user_id
             wanted = internal | person.role_ids.group_id | person.permission_ids.group_id
-            stale = self._managed_groups(user.group_ids) - wanted
-            commands = [Command.unlink(group.id) for group in stale]
-            commands += [Command.link(group.id) for group in wanted - user.group_ids]
+            commands = self.env[MODEL_PERMISSION]._group_commands(user.group_ids, wanted)
             if commands:
                 user.group_ids = commands
 
     def _strip_user_groups(self, users):
         for user in users.sudo():
-            stale = self._managed_groups(user.group_ids)
-            if stale:
-                user.group_ids = [Command.unlink(group.id) for group in stale]
+            commands = self.env[MODEL_PERMISSION]._group_commands(user.group_ids, user.browse().group_ids)
+            if commands:
+                user.group_ids = commands

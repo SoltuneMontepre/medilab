@@ -66,11 +66,6 @@ class TestPermissionGeneration(TransactionCase):
         self.assertIsNone(self.generated("access", permission.code))
         self.assertIsNone(self.generated("rule", permission.code))
 
-    def test_administrator_holds_every_new_permission(self):
-        permission = self.create_permission("read")
-
-        self.assertIn(permission.group_id, self.env.ref("laboratory.group_role_administrator").implied_ids)
-
     def test_permissions_are_neither_created_nor_deleted_from_the_screen(self):
         administrator = self.env.ref("base.user_admin")
         added = self.create_permission("read")

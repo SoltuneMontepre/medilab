@@ -1,7 +1,7 @@
 from odoo.fields import Command
 from odoo.tests import TransactionCase
 
-from odoo.addons.laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERSON
+from odoo.addons.laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERMISSION, MODEL_PERSON
 
 
 class PeopleCase(TransactionCase):
@@ -29,7 +29,7 @@ class PeopleCase(TransactionCase):
 
     @classmethod
     def permissions(cls, *codes):
-        return cls.env["medilab.permission"].concat(
+        return cls.env[MODEL_PERMISSION].concat(
             *(cls.env.ref(f"laboratory.permission_{code.replace('.', '_')}") for code in codes)
         )
 

@@ -1,6 +1,7 @@
-from odoo import api, fields, models
+from odoo import api, fields, models, tools
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
+from odoo.tools import format_list
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN, MODEL_PERSON, MODEL_ROLE
@@ -77,11 +78,21 @@ class Permission(models.Model):
 
     @api.model
     def _selection_document_model(self):
-        return [
-            (name, self.env["ir.model"]._get(name).name)
-            for name in sorted(self.env.registry)
-            if name.startswith(DOCUMENT_MODEL_PREFIX) and not self.env[name]._abstract and not self.env[name]._transient
+        names = [
+            name
+            for name, model in self.env.registry.items()
+            if name.startswith(DOCUMENT_MODEL_PREFIX) and not model._abstract and not model._transient
         ]
+        labels = {model.model: model.name for model in self.env["ir.model"].sudo().search([("model", "in", names)])}
+        return sorted((name, labels.get(name, name)) for name in names)
+
+    @api.model
+    @tools.ormcache("document_model", "action")
+    def _permission_scopes(self, document_model, action):
+        # (group id, scope) of every permission for the action on the document type. A permission keeps its document
+        # type, action and scope, so the cache is cleared only when permissions are created or deleted.
+        permissions = self.sudo().search([("document_model", "=", document_model), ("action", "=", action)])
+        return tuple((permission.group_id.id, permission.scope) for permission in permissions)
 
     @api.model
     def _make_code(self, document_model, action, scope):
@@ -103,6 +114,7 @@ class Permission(models.Model):
             vals["group_id"] = groups.create({"name": f"Permission: {code}"}).id
         permissions = super().create(vals_list)
         permissions._generate_access()
+        self.env.registry.clear_cache()
         self.env.ref(ADMINISTRATOR_ROLE).sudo().permission_ids = [Command.link(p.id) for p in permissions]
         return permissions
 
@@ -132,7 +144,7 @@ class Permission(models.Model):
             raise UserError(
                 self.env._(
                     "These permissions come with a module and cannot be deleted: %s",
-                    ", ".join(shipped.mapped("display_name")),
+                    format_list(self.env, shipped.mapped("display_name")),
                 )
             )
 
@@ -140,22 +152,23 @@ class Permission(models.Model):
         # When the module is uninstalled, the generated records go through their own external ids, newest first.
         if self.env.context.get(MODULE_UNINSTALL_FLAG):
             return super().unlink()
-        generated = [
-            self.env.ref(f"{MODULE}.{kind}_permission_{permission.code.replace('.', '_')}", raise_if_not_found=False)
-            for permission in self
-            for kind in ("rule", "access")
-        ]
         groups = self.group_id.sudo()
-        for record in generated:
-            if record:
-                record.sudo().unlink()
+        for permission in self:
+            for kind in ("rule", "access"):
+                generated = self.env.ref(permission._generated_xml_id(kind), raise_if_not_found=False)
+                if generated:
+                    generated.sudo().unlink()
         shared = self.env["ir.rule"].sudo().search([("groups", "in", groups.ids)])
         if shared:
             raise UserError(
-                self.env._("These record rules still use the permission's group: %s", ", ".join(shared.mapped("name")))
+                self.env._(
+                    "These record rules still use the permission's group: %s",
+                    format_list(self.env, shared.mapped("name")),
+                )
             )
         result = super().unlink()
         groups.unlink()
+        self.env.registry.clear_cache()
         return result
 
     def _check_holders(self, vals):
@@ -172,8 +185,6 @@ class Permission(models.Model):
                     label,
                 )
             )
-        if action == "archive" and not model._active_name:
-            raise ValidationError(self.env._("%s cannot be archived, so it has no archive permission.", label))
         if document_model not in self.env.registry[MODEL_PERMISSION_MIXIN]._inherit_children:
             if action in WRITE_ACTIONS:
                 raise ValidationError(
@@ -186,7 +197,7 @@ class Permission(models.Model):
                 self.env._(
                     "%(document_type)s has no %(action)s permission.",
                     document_type=label,
-                    action=dict(self._fields["action"]._description_selection(self.env))[action],
+                    action=self._action_label(action),
                 )
             )
 
@@ -195,17 +206,35 @@ class Permission(models.Model):
         # first, so the rules go before the group they refer to.
         xml_ids = []
         for permission in self.sudo():
-            suffix = permission.code.replace(".", "_")
-            xml_ids.append({"xml_id": f"{MODULE}.group_permission_{suffix}", "record": permission.group_id})
-            if permission.action not in OPERATIONS:
-                continue
-            access = self.env["ir.model.access"].sudo().create(permission._access_values())
-            rule = self.env["ir.rule"].sudo().create(permission._rule_values())
-            xml_ids.append({"xml_id": f"{MODULE}.access_permission_{suffix}", "record": access})
-            xml_ids.append({"xml_id": f"{MODULE}.rule_permission_{suffix}", "record": rule})
-        for xml_id in xml_ids:
-            xml_id["noupdate"] = True
+            records = {"group": permission.group_id}
+            if permission.action in OPERATIONS:
+                records["access"] = self.env["ir.model.access"].sudo().create(permission._access_values())
+                records["rule"] = self.env["ir.rule"].sudo().create(permission._rule_values())
+            xml_ids += [
+                {"xml_id": permission._generated_xml_id(kind), "record": record, "noupdate": True}
+                for kind, record in records.items()
+            ]
         self.env["ir.model.data"].sudo()._update_xmlids(xml_ids)
+
+    def _generated_xml_id(self, kind):
+        # The external id of the group, access rule or record rule generated for the permission.
+        return f"{MODULE}.{kind}_permission_{self.code.replace('.', '_')}"
+
+    @api.model
+    def _action_label(self, action):
+        return dict(self._fields["action"]._description_selection(self.env))[action]
+
+    @api.model
+    def _group_commands(self, current, wanted):
+        # Commands that make the groups of roles and permissions among current exactly wanted; any other group is
+        # left as it is.
+        managed = (
+            self.env[MODEL_ROLE].sudo().search([("group_id", "in", current.ids)]).group_id
+            | self.sudo().search([("group_id", "in", current.ids)]).group_id
+        )
+        return [Command.unlink(group.id) for group in managed - wanted] + [
+            Command.link(group.id) for group in wanted - current
+        ]
 
     def _access_values(self):
         self.ensure_one()

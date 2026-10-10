@@ -8,6 +8,17 @@ from odoo.addons.laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERS
 
 @tagged("post_install", "-at_install")
 class TestPersonUser(PeopleCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.reader = cls.env[MODEL_ROLE].create(
+            {
+                "code": "qa_reader",
+                "name": "Reader",
+                "permission_ids": [Command.set(cls.permissions("department.read.all").ids)],
+            }
+        )
+
     def test_login_creates_an_internal_user_on_the_persons_contact(self):
         user = self.chemist.user_id
 
@@ -30,13 +41,7 @@ class TestPersonUser(PeopleCase):
         self.assertFalse(person.user_id)
 
     def test_user_holds_the_groups_of_roles_and_direct_permissions(self):
-        role = self.env[MODEL_ROLE].create(
-            {
-                "code": "reader",
-                "name": "Reader",
-                "permission_ids": [Command.set(self.permissions("department.read.all").ids)],
-            }
-        )
+        role = self.reader
         export = self.env.ref("base.group_allow_export")
         user = self.chemist.user_id
         user.group_ids = [Command.link(export.id)]
@@ -49,13 +54,7 @@ class TestPersonUser(PeopleCase):
         self.assertEqual(user.group_ids, self.env.ref("base.group_user") | export)
 
     def test_direct_permission_adds_to_the_permissions_of_roles(self):
-        role = self.env[MODEL_ROLE].create(
-            {
-                "code": "reader",
-                "name": "Reader",
-                "permission_ids": [Command.set(self.permissions("department.read.all").ids)],
-            }
-        )
+        role = self.reader
         self.chemist.role_ids = role
         self.grant(self.chemist, "department.edit.all")
 
