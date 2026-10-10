@@ -12,7 +12,7 @@ tools/
 │   ├── ai.taskfile.yml         AI tooling: the npx check for the MCP servers, Serena with the OdooLS adapter, OdooLS download
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint
-│   ├── test.taskfile.yml       tests: core, e2e, apps
+│   ├── test.taskfile.yml       tests: core, uninstall, e2e, apps
 │   └── tf.taskfile.yml         Terraform: setup, init, plan, apply, output
 └── scripts/
     ├── log.sh                  output helpers sourced by the tasks

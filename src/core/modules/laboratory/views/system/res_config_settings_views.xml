@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_medilab_code_formats" model="ir.actions.act_window">
+        <field name="name">Code Formats</field>
+        <field name="res_model">ir.sequence</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[("code", "=like", "medilab.%")]</field>
+    </record>
+
+    <record id="action_medilab_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{"module": "medilab", "bin_size": False}</field>
+    </record>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.laboratory</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="MediLab" string="MediLab" name="medilab" logo="/laboratory/static/src/theme/img/icons/icon-192x192.png">
+                    <block title="Laboratory" name="laboratory">
+                        <setting id="medilab_code_formats" string="Code formats" help="Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents.">
+                            <button name="%(action_medilab_code_formats)d" type="action" string="Code formats" class="btn-link" icon="oi-arrow-right" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

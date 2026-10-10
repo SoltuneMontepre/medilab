@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:39+0000\n"
+"POT-Creation-Date: 2026-10-10 14:19+0000\n"
 "PO-Revision-Date: 2026-10-05 01:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
@@ -379,6 +379,16 @@ msgid "Code"
 msgstr "Mã"
 
 #. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_code_formats
+msgid "Code Formats"
+msgstr "Định Dạng Mã"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.res_config_settings_view_form
+msgid "Code formats"
+msgstr "Định dạng mã"
+
+#. module: laboratory
 #: model:ir.model,name:laboratory.model_medilab_code_mixin
 msgid "Code from a Sequence"
 msgstr "Mã từ trình tự"
@@ -417,6 +427,11 @@ msgstr "Địa chỉ đầy đủ một dòng"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__complete_name
 msgid "Complete Name"
 msgstr "Tên đầy đủ"
+
+#. module: laboratory
+#: model:ir.model,name:laboratory.model_res_config_settings
+msgid "Config Settings"
+msgstr "Cấu Hình Hệ Thống"
 
 #. module: laboratory
 #: model:ir.model,name:laboratory.model_res_partner
@@ -614,6 +629,7 @@ msgstr "Hủy tất cả thay đổi"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_method__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_unit_category__display_name
+#: model:ir.model.fields,field_description:laboratory.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:laboratory.field_res_partner__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
@@ -795,6 +811,7 @@ msgstr "Có mã số thuế"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_method__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_unit_category__id
+#: model:ir.model.fields,field_description:laboratory.field_res_config_settings__id
 #: model:ir.model.fields,field_description:laboratory.field_res_partner__id
 msgid "ID"
 msgstr "ID"
@@ -869,6 +886,11 @@ msgstr "LOD"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__loq
 msgid "LOQ"
 msgstr "LOQ"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.res_config_settings_view_form
+msgid "Laboratory"
+msgstr "Phòng Thí Nghiệm"
 
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.login_layout
@@ -1051,6 +1073,11 @@ msgstr "Đơn Vị Đo"
 #: model:ir.ui.menu,name:laboratory.menu_measurement_unit
 msgid "Measurement Units"
 msgstr "Đơn Vị Đo"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.res_config_settings_view_form
+msgid "MediLab"
+msgstr "MediLab"
 
 #. module: laboratory
 #: model:ir.module.module,shortdesc:base.module_laboratory
@@ -1370,6 +1397,13 @@ msgid "Post Test Requirements"
 msgstr "Yêu cầu sau thử nghiệm"
 
 #. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.res_config_settings_view_form
+msgid ""
+"Prefix and length of the codes given to parameters, groups, sample types, "
+"dossiers, subcontractors and documents."
+msgstr "Tiền tố và độ dài của mã cấp cho chỉ tiêu, nhóm, loại mẫu, hồ sơ, thầu phụ và chứng từ."
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__properties
 msgid "Properties"
 msgstr "Thuộc tính"
@@ -1581,6 +1615,12 @@ msgid "Service History"
 msgstr "Lịch sử bảo trì"
 
 #. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_settings
+#: model:ir.ui.menu,name:laboratory.menu_settings
+msgid "Settings"
+msgstr "Cấu Hình"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_share
 msgid "Share Partner"
 msgstr "Đối tác chia sẻ"
@@ -1642,6 +1682,11 @@ msgstr "Thầu Phụ"
 #: model:ir.ui.menu,name:laboratory.menu_subcontractor
 msgid "Subcontractors"
 msgstr "Thầu Phụ"
+
+#. module: laboratory
+#: model:ir.ui.menu,name:laboratory.menu_system_root
+msgid "System"
+msgstr "Hệ Thống"
 
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.login_layout

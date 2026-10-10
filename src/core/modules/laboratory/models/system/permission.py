@@ -159,16 +159,22 @@ class Permission(models.Model):
             )
 
     def unlink(self):
-        # At uninstall the generated records go through their own external ids.
+        permissions = self
         if self.env.context.get(MODULE_UNINSTALL_FLAG):
-            return super().unlink()
-        accesses = self._generated_records()
-        groups = self.group_id.sudo()
+            # Uninstalling laboratory removes the generated records through their own external ids; the
+            # permissions of another module take theirs along, because those ids belong to laboratory.
+            permissions = self.filtered(lambda permission: not permission._is_shipped_by(MODULE))
+        accesses = permissions._generated_records()
+        groups = permissions.group_id.sudo()
         result = super().unlink()
-        accesses.unlink()
-        groups.unlink()
+        accesses.exists().unlink()
+        groups.exists().unlink()
         self.env.transaction.invalidate_ormcache()
         return result
+
+    def _is_shipped_by(self, module):
+        self.ensure_one()
+        return any(xml_id.startswith(f"{module}.") for xml_id in self._get_external_ids()[self.id])
 
     def _generated_records(self):
         records = self.env[IR_ACCESS].sudo()

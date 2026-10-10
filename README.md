@@ -34,6 +34,8 @@ Open http://localhost:8069 and create the `medilab` database. Modules are instal
 
 `task upgrade MODULES=laboratory,demo` adds demo data and a `demo.<role>` user per role; their password is `MEDILAB_DEMO_PASSWORD` at install, or the login when it is unset.
 
+[Setting up a laboratory](docs/workflows/setting-up.md) lists the configuration steps of a new installation and what to check after each.
+
 ## Services
 
 | Service     | URL                   | Notes                                 |

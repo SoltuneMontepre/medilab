@@ -5,6 +5,7 @@ from . import (
     test_code_sequences,
     test_machines_and_chemicals,
     test_master_data_access,
+    test_module_boundaries,
     test_own_department_scope,
     test_parameter_constraints,
     test_parameter_method_department,
@@ -16,7 +17,9 @@ from . import (
     test_person_user,
     test_regulation_constraints,
     test_role_lifecycle,
+    test_settings,
     test_subcontractor,
     test_tree_filters,
+    test_uninstall,
     test_webmanifest,
 )

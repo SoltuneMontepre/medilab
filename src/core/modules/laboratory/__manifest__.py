@@ -34,6 +34,7 @@
         "views/system/permission_views.xml",
         "views/system/person_views.xml",
         "views/system/role_views.xml",
+        "views/system/res_config_settings_views.xml",
         "views/system/menus.xml",
     ],
     "assets": {
