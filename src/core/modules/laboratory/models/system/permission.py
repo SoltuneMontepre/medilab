@@ -3,7 +3,6 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
 from odoo.tools import format_list
 
-from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN, MODEL_PERSON, MODEL_ROLE
 from odoo.addons.laboratory.constants.permissions import DEPARTMENT_FIELD, OPERATIONS, SCOPE_DOMAINS
 from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_ROLE, MODULE
@@ -136,8 +135,15 @@ class Permission(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_shipped(self):
+        # Odoo skips this hook only when laboratory itself is uninstalled; a permission of another module being
+        # uninstalled goes with that module.
         external_ids = self._get_external_ids()
-        shipped = self.filtered(lambda p: any(not xml_id.startswith("__") for xml_id in external_ids[p.id]))
+        uninstalling = self.pool.uninstalling_modules or set()
+        shipped = self.filtered(
+            lambda p: any(
+                not xml_id.startswith("__") and xml_id.split(".")[0] not in uninstalling for xml_id in external_ids[p.id]
+            )
+        )
         if shipped:
             raise UserError(
                 self.env._(
@@ -159,22 +165,15 @@ class Permission(models.Model):
             )
 
     def unlink(self):
-        permissions = self
-        if self.env.context.get(MODULE_UNINSTALL_FLAG):
-            # Uninstalling laboratory removes the generated records through their own external ids; the
-            # permissions of another module take theirs along, because those ids belong to laboratory.
-            permissions = self.filtered(lambda permission: not permission._is_shipped_by(MODULE))
-        accesses = permissions._generated_records()
-        groups = permissions.group_id.sudo()
+        # The generated access and group go with the permission, also when its module is uninstalled: their external
+        # ids belong to laboratory, so Odoo would leave them behind.
+        accesses = self._generated_records()
+        groups = self.group_id.sudo()
         result = super().unlink()
         accesses.exists().unlink()
         groups.exists().unlink()
         self.env.transaction.invalidate_ormcache()
         return result
-
-    def _is_shipped_by(self, module):
-        self.ensure_one()
-        return any(xml_id.startswith(f"{module}.") for xml_id in self._get_external_ids()[self.id])
 
     def _generated_records(self):
         records = self.env[IR_ACCESS].sudo()

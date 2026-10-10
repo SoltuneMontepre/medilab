@@ -15,6 +15,8 @@ How code inside an Odoo module is laid out.
 | `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
 | `tasks`             | Task types and tasks                                                                                                                                                             |
 | `management`        | Features only managers use                                                                                                                                                       |
+| `invoicing`         | Invoices, payments, payment links and reconciliation, in the E-commerce module                                                                                                   |
+| `pricing`           | Prices, taxes, service packages and subcontract costs, in the E-commerce module                                                                                                  |
 | `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, settings, scheduled jobs, menus and the theme                                              |
 
 ## Files

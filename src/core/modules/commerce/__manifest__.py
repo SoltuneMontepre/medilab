@@ -6,5 +6,14 @@
     "author": "Soltune Montepre",
     "license": "LGPL-3",
     "depends": ["laboratory"],
+    "data": [
+        "data/res_currency_data.xml",
+        "data/ir_sequence_data.xml",
+        "data/permission_data.xml",
+        "views/system/res_config_settings_views.xml",
+        "views/invoicing/invoice_report_templates.xml",
+        "views/invoicing/invoice_views.xml",
+        "views/system/menus.xml",
+    ],
     "application": True,
 }

@@ -226,6 +226,8 @@ model Contact {
   name   String          @db.VarChar
   /// Orders on which this person is the customer's contact.
   orders CustomerOrder[]
+  /// Invoices billed to this contact.
+  invoices Invoice[]
 
   @@map("res_partner")
 }
@@ -543,6 +545,8 @@ model Invoice {
   order_id        Int
   /// The quotation whose prices and tax rates the invoice uses.
   quotation_id    Int
+  /// The contact billed: the order's customer, or one of its people; set on the invoice itself until orders exist.
+  partner_id      Int
   /// advance, final or adjustment.
   kind            String        @db.VarChar
   /// draft, posted or cancelled.
@@ -559,6 +563,10 @@ model Invoice {
   amount_tax      Decimal       @db.Decimal
   /// Total including VAT; negative for an adjustment that lowers the amount.
   amount_total    Decimal       @db.Decimal
+  /// Sum of the totals of the posted adjustment invoices that correct this invoice.
+  amount_adjustment Decimal     @default(0) @db.Decimal
+  /// What the customer still owes: the total and its adjustments minus the confirmed payments; 0 on an adjustment invoice.
+  amount_owed     Decimal       @default(0) @db.Decimal
   /// Sum of the confirmed payments.
   amount_paid     Decimal       @default(0) @db.Decimal
   /// not_paid, partially_paid or paid, from the confirmed payments.
@@ -571,6 +579,8 @@ model Invoice {
   order           CustomerOrder @relation(fields: [order_id], references: [id], onDelete: Restrict)
   /// The quotation the invoice uses.
   quotation       Quotation     @relation(fields: [quotation_id], references: [id], onDelete: Restrict)
+  /// The contact billed.
+  partner         Contact       @relation(fields: [partner_id], references: [id], onDelete: Restrict)
   /// The invoice an adjustment invoice corrects.
   adjusts         Invoice?      @relation("Adjustments", fields: [adjusts_id], references: [id], onDelete: Restrict)
   /// Adjustment invoices that correct this invoice.
@@ -595,6 +605,8 @@ model InvoiceLine {
   invoice_id        Int
   /// The quotation line billed; empty for the advance and its deduction.
   quotation_line_id Int?
+  /// Position of the line on the invoice.
+  sequence          Int            @default(10)
   /// Text printed on the line, in the customer's language.
   description       String         @db.VarChar
   /// line, advance or advance_deduction.

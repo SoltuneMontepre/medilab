@@ -3,6 +3,7 @@
     <record id="demo_role_sales" model="medilab.role">
         <field name="code">sales</field>
         <field name="name">Sales</field>
+        <field name="permission_ids" eval="[Command.set([ref('commerce.permission_invoice_read_all'), ref('commerce.permission_invoice_line_read_all')])]" />
     </record>
     <record id="demo_role_head_of_sales" model="medilab.role">
         <field name="code">head_of_sales</field>
@@ -11,6 +12,19 @@
     <record id="demo_role_accountant" model="medilab.role">
         <field name="code">accountant</field>
         <field name="name">Accountant</field>
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('commerce.permission_invoice_read_all'),
+                ref('commerce.permission_invoice_create_all'),
+                ref('commerce.permission_invoice_edit_all'),
+                ref('commerce.permission_invoice_delete_all'),
+                ref('commerce.permission_invoice_line_read_all'),
+                ref('commerce.permission_invoice_line_create_all'),
+                ref('commerce.permission_invoice_line_edit_all'),
+                ref('commerce.permission_invoice_line_delete_all'),
+            ])]"
+        />
     </record>
     <record id="demo_role_sample_delivery_staff" model="medilab.role">
         <field name="code">sample_delivery_staff</field>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h2>
+                    <span t-if="o.kind == 'advance'">Advance invoice</span>
+                    <span t-elif="o.kind == 'adjustment'">Adjustment invoice</span>
+                    <span t-else="">Invoice</span>
+                    <span t-field="o.code" />
+                    <span t-if="o.status == 'draft'" class="text-muted">(draft)</span>
+                </h2>
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <strong>Customer</strong>
+                        <div t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["name", "address", "phone", "email", "vat"], "no_marker": True}' />
+                    </div>
+                    <div class="col-6">
+                        <strong>Supplier</strong>
+                        <div t-field="company.partner_id" t-options='{"widget": "contact", "fields": ["name", "address", "phone", "email", "vat"], "no_marker": True}' />
+                    </div>
+                </div>
+                <table class="table table-sm table-borderless mt-4 w-auto">
+                    <tr><th>Posted on</th><td><span t-field="o.posted_at" t-options='{"widget": "date"}' /></td></tr>
+                    <tr><th>Due on</th><td><span t-field="o.due_date" /></td></tr>
+                    <tr t-if="o.adjusts_id"><th>Corrects</th><td><span t-field="o.adjusts_id.code" /></td></tr>
+                    <tr><th>Total</th><td><span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
+                    <tr t-if="o.kind != 'adjustment'"><th>Amount owed</th><td><span t-field="o.amount_owed" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
+                </table>
+                <table class="table table-sm mt-4">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Description</th>
+                            <th class="text-end">Net</th>
+                            <th class="text-end">VAT %</th>
+                            <th class="text-end">VAT</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o.line_ids" t-as="line">
+                            <td><span t-out="line_index + 1" /></td>
+                            <td><span t-field="line.description" /></td>
+                            <td class="text-end"><span t-field="line.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td>
+                            <td class="text-end"><span t-out="'%g' % line.tax_rate" /></td>
+                            <td class="text-end"><span t-field="line.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td>
+                            <td class="text-end"><span t-out="line.amount_untaxed + line.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col-6 offset-6">
+                        <table class="table table-sm table-borderless">
+                            <tr><th>Subtotal</th><td class="text-end"><span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
+                            <tr t-foreach="o.tax_totals_by_rate()" t-as="total">
+                                <th>VAT <span t-out="'%g' % total[0]" />%</th>
+                                <td class="text-end"><span t-out="total[2]" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td>
+                            </tr>
+                            <tr class="border-top"><th>Total</th><td class="text-end"><span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
+                            <tr t-if="o.kind != 'adjustment' and o.amount_adjustment"><th>Adjustments</th><td class="text-end"><span t-field="o.amount_adjustment" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
+                            <tr t-if="o.kind != 'adjustment'"><th>Amount owed</th><td class="text-end"><span t-field="o.amount_owed" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="mt-4" t-if="company.partner_id.bank_ids">
+                    <strong>Payment details</strong>
+                    <div t-foreach="company.partner_id.bank_ids" t-as="bank">
+                        <span t-field="bank.bank_name" />
+                        <span t-field="bank.account_number" />
+                        <span t-field="bank.holder_name" />
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_invoice">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="commerce.report_invoice_document" t-lang="o.partner_id.lang" />
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_invoice" model="ir.actions.report">
+        <field name="name">Invoice</field>
+        <field name="model">medilab.invoice</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">commerce.report_invoice</field>
+        <field name="print_report_name">(object.code or 'Draft invoice').replace('/', '-')</field>
+        <field name="binding_model_id" ref="model_medilab_invoice" />
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

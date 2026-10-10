@@ -1,0 +1,548 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* commerce
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-10 14:54+0000\n"
+"PO-Revision-Date: 2026-10-10 14:54+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"%s cannot be changed once posted or cancelled; correct a posted invoice with"
+" an adjustment invoice."
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "(draft)"
+msgstr ""
+
+#. module: commerce
+#: model:ir.actions.report,print_report_name:commerce.action_report_invoice
+msgid "(object.code or 'Draft invoice').replace('/', '-')"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Customer</strong>"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Payment details</strong>"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Supplier</strong>"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "A posted invoice is never deleted: %s"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice_line.py:0
+msgid "A tax rate cannot be negative."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Add at least one line before posting the invoice."
+msgstr ""
+
+#. module: commerce
+#: model:ir.module.module,summary:base.module_commerce
+msgid "Adds e-commerce features into the exising core laboratory module."
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__adjustment
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Adjustment"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Adjustment invoice"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Adjustment of %s"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__adjustment_ids
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Adjustments"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__advance
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice_line__kind__advance
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Advance"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice_line__kind__advance_deduction
+msgid "Advance Deduction"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Advance invoice"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_adjustment
+msgid "Amount Adjustment"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_owed
+msgid "Amount Owed"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_tax
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__amount_tax
+msgid "Amount Tax"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_total
+msgid "Amount Total"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_untaxed
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__amount_untaxed
+msgid "Amount Untaxed"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Amount owed"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "An adjustment corrects a posted advance or final invoice."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"An adjustment invoice corrects a posted advance or final invoice of the same"
+" customer."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"An adjustment invoice corrects a posted invoice, and only an adjustment "
+"invoice does."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"An adjustment invoice holds the difference it makes; its total cannot be 0."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice_line.py:0
+msgid "An advance deduction lowers the invoice: its amount is negative."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "An advance or final invoice cannot have a negative total."
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_invoice_code_unique
+msgid "An invoice with this number already exists."
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__attachment_id
+msgid "Attachment"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Cancel"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__cancelled
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Cancelled"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__code
+msgid "Code"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__adjusts_id
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Corrects"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Create adjustment"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_create_all
+msgid "Create invoice lines"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_create_all
+msgid "Create invoices"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__currency_id
+msgid "Currency"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__partner_id
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Customer"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,help:commerce.field_res_config_settings__invoice_due_days
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "Days a customer has to pay an invoice after it is posted."
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_delete_all
+msgid "Delete invoice lines"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_delete_all
+msgid "Delete invoices"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__description
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Description"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__display_name
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__draft
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Draft"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Draft %s invoice"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__due_date
+msgid "Due Date"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Due on"
+msgstr ""
+
+#. module: commerce
+#: model:ir.ui.menu,name:commerce.menu_commerce_root
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "E-commerce"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_edit_all
+msgid "Edit invoice lines"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_edit_all
+msgid "Edit invoices"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__final
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Final"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__id
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__id
+msgid "ID"
+msgstr ""
+
+#. module: commerce
+#: model:ir.actions.report,name:commerce.action_report_invoice
+#: model:ir.model,name:commerce.model_medilab_invoice
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__invoice_id
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Invoice"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__invoice_due_days
+msgid "Invoice Due Days"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_invoice_line
+msgid "Invoice Line"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "Invoice due days"
+msgstr ""
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_invoice
+#: model:ir.ui.menu,name:commerce.menu_invoice
+msgid "Invoices"
+msgstr ""
+
+#. module: commerce
+#: model:ir.ui.menu,name:commerce.menu_invoicing
+msgid "Invoicing"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__kind
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__kind
+msgid "Kind"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice_line__kind__line
+msgid "Line"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__line_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Lines"
+msgstr ""
+
+#. module: commerce
+#: model:ir.module.module,shortdesc:base.module_commerce
+msgid "Medilab - E-commerce"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Month"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Net"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"Only a draft invoice can be cancelled; correct a posted one with an "
+"adjustment."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Only a draft invoice can be posted."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice_line.py:0
+msgid ""
+"Only an adjustment invoice or an advance deduction has a negative amount."
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
+msgid "Owed"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Post"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__posted
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Posted"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__posted_at
+msgid "Posted At"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Posted on"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_vnd_mixin
+msgid "Prices in VND"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Print"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_read_all
+msgid "Read invoice lines"
+msgstr ""
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_read_all
+msgid "Read invoices"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__sent_at
+msgid "Sent At"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__status
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__invoice_status
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Status"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Subtotal"
+msgstr ""
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__tax_rate
+msgid "Tax Rate"
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "The adjustment takes %s below what is paid or owed."
+msgstr ""
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "The lines of a posted or cancelled invoice cannot be changed."
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
+msgid "Total"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "VAT"
+msgstr ""
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "VAT %"
+msgstr ""

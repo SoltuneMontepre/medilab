@@ -5,7 +5,7 @@
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
-    "depends": ["laboratory"],
+    "depends": ["commerce", "laboratory"],
     "data": [
         "data/measurement_unit_data.xml",
         "data/subcontractor_data.xml",
@@ -21,6 +21,9 @@
         "data/laboratory/scheduled_job.xml",
         "data/laboratory/job_item.xml",
         "data/laboratory/job_run.xml",
+        "data/base/res_partner_bank.xml",
+        "data/base/ir_sequence_date_range.xml",
+        "data/commerce/invoice.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

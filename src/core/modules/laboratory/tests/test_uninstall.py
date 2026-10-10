@@ -15,11 +15,14 @@ OTHER_MODULES = ("commerce", "inventory")
 
 
 def _laboratory_counts(env):
-    return {
-        name: env[name].with_context(active_test=False).search_count([])
-        for name, model in env.registry.items()
-        if name.startswith(PREFIX) and model._original_module == MODULE and not model._abstract and not model._transient
-    }
+    # Records of laboratory models, except those the other modules ship, such as their permissions.
+    counts = {}
+    for name, model in env.registry.items():
+        if not name.startswith(PREFIX) or model._original_module != MODULE or model._abstract or model._transient:
+            continue
+        shipped_by_others = env["ir.model.data"].search_count([("model", "=", name), ("module", "in", OTHER_MODULES)])
+        counts[name] = env[name].with_context(active_test=False).search_count([]) - shipped_by_others
+    return counts
 
 
 def _permission_codes(env, module):
@@ -41,10 +44,13 @@ def test_uninstalling_other_modules_keeps_laboratory_data(env):
         module.button_immediate_uninstall()
         env = api.Environment(env.cr, SUPERUSER_ID, {})
         assert env["ir.module.module"].browse(module.id).state == "uninstalled", f"{name} is still installed"
-        assert _laboratory_counts(env) == before, f"uninstalling {name} changed the Laboratory data"
+        after = _laboratory_counts(env)
+        changed = {model: (before[model], after.get(model)) for model in before if after.get(model) != before[model]}
+        assert not changed, f"uninstalling {name} changed the Laboratory data: {changed}"
         assert env[MODEL_DEPARTMENT].browse(department.id).exists(), "the department is gone"
         assert env[MODEL_PERSON].browse(person.id).user_id.exists(), "the person or their user is gone"
-        assert not env["ir.model.data"].search([("module", "=", name)]), f"{name} left external ids behind"
+        left = env["ir.model.data"].search([("module", "=", name)])
+        assert not left, f"{name} left external ids behind: {left.mapped('complete_name')}"
         group_names = [f"Permission: {code}" for code in codes]
         assert not env["res.groups"].search([("name", "in", group_names)]), f"{name} left permission groups behind"
         generated = [f"{kind}_permission_{code.replace('.', '_')}" for code in codes for kind in ("group", "access")]

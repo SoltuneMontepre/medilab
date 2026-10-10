@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The demo invoices carry numbers 0001 to 0005 of 2026, so the next real invoice of 2026 continues from 0006. -->
+    <record id="demo_ir_sequence_date_range_invoice_2026" model="ir.sequence.date_range">
+        <field name="sequence_id" ref="commerce.sequence_invoice" />
+        <field name="date_from">2026-01-01</field>
+        <field name="date_to">2026-12-31</field>
+        <field name="number_next_actual">6</field>
+    </record>
+</odoo>

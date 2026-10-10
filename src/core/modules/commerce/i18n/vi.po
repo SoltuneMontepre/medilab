@@ -1,0 +1,548 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* commerce
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-10 14:52+0000\n"
+"PO-Revision-Date: 2026-10-10 14:52+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: Vietnamese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Language: vi\n"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"%s cannot be changed once posted or cancelled; correct a posted invoice with "
+"an adjustment invoice."
+msgstr "%s không thể thay đổi sau khi đã phát hành hoặc đã hủy; sửa hóa đơn đã phát hành bằng hóa đơn điều chỉnh."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "(draft)"
+msgstr "(nháp)"
+
+#. module: commerce
+#: model:ir.actions.report,print_report_name:commerce.action_report_invoice
+msgid "(object.code or 'Draft invoice').replace('/', '-')"
+msgstr "(object.code or 'Hoa don nhap').replace('/', '-')"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Customer</strong>"
+msgstr "<strong>Khách hàng</strong>"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Payment details</strong>"
+msgstr "<strong>Thông tin thanh toán</strong>"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Supplier</strong>"
+msgstr "<strong>Nhà cung cấp</strong>"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "A posted invoice is never deleted: %s"
+msgstr "Hóa đơn đã phát hành không bao giờ bị xóa: %s"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice_line.py:0
+msgid "A tax rate cannot be negative."
+msgstr "Thuế suất không thể âm."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Add at least one line before posting the invoice."
+msgstr "Thêm ít nhất một dòng trước khi phát hành hóa đơn."
+
+#. module: commerce
+#: model:ir.module.module,summary:base.module_commerce
+msgid "Adds e-commerce features into the exising core laboratory module."
+msgstr "Bổ sung các tính năng thương mại điện tử cho phân hệ phòng thí nghiệm lõi."
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__adjustment
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Adjustment"
+msgstr "Điều chỉnh"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Adjustment invoice"
+msgstr "Hóa đơn điều chỉnh"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Adjustment of %s"
+msgstr "Điều chỉnh %s"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__adjustment_ids
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Adjustments"
+msgstr "Điều chỉnh"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__advance
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice_line__kind__advance
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Advance"
+msgstr "Tạm ứng"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice_line__kind__advance_deduction
+msgid "Advance Deduction"
+msgstr "Khấu trừ tạm ứng"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Advance invoice"
+msgstr "Hóa đơn tạm ứng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_adjustment
+msgid "Amount Adjustment"
+msgstr "Số tiền điều chỉnh"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_owed
+msgid "Amount Owed"
+msgstr "Số tiền còn nợ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_tax
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__amount_tax
+msgid "Amount Tax"
+msgstr "Tiền thuế"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_total
+msgid "Amount Total"
+msgstr "Tổng cộng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_untaxed
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__amount_untaxed
+msgid "Amount Untaxed"
+msgstr "Tiền chưa thuế"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Amount owed"
+msgstr "Số tiền còn nợ"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "An adjustment corrects a posted advance or final invoice."
+msgstr "Hóa đơn điều chỉnh sửa một hóa đơn tạm ứng hoặc hóa đơn cuối đã phát hành."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"An adjustment invoice corrects a posted advance or final invoice of the same "
+"customer."
+msgstr "Hóa đơn điều chỉnh sửa một hóa đơn tạm ứng hoặc hóa đơn cuối đã phát hành của cùng khách hàng."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"An adjustment invoice corrects a posted invoice, and only an adjustment "
+"invoice does."
+msgstr "Hóa đơn điều chỉnh sửa một hóa đơn đã phát hành, và chỉ hóa đơn điều chỉnh mới làm vậy."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"An adjustment invoice holds the difference it makes; its total cannot be 0."
+msgstr "Hóa đơn điều chỉnh ghi phần chênh lệch nó tạo ra; tổng của nó không thể bằng 0."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice_line.py:0
+msgid "An advance deduction lowers the invoice: its amount is negative."
+msgstr "Khấu trừ tạm ứng làm giảm hóa đơn: số tiền của nó là số âm."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "An advance or final invoice cannot have a negative total."
+msgstr "Hóa đơn tạm ứng hoặc hóa đơn cuối không thể có tổng âm."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_invoice_code_unique
+msgid "An invoice with this number already exists."
+msgstr "Đã có hóa đơn với số này."
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__attachment_id
+msgid "Attachment"
+msgstr "Tệp đính kèm"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Cancel"
+msgstr "Hủy"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__cancelled
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Cancelled"
+msgstr "Đã hủy"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__code
+msgid "Code"
+msgstr "Số hóa đơn"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_res_config_settings
+msgid "Config Settings"
+msgstr "Cấu Hình Hệ Thống"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__adjusts_id
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Corrects"
+msgstr "Điều chỉnh cho"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Create adjustment"
+msgstr "Tạo điều chỉnh"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_create_all
+msgid "Create invoice lines"
+msgstr "Tạo dòng hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_create_all
+msgid "Create invoices"
+msgstr "Tạo hóa đơn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__create_uid
+msgid "Created by"
+msgstr "Người tạo"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__create_date
+msgid "Created on"
+msgstr "Ngày tạo"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__currency_id
+msgid "Currency"
+msgstr "Tiền tệ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__partner_id
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Customer"
+msgstr "Khách hàng"
+
+#. module: commerce
+#: model:ir.model.fields,help:commerce.field_res_config_settings__invoice_due_days
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "Days a customer has to pay an invoice after it is posted."
+msgstr "Số ngày khách hàng phải thanh toán hóa đơn sau khi phát hành."
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_delete_all
+msgid "Delete invoice lines"
+msgstr "Xóa dòng hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_delete_all
+msgid "Delete invoices"
+msgstr "Xóa hóa đơn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__description
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Description"
+msgstr "Diễn giải"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__display_name
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__draft
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Draft"
+msgstr "Nháp"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Draft %s invoice"
+msgstr "Hóa đơn %s nháp"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__due_date
+msgid "Due Date"
+msgstr "Hạn thanh toán"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Due on"
+msgstr "Hạn thanh toán"
+
+#. module: commerce
+#: model:ir.ui.menu,name:commerce.menu_commerce_root
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "E-commerce"
+msgstr "Thương Mại Điện Tử"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_edit_all
+msgid "Edit invoice lines"
+msgstr "Sửa dòng hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_edit_all
+msgid "Edit invoices"
+msgstr "Sửa hóa đơn"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__final
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Final"
+msgstr "Cuối"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__id
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: commerce
+#: model:ir.actions.report,name:commerce.action_report_invoice
+#: model:ir.model,name:commerce.model_medilab_invoice
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__invoice_id
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Invoice"
+msgstr "Hóa Đơn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__invoice_due_days
+msgid "Invoice Due Days"
+msgstr "Số ngày hạn thanh toán"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_invoice_line
+msgid "Invoice Line"
+msgstr "Dòng Hóa Đơn"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "Invoice due days"
+msgstr "Số ngày hạn thanh toán"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_invoice
+#: model:ir.ui.menu,name:commerce.menu_invoice
+msgid "Invoices"
+msgstr "Hóa Đơn"
+
+#. module: commerce
+#: model:ir.ui.menu,name:commerce.menu_invoicing
+msgid "Invoicing"
+msgstr "Hóa Đơn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__kind
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__kind
+msgid "Kind"
+msgstr "Loại"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__write_uid
+msgid "Last Updated by"
+msgstr "Người cập nhật"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__write_date
+msgid "Last Updated on"
+msgstr "Ngày cập nhật"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice_line__kind__line
+msgid "Line"
+msgstr "Dòng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__line_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Lines"
+msgstr "Các dòng"
+
+#. module: commerce
+#: model:ir.module.module,shortdesc:base.module_commerce
+msgid "Medilab - E-commerce"
+msgstr "Medilab - Thương Mại Điện Tử"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Month"
+msgstr "Tháng"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Net"
+msgstr "Chưa thuế"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"Only a draft invoice can be cancelled; correct a posted one with an "
+"adjustment."
+msgstr "Chỉ hủy được hóa đơn nháp; sửa hóa đơn đã phát hành bằng hóa đơn điều chỉnh."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Only a draft invoice can be posted."
+msgstr "Chỉ phát hành được hóa đơn nháp."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice_line.py:0
+msgid ""
+"Only an adjustment invoice or an advance deduction has a negative amount."
+msgstr "Chỉ hóa đơn điều chỉnh hoặc khấu trừ tạm ứng mới có số tiền âm."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
+msgid "Owed"
+msgstr "Còn nợ"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Post"
+msgstr "Phát hành"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__posted
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Posted"
+msgstr "Đã phát hành"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__posted_at
+msgid "Posted At"
+msgstr "Phát hành lúc"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Posted on"
+msgstr "Ngày phát hành"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_vnd_mixin
+msgid "Prices in VND"
+msgstr "Giá bằng VND"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Print"
+msgstr "In"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_read_all
+msgid "Read invoice lines"
+msgstr "Xem dòng hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_read_all
+msgid "Read invoices"
+msgstr "Xem hóa đơn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__sent_at
+msgid "Sent At"
+msgstr "Gửi lúc"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__sequence
+msgid "Sequence"
+msgstr "Thứ tự"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__status
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__invoice_status
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Status"
+msgstr "Trạng thái"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Subtotal"
+msgstr "Tạm tính"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__tax_rate
+msgid "Tax Rate"
+msgstr "Thuế suất"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "The adjustment takes %s below what is paid or owed."
+msgstr "Điều chỉnh này đưa %s xuống dưới số đã trả hoặc còn nợ."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "The lines of a posted or cancelled invoice cannot be changed."
+msgstr "Không thể thay đổi các dòng của hóa đơn đã phát hành hoặc đã hủy."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
+msgid "Total"
+msgstr "Tổng cộng"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "VAT"
+msgstr "VAT"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "VAT %"
+msgstr "VAT %"

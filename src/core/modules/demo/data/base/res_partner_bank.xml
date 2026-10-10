@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_res_partner_bank_medilab" model="res.partner.bank">
+        <field name="partner_id" ref="base.main_partner" />
+        <field name="bank_name">Vietcombank</field>
+        <field name="bank_bic">BFTVVNVX</field>
+        <field name="account_number">0071000123456</field>
+        <field name="holder_name">Medilab</field>
+    </record>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.commerce</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="laboratory.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='medilab']" position="inside">
+                <block title="E-commerce" name="commerce">
+                    <setting id="medilab_invoice_due_days" string="Invoice due days" help="Days a customer has to pay an invoice after it is posted.">
+                        <field name="invoice_due_days" />
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_commerce_root" name="E-commerce" sequence="40">
+        <menuitem id="menu_invoicing" name="Invoicing" sequence="20">
+            <menuitem id="menu_invoice" action="action_medilab_invoice" sequence="10" />
+        </menuitem>
+    </menuitem>
+</odoo>
