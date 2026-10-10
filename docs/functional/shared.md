@@ -87,7 +87,7 @@ Every action in the system is recorded and can be reported on.
 - **Each entry has:** who (user or system), when, what (document and field), the old and new value, and the source (screen, API or job).
 - Audit entries cannot be edited or deleted by any user, including administrators. Only the cleanup job removes them, once they are older than the audit retention period and written to an archive file (SH-09).
 - The audit retention period is a system parameter. Until an administrator sets it, entries are kept for ever.
-- Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document.
+- Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document. The history of a document includes the entries of the documents under it, such as the samples and sample tests of a test request.
 - **Audit reports** can be generated for a period and exported for compliance purposes.
 - Personal data in the trail is limited to what is needed to identify who acted.
 - An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. Logins come from Odoo's own login log.
@@ -96,6 +96,7 @@ Acceptance criteria:
 
 - Changing a price shows who changed it, when, and from what to what.
 - An administrator cannot remove an entry from the trail.
+- The history of a test request shows the changes to its samples and sample tests.
 - A report for a given period lists every signature, approval and deletion in that period.
 
 #### SH-06 Locking of documents in use
@@ -209,6 +210,7 @@ Tasks with a planned time and machine bookings appear on schedules, and people a
 
 - A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
+- **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.
 - **Recipients.** For each event, the administrator chooses who is notified: the holders of one or more roles, the people of one or more departments, or both, on top of the person the event concerns directly, such as the assignee of a task.
 - **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event; the deliveries are sent by a scheduled job (SH-09). Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
 
@@ -216,6 +218,7 @@ Acceptance criteria:
 
 - A booking appears on the personal schedule of the person who runs it and on the machine's schedule.
 - A reminder arrives 15 minutes before a booking starts, once on each channel.
+- An event the administrator turned off notifies nobody; turning it on again notifies the next occurrence.
 
 ## II. External systems integration
 
