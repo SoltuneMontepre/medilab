@@ -9,6 +9,7 @@ Code conventions for agents and the system.
 - [Python](python.md): tooling, file structure, imports, naming, constants, code rules
 - [Database](database.md): model naming, fields, relationships, constraints
 - [Testing](testing.md): test layers, locations and the commands that run them
+- [Demo data](demo_data.md): the demo records every feature adds to the `demo` module
 - [Git](git.md): branch names and pull request titles that CI accepts
 - [Pipelines](pipeline.md): how GitHub Actions workflows are written: names, change detection, jobs, images, secrets
 - [Taskfiles](taskfiles.md): task layout, shell rules, colored output helpers
