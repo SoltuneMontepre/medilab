@@ -22,7 +22,7 @@ class Role(models.Model):
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
     _description = "Role"
     _order = "code"
-    _rec_names_search = ["name", "code"]
+    _rec_names_search = ("name", "code")
 
     # Unique code of the role: lowercase letters, digits and underscores; cannot change once the role exists.
     code = fields.Char(required=True, copy=False)

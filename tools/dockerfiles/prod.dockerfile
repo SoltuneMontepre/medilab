@@ -1,4 +1,4 @@
-FROM docker.io/library/odoo:19.0 AS builder
+FROM docker.io/library/odoo:20.0 AS builder
 
 USER root
 
@@ -12,7 +12,7 @@ RUN uv export --directory /tmp/core --frozen --no-dev \
         -r /tmp/requirements.txt
 
 
-FROM docker.io/library/odoo:19.0
+FROM docker.io/library/odoo:20.0
 
 USER root
 

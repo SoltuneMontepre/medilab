@@ -18,7 +18,7 @@ class TestParameter(models.Model):
     _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
     _description = "Test Parameter"
     _order = "code"
-    _rec_names_search = ["name", "code"]
+    _rec_names_search = ("name", "code")
 
     # Unique code staff and documents use for the parameter; filled from a sequence when left empty.
     code = fields.Char(required=True, copy=False, index="trigram")

@@ -5,17 +5,17 @@
         <div class="o_boolean_button_group btn-group" role="group">
             <button type="button"
                 class="btn"
-                t-att-class="{ 'btn-primary': !value, 'btn-outline-secondary': value }"
-                t-att-disabled="props.readonly"
+                t-att-class="{ 'btn-primary': !this.value, 'btn-outline-secondary': this.value }"
+                t-att-disabled="this.props.readonly"
                 t-on-click="() => this.setValue(false)">
-                <t t-esc="falseLabel"/>
+                <t t-out="this.falseLabel"/>
             </button>
             <button type="button"
                 class="btn"
-                t-att-class="{ 'btn-primary': value, 'btn-outline-secondary': !value }"
-                t-att-disabled="props.readonly"
+                t-att-class="{ 'btn-primary': this.value, 'btn-outline-secondary': !this.value }"
+                t-att-disabled="this.props.readonly"
                 t-on-click="() => this.setValue(true)">
-                <t t-esc="trueLabel"/>
+                <t t-out="this.trueLabel"/>
             </button>
         </div>
     </t>

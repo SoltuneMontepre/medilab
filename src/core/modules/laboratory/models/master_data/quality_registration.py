@@ -14,7 +14,7 @@ class QualityRegistration(models.Model):
     _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
     _description = "Quality Registration"
     _order = "code"
-    _rec_names_search = ["name", "code"]
+    _rec_names_search = ("name", "code")
 
     # Unique code of the dossier; filled from a sequence when left empty.
     code = fields.Char(required=True, copy=False)

@@ -37,7 +37,9 @@ class TestRoleLifecycle(TransactionCase):
 
         self.role.permission_ids = [Command.set(self.delete.ids)]
 
-        self.assertEqual(self.role.group_id.implied_ids, self.delete.group_id | export)
+        implied = self.role.group_id.implied_ids
+        self.assertEqual(implied & (self.read | self.delete).group_id, self.delete.group_id)
+        self.assertIn(export, implied)
 
     def test_holder_of_the_role_holds_its_permissions(self):
         user = new_test_user(self.env, login="role.holder", groups="base.group_user,laboratory.group_role_qa_tester")

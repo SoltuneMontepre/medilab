@@ -612,7 +612,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "pylint-odoo", specifier = ">=10.0.3" },
+    { name = "pylint-odoo", specifier = ">=10.0.12" },
     { name = "pyright", specifier = ">=1.1.400" },
     { name = "ruff", specifier = ">=0.15.0" },
 ]

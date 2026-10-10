@@ -8,14 +8,14 @@ How code inside an Odoo module is laid out.
 - Folder names are snake_case, because model folders are Python packages.
 - A new concern adds a folder in both `models/` and `views/` and a row to this table.
 
-| Concern             | Contains                                                                                                                      |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Concern             | Contains                                                                                                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `master_data`       | What the laboratory can test and with what: parameters, groups, sample types, methods, units, regulations, quality registrations, machines, chemicals, subcontractors, customers |
-| `sample_collection` | Test requests and samples: reception, handover, recollection, subcontract dispatches                                          |
-| `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                       |
-| `tasks`             | Task types and tasks                                                                                                          |
-| `management`        | Features only managers use                                                                                                    |
-| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, menus and the theme                      |
+| `sample_collection` | Test requests and samples: reception, handover, recollection, subcontract dispatches                                                                                             |
+| `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
+| `tasks`             | Task types and tasks                                                                                                                                                             |
+| `management`        | Features only managers use                                                                                                                                                       |
+| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, menus and the theme                                                                        |
 
 ## Files
 
@@ -34,11 +34,11 @@ How code inside an Odoo module is laid out.
 
 Technical names used in Python live in the `constants/` package at the root of the module, one file per kind:
 
-| File                  | Contains                                             |
-| --------------------- | ---------------------------------------------------- |
-| `constants/models.py` | Database model names, such as `MODEL_TEST_PARAMETER` |
-| `constants/permissions.py` | Actions, scopes and record rule domains of permissions, such as `SCOPE_DOMAINS` |
-| `constants/xml_ids.py` | External ids Python code refers to, such as `ADMINISTRATOR_ROLE` |
+| File                       | Contains                                                                   |
+| -------------------------- | -------------------------------------------------------------------------- |
+| `constants/models.py`      | Database model names, such as `MODEL_TEST_PARAMETER`                       |
+| `constants/permissions.py` | Actions, scopes and access domains of permissions, such as `SCOPE_DOMAINS` |
+| `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`           |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
 - Python code refers to a model by its constant, never by repeating the string: `_name = MODEL_TEST_PARAMETER`, `self.env[MODEL_TEST_PARAMETER]`.

@@ -1,11 +1,15 @@
 import { registry } from "@web/core/registry";
-import { Component } from "@odoo/owl";
+import { Component, t, useProps } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
 export class BooleanButtonGroupField extends Component {
   static template = "laboratory.BooleanButtonGroupField";
-  static props = { ...standardFieldProps };
+  props = useProps({
+    ...standardFieldProps,
+    trueLabel: t.string().optional(),
+    falseLabel: t.string().optional(),
+  });
 
   get trueLabel() {
     return this.props.trueLabel || _t("Yes");
