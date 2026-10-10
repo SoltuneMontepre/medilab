@@ -30,6 +30,10 @@
         "views/master_data/testing_field_views.xml",
         "views/master_data/testing_method_views.xml",
         "views/master_data/unit_category_views.xml",
+        "views/system/department_views.xml",
+        "views/system/permission_views.xml",
+        "views/system/person_views.xml",
+        "views/system/role_views.xml",
         "views/system/menus.xml",
     ],
     "assets": {

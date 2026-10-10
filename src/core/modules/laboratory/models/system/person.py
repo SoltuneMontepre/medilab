@@ -105,6 +105,17 @@ class Person(models.Model):
             self._sync_user_groups()
         return result
 
+    def action_open_user(self):
+        # The user form is where Odoo administrators set the password.
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "res.users",
+            "res_id": self.user_id.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
     @api.ondelete(at_uninstall=False)
     def _unlink_except_administrator(self):
         if self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False) in self:

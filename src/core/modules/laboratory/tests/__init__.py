@@ -9,6 +9,7 @@ from . import (
     test_parameter_constraints,
     test_parameter_method_department,
     test_people_deletion,
+    test_people_screens,
     test_permission_enforcement,
     test_permission_generation,
     test_person_access,
