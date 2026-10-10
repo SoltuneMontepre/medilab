@@ -143,9 +143,9 @@ model RegulationLimit {
   parameter_id  Int
   /// The unit of min_value and max_value; empty for a text-only limit.
   unit_id       Int?
-  /// Lowest allowed value; empty when there is no lower limit.
+  /// Lowest allowed value; 0 when there is no lower limit, since Odoo stores an empty number as 0.
   min_value     Decimal? @db.Decimal
-  /// Highest allowed value; empty when there is no upper limit.
+  /// Highest allowed value; 0 when there is no upper limit, since Odoo stores an empty number as 0.
   max_value     Decimal? @db.Decimal
   /// Decimals the limit shows on the report, such as 2 for 0.50.
   decimals      Int?
