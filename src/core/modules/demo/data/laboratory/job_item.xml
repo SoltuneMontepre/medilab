@@ -31,4 +31,14 @@
         <field name="next_attempt_at" eval="(DateTime.now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="last_error">ValueError: The provider is slow</field>
     </record>
+    <record id="demo_job_item_payos_create" model="medilab.job.item">
+        <field name="job_id" ref="commerce.job_payos_calls" />
+        <field name="item_key" eval="'create:%d' % ref('demo_payment_link_final_sao_mai_created')" />
+        <field name="document_model">medilab.payment.link</field>
+        <field name="document_id" eval="ref('demo_payment_link_final_sao_mai_created')" />
+        <field name="payload" eval="{'call': 'create'}" />
+        <field name="attempts">1</field>
+        <field name="next_attempt_at" eval="(DateTime.now() + timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="last_error">PayosUnavailable: PayOS could not be reached: ConnectTimeout</field>
+    </record>
 </odoo>

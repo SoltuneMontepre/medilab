@@ -27,6 +27,7 @@
                     <button name="action_post" type="object" string="Post" class="btn-primary" invisible="status != 'draft'" />
                     <button name="action_cancel" type="object" string="Cancel" invisible="status != 'draft'" />
                     <button name="action_create_adjustment" type="object" string="Create adjustment" invisible="status != 'posted' or kind == 'adjustment'" />
+                    <button name="action_create_payment_link" type="object" string="Create payment link" invisible="status != 'posted' or kind == 'adjustment'" />
                     <button name="action_print" type="object" string="Print" icon="fa-print" />
                     <field name="status" widget="statusbar" statusbar_visible="draft,posted" />
                 </header>
@@ -66,6 +67,19 @@
                                 <field name="amount_adjustment" invisible="kind == 'adjustment'" />
                                 <field name="amount_owed" invisible="kind == 'adjustment'" />
                             </group>
+                        </page>
+                        <page string="Payment links" name="payment_links" invisible="kind == 'adjustment'" groups="laboratory.group_permission_payment_link_read_all">
+                            <field name="payment_link_ids" readonly="1">
+                                <list>
+                                    <field name="create_date" string="Created on" />
+                                    <field name="provider_order_code" />
+                                    <field name="amount" />
+                                    <field name="amount_paid" />
+                                    <field name="expires_at" />
+                                    <field name="status" widget="badge" decoration-info="status in ('created', 'pending')" decoration-success="status == 'paid'" decoration-danger="status == 'failed'" />
+                                    <field name="currency_id" column_invisible="1" />
+                                </list>
+                            </field>
                         </page>
                         <page string="Adjustments" name="adjustments" invisible="kind == 'adjustment'">
                             <field name="adjustment_ids" readonly="1">

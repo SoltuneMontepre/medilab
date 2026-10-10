@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Transfer times are stored in UTC: 2026-03-03 10:15 and 16:40 in Vietnam. -->
+    <record id="demo_payment_link_transaction_sao_mai_first" model="medilab.payment.link.transaction">
+        <field name="link_id" ref="demo_payment_link_advance_sao_mai_paid" />
+        <field name="reference">FT26062123456701</field>
+        <field name="amount">1700000</field>
+        <field name="transacted_at">2026-03-03 03:15:00</field>
+    </record>
+    <record id="demo_payment_link_transaction_sao_mai_second" model="medilab.payment.link.transaction">
+        <field name="link_id" ref="demo_payment_link_advance_sao_mai_paid" />
+        <field name="reference">FT26062198765402</field>
+        <field name="amount">1000000</field>
+        <field name="transacted_at">2026-03-03 09:40:00</field>
+    </record>
+    <!-- A partial transfer on the pending link of Bình An: 2026-07-12 14:05 in Vietnam. -->
+    <record id="demo_payment_link_transaction_binh_an_partial" model="medilab.payment.link.transaction">
+        <field name="link_id" ref="demo_payment_link_final_binh_an_pending" />
+        <field name="reference">FT26193555666703</field>
+        <field name="amount">1000000</field>
+        <field name="transacted_at">2026-07-12 07:05:00</field>
+    </record>
+</odoo>

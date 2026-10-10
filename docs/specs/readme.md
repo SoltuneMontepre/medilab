@@ -24,6 +24,7 @@ Stories: US-AD13, US-AD15
 
 - [Audit trail](audit-trail.md): how actions on documents are recorded, protected, gathered into a document's history and reported
 - [Invoicing](invoicing.md): how invoices and their lines are posted, numbered, frozen, corrected by adjustment invoices and printed
+- [PayOS](payos.md): how payment links are created, verified, polled and kept in step with what PayOS reports, and how the credentials stay out of the database
 - [Permissions](permissions.md): how permission, role and person records become Odoo groups and accesses, and how the own-department scope is applied
 - [Scheduled jobs](scheduled-jobs.md): how jobs, their item queues and runs work: handlers, claiming, retries, running by hand and the no-overlap rule
 - [Settings](settings.md): how a module declares a system parameter with its default, how features read it, who changes settings and how modules install and uninstall independently

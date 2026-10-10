@@ -15,7 +15,15 @@ class TestInvoiceReport(InvoicingCase):
         html = report._render_qweb_html(REPORT_INVOICE, invoice.ids)[0].decode()
         text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
 
-        for expected in (invoice.code, self.customer.name, "5,000,000", "500,000", "5,500,000", "Amount owed", "VAT 10 %"):
+        for expected in (
+            invoice.code,
+            self.customer.name,
+            "5,000,000",
+            "500,000",
+            "5,500,000",
+            "Amount owed",
+            "VAT 10 %",
+        ):
             with self.subTest(text=expected):
                 self.assertIn(expected, text)
 

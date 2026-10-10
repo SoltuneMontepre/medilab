@@ -47,7 +47,9 @@ class TestInvoicePosting(InvoicingCase):
             invoice.action_post()
 
     def test_a_negative_advance_or_final_invoice_is_not_posted(self):
-        invoice = self.create_invoice(lines=((-100_000, 0),), kind="adjustment", post=False, adjusts_id=self.create_invoice().id)
+        invoice = self.create_invoice(
+            lines=((-100_000, 0),), kind="adjustment", post=False, adjusts_id=self.create_invoice().id
+        )
         invoice.write({"kind": "final", "adjusts_id": False})
 
         with self.assertRaises(UserError):

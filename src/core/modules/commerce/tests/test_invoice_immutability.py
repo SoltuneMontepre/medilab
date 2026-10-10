@@ -23,8 +23,12 @@ class TestInvoiceImmutability(InvoicingCase):
         refused = (
             lambda: line.write({"amount_untaxed": 1}),
             line.unlink,
-            lambda: invoice.write({"line_ids": [Command.create({"description": "More", "amount_untaxed": 1, "tax_rate": 0})]}),
-            lambda: self.env[line._name].create({"invoice_id": invoice.id, "description": "More", "amount_untaxed": 1, "tax_rate": 0}),
+            lambda: invoice.write(
+                {"line_ids": [Command.create({"description": "More", "amount_untaxed": 1, "tax_rate": 0})]}
+            ),
+            lambda: self.env[line._name].create(
+                {"invoice_id": invoice.id, "description": "More", "amount_untaxed": 1, "tax_rate": 0}
+            ),
         )
         for action in refused:
             with self.subTest(action=action), self.assertRaises(UserError):
@@ -40,7 +44,12 @@ class TestInvoiceImmutability(InvoicingCase):
     def test_a_draft_invoice_is_editable(self):
         invoice = self.create_invoice(post=False)
 
-        invoice.write({"due_date": "2030-01-01", "line_ids": [Command.create({"description": "More", "amount_untaxed": 1000, "tax_rate": 8})]})
+        invoice.write(
+            {
+                "due_date": "2030-01-01",
+                "line_ids": [Command.create({"description": "More", "amount_untaxed": 1000, "tax_rate": 8})],
+            }
+        )
 
         self.assertEqual(len(invoice.line_ids), 2)
 

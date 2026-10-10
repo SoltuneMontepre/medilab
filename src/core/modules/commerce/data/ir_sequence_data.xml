@@ -8,4 +8,11 @@
         <field name="suffix"> %(range_y)s/HD</field>
         <field name="use_date_range" eval="True" />
     </record>
+    <!-- Standard, not no_gap: a creation that rolls back after PayOS answered must never reuse its order code. -->
+    <record id="sequence_payment_link" model="ir.sequence">
+        <field name="name">Payment link order code</field>
+        <field name="code">medilab.payment.link</field>
+        <field name="implementation">standard</field>
+        <field name="padding">1</field>
+    </record>
 </odoo>

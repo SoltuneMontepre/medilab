@@ -15,7 +15,9 @@ class TestInvoiceAdjustment(InvoicingCase):
         self.assertEqual(adjustment.amount_total, -500_000)
         self.assertEqual(invoice.amount_adjustment, -500_000)
         self.assertEqual(invoice.amount_owed, 4_500_000)
-        self.assertEqual((invoice.code, invoice.amount_total, invoice.line_ids.mapped("amount_untaxed"), invoice.status), before)
+        self.assertEqual(
+            (invoice.code, invoice.amount_total, invoice.line_ids.mapped("amount_untaxed"), invoice.status), before
+        )
         self.assertEqual(adjustment.amount_owed, 0)
 
     def test_a_raising_adjustment_adds_to_what_is_owed(self):

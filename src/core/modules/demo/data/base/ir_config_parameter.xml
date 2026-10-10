@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- PayOS on, with one payment method turned off; the credentials still come from the environment. -->
+    <record id="demo_ir_config_parameter_payos_enabled" model="ir.config_parameter">
+        <field name="key">medilab.commerce.payos_enabled</field>
+        <field name="value">True</field>
+    </record>
+    <record id="demo_ir_config_parameter_payos_method_qr_transfer" model="ir.config_parameter">
+        <field name="key">medilab.commerce.payos_method_qr_transfer</field>
+        <field name="value">False</field>
+    </record>
+</odoo>

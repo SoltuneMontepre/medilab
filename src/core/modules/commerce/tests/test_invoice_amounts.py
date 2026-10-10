@@ -24,7 +24,16 @@ class TestInvoiceAmounts(InvoicingCase):
                 "line_ids": [
                     (0, 0, {"description": "Lead (Pb)", "amount_untaxed": 3_000_000, "tax_rate": 8}),
                     (0, 0, {"description": "Coliforms", "amount_untaxed": 2_000_000, "tax_rate": 8}),
-                    (0, 0, {"description": "Advance deducted", "kind": "advance_deduction", "amount_untaxed": -2_500_000, "tax_rate": 8}),
+                    (
+                        0,
+                        0,
+                        {
+                            "description": "Advance deducted",
+                            "kind": "advance_deduction",
+                            "amount_untaxed": -2_500_000,
+                            "tax_rate": 8,
+                        },
+                    ),
                 ],
             }
         )

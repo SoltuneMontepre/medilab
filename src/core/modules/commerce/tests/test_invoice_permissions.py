@@ -28,7 +28,9 @@ class TestInvoicePermissions(InvoicingCase):
             as_sales.action_post()
         with self.assertRaises(AccessError):
             as_sales.write({"due_date": "2030-01-01"})
-        views = self.as_person(self.env[MODEL_INVOICE], self.salesperson).get_views([(False, "list"), (False, "form")])["views"]
+        views = self.as_person(self.env[MODEL_INVOICE], self.salesperson).get_views([(False, "list"), (False, "form")])[
+            "views"
+        ]
         for view_type, view in views.items():
             root = etree.fromstring(view["arch"])
             with self.subTest(view=view_type):
@@ -37,7 +39,12 @@ class TestInvoicePermissions(InvoicingCase):
     def test_the_accountant_creates_posts_and_adjusts_invoices(self):
         invoices = self.as_person(self.env[MODEL_INVOICE], self.accountant)
 
-        invoice = invoices.create({"partner_id": self.customer.id, "line_ids": [(0, 0, {"description": "Lead (Pb)", "amount_untaxed": 1_000_000, "tax_rate": 8})]})
+        invoice = invoices.create(
+            {
+                "partner_id": self.customer.id,
+                "line_ids": [(0, 0, {"description": "Lead (Pb)", "amount_untaxed": 1_000_000, "tax_rate": 8})],
+            }
+        )
         invoice.action_post()
         adjustment = invoices.browse(invoice.action_create_adjustment()["res_id"])
 

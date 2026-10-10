@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cron_payos_calls" model="ir.cron">
+        <field name="name">PayOS: replay queued calls</field>
+        <field name="model_id" ref="laboratory.model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("payos.calls")</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+    </record>
+    <record id="cron_payos_poll" model="ir.cron">
+        <field name="name">PayOS: check pending payment links</field>
+        <field name="model_id" ref="laboratory.model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("payos.poll")</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+    </record>
+</odoo>

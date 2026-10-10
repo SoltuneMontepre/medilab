@@ -28,6 +28,10 @@ A posted invoice is frozen: only the fields the sending feature keeps (`sent_at`
 
 An adjustment invoice corrects one posted advance or final invoice of the same customer and holds only the difference, as positive or negative lines. It is posted and printed like any other invoice. The amount owed on the corrected invoice is its total plus the totals of its posted adjustments; the payments feature deducts the confirmed payments from it. An adjustment cannot take that amount below zero, and an adjustment invoice itself owes nothing: payments are recorded on the corrected invoice only.
 
+### Online payment
+
+**Create payment link** on a posted advance or final invoice asks PayOS for the amount still owed and opens the link; the invoice lists its links with their status and the amount PayOS reported. [PayOS](payos.md) describes the link and how the money it brings is stored.
+
 ### Printing
 
 `commerce.report_invoice` renders the invoice as a laboratory document with the company header: number and date, customer and supplier blocks, the invoice block (posted date, due date, total, amount owed), the lines, the tax per rate, the totals and the laboratory's bank accounts as payment details. The accountant prints or downloads it from the invoice; the customer portal and e-mailing are built by their own features.
@@ -41,5 +45,6 @@ Invoices and invoice lines are document types with the `read`, `create`, `edit` 
 - [Accountant](../functional/ecommerce_module/features/accountant.md), section 1
 - [Payment and quotation](../business/payment-and-quotation.md)
 - [Settings](settings.md)
+- [PayOS](payos.md)
 - [Permissions](permissions.md)
 - [Database diagram](../infrastructure/database/ecommerce/ecommerce.prisma)

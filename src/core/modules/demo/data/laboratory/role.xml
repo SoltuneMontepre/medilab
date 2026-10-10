@@ -3,7 +3,15 @@
     <record id="demo_role_sales" model="medilab.role">
         <field name="code">sales</field>
         <field name="name">Sales</field>
-        <field name="permission_ids" eval="[Command.set([ref('commerce.permission_invoice_read_all'), ref('commerce.permission_invoice_line_read_all')])]" />
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('commerce.permission_invoice_read_all'),
+                ref('commerce.permission_invoice_line_read_all'),
+                ref('commerce.permission_payment_link_read_all'),
+                ref('commerce.permission_payment_link_transaction_read_all'),
+            ])]"
+        />
     </record>
     <record id="demo_role_head_of_sales" model="medilab.role">
         <field name="code">head_of_sales</field>
@@ -23,6 +31,10 @@
                 ref('commerce.permission_invoice_line_create_all'),
                 ref('commerce.permission_invoice_line_edit_all'),
                 ref('commerce.permission_invoice_line_delete_all'),
+                ref('commerce.permission_payment_link_read_all'),
+                ref('commerce.permission_payment_link_create_all'),
+                ref('commerce.permission_payment_link_edit_all'),
+                ref('commerce.permission_payment_link_transaction_read_all'),
             ])]"
         />
     </record>

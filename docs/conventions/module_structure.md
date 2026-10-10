@@ -24,6 +24,8 @@ How code inside an Odoo module is laid out.
 - One model per file, named after the model: `test_parameter.py`.
 - Views of a model go in `<model>_views.xml`.
 - Menus are defined only in `views/system/menus.xml` and loaded last in `__manifest__.py`, after the actions they open.
+- Code that talks to an external provider and is no model lives in `services/<provider>_client.py`, such as `services/payos_client.py`; models call it and tests replace its one network method.
+- Routes live in `controllers/<route>.py`, such as `controllers/payos_webhook.py`.
 - Theme assets live in `static/src/theme/`, split into `scss/`, `js/`, `xml/` and `img/`.
 
 ## Permissions
@@ -39,6 +41,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | File                       | Contains                                                                   |
 | -------------------------- | -------------------------------------------------------------------------- |
 | `constants/models.py`      | Database model names, such as `MODEL_TEST_PARAMETER`                       |
+| `constants/payos.py`       | PayOS endpoints, environment variable names, status mapping and limits     |
 | `constants/permissions.py` | Actions, scopes and access domains of permissions, such as `SCOPE_DOMAINS` |
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`           |
 

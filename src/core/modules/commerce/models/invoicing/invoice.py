@@ -5,7 +5,12 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
 from odoo.tools import format_list
 
-from odoo.addons.commerce.constants.models import MODEL_INVOICE, MODEL_INVOICE_LINE, MODEL_VND_MIXIN
+from odoo.addons.commerce.constants.models import (
+    MODEL_INVOICE,
+    MODEL_INVOICE_LINE,
+    MODEL_PAYMENT_LINK,
+    MODEL_VND_MIXIN,
+)
 from odoo.addons.commerce.constants.xml_ids import REPORT_INVOICE
 from odoo.addons.commerce.models.system.res_config_settings import INVOICE_DUE_DAYS
 from odoo.addons.laboratory.constants.models import (
@@ -52,6 +57,8 @@ class Invoice(models.Model):
     adjustment_ids = fields.One2many(MODEL_INVOICE, "adjusts_id", string="Adjustments")
     # Lines of the invoice.
     line_ids = fields.One2many(MODEL_INVOICE_LINE, "invoice_id", string="Lines")
+    # Online payment links asking PayOS for the invoice's amounts.
+    payment_link_ids = fields.One2many(MODEL_PAYMENT_LINK, "invoice_id", string="Payment links")
     # Total excluding VAT.
     amount_untaxed = fields.Monetary(compute="_compute_amounts", store=True)
     # Total VAT.
@@ -85,7 +92,9 @@ class Invoice(models.Model):
     @api.depends("kind", "amount_total", "amount_adjustment")
     def _compute_amount_owed(self):
         for invoice in self:
-            invoice.amount_owed = 0 if invoice.kind == "adjustment" else invoice.amount_total + invoice.amount_adjustment
+            invoice.amount_owed = (
+                0 if invoice.kind == "adjustment" else invoice.amount_total + invoice.amount_adjustment
+            )
 
     @api.depends("code", "kind")
     def _compute_display_name(self):
@@ -136,7 +145,9 @@ class Invoice(models.Model):
         posted = self.filtered(lambda invoice: invoice.status == "posted")
         if posted:
             raise UserError(
-                self.env._("A posted invoice is never deleted: %s", format_list(self.env, posted.mapped("display_name")))
+                self.env._(
+                    "A posted invoice is never deleted: %s", format_list(self.env, posted.mapped("display_name"))
+                )
             )
 
     def _in_use_domain(self):
@@ -170,7 +181,9 @@ class Invoice(models.Model):
             raise UserError(self.env._("Add at least one line before posting the invoice."))
         if self.kind == "adjustment":
             if self.currency_id.is_zero(self.amount_total):
-                raise UserError(self.env._("An adjustment invoice holds the difference it makes; its total cannot be 0."))
+                raise UserError(
+                    self.env._("An adjustment invoice holds the difference it makes; its total cannot be 0.")
+                )
             if self.currency_id.compare_amounts(self.adjusts_id.amount_owed + self.amount_total, 0) < 0:
                 raise UserError(
                     self.env._("The adjustment takes %s below what is paid or owed.", self.adjusts_id.display_name)
@@ -181,7 +194,9 @@ class Invoice(models.Model):
     def action_cancel(self):
         self._check_permission("edit")
         if any(invoice.status != "draft" for invoice in self):
-            raise UserError(self.env._("Only a draft invoice can be cancelled; correct a posted one with an adjustment."))
+            raise UserError(
+                self.env._("Only a draft invoice can be cancelled; correct a posted one with an adjustment.")
+            )
         self.write({"status": "cancelled"})
 
     def action_create_adjustment(self):
@@ -205,6 +220,17 @@ class Invoice(models.Model):
             "type": "ir.actions.act_window",
             "res_model": MODEL_INVOICE,
             "res_id": adjustment.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
+    def action_create_payment_link(self):
+        self.ensure_one()
+        link = self.env[MODEL_PAYMENT_LINK]._create_for_invoice(self, self.amount_owed)
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": MODEL_PAYMENT_LINK,
+            "res_id": link.id,
             "view_mode": "form",
             "target": "current",
         }

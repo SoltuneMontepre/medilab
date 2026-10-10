@@ -40,4 +40,24 @@
         <field name="document_model">medilab.invoice.line</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_payment_link_read_all" model="medilab.permission">
+        <field name="name">Read payment links</field>
+        <field name="document_model">medilab.payment.link</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_payment_link_create_all" model="medilab.permission">
+        <field name="name">Create payment links</field>
+        <field name="document_model">medilab.payment.link</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_payment_link_edit_all" model="medilab.permission">
+        <field name="name">Edit payment links</field>
+        <field name="document_model">medilab.payment.link</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_payment_link_transaction_read_all" model="medilab.permission">
+        <field name="name">Read payment link transactions</field>
+        <field name="document_model">medilab.payment.link.transaction</field>
+        <field name="action">read</field>
+    </record>
 </odoo>

@@ -17,6 +17,12 @@ msgstr ""
 
 #. module: commerce
 #. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "%(link)s is already %(status)s."
+msgstr "%(link)s đã ở trạng thái %(status)s."
+
+#. module: commerce
+#. odoo-python
 #: code:addons/commerce/models/invoicing/invoice.py:0
 msgid ""
 "%s cannot be changed once posted or cancelled; correct a posted invoice with "
@@ -34,6 +40,14 @@ msgid "(object.code or 'Draft invoice').replace('/', '-')"
 msgstr "(object.code or 'Hoa don nhap').replace('/', '-')"
 
 #. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid ""
+"<i class=\"fa fa-warning\" title=\"Warning\"/> PayOS credentials are not "
+"configured: set PAYOS_CLIENT_ID, PAYOS_API_KEY and PAYOS_CHECKSUM_KEY in the"
+" environment."
+msgstr "<i class=\"fa fa-warning\" title=\"Cảnh báo\"/> Chưa cấu hình thông tin xác thực PayOS: đặt PAYOS_CLIENT_ID, PAYOS_API_KEY và PAYOS_CHECKSUM_KEY trong môi trường."
+
+#. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
 msgid "<strong>Customer</strong>"
 msgstr "<strong>Khách hàng</strong>"
@@ -47,6 +61,22 @@ msgstr "<strong>Thông tin thanh toán</strong>"
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
 msgid "<strong>Supplier</strong>"
 msgstr "<strong>Nhà cung cấp</strong>"
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_link_amount_positive
+msgid "A payment link asks for a positive amount."
+msgstr "Liên kết thanh toán phải yêu cầu một số tiền dương."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "A payment link pays a posted advance or final invoice."
+msgstr "Liên kết thanh toán dùng cho hóa đơn tạm ứng hoặc hóa đơn cuối đã phát hành."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_link_order_code_unique
+msgid "A payment link with this order code already exists."
+msgstr "Đã có liên kết thanh toán với mã đơn hàng này."
 
 #. module: commerce
 #. odoo-python
@@ -113,6 +143,13 @@ msgid "Advance invoice"
 msgstr "Hóa đơn tạm ứng"
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__amount
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__amount
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_list
+msgid "Amount"
+msgstr "Số tiền"
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_adjustment
 msgid "Amount Adjustment"
 msgstr "Số tiền điều chỉnh"
@@ -121,6 +158,11 @@ msgstr "Số tiền điều chỉnh"
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_owed
 msgid "Amount Owed"
 msgstr "Số tiền còn nợ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__amount_paid
+msgid "Amount Paid"
+msgstr "Số tiền đã trả"
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_tax
@@ -196,15 +238,30 @@ msgid "Attachment"
 msgstr "Tệp đính kèm"
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__payos_method_qr_transfer
+msgid "Bank transfer by QR code"
+msgstr "Chuyển khoản bằng mã QR"
+
+#. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
 msgid "Cancel"
 msgstr "Hủy"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_form
+msgid "Cancel this payment link at PayOS?"
+msgstr "Hủy liên kết thanh toán này tại PayOS?"
 
 #. module: commerce
 #: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__cancelled
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
 msgid "Cancelled"
 msgstr "Đã hủy"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__checkout_url
+msgid "Checkout Url"
+msgstr "Trang thanh toán"
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__code
@@ -236,6 +293,21 @@ msgstr "Tạo dòng hóa đơn"
 #: model:medilab.permission,name:commerce.permission_invoice_create_all
 msgid "Create invoices"
 msgstr "Tạo hóa đơn"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Create payment link"
+msgstr "Tạo liên kết thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_link_create_all
+msgid "Create payment links"
+msgstr "Tạo liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__created
+msgid "Created"
+msgstr "Đã tạo"
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__create_uid
@@ -333,10 +405,45 @@ msgid "Edit invoices"
 msgstr "Sửa hóa đơn"
 
 #. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_link_edit_all
+msgid "Edit payment links"
+msgstr "Sửa liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__expired
+msgid "Expired"
+msgstr "Hết hạn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__expires_at
+msgid "Expires At"
+msgstr "Hết hạn lúc"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+msgid "Expires on"
+msgstr "Hết hạn ngày"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__failed
+msgid "Failed"
+msgstr "Thất bại"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+msgid "Failed, cancelled or expired"
+msgstr "Thất bại, đã hủy hoặc hết hạn"
+
+#. module: commerce
 #: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__final
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
 msgid "Final"
 msgstr "Cuối"
+
+#. module: commerce
+#: model:ir.model.fields,help:commerce.field_res_config_settings__payos_link_expiry_hours
+msgid "Hours a payment link stays payable after it is created."
+msgstr "Số giờ liên kết thanh toán còn thanh toán được sau khi tạo."
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__id
@@ -425,6 +532,18 @@ msgid "Net"
 msgstr "Chưa thuế"
 
 #. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.payos_return_page
+msgid ""
+"Nothing was paid. You can pay the invoice later from the same link while it "
+"is valid."
+msgstr "Chưa có khoản nào được thanh toán. Bạn có thể thanh toán hóa đơn sau bằng chính liên kết này khi nó còn hiệu lực."
+
+#. module: commerce
+#: model:ir.model.fields,help:commerce.field_res_config_settings__payos_method_qr_transfer
+msgid "Offer bank transfer by QR code on the payment page."
+msgstr "Cho phép chuyển khoản bằng mã QR trên trang thanh toán."
+
+#. module: commerce
 #. odoo-python
 #: code:addons/commerce/models/invoicing/invoice.py:0
 msgid ""
@@ -446,9 +565,119 @@ msgid ""
 msgstr "Chỉ hóa đơn điều chỉnh hoặc khấu trừ tạm ứng mới có số tiền âm."
 
 #. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+msgid "Open"
+msgstr "Đang mở"
+
+#. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
 msgid "Owed"
 msgstr "Còn nợ"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__paid
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_list
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+msgid "Paid"
+msgstr "Đã thanh toán"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid ""
+"PayOS credentials are not configured: set PAYOS_CLIENT_ID, PAYOS_API_KEY and"
+" PAYOS_CHECKSUM_KEY in the environment."
+msgstr "Chưa cấu hình thông tin xác thực PayOS: đặt PAYOS_CLIENT_ID, PAYOS_API_KEY và PAYOS_CHECKSUM_KEY trong môi trường."
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__provider_payment_link_id
+msgid "PayOS link id"
+msgstr "Mã liên kết PayOS"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__payos_enabled
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "PayOS payments"
+msgstr "Thanh toán PayOS"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "PayOS payments are turned off in the settings."
+msgstr "Thanh toán PayOS đang tắt trong cấu hình."
+
+#. module: commerce
+#: model:medilab.scheduled.job,name:commerce.job_payos_calls
+msgid "PayOS queued calls"
+msgstr "PayOS: lệnh gọi đang chờ"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "PayOS refused the payment link: %s"
+msgstr "PayOS từ chối liên kết thanh toán: %s"
+
+#. module: commerce
+#: model:medilab.scheduled.job,name:commerce.job_payos_poll
+msgid "PayOS status check"
+msgstr "PayOS: kiểm tra trạng thái"
+
+#. module: commerce
+#: model:ir.actions.server,name:commerce.cron_payos_poll_ir_actions_server
+msgid "PayOS: check pending payment links"
+msgstr "PayOS: kiểm tra liên kết thanh toán đang chờ"
+
+#. module: commerce
+#: model:ir.actions.server,name:commerce.cron_payos_calls_ir_actions_server
+msgid "PayOS: replay queued calls"
+msgstr "PayOS: chạy lại lệnh gọi đang chờ"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_payment_link
+msgid "Payment Link"
+msgstr "Liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_payment_link_transaction
+msgid "Payment Link Transaction"
+msgstr "Giao dịch liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_payment_link
+#: model:ir.ui.menu,name:commerce.menu_payment_link
+msgid "Payment Links"
+msgstr "Liên kết thanh toán"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.payos_return_page
+msgid "Payment cancelled"
+msgstr "Đã hủy thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__link_id
+msgid "Payment link"
+msgstr "Liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__payment_link_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Payment links"
+msgstr "Liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__payos_configured
+msgid "Payos Configured"
+msgstr "PayOS đã cấu hình"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__payos_link_expiry_hours
+msgid "Payos Link Expiry Hours"
+msgstr "Số giờ hiệu lực liên kết PayOS"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__pending
+msgid "Pending"
+msgstr "Đang chờ"
 
 #. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
@@ -483,6 +712,11 @@ msgid "Print"
 msgstr "In"
 
 #. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__provider_order_code
+msgid "Provider Order Code"
+msgstr "Mã đơn hàng PayOS"
+
+#. module: commerce
 #: model:medilab.permission,name:commerce.permission_invoice_line_read_all
 msgid "Read invoice lines"
 msgstr "Xem dòng hóa đơn"
@@ -491,6 +725,26 @@ msgstr "Xem dòng hóa đơn"
 #: model:medilab.permission,name:commerce.permission_invoice_read_all
 msgid "Read invoices"
 msgstr "Xem hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_link_transaction_read_all
+msgid "Read payment link transactions"
+msgstr "Xem giao dịch liên kết thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_link_read_all
+msgid "Read payment links"
+msgstr "Xem liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__reference
+msgid "Reference"
+msgstr "Mã tham chiếu"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr "Tác vụ định kỳ"
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice__sent_at
@@ -515,9 +769,22 @@ msgid "Subtotal"
 msgstr "Tạm tính"
 
 #. module: commerce
+#: model:ir.model.fields,help:commerce.field_res_config_settings__payos_enabled
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid ""
+"Take online payments through PayOS. The credentials come from the "
+"environment, never from here."
+msgstr "Nhận thanh toán trực tuyến qua PayOS. Thông tin xác thực lấy từ môi trường, không bao giờ nhập ở đây."
+
+#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__tax_rate
 msgid "Tax Rate"
 msgstr "Thuế suất"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.payos_return_page
+msgid "Thank you"
+msgstr "Cảm ơn bạn"
 
 #. module: commerce
 #. odoo-python
@@ -527,15 +794,57 @@ msgstr "Điều chỉnh này đưa %s xuống dưới số đã trả hoặc cò
 
 #. module: commerce
 #. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "The amount must be positive and at most what is still owed on %s."
+msgstr "Số tiền phải dương và không vượt quá số còn nợ trên %s."
+
+#. module: commerce
+#. odoo-python
 #: code:addons/commerce/models/invoicing/invoice.py:0
 msgid "The lines of a posted or cancelled invoice cannot be changed."
 msgstr "Không thể thay đổi các dòng của hóa đơn đã phát hành hoặc đã hủy."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_form
+msgid ""
+"The link is being prepared: PayOS could not be reached, so the call waits in"
+" the job queue."
+msgstr "Liên kết đang được chuẩn bị: không kết nối được PayOS nên lệnh gọi đang chờ trong hàng đợi tác vụ."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid ""
+"The payment link order code must be a number; check its format in Code "
+"formats."
+msgstr "Mã đơn hàng của liên kết thanh toán phải là số; kiểm tra định dạng trong Định dạng mã."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_link_transaction_reference_unique
+msgid "This PayOS transaction is already stored."
+msgstr "Giao dịch PayOS này đã được lưu."
 
 #. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
 #: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
 msgid "Total"
 msgstr "Tổng cộng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__transacted_at
+msgid "Transacted At"
+msgstr "Thời điểm giao dịch"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__transacted_date
+msgid "Transacted Date"
+msgstr "Ngày giao dịch"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__transaction_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_form
+msgid "Transactions"
+msgstr "Giao dịch"
 
 #. module: commerce
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
@@ -546,3 +855,10 @@ msgstr "VAT"
 #: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
 msgid "VAT %"
 msgstr "VAT %"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.payos_return_page
+msgid ""
+"Your payment is recorded as soon as PayOS confirms it. You can close this "
+"page."
+msgstr "Khoản thanh toán của bạn được ghi nhận ngay khi PayOS xác nhận. Bạn có thể đóng trang này."

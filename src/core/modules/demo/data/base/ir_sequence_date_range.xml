@@ -7,4 +7,8 @@
         <field name="date_to">2026-12-31</field>
         <field name="number_next_actual">6</field>
     </record>
+    <!-- The demo payment links carry the order codes 1 to 6, so the next real link takes 7. -->
+    <record id="commerce.sequence_payment_link" model="ir.sequence">
+        <field name="number_next_actual">7</field>
+    </record>
 </odoo>

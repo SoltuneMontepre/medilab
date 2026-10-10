@@ -14,12 +14,15 @@ How a laboratory installs and configures MediLab the standard Odoo way, step by 
    Check: a user who switches to Vietnamese sees translated menus.
 5. **MediLab settings.** System → Settings opens the MediLab tab, one block per installed module.
    - Laboratory: **Code formats** lists the sequences of every code and document number; change the prefix, padding or next number as the laboratory wants. Existing codes keep their value.
+   - E-commerce: the invoice due days, and PayOS (next step).
    Check: a new test parameter saved without a code gets one in the chosen format.
-6. **Departments, people and roles.** People → Departments, then Roles (a role is a set of permissions), then People with their department, login and roles. The administrator role ships with the module and holds every permission.
+6. **PayOS (E-commerce).** Put the merchant's `PAYOS_CLIENT_ID`, `PAYOS_API_KEY` and `PAYOS_CHECKSUM_KEY` in the environment of the Odoo server; in the repository they are Doppler secrets injected by `task up` ([Secrets](../infrastructure/secrets.md)). Then in System → Settings turn **PayOS payments** on, keep on the payment methods the laboratory offers and set how many hours a payment link stays payable. Register `<address of the server>/medilab/payos/webhook` as the webhook in the PayOS dashboard. When environments share one PayOS merchant, set the next number of the payment link order code apart in Code formats.
+   Check: the block shows no warning about missing credentials, and **Create payment link** on a posted invoice opens a pending link with a checkout page. System → Jobs lists "PayOS queued calls" and "PayOS status check" with a next run.
+7. **Departments, people and roles.** People → Departments, then Roles (a role is a set of permissions), then People with their department, login and roles. The administrator role ships with the module and holds every permission.
    Check: a person signs in with their login and sees only the menus of their roles.
-7. **Master data.** Master Data: units, sample types, parameter groups, test parameters with their ways of testing, regulations, machines, chemicals, subcontractors.
+8. **Master data.** Master Data: units, sample types, parameter groups, test parameters with their ways of testing, regulations, machines, chemicals, subcontractors.
    Check: a parameter shows at least one way of testing with a unit and a department or subcontractor.
-8. **Demo data (optional).** On a trial installation only, install **Medilab - Testing Data** (`task upgrade MODULES=demo` from the repository): realistic records and a `demo.<role>` user per role, whose password is `MEDILAB_DEMO_PASSWORD` at install, or the login when it is unset.
+9. **Demo data (optional).** On a trial installation only, install **Medilab - Testing Data** (`task upgrade MODULES=demo` from the repository): realistic records and a `demo.<role>` user per role, whose password is `MEDILAB_DEMO_PASSWORD` at install, or the login when it is unset.
    Check: signing in as `demo.tester` shows the tester's screens.
 
 A fresh installation works with the defaults: every setting has one, and only what the laboratory wants to change needs a visit to the settings screens.
@@ -27,6 +30,7 @@ A fresh installation works with the defaults: every setting has one, and only wh
 ## Related documents
 
 - [Settings](../specs/settings.md)
+- [PayOS](../specs/payos.md)
 - [Shared technical features](../functional/shared.md): SH-01, SH-02, SH-03
 - [Secrets](../infrastructure/secrets.md)
 - [Resolving an issue](resolving-issue.md)
