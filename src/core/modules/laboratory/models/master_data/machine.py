@@ -16,7 +16,7 @@ class Machine(models.Model):
     _inherit = [MODEL_ARCHIVE_MIXIN]
     _description = "Machine"
     _order = "code"
-    _rec_names_search = ["name", "code", "serial_number"]
+    _rec_names_search = ("name", "code", "serial_number")
 
     # Unique code of the machine.
     code = fields.Char(required=True, copy=False)

@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import fields, models
 
 from odoo.addons.laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_SUBCONTRACTOR
 
@@ -10,7 +10,7 @@ class Subcontractor(models.Model):
     _inherits = {"res.partner": "partner_id"}
     _description = "Subcontractor"
     _order = "code"
-    _rec_names_search = ["name", "code"]
+    _rec_names_search = ("name", "code")
 
     # Unique code of the subcontractor, such as TP.0001; filled from a sequence when left empty.
     code = fields.Char(required=True, copy=False)
@@ -33,11 +33,3 @@ class Subcontractor(models.Model):
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a subcontractor must be unique.")
     _partner_unique = models.Constraint("UNIQUE(partner_id)", "This company is already a subcontractor.")
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        # A subcontractor created without an existing contact gets a new company contact.
-        for vals in vals_list:
-            if not vals.get("partner_id"):
-                vals.setdefault("is_company", True)
-        return super().create(vals_list)

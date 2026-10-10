@@ -4,7 +4,7 @@ vars:
   PROJECT_DIR: src/core
   UV: uv --project {{.PROJECT_DIR}}
   ODOO_SOURCE_DIR: .local/odoo-source
-  ODOO_SOURCE_REVISION: 7bbce824a1897a912441a7f0511ffec505cbe1d5
+  ODOO_SOURCE_REVISION: 17ff827a18248397342e73bb2bcac48e2b8e1027
   ODOO_ADDONS: [web]
   LINT_TARGET: src/core/modules
   LOG: tools/scripts/log.sh
@@ -56,7 +56,7 @@ tasks:
       - "{{.UV}} lock {{if .UPGRADE}}--upgrade{{end}}"
 
   dev:odoo-source:
-    desc: "Fetch the pinned Odoo 19 source (no Docker) so the editor and pyright can resolve odoo imports"
+    desc: "Fetch the pinned Odoo 20 source (no Docker) so the editor and pyright can resolve odoo imports"
     silent: true
     cmds:
       - |
@@ -66,8 +66,12 @@ tasks:
         REV="{{.ODOO_SOURCE_REVISION}}"
         log_step "Odoo source"
         if [ ! -d "$DIR" ]; then
-          log_info "Downloading Odoo 19.0 at ${REV:0:7}. This takes a minute."
-          git clone --quiet --depth 1 --filter=blob:none --sparse --branch 19.0 https://github.com/odoo/odoo.git "$DIR"
+          log_info "Downloading Odoo 20.0 at ${REV:0:7}. This takes a minute."
+          git clone --quiet --depth 1 --filter=blob:none --sparse --branch 20.0 https://github.com/odoo/odoo.git "$DIR"
+          git -C "$DIR" fetch --quiet --depth 1 origin "$REV"
+          git -C "$DIR" -c advice.detachedHead=false checkout --quiet --detach "$REV"
+        elif [ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ]; then
+          log_info "Updating the Odoo source to ${REV:0:7}."
           git -C "$DIR" fetch --quiet --depth 1 origin "$REV"
           git -C "$DIR" -c advice.detachedHead=false checkout --quiet --detach "$REV"
         fi

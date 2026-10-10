@@ -18,7 +18,7 @@ class ParameterMethod(models.Model):
     _inherit = [MODEL_ARCHIVE_MIXIN]
     _description = "Way of Testing"
     _order = "parameter_id, is_default desc, id"
-    _rec_names_search = ["parameter_id", "method_id"]
+    _rec_names_search = ("parameter_id", "method_id")
 
     # The parameter being tested.
     parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="cascade")

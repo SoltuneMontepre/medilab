@@ -9,7 +9,7 @@ class Chemical(models.Model):
     _inherit = [MODEL_ARCHIVE_MIXIN]
     _description = "Chemical"
     _order = "code"
-    _rec_names_search = ["name", "code", "cas_number"]
+    _rec_names_search = ("name", "code", "cas_number")
 
     # Unique code of the chemical.
     code = fields.Char(required=True, copy=False)

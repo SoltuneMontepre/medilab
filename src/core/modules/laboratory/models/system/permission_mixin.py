@@ -60,7 +60,7 @@ class PermissionMixin(models.AbstractModel):
         # The records the user may take the action on: the union of the scopes of their permissions for it.
         if self.env.su:
             return Domain.TRUE
-        eval_context = self.env["ir.rule"]._eval_context()
+        eval_context = self.env["ir.access"]._eval_context()
         return Domain.OR(Domain(safe_eval(SCOPE_DOMAINS[scope], eval_context)) for scope in self._user_scopes(action))
 
     def _check_permission(self, action):

@@ -56,7 +56,7 @@ tasks:
       - |
         . {{.LOG}}
         log_step "Odoo source"
-        log_info "Downloading Odoo 19.0. This takes a minute."
+        log_info "Downloading Odoo 20.0. This takes a minute."
         log_ok "Odoo source ready in .local/odoo-source."
 ```
 
