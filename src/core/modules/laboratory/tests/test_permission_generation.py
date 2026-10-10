@@ -1,8 +1,9 @@
+from lxml import etree
 from psycopg2 import IntegrityError
 
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Command
-from odoo.tests import TransactionCase, new_test_user, tagged
+from odoo.tests import TransactionCase, tagged
 from odoo.tools import mute_logger
 
 from odoo.addons.laboratory.constants.models import (
@@ -70,21 +71,24 @@ class TestPermissionGeneration(TransactionCase):
 
         self.assertIn(permission.group_id, self.env.ref("laboratory.group_role_administrator").implied_ids)
 
-    def test_permission_holder_without_odoo_settings_creates_permissions(self):
-        user = new_test_user(
-            self.env,
-            login="permission.manager",
-            groups="base.group_user,laboratory.group_permission_permission_read_all,"
-            "laboratory.group_permission_permission_create_all",
-        )
+    def test_permissions_are_neither_created_nor_deleted_from_the_screen(self):
+        administrator = self.env.ref("base.user_admin")
+        added = self.create_permission("read")
+        permissions = self.env[MODEL_PERMISSION].with_user(administrator)
 
-        permission = (
-            self.env[MODEL_PERMISSION]
-            .with_user(user)
-            .create({"name": "Read parameters", "document_model": MODEL_TEST_PARAMETER, "action": "read"})
-        )
+        with self.assertRaises(AccessError):
+            permissions.create({"name": "Read parameters", "document_model": MODEL_TEST_PARAMETER, "action": "create"})
+        with self.assertRaises(AccessError):
+            added.with_user(administrator).unlink()
+        added.with_user(administrator).write({"name": "Read test parameters"})
+        for view in permissions.get_views([(False, "list"), (False, "form")])["views"].values():
+            root = etree.fromstring(view["arch"])
+            self.assertEqual([root.get("create"), root.get("delete")], ["False", "False"])
 
-        self.assertTrue(self.generated("rule", permission.code))
+    def test_permission_document_type_offers_only_read_and_edit(self):
+        for action in ("create", "delete"):
+            with self.subTest(action=action), self.assertRaises(ValidationError):
+                self.create_permission(action, document_model=MODEL_PERMISSION)
 
     def test_document_type_action_and_scope_cannot_change(self):
         permission = self.create_permission("read")

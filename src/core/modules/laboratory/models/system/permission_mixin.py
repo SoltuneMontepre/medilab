@@ -15,6 +15,8 @@ EDITABLE_VIEW_TYPES = ("form", "list", "kanban")
 class PermissionMixin(models.AbstractModel):
     _name = MODEL_PERMISSION_MIXIN
     _description = "Permission Checks"
+    # The actions a document type has permissions for; a signed document type adds sign.
+    _permission_actions = ("read", "create", "edit", "archive", "delete")
 
     def _has_field_access(self, field, operation):
         # Without the archive permission, active is read-only, so the interface does not offer Archive. Other fields
@@ -39,6 +41,10 @@ class PermissionMixin(models.AbstractModel):
         if set(vals) - {"active"}:
             self._check_permission("edit")
         return super().write(vals)
+
+    @api.model
+    def _supported_permission_actions(self):
+        return tuple(action for action in self._permission_actions if action != "archive" or self._active_name)
 
     def _user_permissions(self, action):
         return (

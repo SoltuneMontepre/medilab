@@ -21,6 +21,8 @@ class Permission(models.Model):
     _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Permission"
     _order = "document_model, action, scope"
+    # Permissions come with modules: they are read and renamed on the screen, never created or deleted there.
+    _permission_actions = ("read", "edit")
 
     # Unique code derived from the document type, action and scope, such as sample.edit.own_department.
     code = fields.Char(compute="_compute_code", store=True, required=True, precompute=True)
@@ -172,13 +174,19 @@ class Permission(models.Model):
             )
         if action == "archive" and not model._active_name:
             raise ValidationError(self.env._("%s cannot be archived, so it has no archive permission.", label))
-        if (
-            action in WRITE_ACTIONS
-            and document_model not in self.env.registry[MODEL_PERMISSION_MIXIN]._inherit_children
-        ):
+        if document_model not in self.env.registry[MODEL_PERMISSION_MIXIN]._inherit_children:
+            if action in WRITE_ACTIONS:
+                raise ValidationError(
+                    self.env._(
+                        "%s does not tell editing from archiving yet, so it has no edit or archive permission.", label
+                    )
+                )
+        elif action not in model._supported_permission_actions():
             raise ValidationError(
                 self.env._(
-                    "%s does not tell editing from archiving yet, so it has no edit or archive permission.", label
+                    "%(document_type)s has no %(action)s permission.",
+                    document_type=label,
+                    action=dict(self._fields["action"]._description_selection(self.env))[action],
                 )
             )
 

@@ -24,6 +24,12 @@ How code inside an Odoo module is laid out.
 - Menus are defined only in `views/system/menus.xml` and loaded last in `__manifest__.py`, after the actions they open.
 - Theme assets live in `static/src/theme/`, split into `scss/`, `js/`, `xml/` and `img/`.
 
+## Permissions
+
+- Each new document model inherits `medilab.permission.mixin` and ships its permissions in its module's `data/permission_data.xml`: one per action in its `_permission_actions`, with scope `all`, and the same actions with scope `own_department` only when the model has `department_id`. A test fails when one is missing.
+- Permissions, the administrator role and the administrator person are shipped data. Departments, people and other roles are user data. Demo data lives only in the `demo` module, which assigns shipped permissions and never creates one.
+- [Permissions](../specs/permissions.md) describes the mechanism.
+
 ## Constants
 
 Technical names used in Python live in the `constants/` package at the root of the module, one file per kind:
@@ -44,3 +50,4 @@ Technical names used in Python live in the `constants/` package at the root of t
 
 - [Translation and menus](translation.md)
 - [Database models](database.md)
+- [Permissions](../specs/permissions.md)

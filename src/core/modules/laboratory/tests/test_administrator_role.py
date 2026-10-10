@@ -4,8 +4,6 @@ from odoo.tests import TransactionCase, new_test_user, tagged
 
 from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
 
-REQUIRED_ACTIONS = ("read", "create", "edit", "delete")
-
 
 @tagged("post_install", "-at_install")
 class TestAdministratorRole(TransactionCase):
@@ -52,7 +50,7 @@ class TestAdministratorRole(TransactionCase):
             model = self.env[model_name]
             if model._abstract:
                 continue
-            actions = {*REQUIRED_ACTIONS, "archive"} if "active" in model._fields else set(REQUIRED_ACTIONS)
+            actions = set(model._supported_permission_actions())
             shipped = self.env[MODEL_PERMISSION].search([("document_model", "=", model_name), ("scope", "=", "all")])
             with self.subTest(model=model_name):
                 self.assertFalse(actions - set(shipped.mapped("action")))

@@ -48,7 +48,9 @@ The generated group, access rule and record rule carry external identifiers of t
 
 The dots of the code become underscores in the identifier. Because the identifiers are stable, views refer to a permission's group as any other group: a field or button with `groups="laboratory.group_permission_person_sign_all"` is removed from the view for everyone else.
 
-Every feature declares the permissions of its document types in the laboratory module's `data/permission_data.xml`: `read`, `create`, `edit` and `delete` for every document type, `archive` for a type that can be archived, `sign` for a type that is signed, each with scope `all`, and the same actions with scope `own_department` for a type that has a department. A test walks every model that inherits the shared mixin below and fails when one of its applicable actions has no scope-`all` permission, so a feature cannot lock the administrator out of a new document type. A permission a module ships cannot be deleted from the screen; a permission an administrator created can, and its rule, access rule and group go with it, unless another record rule still uses its group, in which case the refusal names that rule.
+Every feature declares the permissions of its document types in its module's `data/permission_data.xml`: `read`, `create`, `edit` and `delete` for every document type, `archive` for a type that can be archived, `sign` for a type that is signed, each with scope `all`, and the same actions with scope `own_department` for a type that has a department. A document type lists the actions it has permissions for in `_permission_actions`, and a test walks every model that inherits the shared mixin below and fails when one of those actions has no scope-`all` permission, so a feature cannot lock the administrator out of a new document type.
+
+The permission catalogue belongs to the modules: users read permissions, rename them and give them to roles and people, but never create or delete them on the screen, so the permission document type has only the `read` and `edit` permissions. A permission a module no longer needs is deleted by that module, and its rule, access rule and group go with it, unless another record rule still uses its group, in which case the refusal names that rule.
 
 A permission is refused when Odoo cannot enforce it as stated: `archive` on a document type that cannot be archived, and `edit` or `archive` on a document type that does not inherit the shared mixin, since Odoo alone cannot tell editing from archiving there. The master data of the laboratory still uses its own access rules and joins the mixin when its access moves to permissions.
 
@@ -56,7 +58,7 @@ A permission is refused when Odoo cannot enforce it as stated: `archive` on a do
 
 A role holds permissions. Creating a role creates its group, `laboratory.group_role_<code>`, named `Role: <code>`; changing the role's permissions replaces the group's implied groups by the groups of those permissions; deleting the role deletes the group. A role code is lowercase letters, digits and underscores, starting with a letter, and cannot change once the role exists, because it names the role's group; the name can change.
 
-The **administrator** role ships with the module. Its group, `laboratory.group_role_administrator`, implies Odoo's settings group, so a person holding the role also configures Odoo. Every permission created, by the module or later by an administrator, is added to the administrator role, so its group implies every permission group, including those of features added later. The role cannot be deleted or renamed, and no permission can be removed from it.
+The **administrator** role ships with the module. Its group, `laboratory.group_role_administrator`, implies Odoo's settings group, so a person holding the role also configures Odoo. Every permission a module creates is added to the administrator role, so its group implies every permission group, including those of features added later. The role cannot be deleted or renamed, and no permission can be removed from it.
 
 The person of Odoo's default administrator, the user created with the database, ships with the module as well: their details are that user's contact, they hold the administrator role, and they cannot be archived or deleted, lose the role or be given another user.
 
@@ -103,6 +105,16 @@ Referring records are found with full rights, so records the user cannot see sti
 
 A way of testing names the department that tests it in-house, or a subcontractor, never both.
 
+### Shipped, user and demo data
+
+| Data                    | Records                                                    | Who creates it                                                                                                   |
+| ----------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Shipped with the module | Permissions, the administrator role, the administrator person | The module, on every install. Users choose among them and assign them; they cannot delete them on the screen.    |
+| User data               | Departments, people, roles other than the administrator    | Administrators and the people they give the permissions to.                                                      |
+| Demo data               | Departments, people with their users, roles                | Only the `demo` module. It assigns shipped permissions to its roles and people and never creates a permission. |
+
+The master data of the laboratory still gives its access through Odoo's settings group and the internal user group, until its access moves to permissions.
+
 ### Lifecycle
 
 Installing the module loads its permissions and generates their objects. Shipped permissions are loaded once and never overwritten by an upgrade, so a name an administrator changed stays; the generated objects stay as well, because their external identifiers are not updated. Uninstalling removes every record with an external identifier of the module: the access rules and record rules before the groups they refer to, then the groups.
@@ -114,7 +126,7 @@ Installing the module loads its permissions and generates their objects. Shipped
 | Department    | read, create, edit, archive, delete       | all                                  |
 | Person        | read, create, edit, archive, delete       | all, own_department                  |
 | Role          | read, create, edit, delete                | all                                  |
-| Permission    | read, create, edit, delete                | all                                  |
+| Permission    | read, edit                                | all                                  |
 
 ## Related documents
 

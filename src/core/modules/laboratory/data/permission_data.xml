@@ -30,20 +30,10 @@
         <field name="document_model">medilab.permission</field>
         <field name="action">read</field>
     </record>
-    <record id="permission_permission_create_all" model="medilab.permission">
-        <field name="name">Create permissions</field>
-        <field name="document_model">medilab.permission</field>
-        <field name="action">create</field>
-    </record>
     <record id="permission_permission_edit_all" model="medilab.permission">
         <field name="name">Edit permissions</field>
         <field name="document_model">medilab.permission</field>
         <field name="action">edit</field>
-    </record>
-    <record id="permission_permission_delete_all" model="medilab.permission">
-        <field name="name">Delete permissions</field>
-        <field name="document_model">medilab.permission</field>
-        <field name="action">delete</field>
     </record>
     <record id="permission_role_read_all" model="medilab.permission">
         <field name="name">Read roles</field>

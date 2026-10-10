@@ -6,14 +6,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 04:09+0000\n"
-"PO-Revision-Date: 2026-10-10 04:09+0000\n"
+"POT-Creation-Date: 2026-10-10 04:13+0000\n"
+"PO-Revision-Date: 2026-10-10 04:13+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/permission.py:0
+msgid "%(document_type)s has no %(action)s permission."
+msgstr ""
 
 #. module: laboratory
 #. odoo-python
@@ -464,11 +470,6 @@ msgid "Create people of their department"
 msgstr ""
 
 #. module: laboratory
-#: model:medilab.permission,name:laboratory.permission_permission_create_all
-msgid "Create permissions"
-msgstr ""
-
-#. module: laboratory
 #: model:medilab.permission,name:laboratory.permission_role_create_all
 msgid "Create roles"
 msgstr ""
@@ -549,11 +550,6 @@ msgstr ""
 #. module: laboratory
 #: model:medilab.permission,name:laboratory.permission_person_delete_own_department
 msgid "Delete people of their department"
-msgstr ""
-
-#. module: laboratory
-#: model:medilab.permission,name:laboratory.permission_permission_delete_all
-msgid "Delete permissions"
 msgstr ""
 
 #. module: laboratory
@@ -1248,16 +1244,6 @@ msgstr ""
 #. module: laboratory
 #: model:res.groups,name:laboratory.group_permission_department_read_all
 msgid "Permission: department.read.all"
-msgstr ""
-
-#. module: laboratory
-#: model:res.groups,name:laboratory.group_permission_permission_create_all
-msgid "Permission: permission.create.all"
-msgstr ""
-
-#. module: laboratory
-#: model:res.groups,name:laboratory.group_permission_permission_delete_all
-msgid "Permission: permission.delete.all"
 msgstr ""
 
 #. module: laboratory
