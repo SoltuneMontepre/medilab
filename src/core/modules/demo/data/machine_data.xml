@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="machine_aas" model="medilab.machine">
+        <field name="code">AAS-01</field>
+        <field name="name">Atomic absorption spectrometer 1</field>
+        <field name="model">PinAAcle 900T</field>
+        <field name="manufacturer">PerkinElmer</field>
+        <field name="serial_number">PAA900T-1042</field>
+        <field name="location">Room 203, bench 2</field>
+        <field name="maintenance_interval_days">180</field>
+    </record>
+    <record id="machine_service_aas_calibration" model="medilab.machine.service">
+        <field name="machine_id" ref="machine_aas" />
+        <field name="kind">calibration</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=2)).strftime('%Y-%m-%d')" />
+        <field name="next_due_date" eval="(DateTime.today() + relativedelta(months=10)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">Quality Assurance and Testing Centre</field>
+        <field name="reference">HC-2026-0412</field>
+    </record>
+    <record id="machine_service_aas_maintenance" model="medilab.machine.service">
+        <field name="machine_id" ref="machine_aas" />
+        <field name="kind">maintenance</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=1)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">PerkinElmer Vietnam</field>
+        <field name="reference">BT-2026-118</field>
+        <field name="note">Replaced the lamp and cleaned the burner.</field>
+    </record>
+
+    <record id="machine_icpms" model="medilab.machine">
+        <field name="code">ICPMS-01</field>
+        <field name="name">ICP-MS 1</field>
+        <field name="model">7900</field>
+        <field name="manufacturer">Agilent</field>
+        <field name="serial_number">JP-7900-2231</field>
+        <field name="location">Room 205</field>
+    </record>
+    <record id="machine_service_icpms_calibration" model="medilab.machine.service">
+        <field name="machine_id" ref="machine_icpms" />
+        <field name="kind">calibration</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=13)).strftime('%Y-%m-%d')" />
+        <field name="next_due_date" eval="(DateTime.today() - relativedelta(months=1)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">Quality Assurance and Testing Centre</field>
+        <field name="reference">HC-2025-0907</field>
+    </record>
+
+    <record id="machine_incubator" model="medilab.machine">
+        <field name="code">INC-01</field>
+        <field name="name">Incubator 1</field>
+        <field name="model">IN110</field>
+        <field name="manufacturer">Memmert</field>
+        <field name="serial_number">B416.0123</field>
+        <field name="location">Microbiology room</field>
+        <field name="status">under_repair</field>
+    </record>
+    <record id="machine_service_incubator_calibration" model="medilab.machine.service">
+        <field name="machine_id" ref="machine_incubator" />
+        <field name="kind">calibration</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=4)).strftime('%Y-%m-%d')" />
+        <field name="next_due_date" eval="(DateTime.today() + relativedelta(months=8)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">Quality Assurance and Testing Centre</field>
+        <field name="reference">HC-2026-0233</field>
+    </record>
+    <record id="machine_service_incubator_repair" model="medilab.machine.service">
+        <field name="machine_id" ref="machine_incubator" />
+        <field name="kind">repair</field>
+        <field name="service_date" eval="DateTime.today().strftime('%Y-%m-%d')" />
+        <field name="performed_by">Memmert service partner</field>
+        <field name="note">Temperature drifts by 2 °C; controller board sent for repair.</field>
+    </record>
+
+    <record id="machine_run_lead_aas" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="parameter_method_lead_aas" />
+        <field name="machine_id" ref="machine_aas" />
+        <field name="run_minutes">30</field>
+    </record>
+    <record id="machine_run_lead_icpms" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="parameter_method_lead_icpms" />
+        <field name="machine_id" ref="machine_icpms" />
+        <field name="run_minutes">20</field>
+    </record>
+    <record id="machine_run_coliforms_incubator" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="parameter_method_coliforms_mpn" />
+        <field name="machine_id" ref="machine_incubator" />
+        <field name="run_minutes">2880</field>
+    </record>
+    <record id="machine_run_e_coli_incubator" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="parameter_method_e_coli_membrane" />
+        <field name="machine_id" ref="machine_incubator" />
+        <field name="run_minutes">1440</field>
+    </record>
+
+    <record id="chemical_nitric_acid" model="medilab.chemical">
+        <field name="code">HC-001</field>
+        <field name="name">Nitric acid 65%</field>
+        <field name="cas_number">7697-37-2</field>
+        <field name="formula">HNO3</field>
+        <field name="grade">Suprapur</field>
+        <field name="storage_conditions">Acid cabinet, away from organic substances</field>
+        <field name="method_ids" eval="[Command.set([ref('method_tcvn_7602'), ref('method_iso_17294_2')])]" />
+    </record>
+    <record id="chemical_lead_standard" model="medilab.chemical">
+        <field name="code">HC-002</field>
+        <field name="name">Lead standard solution 1000 mg/L</field>
+        <field name="cas_number">7439-92-1</field>
+        <field name="formula">Pb</field>
+        <field name="grade">Certified reference material</field>
+        <field name="storage_conditions">2–8 °C</field>
+        <field name="method_ids" eval="[Command.set([ref('method_tcvn_7602'), ref('method_iso_17294_2')])]" />
+    </record>
+    <record id="chemical_sodium_chloride" model="medilab.chemical">
+        <field name="code">HC-003</field>
+        <field name="name">Sodium chloride</field>
+        <field name="cas_number">7647-14-5</field>
+        <field name="formula">NaCl</field>
+        <field name="grade">AR, ≥ 99.5 %</field>
+        <field name="storage_conditions">Dry place, room temperature</field>
+        <field
+            name="method_ids"
+            eval="[Command.set([ref('method_tcvn_6187_1'), ref('method_tcvn_6187_2'), ref('method_iso_4832')])]"
+        />
+    </record>
+    <record id="chemical_ph_buffer" model="medilab.chemical">
+        <field name="code">HC-004</field>
+        <field name="name">pH buffer solution 7.00</field>
+        <field name="grade">Certified</field>
+        <field name="storage_conditions">Room temperature, tightly closed</field>
+        <field name="method_ids" eval="[Command.set([ref('method_tcvn_6492'), ref('method_tcvn_5979')])]" />
+    </record>
+    <record id="chemical_acetonitrile" model="medilab.chemical">
+        <field name="code">HC-005</field>
+        <field name="name">Acetonitrile</field>
+        <field name="cas_number">75-05-8</field>
+        <field name="formula">C2H3N</field>
+        <field name="grade">HPLC grade</field>
+        <field name="storage_conditions">Flammables cabinet</field>
+        <field name="method_ids" eval="[Command.set([ref('method_en_15662')])]" />
+    </record>
+</odoo>
