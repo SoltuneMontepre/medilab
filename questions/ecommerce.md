@@ -8,7 +8,6 @@
 - **Discounts.** Odoo discounts an order line by a percentage, and the whole order by a discount line. The documents also allow a fixed amount off a line. Is a percentage per line enough? (blocks US-S06)
 - **Tax rates over time.** An Odoo tax has one rate. A change of rate for a period, such as VAT going from 10% to 8%, is a new tax put on the products for that period, and lines already priced keep their tax. Is that enough, or must the rate follow the quotation date by itself? (blocks US-AD18)
 - **E-invoices.** Odoo Community includes Vietnamese e-invoicing through Viettel SInvoice (`l10n_vn_edi_viettel`). Must MediLab invoices be issued as e-invoices through it? (blocks US-A03, US-A05)
-- **Public shop.** The portal catalog and cart are Odoo's eCommerce (`website_sale`), which installs the Website app. Is a public shop that visitors can browse before signing in wanted, or only the portal for signed-in customers? (blocks US-C08)
 
 ## Related documents
 

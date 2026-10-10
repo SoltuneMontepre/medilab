@@ -39,7 +39,7 @@ Each module also has every app its own apps depend on, such as `bus` through `ma
 | Scheduled job                             | `ir.cron`, with its progress (`ir.cron.progress`) and failure count                                                                                    |
 | Files, photos, signed PDFs, archive files | `ir.attachment`                                                                                                                                        |
 | Settings, numbering, languages            | `res.config.settings` and `ir.config_parameter`, `ir.sequence`, `res.lang` with Odoo's translations                                                    |
-| Customer portal                           | `portal` and `website_sale`                                                                                                                            |
+| Customer portal, shop                     | `portal`, and `website_sale` for the public catalog and cart                                                                                           |
 | Test parameter or package for sale        | `product.template` of type service for a parameter; a service package is a combo product                                                               |
 | Price, customer sales terms               | The product's sales price; the customer contact's payment terms (`account.payment.term`) and credit limit. There are no customer price lists          |
 | Tax                                       | `account.tax`                                                                                                                                          |
@@ -63,6 +63,16 @@ Each module also has every app its own apps depend on, such as `bus` through `ma
 | Cost centre                               | `account.analytic.account`                                                                                                                             |
 | Supplier item, purchase order             | `product.supplierinfo`, `purchase.order`                                                                                                               |
 | Subcontract cost                          | `product.supplierinfo` of the subcontractor on the parameter's product                                                                                 |
+
+### Menus
+
+People see the Odoo apps with their own menus, and MediLab adds its menus inside the app that holds the concept, next to the app's own: master data under the app's configuration, analysis under its reporting.
+
+| Module     | Menus                                                                                                                                          |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Laboratory | Its own Laboratory app for master data, test requests, samples, results and their analysis; its Tasks app, which opens on the person's day; people, departments and roles in Odoo's Employees app; machines in Odoo's Maintenance app |
+| E-commerce | Odoo's Sales app, and the shop and portal on the website                                                                                       |
+| Inventory  | Odoo's Inventory app                                                                                                                           |
 
 What no Odoo Community app holds stays MediLab's own: the test catalog, test requests, samples, sample tests and results, test reports, handover records, approval chains and signatures, change requests, machine bookings and the scheduler, subcontract dispatches, task types, the audit trail, document locks, notification preferences and pushes to Medilab Mobile, run logs of scheduled jobs, the samples and quotation revisions of an order, cancellation and support requests, reconciliation days, stock takes, how much each method uses, budgets, stock charges and the accounting export, and digital signing through Viettel Sign.
 

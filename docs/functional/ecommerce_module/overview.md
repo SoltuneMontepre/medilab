@@ -19,7 +19,7 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md). It bui
 - Self-service portal where customers view their account information, place orders and track the order status.
 - Secure login and authentication to protect customer data; customers only see their own documents.
 - Responsive design that works on desktop and mobile.
-- Test catalog with a cart: the customer selects parameters (tests) and service packages, filtered by sample type and parameter group. A parameter has its own price and a package has one price for all its parameters.
+- Public test catalog with a cart, open without signing in: the customer selects parameters (tests) and service packages, filtered by sample type and parameter group. A parameter has its own price and a package has one price for all its parameters. Submitting asks a visitor for their details and e-mail address.
 - Reorder a past order, request the cancellation of a confirmed order, and receive notifications at every step.
 
 ### II. Quotation Management
@@ -59,7 +59,7 @@ The tables are drawn in [ecommerce.prisma](../../infrastructure/database/ecommer
 
 | Rule             | Description                                                                                                                                    |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cart             | A customer's draft order is their cart. Submitting it puts it in the sales queue.                                                              |
+| Cart             | A customer's or visitor's draft order is their cart. Submitting it puts it in the sales queue; a visitor gives their details and e-mail address first. |
 | Order lines      | An order line is one parameter or one package, with a quantity.                                                                                |
 | Order lifecycle  | An order is draft, submitted, claimed, confirmed, completed or cancelled. Confirming it creates its test request in the Laboratory module; it is completed when that request's report is issued. Its approval by the Head of Sales follows its signatures. |
 | Quotation lines  | When a quotation is priced, each line copies its catalog price, discount, tax and the tax rate in force on the quotation date, so a sent quotation never changes with the catalog. |
