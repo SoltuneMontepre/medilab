@@ -91,6 +91,14 @@ There is no administrator bypass in the mixin: the administrator holds every per
 | Archive                          | The Archive action appears only while `active` is writable for the user.                                   |
 | Field, button, other view parts  | `groups="laboratory.group_permission_<code>"` on the view node.                                           |
 
+### Archiving and deleting
+
+Departments and people follow [Archiving and deleting](../business/archiving-and-deleting.md); roles and permissions have no archive and are deleted once nothing refers to them. A role a person holds cannot be deleted, a department that people or ways of testing name cannot be archived or deleted, and deleting a person removes them from their roles and takes the role and permission groups off their user.
+
+Referring records are found with full rights, so records the user cannot see still block archiving or deleting. The refusal names only the records the user can read and gives the others as a count, so it reveals no hidden record.
+
+A way of testing names the department that tests it in-house, or a subcontractor, never both.
+
 ### Lifecycle
 
 Installing the module loads its permissions and generates their objects. Shipped permissions are loaded once and never overwritten by an upgrade, so a name an administrator changed stays; the generated objects stay as well, because their external identifiers are not updated. Uninstalling removes every record with an external identifier of the module: the access rules and record rules before the groups they refer to, then the groups.

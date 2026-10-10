@@ -7,6 +7,8 @@ from . import (
     test_master_data_access,
     test_own_department_scope,
     test_parameter_constraints,
+    test_parameter_method_department,
+    test_people_deletion,
     test_permission_enforcement,
     test_permission_generation,
     test_person_access,

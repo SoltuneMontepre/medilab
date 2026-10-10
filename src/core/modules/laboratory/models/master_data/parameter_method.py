@@ -1,7 +1,9 @@
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 from odoo.addons.laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_DEPARTMENT,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
     MODEL_SUBCONTRACTOR,
@@ -28,6 +30,8 @@ class ParameterMethod(models.Model):
     unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, required=True, ondelete="restrict")
     # The subcontractor that tests it; empty when the laboratory tests it in-house.
     subcontractor_id = fields.Many2one(MODEL_SUBCONTRACTOR, ondelete="restrict", index=True)
+    # The department that tests it in-house; empty when a subcontractor tests it.
+    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True)
     # True when this way of testing is within an ISO 17025 accreditation scope.
     is_accredited = fields.Boolean(string="Accredited")
     # Limit of detection: the lowest value this method can detect, in the row's unit.
@@ -54,6 +58,17 @@ class ParameterMethod(models.Model):
         for pair in self:
             name = f"{pair.parameter_id.name} – {pair.method_id.code}"
             pair.display_name = f"{name} ({pair.subcontractor_id.name})" if pair.subcontractor_id else name
+
+    @api.constrains("department_id", "subcontractor_id")
+    def _check_tester(self):
+        for pair in self:
+            if pair.department_id and pair.subcontractor_id:
+                raise ValidationError(
+                    self.env._(
+                        "%s is tested either in-house by a department or by a subcontractor, not both.",
+                        pair.display_name,
+                    )
+                )
 
     @api.model_create_multi
     def create(self, vals_list):
