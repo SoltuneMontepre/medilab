@@ -1,0 +1,532 @@
+// Inventory module tables as the Odoo ORM creates them: stock items, locations, lots, stock, moves, consumption, stock takes, suppliers, purchase orders and receipts. Odoo owns the schema; this file only draws it.
+// Money columns are Odoo Monetary fields in VND, rounded by the currency.
+// Laboratory tables appear only with the columns this module uses; the full tables are in ../laboratory/laboratory.prisma.
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Laboratory's chemical, shown with the columns this module uses.
+model Chemical {
+  /// Row identifier.
+  id         Int        @id @default(autoincrement())
+  /// Unique code of the chemical.
+  code       String     @unique @db.VarChar
+  /// The stock item that stocks the chemical.
+  stock_item StockItem?
+
+  @@map("medilab_chemical")
+}
+
+/// Laboratory's testing method, shown with the columns this module uses.
+model TestingMethod {
+  /// Row identifier.
+  id           Int                 @id @default(autoincrement())
+  /// Unique standard reference of the method.
+  code         String              @unique @db.VarChar
+  /// Items one test of the method uses.
+  consumptions MethodConsumption[]
+
+  @@map("medilab_testing_method")
+}
+
+/// Laboratory's measurement unit, shown with the columns this module uses.
+model MeasurementUnit {
+  /// Row identifier.
+  id          Int         @id @default(autoincrement())
+  /// Unique unit symbol, such as mL or g.
+  name        String      @unique @db.VarChar
+  /// Items counted in this unit.
+  stock_items StockItem[]
+
+  @@map("medilab_measurement_unit")
+}
+
+/// Laboratory's department, shown with the columns this module uses.
+model Department {
+  /// Row identifier.
+  id              Int             @id @default(autoincrement())
+  /// Department name.
+  name            String          @db.VarChar
+  /// Locations the department holds.
+  locations       StockLocation[]
+  /// Purchase orders the department asked for.
+  purchase_orders PurchaseOrder[]
+
+  @@map("medilab_department")
+}
+
+/// Laboratory's test result, shown with the columns this module uses.
+model TestResult {
+  /// Row identifier.
+  id    Int         @id @default(autoincrement())
+  /// Stock used by the test, with its lots.
+  moves StockMove[]
+
+  @@map("medilab_test_result")
+}
+
+/// Laboratory's machine service record, shown with the columns this module uses.
+model MachineService {
+  /// Row identifier.
+  id    Int         @id @default(autoincrement())
+  /// Spare parts used in the service.
+  moves StockMove[]
+
+  @@map("medilab_machine_service")
+}
+
+/// Odoo's contact table, shown with the columns this module uses.
+model Contact {
+  /// Row identifier.
+  id                      Int        @id @default(autoincrement())
+  /// Name of the company or person.
+  name                    String     @db.VarChar
+  /// The supplier record when this company is a supplier.
+  supplier                Supplier?  @relation("SupplierCompany")
+  /// Suppliers for which this person is the contact person.
+  supplier_contact_for    Supplier[] @relation("SupplierContactPerson")
+
+  @@map("res_partner")
+}
+
+/// Something the laboratory keeps in stock: a chemical or reagent, a consumable, or a machine spare part.
+/// A trigram index on name serves search.
+model StockItem {
+  /// Row identifier.
+  id                           Int                 @id @default(autoincrement())
+  /// Unique code of the item; filled from a sequence when left empty.
+  code                         String              @unique @db.VarChar
+  /// Item name in each language.
+  name                         Json
+  /// chemical, consumable or spare_part.
+  kind                         String              @db.VarChar
+  /// The Laboratory chemical the item stocks; set only for a chemical.
+  chemical_id                  Int?                @unique
+  /// The unit stock of the item is counted in, such as mL, g or piece.
+  unit_id                      Int
+  /// Quantity below which a warning is raised and a purchase is suggested; empty for no minimum.
+  minimum_quantity             Decimal?            @db.Decimal
+  /// Days an opened container stays usable; empty when opening does not shorten its life.
+  shelf_life_after_opening_days Int?
+  /// False when the item is archived.
+  active                       Boolean             @default(true)
+  /// The Laboratory chemical the item stocks.
+  chemical                     Chemical?           @relation(fields: [chemical_id], references: [id], onDelete: Restrict)
+  /// The unit stock is counted in.
+  unit                         MeasurementUnit     @relation(fields: [unit_id], references: [id], onDelete: Restrict)
+  /// Lots of the item.
+  lots                         StockLot[]
+  /// Stock of the item per location and lot.
+  quants                       StockQuant[]
+  /// Moves of the item.
+  moves                        StockMove[]
+  /// Methods that use the item per test.
+  consumptions                 MethodConsumption[]
+  /// Suppliers that sell the item.
+  suppliers                    SupplierItem[]
+  /// Purchase order lines of the item.
+  purchase_lines               PurchaseOrderLine[]
+  /// Receipt lines of the item.
+  receipt_lines                ReceiptLine[]
+  /// Stock take lines of the item.
+  take_lines                  StockTakeLine[]
+
+  @@index([kind])
+  @@map("medilab_stock_item")
+}
+
+/// A place stock is kept, such as Main warehouse > Room 203 > Fridge 2.
+model StockLocation {
+  /// Row identifier.
+  id            Int             @id @default(autoincrement())
+  /// Unique code of the location.
+  code          String          @unique @db.VarChar
+  /// Location name in each language.
+  name          Json
+  /// The location this one is inside; empty for a top-level location.
+  parent_id     Int?
+  /// Ids of the location and all its ancestors, so stock in a location and everything inside it is found in one query.
+  parent_path   String?         @db.VarChar
+  /// The department that holds the location; empty when it is shared.
+  department_id Int?
+  /// Storage conditions of the location, such as "2–8 °C".
+  conditions    String?         @db.VarChar
+  /// False when the location is archived.
+  active        Boolean         @default(true)
+  /// The location this one is inside.
+  parent        StockLocation?  @relation("LocationTree", fields: [parent_id], references: [id], onDelete: Restrict)
+  /// Locations inside this one.
+  children      StockLocation[] @relation("LocationTree")
+  /// The department that holds the location.
+  department    Department?     @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// Stock in the location.
+  quants        StockQuant[]
+  /// Moves out of the location.
+  moves_out     StockMove[]     @relation("MoveFrom")
+  /// Moves into the location.
+  moves_in      StockMove[]     @relation("MoveTo")
+  /// Receipts put away in the location.
+  receipts      Receipt[]
+  /// Stock takes of the location.
+  stock_takes   StockTake[]
+  /// Stock take lines at the location.
+  take_lines   StockTakeLine[] @relation("TakeLineLocation")
+
+  @@index([parent_path])
+  @@map("medilab_stock_location")
+}
+
+/// One lot of an item, as received from a supplier, with its expiry. Unique on (item_id, lot_number).
+model StockLot {
+  /// Row identifier.
+  id                Int          @id @default(autoincrement())
+  /// The item.
+  item_id           Int
+  /// Lot number printed by the manufacturer.
+  lot_number        String       @db.VarChar
+  /// Expiry date printed on the container; empty when it has none.
+  expiry_date       DateTime?    @db.Date
+  /// When the first container of the lot was opened.
+  opened_at         DateTime?
+  /// Last day the lot can be used: the earlier of its expiry date and its opened date plus the item's shelf life after opening.
+  usable_until      DateTime?    @db.Date
+  /// available, expired or disposed. An expired lot cannot be used.
+  status            String       @db.VarChar
+  /// Purchase price of one unit, excluding VAT, from its receipt; used to value stock.
+  unit_cost         Decimal?     @db.Decimal
+  /// The manufacturer's certificate of analysis.
+  certificate_id    Int?
+  /// The item.
+  item              StockItem    @relation(fields: [item_id], references: [id], onDelete: Restrict)
+  /// Stock of the lot per location.
+  quants            StockQuant[]
+  /// Moves of the lot.
+  moves             StockMove[]
+  /// Stock take lines of the lot.
+  take_lines       StockTakeLine[]
+
+  @@unique([item_id, lot_number])
+  @@index([status, usable_until])
+  @@map("medilab_stock_lot")
+}
+
+/// The quantity of one item, in one lot, at one location, kept up to date by moves.
+/// Unique on (item_id, COALESCE(lot_id, 0), location_id).
+model StockQuant {
+  /// Row identifier.
+  id          Int           @id @default(autoincrement())
+  /// The item.
+  item_id     Int
+  /// The lot; empty for an item not tracked by lot, such as gloves.
+  lot_id      Int?
+  /// The location.
+  location_id Int
+  /// Quantity on hand, in the item's unit.
+  quantity    Decimal       @db.Decimal
+  /// The item.
+  item        StockItem     @relation(fields: [item_id], references: [id], onDelete: Restrict)
+  /// The lot.
+  lot         StockLot?     @relation(fields: [lot_id], references: [id], onDelete: Restrict)
+  /// The location.
+  location    StockLocation @relation(fields: [location_id], references: [id], onDelete: Restrict)
+
+  @@index([item_id])
+  @@index([location_id])
+  @@map("medilab_stock_quant")
+}
+
+/// One movement of stock: a receipt, a transfer between locations, a use, a disposal or a stock take correction. Moves are never edited; a mistake is corrected by another move.
+/// Who made it and when are Odoo's creation fields.
+model StockMove {
+  /// Row identifier.
+  id                Int             @id @default(autoincrement())
+  /// receipt, transfer, consumption, disposal or adjustment.
+  kind              String          @db.VarChar
+  /// The item moved.
+  item_id           Int
+  /// The lot moved; empty for an item not tracked by lot.
+  lot_id            Int?
+  /// Quantity moved, in the item's unit; always positive.
+  quantity          Decimal         @db.Decimal
+  /// Location the stock leaves; empty for a receipt.
+  from_location_id  Int?
+  /// Location the stock enters; empty for a consumption or a disposal.
+  to_location_id    Int?
+  /// The test result the stock was used for.
+  test_result_id    Int?
+  /// The machine service the spare part was used in.
+  machine_service_id Int?
+  /// The receipt line the stock came in on.
+  receipt_line_id   Int?
+  /// True when the system made the move from the method's usual use, rather than a person.
+  automatic         Boolean         @default(false)
+  /// Why the move was made, such as a calibration or a broken bottle.
+  reason            String?         @db.Text
+  /// The item moved.
+  item              StockItem       @relation(fields: [item_id], references: [id], onDelete: Restrict)
+  /// The lot moved.
+  lot               StockLot?       @relation(fields: [lot_id], references: [id], onDelete: Restrict)
+  /// Location the stock leaves.
+  from_location     StockLocation?  @relation("MoveFrom", fields: [from_location_id], references: [id], onDelete: Restrict)
+  /// Location the stock enters.
+  to_location       StockLocation?  @relation("MoveTo", fields: [to_location_id], references: [id], onDelete: Restrict)
+  /// The test result the stock was used for.
+  test_result       TestResult?     @relation(fields: [test_result_id], references: [id], onDelete: Restrict)
+  /// The machine service the spare part was used in.
+  machine_service   MachineService? @relation(fields: [machine_service_id], references: [id], onDelete: Restrict)
+  /// The receipt line the stock came in on.
+  receipt_line      ReceiptLine?    @relation(fields: [receipt_line_id], references: [id], onDelete: Restrict)
+  /// The stock take line the correction came from.
+  take_line        StockTakeLine?
+
+  @@index([item_id])
+  @@index([lot_id])
+  @@index([test_result_id])
+  @@map("medilab_stock_move")
+}
+
+/// How much of an item one test of a method usually uses; entering a result deducts it. Unique on (method_id, item_id).
+model MethodConsumption {
+  /// Row identifier.
+  id        Int           @id @default(autoincrement())
+  /// The testing method.
+  method_id Int
+  /// The item used.
+  item_id   Int
+  /// Quantity one test uses, in the item's unit.
+  quantity  Decimal       @db.Decimal
+  /// The testing method.
+  method    TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
+  /// The item used.
+  item      StockItem     @relation(fields: [item_id], references: [id], onDelete: Restrict)
+
+  @@unique([method_id, item_id])
+  @@index([item_id])
+  @@map("medilab_method_consumption")
+}
+
+/// A company the laboratory buys stock from. Its name, address and people are its contact.
+model Supplier {
+  /// Row identifier.
+  id                Int             @id @default(autoincrement())
+  /// Unique code of the supplier; filled from a sequence when left empty.
+  code              String          @unique @db.VarChar
+  /// The company contact of the supplier.
+  partner_id        Int             @unique
+  /// The person the laboratory deals with by default.
+  contact_person_id Int?
+  /// Free notes about the supplier.
+  note              String?         @db.Text
+  /// False when the laboratory no longer buys from the supplier.
+  active            Boolean         @default(true)
+  /// The company contact of the supplier.
+  partner           Contact         @relation("SupplierCompany", fields: [partner_id], references: [id], onDelete: Restrict)
+  /// The person the laboratory deals with by default.
+  contact_person    Contact?        @relation("SupplierContactPerson", fields: [contact_person_id], references: [id], onDelete: SetNull)
+  /// Items the supplier sells.
+  items             SupplierItem[]
+  /// Purchase orders to the supplier.
+  purchase_orders   PurchaseOrder[]
+  /// Receipts from the supplier.
+  receipts          Receipt[]
+
+  @@map("medilab_supplier")
+}
+
+/// An item a supplier sells, with the supplier's own reference and last price. Unique on (supplier_id, item_id).
+model SupplierItem {
+  /// Row identifier.
+  id             Int       @id @default(autoincrement())
+  /// The supplier.
+  supplier_id    Int
+  /// The item.
+  item_id        Int
+  /// The supplier's reference for the item.
+  supplier_code  String?   @db.VarChar
+  /// Last price paid for one unit, excluding VAT.
+  last_price     Decimal?  @db.Decimal
+  /// The supplier.
+  supplier       Supplier  @relation(fields: [supplier_id], references: [id], onDelete: Cascade)
+  /// The item.
+  item           StockItem @relation(fields: [item_id], references: [id], onDelete: Restrict)
+
+  @@unique([supplier_id, item_id])
+  @@index([item_id])
+  @@map("medilab_supplier_item")
+}
+
+/// An order for stock to one supplier, signed through its approval chain before it is sent.
+model PurchaseOrder {
+  /// Row identifier.
+  id            Int                 @id @default(autoincrement())
+  /// Unique purchase order number; filled from a sequence.
+  code          String              @unique @db.VarChar
+  /// The supplier ordered from.
+  supplier_id   Int
+  /// The department that asked for the stock.
+  department_id Int?
+  /// draft, signing, approved, sent, partially_received, received or cancelled.
+  status        String              @db.VarChar
+  /// When the order was sent to the supplier.
+  sent_at       DateTime?
+  /// Date the supplier is expected to deliver.
+  expected_date DateTime?           @db.Date
+  /// Total excluding VAT.
+  amount_total  Decimal             @db.Decimal
+  /// Free notes for the supplier.
+  note          String?             @db.Text
+  /// The supplier ordered from.
+  supplier      Supplier            @relation(fields: [supplier_id], references: [id], onDelete: Restrict)
+  /// The department that asked for the stock.
+  department    Department?         @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// Lines of the order.
+  lines         PurchaseOrderLine[]
+  /// Receipts of the order.
+  receipts      Receipt[]
+
+  @@index([supplier_id, status])
+  @@map("medilab_purchase_order")
+}
+
+/// One item ordered, its quantity, price and how much has arrived.
+model PurchaseOrderLine {
+  /// Row identifier.
+  id                Int           @id @default(autoincrement())
+  /// The purchase order.
+  order_id          Int
+  /// The item ordered.
+  item_id           Int
+  /// Quantity ordered, in the item's unit.
+  quantity          Decimal       @db.Decimal
+  /// Price of one unit, excluding VAT.
+  unit_price        Decimal       @db.Decimal
+  /// Quantity received so far, from the receipts.
+  received_quantity Decimal       @default(0) @db.Decimal
+  /// The purchase order.
+  order             PurchaseOrder @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  /// The item ordered.
+  item              StockItem     @relation(fields: [item_id], references: [id], onDelete: Restrict)
+  /// Receipt lines that received this line.
+  receipt_lines     ReceiptLine[]
+
+  @@index([order_id])
+  @@map("medilab_purchase_order_line")
+}
+
+/// Goods that arrived from a supplier, put away in a location. Who received them and when are Odoo's creation fields.
+model Receipt {
+  /// Row identifier.
+  id                Int            @id @default(autoincrement())
+  /// Unique receipt number; filled from a sequence.
+  code              String         @unique @db.VarChar
+  /// The supplier the goods came from.
+  supplier_id       Int
+  /// The purchase order received; empty for goods received without one.
+  purchase_order_id Int?
+  /// The location the goods were put away in.
+  location_id       Int
+  /// draft or done; a done receipt has created its lots and moves.
+  status            String         @db.VarChar
+  /// The supplier the goods came from.
+  supplier          Supplier       @relation(fields: [supplier_id], references: [id], onDelete: Restrict)
+  /// The purchase order received.
+  purchase_order    PurchaseOrder? @relation(fields: [purchase_order_id], references: [id], onDelete: Restrict)
+  /// The location the goods were put away in.
+  location          StockLocation  @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// Lines of the receipt.
+  lines             ReceiptLine[]
+
+  @@index([purchase_order_id])
+  @@map("medilab_receipt")
+}
+
+/// One item received: its lot, expiry, quantity and price.
+model ReceiptLine {
+  /// Row identifier.
+  id                     Int                @id @default(autoincrement())
+  /// The receipt.
+  receipt_id             Int
+  /// The purchase order line received; empty for goods received without an order.
+  purchase_order_line_id Int?
+  /// The item received.
+  item_id                Int
+  /// Lot number printed on the containers; empty for an item not tracked by lot.
+  lot_number             String?            @db.VarChar
+  /// Expiry date printed on the containers.
+  expiry_date            DateTime?          @db.Date
+  /// Quantity received, in the item's unit.
+  quantity               Decimal            @db.Decimal
+  /// Price of one unit, excluding VAT.
+  unit_price             Decimal?           @db.Decimal
+  /// The manufacturer's certificate of analysis.
+  certificate_id         Int?
+  /// The receipt.
+  receipt                Receipt            @relation(fields: [receipt_id], references: [id], onDelete: Cascade)
+  /// The purchase order line received.
+  purchase_order_line    PurchaseOrderLine? @relation(fields: [purchase_order_line_id], references: [id], onDelete: Restrict)
+  /// The item received.
+  item                   StockItem          @relation(fields: [item_id], references: [id], onDelete: Restrict)
+  /// Moves the line created.
+  moves                  StockMove[]
+
+  @@index([receipt_id])
+  @@map("medilab_receipt_line")
+}
+
+/// A stock take (kiểm kê kho): a physical check of one location and everything inside it. When it is done, every difference becomes a correction move.
+model StockTake {
+  /// Row identifier.
+  id           Int              @id @default(autoincrement())
+  /// Unique code of the stock take; filled from a sequence.
+  code         String           @unique @db.VarChar
+  /// The location counted, with every location inside it.
+  location_id  Int
+  /// Date the stock take is planned for.
+  planned_date DateTime         @db.Date
+  /// draft, in_progress, done or cancelled.
+  status       String           @db.VarChar
+  /// When the stock take was done.
+  done_at      DateTime?
+  /// The location counted.
+  location     StockLocation    @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// Lines of the stock take.
+  lines        StockTakeLine[]
+
+  @@index([status, planned_date])
+  @@map("medilab_stock_take")
+}
+
+/// One item, lot and location in a stock take: what the system expected and what was found.
+/// Unique on (take_id, item_id, COALESCE(lot_id, 0), location_id).
+model StockTakeLine {
+  /// Row identifier.
+  id                Int           @id @default(autoincrement())
+  /// The stock take.
+  take_id          Int
+  /// The item counted.
+  item_id           Int
+  /// The lot counted; empty for an item not tracked by lot.
+  lot_id            Int?
+  /// The location counted.
+  location_id       Int
+  /// Quantity on hand when the stock take started, in the item's unit.
+  expected_quantity Decimal       @db.Decimal
+  /// Quantity found; empty until counted.
+  counted_quantity  Decimal?      @db.Decimal
+  /// The correction move created for the difference, when there is one.
+  move_id           Int?          @unique
+  /// The stock take.
+  take              StockTake    @relation(fields: [take_id], references: [id], onDelete: Cascade)
+  /// The item counted.
+  item              StockItem     @relation(fields: [item_id], references: [id], onDelete: Restrict)
+  /// The lot counted.
+  lot               StockLot?     @relation(fields: [lot_id], references: [id], onDelete: Restrict)
+  /// The location counted.
+  location          StockLocation @relation("TakeLineLocation", fields: [location_id], references: [id], onDelete: Restrict)
+  /// The correction move created for the difference.
+  move              StockMove?    @relation(fields: [move_id], references: [id], onDelete: Restrict)
+
+  @@index([take_id])
+  @@map("medilab_stock_take_line")
+}
