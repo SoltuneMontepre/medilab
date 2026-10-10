@@ -10,6 +10,8 @@ from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINI
 
 DOCUMENT_MODEL_PREFIX = "medilab."
 IR_MODEL = "ir.model"
+IR_MODEL_ACCESS = "ir.model.access"
+IR_RULE = "ir.rule"
 IDENTITY_FIELDS = ("document_model", "action", "scope", "group_id")
 # Who holds a permission is set from the role or the person, where the groups are kept in sync.
 HOLDER_FIELDS = ("role_ids", "person_ids")
@@ -152,9 +154,7 @@ class Permission(models.Model):
     @api.ondelete(at_uninstall=False)
     def _unlink_except_group_in_use(self):
         generated = self._generated_records("rule")
-        shared = (
-            self.env["ir.rule"].sudo().search([("groups", "in", self.group_id.ids), ("id", "not in", generated.ids)])
-        )
+        shared = self.env[IR_RULE].sudo().search([("groups", "in", self.group_id.ids), ("id", "not in", generated.ids)])
         if shared:
             raise UserError(
                 self.env._(
@@ -177,7 +177,7 @@ class Permission(models.Model):
         return result
 
     def _generated_records(self, kind):
-        model = "ir.rule" if kind == "rule" else "ir.model.access"
+        model = IR_RULE if kind == "rule" else IR_MODEL_ACCESS
         records = self.env[model].sudo()
         for permission in self:
             records |= self.env.ref(permission._generated_xml_id(kind), raise_if_not_found=False) or records.browse()
@@ -220,8 +220,8 @@ class Permission(models.Model):
         for permission in self.sudo():
             records = {"group": permission.group_id}
             if permission.action in OPERATIONS:
-                records["access"] = self.env["ir.model.access"].sudo().create(permission._access_values())
-                records["rule"] = self.env["ir.rule"].sudo().create(permission._rule_values())
+                records["access"] = self.env[IR_MODEL_ACCESS].sudo().create(permission._access_values())
+                records["rule"] = self.env[IR_RULE].sudo().create(permission._rule_values())
             xml_ids += [
                 {"xml_id": permission._generated_xml_id(kind), "record": record, "noupdate": True}
                 for kind, record in records.items()
