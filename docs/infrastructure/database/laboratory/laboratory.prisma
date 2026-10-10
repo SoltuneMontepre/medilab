@@ -1,4 +1,4 @@
-// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, audit, locks, notifications and scheduled jobs. System parameters are Odoo settings stored in ir.config_parameter. Odoo owns the schema; this file only draws it.
+// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, audit, locks, notifications and scheduled jobs. Tables of the Odoo apps the module builds on (hr, resource, calendar, mail and base) appear with the columns the module uses and the columns it adds, under their Odoo table names. System parameters are Odoo settings stored in ir.config_parameter. Odoo owns the schema; this file only draws it.
 
 datasource db {
   provider = "postgresql"
@@ -218,20 +218,30 @@ model TestingField {
   @@map("medilab_testing_field")
 }
 
-/// A department of the laboratory.
+/// Odoo's employee department (hr.department), shown with the columns this schema uses and the columns the laboratory adds. A team (tổ) is a department whose parent is its department.
 model Department {
   /// Row identifier.
   id                Int               @id @default(autoincrement())
-  /// Department name.
-  name              String            @db.VarChar
+  /// Department or team name in each language.
+  name              Json
+  /// The department a team belongs to; empty for a department.
+  parent_id         Int?
+  /// The head of the department, or the lead of a team.
+  manager_id        Int?
   /// False when the department is archived.
   active            Boolean           @default(true)
+  /// The department a team belongs to.
+  parent            Department?       @relation("DepartmentTeams", fields: [parent_id], references: [id], onDelete: Restrict)
+  /// Teams the department is split into.
+  teams             Department[]      @relation("DepartmentTeams")
+  /// The head of the department, or the lead of a team.
+  manager           Person?           @relation("DepartmentManager", fields: [manager_id], references: [id], onDelete: SetNull)
   /// Parameter and method pairs the department tests in-house.
   parameter_methods ParameterMethod[]
-  /// Teams the department is split into.
-  teams             Team[]
   /// People in the department.
-  people            Person[]
+  people            Person[]          @relation("PersonDepartment")
+  /// People in the team.
+  team_people       Person[]          @relation("PersonTeam")
   /// Notification events whose notifications go to the department.
   notification_recipients NotificationEventRecipient[]
   /// Tasks in the department's queue.
@@ -239,30 +249,8 @@ model Department {
   /// Samples handed over to the department.
   handovers         SampleHandover[]
 
-  @@map("medilab_department")
-}
-
-/// A team (tổ) within a department.
-model Team {
-  /// Row identifier.
-  id            Int        @id @default(autoincrement())
-  /// Team name.
-  name          String     @db.VarChar
-  /// Department the team belongs to.
-  department_id Int
-  /// Person who leads the team.
-  lead_id       Int?
-  /// False when the team is archived.
-  active        Boolean    @default(true)
-  /// Department the team belongs to.
-  department    Department @relation(fields: [department_id], references: [id], onDelete: Restrict)
-  /// Person who leads the team.
-  lead          Person?    @relation("TeamLead", fields: [lead_id], references: [id], onDelete: Restrict)
-  /// People in the team.
-  people        Person[]   @relation("TeamMember")
-
-  @@index([department_id])
-  @@map("medilab_team")
+  @@index([parent_id])
+  @@map("hr_department")
 }
 
 /// The unit in which a measured value is expressed.
@@ -871,38 +859,38 @@ model TestResult {
   @@map("medilab_test_result")
 }
 
-/// Someone who works for the laboratory. Their details are their contact; their login is their Odoo user.
+/// Odoo's employee (hr.employee), shown with the columns this schema uses and the columns the laboratory adds: someone who works for the laboratory. Their details are their work contact; their login is their Odoo user.
 model Person {
   /// Row identifier.
   id            Int          @id @default(autoincrement())
-  /// The contact holding the person's details: name, email, phone, address.
-  partner_id    Int          @unique
+  /// The contact holding the person's details: name, email, phone, address; kept by Odoo's hr app.
+  work_contact_id Int        @unique
   /// The Odoo user the person logs in as; empty for people who never sign in.
   user_id       Int?         @unique
   /// Department of the person.
   department_id Int?
-  /// Team of the person, within their department.
+  /// Team of the person: a department whose parent is the person's department.
   team_id       Int?
   /// False when the person is archived.
   active        Boolean      @default(true)
   /// The contact holding the person's details.
-  partner       Contact      @relation(fields: [partner_id], references: [id], onDelete: Restrict)
+  work_contact  Contact      @relation(fields: [work_contact_id], references: [id], onDelete: Restrict)
   /// The Odoo user the person logs in as.
   user          User?        @relation(fields: [user_id], references: [id], onDelete: Restrict)
   /// Department of the person.
-  department    Department?  @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  department    Department?  @relation("PersonDepartment", fields: [department_id], references: [id], onDelete: Restrict)
   /// Team of the person.
-  team          Team?        @relation("TeamMember", fields: [team_id], references: [id], onDelete: Restrict)
-  /// Teams the person leads.
-  led_teams     Team[]       @relation("TeamLead")
+  team          Department?  @relation("PersonTeam", fields: [team_id], references: [id], onDelete: Restrict)
+  /// Departments the person heads and teams the person leads.
+  managed_departments Department[] @relation("DepartmentManager")
   /// Roles the person holds.
   roles         PersonRole[]
-  /// Permissions given to the person directly, on top of their roles.
-  permissions   PersonPermission[]
   /// Tasks assigned to the person.
   tasks         Task[]           @relation("TaskAssignee")
   /// Tasks the person assigned.
   assigned_tasks Task[]          @relation("TaskAssigner")
+  /// Permissions given to the person directly, on top of their roles.
+  permissions   PersonPermission[]
   /// Sample tests the person cancelled.
   cancelled_sample_tests SampleTest[] @relation("SampleTestCanceller")
   /// Machine bookings the person runs.
@@ -927,7 +915,8 @@ model Person {
   signatures    Signature[]
 
   @@index([department_id])
-  @@map("medilab_person")
+  @@index([team_id])
+  @@map("hr_employee")
 }
 
 /// Odoo's login account table, shown with the columns this schema uses. Each user has its own contact for its details.
@@ -954,8 +943,6 @@ model User {
   watched_locks  DocumentLockWatcher[] @relation("LockWatcher")
   /// The user's notification channel choices.
   notification_preferences NotificationPreference[] @relation("PreferenceUser")
-  /// Notifications sent to the user.
-  notifications  Notification[] @relation("NotificationUser")
   /// Job runs the user started by hand.
   triggered_runs JobRun[]     @relation("JobTrigger")
   /// Mobile devices the user receives reminders on.
@@ -1192,7 +1179,7 @@ model TaskType {
   @@map("medilab_task_type")
 }
 
-/// Work waiting for a department or a person, with a deadline, that opens the document and action to do it.
+/// Work waiting for a department, a role or a person, with a deadline, that opens the document and action to do it. Tasks are internal: the assignee is a person with an Odoo user.
 /// Points to its document by document_model and document_id, indexed together.
 model Task {
   /// Row identifier.
@@ -1227,6 +1214,8 @@ model Task {
   status         String       @db.VarChar
   /// When the task was done.
   done_at        DateTime?
+  /// The calendar event showing the planned time on the assignee's schedule, with its reminder; kept in step both ways.
+  calendar_event_id Int?      @unique
   /// The kind of task.
   type           TaskType     @relation(fields: [type_id], references: [id], onDelete: Restrict)
   /// Department whose queue holds the task.
@@ -1235,6 +1224,8 @@ model Task {
   assignee       Person?      @relation("TaskAssignee", fields: [assignee_id], references: [id], onDelete: Restrict)
   /// Person who assigned the task.
   assigned_by    Person?      @relation("TaskAssigner", fields: [assigned_by_id], references: [id], onDelete: Restrict)
+  /// The calendar event of the planned time.
+  calendar_event CalendarEvent? @relation("TaskEvent", fields: [calendar_event_id], references: [id], onDelete: SetNull)
   /// Machine bookings made for the task.
   bookings       MachineBooking[]
 
@@ -1243,6 +1234,27 @@ model Task {
   @@index([document_model, document_id])
   @@index([deadline])
   @@map("medilab_task")
+}
+
+/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task or a machine booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+model CalendarEvent {
+  /// Row identifier.
+  id        Int             @id @default(autoincrement())
+  /// Title shown on the calendar.
+  name      String          @db.VarChar
+  /// Start of the event.
+  start     DateTime
+  /// End of the event.
+  stop      DateTime
+  /// User who organises the event.
+  user_id   Int?
+  /// The task whose planned time the event shows.
+  task      Task?           @relation("TaskEvent")
+  /// The machine booking the event shows.
+  booking   MachineBooking? @relation("BookingEvent")
+
+  @@index([start])
+  @@map("calendar_event")
 }
 
 /// A sample test waiting for, or holding, a slot on a machine.
@@ -1268,8 +1280,10 @@ model MachineBooking {
   ends_at          DateTime?
   /// queued, scheduled, in_progress, done or cancelled.
   status           String     @db.VarChar
-  /// When the reminder before the start was sent; empty until it is sent.
-  reminder_sent_at DateTime?
+  /// The calendar event showing a scheduled booking on the person's schedule, with its reminder; empty while the booking waits in the queue.
+  calendar_event_id Int?     @unique
+  /// The calendar event of the booking.
+  calendar_event   CalendarEvent? @relation("BookingEvent", fields: [calendar_event_id], references: [id], onDelete: SetNull)
   /// The machine booked.
   machine          Machine    @relation(fields: [machine_id], references: [id], onDelete: Restrict)
   /// The sample test run on the machine.
@@ -1508,8 +1522,8 @@ model MobileDevice {
   last_seen_at DateTime
   /// False when the user signed out or the token was rejected; no reminder is pushed to it.
   active       Boolean   @default(true)
-  /// Push deliveries sent to the device.
-  deliveries   NotificationDelivery[]
+  /// Pushes sent to the device.
+  pushes       PushDelivery[]
   /// Handover records customers signed on the device.
   signed_handover_records HandoverRecord[]
   /// The Odoo user signed in on the device.
@@ -1624,7 +1638,7 @@ model DocumentLockWatcher {
   @@map("medilab_document_lock_watcher_rel")
 }
 
-/// A kind of event people are notified about, such as a booking reminder or a quotation sent.
+/// Odoo's message subtype (mail.message.subtype), shown with the columns this schema uses and the columns the laboratory adds: a kind of event people are notified about, such as a booking reminder or a quotation sent.
 model NotificationEvent {
   /// Row identifier.
   id            Int                      @id @default(autoincrement())
@@ -1632,18 +1646,20 @@ model NotificationEvent {
   code          String                   @unique @db.VarChar
   /// Event name in each language.
   name          Json
+  /// Technical name of the document type the event is about, such as medilab.machine.booking; empty for every type.
+  res_model     String?                  @db.VarChar
   /// True for events people cannot turn off, such as a password reset or a payment receipt.
   mandatory     Boolean                  @default(false)
   /// False when the administrator turned the event off; no notification of it is created. Ignored for mandatory events.
   enabled       Boolean                  @default(true)
-  /// Notifications of this event.
-  notifications Notification[]
+  /// Messages of this event.
+  messages      Message[]
   /// People's channel choices for this event.
   preferences   NotificationPreference[]
   /// Roles and departments notified of this event.
   recipients    NotificationEventRecipient[]
 
-  @@map("medilab_notification_event")
+  @@map("mail_message_subtype")
 }
 
 /// Who receives the notifications of one event: everyone holding a role, everyone in a department, or both. Configured by the administrator.
@@ -1668,7 +1684,7 @@ model NotificationEventRecipient {
   @@map("medilab_notification_event_recipient")
 }
 
-/// Whether one user receives one event on one channel. Unique on (user_id, event_id, channel).
+/// Whether one user receives one event on one channel, extending Odoo's notification preference of the user (notification_type), which is the default for events without a row. Shown in the user's Odoo preferences. Unique on (user_id, event_id, channel).
 model NotificationPreference {
   /// Row identifier.
   id       Int               @id @default(autoincrement())
@@ -1689,62 +1705,81 @@ model NotificationPreference {
   @@map("medilab_notification_preference")
 }
 
-/// One message to one user about one event, delivered on each of their channels.
-/// Partial index on user_id where read_at is empty, for unread counts. The cleanup job removes read notifications after their retention period.
-model Notification {
+/// Odoo's message (mail.message), shown with the columns this schema uses and the column the laboratory adds: one notification of one event about one document, sent to its recipients.
+/// Partial unique index on notification_key where it is set.
+model Message {
   /// Row identifier.
-  id             Int                    @id @default(autoincrement())
+  id               Int               @id @default(autoincrement())
+  /// Technical name of the document the message is about.
+  model            String?           @db.VarChar
+  /// Id of the document the message is about.
+  res_id           Int?
+  /// The event notified.
+  subtype_id       Int?
+  /// Title of the notification.
+  subject          String?           @db.VarChar
+  /// Text of the notification.
+  body             String?           @db.Text
   /// Unique key that stops the same notification being created twice, such as booking:42:reminder.
-  key            String                 @unique @db.VarChar
+  notification_key String?           @db.VarChar
   /// The event notified.
-  event_id       Int
-  /// The Odoo user notified.
-  user_id        Int
-  /// Title in the user's language.
-  title          String                 @db.VarChar
-  /// Message in the user's language.
-  body           String?                @db.Text
-  /// Technical name of the document the notification opens.
-  document_model String?                @db.VarChar
-  /// Id of the document the notification opens.
-  document_id    Int?
-  /// Action the notification opens on the document.
-  action         String?                @db.VarChar
-  /// When the user read it in the application; empty while unread.
-  read_at        DateTime?
-  /// The event notified.
-  event          NotificationEvent      @relation(fields: [event_id], references: [id], onDelete: Restrict)
-  /// The Odoo user notified.
-  user           User                   @relation("NotificationUser", fields: [user_id], references: [id], onDelete: Cascade)
-  /// Deliveries of the notification, one per channel.
-  deliveries     NotificationDelivery[]
+  event            NotificationEvent? @relation(fields: [subtype_id], references: [id], onDelete: SetNull)
+  /// One notification per recipient.
+  notifications    Notification[]
 
-  @@map("medilab_notification")
+  @@index([model, res_id])
+  @@map("mail_message")
 }
 
-/// Sending one notification on one channel. Unique on (notification_id, channel). Partial index on id where status is pending.
-model NotificationDelivery {
+/// Odoo's notification (mail.notification), shown with the columns this schema uses and the column the laboratory adds: one message to one recipient, in their inbox or by e-mail.
+/// The cleanup job removes read notifications after their retention period.
+model Notification {
   /// Row identifier.
-  id               Int           @id @default(autoincrement())
-  /// The notification sent.
+  id                  Int            @id @default(autoincrement())
+  /// The message notified.
+  mail_message_id     Int
+  /// The contact of the user notified.
+  res_partner_id      Int
+  /// inbox for the pop-up in the application, or email.
+  notification_type   String         @db.VarChar
+  /// Odoo's sending status: ready, sent, bounce, exception or canceled.
+  notification_status String         @db.VarChar
+  /// Delivery status Brevo reported for an e-mail: delivered, opened, bounced or failed.
+  brevo_status        String?        @db.VarChar
+  /// True once the user read it in the application.
+  is_read             Boolean        @default(false)
+  /// When the user read it.
+  read_date           DateTime?
+  /// The message notified.
+  message             Message        @relation(fields: [mail_message_id], references: [id], onDelete: Cascade)
+  /// Pushes of the notification to the user's mobile devices.
+  pushes              PushDelivery[]
+
+  @@index([res_partner_id, is_read])
+  @@map("mail_notification")
+}
+
+/// Pushing one notification to one mobile device through Firebase Cloud Messaging. Unique on (notification_id, mobile_device_id). Partial index on id where status is pending.
+model PushDelivery {
+  /// Row identifier.
+  id               Int          @id @default(autoincrement())
+  /// The notification pushed.
   notification_id  Int
-  /// popup, email, sms or push.
-  channel          String        @db.VarChar
+  /// The mobile device pushed to.
+  mobile_device_id Int
   /// pending, sent, failed or skipped.
-  status           String        @db.VarChar
+  status           String       @db.VarChar
   /// When it was sent.
   sent_at          DateTime?
-  /// Error the provider returned on the last failed attempt.
-  error            String?       @db.Text
-  /// The mobile device pushed to, for the push channel.
-  mobile_device_id Int?
-  /// The notification sent.
-  notification     Notification  @relation(fields: [notification_id], references: [id], onDelete: Cascade)
+  /// Error Firebase returned on the last failed attempt.
+  error            String?      @db.Text
+  /// The notification pushed.
+  notification     Notification @relation(fields: [notification_id], references: [id], onDelete: Cascade)
   /// The mobile device pushed to.
-  mobile_device    MobileDevice? @relation(fields: [mobile_device_id], references: [id], onDelete: SetNull)
+  mobile_device    MobileDevice @relation(fields: [mobile_device_id], references: [id], onDelete: Cascade)
 
-  @@unique([notification_id, channel])
-  @@map("medilab_notification_delivery")
+  @@unique([notification_id, mobile_device_id])
+  @@map("medilab_push_delivery")
 }
 
 /// A recurring job identified by its key, scheduled by an Odoo cron and working through a queue of items (SH-09).
@@ -1851,8 +1886,8 @@ model ArchiveFile {
   period_end   DateTime  @db.Date
   /// Number of records in the file.
   row_count    Int
-  /// Key of the file in object storage.
-  storage_key  String    @unique @db.VarChar
+  /// The Odoo attachment holding the file in object storage.
+  attachment_id Int      @unique
   /// SHA-256 of the file, checked before the archived records are removed.
   checksum     String    @db.VarChar
   /// Size of the file in bytes.

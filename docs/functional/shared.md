@@ -16,10 +16,12 @@ The system consists of three modules (E-commerce, Inventory, Laboratory) that ca
 - Installing a module never requires installing a module that depends on it.
 - When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
 - Each module can be upgraded without losing the data of the others.
+- Each module builds on Odoo Community apps and installs them with itself, as listed in [Module boundaries](../business/module-boundaries.md#odoo-apps). No module needs Odoo Enterprise.
 
 Acceptance criteria:
 
 - Laboratory installs and runs alone.
+- Every module installs on Odoo Community without any Enterprise app.
 - E-commerce and Inventory each install on top of Laboratory without the other being present.
 - Uninstalling E-commerce or Inventory leaves Laboratory data intact.
 
@@ -91,6 +93,7 @@ Every action in the system is recorded and can be reported on.
 - **Audit reports** can be generated for a period and exported for compliance purposes.
 - Personal data in the trail is limited to what is needed to identify who acted.
 - An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. Logins come from Odoo's own login log.
+- Odoo's field tracking shows the changes of a document in its chatter to everyone who reads it; the audit trail is the record that no one can edit or remove, kept apart from the chatter.
 
 Acceptance criteria:
 
@@ -109,6 +112,7 @@ Two users cannot change the same document at the same time.
 - An administrator can release a lock that is stuck; this is audited.
 - Long operations, such as sending a quotation or confirming a payment, lock the document for their duration so they cannot run twice.
 - A document has at most one active lock. The inactivity period is a system parameter (SH-03).
+- Others see a lock taken or released as it happens, without reloading, through Odoo's bus.
 
 Acceptance criteria:
 
@@ -147,6 +151,7 @@ All user-facing text can be translated, and users choose their language.
 - A new language is added by installing it and translating the texts; no code change is needed.
 - Fall back to the default language when a text is not translated yet.
 - Dates, numbers and currency follow the language's format.
+- Languages and translations are Odoo's own: a language is installed from the settings, and every text is translated through Odoo's translation files.
 
 Acceptance criteria:
 
@@ -167,8 +172,8 @@ Typical jobs: payment reminders, quotation expiry, retention and expiry checks (
 - Jobs do not run on top of themselves: a second run waits or is skipped while the first is running.
 - **Job and queue.** Each job has a unique key and is scheduled by an Odoo cron that administrators configure. A job works through a queue of items: each item is one unit of work, such as one reminder to send, with a key unique within the job, so the same work is never queued twice. An item is retried with a growing delay up to the job's number of attempts, then marked failed. A run claims the items it takes; an item claimed longer than the job's claim timeout, such as after a crash, goes back to the queue.
 - Each run records when it started and ended, its result, its log, and who ran it by hand; how many items were done and remain comes from Odoo's cron progress.
-- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their deliveries, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter. It never removes business records or signatures.
-- **Archive files.** Before it removes audit entries, the cleanup job writes them to a compressed archive file per period in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
+- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their pushes, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter. It never removes business records or signatures.
+- **Archive files.** Before it removes audit entries, the cleanup job writes them to a compressed archive file per period, stored as an Odoo attachment in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
 - Backups of the whole database and file store belong to the hosting, not to the application.
 
 Acceptance criteria:
@@ -180,6 +185,7 @@ Acceptance criteria:
 
 Work waiting for someone is a task with a deadline, and every person sees their tasks in one to-do list.
 
+- **Tasks are MediLab's own.** A task has its chatter and attachments. Tasks are internal: a task is assigned to one internal Odoo user, so everyone who does tasks has a login.
 - **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. Task types come with the modules that create their tasks; administrators neither create nor remove them. A task type says what creates its tasks (an event, or people by hand), where new tasks go (the queue of the department the event names, the holders of a role, or the person the event names), and the deadline when the document gives none. Administrators choose where new tasks go and the default deadline.
 - **Created by the system or by people.** The system creates a task when its event happens, such as a sample being received. People can also create a task and assign it with a deadline, such as sales scheduling a sample collection on an order.
 - **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed. A task routed to a role waits the same way until one of the role's holders claims it.
@@ -210,11 +216,14 @@ Tasks with a planned time and machine bookings appear on schedules, and people a
 | Test request schedule | The tasks, bookings and due dates of the samples of one test request                     |
 | Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
 
-- A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator.
+- **Built on Odoo Calendar.** A planned task and a machine booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a machine booking's event can only be moved where the scheduler finds the slot free. Working hours come from the person's working time (`resource.calendar`).
+- A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator. It is the alarm of the calendar event.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
 - **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.
 - **Recipients.** For each event, the administrator chooses who is notified: the holders of one or more roles, the people of one or more departments, or both, on top of the person the event concerns directly, such as the assignee of a task.
-- **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event; the deliveries are sent by a scheduled job (SH-09). Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
+- **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event. Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
+- **Built on Odoo Discuss.** A notification is an Odoo message (`mail.message`) on the document it is about, and an event is a message subtype (`mail.message.subtype`). In the application it is an Odoo inbox notification, shown as a pop-up through the bus. By e-mail it goes through Odoo's mail queue, which retries it. A push to Medilab Mobile is MediLab's own delivery, sent by a scheduled job (SH-09).
+- **Channel choices.** A person's choice of channels extends Odoo's own notification preference on their user: Odoo's choice, in the application or by e-mail, is their default for every event, and their preferences add a choice per event and channel, push included.
 
 Acceptance criteria:
 
@@ -228,17 +237,17 @@ All integrations are optional and enabled in the settings. Credentials come from
 
 ### 1. Brevo (email)
 
-The system sends all e-mail through Brevo.
+The system sends all e-mail through Brevo's SMTP relay, set as Odoo's outgoing mail server in the configuration file, so every e-mail, from notifications to quotations, goes through Odoo's mail queue.
 
 - Used for: notifications, alerts, quotations and invoices with attachments, reminders and reports.
-- Administrators configure the sender, the Brevo account and the templates. Templates are translatable (SH-08) and use the customer's contact (Sales documents) and notification preferences.
-- Delivery status (sent, delivered, opened, bounced, failed) is recorded against the message, so staff can see whether a customer received a quotation.
+- Administrators configure the sender and the templates. Templates are Odoo e-mail templates (`mail.template`), translatable (SH-08), and use the customer's contact (Sales documents) and notification preferences.
+- Delivery status (sent, delivered, opened, bounced, failed) is recorded against the message from Brevo's webhooks, on Odoo's notification of each recipient, so staff can see whether a customer received a quotation.
 - Bounced or invalid addresses are flagged on the customer's contact so that they are not used again.
 - If Brevo is unavailable the message stays queued and is retried; the business action that triggered it is not rolled back.
 
 ### 2. PayOS (payments)
 
-The system takes online payments through PayOS.
+The system takes online payments through PayOS, added as a payment provider of Odoo's payment framework (`payment.provider`). Each payment is an Odoo payment transaction, and a confirmed one posts an Odoo payment on the invoice. The PayOS keys come from the configuration file, not from the provider record.
 
 - Used for the advance and final invoices. The customer pays from the portal or from a payment link in an e-mail.
 - Payment methods are whatever PayOS offers (for example bank transfer by QR code); administrators enable or disable them in the settings, and the portal shows only those enabled.
@@ -261,7 +270,7 @@ The system digitally signs printed documents through Viettel Sign (SH-04). It do
 
 The system pushes reminders and notifications to the Medilab Mobile app through Firebase Cloud Messaging (SH-11).
 
-- When a person signs in on the app, the app registers the device's token for their user; signing out turns the token off.
+- When a person signs in on the app, the app registers the device's token for their user; signing out turns the token off. Odoo's own push devices serve web browsers only, so mobile devices are MediLab's own records.
 - A push sent to a token Firebase rejects turns that token off.
 - The Firebase credentials are configuration, not data (SH-03).
 

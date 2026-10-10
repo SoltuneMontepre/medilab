@@ -1592,3 +1592,14 @@
         }
     }
 }
+
+.o_form_view .o_field_widget {
+    .o_dropdown_button,
+    .o_datepicker_button {
+        top: 0;
+        bottom: 0;
+        right: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+}
