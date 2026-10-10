@@ -52,7 +52,7 @@ Every feature declares the permissions of its document types in the laboratory m
 
 ### Role
 
-A role holds permissions. Creating a role creates its group, `laboratory.group_role_<code>`, named `Role: <code>`; changing the role's permissions replaces the group's implied groups by the groups of those permissions; deleting the role deletes the group. A role code is lowercase letters, digits and underscores, starting with a letter.
+A role holds permissions. Creating a role creates its group, `laboratory.group_role_<code>`, named `Role: <code>`; changing the role's permissions replaces the group's implied groups by the groups of those permissions; deleting the role deletes the group. A role code is lowercase letters, digits and underscores, starting with a letter, and cannot change once the role exists, because it names the role's group; the name can change.
 
 The **administrator** role ships with the module. Its group, `laboratory.group_role_administrator`, implies Odoo's settings group, so a person holding the role also configures Odoo. Every permission created, by the module or later by an administrator, is added to the administrator role, so its group implies every permission group, including those of features added later. The role cannot be deleted or renamed, and no permission can be removed from it.
 
@@ -76,6 +76,7 @@ Access rules and record rules enforce `read`, `create` and `delete`, and record 
 - Each is checked against the records inside that action's scope, found from the permissions of the user's groups for the model and action, so a person with `edit` on every record and `archive` on their own department cannot archive another department's records, even though Odoo combines the two write rules with "or".
 - Without the archive permission, `active` is read-only for the user, which also keeps the interface from offering Archive. A user with `create` but without `archive` still creates records: the field keeps its default and is not written.
 - The mixin offers `_has_permission(action)` and `_permission_domain(action)` to features with their own actions, such as signing.
+- Permissions and roles inherit the mixin too, so their screens follow the same rules.
 
 There is no administrator bypass in the mixin: the administrator holds every permission, and the global rules hold for them. The signing feature (US-AD14) adds the rule that a signed document cannot be edited, archived or deleted to the same write and delete path, for everyone.
 

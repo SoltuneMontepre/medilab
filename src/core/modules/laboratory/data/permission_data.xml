@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+    <record id="permission_department_read_all" model="medilab.permission">
+        <field name="name">Read departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_department_create_all" model="medilab.permission">
+        <field name="name">Create departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_department_edit_all" model="medilab.permission">
+        <field name="name">Edit departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_department_archive_all" model="medilab.permission">
+        <field name="name">Archive departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_department_delete_all" model="medilab.permission">
+        <field name="name">Delete departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_permission_read_all" model="medilab.permission">
         <field name="name">Read permissions</field>
         <field name="document_model">medilab.permission</field>

@@ -3,25 +3,18 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
-from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_ROLE
+from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN, MODEL_ROLE
+from odoo.addons.laboratory.constants.permissions import DEPARTMENT_FIELD, OPERATIONS, SCOPE_DOMAINS
 from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_ROLE, MODULE
 
 DOCUMENT_MODEL_PREFIX = "medilab."
-DEPARTMENT_FIELD = "department_id"
-# The Odoo operation each action is enforced with; sign has none, its group alone marks who may sign.
-OPERATIONS = {"read": "read", "create": "create", "edit": "write", "archive": "write", "delete": "unlink"}
-SCOPE_DOMAINS = {
-    "all": "[(1, '=', 1)]",
-    "own_department": (
-        f"[('{DEPARTMENT_FIELD}.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]"
-    ),
-}
 IDENTITY_FIELDS = ("document_model", "action", "scope", "group_id")
 
 
 # Quyền
 class Permission(models.Model):
     _name = MODEL_PERMISSION
+    _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Permission"
     _order = "document_model, action, scope"
 

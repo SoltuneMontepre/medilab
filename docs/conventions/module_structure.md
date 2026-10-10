@@ -31,6 +31,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | File                  | Contains                                             |
 | --------------------- | ---------------------------------------------------- |
 | `constants/models.py` | Database model names, such as `MODEL_TEST_PARAMETER` |
+| `constants/permissions.py` | Actions, scopes and record rule domains of permissions, such as `SCOPE_DOMAINS` |
 | `constants/xml_ids.py` | External ids Python code refers to, such as `ADMINISTRATOR_ROLE` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
