@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 03:46+0000\n"
+"POT-Creation-Date: 2026-10-10 04:09+0000\n"
 "PO-Revision-Date: 2026-10-05 01:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
@@ -15,6 +15,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/permission.py:0
+msgid "%s cannot be archived, so it has no archive permission."
+msgstr "%s không thể lưu trữ, nên không có quyền lưu trữ."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/permission.py:0
+msgid ""
+"%s does not tell editing from archiving yet, so it has no edit or archive "
+"permission."
+msgstr "%s chưa phân biệt sửa và lưu trữ, nên chưa có quyền sửa hoặc lưu trữ."
 
 #. module: laboratory
 #. odoo-python
@@ -43,9 +57,24 @@ msgstr "và %s bản ghi khác"
 
 #. module: laboratory
 #. odoo-python
+#: code:addons/laboratory/models/system/person.py:0
+msgid ""
+"%s signs in, so their login cannot be emptied; archive the person instead."
+msgstr ""
+"%s đang đăng nhập vào hệ thống, nên không thể xóa tên đăng nhập; hãy lưu trữ "
+"nhân sự thay vào đó."
+
+#. module: laboratory
+#. odoo-python
 #: code:addons/laboratory/models/master_data/parameter_group.py:0
 msgid "A group that has parameters cannot have sub-groups: %s."
 msgstr "Nhóm đã có chỉ tiêu không thể có nhóm con: %s."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/person.py:0
+msgid "A login belongs to one person only."
+msgstr "Mỗi tên đăng nhập chỉ thuộc về một nhân sự."
 
 #. module: laboratory
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_measurement_unit_name_unique
@@ -726,6 +755,19 @@ msgstr "Vĩ độ"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_longitude
 msgid "Geo Longitude"
 msgstr "Kinh độ"
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/permission.py:0
+msgid ""
+"Give a permission to roles from the role, and to people from the person."
+msgstr "Hãy cấp quyền cho vai trò từ vai trò, và cho nhân sự từ nhân sự."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/role.py:0
+msgid "Give a role to people from the person."
+msgstr "Hãy gán vai trò cho nhân sự từ nhân sự."
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__grade
@@ -1865,6 +1907,12 @@ msgstr ""
 #: code:addons/laboratory/models/system/permission.py:0
 msgid "These permissions come with a module and cannot be deleted: %s"
 msgstr "Các quyền này đi kèm một phân hệ và không thể xóa: %s"
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/permission.py:0
+msgid "These record rules still use the permission's group: %s"
+msgstr "Các quy tắc bản ghi này vẫn dùng nhóm của quyền: %s"
 
 #. module: laboratory
 #. odoo-python
