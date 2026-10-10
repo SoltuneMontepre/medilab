@@ -1,0 +1,369 @@
+.o_task_dashboard {
+    background: $o-gray-100;
+
+    .o_task_dashboard_inner {
+        max-width: 78rem;
+        margin: 0 auto;
+        padding: 1.75rem 2rem 2.5rem;
+    }
+
+    .o_task_dashboard_head {
+        margin-bottom: 1.5rem;
+
+        h1 {
+            margin: 0.15rem 0 0.35rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: $o-main-headings-color;
+        }
+    }
+
+    .o_task_dashboard_date {
+        margin: 0;
+        font-weight: 600;
+        color: $o-brand-primary;
+    }
+
+    .o_task_dashboard_summary {
+        margin: 0;
+        font-size: 1rem;
+        color: $o-gray-700;
+    }
+
+    .o_task_bento {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        grid-template-areas:
+            "mine all"
+            "mine finished";
+        grid-template-rows: auto 1fr;
+        gap: 1rem;
+    }
+
+    .o_task_tile {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.25rem 1.5rem;
+        background: $o-view-background-color;
+        border: 1px solid $border-color;
+        border-radius: $o-border-radius-lg;
+
+        h2 {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: $o-main-headings-color;
+        }
+    }
+
+    .o_task_tile_mine {
+        grid-area: mine;
+        padding: 1.5rem 1.75rem;
+    }
+
+    .o_task_tile_all {
+        grid-area: all;
+    }
+
+    .o_task_tile_finished {
+        grid-area: finished;
+    }
+
+    .o_task_tile_head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .o_task_views {
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .oi {
+            font-size: 1.05rem;
+        }
+    }
+
+    .o_task_tile_all .o_task_views,
+    .o_task_tile_finished .o_task_views {
+        margin-top: auto;
+        align-self: flex-start;
+    }
+
+    .o_task_tile_link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.15rem;
+        padding: 0;
+        border: none;
+        background: none;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+
+        .oi {
+            font-size: 1.25rem;
+            color: $o-main-color-muted;
+            transition: $transition-base;
+        }
+
+        &:hover {
+            color: $o-main-link-color;
+
+            .oi {
+                color: $o-main-link-color;
+                transform: translateX(2px);
+            }
+        }
+    }
+
+    .o_task_figure {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        margin: 0;
+        color: $o-gray-700;
+
+        strong {
+            font-size: 2.25rem;
+            line-height: 1;
+            font-weight: 700;
+        }
+    }
+
+    .o_task_tile_all .o_task_figure strong {
+        color: $o-warning;
+    }
+
+    .o_task_tile_finished .o_task_figure strong {
+        color: $o-success;
+    }
+
+    .o_task_more {
+        align-self: flex-start;
+        padding: 0;
+    }
+
+    .o_task_note {
+        margin: 0;
+        font-size: 0.875rem;
+        color: $o-main-color-muted;
+    }
+
+    .o_task_ribbon_hours {
+        position: relative;
+        height: 1.25rem;
+        margin: 0.25rem 0 0.25rem;
+
+        span {
+            position: absolute;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: $o-main-color-muted;
+        }
+    }
+
+    .o_task_ribbon_track {
+        position: relative;
+        min-height: 3.5rem;
+        background: $o-gray-100;
+        border-radius: $o-border-radius-lg;
+    }
+
+    .o_task_ribbon_line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-left: 1px solid $border-color;
+    }
+
+    .o_task_ribbon_now {
+        position: absolute;
+        top: -0.35rem;
+        bottom: 0;
+        width: 2px;
+        z-index: 2;
+        background: $o-danger;
+
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -3px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: $o-danger;
+        }
+    }
+
+    .o_task_ribbon_block {
+        position: absolute;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 36px;
+        min-width: 4.5rem;
+        padding: 0 0.6rem;
+        border: 1px solid transparent;
+        border-left-width: 4px;
+        border-radius: $o-border-radius;
+        text-align: left;
+        line-height: 1.2;
+        cursor: pointer;
+
+        &:hover {
+            box-shadow: 0 2px 8px rgba($o-main-headings-color, 0.18);
+        }
+    }
+
+    .o_task_ribbon_block_name {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: $o-main-text-color;
+    }
+
+    .o_task_ribbon_block_time {
+        font-size: 0.75rem;
+        color: $o-gray-700;
+    }
+
+    .o_task_ribbon_empty {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        font-size: 0.875rem;
+        color: $o-main-color-muted;
+    }
+
+    .o_task_list_title {
+        margin: 0.5rem 0 0;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: $o-gray-700;
+    }
+
+    .o_task_row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid $border-color;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .o_task_row_main {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 0.15rem 0;
+        border: none;
+        background: none;
+        text-align: left;
+        cursor: pointer;
+
+        &:hover .o_task_row_name {
+            color: $o-main-link-color;
+        }
+    }
+
+    .o_task_row_name {
+        overflow: hidden;
+        font-weight: 600;
+        color: $o-main-text-color;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .o_task_row_due {
+        font-size: 0.8125rem;
+        color: $o-main-color-muted;
+    }
+
+    .o_task_row_overdue .o_task_row_due {
+        font-weight: 600;
+        color: $o-danger;
+    }
+
+    .o_task_dot {
+        width: 0.625rem;
+        height: 0.625rem;
+        border-radius: 50%;
+    }
+
+    .o_task_empty {
+        margin: 0;
+        padding: 1rem 0;
+        color: $o-main-color-muted;
+    }
+
+    .o_task_status_open {
+        background: mix($o-warning, $o-view-background-color, 10%);
+        border-color: $o-warning;
+
+        &.o_task_dot {
+            background: $o-warning;
+        }
+    }
+
+    .o_task_status_assigned,
+    .o_task_status_in_progress {
+        background: mix($o-action, $o-view-background-color, 10%);
+        border-color: $o-action;
+
+        &.o_task_dot {
+            background: $o-action;
+        }
+    }
+
+    .o_task_status_done {
+        background: mix($o-success, $o-view-background-color, 10%);
+        border-color: $o-success;
+
+        &.o_task_dot {
+            background: $o-success;
+        }
+    }
+
+    .o_task_status_cancelled {
+        background: mix($o-danger, $o-view-background-color, 10%);
+        border-color: $o-danger;
+
+        &.o_task_dot {
+            background: $o-danger;
+        }
+    }
+
+    button:focus-visible {
+        outline: 2px solid $o-action;
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 991.98px) {
+        .o_task_dashboard_inner {
+            padding: 1.25rem 1rem 2rem;
+        }
+
+        .o_task_bento {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas:
+                "mine"
+                "all"
+                "finished";
+        }
+    }
+}

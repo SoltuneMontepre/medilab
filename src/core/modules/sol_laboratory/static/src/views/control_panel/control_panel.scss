@@ -1,0 +1,15 @@
+.o_control_panel .o_cp_switch_buttons_left {
+    flex-shrink: 0;
+    margin-left: 0.75rem;
+
+    .o_switch_view {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+    }
+}
+
+.o_control_panel .o_control_panel_breadcrumbs:has(.o_cp_switch_buttons_left) .o_breadcrumb {
+    flex-shrink: 0;
+}
