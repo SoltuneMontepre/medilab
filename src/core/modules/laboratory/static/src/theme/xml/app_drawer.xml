@@ -30,7 +30,7 @@
                                 <span class="ml_app_tile_icon">
                                     <iconify-icon t-att-icon="this.getAppIcon(app)" class="ml_icon_md"/>
                                 </span>
-                                <span class="ml_app_tile_name" t-esc="app.name"/>
+                                <span class="ml_app_tile_name" t-out="app.name"/>
                             </a>
                         </t>
                         <p t-if="!this.filteredApps.length" class="ml_apps_empty">No app matches your search.</p>

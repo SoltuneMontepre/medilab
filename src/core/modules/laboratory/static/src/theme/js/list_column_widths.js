@@ -1,5 +1,3 @@
-/** @odoo-module **/
-
 import { registry } from "@web/core/registry";
 
 // Odoo shrinks every column to its minWidth when a list overflows, which truncates badges and tags.

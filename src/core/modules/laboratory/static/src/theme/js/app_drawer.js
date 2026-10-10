@@ -1,10 +1,7 @@
-/** @odoo-module **/
-
-import { useLayoutEffect } from "@web/owl2/utils";
 import { NavBar } from "@web/webclient/navbar/navbar";
 import { patch } from "@web/core/utils/patch";
 import { useBus } from "@web/core/utils/hooks";
-import { proxy, signal } from "@odoo/owl";
+import { proxy, signal, useOnChange } from "@odoo/owl";
 
 const APP_ICONS_BY_XMLID = {
     "laboratory.menu_sample_collection_root": "mdi:package-variant",
@@ -56,13 +53,13 @@ patch(NavBar.prototype, {
         this.navHighlight = proxy({ actionId: false, actionPath: false });
         this.syncNavHighlight();
         useBus(this.env.bus, "ACTION_MANAGER:UI-UPDATED", () => this.syncNavHighlight());
-        useLayoutEffect(
-            (open) => {
+        useOnChange(
+            () => [this.appDrawer.open, this.appSearchRef()],
+            (open, search) => {
                 if (open) {
-                    this.appSearchRef()?.focus();
+                    search?.focus();
                 }
-            },
-            () => [this.appDrawer.open]
+            }
         );
     },
 

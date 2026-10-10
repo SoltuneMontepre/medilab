@@ -1,5 +1,3 @@
-/** @odoo-module **/
-
 import { registry } from "@web/core/registry";
 
 const userMenuItems = registry.category("user_menuitems");
