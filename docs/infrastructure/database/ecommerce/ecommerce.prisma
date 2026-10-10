@@ -27,6 +27,30 @@ model TestParameter {
   @@map("medilab_test_parameter")
 }
 
+/// Laboratory's sample type, shown with the columns this module uses.
+model SampleType {
+  /// Row identifier.
+  id                Int               @id @default(autoincrement())
+  /// Unique code of the sample type.
+  code              String            @unique @db.VarChar
+  /// Quotation samples of the type.
+  quotation_samples QuotationSample[]
+
+  @@map("medilab_sample_type")
+}
+
+/// Laboratory's regulation, shown with the columns this module uses.
+model Regulation {
+  /// Row identifier.
+  id                Int               @id @default(autoincrement())
+  /// Unique code of the regulation.
+  code              String            @unique @db.VarChar
+  /// Quotation samples compared with the regulation.
+  quotation_samples QuotationSample[]
+
+  @@map("medilab_regulation")
+}
+
 /// Laboratory's way of testing a parameter, shown with the columns this module uses.
 model ParameterMethod {
   /// Row identifier.
@@ -421,6 +445,8 @@ model Quotation {
   replaces           Quotation?      @relation("QuotationRevisions", fields: [replaces_id], references: [id], onDelete: Restrict)
   /// The revision that replaces this one.
   replaced_by        Quotation?      @relation("QuotationRevisions")
+  /// Samples the customer will send.
+  samples            QuotationSample[]
   /// Lines of the quotation.
   lines              QuotationLine[]
   /// Invoices issued from the quotation.
@@ -431,6 +457,35 @@ model Quotation {
   @@map("medilab_quotation")
 }
 
+/// A sample the customer will send, as sales defines it on the quotation. Confirming the order creates one expected sample of the test request for each.
+model QuotationSample {
+  /// Row identifier.
+  id                   Int             @id @default(autoincrement())
+  /// The quotation.
+  quotation_id         Int
+  /// Name the customer gives the sample, such as "Lavie bottled water 1 L".
+  customer_sample_name String          @db.VarChar
+  /// The sample type (nền mẫu).
+  sample_type_id       Int
+  /// solid, liquid, gas or semi_solid.
+  physical_state       String          @db.VarChar
+  /// The regulation the sample's results are compared with; empty when none.
+  regulation_id        Int?
+  /// Position of the sample in the quotation.
+  sequence             Int             @default(10)
+  /// The quotation.
+  quotation            Quotation       @relation(fields: [quotation_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type          SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// The regulation the results are compared with.
+  regulation           Regulation?     @relation(fields: [regulation_id], references: [id], onDelete: Restrict)
+  /// Lines tested on the sample.
+  lines                QuotationLine[]
+
+  @@index([quotation_id])
+  @@map("medilab_quotation_sample")
+}
+
 /// One priced line of a quotation. Price, discount and tax rate are copied when the line is priced, so a sent quotation never changes with the catalog.
 /// Exactly one of parameter_id and package_id is set.
 model QuotationLine {
@@ -438,6 +493,8 @@ model QuotationLine {
   id             Int             @id @default(autoincrement())
   /// The quotation.
   quotation_id   Int
+  /// The sample the line is tested on; required before the quotation is sent.
+  sample_id      Int?
   /// The parameter quoted; empty for a package line.
   parameter_id   Int?
   /// The package quoted; empty for a parameter line.
@@ -462,6 +519,8 @@ model QuotationLine {
   sequence       Int             @default(10)
   /// The quotation.
   quotation      Quotation       @relation(fields: [quotation_id], references: [id], onDelete: Cascade)
+  /// The sample the line is tested on.
+  sample         QuotationSample? @relation(fields: [sample_id], references: [id], onDelete: Restrict)
   /// The parameter quoted.
   parameter      TestParameter?  @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The package quoted.
@@ -470,6 +529,7 @@ model QuotationLine {
   tax            Tax             @relation(fields: [tax_id], references: [id], onDelete: Restrict)
 
   @@index([quotation_id])
+  @@index([sample_id])
   @@map("medilab_quotation_line")
 }
 

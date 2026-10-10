@@ -1,7 +1,5 @@
 # Laboratory questions
 
-- **Sample disposal.** Who disposes of retained samples, how, and how is it recorded?
-- **Report delivery.** Delivery is recorded with when and by whom. Which role delivers reports and records it?
 - **Zero limits (US-AD07).** Odoo stores an empty number as 0, so a regulation limit of exactly 0, such as 0 CFU/250 mL, reads as "no limit" and is entered as the text "Not detected" instead. Does any regulation need a numeric limit of 0, for example so results can be compared with it automatically?
 
 ## Related documents
