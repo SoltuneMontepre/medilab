@@ -56,7 +56,7 @@ A role holds permissions. Creating a role creates its group, `laboratory.group_r
 
 The **administrator** role ships with the module. Its group, `laboratory.group_role_administrator`, implies Odoo's settings group, so a person holding the role also configures Odoo. Every permission created, by the module or later by an administrator, is added to the administrator role, so its group implies every permission group, including those of features added later. The role cannot be deleted or renamed, and no permission can be removed from it.
 
-The person of Odoo's default administrator, the user created with the database, ships with the module as well: their details are that user's contact, they hold the administrator role, and they cannot be archived or deleted, nor lose the role.
+The person of Odoo's default administrator, the user created with the database, ships with the module as well: their details are that user's contact, they hold the administrator role, and they cannot be archived or deleted, lose the role or be given another user.
 
 ### Person
 

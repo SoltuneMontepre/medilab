@@ -5,8 +5,8 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
-from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN, MODEL_ROLE
-from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_ROLE, MODULE
+from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN, MODEL_PERSON, MODEL_ROLE
+from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_ROLE, MODULE
 
 CODE_PATTERN = re.compile(r"[a-z][a-z0-9_]*")
 
@@ -27,7 +27,16 @@ class Role(models.Model):
     group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
     # Permissions the role contains.
     permission_ids = fields.Many2many(
-        MODEL_PERMISSION, "medilab_role_permission_rel", "role_id", "permission_id", string="Permissions"
+        MODEL_PERMISSION,
+        "medilab_role_permission_rel",
+        "role_id",
+        "permission_id",
+        string="Permissions",
+        groups=ADMINISTRATOR_GROUP,
+    )
+    # People who hold the role.
+    person_ids = fields.Many2many(
+        MODEL_PERSON, "medilab_person_role_rel", "role_id", "person_id", string="People", groups=ADMINISTRATOR_GROUP
     )
 
     _code_unique = models.Constraint("UNIQUE(code)", "A role with this code already exists.")

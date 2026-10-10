@@ -2,4 +2,4 @@
 from . import permission_mixin
 
 # isort: split
-from . import department, permission, role
+from . import department, permission, person, role

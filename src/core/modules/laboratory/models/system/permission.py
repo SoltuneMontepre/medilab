@@ -3,9 +3,9 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
-from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN, MODEL_ROLE
+from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_PERMISSION_MIXIN, MODEL_PERSON, MODEL_ROLE
 from odoo.addons.laboratory.constants.permissions import DEPARTMENT_FIELD, OPERATIONS, SCOPE_DOMAINS
-from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_ROLE, MODULE
+from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_ROLE, MODULE
 
 DOCUMENT_MODEL_PREFIX = "medilab."
 IDENTITY_FIELDS = ("document_model", "action", "scope", "group_id")
@@ -44,7 +44,23 @@ class Permission(models.Model):
     # The Odoo group generated for the permission, which carries its access rule and record rule.
     group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
     # Roles that contain the permission.
-    role_ids = fields.Many2many(MODEL_ROLE, "medilab_role_permission_rel", "permission_id", "role_id", string="Roles")
+    role_ids = fields.Many2many(
+        MODEL_ROLE,
+        "medilab_role_permission_rel",
+        "permission_id",
+        "role_id",
+        string="Roles",
+        groups=ADMINISTRATOR_GROUP,
+    )
+    # People given the permission directly.
+    person_ids = fields.Many2many(
+        MODEL_PERSON,
+        "medilab_person_permission_rel",
+        "permission_id",
+        "person_id",
+        string="People",
+        groups=ADMINISTRATOR_GROUP,
+    )
 
     _code_unique = models.Constraint("UNIQUE(code)", "A permission with this code already exists.")
     _group_unique = models.Constraint("UNIQUE(group_id)", "Each permission has its own group.")

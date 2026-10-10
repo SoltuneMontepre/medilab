@@ -14,6 +14,7 @@
         "data/ir_sequence_data.xml",
         "data/role_data.xml",
         "data/permission_data.xml",
+        "data/person_data.xml",
         "views/system/favicon_templates.xml",
         "views/system/login_templates.xml",
         "views/system/res_users_views.xml",

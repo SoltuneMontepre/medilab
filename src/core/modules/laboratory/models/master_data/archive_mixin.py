@@ -32,12 +32,9 @@ class ArchiveMixin(models.AbstractModel):
             return
         lines = []
         for field in self._referring_fields():
-            referrers = self._find_referrers(field, archiving)
-            if referrers:
-                names = [referrer.display_name for referrer in referrers[:LISTED_REFERENCES]]
-                if len(referrers) > LISTED_REFERENCES:
-                    names.append("…")
-                lines.append(f"{self.env['ir.model']._get(referrers._name).name}: {', '.join(names)}")
+            names = self._referrer_names(field, archiving)
+            if names:
+                lines.append(f"{self.env['ir.model']._get(field.model_name).name}: {', '.join(names)}")
         if not lines:
             return
         if archiving:
@@ -57,14 +54,24 @@ class ArchiveMixin(models.AbstractModel):
             and field.ondelete != "cascade"
         ]
 
-    def _find_referrers(self, field, archiving):
+    def _referrer_names(self, field, archiving):
+        # Every referrer blocks, including those the user cannot see; only those the user can read are named, and
+        # the rest are given as a count.
         referrers = self.env[field.model_name].with_context(active_test=False)
         domain = Domain(field.name, "in", self.ids)
         if field.model_name == self._name:
             domain &= Domain("id", "not in", self.ids)
         if archiving:
             domain &= self._referrers_in_use(referrers)
-        return referrers.search(domain, limit=LISTED_REFERENCES + 1)
+        total = referrers.sudo().search_count(domain)
+        if not total:
+            return []
+        readable = referrers.has_access("read") and referrers._has_field_access(field, "read")
+        visible = referrers.search(domain, limit=LISTED_REFERENCES) if readable else referrers
+        names = visible.mapped("display_name")
+        if total > len(visible):
+            names.append(self.env._("%s more", total - len(visible)))
+        return names
 
     def _referrers_in_use(self, referrers):
         # A referring model states when its records are in use with _in_use_domain(); otherwise an active record is,
