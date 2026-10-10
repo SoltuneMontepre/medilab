@@ -20,7 +20,7 @@
             position="before">
             <aside class="ml_auth_brand" aria-label="System introduction">
                 <div class="ml_auth_brand_content">
-                    <img class="ml_auth_brand_icon" src="/sol_laboratory/static/description/icon.svg" alt="" />
+                    <img class="ml_auth_brand_icon" src="/sol_theme/static/src/img/medilab.svg" alt="" />
                     <h1>Laboratory management system</h1>
                     <p>Manage samples, testing processes and results on a unified platform.</p>
                 </div>

@@ -232,6 +232,15 @@
     .o_field_widget {
         --fieldWidget-margin-bottom: 0;
         margin-bottom: 0 !important;
+
+        .o_dropdown_button,
+        .o_datepicker_button {
+            top: 0;
+            bottom: 0;
+            right: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
     }
 
     .o_field_boolean_toggle {
@@ -1590,16 +1599,5 @@
         .o_inner_group {
             row-gap: 0.25rem !important;
         }
-    }
-}
-
-.o_form_view .o_field_widget {
-    .o_dropdown_button,
-    .o_datepicker_button {
-        top: 0;
-        bottom: 0;
-        right: 0.75rem;
-        display: flex;
-        align-items: center;
     }
 }

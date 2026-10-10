@@ -4,7 +4,7 @@ import { _t } from "@web/core/l10n/translation";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
 export class BooleanButtonGroupField extends Component {
-  static template = "sol_laboratory.BooleanButtonGroupField";
+  static template = "sol_theme.BooleanButtonGroupField";
   props = useProps({
     ...standardFieldProps,
     trueLabel: t.string().optional(),

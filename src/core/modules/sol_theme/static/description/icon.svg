@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img">
+  <title>MediLab Theme — chữ M kết hợp bình thí nghiệm và cọ vẽ</title>
+  <rect width="1024" height="1024" rx="224" fill="#0083EF"/>
+  <path fill="#FFFFFF" transform="translate(150 170) scale(2.3)" d="M0 0H64L128 56L192 0H256V224H211L149 126V91H152C160 91 160 79 152 79H104C96 79 96 91 104 91H107V126L45 224H0Z"/>
+  <circle cx="780" cy="780" r="196" fill="#FFFFFF" stroke="#0083EF" stroke-width="36"/>
+  <g transform="translate(780 780) rotate(45)">
+    <rect x="-24" y="-150" width="48" height="150" rx="24" fill="#0A4D8C"/>
+    <rect x="-38" y="-14" width="76" height="44" rx="10" fill="#7A8CA3"/>
+    <path fill="#0083EF" d="M-38 30H38V58C38 104 14 128 -16 150C-4 118 -38 104 -38 70Z"/>
+  </g>
+</svg>

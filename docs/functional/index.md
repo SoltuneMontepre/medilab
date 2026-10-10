@@ -10,6 +10,8 @@ Each installation serves one laboratory company; there is no multi-company setup
 
 MediLab is split into three modules that can each be installed from the Odoo marketplace and support each other: **E-commerce**, **Inventory** and **Laboratory Testing (core)**. Each module is designed to handle specific aspects of laboratory management, allowing users to customize their experience based on their needs.
 
+The MediLab look (colours, navigation, icons, login page and app icons) is a fourth, optional module, **Medilab Theme** (`sol_theme`). A laboratory that prefers Odoo's own look leaves it out.
+
 [E-commerce Module](./ecommerce_module/overview.md): The E-commerce module allows users to manage their laboratory sales processes, including creating and managing sales orders, invoices, quotations, and customer information. It also provides tools for tracking sales performance and generating reports.
 
 [Inventory Module](./inventory_module/overview.md): The Inventory module provides tools for managing laboratory inventory, including tracking chemical stock levels, managing expiration dates, managing internal movement of materials, and generating reports on inventory performance. It also allows users to manage suppliers.
