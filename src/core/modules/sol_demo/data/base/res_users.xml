@@ -2,47 +2,47 @@
 <!-- Passwords are set by the post-init hook: demo, or MEDILAB_DEMO_PASSWORD when it is set. -->
 <odoo noupdate="1">
     <record id="demo_res_users_administrator" model="res.users">
-        <field name="login">sol_demo.administrator</field>
+        <field name="login">demo.administrator</field>
         <field name="partner_id" ref="demo_res_partner_administrator" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
     <record id="demo_res_users_sales" model="res.users">
-        <field name="login">sol_demo.sales</field>
+        <field name="login">demo.sales</field>
         <field name="partner_id" ref="demo_res_partner_sales" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
     <record id="demo_res_users_head_of_sales" model="res.users">
-        <field name="login">sol_demo.head_of_sales</field>
+        <field name="login">demo.head_of_sales</field>
         <field name="partner_id" ref="demo_res_partner_head_of_sales" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
     <record id="demo_res_users_accountant" model="res.users">
-        <field name="login">sol_demo.accountant</field>
+        <field name="login">demo.accountant</field>
         <field name="partner_id" ref="demo_res_partner_accountant" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
     <record id="demo_res_users_sample_delivery_staff" model="res.users">
-        <field name="login">sol_demo.sample_delivery_staff</field>
+        <field name="login">demo.sample_delivery_staff</field>
         <field name="partner_id" ref="demo_res_partner_sample_delivery_staff" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
     <record id="demo_res_users_tester" model="res.users">
-        <field name="login">sol_demo.tester</field>
+        <field name="login">demo.tester</field>
         <field name="partner_id" ref="demo_res_partner_tester" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
     <record id="demo_res_users_head_of_department" model="res.users">
-        <field name="login">sol_demo.head_of_department</field>
+        <field name="login">demo.head_of_department</field>
         <field name="partner_id" ref="demo_res_partner_head_of_department" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
     <record id="demo_res_users_lab_head" model="res.users">
-        <field name="login">sol_demo.lab_head</field>
+        <field name="login">demo.lab_head</field>
         <field name="partner_id" ref="demo_res_partner_lab_head" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
     <record id="demo_res_users_storekeeper" model="res.users">
-        <field name="login">sol_demo.storekeeper</field>
+        <field name="login">demo.storekeeper</field>
         <field name="partner_id" ref="demo_res_partner_storekeeper" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
