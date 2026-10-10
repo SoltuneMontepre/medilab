@@ -48,4 +48,9 @@ class ServicePackage(models.Model):
             package.parts_price = sum(
                 line.quantity * line.parameter_id.price_ids[:1].list_price for line in package.line_ids
             )
-            package.is_overpriced = package.currency_id.compare_amounts(package.list_price, package.parts_price) > 0
+            package.is_overpriced = package._costs_more_than_parts()
+
+    def _costs_more_than_parts(self, parts_change=0):
+        """Return whether the package costs more than its parts, after an optional change to their price."""
+        self.ensure_one()
+        return self.currency_id.compare_amounts(self.list_price, self.parts_price + parts_change) > 0

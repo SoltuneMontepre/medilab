@@ -429,18 +429,13 @@
             box-shadow: none !important;
             min-height: 0 !important;
             padding: 0 !important;
-            width: auto !important;
             color: $ml-text !important;
         }
 
         input.o_input {
             flex: 1 1 auto !important;
             min-width: 0;
-        }
-
-        // Odoo places the currency symbol after the typed value with this overlay, which must span the input.
-        .o_input.position-absolute {
-            width: 100% !important;
+            width: auto !important;
         }
 
         // Odoo 20 leaves the ghost value empty until the user types, which would put the symbol over the digits.

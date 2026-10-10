@@ -43,12 +43,7 @@ class ParameterPrice(models.Model):
             Domain("parameter_id", "=", self.parameter_id._origin.id) & Domain("package_id.active", "=", True)
         )
         packages = lines.filtered(
-            lambda line: (
-                self.currency_id.compare_amounts(
-                    line.package_id.list_price, line.package_id.parts_price + line.quantity * change
-                )
-                > 0
-            )
+            lambda line: line.package_id._costs_more_than_parts(line.quantity * change)
         ).package_id
         if not packages:
             return None

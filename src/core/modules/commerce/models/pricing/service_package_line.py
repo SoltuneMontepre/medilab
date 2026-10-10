@@ -31,20 +31,26 @@ class ServicePackageLine(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        # A parameter the package already holds raises that line's quantity instead of taking a second line.
-        lines = self.browse()
-        for vals in vals_list:
-            line = self.search(
-                Domain("package_id", "=", vals.get("package_id"))
-                & Domain("parameter_id", "=", vals.get("parameter_id")),
-                limit=1,
+        # A parameter the package already holds, or that the batch repeats, raises one line's quantity instead.
+        existing = {
+            (line.package_id.id, line.parameter_id.id): line
+            for line in self.search(
+                Domain("package_id", "in", [vals.get("package_id") for vals in vals_list])
+                & Domain("parameter_id", "in", [vals.get("parameter_id") for vals in vals_list])
             )
-            if line:
-                line.quantity += vals.get("quantity", 1)
+        }
+        raised = self.browse()
+        new = {}
+        for vals in vals_list:
+            key = (vals.get("package_id"), vals.get("parameter_id"))
+            if key in existing:
+                existing[key].quantity += vals.get("quantity", 1)
+                raised |= existing[key]
+            elif key in new:
+                new[key]["quantity"] = new[key].get("quantity", 1) + vals.get("quantity", 1)
             else:
-                line = super().create([vals])
-            lines += line
-        return lines
+                new[key] = dict(vals)
+        return raised | super().create(list(new.values()))
 
     def _in_use_domain(self):
         # A line keeps its parameter in use while its package is active.
