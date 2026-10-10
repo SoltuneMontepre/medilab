@@ -1,0 +1,512 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* commerce
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-10 07:39+0000\n"
+"PO-Revision-Date: 2026-10-05 01:14+0000\n"
+"Last-Translator: \n"
+"Language-Team: Vietnamese\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/pricing/tax.py:0
+msgid "%(tax)s has no rate on %(date)s."
+msgstr "%(tax)s không có thuế suất vào ngày %(date)s."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/pricing/subcontract_cost.py:0
+msgid "%s is tested in-house, so it has no subcontract cost."
+msgstr "%s được thử tại phòng thí nghiệm nên không có chi phí thầu phụ."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_subcontract_cost_cost_positive
+msgid "A cost cannot be negative."
+msgstr "Chi phí không được âm."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_service_package_line_package_parameter_unique
+msgid "A package holds each parameter once; raise its quantity instead."
+msgstr "Mỗi chỉ tiêu chỉ có một dòng trong nhóm dịch vụ; hãy tăng số lượng của dòng đó."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_service_package_line_quantity_positive
+msgid "A package includes a parameter at least once."
+msgstr "Số lượng của chỉ tiêu trong nhóm dịch vụ ít nhất là 1."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_parameter_price_price_positive
+#: model:ir.model.constraint,message:commerce.constraint_medilab_service_package_price_positive
+msgid "A price cannot be negative."
+msgstr "Giá không được âm."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_tax_rate_period_order
+msgid "A rate period cannot end before it starts."
+msgstr "Thời kỳ áp dụng thuế suất không được kết thúc trước ngày bắt đầu."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_subcontract_cost_parameter_method_unique
+msgid "A subcontracted way of testing has only one cost."
+msgstr "Mỗi cách thử qua thầu phụ chỉ có một chi phí."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_tax_rate_rate_positive
+msgid "A tax rate cannot be negative."
+msgstr "Thuế suất không được âm."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_parameter_price_parameter_unique
+msgid "A test parameter has only one price."
+msgstr "Mỗi chỉ tiêu chỉ có một giá."
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__active
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__active
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__active
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__active
+msgid "Active"
+msgstr "Đang hoạt động"
+
+#. module: commerce
+#: model:ir.module.module,summary:base.module_commerce
+msgid "Adds e-commerce features into the exising core laboratory module."
+msgstr "Bổ sung tính năng thương mại điện tử cho mô-đun phòng thí nghiệm."
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_parameter_price_archive_all
+msgid "Archive parameter prices"
+msgstr "Lưu trữ giá chỉ tiêu"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_service_package_archive_all
+msgid "Archive service packages"
+msgstr "Lưu trữ nhóm dịch vụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_subcontract_cost_archive_all
+msgid "Archive subcontract costs"
+msgstr "Lưu trữ chi phí thầu phụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_tax_archive_all
+msgid "Archive taxes"
+msgstr "Lưu trữ thuế"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_parameter_price_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_parameter_price_search
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_service_package_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_service_package_search
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_subcontract_cost_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_subcontract_cost_search
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_tax_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_tax_search
+msgid "Archived"
+msgstr "Đã lưu trữ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__code
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__code
+msgid "Code"
+msgstr "Mã"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__cost
+msgid "Cost"
+msgstr "Chi phí"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_parameter_price_create_all
+msgid "Create parameter prices"
+msgstr "Tạo giá chỉ tiêu"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_service_package_line_create_all
+msgid "Create service package lines"
+msgstr "Tạo dòng nhóm dịch vụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_service_package_create_all
+msgid "Create service packages"
+msgstr "Tạo nhóm dịch vụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_subcontract_cost_create_all
+msgid "Create subcontract costs"
+msgstr "Tạo chi phí thầu phụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_tax_rate_create_all
+msgid "Create tax rates"
+msgstr "Tạo thuế suất"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_tax_create_all
+msgid "Create taxes"
+msgstr "Tạo thuế"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__create_uid
+msgid "Created by"
+msgstr "Người tạo"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__create_date
+msgid "Created on"
+msgstr "Ngày tạo"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__currency_id
+msgid "Currency"
+msgstr "Tiền tệ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_parameter_price_delete_all
+msgid "Delete parameter prices"
+msgstr "Xóa giá chỉ tiêu"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_service_package_line_delete_all
+msgid "Delete service package lines"
+msgstr "Xóa dòng nhóm dịch vụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_service_package_delete_all
+msgid "Delete service packages"
+msgstr "Xóa nhóm dịch vụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_subcontract_cost_delete_all
+msgid "Delete subcontract costs"
+msgstr "Xóa chi phí thầu phụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_tax_rate_delete_all
+msgid "Delete tax rates"
+msgstr "Xóa thuế suất"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_tax_delete_all
+msgid "Delete taxes"
+msgstr "Xóa thuế"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_test_parameter__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: commerce
+#: model:ir.ui.menu,name:commerce.menu_commerce_root
+msgid "E-commerce"
+msgstr "Thương Mại Điện Tử"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_parameter_price_edit_all
+msgid "Edit parameter prices"
+msgstr "Sửa giá chỉ tiêu"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_service_package_line_edit_all
+msgid "Edit service package lines"
+msgstr "Sửa dòng nhóm dịch vụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_service_package_edit_all
+msgid "Edit service packages"
+msgstr "Sửa nhóm dịch vụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_subcontract_cost_edit_all
+msgid "Edit subcontract costs"
+msgstr "Sửa chi phí thầu phụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_tax_rate_edit_all
+msgid "Edit tax rates"
+msgstr "Sửa thuế suất"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_tax_edit_all
+msgid "Edit taxes"
+msgstr "Sửa thuế"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_test_parameter__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__id
+msgid "ID"
+msgstr "ID"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__is_overpriced
+msgid "Is Overpriced"
+msgstr "Giá cao hơn tổng giá chỉ tiêu"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__write_uid
+msgid "Last Updated by"
+msgstr "Cập nhật lần cuối bởi"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__write_date
+msgid "Last Updated on"
+msgstr "Cập nhật lần cuối vào"
+
+#. module: commerce
+#: model:ir.module.module,shortdesc:base.module_commerce
+msgid "Medilab - E-commerce"
+msgstr "Medilab - Thương mại điện tử"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__name
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__name
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_service_package_search
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_tax_search
+msgid "Name"
+msgstr "Tên"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_test_parameter__overpriced_package_ids
+msgid "Overpriced Packages"
+msgstr "Nhóm dịch vụ giá cao hơn tổng giá chỉ tiêu"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__package_id
+msgid "Package"
+msgstr "Nhóm Dịch Vụ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_test_parameter__package_line_ids
+msgid "Package Lines"
+msgstr "Dòng Nhóm Dịch Vụ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__parameter_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__parameter_id
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_service_package_search
+msgid "Parameter"
+msgstr "Chỉ Tiêu"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_parameter_price
+msgid "Parameter Price"
+msgstr "Giá Chỉ Tiêu"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_parameter_price
+#: model:ir.ui.menu,name:commerce.menu_parameter_price
+msgid "Parameter Prices"
+msgstr "Giá Chỉ Tiêu"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__line_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_service_package_form
+msgid "Parameters"
+msgstr "Chỉ Tiêu"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__list_price
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__list_price
+#: model:ir.model.fields,field_description:commerce.field_medilab_test_parameter__price_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_test_parameter_form
+msgid "Price"
+msgstr "Giá"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__parts_price
+msgid "Price of the Parts"
+msgstr "Tổng giá chỉ tiêu"
+
+#. module: commerce
+#: model:ir.ui.menu,name:commerce.menu_prices
+msgid "Prices"
+msgstr "Giá"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_vnd_mixin
+msgid "Prices in VND"
+msgstr "Giá bằng VND"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__quantity
+msgid "Quantity"
+msgstr "Số lượng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__rate
+msgid "Rate (%)"
+msgstr "Thuế suất (%)"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax__rate_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_tax_form
+msgid "Rates"
+msgstr "Thuế Suất"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_parameter_price_read_all
+msgid "Read parameter prices"
+msgstr "Xem giá chỉ tiêu"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_service_package_line_read_all
+msgid "Read service package lines"
+msgstr "Xem dòng nhóm dịch vụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_service_package_read_all
+msgid "Read service packages"
+msgstr "Xem nhóm dịch vụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_subcontract_cost_read_all
+msgid "Read subcontract costs"
+msgstr "Xem chi phí thầu phụ"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_tax_rate_read_all
+msgid "Read tax rates"
+msgstr "Xem thuế suất"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_tax_read_all
+msgid "Read taxes"
+msgstr "Xem thuế"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_service_package
+msgid "Service Package"
+msgstr "Nhóm Dịch Vụ"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_service_package_line
+msgid "Service Package Line"
+msgstr "Dòng Nhóm Dịch Vụ"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_service_package
+#: model:ir.ui.menu,name:commerce.menu_service_package
+msgid "Service Packages"
+msgstr "Nhóm Dịch Vụ"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_subcontract_cost
+msgid "Subcontract Cost"
+msgstr "Chi Phí Thầu Phụ"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_subcontract_cost
+#: model:ir.ui.menu,name:commerce.menu_subcontract_cost
+msgid "Subcontract Costs"
+msgstr "Chi Phí Thầu Phụ"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_tax
+#: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__tax_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_service_package__tax_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__tax_id
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_parameter_price_search
+msgid "Tax"
+msgstr "Thuế"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_tax_rate
+msgid "Tax Rate"
+msgstr "Thuế Suất"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_tax
+#: model:ir.ui.menu,name:commerce.menu_tax
+msgid "Taxes"
+msgstr "Thuế"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_test_parameter
+msgid "Test Parameter"
+msgstr "Chỉ Tiêu"
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_service_package_code_unique
+msgid "The code of a service package must be unique."
+msgstr "Mã của nhóm dịch vụ phải là duy nhất."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_tax_code_unique
+msgid "The code of a tax must be unique."
+msgstr "Mã của thuế phải là duy nhất."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_service_package_form
+msgid "The package costs more than its parameters bought one by one."
+msgstr "Giá nhóm dịch vụ cao hơn tổng giá các chỉ tiêu khi mua lẻ."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/pricing/tax_rate.py:0
+msgid "The rate periods of %(tax)s overlap: %(rate)s and %(other)s."
+msgstr "Các thời kỳ thuế suất của %(tax)s bị chồng lấn: %(rate)s và %(other)s."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_test_parameter_form
+msgid "These packages cost more than their parameters bought one by one:"
+msgstr "Các nhóm dịch vụ sau có giá cao hơn tổng giá các chỉ tiêu khi mua lẻ:"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__valid_from
+msgid "Valid From"
+msgstr "Áp dụng từ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__valid_until
+msgid "Valid Until"
+msgstr "Áp dụng đến"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__parameter_method_id
+msgid "Way of Testing"
+msgstr "Cách Thử"

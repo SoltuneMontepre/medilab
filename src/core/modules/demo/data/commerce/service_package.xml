@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_service_package_bottled_water_basic" model="medilab.service.package">
+        <field name="code">NDC-01</field>
+        <field name="name">Bottled water basic</field>
+        <field name="list_price">380000</field>
+        <field name="tax_id" ref="demo_tax_vat10" />
+        <field
+            name="line_ids"
+            eval="[
+                Command.create({'parameter_id': ref('parameter_ph')}),
+                Command.create({'parameter_id': ref('parameter_coliforms')}),
+                Command.create({'parameter_id': ref('parameter_lead')}),
+            ]"
+        />
+    </record>
+    <record id="demo_service_package_bottled_water_microbiology" model="medilab.service.package">
+        <field name="code">NDC-02</field>
+        <field name="name">Bottled water microbiology</field>
+        <field name="list_price">300000</field>
+        <field name="tax_id" ref="demo_tax_vat10" />
+        <field
+            name="line_ids"
+            eval="[
+                Command.create({'parameter_id': ref('parameter_coliforms')}),
+                Command.create({'parameter_id': ref('parameter_e_coli')}),
+            ]"
+        />
+    </record>
+</odoo>

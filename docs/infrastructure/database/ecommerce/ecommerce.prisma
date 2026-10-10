@@ -73,6 +73,8 @@ model ParameterPrice {
   list_price   Decimal       @db.Decimal
   /// The tax added to the price on quotations and invoices.
   tax_id       Int
+  /// False when the price is archived and the parameter is no longer sold.
+  active       Boolean       @default(true)
   /// The parameter the price is for.
   parameter    TestParameter @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
   /// The tax added to the price.
@@ -90,6 +92,8 @@ model SubcontractCost {
   parameter_method_id Int             @unique
   /// Cost of one test, excluding VAT.
   cost                Decimal         @db.Decimal
+  /// False when the cost is archived.
+  active              Boolean         @default(true)
   /// The subcontracted parameter and method pair.
   parameter_method    ParameterMethod @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
 
