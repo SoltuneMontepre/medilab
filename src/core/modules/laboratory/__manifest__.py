@@ -8,9 +8,11 @@
     "icon": "/laboratory/static/src/theme/img/icons/icon-512x512.png",
     "depends": ["base", "web"],
     "data": [
+        "security/res_groups_data.xml",
         "security/ir.model.access.csv",
         "data/res_company_data.xml",
         "data/ir_sequence_data.xml",
+        "data/permission_data.xml",
         "views/system/favicon_templates.xml",
         "views/system/login_templates.xml",
         "views/system/res_users_views.xml",

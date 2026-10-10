@@ -4,6 +4,7 @@ from . import (
     test_machines_and_chemicals,
     test_master_data_access,
     test_parameter_constraints,
+    test_permission_generation,
     test_regulation_constraints,
     test_subcontractor,
     test_tree_filters,
