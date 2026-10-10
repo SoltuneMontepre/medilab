@@ -13,6 +13,7 @@ from odoo.addons.laboratory.constants.models import (
 from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_PERSON, ADMINISTRATOR_ROLE
 
 CONTACT_FIELDS = ("name", "email", "phone")
+RES_PARTNER = "res.partner"
 
 
 # Nhân Sự
@@ -23,7 +24,7 @@ class Person(models.Model):
     _rec_names_search = ["name", "email"]
 
     # The contact holding the person's details: name, email, phone, address.
-    partner_id = fields.Many2one("res.partner", string="Contact", required=True, ondelete="restrict", copy=False)
+    partner_id = fields.Many2one(RES_PARTNER, string="Contact", required=True, ondelete="restrict", copy=False)
     # The Odoo user the person logs in as; empty for people who never sign in.
     user_id = fields.Many2one("res.users", string="User", ondelete="restrict", copy=False, groups=ADMINISTRATOR_GROUP)
     # Department of the person.
@@ -67,10 +68,10 @@ class Person(models.Model):
         for vals in vals_list:
             contact = {field_name: vals.pop(field_name) for field_name in CONTACT_FIELDS if field_name in vals}
             if not vals.get("partner_id"):
-                vals["partner_id"] = self.env["res.partner"].sudo().create(contact).id
+                vals["partner_id"] = self.env[RES_PARTNER].sudo().create(contact).id
             elif contact:
                 # An existing contact may belong to anyone, so only administrators change it with full rights.
-                self.env["res.partner"].browse(vals["partner_id"]).write(contact)
+                self.env[RES_PARTNER].browse(vals["partner_id"]).write(contact)
             if vals.get("login"):
                 self._check_field_access(self._fields["login"], "write")
             logins.append(vals.pop("login", False))
@@ -85,16 +86,8 @@ class Person(models.Model):
         vals = dict(vals)
         contact = {field_name: vals.pop(field_name) for field_name in CONTACT_FIELDS if field_name in vals}
         login = vals.pop("login", None)
-        if login is not None:
-            self._check_field_access(self._fields["login"], "write")
-            if login and len(self) > 1:
-                raise UserError(self.env._("A login belongs to one person only."))
-        if "partner_id" in vals and any(person.partner_id.id != vals["partner_id"] for person in self):
-            self.env["res.partner"].browse(vals["partner_id"]).check_access("write")
-        self._check_administrator_change(vals)
+        self._check_write(vals, contact, login)
         previous_users = self.sudo().user_id
-        if contact or login is not None:
-            self._check_permission("edit")
         result = super().write(vals) if vals else True
         if contact:
             self.sudo().partner_id.write(contact)
@@ -125,6 +118,18 @@ class Person(models.Model):
         result = super().unlink()
         self._strip_user_groups(users)
         return result
+
+    def _check_write(self, vals, contact, login):
+        # Contact details and the login are written outside Odoo's own field checks, so their access is checked here.
+        if login is not None:
+            self._check_field_access(self._fields["login"], "write")
+            if login and len(self) > 1:
+                raise UserError(self.env._("A login belongs to one person only."))
+        if "partner_id" in vals and any(person.partner_id.id != vals["partner_id"] for person in self):
+            self.env[RES_PARTNER].browse(vals["partner_id"]).check_access("write")
+        self._check_administrator_change(vals)
+        if contact or login is not None:
+            self._check_permission("edit")
 
     def _check_administrator_change(self, vals):
         administrator = self._administrator()

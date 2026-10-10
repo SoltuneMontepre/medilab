@@ -9,6 +9,7 @@ from odoo.addons.laboratory.constants.permissions import DEPARTMENT_FIELD, OPERA
 from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_ROLE, MODULE
 
 DOCUMENT_MODEL_PREFIX = "medilab."
+IR_MODEL = "ir.model"
 IDENTITY_FIELDS = ("document_model", "action", "scope", "group_id")
 # Who holds a permission is set from the role or the person, where the groups are kept in sync.
 HOLDER_FIELDS = ("role_ids", "person_ids")
@@ -83,7 +84,7 @@ class Permission(models.Model):
             for name, model in self.env.registry.items()
             if name.startswith(DOCUMENT_MODEL_PREFIX) and not model._abstract and not model._transient
         ]
-        labels = {model.model: model.name for model in self.env["ir.model"].sudo().search([("model", "in", names)])}
+        labels = {model.model: model.name for model in self.env[IR_MODEL].sudo().search([("model", "in", names)])}
         return sorted((name, labels.get(name, name)) for name in names)
 
     @api.model
@@ -177,7 +178,7 @@ class Permission(models.Model):
 
     def _check_action(self, document_model, action, scope):
         model = self.env[document_model]
-        label = self.env["ir.model"]._get(document_model).name
+        label = self.env[IR_MODEL]._get(document_model).name
         if scope == "own_department" and DEPARTMENT_FIELD not in model._fields:
             raise ValidationError(
                 self.env._(
@@ -240,7 +241,7 @@ class Permission(models.Model):
         self.ensure_one()
         return {
             "name": f"Permission: {self.code}",
-            "model_id": self.env["ir.model"]._get(self.document_model).id,
+            "model_id": self.env[IR_MODEL]._get(self.document_model).id,
             "group_id": self.group_id.id,
             f"perm_{OPERATIONS[self.action]}": True,
         }
@@ -250,7 +251,7 @@ class Permission(models.Model):
         operation = OPERATIONS[self.action]
         return {
             "name": f"Permission: {self.code}",
-            "model_id": self.env["ir.model"]._get(self.document_model).id,
+            "model_id": self.env[IR_MODEL]._get(self.document_model).id,
             "groups": [Command.link(self.group_id.id)],
             "domain_force": SCOPE_DOMAINS[self.scope],
             **{f"perm_{mode}": mode == operation for mode in ("read", "write", "create", "unlink")},
