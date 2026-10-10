@@ -36,20 +36,8 @@
 }
 
 .modal .o_form_nosheet {
-    > .o_group:not(:has(.o_field_one2many)):not(:has(.o_field_x2many)):not(:has(.o_list_renderer)),
+    > .o_group,
     > .o_inner_group {
-        background: $ml-surface;
-        border: 1px solid $ml-border;
-        border-radius: $ml-radius-lg;
-        box-shadow: $ml-shadow-form;
-        padding: 0.85rem 1.25rem 0.65rem;
-        margin: 0 0 1rem !important;
-        box-sizing: border-box;
-    }
-
-    > .o_group:has(.o_field_one2many),
-    > .o_group:has(.o_field_x2many),
-    > .o_group:has(.o_list_renderer) {
         background: transparent;
         border: none;
         box-shadow: none;
