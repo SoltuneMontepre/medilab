@@ -19,7 +19,7 @@ How code inside an Odoo module is laid out.
 
 ## Files
 
-- One model per file, named after the model: `test_parameter.py`.
+- One model per file, named after the model: `test_parameter.py`. An extension of an Odoo model is named after the Odoo model and lives in the folder of its MediLab concern, such as `models/system/hr_employee.py` for people and `models/tasks/calendar_event.py` for schedules.
 - Views of a model go in `<model>_views.xml`.
 - Menus are defined only in `views/system/menus.xml` and loaded last in `__manifest__.py`, after the actions they open.
 - Theme assets live in `static/src/theme/`, split into `scss/`, `js/`, `xml/` and `img/`.
