@@ -170,11 +170,9 @@ Typical jobs: payment reminders, quotation expiry, retention and expiry checks (
 - An administrator can run a job by hand and retry a failed one.
 - A job is safe to run twice: running it again never sends a duplicate reminder or creates a duplicate record.
 - Jobs do not run on top of themselves: a second run waits or is skipped while the first is running.
-- **Job.** Each job is an Odoo scheduled action (`ir.cron`), which holds its schedule and its on or off switch and keeps two runs from overlapping. A run takes the job's due work in batches and reports what is done and what remains to Odoo's cron progress, so a run that stops resumes with the work that remains.
-- **Safe to run twice.** The work itself records that it was done, such as the key of a notification or the reminder sent for a booking, so a job keeps no queue of its own.
-- **Retries.** A failed run is retried through a trigger of its scheduled action after a delay that doubles each time, up to the job's number of attempts; then the job is marked failed and an administrator is notified.
-- Each run records when it started and ended, its result, its log, and who ran it by hand.
-- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: job runs, released and expired locks, read notifications and their pushes, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter. It never removes business records or signatures.
+- **Job and queue.** Each job has a unique key and is scheduled by an Odoo cron that administrators configure. A job works through a queue of items: each item is one unit of work, such as one reminder to send, with a key unique within the job, so the same work is never queued twice. An item is retried with a growing delay up to the job's number of attempts, then marked failed. A run claims the items it takes; an item claimed longer than the job's claim timeout, such as after a crash, goes back to the queue.
+- Each run records when it started and ended, its result, its log, and who ran it by hand; how many items were done and remain comes from Odoo's cron progress.
+- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their pushes, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter. It never removes business records or signatures.
 - **Archive files.** Before it removes audit entries, the cleanup job writes them to a compressed archive file per period, stored as an Odoo attachment in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
 - Backups of the whole database and file store belong to the hosting, not to the application.
 
@@ -187,7 +185,7 @@ Acceptance criteria:
 
 Work waiting for someone is a task with a deadline, and every person sees their tasks in one to-do list.
 
-- **Built on Odoo Project.** A task is an Odoo project task (`project.task`), with its chatter, attachments and activities. Each department has a project that holds its queue; tasks routed to a role or a person belong to one shared project of the laboratory. Tasks are internal: a task is assigned to one internal Odoo user, so everyone who does tasks has a login.
+- **Tasks are MediLab's own.** A task has its chatter and attachments. Tasks are internal: a task is assigned to one internal Odoo user, so everyone who does tasks has a login.
 - **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. Task types come with the modules that create their tasks; administrators neither create nor remove them. A task type says what creates its tasks (an event, or people by hand), where new tasks go (the queue of the department the event names, the holders of a role, or the person the event names), and the deadline when the document gives none. Administrators choose where new tasks go and the default deadline.
 - **Created by the system or by people.** The system creates a task when its event happens, such as a sample being received. People can also create a task and assign it with a deadline, such as sales scheduling a sample collection on an order.
 - **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed. A task routed to a role waits the same way until one of the role's holders claims it.
@@ -218,7 +216,7 @@ Tasks with a planned time and machine bookings appear on schedules, and people a
 | Test request schedule | The tasks, bookings and due dates of the samples of one test request                     |
 | Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
 
-- **Built on Odoo Calendar.** A planned task and a machine booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar. Working hours come from the working times (`resource.calendar`) of the person and of the machine.
+- **Built on Odoo Calendar.** A planned task and a machine booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a machine booking's event can only be moved where the scheduler finds the slot free. Working hours come from the person's working time (`resource.calendar`).
 - A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator. It is the alarm of the calendar event.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
 - **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.

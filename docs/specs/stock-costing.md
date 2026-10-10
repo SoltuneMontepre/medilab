@@ -34,7 +34,7 @@ Every move stores its unit cost (`price_unit`) and value when it is done, as Odo
 
 - **Average cost.** Every receipt updates the item's average cost (`standard_price`) to the value of the stock on hand plus the value received, divided by the quantity on hand plus the quantity received. Moves other than receipts do not change it. When the method changes to moving average, Odoo revalues the stock of each item at its value under first in, first out.
 - **Remaining quantity.** Moves that take stock out of the laboratory (consumption, waste, disposal, a missing quantity) use up the oldest incoming moves first; moves between locations and stores do not. A quantity found at a stock take is a new incoming move at the item's current cost.
-- **Prepared solution.** A preparation's cost is the value of the moves that deducted its ingredients and waste, which Odoo's manufacturing costing gives the solution it makes; the solution's container is costed at it.
+- **Prepared solution.** A preparation's cost is the value of the moves that deducted its ingredients and waste, divided by the quantity made; the move that puts the solution into its container carries that cost.
 
 ### Stock value
 

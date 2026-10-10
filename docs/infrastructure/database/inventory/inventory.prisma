@@ -1,6 +1,6 @@
 // Inventory module tables as the Odoo ORM creates them: stock items, locations and stores, lots, containers, stock, moves, consumption, recipes and preparations, requisitions and transfers, stock takes, cost centres, budgets, charges, suppliers, purchase orders and receipts. Odoo owns the schema; this file only draws it.
 // Money columns are Odoo Monetary fields in VND, rounded by the currency.
-// Tables of the Odoo apps the module builds on (product, stock, stock_account, product_expiry, mrp, purchase, analytic and base) appear with the columns the module uses and the columns it adds, under their Odoo table names.
+// Tables of the Odoo apps the module builds on (product, uom, stock, stock_account, product_expiry, purchase, analytic and base) appear with the columns the module uses and the columns it adds, under their Odoo table names.
 // Laboratory tables appear only with the columns this module uses; the full tables are in ../laboratory/laboratory.prisma.
 
 datasource db {
@@ -79,14 +79,14 @@ model TestResult {
   @@map("medilab_test_result")
 }
 
-/// Laboratory's machine service record, an Odoo maintenance request, shown with the columns this module uses.
+/// Laboratory's machine service record, shown with the columns this module uses.
 model MachineService {
   /// Row identifier.
   id    Int         @id @default(autoincrement())
   /// Spare parts used in the service.
   moves StockMove[]
 
-  @@map("maintenance_request")
+  @@map("medilab_machine_service")
 }
 
 /// Odoo's contact table, shown with the columns this module uses and the columns it adds. A supplier is a company contact with a supplier code.
@@ -305,11 +305,11 @@ model StockContainer {
   /// Last day the container can be used: its lot's expiry date while sealed, then the earlier of that and its opening date plus the item's shelf life after opening; for a solution, the earlier of its preparation date plus the recipe's shelf life and the usable dates of what it was made from.
   usable_until   DateTime?      @db.Date
   /// The preparation that made the solution.
-  production_id  Int?           @unique
+  preparation_id Int?           @unique
   /// The location the container is in.
   location       StockLocation? @relation(fields: [location_id], references: [id], onDelete: Restrict)
   /// The preparation that made the solution.
-  preparation    Preparation?   @relation("PreparationOutput", fields: [production_id], references: [id], onDelete: Restrict)
+  preparation    Preparation?   @relation("PreparationOutput", fields: [preparation_id], references: [id], onDelete: Restrict)
   /// The stock in the container.
   quants         StockQuant[]
   /// Move lines that took stock from the container.
@@ -381,8 +381,8 @@ model StockMove {
   picking_id                 Int?
   /// The purchase order line the stock came in on.
   purchase_line_id           Int?
-  /// The preparation the stock was deducted for.
-  raw_material_production_id Int?
+  /// The preparation the move belongs to.
+  preparation_id             Int?
   /// The test result the stock was used for.
   test_result_id             Int?
   /// The machine service the spare part was used in.
@@ -409,8 +409,8 @@ model StockMove {
   picking                    Picking?           @relation(fields: [picking_id], references: [id], onDelete: Restrict)
   /// The purchase order line the stock came in on.
   purchase_line              PurchaseOrderLine? @relation(fields: [purchase_line_id], references: [id], onDelete: Restrict)
-  /// The preparation the stock was deducted for.
-  preparation                Preparation?       @relation("PreparationInput", fields: [raw_material_production_id], references: [id], onDelete: Restrict)
+  /// The preparation the move belongs to.
+  preparation                Preparation?       @relation("PreparationInput", fields: [preparation_id], references: [id], onDelete: Restrict)
   /// The test result the stock was used for.
   test_result                TestResult?        @relation(fields: [test_result_id], references: [id], onDelete: Restrict)
   /// The machine service the spare part was used in.
@@ -457,70 +457,68 @@ model StockMoveLine {
   @@map("stock_move_line")
 }
 
-/// Odoo's bill of materials (mrp.bom), shown with the columns this module uses and the columns it adds: how one solution is prepared, the chemicals and amounts one preparation uses, and the solution's shelf life.
+/// How one solution is prepared: the chemicals and amounts one preparation uses, and the solution's shelf life.
 model Recipe {
   /// Row identifier.
-  id              Int           @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   /// Unique code of the recipe.
-  code            String        @unique @db.VarChar
+  code             String        @unique @db.VarChar
   /// The solution item the recipe makes.
-  product_id      Int           @unique
+  solution_item_id Int           @unique
   /// Quantity one preparation makes, in the solution item's unit.
-  product_qty     Decimal       @db.Decimal
+  yield_quantity   Decimal       @db.Decimal
   /// Days the solution stays usable after it is prepared.
-  shelf_life_days Int
+  shelf_life_days  Int
   /// False when the recipe is archived.
-  active          Boolean       @default(true)
+  active           Boolean       @default(true)
   /// The solution item the recipe makes.
-  solution_item   StockItem     @relation("RecipeSolution", fields: [product_id], references: [id], onDelete: Restrict)
+  solution_item    StockItem     @relation("RecipeSolution", fields: [solution_item_id], references: [id], onDelete: Restrict)
   /// Ingredients of the recipe.
-  lines           RecipeLine[]
+  lines            RecipeLine[]
   /// Preparations made from the recipe.
-  preparations    Preparation[]
+  preparations     Preparation[]
 
-  @@map("mrp_bom")
+  @@map("medilab_recipe")
 }
 
-/// Odoo's bill of materials line (mrp.bom.line), shown with the columns this module uses: one ingredient of a recipe and the amount one preparation uses. Unique on (bom_id, product_id).
+/// One ingredient of a recipe and the amount one preparation uses. Unique on (recipe_id, item_id).
 model RecipeLine {
   /// Row identifier.
-  id          Int       @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   /// The recipe.
-  bom_id      Int
+  recipe_id Int
   /// The ingredient item.
-  product_id  Int
+  item_id   Int
   /// Amount one preparation uses, in the item's unit.
-  product_qty Decimal   @db.Decimal
+  quantity  Decimal   @db.Decimal
   /// The recipe.
-  recipe      Recipe    @relation(fields: [bom_id], references: [id], onDelete: Cascade)
+  recipe    Recipe    @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
   /// The ingredient item.
-  item        StockItem @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  item      StockItem @relation(fields: [item_id], references: [id], onDelete: Restrict)
 
-  @@unique([bom_id, product_id])
-  @@map("mrp_bom_line")
+  @@unique([recipe_id, item_id])
+  @@map("medilab_recipe_line")
 }
 
-/// Odoo's manufacturing order (mrp.production), shown with the columns this module uses: one preparation of a solution from its recipe. Who prepared it and when are Odoo's creation fields.
+/// One preparation of a solution from its recipe. Its Odoo stock moves take the ingredients out of their containers and put the solution into a new container. Who prepared it and when are Odoo's creation fields.
 model Preparation {
   /// Row identifier.
-  id              Int             @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   /// The recipe followed.
-  bom_id          Int
+  recipe_id   Int
   /// The store the solution was prepared in.
-  location_src_id Int
-  /// draft, confirmed, progress, done or cancel.
-  state           String          @db.VarChar
+  location_id Int
   /// The recipe followed.
-  recipe          Recipe          @relation(fields: [bom_id], references: [id], onDelete: Restrict)
+  recipe      Recipe          @relation(fields: [recipe_id], references: [id], onDelete: Restrict)
   /// The store the solution was prepared in.
-  location        StockLocation   @relation(fields: [location_src_id], references: [id], onDelete: Restrict)
+  location    StockLocation   @relation(fields: [location_id], references: [id], onDelete: Restrict)
   /// The solution container the preparation made.
-  container       StockContainer? @relation("PreparationOutput")
-  /// Moves that deducted the ingredients and waste.
-  moves           StockMove[]     @relation("PreparationInput")
+  container   StockContainer? @relation("PreparationOutput")
+  /// Moves that deducted the ingredients and waste, and the move of the solution into its container.
+  moves       StockMove[]     @relation("PreparationInput")
 
-  @@index([bom_id])
-  @@map("mrp_production")
+  @@index([recipe_id])
+  @@map("medilab_preparation")
 }
 
 /// Odoo's picking (stock.picking), shown with the columns this module uses and the columns it adds: a receipt from a supplier, a requisition of stock from the store directly above, or a sideways transfer of sealed stock between two stores of the same level. Its lines are its moves. Who did each step and when is in the audit trail.

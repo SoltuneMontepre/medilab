@@ -501,7 +501,7 @@ model Quotation {
   @@map("medilab_quotation")
 }
 
-/// A saved order a returning customer reuses to create the next order faster: Odoo's quotation template (sale.order.template), shown with the columns this module uses and the column it adds. It has no price of its own.
+/// A saved order a returning customer reuses to create the next order faster. It has no price of its own.
 model OrderTemplate {
   /// Row identifier.
   id          Int                 @id @default(autoincrement())
@@ -517,36 +517,36 @@ model OrderTemplate {
   lines       OrderTemplateLine[]
 
   @@index([customer_id])
-  @@map("sale_order_template")
+  @@map("medilab_order_template")
 }
 
-/// Odoo's quotation template line (sale.order.template.line), shown with the columns this module uses: one parameter or package in an order template.
+/// One parameter or package product in an order template, with its quantity.
 model OrderTemplateLine {
   /// Row identifier.
-  id                     Int           @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   /// The template.
-  sale_order_template_id Int
+  template_id Int
   /// The parameter or package product.
-  product_id             Int
+  product_id  Int
   /// How many times it is ordered; at least 1.
-  product_uom_qty        Decimal       @db.Decimal
+  quantity    Int           @default(1)
   /// The template.
-  template               OrderTemplate @relation(fields: [sale_order_template_id], references: [id], onDelete: Cascade)
+  template    OrderTemplate @relation(fields: [template_id], references: [id], onDelete: Cascade)
   /// The parameter or package product.
-  product                Product       @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  product     Product       @relation(fields: [product_id], references: [id], onDelete: Restrict)
 
-  @@index([sale_order_template_id])
-  @@map("sale_order_template_line")
+  @@index([template_id])
+  @@map("medilab_order_template_line")
 }
 
 /// Odoo's journal entry (account.move), shown with the columns this module uses and the columns it adds: an advance, final or adjustment invoice of an order. A posted invoice is never edited; an adjustment invoice corrects it.
-/// The advance invoice is Odoo's down payment invoice; an adjustment invoice is a credit note (out_refund) or a debit note.
+/// The advance invoice is Odoo's down payment invoice. An adjustment that lowers an invoice is a credit note (out_refund); one that raises it is a new invoice linked to the original by adjusted_invoice_id.
 model Invoice {
   /// Row identifier.
   id              Int           @id @default(autoincrement())
   /// Unique invoice number; filled from the journal's sequence when the invoice is posted.
   name            String?       @unique @db.VarChar
-  /// out_invoice for an invoice or debit note, out_refund for a credit note.
+  /// out_invoice for an invoice, out_refund for a credit note.
   move_type       String        @db.VarChar
   /// The order invoiced.
   order_id        Int
@@ -562,8 +562,8 @@ model Invoice {
   invoice_date_due DateTime?    @db.Date
   /// The invoice a credit note reverses; empty for other invoices.
   reversed_entry_id Int?
-  /// The invoice a debit note adds to; empty for other invoices.
-  debit_origin_id Int?
+  /// The invoice a raising adjustment adds to; empty for other invoices.
+  adjusted_invoice_id Int?
   /// Total excluding VAT.
   amount_untaxed  Decimal       @db.Decimal
   /// Total VAT.
@@ -582,10 +582,10 @@ model Invoice {
   reversed_entry  Invoice?      @relation("CreditNotes", fields: [reversed_entry_id], references: [id], onDelete: Restrict)
   /// Credit notes of this invoice.
   credit_notes    Invoice[]     @relation("CreditNotes")
-  /// The invoice a debit note adds to.
-  debit_origin    Invoice?      @relation("DebitNotes", fields: [debit_origin_id], references: [id], onDelete: Restrict)
-  /// Debit notes of this invoice.
-  debit_notes     Invoice[]     @relation("DebitNotes")
+  /// The invoice a raising adjustment adds to.
+  adjusted_invoice Invoice?     @relation("RaisingAdjustments", fields: [adjusted_invoice_id], references: [id], onDelete: Restrict)
+  /// Raising adjustments of this invoice.
+  raising_adjustments Invoice[] @relation("RaisingAdjustments")
   /// Lines of the invoice.
   lines           InvoiceLine[]
   /// Payments against the invoice.
