@@ -5,6 +5,6 @@
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
-    "depends": ["sol_laboratory"],
+    "depends": ["sol_laboratory", "stock_account", "product_expiry", "purchase_stock"],
     "application": True,
 }
