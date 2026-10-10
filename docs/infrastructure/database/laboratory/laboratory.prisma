@@ -952,14 +952,32 @@ model User {
   @@map("res_users")
 }
 
+/// Odoo's group table, shown with the columns this schema uses. A group carries the access rule and record rule generated for one permission, or implies the permission groups of one role; users hold groups through their person's roles and direct permissions.
+model Group {
+  /// Row identifier.
+  id         Int         @id @default(autoincrement())
+  /// Group name in each language, such as "Permission: person.read.all".
+  name       Json
+  /// The permission whose access rule and record rule the group carries.
+  permission Permission? @relation("PermissionGroup")
+  /// The role whose permission groups the group implies.
+  role       Role?       @relation("RoleGroup")
+
+  @@map("res_groups")
+}
+
 /// A role the administrator defines, such as Tester or Head of department: a set of permissions. Signing levels are given to roles.
 model Role {
   /// Row identifier.
   id              Int              @id @default(autoincrement())
-  /// Unique code of the role.
+  /// Unique code of the role: lowercase letters, digits and underscores.
   code            String           @unique @db.VarChar
   /// Role name in each language.
   name            Json
+  /// The Odoo group generated for the role, which implies the groups of its permissions.
+  group_id        Int              @unique
+  /// The Odoo group generated for the role.
+  group           Group            @relation("RoleGroup", fields: [group_id], references: [id], onDelete: Restrict)
   /// People who hold the role.
   people          PersonRole[]
   /// Permissions the role contains.
@@ -995,16 +1013,20 @@ model PersonRole {
 model Permission {
   /// Row identifier.
   id             Int                @id @default(autoincrement())
-  /// Unique code of the permission, such as sample.edit.own_department.
+  /// Unique code derived from the document type, action and scope, such as sample.edit.own_department.
   code           String             @unique @db.VarChar
   /// Permission name in each language.
   name           Json
-  /// Technical name of the document type, such as medilab.sample.
+  /// Technical name of the document type, such as medilab.sample; cannot change once the permission exists.
   document_model String             @db.VarChar
-  /// read, create, edit, archive, delete or sign.
+  /// read, create, edit, archive, delete or sign; cannot change once the permission exists.
   action         String             @db.VarChar
-  /// all for every record, own_department for records of the person's department only, or own_team for records of the person's team only.
+  /// all for every record, own_department for records of the person's department only, or own_team for records of the person's team only; cannot change once the permission exists.
   scope          String             @db.VarChar
+  /// The Odoo group generated for the permission, which carries its access rule and record rule.
+  group_id       Int                @unique
+  /// The Odoo group generated for the permission.
+  group          Group              @relation("PermissionGroup", fields: [group_id], references: [id], onDelete: Restrict)
   /// Roles that contain the permission.
   roles          RolePermission[]
   /// People given the permission directly.

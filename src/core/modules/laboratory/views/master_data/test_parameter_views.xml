@@ -42,7 +42,8 @@
                                     <field name="is_default" widget="boolean_toggle" />
                                     <field name="method_id" />
                                     <field name="unit_id" />
-                                    <field name="subcontractor_id" />
+                                    <field name="department_id" invisible="subcontractor_id" />
+                                    <field name="subcontractor_id" invisible="department_id" />
                                     <field name="lod" />
                                     <field name="loq" />
                                     <field name="result_decimals" />

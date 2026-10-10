@@ -19,4 +19,5 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 - **Comment sparingly.** Only comment "what does this do?" if it is not obvious from the code itself. Do not comment on every line of code, only at the start of a block/function/class. Models are the exception: each model class has a comment with its Vietnamese term, or for a link model what it links for, and each field has a comment saying what data it holds.
 - **No obvious additions.** Do not add descriptions, labels or explanations that the name or context already makes clear, such as "(database viewer)" after CloudBeaver, in code, scripts, output messages or documents.
 - **No co-author trailers.** Do not add `Co-Authored-By` or other attribution lines to commit messages or pull request descriptions.
+- **Ship permissions.** Every new document model ships its permission records; see [Module structure](docs/conventions/module_structure.md#permissions).
 - **No session details.** Leave out notes tied to the current work, such as idea numbers or obvious qualifiers like "(one-time)".
