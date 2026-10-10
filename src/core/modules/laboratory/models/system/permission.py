@@ -149,17 +149,12 @@ class Permission(models.Model):
                 )
             )
 
-    def unlink(self):
-        # When the module is uninstalled, the generated records go through their own external ids, newest first.
-        if self.env.context.get(MODULE_UNINSTALL_FLAG):
-            return super().unlink()
-        groups = self.group_id.sudo()
-        for permission in self:
-            for kind in ("rule", "access"):
-                generated = self.env.ref(permission._generated_xml_id(kind), raise_if_not_found=False)
-                if generated:
-                    generated.sudo().unlink()
-        shared = self.env["ir.rule"].sudo().search([("groups", "in", groups.ids)])
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_group_in_use(self):
+        generated = self._generated_records("rule")
+        shared = (
+            self.env["ir.rule"].sudo().search([("groups", "in", self.group_id.ids), ("id", "not in", generated.ids)])
+        )
         if shared:
             raise UserError(
                 self.env._(
@@ -167,10 +162,26 @@ class Permission(models.Model):
                     format_list(self.env, shared.mapped("name")),
                 )
             )
+
+    def unlink(self):
+        # When the module is uninstalled, the generated records go through their own external ids, newest first.
+        if self.env.context.get(MODULE_UNINSTALL_FLAG):
+            return super().unlink()
+        rules, accesses = self._generated_records("rule"), self._generated_records("access")
+        groups = self.group_id.sudo()
         result = super().unlink()
+        rules.unlink()
+        accesses.unlink()
         groups.unlink()
         self.env.registry.clear_cache()
         return result
+
+    def _generated_records(self, kind):
+        model = "ir.rule" if kind == "rule" else "ir.model.access"
+        records = self.env[model].sudo()
+        for permission in self:
+            records |= self.env.ref(permission._generated_xml_id(kind), raise_if_not_found=False) or records.browse()
+        return records
 
     def _check_holders(self, vals):
         if set(HOLDER_FIELDS) & set(vals):

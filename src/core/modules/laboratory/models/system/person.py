@@ -26,7 +26,7 @@ class Person(models.Model):
     # The contact holding the person's details: name, email, phone, address.
     partner_id = fields.Many2one(RES_PARTNER, string="Contact", required=True, ondelete="restrict", copy=False)
     # The Odoo user the person logs in as; empty for people who never sign in.
-    user_id = fields.Many2one("res.users", string="User", ondelete="restrict", copy=False, groups=ADMINISTRATOR_GROUP)
+    user_id = fields.Many2one("res.users", ondelete="restrict", copy=False, groups=ADMINISTRATOR_GROUP)
     # Department of the person.
     department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True)
     # False when the person is archived.
