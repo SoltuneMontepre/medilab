@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_machine_list" model="ir.ui.view">
+        <field name="name">medilab.machine.list</field>
+        <field name="model">medilab.machine</field>
+        <field name="arch" type="xml">
+            <list duplicate="0"
+                decoration-danger="next_calibration_date and next_calibration_date &lt; current_date"
+                decoration-muted="status == 'retired'"
+            >
+                <field name="code" />
+                <field name="name" />
+                <field name="model" optional="show" />
+                <field name="location" optional="show" />
+                <field name="status" widget="badge" decoration-warning="status == 'under_repair'" />
+                <field name="next_calibration_date" />
+                <field name="next_maintenance_date" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_machine_form" model="ir.ui.view">
+        <field name="name">medilab.machine.form</field>
+        <field name="model">medilab.machine</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <header>
+                    <field name="status" widget="statusbar" options="{'clickable': '1'}" />
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field name="model" />
+                            <field name="manufacturer" />
+                            <field name="serial_number" />
+                            <field name="location" />
+                        </group>
+                        <group>
+                            <field name="next_calibration_date" />
+                            <field name="maintenance_interval_days" />
+                            <field name="next_maintenance_date" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Service History" name="services">
+                            <field name="service_ids">
+                                <list editable="top">
+                                    <field name="kind" />
+                                    <field name="service_date" />
+                                    <field name="next_due_date" />
+                                    <field name="performed_by" />
+                                    <field name="reference" />
+                                    <field name="note" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Ways of Testing" name="parameter_methods">
+                            <field name="parameter_method_ids">
+                                <list editable="bottom">
+                                    <field name="parameter_method_id" />
+                                    <field name="run_minutes" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_machine_search" model="ir.ui.view">
+        <field name="name">medilab.machine.search</field>
+        <field name="model">medilab.machine</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" string="Name" />
+                <field name="location" />
+                <filter
+                    name="calibration_overdue"
+                    string="Calibration Overdue"
+                    domain="[('next_calibration_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <filter name="under_repair" string="Under Repair" domain="[('status', '=', 'under_repair')]" />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+                <filter name="group_by_status" string="Status" context="{'group_by': 'status'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_machine" model="ir.actions.act_window">
+        <field name="name">Machines</field>
+        <field name="res_model">medilab.machine</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

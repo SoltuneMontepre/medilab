@@ -6,7 +6,12 @@
     "author": "Soltune Montepre",
     "license": "LGPL-3",
     "depends": ["laboratory"],
-    "data": [],
+    "data": [
+        "data/measurement_unit_data.xml",
+        "data/subcontractor_data.xml",
+        "data/catalog_data.xml",
+        "data/machine_data.xml",
+    ],
     "application": True,
     "installable": True,
 }

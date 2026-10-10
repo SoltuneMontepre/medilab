@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_parameter_group_list" model="ir.ui.view">
+        <field name="name">medilab.parameter.group.list</field>
+        <field name="model">medilab.parameter.group</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code" />
+                <field name="name" />
+                <field name="parent_id" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_parameter_group_form" model="ir.ui.view">
+        <field name="name">medilab.parameter.group.form</field>
+        <field name="model">medilab.parameter.group</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <field name="code" required="0" placeholder="Filled from the sequence when left empty" />
+                        <field name="parent_id" />
+                    </group>
+                    <notebook>
+                        <page string="Sub-groups" name="sub_groups" invisible="not child_ids">
+                            <field name="child_ids" readonly="1">
+                                <list>
+                                    <field name="code" />
+                                    <field name="name" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Parameters" name="parameters" invisible="not parameter_ids">
+                            <field name="parameter_ids" readonly="1">
+                                <list>
+                                    <field name="code" />
+                                    <field name="name" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_parameter_group_search" model="ir.ui.view">
+        <field name="name">medilab.parameter.group.search</field>
+        <field name="model">medilab.parameter.group</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" string="Name" />
+                <field name="parent_id" operator="child_of" />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_parameter_group" model="ir.actions.act_window">
+        <field name="name">Parameter Groups</field>
+        <field name="res_model">medilab.parameter.group</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
