@@ -223,6 +223,7 @@ Tasks with a planned time and machine bookings appear on schedules, and people a
 - **Recipients.** For each event, the administrator chooses who is notified: the holders of one or more roles, the people of one or more departments, or both, on top of the person the event concerns directly, such as the assignee of a task.
 - **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event. Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
 - **Built on Odoo Discuss.** A notification is an Odoo message (`mail.message`) on the document it is about, and an event is a message subtype (`mail.message.subtype`). In the application it is an Odoo inbox notification, shown as a pop-up through the bus. By e-mail it goes through Odoo's mail queue, which retries it. A push to Medilab Mobile is MediLab's own delivery, sent by a scheduled job (SH-09).
+- **Channel choices.** A person's choice of channels extends Odoo's own notification preference on their user: Odoo's choice, in the application or by e-mail, is their default for every event, and their preferences add a choice per event and channel, push included.
 
 Acceptance criteria:
 

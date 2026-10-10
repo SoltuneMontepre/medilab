@@ -1684,7 +1684,7 @@ model NotificationEventRecipient {
   @@map("medilab_notification_event_recipient")
 }
 
-/// Whether one user receives one event on one channel. Unique on (user_id, event_id, channel).
+/// Whether one user receives one event on one channel, extending Odoo's notification preference of the user (notification_type), which is the default for events without a row. Shown in the user's Odoo preferences. Unique on (user_id, event_id, channel).
 model NotificationPreference {
   /// Row identifier.
   id       Int               @id @default(autoincrement())
