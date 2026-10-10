@@ -28,7 +28,8 @@ Code-first: changes and updates are available later.
 - Measured values, limits, factors and money are numeric (`fields.Float` with digits, or `fields.Monetary`), never stored where floating point can round them; a measured value keeps how many decimals it shows.
 - A field searched with "contains", such as a catalog name, gets `index="trigram"`.
 - Use what the Odoo apps give before adding a table: [Module boundaries](../business/module-boundaries.md#odoo-apps) lists the app model each concept is built on, such as `hr.employee` for people, `calendar.event` for schedules and `stock.lot` for lots. From `base`: `res.partner` for contacts and tax IDs, `res.users` for logins, settings fields for system parameters, `ir.cron` for schedules, `ir.sequence` for numbers, `ir.attachment` for files, `res.currency` for money.
-- A model that extends an Odoo model uses `_inherit` with the Odoo name and no `_name`; its class is named after the Odoo model, such as `HrEmployee` in `hr_employee.py`, and its added fields follow the rules below.
+- A model that extends an Odoo model uses `_inherit` with the Odoo name and no `_name`; its class is named after the Odoo model, such as `SaleOrder` in `sale_order.py`, and its added fields follow the rules below.
+- A MediLab concept with its own lifecycle, permissions or links, which Odoo holds only part of, is its own model that delegates to the Odoo record with `_inherits`: its table references the record by id and holds only MediLab's fields, and the Odoo fields read as its own. A person (`medilab.person` delegating to `hr.employee`) is one.
 - Every model class has a comment on the line above it with its Vietnamese term from the [glossary](../glossaries.md). A model that only links two others says what the link is for:
 
   ```python
@@ -52,7 +53,7 @@ Code-first: changes and updates are available later.
 
 - The same applies to the [database diagrams](../infrastructure/readme.md), with a `///` comment above every field.
 - Each module has its own diagram in `docs/infrastructure/database/<module>/<module>.prisma`, in its own folder. A table another module or an Odoo app owns appears only with the columns the module uses and the columns it adds, named by its Odoo table, such as `hr_employee`.
-- A module adds columns to an Odoo app's table when the data belongs to that concept, such as the roles of a person on `hr_employee`. It keeps its data in its own tables rather than adding columns to tables of another MediLab module.
+- A module adds columns to an Odoo app's table when the data is one-to-one with the record and Odoo's screens, search and rules use it, such as the status of an order on `sale_order`. It keeps its data in its own tables rather than adding columns to tables of another MediLab module.
 - Terms from the business domain follow the [glossary](../glossaries.md).
 
 ## Relationships
