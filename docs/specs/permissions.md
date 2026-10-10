@@ -46,10 +46,10 @@ The generated group and access carry external identifiers of the laboratory modu
 
 | Object | External identifier                   | Name                 |
 | ------ | ------------------------------------- | -------------------- |
-| Group  | `laboratory.group_permission_<code>`  | `Permission: <code>` |
-| Access | `laboratory.access_permission_<code>` | `Permission: <code>` |
+| Group  | `sol_laboratory.group_permission_<code>`  | `Permission: <code>` |
+| Access | `sol_laboratory.access_permission_<code>` | `Permission: <code>` |
 
-The dots of the code become underscores in the identifier. Because the identifiers are stable, views refer to a permission's group as any other group: a field or button with `groups="laboratory.group_permission_person_sign_all"` is removed from the view for everyone else.
+The dots of the code become underscores in the identifier. Because the identifiers are stable, views refer to a permission's group as any other group: a field or button with `groups="sol_laboratory.group_permission_person_sign_all"` is removed from the view for everyone else.
 
 Every feature declares the permissions of its document types in its module's `data/permission_data.xml`: `read`, `create`, `edit` and `delete` for every document type, `archive` for a type that can be archived, `sign` for a type that is signed, each with scope `all`, and the same actions with scope `own_department` for a type that has a department. A document type lists the actions it has permissions for in `_permission_actions`, and a test walks every model that inherits the shared mixin below and fails when one of those actions has no scope-`all` permission, so a feature cannot lock the administrator out of a new document type.
 
@@ -63,9 +63,9 @@ A permission is refused when Odoo cannot enforce it as stated: `archive` on a do
 
 ### Role
 
-A role holds permissions. Creating a role creates its group, `laboratory.group_role_<code>`, named `Role: <code>`; changing the role's permissions replaces the group's implied groups by the groups of those permissions; deleting the role deletes the group. A role code is lowercase letters, digits and underscores, starting with a letter, and cannot change once the role exists, because it names the role's group; the name can change.
+A role holds permissions. Creating a role creates its group, `sol_laboratory.group_role_<code>`, named `Role: <code>`; changing the role's permissions replaces the group's implied groups by the groups of those permissions; deleting the role deletes the group. A role code is lowercase letters, digits and underscores, starting with a letter, and cannot change once the role exists, because it names the role's group; the name can change.
 
-The **administrator** role ships with the module. Its group, `laboratory.group_role_administrator`, implies Odoo's settings group, so a person holding the role also configures Odoo. Every permission a module creates is added to the administrator role, so its group implies every permission group, including those of features added later. The role cannot be deleted or renamed, and no permission can be removed from it.
+The **administrator** role ships with the module. Its group, `sol_laboratory.group_role_administrator`, implies Odoo's settings group, so a person holding the role also configures Odoo. Every permission a module creates is added to the administrator role, so its group implies every permission group, including those of features added later. The role cannot be deleted or renamed, and no permission can be removed from it.
 
 The person of Odoo's default administrator, the employee Odoo's `hr` app creates for the user created with the database, is the administrator person: they hold the administrator role, and they cannot be archived or deleted, lose the role or be given another user.
 
@@ -102,7 +102,7 @@ There is no administrator bypass in the mixin: the administrator holds every per
 | Create, Delete buttons          | The view's root attributes, which Odoo sets from the accesses.                                |
 | Edit                            | The same attribute, which the mixin also sets off when the edit permission is missing.        |
 | Archive                         | The Archive action appears only while `active` is writable for the user.                      |
-| Field, button, other view parts | `groups="laboratory.group_permission_<code>"` on the view node.                               |
+| Field, button, other view parts | `groups="sol_laboratory.group_permission_<code>"` on the view node.                               |
 
 ### Archiving and deleting
 
@@ -118,7 +118,7 @@ A way of testing names the department that tests it in-house, or a subcontractor
 | ----------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | Shipped with the module | Permissions, the administrator role, the administrator person | The module, on every install. Users choose among them and assign them; they cannot delete them on the screen.  |
 | User data               | Departments, people, roles other than the administrator       | Administrators and the people they give the permissions to.                                                    |
-| Demo data               | Departments, people with their users, roles                   | Only the `demo` module. It assigns shipped permissions to its roles and people and never creates a permission. |
+| Demo data               | Departments, people with their users, roles                   | Only the `sol_demo` module. It assigns shipped permissions to its roles and people and never creates a permission. |
 
 The master data of the laboratory still gives its access through Odoo's settings group and the internal user group, until its access moves to permissions.
 

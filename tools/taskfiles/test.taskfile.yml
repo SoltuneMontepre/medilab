@@ -24,7 +24,7 @@ tasks:
     desc: "Run the Odoo module tests with coverage in a throwaway database; task test:core MODULES=a,b limits them"
     silent: true
     vars:
-      MODULES: '{{.MODULES | default "laboratory"}}'
+      MODULES: '{{.MODULES | default "sol_laboratory"}}'
       TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
     cmds:
       - docker compose up -d --wait postgres

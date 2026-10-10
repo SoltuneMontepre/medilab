@@ -30,9 +30,9 @@ task setup
 
 `task setup` creates `src/core/.venv`, fetches the Odoo source, installs Serena with the Odoo Language Server, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
 
-Open http://localhost:8069 and create the `medilab` database. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=laboratory`.
+Open http://localhost:8069 and create the `medilab` database. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=sol_laboratory`.
 
-`task upgrade MODULES=laboratory,demo` adds demo data and a `demo.<role>` user per role; their password is `MEDILAB_DEMO_PASSWORD` at install, or the login when it is unset.
+`task upgrade MODULES=sol_laboratory,sol_demo` adds demo data and a `demo.<role>` user per role; their password is `MEDILAB_DEMO_PASSWORD` at install, or the login when it is unset.
 
 ## Services
 
