@@ -2,12 +2,12 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
 
-from odoo.addons.laboratory.constants.models import MODEL_PERMISSION
+from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
+from odoo.addons.laboratory.constants.models import MODEL_PERMISSION, MODEL_ROLE
+from odoo.addons.laboratory.constants.xml_ids import ADMINISTRATOR_ROLE, MODULE
 
-MODULE = "laboratory"
 DOCUMENT_MODEL_PREFIX = "medilab."
 DEPARTMENT_FIELD = "department_id"
-ADMINISTRATOR_GROUP = "laboratory.group_role_administrator"
 # The Odoo operation each action is enforced with; sign has none, its group alone marks who may sign.
 OPERATIONS = {"read": "read", "create": "create", "edit": "write", "archive": "write", "delete": "unlink"}
 SCOPE_DOMAINS = {
@@ -50,6 +50,8 @@ class Permission(models.Model):
     )
     # The Odoo group generated for the permission, which carries its access rule and record rule.
     group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
+    # Roles that contain the permission.
+    role_ids = fields.Many2many(MODEL_ROLE, "medilab_role_permission_rel", "permission_id", "role_id", string="Roles")
 
     _code_unique = models.Constraint("UNIQUE(code)", "A permission with this code already exists.")
     _group_unique = models.Constraint("UNIQUE(group_id)", "Each permission has its own group.")
@@ -85,9 +87,7 @@ class Permission(models.Model):
             vals["group_id"] = groups.create({"name": f"Permission: {code}"}).id
         permissions = super().create(vals_list)
         permissions._generate_access()
-        self.env.ref(ADMINISTRATOR_GROUP).sudo().implied_ids = [
-            Command.link(group.id) for group in permissions.group_id
-        ]
+        self.env.ref(ADMINISTRATOR_ROLE).sudo().permission_ids = [Command.link(p.id) for p in permissions]
         return permissions
 
     def write(self, vals):
@@ -120,6 +120,9 @@ class Permission(models.Model):
             )
 
     def unlink(self):
+        # When the module is uninstalled, the generated records go through their own external ids, newest first.
+        if self.env.context.get(MODULE_UNINSTALL_FLAG):
+            return super().unlink()
         groups = self.group_id.sudo()
         self.env["ir.rule"].sudo().search([("groups", "in", groups.ids)]).unlink()
         self.env["ir.model.access"].sudo().search([("group_id", "in", groups.ids)]).unlink()

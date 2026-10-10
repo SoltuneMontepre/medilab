@@ -12,6 +12,7 @@
         "security/ir.model.access.csv",
         "data/res_company_data.xml",
         "data/ir_sequence_data.xml",
+        "data/role_data.xml",
         "data/permission_data.xml",
         "views/system/favicon_templates.xml",
         "views/system/login_templates.xml",

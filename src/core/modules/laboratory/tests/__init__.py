@@ -1,4 +1,5 @@
 from . import (
+    test_administrator_role,
     test_archiving_and_deleting,
     test_code_sequences,
     test_machines_and_chemicals,
@@ -6,6 +7,7 @@ from . import (
     test_parameter_constraints,
     test_permission_generation,
     test_regulation_constraints,
+    test_role_lifecycle,
     test_subcontractor,
     test_tree_filters,
     test_webmanifest,
