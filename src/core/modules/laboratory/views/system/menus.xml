@@ -2,5 +2,29 @@
 <odoo>
     <menuitem id="menu_sample_collection_root" name="Sample Collection" sequence="10" />
 
+    <menuitem id="menu_master_data_root" name="Master Data" sequence="20">
+        <menuitem id="menu_master_data_catalog" name="Catalog" sequence="10">
+            <menuitem id="menu_test_parameter" action="action_medilab_test_parameter" sequence="10" />
+            <menuitem id="menu_parameter_group" action="action_medilab_parameter_group" sequence="20" />
+            <menuitem id="menu_sample_type" action="action_medilab_sample_type" sequence="30" />
+            <menuitem id="menu_testing_method" action="action_medilab_testing_method" sequence="40" />
+            <menuitem id="menu_testing_field" action="action_medilab_testing_field" sequence="50" />
+            <menuitem id="menu_measurement_unit" action="action_medilab_measurement_unit" sequence="60" />
+            <menuitem id="menu_unit_category" action="action_medilab_unit_category" sequence="70" />
+            <menuitem id="menu_regulation" action="action_medilab_regulation" sequence="80" />
+            <menuitem id="menu_quality_registration" action="action_medilab_quality_registration" sequence="90" />
+        </menuitem>
+        <menuitem id="menu_master_data_machines" name="Machines and Chemicals" sequence="20">
+            <menuitem id="menu_machine" action="action_medilab_machine" sequence="10" />
+            <menuitem id="menu_chemical" action="action_medilab_chemical" sequence="20" />
+        </menuitem>
+        <menuitem id="menu_subcontractor" action="action_medilab_subcontractor" sequence="30" />
+    </menuitem>
 
+    <menuitem id="menu_people_root" name="People" sequence="30">
+        <menuitem id="menu_department" action="action_medilab_department" sequence="10" />
+        <menuitem id="menu_person" action="action_medilab_person" sequence="20" />
+        <menuitem id="menu_role" action="action_medilab_role" sequence="30" />
+        <menuitem id="menu_permission" action="action_medilab_permission" sequence="40" />
+    </menuitem>
 </odoo>

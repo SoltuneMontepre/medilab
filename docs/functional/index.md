@@ -26,7 +26,7 @@ It also includes a set of shared technical features that are used by all modules
   - Actors: [Customer](ecommerce_module/features/customer.md), [Sales](ecommerce_module/features/sales.md), [Accountant](ecommerce_module/features/accountant.md), [Admin](ecommerce_module/features/admin.md)
 - Inventory module
   - [Overview](inventory_module/overview.md)
-  - Actors: [Storekeeper](inventory_module/features/storekeeper.md)
+  - Actors: [Administrator](inventory_module/features/admin.md), [Storekeeper](inventory_module/features/storekeeper.md), [Team lead](inventory_module/features/team-lead.md), [Tester](inventory_module/features/tester.md)
 - Laboratory module
   - [Overview](laboratory_module/overview.md)
   - Actors: [Admin](laboratory_module/features/admin.md), [Sample delivery staff](laboratory_module/features/sample-delivery-staff.md), [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md), [Lab head](laboratory_module/features/lab-head.md), [Subcontractor](laboratory_module/features/subcontractor.md)

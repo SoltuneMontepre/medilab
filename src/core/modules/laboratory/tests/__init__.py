@@ -1,1 +1,22 @@
-from . import test_parameter_constraints, test_webmanifest
+from . import (
+    test_administrator_person,
+    test_administrator_role,
+    test_archiving_and_deleting,
+    test_code_sequences,
+    test_machines_and_chemicals,
+    test_master_data_access,
+    test_own_department_scope,
+    test_parameter_constraints,
+    test_parameter_method_department,
+    test_people_deletion,
+    test_people_screens,
+    test_permission_enforcement,
+    test_permission_generation,
+    test_person_access,
+    test_person_user,
+    test_regulation_constraints,
+    test_role_lifecycle,
+    test_subcontractor,
+    test_tree_filters,
+    test_webmanifest,
+)

@@ -143,9 +143,9 @@ model RegulationLimit {
   parameter_id  Int
   /// The unit of min_value and max_value; empty for a text-only limit.
   unit_id       Int?
-  /// Lowest allowed value; empty when there is no lower limit.
+  /// Lowest allowed value; 0 when there is no lower limit, since Odoo stores an empty number as 0.
   min_value     Decimal? @db.Decimal
-  /// Highest allowed value; empty when there is no upper limit.
+  /// Highest allowed value; 0 when there is no upper limit, since Odoo stores an empty number as 0.
   max_value     Decimal? @db.Decimal
   /// Decimals the limit shows on the report, such as 2 for 0.50.
   decimals      Int?
@@ -228,6 +228,8 @@ model Department {
   active            Boolean           @default(true)
   /// Parameter and method pairs the department tests in-house.
   parameter_methods ParameterMethod[]
+  /// Teams the department is split into.
+  teams             Team[]
   /// People in the department.
   people            Person[]
   /// Notification events whose notifications go to the department.
@@ -238,6 +240,29 @@ model Department {
   handovers         SampleHandover[]
 
   @@map("medilab_department")
+}
+
+/// A team (tổ) within a department.
+model Team {
+  /// Row identifier.
+  id            Int        @id @default(autoincrement())
+  /// Team name.
+  name          String     @db.VarChar
+  /// Department the team belongs to.
+  department_id Int
+  /// Person who leads the team.
+  lead_id       Int?
+  /// False when the team is archived.
+  active        Boolean    @default(true)
+  /// Department the team belongs to.
+  department    Department @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// Person who leads the team.
+  lead          Person?    @relation("TeamLead", fields: [lead_id], references: [id], onDelete: Restrict)
+  /// People in the team.
+  people        Person[]   @relation("TeamMember")
+
+  @@index([department_id])
+  @@map("medilab_team")
 }
 
 /// The unit in which a measured value is expressed.
@@ -844,6 +869,8 @@ model Person {
   user_id       Int?         @unique
   /// Department of the person.
   department_id Int?
+  /// Team of the person, within their department.
+  team_id       Int?
   /// False when the person is archived.
   active        Boolean      @default(true)
   /// The contact holding the person's details.
@@ -852,6 +879,10 @@ model Person {
   user          User?        @relation(fields: [user_id], references: [id], onDelete: Restrict)
   /// Department of the person.
   department    Department?  @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// Team of the person.
+  team          Team?        @relation("TeamMember", fields: [team_id], references: [id], onDelete: Restrict)
+  /// Teams the person leads.
+  led_teams     Team[]       @relation("TeamLead")
   /// Roles the person holds.
   roles         PersonRole[]
   /// Permissions given to the person directly, on top of their roles.
@@ -921,14 +952,32 @@ model User {
   @@map("res_users")
 }
 
+/// Odoo's group table, shown with the columns this schema uses. A group carries the access rule and record rule generated for one permission, or implies the permission groups of one role; users hold groups through their person's roles and direct permissions.
+model Group {
+  /// Row identifier.
+  id         Int         @id @default(autoincrement())
+  /// Group name in each language, such as "Permission: person.read.all".
+  name       Json
+  /// The permission whose access rule and record rule the group carries.
+  permission Permission? @relation("PermissionGroup")
+  /// The role whose permission groups the group implies.
+  role       Role?       @relation("RoleGroup")
+
+  @@map("res_groups")
+}
+
 /// A role the administrator defines, such as Tester or Head of department: a set of permissions. Signing levels are given to roles.
 model Role {
   /// Row identifier.
   id              Int              @id @default(autoincrement())
-  /// Unique code of the role.
+  /// Unique code of the role: lowercase letters, digits and underscores.
   code            String           @unique @db.VarChar
   /// Role name in each language.
   name            Json
+  /// The Odoo group generated for the role, which implies the groups of its permissions.
+  group_id        Int              @unique
+  /// The Odoo group generated for the role.
+  group           Group            @relation("RoleGroup", fields: [group_id], references: [id], onDelete: Restrict)
   /// People who hold the role.
   people          PersonRole[]
   /// Permissions the role contains.
@@ -964,16 +1013,20 @@ model PersonRole {
 model Permission {
   /// Row identifier.
   id             Int                @id @default(autoincrement())
-  /// Unique code of the permission, such as sample.edit.own_department.
+  /// Unique code derived from the document type, action and scope, such as sample.edit.own_department.
   code           String             @unique @db.VarChar
   /// Permission name in each language.
   name           Json
-  /// Technical name of the document type, such as medilab.sample.
+  /// Technical name of the document type, such as medilab.sample; cannot change once the permission exists.
   document_model String             @db.VarChar
-  /// read, create, edit, archive, delete or sign.
+  /// read, create, edit, archive, delete or sign; cannot change once the permission exists.
   action         String             @db.VarChar
-  /// all for every record, or own_department for records of the person's department only.
+  /// all for every record, own_department for records of the person's department only, or own_team for records of the person's team only; cannot change once the permission exists.
   scope          String             @db.VarChar
+  /// The Odoo group generated for the permission, which carries its access rule and record rule.
+  group_id       Int                @unique
+  /// The Odoo group generated for the permission.
+  group          Group              @relation("PermissionGroup", fields: [group_id], references: [id], onDelete: Restrict)
   /// Roles that contain the permission.
   roles          RolePermission[]
   /// People given the permission directly.

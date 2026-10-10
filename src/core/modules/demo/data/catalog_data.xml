@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="sample_type_food" model="medilab.sample.type">
+        <field name="name">Food</field>
+    </record>
+    <record id="sample_type_bottled_water" model="medilab.sample.type">
+        <field name="name">Bottled water</field>
+        <field name="parent_id" ref="sample_type_food" />
+        <field name="minimum_quantity">2000</field>
+        <field name="minimum_quantity_unit_id" ref="unit_ml" />
+        <field name="sampling_requirements">Collect sealed bottles from the same lot.</field>
+        <field name="storage_conditions">2–8 °C, away from light</field>
+        <field name="is_retained" eval="True" />
+        <field name="retention_days">30</field>
+        <field name="post_test_requirements">Reseal the remaining bottles and label them with the lab code.</field>
+        <field name="disposal_method">Pour into the drain and recycle the bottles.</field>
+    </record>
+    <record id="sample_type_vegetables" model="medilab.sample.type">
+        <field name="name">Vegetables</field>
+        <field name="parent_id" ref="sample_type_food" />
+    </record>
+    <record id="sample_type_cabbage" model="medilab.sample.type">
+        <field name="name">Cabbage</field>
+        <field name="parent_id" ref="sample_type_vegetables" />
+        <field name="minimum_quantity">500</field>
+        <field name="minimum_quantity_unit_id" ref="unit_g" />
+        <field name="sampling_requirements">Collect whole heads in clean paper bags.</field>
+        <field name="storage_conditions">0–4 °C</field>
+        <field name="disposal_method">Dispose of as organic waste.</field>
+    </record>
+    <record id="sample_type_environment" model="medilab.sample.type">
+        <field name="name">Environment</field>
+    </record>
+    <record id="sample_type_surface_water" model="medilab.sample.type">
+        <field name="name">Surface water</field>
+        <field name="parent_id" ref="sample_type_environment" />
+        <field name="minimum_quantity">1000</field>
+        <field name="minimum_quantity_unit_id" ref="unit_ml" />
+        <field name="storage_conditions">2–8 °C, tested within 24 hours</field>
+    </record>
+    <record id="sample_type_animal_feed" model="medilab.sample.type">
+        <field name="name">Animal feed</field>
+        <field name="active" eval="False" />
+    </record>
+
+    <record id="group_microbiology" model="medilab.parameter.group">
+        <field name="name">Microbiology</field>
+    </record>
+    <record id="group_heavy_metals" model="medilab.parameter.group">
+        <field name="name">Heavy metals</field>
+    </record>
+    <record id="group_pesticides" model="medilab.parameter.group">
+        <field name="name">Pesticides</field>
+    </record>
+    <record id="group_organophosphates" model="medilab.parameter.group">
+        <field name="name">Organophosphates</field>
+        <field name="parent_id" ref="group_pesticides" />
+    </record>
+    <record id="group_physicochemical" model="medilab.parameter.group">
+        <field name="name">Physicochemical</field>
+    </record>
+
+    <record id="field_chemistry" model="medilab.testing.field">
+        <field name="code">HH</field>
+        <field name="name">Chemistry</field>
+    </record>
+    <record id="field_microbiology" model="medilab.testing.field">
+        <field name="code">VS</field>
+        <field name="name">Microbiology</field>
+    </record>
+
+    <record id="method_tcvn_6187_1" model="medilab.testing.method">
+        <field name="code">TCVN 6187-1:2009</field>
+        <field name="name">Water quality — Enumeration of Escherichia coli and coliform bacteria — Part 1: Membrane filtration method</field>
+        <field name="field_id" ref="field_microbiology" />
+    </record>
+    <record id="method_tcvn_6187_2" model="medilab.testing.method">
+        <field name="code">TCVN 6187-2:1996</field>
+        <field name="name">Water quality — Detection and enumeration of coliform organisms — Part 2: Multiple tube (most probable number) method</field>
+        <field name="field_id" ref="field_microbiology" />
+    </record>
+    <record id="method_iso_4832" model="medilab.testing.method">
+        <field name="code">ISO 4832:2006</field>
+        <field name="name">Microbiology of food and animal feeding stuffs — Enumeration of coliforms — Colony-count technique</field>
+        <field name="field_id" ref="field_microbiology" />
+    </record>
+    <record id="method_iso_16649_2" model="medilab.testing.method">
+        <field name="code">ISO 16649-2:2001</field>
+        <field name="name">Microbiology of food and animal feeding stuffs — Enumeration of β-glucuronidase-positive Escherichia coli — Part 2: Colony-count technique at 44 °C</field>
+        <field name="field_id" ref="field_microbiology" />
+    </record>
+    <record id="method_tcvn_7602" model="medilab.testing.method">
+        <field name="code">TCVN 7602:2007</field>
+        <field name="name">Foodstuffs — Determination of lead content by atomic absorption spectrophotometry</field>
+        <field name="field_id" ref="field_chemistry" />
+    </record>
+    <record id="method_iso_17294_2" model="medilab.testing.method">
+        <field name="code">ISO 17294-2:2016</field>
+        <field name="name">Water quality — Application of inductively coupled plasma mass spectrometry — Part 2: Determination of selected elements</field>
+        <field name="field_id" ref="field_chemistry" />
+    </record>
+    <record id="method_tcvn_6492" model="medilab.testing.method">
+        <field name="code">TCVN 6492:2011</field>
+        <field name="name">Water quality — Determination of pH</field>
+        <field name="field_id" ref="field_chemistry" />
+    </record>
+    <record id="method_tcvn_5979" model="medilab.testing.method">
+        <field name="code">TCVN 5979:2007</field>
+        <field name="name">Soil quality — Determination of pH</field>
+        <field name="field_id" ref="field_chemistry" />
+    </record>
+    <record id="method_en_15662" model="medilab.testing.method">
+        <field name="code">EN 15662:2018</field>
+        <field name="name">Foods of plant origin — Multimethod for the determination of pesticide residues using GC- and LC-based analysis following acetonitrile extraction (QuEChERS)</field>
+        <field name="field_id" ref="field_chemistry" />
+    </record>
+
+    <record id="parameter_lead" model="medilab.test.parameter">
+        <field name="name">Lead (Pb)</field>
+        <field name="group_ids" eval="[Command.set([ref('group_heavy_metals')])]" />
+        <field name="main_group_id" ref="group_heavy_metals" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('sample_type_bottled_water'), ref('sample_type_cabbage'), ref('sample_type_surface_water')])]"
+        />
+    </record>
+    <record id="parameter_coliforms" model="medilab.test.parameter">
+        <field name="name">Coliforms</field>
+        <field name="group_ids" eval="[Command.set([ref('group_microbiology')])]" />
+        <field name="main_group_id" ref="group_microbiology" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('sample_type_bottled_water'), ref('sample_type_surface_water')])]"
+        />
+    </record>
+    <record id="parameter_e_coli" model="medilab.test.parameter">
+        <field name="name">E. coli</field>
+        <field name="group_ids" eval="[Command.set([ref('group_microbiology')])]" />
+        <field name="main_group_id" ref="group_microbiology" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('sample_type_bottled_water'), ref('sample_type_surface_water')])]"
+        />
+    </record>
+    <record id="parameter_ph" model="medilab.test.parameter">
+        <field name="name">pH</field>
+        <field name="group_ids" eval="[Command.set([ref('group_physicochemical')])]" />
+        <field name="main_group_id" ref="group_physicochemical" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('sample_type_bottled_water'), ref('sample_type_surface_water')])]"
+        />
+    </record>
+    <record id="parameter_chlorpyrifos" model="medilab.test.parameter">
+        <field name="name">Chlorpyrifos</field>
+        <field name="group_ids" eval="[Command.set([ref('group_organophosphates')])]" />
+        <field name="main_group_id" ref="group_organophosphates" />
+        <field name="sample_type_ids" eval="[Command.set([ref('sample_type_cabbage')])]" />
+    </record>
+
+    <record id="parameter_method_lead_aas" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="method_id" ref="method_tcvn_7602" />
+        <field name="unit_id" ref="unit_mg_kg" />
+        <field name="lod">0.01</field>
+        <field name="loq">0.03</field>
+        <field name="result_decimals">3</field>
+        <field name="is_accredited" eval="True" />
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="parameter_method_lead_icpms" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="method_id" ref="method_iso_17294_2" />
+        <field name="unit_id" ref="unit_ug_l" />
+        <field name="lod">0.1</field>
+        <field name="loq">0.3</field>
+        <field name="result_decimals">2</field>
+    </record>
+    <record id="parameter_method_lead_subcontracted" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="method_id" ref="method_iso_17294_2" />
+        <field name="unit_id" ref="unit_ug_l" />
+        <field name="subcontractor_id" ref="subcontractor_northern_testing" />
+        <field name="lod">0.05</field>
+        <field name="loq">0.15</field>
+        <field name="result_decimals">2</field>
+        <field name="is_accredited" eval="True" />
+    </record>
+    <record id="parameter_method_coliforms_mpn" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_coliforms" />
+        <field name="method_id" ref="method_tcvn_6187_2" />
+        <field name="unit_id" ref="unit_mpn_100ml" />
+        <field name="result_decimals">0</field>
+        <field name="is_accredited" eval="True" />
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="parameter_method_coliforms_colony" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_coliforms" />
+        <field name="method_id" ref="method_iso_4832" />
+        <field name="unit_id" ref="unit_cfu_g" />
+        <field name="result_decimals">0</field>
+    </record>
+    <record id="parameter_method_e_coli_membrane" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_e_coli" />
+        <field name="method_id" ref="method_tcvn_6187_1" />
+        <field name="unit_id" ref="unit_cfu_100ml" />
+        <field name="result_decimals">0</field>
+        <field name="is_accredited" eval="True" />
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="parameter_method_e_coli_colony" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_e_coli" />
+        <field name="method_id" ref="method_iso_16649_2" />
+        <field name="unit_id" ref="unit_cfu_g" />
+        <field name="result_decimals">0</field>
+    </record>
+    <record id="parameter_method_ph_water" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_ph" />
+        <field name="method_id" ref="method_tcvn_6492" />
+        <field name="unit_id" ref="unit_ph" />
+        <field name="result_decimals">1</field>
+        <field name="is_accredited" eval="True" />
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="parameter_method_ph_soil" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_ph" />
+        <field name="method_id" ref="method_tcvn_5979" />
+        <field name="unit_id" ref="unit_ph" />
+        <field name="result_decimals">1</field>
+    </record>
+    <record id="parameter_method_chlorpyrifos_quechers" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_chlorpyrifos" />
+        <field name="method_id" ref="method_en_15662" />
+        <field name="unit_id" ref="unit_mg_kg" />
+        <field name="lod">0.003</field>
+        <field name="loq">0.01</field>
+        <field name="result_decimals">3</field>
+        <field name="is_default" eval="True" />
+    </record>
+    <record id="parameter_method_chlorpyrifos_ug" model="medilab.parameter.method">
+        <field name="parameter_id" ref="parameter_chlorpyrifos" />
+        <field name="method_id" ref="method_en_15662" />
+        <field name="unit_id" ref="unit_ug_kg" />
+        <field name="subcontractor_id" ref="subcontractor_southern_micro" />
+        <field name="lod">1</field>
+        <field name="loq">3</field>
+        <field name="result_decimals">1</field>
+    </record>
+
+    <record id="regulation_qcvn_6_1" model="medilab.regulation">
+        <field name="code">QCVN 6-1:2010/BYT</field>
+        <field name="name">National technical regulation on natural mineral waters and bottled drinking waters</field>
+        <field name="issuing_authority">Ministry of Health</field>
+        <field name="sample_type_ids" eval="[Command.set([ref('sample_type_bottled_water')])]" />
+    </record>
+    <record id="regulation_limit_qcvn_6_1_lead" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="regulation_qcvn_6_1" />
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="unit_id" ref="unit_mg_l" />
+        <field name="max_value">0.01</field>
+        <field name="decimals">3</field>
+    </record>
+    <record id="regulation_limit_qcvn_6_1_ph" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="regulation_qcvn_6_1" />
+        <field name="parameter_id" ref="parameter_ph" />
+        <field name="unit_id" ref="unit_ph" />
+        <field name="min_value">6.5</field>
+        <field name="max_value">8.5</field>
+        <field name="decimals">1</field>
+    </record>
+    <record id="regulation_limit_qcvn_6_1_e_coli" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="regulation_qcvn_6_1" />
+        <field name="parameter_id" ref="parameter_e_coli" />
+        <field name="limit_text">Not detected</field>
+    </record>
+    <record id="regulation_limit_qcvn_6_1_coliforms" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="regulation_qcvn_6_1" />
+        <field name="parameter_id" ref="parameter_coliforms" />
+        <field name="limit_text">Not detected</field>
+    </record>
+
+    <record id="quality_registration_valid" model="medilab.quality.registration">
+        <field name="name">Food testing registration with the Ministry of Health</field>
+        <field name="issuing_authority">Ministry of Health</field>
+        <field name="valid_from" eval="(DateTime.today() - relativedelta(years=1)).strftime('%Y-%m-%d')" />
+        <field name="valid_until" eval="(DateTime.today() + relativedelta(years=2)).strftime('%Y-%m-%d')" />
+        <field name="report_mark">(*)</field>
+        <field
+            name="parameter_method_ids"
+            eval="[Command.set([ref('parameter_method_lead_aas'), ref('parameter_method_coliforms_mpn')])]"
+        />
+    </record>
+    <record id="quality_registration_expired" model="medilab.quality.registration">
+        <field name="name">Environmental monitoring registration with the Ministry of Natural Resources and Environment</field>
+        <field name="issuing_authority">Ministry of Natural Resources and Environment</field>
+        <field name="valid_from" eval="(DateTime.today() - relativedelta(years=4)).strftime('%Y-%m-%d')" />
+        <field name="valid_until" eval="(DateTime.today() - relativedelta(months=2)).strftime('%Y-%m-%d')" />
+        <field name="report_mark">(**)</field>
+        <field
+            name="parameter_method_ids"
+            eval="[Command.set([ref('parameter_method_e_coli_membrane'), ref('parameter_method_ph_water')])]"
+        />
+    </record>
+</odoo>

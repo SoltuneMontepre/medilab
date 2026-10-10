@@ -153,7 +153,7 @@ Signing follows [Approval and signing chain](../../business/approval-and-signing
 | Signature       | A signature records the document and its version, the level, the signer and, as they were at signing, the signer's name, role and level name. A rejection records its reason. |
 | Withdrawal      | A withdrawn signature is kept with the time it was withdrawn; signature records are never deleted.                               |
 | People          | A person is someone who works for the laboratory, maintained by the administrator. Their details are their contact; if they sign in, they have an Odoo user. |
-| Permissions     | A permission is an action on a document type (read, create, edit, archive, delete or sign) on every record or only those of the person's department. |
+| Permissions     | A permission is an action on a document type (read, create, edit, archive, delete or sign) on every record, only those of the person's department or only those of the person's team. |
 | Roles           | A role is a set of permissions the administrator defines. A person holds roles and can also be given permissions directly; they have every permission of their roles plus their own. |
 | Enforcement     | Permissions are enforced in the API and in the interface: a person does not see menus, records, fields or buttons for what they are not allowed to do. |
 | Global rules    | Some rules hold for everyone whatever their permissions, such as a signed document not being edited, archived or deleted. See [Security](../../security/readme.md). |

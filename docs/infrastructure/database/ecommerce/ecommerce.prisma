@@ -533,7 +533,7 @@ model QuotationLine {
   @@map("medilab_quotation_line")
 }
 
-/// An advance invoice, a final invoice or a credit note of an order. A posted invoice is never edited; a credit note corrects it.
+/// An advance, final or adjustment invoice of an order. A posted invoice is never edited; an adjustment invoice corrects it.
 model Invoice {
   /// Row identifier.
   id              Int           @id @default(autoincrement())
@@ -543,7 +543,7 @@ model Invoice {
   order_id        Int
   /// The quotation whose prices and tax rates the invoice uses.
   quotation_id    Int
-  /// advance, final or credit_note.
+  /// advance, final or adjustment.
   kind            String        @db.VarChar
   /// draft, posted or cancelled.
   status          String        @db.VarChar
@@ -551,13 +551,13 @@ model Invoice {
   posted_at       DateTime?
   /// When the invoice must be paid.
   due_date        DateTime?     @db.Date
-  /// The invoice a credit note corrects; empty for other invoices.
-  corrects_id     Int?
+  /// The invoice an adjustment invoice corrects; empty for other invoices.
+  adjusts_id      Int?
   /// Total excluding VAT.
   amount_untaxed  Decimal       @db.Decimal
   /// Total VAT.
   amount_tax      Decimal       @db.Decimal
-  /// Total including VAT; negative for a credit note.
+  /// Total including VAT; negative for an adjustment that lowers the amount.
   amount_total    Decimal       @db.Decimal
   /// Sum of the confirmed payments.
   amount_paid     Decimal       @default(0) @db.Decimal
@@ -571,10 +571,10 @@ model Invoice {
   order           CustomerOrder @relation(fields: [order_id], references: [id], onDelete: Restrict)
   /// The quotation the invoice uses.
   quotation       Quotation     @relation(fields: [quotation_id], references: [id], onDelete: Restrict)
-  /// The invoice a credit note corrects.
-  corrects        Invoice?      @relation("CreditNotes", fields: [corrects_id], references: [id], onDelete: Restrict)
-  /// Credit notes that correct this invoice.
-  credit_notes    Invoice[]     @relation("CreditNotes")
+  /// The invoice an adjustment invoice corrects.
+  adjusts         Invoice?      @relation("Adjustments", fields: [adjusts_id], references: [id], onDelete: Restrict)
+  /// Adjustment invoices that correct this invoice.
+  adjustments     Invoice[]     @relation("Adjustments")
   /// Lines of the invoice.
   lines           InvoiceLine[]
   /// Payments against the invoice.

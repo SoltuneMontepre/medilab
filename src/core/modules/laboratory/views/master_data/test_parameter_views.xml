@@ -7,6 +7,9 @@
             <list>
                 <field name="code" />
                 <field name="name" />
+                <field name="main_group_id" />
+                <field name="group_ids" widget="many2many_tags" optional="hide" />
+                <field name="sample_type_ids" widget="many2many_tags" optional="show" />
             </list>
         </field>
     </record>
@@ -17,12 +20,56 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
                     <group>
-                        <field name="code" />
-                        <field name="name" />
+                        <group>
+                            <field name="code" required="0" placeholder="Filled from the sequence when left empty" />
+                            <field name="group_ids" widget="many2many_tags" domain="[('child_ids', '=', False)]" />
+                            <field name="main_group_id" domain="[('id', 'in', group_ids)]" />
+                        </group>
+                        <group>
+                            <field name="sample_type_ids" widget="many2many_tags" />
+                        </group>
                     </group>
+                    <notebook>
+                        <page string="Ways of Testing" name="methods">
+                            <field name="method_ids" context="{'active_test': False}">
+                                <list editable="bottom" decoration-muted="not active">
+                                    <field name="is_default" widget="boolean_toggle" />
+                                    <field name="method_id" />
+                                    <field name="unit_id" />
+                                    <field name="department_id" invisible="subcontractor_id" />
+                                    <field name="subcontractor_id" invisible="department_id" />
+                                    <field name="lod" />
+                                    <field name="loq" />
+                                    <field name="result_decimals" />
+                                    <field name="is_accredited" />
+                                    <field name="active" widget="boolean_toggle" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_test_parameter_search" model="ir.ui.view">
+        <field name="name">medilab.test.parameter.search</field>
+        <field name="model">medilab.test.parameter</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" string="Name" />
+                <field name="group_ids" operator="child_of" />
+                <field name="sample_type_ids" operator="child_of" />
+                <field name="method_ids" />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+                <filter name="group_by_main_group" string="Main Group" context="{'group_by': 'main_group_id'}" />
+            </search>
         </field>
     </record>
 

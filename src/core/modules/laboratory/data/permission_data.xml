@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="permission_department_read_all" model="medilab.permission">
+        <field name="name">Read departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_department_create_all" model="medilab.permission">
+        <field name="name">Create departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_department_edit_all" model="medilab.permission">
+        <field name="name">Edit departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_department_archive_all" model="medilab.permission">
+        <field name="name">Archive departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_department_delete_all" model="medilab.permission">
+        <field name="name">Delete departments</field>
+        <field name="document_model">medilab.department</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_permission_read_all" model="medilab.permission">
+        <field name="name">Read permissions</field>
+        <field name="document_model">medilab.permission</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_permission_edit_all" model="medilab.permission">
+        <field name="name">Edit permissions</field>
+        <field name="document_model">medilab.permission</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_role_read_all" model="medilab.permission">
+        <field name="name">Read roles</field>
+        <field name="document_model">medilab.role</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_role_create_all" model="medilab.permission">
+        <field name="name">Create roles</field>
+        <field name="document_model">medilab.role</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_role_edit_all" model="medilab.permission">
+        <field name="name">Edit roles</field>
+        <field name="document_model">medilab.role</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_role_delete_all" model="medilab.permission">
+        <field name="name">Delete roles</field>
+        <field name="document_model">medilab.role</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_person_read_all" model="medilab.permission">
+        <field name="name">Read people</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_person_create_all" model="medilab.permission">
+        <field name="name">Create people</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_person_edit_all" model="medilab.permission">
+        <field name="name">Edit people</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_person_archive_all" model="medilab.permission">
+        <field name="name">Archive people</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_person_delete_all" model="medilab.permission">
+        <field name="name">Delete people</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_person_read_own_department" model="medilab.permission">
+        <field name="name">Read people of their department</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_person_create_own_department" model="medilab.permission">
+        <field name="name">Create people of their department</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_person_edit_own_department" model="medilab.permission">
+        <field name="name">Edit people of their department</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_person_archive_own_department" model="medilab.permission">
+        <field name="name">Archive people of their department</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">archive</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_person_delete_own_department" model="medilab.permission">
+        <field name="name">Delete people of their department</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
+</odoo>

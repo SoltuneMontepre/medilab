@@ -28,7 +28,8 @@ The overview explains the module and links to the actor documents.
 ## Document format
 
 - One topic per file; the first line is `# Title`.
-- User stories use IDs and the form "As a <actor>, I want <goal>, so that <benefit>": `US-C` customer, `US-S` sales, `US-A` accountant, `US-AD` administrator, `US-SD` sample delivery staff, `US-T` tester, `US-HD` head of department, `US-LH` lab head, `US-SUB` subcontractor, `US-SK` storekeeper. Keep IDs in order; when stories are added or removed, renumber them and update every anchor that refers to them.
+- User stories use IDs and the form "As a <actor>, I want <goal>, so that <benefit>": `US-C` customer, `US-S` sales, `US-A` accountant, `US-AD` administrator, `US-SD` sample delivery staff, `US-T` tester, `US-HD` head of department, `US-LH` lab head, `US-SUB` subcontractor, `US-SK` storekeeper, `US-TL` team lead. Numbers continue across modules, so one actor's stories in two modules never share an ID.
+- Story IDs are permanent. A new story takes the next unused number of its prefix, wherever it is placed; a removed story's ID is never reused; existing stories are never renumbered. Feature headings list the IDs they cover, such as (US-SK02, US-SK12).
 - Each feature has rules in a table, acceptance criteria as a list, and a state diagram when something has states.
 - Shared requirements use `SH-nn` IDs and are referred to by ID from module documents.
 - Diagrams are Mermaid in fenced code blocks.
