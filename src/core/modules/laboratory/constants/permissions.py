@@ -1,7 +1,7 @@
-"""Actions, scopes and record rule domains of permissions."""
+"""Actions, scopes and access domains of permissions."""
 
 DEPARTMENT_FIELD = "department_id"
-OPERATIONS = {"read": "read", "create": "create", "edit": "write", "archive": "write", "delete": "unlink"}
+OPERATIONS = {"read": "r", "create": "c", "edit": "u", "archive": "u", "delete": "d"}
 SCOPE_DOMAINS = {
     "all": "[(1, '=', 1)]",
     "own_department": (

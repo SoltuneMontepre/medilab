@@ -3,7 +3,7 @@ load-plugins=pylint_odoo
 score=n
 
 [ODOOLINT]
-valid-odoo-versions=19.0
+valid-odoo-versions=20.0
 manifest-deprecated-keys=description,active
 manifest-required-keys=version
 license-allowed=AGPL-3,GPL-2,GPL-2 or any later version,GPL-3,GPL-3 or any later version,LGPL-3,OPL-1,Other proprietary

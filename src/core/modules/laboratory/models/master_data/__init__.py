@@ -11,6 +11,7 @@ from . import (
     quality_registration,
     regulation,
     regulation_limit,
+    res_partner,
     sample_type,
     subcontractor,
     test_parameter,

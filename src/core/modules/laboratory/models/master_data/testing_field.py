@@ -9,7 +9,7 @@ class TestingField(models.Model):
     _inherit = [MODEL_ARCHIVE_MIXIN]
     _description = "Testing Field"
     _order = "code"
-    _rec_names_search = ["name", "code"]
+    _rec_names_search = ("name", "code")
 
     # Unique code of the field.
     code = fields.Char(required=True, copy=False)

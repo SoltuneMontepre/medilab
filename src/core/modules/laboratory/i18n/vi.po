@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0-20260926\n"
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 04:23+0000\n"
+"POT-Creation-Date: 2026-10-10 07:39+0000\n"
 "PO-Revision-Date: 2026-10-05 01:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
@@ -163,6 +163,16 @@ msgid "Active Lang Count"
 msgstr "Số ngôn ngữ đang hoạt động"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__additional_identifiers
+msgid "Additional Identifiers"
+msgstr "Mã định danh bổ sung"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__address
+msgid "Address (without name)"
+msgstr "Địa chỉ (không kèm tên)"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__type
 msgid "Address Type"
 msgstr "Loại địa chỉ"
@@ -171,6 +181,11 @@ msgstr "Loại địa chỉ"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__type_address_label
 msgid "Address Type Description"
 msgstr "Mô tả loại địa chỉ"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__address_inline
+msgid "Address inline (without name)"
+msgstr "Địa chỉ một dòng (không kèm tên)"
 
 #. module: laboratory
 #: model:medilab.role,name:laboratory.role_administrator
@@ -252,6 +267,11 @@ msgstr "Đã lưu trữ"
 #: model:ir.model,name:laboratory.model_medilab_archive_mixin
 msgid "Archiving and Deleting Rules"
 msgstr "Quy tắc lưu trữ và xóa"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__available_additional_identifiers_metadata
+msgid "Available Additional Identifiers Metadata"
+msgstr "Siêu dữ liệu mã định danh bổ sung khả dụng"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__avatar_1920
@@ -379,34 +399,9 @@ msgid "Company"
 msgstr "Công ty"
 
 #. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_registry
-msgid "Company ID"
-msgstr "Mã số công ty"
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_registry_label
-msgid "Company ID Label"
-msgstr "Nhãn mã số công ty"
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_name
-msgid "Company Name"
-msgstr "Tên công ty"
-
-#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__commercial_company_name
 msgid "Company Name Entity"
 msgstr "Tên pháp nhân công ty"
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_registry_placeholder
-msgid "Company Registry Placeholder"
-msgstr "Gợi ý số đăng ký công ty"
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_type
-msgid "Company Type"
-msgstr "Loại công ty"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__contact_address
@@ -414,13 +409,18 @@ msgid "Complete Address"
 msgstr "Địa chỉ đầy đủ"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__contact_address_inline
+msgid "Complete Address inline"
+msgstr "Địa chỉ đầy đủ một dòng"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__complete_name
 msgid "Complete Name"
 msgstr "Tên đầy đủ"
 
 #. module: laboratory
+#: model:ir.model,name:laboratory.model_res_partner
 #: model:ir.model.fields,field_description:laboratory.field_medilab_person__partner_id
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__child_ids
 msgid "Contact"
 msgstr "Liên hệ"
 
@@ -614,6 +614,7 @@ msgstr "Hủy tất cả thay đổi"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_method__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_unit_category__display_name
+#: model:ir.model.fields,field_description:laboratory.field_res_partner__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -737,16 +738,6 @@ msgid "Formula"
 msgstr "Công thức"
 
 #. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_latitude
-msgid "Geo Latitude"
-msgstr "Vĩ độ"
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_longitude
-msgid "Geo Longitude"
-msgstr "Kinh độ"
-
-#. module: laboratory
 #. odoo-python
 #: code:addons/laboratory/models/system/permission.py:0
 msgid ""
@@ -776,6 +767,11 @@ msgid "Groups"
 msgstr "Nhóm Chỉ Tiêu"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__has_vat
+msgid "Has Tax ID"
+msgstr "Có mã số thuế"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_archive_mixin__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_code_mixin__id
@@ -799,6 +795,7 @@ msgstr "Nhóm Chỉ Tiêu"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_method__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_unit_category__id
+#: model:ir.model.fields,field_description:laboratory.field_res_partner__id
 msgid "ID"
 msgstr "ID"
 
@@ -879,6 +876,13 @@ msgid "Laboratory management system"
 msgstr "Hệ thống quản lý phòng thử nghiệm"
 
 #. module: laboratory
+#: model:ir.module.module,summary:base.module_laboratory
+msgid ""
+"Laboratory testing core: test catalog, parameters, samples, results and "
+"machines."
+msgstr "Lõi kiểm nghiệm phòng thí nghiệm: danh mục kiểm nghiệm, chỉ tiêu, mẫu, kết quả và thiết bị."
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__lang
 msgid "Language"
 msgstr "Ngôn ngữ"
@@ -932,6 +936,11 @@ msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_latitude
+msgid "Latitude"
+msgstr "Vĩ độ"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__limit_text
 msgid "Limit Text"
 msgstr "Giới hạn dạng chữ"
@@ -956,6 +965,11 @@ msgstr "Đăng nhập"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_person__login
 msgid "Login"
 msgstr "Tên đăng nhập"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_longitude
+msgid "Longitude"
+msgstr "Kinh độ"
 
 #. module: laboratory
 #: model:ir.model,name:laboratory.model_medilab_machine
@@ -1037,6 +1051,11 @@ msgstr "Đơn Vị Đo"
 #: model:ir.ui.menu,name:laboratory.menu_measurement_unit
 msgid "Measurement Units"
 msgstr "Đơn Vị Đo"
+
+#. module: laboratory
+#: model:ir.module.module,shortdesc:base.module_laboratory
+msgid "Medilab - Laboratory"
+msgstr "Medilab - Phòng thí nghiệm"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__min_value
@@ -1187,11 +1206,6 @@ msgstr "Tên công ty cha"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_id
 msgid "Partner"
 msgstr "Đối tác"
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__same_company_registry_partner_id
-msgid "Partner with same Company Registry"
-msgstr "Đối tác có cùng số đăng ký công ty"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__same_vat_partner_id
@@ -1435,6 +1449,11 @@ msgid "Related Company"
 msgstr "Công ty liên quan"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__child_ids
+msgid "Related Contacts"
+msgstr "Liên hệ liên quan"
+
+#. module: laboratory
 #. odoo-javascript
 #: code:addons/laboratory/static/src/theme/xml/user_switch.xml:0
 msgid "Remove user from switcher"
@@ -1617,6 +1636,9 @@ msgstr "Thầu Phụ"
 
 #. module: laboratory
 #: model:ir.actions.act_window,name:laboratory.action_medilab_subcontractor
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__subcontractor_ids
+#: model:ir.model.fields,field_description:laboratory.field_res_partner__subcontractor_ids
+#: model:ir.model.fields,field_description:laboratory.field_res_users__subcontractor_ids
 #: model:ir.ui.menu,name:laboratory.menu_subcontractor
 msgid "Subcontractors"
 msgstr "Thầu Phụ"
@@ -1645,6 +1667,13 @@ msgstr "Mã số thuế"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__vat_label
 msgid "Tax ID Label"
 msgstr "Nhãn mã số thuế"
+
+#. module: laboratory
+#: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__has_vat
+msgid ""
+"Technical field indicating whether the Tax ID is not a placeholder.Returns "
+"False for placeholder values such as '/', 'NA', 'na', or an empty string."
+msgstr "Trường kỹ thuật cho biết mã số thuế không phải giá trị giữ chỗ. Trả về False với các giá trị giữ chỗ như '/', 'NA', 'na' hoặc chuỗi rỗng."
 
 #. module: laboratory
 #: model:ir.model,name:laboratory.model_medilab_test_parameter
@@ -1855,15 +1884,6 @@ msgid "The reference of a regulation must be unique."
 msgstr "Số hiệu quy chuẩn phải là duy nhất."
 
 #. module: laboratory
-#: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__company_registry
-msgid ""
-"The registry number of the company. Use it if it is different from the Tax "
-"ID. It must be unique across all partners of a same country"
-msgstr ""
-"Số đăng ký của công ty. Dùng khi khác với mã số thuế. Số này phải là duy "
-"nhất trong các đối tác của cùng một quốc gia"
-
-#. module: laboratory
 #. odoo-python
 #: code:addons/laboratory/models/system/role.py:0
 msgid ""
@@ -1885,14 +1905,14 @@ msgstr ""
 #. module: laboratory
 #. odoo-python
 #: code:addons/laboratory/models/system/permission.py:0
-msgid "These permissions come with a module and cannot be deleted: %s"
-msgstr "Các quyền này đi kèm một phân hệ và không thể xóa: %s"
+msgid "These accesses still use the permission's group: %s"
+msgstr "Các bản ghi truy cập này vẫn dùng nhóm của quyền: %s"
 
 #. module: laboratory
 #. odoo-python
 #: code:addons/laboratory/models/system/permission.py:0
-msgid "These record rules still use the permission's group: %s"
-msgstr "Các quy tắc bản ghi này vẫn dùng nhóm của quyền: %s"
+msgid "These permissions come with a module and cannot be deleted: %s"
+msgstr "Các quyền này đi kèm một phân hệ và không thể xóa: %s"
 
 #. module: laboratory
 #. odoo-python
@@ -2045,8 +2065,8 @@ msgstr "Có"
 #: code:addons/laboratory/models/system/permission_mixin.py:0
 msgid "You are not allowed to %(action)s these records: %(records)s"
 msgstr ""
-"Bạn không được phép thực hiện hành động %(action)s trên các bản ghi này: %"
-"(records)s"
+"Bạn không được phép thực hiện hành động %(action)s trên các bản ghi này: "
+"%(records)s"
 
 #. module: laboratory
 #: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__vat
@@ -2057,18 +2077,3 @@ msgstr "Bạn có thể dùng '/' để cho biết khách hàng không có mã s
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__zip
 msgid "Zip"
 msgstr "Mã bưu chính"
-
-#. module: laboratory
-#: code:addons/web/static/src/model/relational_model/record.js:0
-msgid "Missing required fields"
-msgstr "Thiếu trường bắt buộc"
-
-#. module: laboratory
-#: model_terms:ir.ui.view,arch_db:web.login
-msgid "Enter your email"
-msgstr "Nhập email"
-
-#. module: laboratory
-#: model_terms:ir.ui.view,arch_db:web.login
-msgid "Enter your password"
-msgstr "Nhập mật khẩu"

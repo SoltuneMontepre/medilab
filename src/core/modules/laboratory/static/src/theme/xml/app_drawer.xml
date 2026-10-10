@@ -3,12 +3,12 @@
 
     <t t-inherit="web.NavBar" t-inherit-mode="extension">
         <xpath expr="//header" position="after">
-            <t t-if="appDrawer.open">
-                <div class="ml_apps_scrim" t-on-click="closeAppDrawer"/>
+            <t t-if="this.appDrawer.open">
+                <div class="ml_apps_scrim" t-on-click="this.closeAppDrawer"/>
                 <div class="ml_apps_panel"
                      role="dialog"
                      aria-label="Applications"
-                     t-on-keydown="onAppDrawerKeydown">
+                     t-on-keydown="this.onAppDrawerKeydown">
                     <label class="ml_apps_search">
                         <iconify-icon icon="mdi:magnify" class="ml_icon_sm"/>
                         <input type="search"
@@ -16,24 +16,24 @@
                                placeholder="Find an app"
                                aria-label="Find an app"
                                autocomplete="off"
-                               t-ref="appSearch"
-                               t-model="appDrawer.query"/>
+                               t-ref="this.appSearchRef"
+                               t-model.proxy="this.appDrawer.query"/>
                         <kbd>Esc</kbd>
                     </label>
                     <div class="ml_apps_grid">
-                        <t t-foreach="filteredApps" t-as="app" t-key="app.id">
-                            <a t-att-href="getMenuItemHref(app)"
+                        <t t-foreach="this.filteredApps" t-as="app" t-key="app.id">
+                            <a t-att-href="this.getMenuItemHref(app)"
                                class="ml_app_tile"
-                               t-att-class="{ 'ml_app_tile_current': app.id === currentAppId }"
-                               t-att-aria-current="app.id === currentAppId ? 'page' : false"
+                               t-att-class="{ 'ml_app_tile_current': app.id === this.currentAppId }"
+                               t-att-aria-current="app.id === this.currentAppId ? 'page' : false"
                                t-on-click.prevent="() => this.onAppDrawerClick(app)">
                                 <span class="ml_app_tile_icon">
-                                    <iconify-icon t-att-icon="getAppIcon(app)" class="ml_icon_md"/>
+                                    <iconify-icon t-att-icon="this.getAppIcon(app)" class="ml_icon_md"/>
                                 </span>
                                 <span class="ml_app_tile_name" t-esc="app.name"/>
                             </a>
                         </t>
-                        <p t-if="!filteredApps.length" class="ml_apps_empty">No app matches your search.</p>
+                        <p t-if="!this.filteredApps.length" class="ml_apps_empty">No app matches your search.</p>
                     </div>
                 </div>
             </t>
@@ -42,14 +42,14 @@
 
     <t t-inherit="web.NavBar.AppsMenu" t-inherit-mode="extension">
         <xpath expr="//div[contains(@class, 'o_navbar_apps_menu')]" position="replace">
-            <div t-if="!isScopedApp" class="o_navbar_apps_menu d-flex align-items-center">
+            <div t-if="!this.isScopedApp" class="o_navbar_apps_menu d-flex align-items-center">
                 <button type="button"
                         class="btn ml_navbar_apps_btn"
-                        t-att-class="{ 'ml_navbar_apps_btn_active': appDrawer.open }"
-                        t-on-click="toggleAppDrawer"
+                        t-att-class="{ 'ml_navbar_apps_btn_active': this.appDrawer.open }"
+                        t-on-click="this.toggleAppDrawer"
                         title="Applications"
                         aria-label="Applications"
-                        t-att-aria-expanded="appDrawer.open ? 'true' : 'false'">
+                        t-att-aria-expanded="this.appDrawer.open ? 'true' : 'false'">
                     <iconify-icon icon="mdi:apps" class="ml_icon_md"/>
                 </button>
             </div>
@@ -57,14 +57,15 @@
     </t>
 
     <t t-inherit="web.NavBar.SectionsMenu" t-inherit-mode="extension">
-        <xpath expr="//DropdownItem[@class=&quot;'o_nav_entry'&quot;]" position="attributes">
+        <xpath expr="//DropdownItem[contains(@class, 'o_nav_entry')]" position="attributes">
             <attribute name="class">{
-                'o_nav_entry': true,
-                'o_nav_entry_active': isSectionActive(section),
+                o_nav_entry: true,
+                o_disabled_offline: !this._isAvailable(section),
+                o_nav_entry_active: this.isSectionActive(section),
             }</attribute>
         </xpath>
         <xpath expr="//button[@t-att-data-menu-xmlid]" position="attributes">
-            <attribute name="t-att-class">{ 'o_nav_entry_active': isSectionActive(section) }</attribute>
+            <attribute name="t-att-class">{ 'o_nav_entry_active': this.isSectionActive(section) }</attribute>
         </xpath>
     </t>
 

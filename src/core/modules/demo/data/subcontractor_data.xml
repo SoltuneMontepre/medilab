@@ -2,7 +2,6 @@
 <odoo noupdate="1">
     <record id="partner_northern_testing" model="res.partner">
         <field name="name">Northern Testing Laboratory</field>
-        <field name="is_company" eval="True" />
         <field name="street">12 Tran Hung Dao</field>
         <field name="city">Hanoi</field>
         <field name="country_id" ref="base.vn" />
@@ -16,7 +15,6 @@
     </record>
     <record id="partner_coastal_analytics" model="res.partner">
         <field name="name">Coastal Analytical Services</field>
-        <field name="is_company" eval="True" />
         <field name="street">45 Bach Dang</field>
         <field name="city">Da Nang</field>
         <field name="country_id" ref="base.vn" />
@@ -28,7 +26,6 @@
     </record>
     <record id="partner_southern_micro" model="res.partner">
         <field name="name">Southern Microbiology Centre</field>
-        <field name="is_company" eval="True" />
         <field name="street">88 Nguyen Hue</field>
         <field name="city">Ho Chi Minh City</field>
         <field name="country_id" ref="base.vn" />

@@ -15,7 +15,7 @@ class SampleType(models.Model):
     _description = "Sample Type"
     _parent_store = True
     _order = "code"
-    _rec_names_search = ["name", "code"]
+    _rec_names_search = ("name", "code")
 
     # Unique code of the sample type, such as LM.0001; filled from a sequence when left empty.
     code = fields.Char(required=True, copy=False)

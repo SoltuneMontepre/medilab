@@ -15,7 +15,7 @@ class Regulation(models.Model):
     _description = "Regulation"
     _rec_name = "code"
     _order = "code"
-    _rec_names_search = ["code", "name"]
+    _rec_names_search = ("code", "name")
 
     # Unique reference of the regulation, such as QCVN 6-1:2010/BYT.
     code = fields.Char(required=True, copy=False)

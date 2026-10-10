@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0-20260926\n"
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 03:45+0000\n"
+"POT-Creation-Date: 2026-10-10 07:34+0000\n"
 "PO-Revision-Date: 2026-10-10 03:45+0000\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
@@ -203,6 +203,11 @@ msgid "Mass fraction"
 msgstr "Phần khối lượng"
 
 #. module: demo
+#: model:ir.module.module,shortdesc:base.module_demo
+msgid "Medilab - Testing Data"
+msgstr "Medilab - Dữ liệu thử nghiệm"
+
+#. module: demo
 #: model:medilab.unit.category,name:demo.unit_category_count_per_mass
 msgid "Microbial count per mass"
 msgstr "Mật độ vi sinh vật theo khối lượng"
@@ -296,6 +301,11 @@ msgstr "Nhân Viên Kinh Doanh"
 #: model:medilab.role,name:demo.demo_role_sample_delivery_staff
 msgid "Sample delivery staff"
 msgstr "Nhân Viên Giao Nhận Mẫu"
+
+#. module: demo
+#: model:ir.module.module,summary:base.module_demo
+msgid "Seeds and configure data for demo purposes."
+msgstr "Tạo và cấu hình dữ liệu cho mục đích trình diễn."
 
 #. module: demo
 #: model:medilab.chemical,name:demo.chemical_sodium_chloride

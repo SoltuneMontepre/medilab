@@ -1,9 +1,10 @@
 /** @odoo-module **/
 
+import { useLayoutEffect } from "@web/owl2/utils";
 import { NavBar } from "@web/webclient/navbar/navbar";
 import { patch } from "@web/core/utils/patch";
 import { useBus } from "@web/core/utils/hooks";
-import { useEffect, useRef, useState } from "@odoo/owl";
+import { proxy, signal } from "@odoo/owl";
 
 const APP_ICONS_BY_XMLID = {
     "laboratory.menu_sample_collection_root": "mdi:package-variant",
@@ -50,15 +51,15 @@ function normalizeSearch(text) {
 patch(NavBar.prototype, {
     setup() {
         super.setup();
-        this.appDrawer = useState({ open: false, query: "" });
-        this.appSearchRef = useRef("appSearch");
-        this.navHighlight = useState({ actionId: false, actionPath: false });
+        this.appDrawer = proxy({ open: false, query: "" });
+        this.appSearchRef = signal.ref();
+        this.navHighlight = proxy({ actionId: false, actionPath: false });
         this.syncNavHighlight();
         useBus(this.env.bus, "ACTION_MANAGER:UI-UPDATED", () => this.syncNavHighlight());
-        useEffect(
+        useLayoutEffect(
             (open) => {
                 if (open) {
-                    this.appSearchRef.el?.focus();
+                    this.appSearchRef()?.focus();
                 }
             },
             () => [this.appDrawer.open]
@@ -103,7 +104,7 @@ patch(NavBar.prototype, {
         if (ev.key === "Escape") {
             ev.stopPropagation();
             this.closeAppDrawer();
-        } else if (ev.key === "Enter" && ev.target === this.appSearchRef.el && this.filteredApps.length) {
+        } else if (ev.key === "Enter" && ev.target === this.appSearchRef() && this.filteredApps.length) {
             ev.preventDefault();
             this.onAppDrawerClick(this.filteredApps[0]);
         }

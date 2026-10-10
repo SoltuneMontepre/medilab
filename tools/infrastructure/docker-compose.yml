@@ -3,7 +3,7 @@ name: medilab
 services:
   odoo:
     container_name: medilab-odoo
-    image: ${MEDILAB_ODOO_IMAGE:-docker.io/library/odoo:19.0}
+    image: ${MEDILAB_ODOO_IMAGE:-docker.io/library/odoo:20.0}
     restart: unless-stopped
     environment:
       HOST: postgres

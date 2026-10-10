@@ -400,7 +400,7 @@ model Contact {
   name                       String          @db.VarChar
   /// Tax ID of a company, or of an individual who has one: Odoo's own field.
   vat                        String?         @db.VarChar
-  /// True for a company, false for a person.
+  /// True for a company: computed by Odoo from the tax ID, and always true for a subcontractor's contact.
   is_company                 Boolean         @default(false)
   /// The company a person works for.
   parent_id                  Int?
@@ -952,13 +952,13 @@ model User {
   @@map("res_users")
 }
 
-/// Odoo's group table, shown with the columns this schema uses. A group carries the access rule and record rule generated for one permission, or implies the permission groups of one role; users hold groups through their person's roles and direct permissions.
+/// Odoo's group table, shown with the columns this schema uses. A group carries the access generated for one permission, or implies the permission groups of one role; users hold groups through their person's roles and direct permissions.
 model Group {
   /// Row identifier.
   id         Int         @id @default(autoincrement())
   /// Group name in each language, such as "Permission: person.read.all".
   name       Json
-  /// The permission whose access rule and record rule the group carries.
+  /// The permission whose access the group carries.
   permission Permission? @relation("PermissionGroup")
   /// The role whose permission groups the group implies.
   role       Role?       @relation("RoleGroup")
@@ -1023,7 +1023,7 @@ model Permission {
   action         String             @db.VarChar
   /// all for every record, own_department for records of the person's department only, or own_team for records of the person's team only; cannot change once the permission exists.
   scope          String             @db.VarChar
-  /// The Odoo group generated for the permission, which carries its access rule and record rule.
+  /// The Odoo group generated for the permission, which carries its access.
   group_id       Int                @unique
   /// The Odoo group generated for the permission.
   group          Group              @relation("PermissionGroup", fields: [group_id], references: [id], onDelete: Restrict)
