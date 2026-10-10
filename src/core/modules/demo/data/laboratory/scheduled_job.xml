@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_scheduled_job_echo" model="medilab.scheduled.job">
+        <field name="key">demo.echo</field>
+        <field name="name">Demo echo</field>
+        <field name="cron_id" ref="demo_ir_cron_echo" />
+        <field name="batch_size">10</field>
+        <field name="max_attempts">3</field>
+    </record>
+</odoo>

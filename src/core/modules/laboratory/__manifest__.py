@@ -35,6 +35,9 @@
         "views/system/person_views.xml",
         "views/system/role_views.xml",
         "views/system/res_config_settings_views.xml",
+        "views/system/scheduled_job_views.xml",
+        "views/system/job_item_views.xml",
+        "views/system/job_run_views.xml",
         "views/system/menus.xml",
     ],
     "assets": {

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_job_item_echo_pending" model="medilab.job.item">
+        <field name="job_id" ref="demo_scheduled_job_echo" />
+        <field name="item_key">greeting:1</field>
+        <field name="payload" eval="{'message': 'Xin chào'}" />
+    </record>
+    <record id="demo_job_item_echo_done" model="medilab.job.item">
+        <field name="job_id" ref="demo_scheduled_job_echo" />
+        <field name="item_key">greeting:2</field>
+        <field name="payload" eval="{'message': 'Hello'}" />
+        <field name="status">done</field>
+        <field name="attempts">1</field>
+        <field name="next_attempt_at" eval="(DateTime.now() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="done_at" eval="(DateTime.now() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_job_item_echo_failed" model="medilab.job.item">
+        <field name="job_id" ref="demo_scheduled_job_echo" />
+        <field name="item_key">greeting:3</field>
+        <field name="payload" eval="{'message': 'The provider is down', 'fail': True}" />
+        <field name="status">failed</field>
+        <field name="attempts">3</field>
+        <field name="next_attempt_at" eval="(DateTime.now() - timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="last_error">ValueError: The provider is down</field>
+    </record>
+    <record id="demo_job_item_echo_retrying" model="medilab.job.item">
+        <field name="job_id" ref="demo_scheduled_job_echo" />
+        <field name="item_key">greeting:4</field>
+        <field name="payload" eval="{'message': 'The provider is slow', 'fail': True}" />
+        <field name="attempts">2</field>
+        <field name="next_attempt_at" eval="(DateTime.now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="last_error">ValueError: The provider is slow</field>
+    </record>
+</odoo>

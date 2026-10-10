@@ -15,7 +15,7 @@ How code inside an Odoo module is laid out.
 | `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
 | `tasks`             | Task types and tasks                                                                                                                                                             |
 | `management`        | Features only managers use                                                                                                                                                       |
-| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, settings, menus and the theme                                                              |
+| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, settings, scheduled jobs, menus and the theme                                              |
 
 ## Files
 
