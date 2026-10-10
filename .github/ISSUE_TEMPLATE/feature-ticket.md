@@ -18,7 +18,7 @@ type: Feature
 <description of the feature, how it works, etc.>
 
 ### Demo data:
-<records this feature adds to the demo module: a record in each status and the cases the acceptance criteria name>
+<records this feature adds to the sol_demo module: a record in each status and the cases the acceptance criteria name>
 
 ### Acceptance criteria:
 <to be considered done, it must include...>

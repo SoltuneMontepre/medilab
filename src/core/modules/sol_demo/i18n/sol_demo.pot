@@ -1,0 +1,368 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* demo
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-10 07:34+0000\n"
+"PO-Revision-Date: 2026-10-10 07:34+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sol_demo
+#: model:medilab.sample.type,storage_conditions:sol_demo.sample_type_cabbage
+msgid "0–4 °C"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.chemical_lead_standard
+msgid "2–8 °C"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,storage_conditions:sol_demo.sample_type_bottled_water
+msgid "2–8 °C, away from light"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,storage_conditions:sol_demo.sample_type_surface_water
+msgid "2–8 °C, tested within 24 hours"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_accountant
+msgid "Accountant"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.chemical_acetonitrile
+msgid "Acetonitrile"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.chemical_nitric_acid
+msgid "Acid cabinet, away from organic substances"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.unit.category,name:sol_demo.unit_category_acidity
+msgid "Acidity"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.sample_type_animal_feed
+msgid "Animal feed"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.sample_type_bottled_water
+msgid "Bottled water"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.sample_type_cabbage
+msgid "Cabbage"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.field,name:sol_demo.field_chemistry
+msgid "Chemistry"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.parameter_chlorpyrifos
+msgid "Chlorpyrifos"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.parameter_coliforms
+msgid "Coliforms"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,sampling_requirements:sol_demo.sample_type_bottled_water
+msgid "Collect sealed bottles from the same lot."
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,sampling_requirements:sol_demo.sample_type_cabbage
+msgid "Collect whole heads in clean paper bags."
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,disposal_method:sol_demo.sample_type_cabbage
+msgid "Dispose of as organic waste."
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.chemical_sodium_chloride
+msgid "Dry place, room temperature"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.parameter_e_coli
+msgid "E. coli"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.sample_type_environment
+msgid "Environment"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.quality.registration,name:sol_demo.quality_registration_expired
+msgid ""
+"Environmental monitoring registration with the Ministry of Natural Resources"
+" and Environment"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.chemical_acetonitrile
+msgid "Flammables cabinet"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.sample_type_food
+msgid "Food"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.quality.registration,name:sol_demo.quality_registration_valid
+msgid "Food testing registration with the Ministry of Health"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.method_en_15662
+msgid ""
+"Foods of plant origin — Multimethod for the determination of pesticide "
+"residues using GC- and LC-based analysis following acetonitrile extraction "
+"(QuEChERS)"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.method_tcvn_7602
+msgid ""
+"Foodstuffs — Determination of lead content by atomic absorption "
+"spectrophotometry"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_head_of_department
+msgid "Head of department"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_head_of_sales
+msgid "Head of sales"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.parameter.group,name:sol_demo.group_heavy_metals
+msgid "Heavy metals"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_lab_head
+msgid "Lab head"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.parameter_lead
+msgid "Lead (Pb)"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.chemical_lead_standard
+msgid "Lead standard solution 1000 mg/L"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.unit.category,name:sol_demo.unit_category_mass
+msgid "Mass"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.unit.category,name:sol_demo.unit_category_liquid_concentration
+msgid "Mass concentration in liquid"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.unit.category,name:sol_demo.unit_category_mass_fraction
+msgid "Mass fraction"
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.module.module,shortdesc:base.module_demo
+msgid "Medilab - Testing Data"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.unit.category,name:sol_demo.unit_category_count_per_mass
+msgid "Microbial count per mass"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.unit.category,name:sol_demo.unit_category_count_per_volume
+msgid "Microbial count per volume"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.parameter.group,name:sol_demo.group_microbiology
+#: model:medilab.testing.field,name:sol_demo.field_microbiology
+msgid "Microbiology"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.method_iso_4832
+msgid ""
+"Microbiology of food and animal feeding stuffs — Enumeration of coliforms — "
+"Colony-count technique"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.method_iso_16649_2
+msgid ""
+"Microbiology of food and animal feeding stuffs — Enumeration of "
+"β-glucuronidase-positive Escherichia coli — Part 2: Colony-count technique "
+"at 44 °C"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.regulation,name:sol_demo.regulation_qcvn_6_1
+msgid ""
+"National technical regulation on natural mineral waters and bottled drinking"
+" waters"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.chemical_nitric_acid
+msgid "Nitric acid 65%"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_coliforms
+#: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_e_coli
+msgid "Not detected"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.parameter.group,name:sol_demo.group_organophosphates
+msgid "Organophosphates"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.parameter.group,name:sol_demo.group_pesticides
+msgid "Pesticides"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.parameter.group,name:sol_demo.group_physicochemical
+msgid "Physicochemical"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,disposal_method:sol_demo.sample_type_bottled_water
+msgid "Pour into the drain and recycle the bottles."
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,post_test_requirements:sol_demo.sample_type_bottled_water
+msgid "Reseal the remaining bottles and label them with the lab code."
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.chemical_ph_buffer
+msgid "Room temperature, tightly closed"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_sales
+msgid "Sales"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_sample_delivery_staff
+msgid "Sample delivery staff"
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.module.module,summary:base.module_demo
+msgid "Seeds and configure data for demo purposes."
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.chemical_sodium_chloride
+msgid "Sodium chloride"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.method_tcvn_5979
+msgid "Soil quality — Determination of pH"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_storekeeper
+msgid "Storekeeper"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.sample_type_surface_water
+msgid "Surface water"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_tester
+msgid "Tester"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.sample_type_vegetables
+msgid "Vegetables"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.unit.category,name:sol_demo.unit_category_volume
+msgid "Volume"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.method_iso_17294_2
+msgid ""
+"Water quality — Application of inductively coupled plasma mass spectrometry "
+"— Part 2: Determination of selected elements"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.method_tcvn_6187_2
+msgid ""
+"Water quality — Detection and enumeration of coliform organisms — Part 2: "
+"Multiple tube (most probable number) method"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.method_tcvn_6492
+msgid "Water quality — Determination of pH"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.testing.method,name:sol_demo.method_tcvn_6187_1
+msgid ""
+"Water quality — Enumeration of Escherichia coli and coliform bacteria — Part"
+" 1: Membrane filtration method"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.parameter_ph
+msgid "pH"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.chemical_ph_buffer
+msgid "pH buffer solution 7.00"
+msgstr ""
