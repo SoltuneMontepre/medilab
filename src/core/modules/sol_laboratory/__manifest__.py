@@ -6,7 +6,7 @@
     "author": "Soltune Montepre",
     "license": "LGPL-3",
     "icon": "/sol_laboratory/static/src/theme/img/icons/icon-512x512.png",
-    "depends": ["base", "web"],
+    "depends": ["base", "web", "hr", "portal", "calendar"],
     "data": [
         "security/res_groups_data.xml",
         "security/ir.access.csv",
