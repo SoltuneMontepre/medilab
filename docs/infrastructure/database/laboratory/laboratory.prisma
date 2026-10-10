@@ -228,6 +228,8 @@ model Department {
   active            Boolean           @default(true)
   /// Parameter and method pairs the department tests in-house.
   parameter_methods ParameterMethod[]
+  /// Teams the department is split into.
+  teams             Team[]
   /// People in the department.
   people            Person[]
   /// Notification events whose notifications go to the department.
@@ -238,6 +240,29 @@ model Department {
   handovers         SampleHandover[]
 
   @@map("medilab_department")
+}
+
+/// A team (tổ) within a department.
+model Team {
+  /// Row identifier.
+  id            Int        @id @default(autoincrement())
+  /// Team name.
+  name          String     @db.VarChar
+  /// Department the team belongs to.
+  department_id Int
+  /// Person who leads the team.
+  lead_id       Int?
+  /// False when the team is archived.
+  active        Boolean    @default(true)
+  /// Department the team belongs to.
+  department    Department @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// Person who leads the team.
+  lead          Person?    @relation("TeamLead", fields: [lead_id], references: [id], onDelete: Restrict)
+  /// People in the team.
+  people        Person[]   @relation("TeamMember")
+
+  @@index([department_id])
+  @@map("medilab_team")
 }
 
 /// The unit in which a measured value is expressed.
@@ -844,6 +869,8 @@ model Person {
   user_id       Int?         @unique
   /// Department of the person.
   department_id Int?
+  /// Team of the person, within their department.
+  team_id       Int?
   /// False when the person is archived.
   active        Boolean      @default(true)
   /// The contact holding the person's details.
@@ -852,6 +879,10 @@ model Person {
   user          User?        @relation(fields: [user_id], references: [id], onDelete: Restrict)
   /// Department of the person.
   department    Department?  @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// Team of the person.
+  team          Team?        @relation("TeamMember", fields: [team_id], references: [id], onDelete: Restrict)
+  /// Teams the person leads.
+  led_teams     Team[]       @relation("TeamLead")
   /// Roles the person holds.
   roles         PersonRole[]
   /// Permissions given to the person directly, on top of their roles.
@@ -972,7 +1003,7 @@ model Permission {
   document_model String             @db.VarChar
   /// read, create, edit, archive, delete or sign.
   action         String             @db.VarChar
-  /// all for every record, or own_department for records of the person's department only.
+  /// all for every record, own_department for records of the person's department only, or own_team for records of the person's team only.
   scope          String             @db.VarChar
   /// Roles that contain the permission.
   roles          RolePermission[]

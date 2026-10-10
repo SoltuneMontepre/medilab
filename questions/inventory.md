@@ -1,6 +1,6 @@
 # Inventory questions
 
-- **Stock takes.** Does the laboratory really do periodic stock takes (kiểm kê kho), and how often? (blocks US-SK11)
+- **Stock takes.** How often does each store do a stock take (kiểm kê kho)? (blocks US-SK11, US-TL04)
 
 ## Related documents
 
