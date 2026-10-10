@@ -59,6 +59,10 @@ The [medilab Trello board](https://trello.com/b/mk5Pnyu3/medilab) holds business
 | E   | `hzanhle`     | Le Nguyen Hoang Anh |
 | F   |               | Nobody              |
 
+## Chores
+
+Work that is neither a feature nor a bug, such as tooling or demo data, is a chore issue. Its title is `[Chore | <scope>] <short description>`, where the scope is the module or area, such as `Tooling`. Set the issue type to Task.
+
 ## Related documents
 
 - [Resolving an issue](resolving-issue.md)
