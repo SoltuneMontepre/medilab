@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="favicon" inherit_id="web.layout" name="MediLab Favicon">
+        <xpath expr="//link[@rel='shortcut icon']" position="attributes">
+            <attribute name="t-att-href">x_icon or '/sol_laboratory/static/src/theme/img/icons/favicon.ico'</attribute>
+        </xpath>
+        <xpath expr="//link[@rel='shortcut icon']" position="after">
+            <link rel="icon" type="image/svg+xml" href="/sol_laboratory/static/description/icon.svg"/>
+            <link rel="apple-touch-icon" href="/sol_laboratory/static/src/theme/img/icons/icon-180x180.png"/>
+        </xpath>
+    </template>
+</odoo>
