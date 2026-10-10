@@ -28,7 +28,7 @@ Documentation index: [docs/readme.md](docs/readme.md).
 task setup
 ```
 
-`task setup` creates `src/core/.venv`, fetches the Odoo source, installs Serena, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
+`task setup` creates `src/core/.venv`, fetches the Odoo source, installs Serena with the Odoo Language Server, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
 
 Open http://localhost:8069 and create the `medilab` database. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=laboratory`.
 
@@ -57,7 +57,8 @@ Open http://localhost:8069 and create the `medilab` database. Modules are instal
 | `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                   |
 | `task reset`               | Delete the database and volumes, then start again                                                        |
 | `task dev:setup`           | Sync `src/core/.venv` from `uv.lock` and fetch the Odoo source for type checks                           |
-| `task ai:setup`            | Check `npx` for the MCP servers and install Serena for the Claude Code hooks and the `serena` MCP server |
+| `task ai:setup`            | Check `npx` for the MCP servers, install Serena with the OdooLS adapter and run `ai:odoo-ls`             |
+| `task ai:odoo-ls`          | Download the pinned Odoo Language Server that Serena uses for Python and XML in the modules              |
 | `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                      |
 | `task lint`                | Run ruff and pylint-odoo on `src/core/modules`                                                           |
 | `task format`              | Format `src/core/modules` with ruff                                                                      |

@@ -36,7 +36,7 @@ project_name: "medilab"
 # The first language server is the default language and the respective language server will be used as a fallback.
 # Note that when using the JetBrains backend, language servers are not used and this list is correspondingly ignored.
 language_servers:
-- python
+- odoo
 - typescript
 - terraform
 - html

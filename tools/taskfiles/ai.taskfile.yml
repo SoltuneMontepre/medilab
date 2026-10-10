@@ -1,14 +1,18 @@
 version: "3"
 
 vars:
-  SERENA_PACKAGE: serena-agent
+  # serena-agent on PyPI has no external language server registration yet, which the OdooLS adapter needs.
+  SERENA_SOURCE: git+https://github.com/oraios/serena@1bbe53546124c00e4238972f1599a91fbf8c6539
   SERENA_PYTHON: "3.13"
+  SERENA_ODOO_LS: tools/serena-odoo-ls
+  ODOO_LS_VERSION: 1.4.0
+  ODOO_LS_DIR: .local/odoo-ls
   LOG: tools/scripts/log.sh
 
 tasks:
   ai:setup:
     aliases: [ai]
-    desc: "Check npx for the MCP servers and install Serena for the Claude Code hooks and the serena MCP server"
+    desc: "Check npx for the MCP servers and install Serena with the OdooLS adapter for the Claude Code hooks and the serena MCP server"
     silent: true
     cmds:
       - |
@@ -24,8 +28,42 @@ tasks:
           log_error "uv not found. Install: https://docs.astral.sh/uv/getting-started/installation/"
           exit 1
         fi
-        log_info "Installing {{.SERENA_PACKAGE}} with Python {{.SERENA_PYTHON}}."
-        uv tool install --quiet -p {{.SERENA_PYTHON}} {{.SERENA_PACKAGE}}
+        log_info "Installing Serena from {{.SERENA_SOURCE}} with {{.SERENA_ODOO_LS}}."
+        uv tool install --quiet --reinstall -p {{.SERENA_PYTHON}} --with ./{{.SERENA_ODOO_LS}} "serena-agent @ {{.SERENA_SOURCE}}"
         uv tool update-shell
         "$(uv tool dir --bin)/serena" init
+      - task: ai:odoo-ls
+      - |
+        . {{.LOG}}
         log_ok "Serena ready. Restart your terminal and Claude Code so serena-hooks is on PATH."
+
+  ai:odoo-ls:
+    desc: "Download the pinned Odoo Language Server and typeshed for Serena"
+    silent: true
+    vars:
+      PLATFORM: '{{if eq OS "windows"}}win32{{else}}{{OS}}{{end}}-{{if eq ARCH "arm64"}}aarch64{{else}}x86_64{{end}}'
+      ARCHIVE_EXTENSION: '{{if eq OS "windows"}}zip{{else}}tar.gz{{end}}'
+      EXECUTABLE: '{{.ODOO_LS_DIR}}/{{if eq OS "windows"}}odoo_ls_server.exe{{else}}odoo_ls_server{{end}}'
+    status:
+      - test -f "{{.EXECUTABLE}}"
+      - test -f "{{.ODOO_LS_DIR}}/typeshed/stdlib/builtins.pyi"
+      - '[ "$("{{.EXECUTABLE}}" --version)" = "odoo_ls_server {{.ODOO_LS_VERSION}}" ]'
+    cmds:
+      - |
+        set -e
+        . {{.LOG}}
+        log_step "OdooLS"
+        RELEASE_URL="https://github.com/odoo/odoo-ls/releases/download/{{.ODOO_LS_VERSION}}"
+        ARCHIVE="odoo-{{.PLATFORM}}-{{.ODOO_LS_VERSION}}.{{.ARCHIVE_EXTENSION}}"
+        DOWNLOAD_DIR="{{.ODOO_LS_DIR}}/download"
+        rm -rf "{{.ODOO_LS_DIR}}/typeshed" "$DOWNLOAD_DIR"
+        mkdir -p "$DOWNLOAD_DIR" "{{.ODOO_LS_DIR}}/logs"
+        log_info "Downloading OdooLS {{.ODOO_LS_VERSION}} and typeshed."
+        curl -fsSL "$RELEASE_URL/$ARCHIVE" -o "$DOWNLOAD_DIR/$ARCHIVE"
+        curl -fsSL "$RELEASE_URL/typeshed.zip" -o "$DOWNLOAD_DIR/typeshed.zip"
+        # Unpack with uv's Python: unzip is not always installed and GNU tar does not read zip.
+        uv run --no-project --python {{.SERENA_PYTHON}} python -c "import shutil, sys; shutil.unpack_archive(sys.argv[1], sys.argv[2]); shutil.unpack_archive(sys.argv[3], sys.argv[4])" \
+          "$DOWNLOAD_DIR/$ARCHIVE" "{{.ODOO_LS_DIR}}" "$DOWNLOAD_DIR/typeshed.zip" "{{.ODOO_LS_DIR}}/typeshed"
+        {{if ne OS "windows"}}chmod +x "{{.EXECUTABLE}}"{{end}}
+        rm -rf "$DOWNLOAD_DIR"
+        log_ok "OdooLS {{.ODOO_LS_VERSION}} ready in {{.ODOO_LS_DIR}}. Restart the Serena MCP server."

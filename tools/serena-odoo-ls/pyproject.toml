@@ -1,0 +1,15 @@
+# OdooLS adapter for Serena, installed next to Serena by `task ai:setup`.
+[project]
+name = "serena-odoo-ls"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[project.entry-points."solidlsp.language_server_registration"]
+odoo = "serena_odoo_ls:register"
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["serena_odoo_ls"]
