@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_res_partner_administrator" model="res.partner">
+        <field name="name">Phan Minh Quan</field>
+        <field name="email">phan.minh.quan@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_sales" model="res.partner">
+        <field name="name">Nguyen Thi Thu</field>
+        <field name="email">nguyen.thi.thu@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_head_of_sales" model="res.partner">
+        <field name="name">Tran Quoc Bao</field>
+        <field name="email">tran.quoc.bao@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_accountant" model="res.partner">
+        <field name="name">Le Thi Hanh</field>
+        <field name="email">le.thi.hanh@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_sample_delivery_staff" model="res.partner">
+        <field name="name">Vo Van Tai</field>
+        <field name="email">vo.van.tai@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_tester" model="res.partner">
+        <field name="name">Dang Thi Lan</field>
+        <field name="email">dang.thi.lan@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_head_of_department" model="res.partner">
+        <field name="name">Hoang Van Minh</field>
+        <field name="email">hoang.van.minh@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_lab_head" model="res.partner">
+        <field name="name">Bui Thi Ngoc</field>
+        <field name="email">bui.thi.ngoc@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_storekeeper" model="res.partner">
+        <field name="name">Do Van Phuc</field>
+        <field name="email">do.van.phuc@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_microbiology_tester" model="res.partner">
+        <field name="name">Ngo Thi Mai</field>
+        <field name="email">ngo.thi.mai@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_chemistry_tester" model="res.partner">
+        <field name="name">Ly Van Hung</field>
+        <field name="email">ly.van.hung@medilab.example</field>
+    </record>
+</odoo>

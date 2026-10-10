@@ -20,15 +20,15 @@ class TestRoleLifecycle(TransactionCase):
             ]
         )
         cls.role = cls.env[MODEL_ROLE].create(
-            {"code": "tester", "name": "Tester", "permission_ids": [Command.set(cls.read.ids)]}
+            {"code": "qa_tester", "name": "Tester", "permission_ids": [Command.set(cls.read.ids)]}
         )
 
     def test_role_generates_its_group(self):
-        group = self.env.ref("laboratory.group_role_tester")
+        group = self.env.ref("laboratory.group_role_qa_tester")
 
         self.assertEqual(self.role.group_id, group)
-        self.assertEqual(group.name, "Role: tester")
-        data = self.env["ir.model.data"].search([("module", "=", "laboratory"), ("name", "=", "group_role_tester")])
+        self.assertEqual(group.name, "Role: qa_tester")
+        data = self.env["ir.model.data"].search([("module", "=", "laboratory"), ("name", "=", "group_role_qa_tester")])
         self.assertTrue(data.noupdate)
 
     def test_role_group_implies_exactly_its_permission_groups(self):
@@ -40,7 +40,7 @@ class TestRoleLifecycle(TransactionCase):
         self.assertEqual(self.role.group_id.implied_ids, self.edit.group_id | export)
 
     def test_holder_of_the_role_holds_its_permissions(self):
-        user = new_test_user(self.env, login="role.holder", groups="base.group_user,laboratory.group_role_tester")
+        user = new_test_user(self.env, login="role.holder", groups="base.group_user,laboratory.group_role_qa_tester")
 
         self.assertIn(self.read.group_id, user.all_group_ids)
         self.role.permission_ids = [Command.link(self.edit.id)]
@@ -65,7 +65,7 @@ class TestRoleLifecycle(TransactionCase):
 
     def test_role_code_is_unique(self):
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
-            self.env[MODEL_ROLE].create({"code": "tester", "name": "Tester again"})
+            self.env[MODEL_ROLE].create({"code": "qa_tester", "name": "Tester again"})
 
     def test_role_code_cannot_change(self):
         with self.assertRaises(UserError):

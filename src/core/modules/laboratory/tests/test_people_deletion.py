@@ -11,7 +11,7 @@ class TestPeopleDeletion(PeopleCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.tester = cls.env[MODEL_ROLE].create({"code": "tester", "name": "Tester"})
+        cls.tester = cls.env[MODEL_ROLE].create({"code": "qa_tester", "name": "Tester"})
         cls.chemist.role_ids = cls.tester
 
     def test_role_held_by_a_person_cannot_be_deleted(self):
@@ -36,7 +36,7 @@ class TestPeopleDeletion(PeopleCase):
     def test_department_person_and_role_nothing_refers_to_can_be_deleted(self):
         department = self.env[MODEL_DEPARTMENT].create({"name": "Sample reception"})
         person = self.create_person("Le Van Cuong")
-        role = self.env[MODEL_ROLE].create({"code": "storekeeper", "name": "Storekeeper"})
+        role = self.env[MODEL_ROLE].create({"code": "qa_storekeeper", "name": "Storekeeper"})
 
         department.unlink()
         person.unlink()
