@@ -1,0 +1,26 @@
+version: "3"
+
+vars:
+  SERENA_PACKAGE: serena-agent
+  SERENA_PYTHON: "3.13"
+  LOG: tools/scripts/log.sh
+
+tasks:
+  ai:setup:
+    aliases: [ai]
+    desc: "Install Serena for the Claude Code hooks and the serena MCP server"
+    silent: true
+    cmds:
+      - |
+        set -e
+        . {{.LOG}}
+        log_step "Serena"
+        if ! command -v uv >/dev/null 2>&1; then
+          log_error "uv not found. Install: https://docs.astral.sh/uv/getting-started/installation/"
+          exit 1
+        fi
+        log_info "Installing {{.SERENA_PACKAGE}} with Python {{.SERENA_PYTHON}}."
+        uv tool install --quiet -p {{.SERENA_PYTHON}} {{.SERENA_PACKAGE}}
+        uv tool update-shell
+        "$(uv tool dir --bin)/serena" init
+        log_ok "Serena ready. Restart your terminal and Claude Code so serena-hooks is on PATH."

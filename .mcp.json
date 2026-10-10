@@ -38,6 +38,17 @@
         "SONARQUBE_ORG=soltunemontepre",
         "sonarsource/sonarqube-mcp"
       ]
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "serena",
+      "args": [
+        "start-mcp-server",
+        "--context",
+        "claude-code",
+        "--project",
+        "."
+      ]
     }
   }
 }

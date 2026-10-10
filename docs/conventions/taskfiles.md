@@ -8,6 +8,7 @@ How the [Task](https://taskfile.dev) commands in this repository are written, an
 taskfile.yml                    entrypoint: includes the taskfiles, defines setup
 tools/
 ├── taskfiles/
+│   ├── ai.taskfile.yml         AI tooling: Serena for the Claude Code hooks and MCP server
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint
 │   ├── test.taskfile.yml       tests: core, e2e, apps

@@ -10,6 +10,10 @@ vars:
   DOPPLER_RUN: doppler run --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_CONFIG}} --
 
 includes:
+  ai:
+    taskfile: tools/taskfiles/ai.taskfile.yml
+    dir: .
+    flatten: true
   app:
     taskfile: tools/taskfiles/app.taskfile.yml
     dir: .
@@ -39,4 +43,5 @@ tasks:
     cmds:
       - task: doppler
       - task: dev:setup
+      - task: ai:setup
       - task: upgrade

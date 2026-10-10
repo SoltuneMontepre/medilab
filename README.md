@@ -27,7 +27,7 @@ Documentation index: [docs/readme.md](docs/readme.md).
 task setup
 ```
 
-`task setup` creates `src/core/.venv`, fetches the Odoo source, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
+`task setup` creates `src/core/.venv`, fetches the Odoo source, installs Serena, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
 
 Open http://localhost:8069 and create the `medilab` database. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=laboratory`.
 
@@ -46,7 +46,7 @@ Open http://localhost:8069 and create the `medilab` database. Modules are instal
 | Command                     | Purpose                                                                      |
 | --------------------------- | ---------------------------------------------------------------------------- |
 | `task`                      | List all tasks                                                               |
-| `task setup`                | Run `dev:setup`, `doppler` and `up`                                          |
+| `task setup`                | Run `doppler`, `dev:setup`, `ai:setup` and `upgrade`                         |
 | `task up`                   | Start Odoo, Postgres and CloudBeaver                                         |
 | `task doppler`              | Log the Doppler CLI in and select project `medilab`, config `dev`            |
 | `task stop`                 | Stop the containers and keep the volumes                                     |
@@ -56,6 +56,7 @@ Open http://localhost:8069 and create the `medilab` database. Modules are instal
 | `task upgrade MODULES=a,b`  | Install and upgrade the listed modules                                       |
 | `task reset`                | Delete the database and volumes, then start again                            |
 | `task dev:setup`            | Sync `src/core/.venv` from `uv.lock` and fetch the Odoo source for type checks |
+| `task ai:setup`             | Install Serena for the Claude Code hooks and the `serena` MCP server         |
 | `task dev:lock`             | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`          |
 | `task lint`                 | Run ruff and pylint-odoo on `src/core/modules`                               |
 | `task format`               | Format `src/core/modules` with ruff                                          |
