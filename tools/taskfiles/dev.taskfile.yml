@@ -70,6 +70,10 @@ tasks:
           git clone --quiet --depth 1 --filter=blob:none --sparse --branch 20.0 https://github.com/odoo/odoo.git "$DIR"
           git -C "$DIR" fetch --quiet --depth 1 origin "$REV"
           git -C "$DIR" -c advice.detachedHead=false checkout --quiet --detach "$REV"
+        elif [ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ]; then
+          log_info "Updating the Odoo source to ${REV:0:7}."
+          git -C "$DIR" fetch --quiet --depth 1 origin "$REV"
+          git -C "$DIR" -c advice.detachedHead=false checkout --quiet --detach "$REV"
         fi
         log_info "Checking out odoo and addons: {{.ODOO_ADDONS | join ", "}}"
         git -C "$DIR" sparse-checkout set odoo {{range .ODOO_ADDONS}}addons/{{.}} {{end}}
