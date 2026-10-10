@@ -1,0 +1,1556 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* commerce
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-10 14:52+0000\n"
+"PO-Revision-Date: 2026-10-10 14:52+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: Vietnamese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Language: vi\n"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "%(link)s is already %(status)s."
+msgstr "%(link)s đã ở trạng thái %(status)s."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "%(reference)s: %(state)s, to be acknowledged"
+msgstr "%(reference)s: %(state)s, cần được xác nhận chấp thuận"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "%(status)s payment on %(invoice)s"
+msgstr "Thanh toán %(status)s trên %(invoice)s"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "%(what)s of a locked reconciliation day cannot be changed: %(days)s"
+msgstr "%(what)s của ngày đối soát đã khóa không thể thay đổi: %(days)s"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "%s cannot be changed once confirmed or rejected."
+msgstr "%s không thể thay đổi sau khi đã xác nhận hoặc từ chối."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"%s cannot be changed once posted or cancelled; correct a posted invoice with "
+"an adjustment invoice."
+msgstr "%s không thể thay đổi sau khi đã phát hành hoặc đã hủy; sửa hóa đơn đã phát hành bằng hóa đơn điều chỉnh."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "%s is already locked."
+msgstr "%s đã được khóa."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "%s is not an overpayment."
+msgstr "%s không phải là khoản thanh toán thừa."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "%s is not underpaid."
+msgstr "%s không phải là liên kết thanh toán thiếu."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "%s: no payment recorded; use Record payments"
+msgstr "%s: chưa ghi nhận thanh toán; dùng Ghi nhận thanh toán"
+
+#. module: commerce
+#: model:ir.actions.report,print_report_name:commerce.action_report_reconciliation_day
+msgid "'Reconciliation %s' % object.day"
+msgstr "'Doi soat %s' % object.day"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "(draft)"
+msgstr "(nháp)"
+
+#. module: commerce
+#: model:ir.actions.report,print_report_name:commerce.action_report_invoice
+msgid "(object.code or 'Draft invoice').replace('/', '-')"
+msgstr "(object.code or 'Hoa don nhap').replace('/', '-')"
+
+#. module: commerce
+#: model:ir.actions.report,print_report_name:commerce.action_report_receipt
+msgid "(object.receipt_code or 'Receipt').replace('/', '-')"
+msgstr "(object.receipt_code or 'Phieu thu').replace('/', '-')"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "(recorded after the lock)"
+msgstr "(ghi nhận sau khi khóa)"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid ""
+"<i class=\"fa fa-warning\" title=\"Warning\"/> PayOS credentials are not "
+"configured: set PAYOS_CLIENT_ID, PAYOS_API_KEY and PAYOS_CHECKSUM_KEY in the"
+" environment."
+msgstr "<i class=\"fa fa-warning\" title=\"Cảnh báo\"/> Chưa cấu hình thông tin xác thực PayOS: đặt PAYOS_CLIENT_ID, PAYOS_API_KEY và PAYOS_CHECKSUM_KEY trong môi trường."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Customer</strong>"
+msgstr "<strong>Khách hàng</strong>"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Payment details</strong>"
+msgstr "<strong>Thông tin thanh toán</strong>"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Payments received</strong>"
+msgstr "<strong>Các khoản đã nhận</strong>"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "<strong>Received by</strong>"
+msgstr "<strong>Người nhận</strong>"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "<strong>Received from</strong>"
+msgstr "<strong>Người nộp</strong>"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "<strong>Supplier</strong>"
+msgstr "<strong>Nhà cung cấp</strong>"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link_transaction.py:0
+msgid "A PayOS transaction"
+msgstr "Giao dịch PayOS"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "A locked day is never changed: %s"
+msgstr "Ngày đã khóa không bao giờ được thay đổi: %s"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "A locked day is never deleted: %s"
+msgstr "Ngày đã khóa không bao giờ bị xóa: %s"
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_amount_positive
+msgid "A payment has a positive amount."
+msgstr "Khoản thanh toán phải có số tiền dương."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "A payment is recorded on a posted advance or final invoice, not on %s."
+msgstr "Thanh toán được ghi nhận trên hóa đơn tạm ứng hoặc hóa đơn cuối đã phát hành, không phải trên %s."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "A payment is recorded on a posted advance or final invoice."
+msgstr "Thanh toán được ghi nhận trên hóa đơn tạm ứng hoặc hóa đơn cuối đã phát hành."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "A payment link"
+msgstr "Liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_link_amount_positive
+msgid "A payment link asks for a positive amount."
+msgstr "Liên kết thanh toán phải yêu cầu một số tiền dương."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "A payment link pays a posted advance or final invoice."
+msgstr "Liên kết thanh toán dùng cho hóa đơn tạm ứng hoặc hóa đơn cuối đã phát hành."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_link_order_code_unique
+msgid "A payment link with this order code already exists."
+msgstr "Đã có liên kết thanh toán với mã đơn hàng này."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "A posted invoice is never deleted: %s"
+msgstr "Hóa đơn đã phát hành không bao giờ bị xóa: %s"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "A receipt exists for a confirmed payment only."
+msgstr "Chỉ khoản thanh toán đã xác nhận mới có phiếu thu."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_receipt_unique
+msgid "A receipt with this number already exists."
+msgstr "Đã có phiếu thu với số này."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice_line.py:0
+msgid "A tax rate cannot be negative."
+msgstr "Thuế suất không thể âm."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "Acknowledge"
+msgstr "Chấp thuận"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Acknowledge overpayment"
+msgstr "Chấp thuận thanh toán thừa"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "Acknowledged"
+msgstr "Đã chấp thuận"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__acknowledged_amount_paid
+msgid "Acknowledged Amount Paid"
+msgstr "Số tiền đã trả khi chấp thuận"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__acknowledged_at
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__acknowledged_at
+msgid "Acknowledged At"
+msgstr "Chấp thuận lúc"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__acknowledged_by_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__acknowledged_by_id
+msgid "Acknowledged by"
+msgstr "Người chấp thuận"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__acknowledgement_reason
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__acknowledgement_reason
+msgid "Acknowledgement Reason"
+msgstr "Lý do chấp thuận"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid ""
+"Acknowledging a reconciliation row needs the edit permission on "
+"reconciliation days."
+msgstr "Chấp thuận một dòng đối soát cần quyền sửa ngày đối soát."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Add at least one line before posting the invoice."
+msgstr "Thêm ít nhất một dòng trước khi phát hành hóa đơn."
+
+#. module: commerce
+#: model:ir.module.module,summary:base.module_commerce
+msgid "Adds e-commerce features into the exising core laboratory module."
+msgstr "Bổ sung các tính năng thương mại điện tử cho phân hệ phòng thí nghiệm lõi."
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__adjustment
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Adjustment"
+msgstr "Điều chỉnh"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Adjustment invoice"
+msgstr "Hóa đơn điều chỉnh"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Adjustment of %s"
+msgstr "Điều chỉnh %s"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__adjustment_ids
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Adjustments"
+msgstr "Điều chỉnh"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__advance
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice_line__kind__advance
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Advance"
+msgstr "Tạm ứng"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice_line__kind__advance_deduction
+msgid "Advance Deduction"
+msgstr "Khấu trừ tạm ứng"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Advance invoice"
+msgstr "Hóa đơn tạm ứng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__amount
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__amount
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_list
+msgid "Amount"
+msgstr "Số tiền"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_adjustment
+msgid "Amount Adjustment"
+msgstr "Số tiền điều chỉnh"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_owed
+msgid "Amount Owed"
+msgstr "Số tiền còn nợ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__amount_paid
+msgid "Amount Paid"
+msgstr "Số tiền đã trả"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_pending
+msgid "Amount Pending"
+msgstr "Số tiền đang chờ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_tax
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__amount_tax
+msgid "Amount Tax"
+msgstr "Tiền thuế"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_total
+msgid "Amount Total"
+msgstr "Tổng cộng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__amount_untaxed
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__amount_untaxed
+msgid "Amount Untaxed"
+msgstr "Tiền chưa thuế"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Amount owed"
+msgstr "Số tiền còn nợ"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "An adjustment corrects a posted advance or final invoice."
+msgstr "Hóa đơn điều chỉnh sửa một hóa đơn tạm ứng hoặc hóa đơn cuối đã phát hành."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"An adjustment invoice corrects a posted advance or final invoice of the same "
+"customer."
+msgstr "Hóa đơn điều chỉnh sửa một hóa đơn tạm ứng hoặc hóa đơn cuối đã phát hành của cùng khách hàng."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"An adjustment invoice corrects a posted invoice, and only an adjustment "
+"invoice does."
+msgstr "Hóa đơn điều chỉnh sửa một hóa đơn đã phát hành, và chỉ hóa đơn điều chỉnh mới làm vậy."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"An adjustment invoice holds the difference it makes; its total cannot be 0."
+msgstr "Hóa đơn điều chỉnh ghi phần chênh lệch nó tạo ra; tổng của nó không thể bằng 0."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice_line.py:0
+msgid "An advance deduction lowers the invoice: its amount is negative."
+msgstr "Khấu trừ tạm ứng làm giảm hóa đơn: số tiền của nó là số âm."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "An advance or final invoice cannot have a negative total."
+msgstr "Hóa đơn tạm ứng hoặc hóa đơn cuối không thể có tổng âm."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_invoice_code_unique
+msgid "An invoice with this number already exists."
+msgstr "Đã có hóa đơn với số này."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "An online payment"
+msgstr "Thanh toán trực tuyến"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "An online payment is recorded from a PayOS transaction, never by hand."
+msgstr "Thanh toán trực tuyến được ghi nhận từ giao dịch PayOS, không bao giờ nhập tay."
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__attachment_id
+msgid "Attachment"
+msgstr "Tệp đính kèm"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__method__bank_transfer
+msgid "Bank transfer"
+msgstr "Chuyển khoản"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__payos_method_qr_transfer
+msgid "Bank transfer by QR code"
+msgstr "Chuyển khoản bằng mã QR"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__blocking_count
+msgid "Blocking Count"
+msgstr "Số dòng chặn khóa"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Cancel"
+msgstr "Hủy"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_form
+msgid "Cancel this payment link at PayOS?"
+msgstr "Hủy liên kết thanh toán này tại PayOS?"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__cancelled
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Cancelled"
+msgstr "Đã hủy"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__method__cash
+msgid "Cash"
+msgstr "Tiền mặt"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Cash or bank transfer"
+msgstr "Tiền mặt hoặc chuyển khoản"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__checkout_url
+msgid "Checkout Url"
+msgstr "Trang thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__code
+msgid "Code"
+msgstr "Số hóa đơn"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_res_config_settings
+msgid "Config Settings"
+msgstr "Cấu Hình Hệ Thống"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Confirm"
+msgstr "Xác nhận"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__status__confirmed
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Confirmed"
+msgstr "Đã xác nhận"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "Confirmed by"
+msgstr "Người xác nhận"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__adjusts_id
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Corrects"
+msgstr "Điều chỉnh cho"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Create adjustment"
+msgstr "Tạo điều chỉnh"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_create_all
+msgid "Create invoice lines"
+msgstr "Tạo dòng hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_create_all
+msgid "Create invoices"
+msgstr "Tạo hóa đơn"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Create payment link"
+msgstr "Tạo liên kết thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_link_create_all
+msgid "Create payment links"
+msgstr "Tạo liên kết thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_create_all
+msgid "Create payments"
+msgstr "Tạo thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_reconciliation_day_create_all
+msgid "Create reconciliation days"
+msgstr "Tạo ngày đối soát"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__created
+msgid "Created"
+msgstr "Đã tạo"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__create_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__create_uid
+msgid "Created by"
+msgstr "Người tạo"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__create_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__create_date
+msgid "Created on"
+msgstr "Ngày tạo"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__currency_id
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__currency_id
+msgid "Currency"
+msgstr "Tiền tệ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__partner_id
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Customer"
+msgstr "Khách hàng"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "Date"
+msgstr "Ngày"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__day
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_search
+msgid "Day"
+msgstr "Ngày"
+
+#. module: commerce
+#: model:ir.model.fields,help:commerce.field_res_config_settings__invoice_due_days
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "Days a customer has to pay an invoice after it is posted."
+msgstr "Số ngày khách hàng phải thanh toán hóa đơn sau khi phát hành."
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_delete_all
+msgid "Delete invoice lines"
+msgstr "Xóa dòng hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_delete_all
+msgid "Delete invoices"
+msgstr "Xóa hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_delete_all
+msgid "Delete payments"
+msgstr "Xóa thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__description
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Description"
+msgstr "Diễn giải"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__display_name
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__display_name
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__draft
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Draft"
+msgstr "Nháp"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Draft %s invoice"
+msgstr "Hóa đơn %s nháp"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__due_date
+msgid "Due Date"
+msgstr "Hạn thanh toán"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Due on"
+msgstr "Hạn thanh toán"
+
+#. module: commerce
+#: model:ir.ui.menu,name:commerce.menu_commerce_root
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "E-commerce"
+msgstr "Thương Mại Điện Tử"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_edit_all
+msgid "Edit invoice lines"
+msgstr "Sửa dòng hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_edit_all
+msgid "Edit invoices"
+msgstr "Sửa hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_link_edit_all
+msgid "Edit payment links"
+msgstr "Sửa liên kết thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_edit_all
+msgid "Edit payments"
+msgstr "Sửa thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_reconciliation_day_edit_all
+msgid "Edit reconciliation days"
+msgstr "Sửa ngày đối soát"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__expired
+msgid "Expired"
+msgstr "Hết hạn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__expires_at
+msgid "Expires At"
+msgstr "Hết hạn lúc"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+msgid "Expires on"
+msgstr "Hết hạn ngày"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__failed
+msgid "Failed"
+msgstr "Thất bại"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+msgid "Failed, cancelled or expired"
+msgstr "Thất bại, đã hủy hoặc hết hạn"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__kind__final
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Final"
+msgstr "Cuối"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Give the reason for accepting the overpayment first."
+msgstr "Hãy nêu lý do chấp nhận khoản thanh toán thừa trước."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "Give the reason for accepting the underpaid link first."
+msgstr "Hãy nêu lý do chấp nhận liên kết thanh toán thiếu trước."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Give the reason for rejecting the payment first."
+msgstr "Hãy nêu lý do từ chối khoản thanh toán trước."
+
+#. module: commerce
+#: model:ir.model.fields,help:commerce.field_res_config_settings__payos_link_expiry_hours
+msgid "Hours a payment link stays payable after it is created."
+msgstr "Số giờ liên kết thanh toán còn thanh toán được sau khi tạo."
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__id
+#: model:ir.model.fields,field_description:commerce.field_medilab_vnd_mixin__id
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: commerce
+#: model:ir.actions.report,name:commerce.action_report_invoice
+#: model:ir.model,name:commerce.model_medilab_invoice
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__invoice_id
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Invoice"
+msgstr "Hóa Đơn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__invoice_due_days
+msgid "Invoice Due Days"
+msgstr "Số ngày hạn thanh toán"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_invoice_line
+msgid "Invoice Line"
+msgstr "Dòng Hóa Đơn"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "Invoice due days"
+msgstr "Số ngày hạn thanh toán"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_invoice
+#: model:ir.ui.menu,name:commerce.menu_invoice
+msgid "Invoices"
+msgstr "Hóa Đơn"
+
+#. module: commerce
+#: model:ir.ui.menu,name:commerce.menu_invoicing
+msgid "Invoicing"
+msgstr "Hóa Đơn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__is_acknowledged
+msgid "Is Acknowledged"
+msgstr "Đã chấp thuận"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__is_day_locked
+msgid "Is Day Locked"
+msgstr "Ngày đã khóa"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__is_overdue
+msgid "Is Overdue"
+msgstr "Quá hạn"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__is_overpaid
+msgid "Is Overpaid"
+msgstr "Thanh toán thừa"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__is_overpaying
+msgid "Is Overpaying"
+msgstr "Thanh toán thừa"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__kind
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__kind
+msgid "Kind"
+msgstr "Loại"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__write_uid
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__write_uid
+msgid "Last Updated by"
+msgstr "Người cập nhật"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__write_date
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__write_date
+msgid "Last Updated on"
+msgstr "Ngày cập nhật"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice_line__kind__line
+msgid "Line"
+msgstr "Dòng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__line_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Lines"
+msgstr "Các dòng"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "Lock"
+msgstr "Khóa"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "Lock this day? Its online payments can no longer be changed."
+msgstr "Khóa ngày này? Các khoản thanh toán trực tuyến của ngày sẽ không thể thay đổi nữa."
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_reconciliation_day__status__locked
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_search
+msgid "Locked"
+msgstr "Đã khóa"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__locked_at
+msgid "Locked At"
+msgstr "Khóa lúc"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__locked_by_id
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "Locked by"
+msgstr "Người khóa"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__match_state
+msgid "Match State"
+msgstr "Trạng thái khớp"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__match_status
+msgid "Match Status"
+msgstr "Trạng thái khớp"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__match_status__matched
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link_transaction__match_state__matched
+msgid "Matched"
+msgstr "Khớp"
+
+#. module: commerce
+#: model:ir.module.module,shortdesc:base.module_commerce
+msgid "Medilab - E-commerce"
+msgstr "Medilab - Thương Mại Điện Tử"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__method
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Method"
+msgstr "Phương thức"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__match_status__missing_payment
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link_transaction__match_state__missing_payment
+msgid "Missing payment"
+msgstr "Thiếu thanh toán"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Month"
+msgstr "Tháng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__needs_acknowledgement
+msgid "Needs Acknowledgement"
+msgstr "Cần chấp thuận"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Net"
+msgstr "Chưa thuế"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__payment_status__not_paid
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Not paid"
+msgstr "Chưa thanh toán"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.payos_return_page
+msgid ""
+"Nothing was paid. You can pay the invoice later from the same link while it "
+"is valid."
+msgstr "Chưa có khoản nào được thanh toán. Bạn có thể thanh toán hóa đơn sau bằng chính liên kết này khi nó còn hiệu lực."
+
+#. module: commerce
+#: model:ir.model.fields,help:commerce.field_res_config_settings__payos_method_qr_transfer
+msgid "Offer bank transfer by QR code on the payment page."
+msgstr "Cho phép chuyển khoản bằng mã QR trên trang thanh toán."
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__method__online
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Online"
+msgstr "Trực tuyến"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid ""
+"Only a draft invoice can be cancelled; correct a posted one with an "
+"adjustment."
+msgstr "Chỉ hủy được hóa đơn nháp; sửa hóa đơn đã phát hành bằng hóa đơn điều chỉnh."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "Only a draft invoice can be posted."
+msgstr "Chỉ phát hành được hóa đơn nháp."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Only a pending payment can be confirmed."
+msgstr "Chỉ khoản thanh toán đang chờ mới được xác nhận."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Only a pending payment can be deleted: %s"
+msgstr "Chỉ khoản thanh toán đang chờ mới được xóa: %s"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid "Only a pending payment can be rejected."
+msgstr "Chỉ khoản thanh toán đang chờ mới được từ chối."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice_line.py:0
+msgid ""
+"Only an adjustment invoice or an advance deduction has a negative amount."
+msgstr "Chỉ hóa đơn điều chỉnh hoặc khấu trừ tạm ứng mới có số tiền âm."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+msgid "Open"
+msgstr "Đang mở"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Overdue"
+msgstr "Quá hạn"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Overpaid"
+msgstr "Thanh toán thừa"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link_transaction__match_state__overpaying
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Overpaying"
+msgstr "Thanh toán thừa"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Overpayment"
+msgstr "Khoản thanh toán thừa"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
+msgid "Owed"
+msgstr "Còn nợ"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__paid
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_list
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_search
+msgid "Paid"
+msgstr "Đã thanh toán"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Paid on"
+msgstr "Ngày thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__payment_status__partially_paid
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Partially paid"
+msgstr "Thanh toán một phần"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid ""
+"PayOS credentials are not configured: set PAYOS_CLIENT_ID, PAYOS_API_KEY and"
+" PAYOS_CHECKSUM_KEY in the environment."
+msgstr "Chưa cấu hình thông tin xác thực PayOS: đặt PAYOS_CLIENT_ID, PAYOS_API_KEY và PAYOS_CHECKSUM_KEY trong môi trường."
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__provider_payment_link_id
+msgid "PayOS link id"
+msgstr "Mã liên kết PayOS"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "PayOS order code"
+msgstr "Mã đơn hàng PayOS"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__payos_enabled
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid "PayOS payments"
+msgstr "Thanh toán PayOS"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "PayOS payments are turned off in the settings."
+msgstr "Thanh toán PayOS đang tắt trong cấu hình."
+
+#. module: commerce
+#: model:medilab.scheduled.job,name:commerce.job_payos_calls
+msgid "PayOS queued calls"
+msgstr "PayOS: lệnh gọi đang chờ"
+
+#. module: commerce
+#: model:ir.actions.report,name:commerce.action_report_reconciliation_day
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "PayOS reconciliation"
+msgstr "Đối soát PayOS"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "PayOS refused the payment link: %s"
+msgstr "PayOS từ chối liên kết thanh toán: %s"
+
+#. module: commerce
+#: model:medilab.scheduled.job,name:commerce.job_payos_poll
+msgid "PayOS status check"
+msgstr "PayOS: kiểm tra trạng thái"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "PayOS total"
+msgstr "Tổng PayOS"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "PayOS transactions"
+msgstr "Giao dịch PayOS"
+
+#. module: commerce
+#: model:ir.actions.server,name:commerce.cron_payos_poll_ir_actions_server
+msgid "PayOS: check pending payment links"
+msgstr "PayOS: kiểm tra liên kết thanh toán đang chờ"
+
+#. module: commerce
+#: model:ir.actions.server,name:commerce.cron_payos_calls_ir_actions_server
+msgid "PayOS: replay queued calls"
+msgstr "PayOS: chạy lại lệnh gọi đang chờ"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_payment
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__payment_id
+msgid "Payment"
+msgstr "Thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__payment_date
+msgid "Payment Date"
+msgstr "Ngày thanh toán"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_payment_link
+msgid "Payment Link"
+msgstr "Liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_payment_link_transaction
+msgid "Payment Link Transaction"
+msgstr "Giao dịch liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_payment_link
+#: model:ir.ui.menu,name:commerce.menu_payment_link
+msgid "Payment Links"
+msgstr "Liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__payment_status
+msgid "Payment Status"
+msgstr "Trạng thái thanh toán"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.payos_return_page
+msgid "Payment cancelled"
+msgstr "Đã hủy thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__link_id
+msgid "Payment link"
+msgstr "Liên kết thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__payment_link_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Payment links"
+msgstr "Liên kết thanh toán"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Payment status"
+msgstr "Trạng thái thanh toán"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_payment
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__payment_ids
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__payment_ids
+#: model:ir.ui.menu,name:commerce.menu_payment
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Payments"
+msgstr "Thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__payos_configured
+msgid "Payos Configured"
+msgstr "PayOS đã cấu hình"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_res_config_settings__payos_link_expiry_hours
+msgid "Payos Link Expiry Hours"
+msgstr "Số giờ hiệu lực liên kết PayOS"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__status__pending
+msgid "Pending"
+msgstr "Đang chờ"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Post"
+msgstr "Phát hành"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_invoice__status__posted
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Posted"
+msgstr "Đã phát hành"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__posted_at
+msgid "Posted At"
+msgstr "Phát hành lúc"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Posted on"
+msgstr "Ngày phát hành"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_vnd_mixin
+msgid "Prices in VND"
+msgstr "Giá bằng VND"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Print"
+msgstr "In"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Print receipt"
+msgstr "In phiếu thu"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__provider_order_code
+msgid "Provider Order Code"
+msgstr "Mã đơn hàng PayOS"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_line_read_all
+msgid "Read invoice lines"
+msgstr "Xem dòng hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_invoice_read_all
+msgid "Read invoices"
+msgstr "Xem hóa đơn"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_link_transaction_read_all
+msgid "Read payment link transactions"
+msgstr "Xem giao dịch liên kết thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_link_read_all
+msgid "Read payment links"
+msgstr "Xem liên kết thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_payment_read_all
+msgid "Read payments"
+msgstr "Xem thanh toán"
+
+#. module: commerce
+#: model:medilab.permission,name:commerce.permission_reconciliation_day_read_all
+msgid "Read reconciliation days"
+msgstr "Xem ngày đối soát"
+
+#. module: commerce
+#: model:ir.actions.report,name:commerce.action_report_receipt
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "Receipt"
+msgstr "Phiếu thu"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__receipt_attachment_id
+msgid "Receipt Attachment"
+msgstr "Tệp phiếu thu"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__receipt_code
+msgid "Receipt Code"
+msgstr "Số phiếu thu"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Receipt number on confirmation"
+msgstr "Số phiếu thu khi xác nhận"
+
+#. module: commerce
+#: model:ir.actions.act_window,name:commerce.action_medilab_reconciliation_day
+#: model:ir.ui.menu,name:commerce.menu_reconciliation_day
+msgid "Reconciliation"
+msgstr "Đối soát"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_reconciliation_day
+msgid "Reconciliation Day"
+msgstr "Ngày đối soát"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__day_id
+msgid "Reconciliation day"
+msgstr "Ngày đối soát"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_reconciliation_day_form
+msgid "Record payments"
+msgstr "Ghi nhận thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__recorded_after_lock
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__recorded_after_lock
+msgid "Recorded After Lock"
+msgstr "Ghi nhận sau khi khóa"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__recorded_by_id
+msgid "Recorded by"
+msgstr "Người ghi nhận"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid ""
+"Recording payments from PayOS transactions needs the edit permission on "
+"payments."
+msgstr "Ghi nhận thanh toán từ giao dịch PayOS cần quyền sửa thanh toán."
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__reference
+msgid "Reference"
+msgstr "Mã tham chiếu"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_form
+msgid "Register payment"
+msgstr "Ghi nhận thanh toán"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Reject"
+msgstr "Từ chối"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Reject this payment with the reason given below?"
+msgstr "Từ chối khoản thanh toán này với lý do bên dưới?"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment__status__rejected
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_search
+msgid "Rejected"
+msgstr "Đã từ chối"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__rejection_reason
+msgid "Rejection Reason"
+msgstr "Lý do từ chối"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Required to acknowledge the overpayment"
+msgstr "Bắt buộc để chấp thuận khoản thanh toán thừa"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_form
+msgid "Required to reject the payment"
+msgstr "Bắt buộc để từ chối khoản thanh toán"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__reviewed_at
+msgid "Reviewed At"
+msgstr "Xét duyệt lúc"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__reviewed_by_id
+msgid "Reviewed by"
+msgstr "Người xét duyệt"
+
+#. module: commerce
+#: model:ir.model,name:commerce.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr "Tác vụ định kỳ"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__sent_at
+msgid "Sent At"
+msgstr "Gửi lúc"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__sequence
+msgid "Sequence"
+msgstr "Thứ tự"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "State"
+msgstr "Trạng thái"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice__status
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__invoice_status
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_search
+msgid "Status"
+msgstr "Trạng thái"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+msgid "Still owed on the invoice"
+msgstr "Còn nợ trên hóa đơn"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "Subtotal"
+msgstr "Tạm tính"
+
+#. module: commerce
+#: model:ir.model.fields,help:commerce.field_res_config_settings__payos_enabled
+#: model_terms:ir.ui.view,arch_db:commerce.res_config_settings_view_form
+msgid ""
+"Take online payments through PayOS. The credentials come from the "
+"environment, never from here."
+msgstr "Nhận thanh toán trực tuyến qua PayOS. Thông tin xác thực lấy từ môi trường, không bao giờ nhập ở đây."
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_invoice_line__tax_rate
+msgid "Tax Rate"
+msgstr "Thuế suất"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.payos_return_page
+msgid "Thank you"
+msgstr "Cảm ơn bạn"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "The adjustment takes %s below what is paid or owed."
+msgstr "Điều chỉnh này đưa %s xuống dưới số đã trả hoặc còn nợ."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid "The amount must be positive and at most what is still owed on %s."
+msgstr "Số tiền phải dương và không vượt quá số còn nợ trên %s."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid ""
+"The day cannot be locked yet:\n"
+"%s"
+msgstr "Chưa thể khóa ngày này:\n%s"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/reconciliation_day.py:0
+msgid "The day of a reconciliation cannot change; open another day instead."
+msgstr "Ngày đối soát không thể thay đổi; hãy mở một ngày khác."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/invoice.py:0
+msgid "The lines of a posted or cancelled invoice cannot be changed."
+msgstr "Không thể thay đổi các dòng của hóa đơn đã phát hành hoặc đã hủy."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_form
+msgid ""
+"The link is being prepared: PayOS could not be reached, so the call waits in"
+" the job queue."
+msgstr "Liên kết đang được chuẩn bị: không kết nối được PayOS nên lệnh gọi đang chờ trong hàng đợi tác vụ."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment_link.py:0
+msgid ""
+"The payment link order code must be a number; check its format in Code "
+"formats."
+msgstr "Mã đơn hàng của liên kết thanh toán phải là số; kiểm tra định dạng trong Định dạng mã."
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/invoicing/payment.py:0
+msgid ""
+"The payment of %(amount)s exceeds the %(owed)s still owed on %(invoice)s."
+msgstr "Khoản thanh toán %(amount)s vượt quá số còn nợ %(owed)s trên %(invoice)s."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_link_transaction_reference_unique
+msgid "This PayOS transaction is already stored."
+msgstr "Giao dịch PayOS này đã được lưu."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_reconciliation_day_day_unique
+msgid "This day is already being reconciled."
+msgstr "Ngày này đã được đối soát."
+
+#. module: commerce
+#: model:ir.model.constraint,message:commerce.constraint_medilab_payment_link_transaction_payment_unique
+msgid "This payment already records another transaction."
+msgstr "Khoản thanh toán này đã ghi nhận một giao dịch khác."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "Time"
+msgstr "Thời gian"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_invoice_list
+msgid "Total"
+msgstr "Tổng cộng"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__total_amount
+msgid "Total Amount"
+msgstr "Tổng số tiền"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__transacted_at
+msgid "Transacted At"
+msgstr "Thời điểm giao dịch"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link_transaction__transacted_date
+msgid "Transacted Date"
+msgstr "Ngày giao dịch"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment__transaction_ids
+msgid "Transaction"
+msgstr "Giao dịch"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__transaction_count
+msgid "Transaction Count"
+msgstr "Số giao dịch"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_payment_link__transaction_ids
+#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_payment_link_form
+msgid "Transactions"
+msgstr "Giao dịch"
+
+#. module: commerce
+#: model:ir.model.fields,field_description:commerce.field_medilab_reconciliation_day__unacknowledged_count
+msgid "Unacknowledged Count"
+msgstr "Số dòng chưa chấp thuận"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link__match_status__underpaid
+msgid "Underpaid"
+msgstr "Thanh toán thiếu"
+
+#. module: commerce
+#: model:ir.model.fields.selection,name:commerce.selection__medilab_payment_link_transaction__match_state__underpaid
+msgid "Underpaid link"
+msgstr "Liên kết thanh toán thiếu"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "VAT"
+msgstr "VAT"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_invoice_document
+msgid "VAT %"
+msgstr "VAT %"
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.payos_return_page
+msgid ""
+"Your payment is recorded as soon as PayOS confirms it. You can close this "
+"page."
+msgstr "Khoản thanh toán của bạn được ghi nhận ngay khi PayOS xác nhận. Bạn có thể đóng trang này."
+
+#. module: commerce
+#: model_terms:ir.ui.view,arch_db:commerce.report_receipt_document
+#: model_terms:ir.ui.view,arch_db:commerce.report_reconciliation_day_document
+msgid "on"
+msgstr "ngày"

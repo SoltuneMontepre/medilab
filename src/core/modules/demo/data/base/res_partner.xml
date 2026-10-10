@@ -44,4 +44,20 @@
         <field name="name">Ly Van Hung</field>
         <field name="email">ly.van.hung@medilab.example</field>
     </record>
+    <record id="demo_res_partner_customer_sao_mai" model="res.partner">
+        <field name="name">Công ty TNHH Thực phẩm Sao Mai</field>
+        <field name="vat">0312345678</field>
+        <field name="street">12 Nguyễn Văn Trỗi</field>
+        <field name="city">Thành phố Hồ Chí Minh</field>
+        <field name="email">ketoan@saomai.example</field>
+        <field name="phone">+84 28 3844 1234</field>
+    </record>
+    <record id="demo_res_partner_customer_binh_an" model="res.partner">
+        <field name="name">Nhà máy Nước Bình An</field>
+        <field name="vat">0401234567</field>
+        <field name="street">88 Điện Biên Phủ</field>
+        <field name="city">Đà Nẵng</field>
+        <field name="email">mua.hang@nuocbinhan.example</field>
+        <field name="phone">+84 236 3652 888</field>
+    </record>
 </odoo>

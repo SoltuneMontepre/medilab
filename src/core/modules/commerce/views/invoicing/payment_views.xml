@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_payment_list" model="ir.ui.view">
+        <field name="name">medilab.payment.list</field>
+        <field name="model">medilab.payment</field>
+        <field name="arch" type="xml">
+            <list duplicate="0">
+                <field name="payment_date" />
+                <field name="receipt_code" />
+                <field name="invoice_id" />
+                <field name="partner_id" />
+                <field name="method" />
+                <field name="amount" sum="Total" />
+                <field name="recorded_by_id" optional="show" />
+                <field name="is_overpaying" optional="hide" />
+                <field name="status" widget="badge" decoration-warning="status == 'pending'" decoration-success="status == 'confirmed'" decoration-danger="status == 'rejected'" />
+                <field name="currency_id" column_invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_payment_form" model="ir.ui.view">
+        <field name="name">medilab.payment.form</field>
+        <field name="model">medilab.payment</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" class="btn-primary" invisible="status != 'pending'" />
+                    <button name="action_reject" type="object" string="Reject" invisible="status != 'pending'" confirm="Reject this payment with the reason given below?" />
+                    <button name="action_print_receipt" type="object" string="Print receipt" icon="fa-print" invisible="status != 'confirmed'" />
+                    <button name="action_acknowledge" type="object" string="Acknowledge overpayment" invisible="not is_overpaying or acknowledged_at" />
+                    <field name="status" widget="statusbar" statusbar_visible="pending,confirmed" />
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Overpaying" bg_color="text-bg-danger" invisible="not is_overpaying" />
+                    <div class="oe_title">
+                        <h1><field name="receipt_code" placeholder="Receipt number on confirmation" /></h1>
+                    </div>
+                    <group>
+                        <group name="payment">
+                            <field name="invoice_id" readonly="status != 'pending'" domain="[('status', '=', 'posted'), ('kind', '!=', 'adjustment')]" />
+                            <field name="partner_id" />
+                            <field name="amount" readonly="status != 'pending'" />
+                            <field name="payment_date" readonly="status != 'pending'" />
+                            <field name="method" readonly="status != 'pending'" />
+                            <field name="payment_link_id" invisible="method != 'online'" />
+                            <field name="currency_id" invisible="1" />
+                        </group>
+                        <group name="review">
+                            <field name="recorded_by_id" />
+                            <field name="reviewed_by_id" />
+                            <field name="reviewed_at" />
+                            <field name="rejection_reason" invisible="status == 'confirmed'" readonly="status != 'pending'" placeholder="Required to reject the payment" />
+                            <field name="receipt_attachment_id" invisible="not receipt_attachment_id" />
+                            <field name="is_day_locked" invisible="method != 'online'" />
+                            <field name="recorded_after_lock" invisible="not recorded_after_lock" />
+                        </group>
+                    </group>
+                    <group name="overpayment" string="Overpayment" invisible="not is_overpaying">
+                        <field name="is_overpaying" invisible="1" />
+                        <field name="acknowledgement_reason" readonly="acknowledged_at" placeholder="Required to acknowledge the overpayment" />
+                        <field name="acknowledged_by_id" />
+                        <field name="acknowledged_at" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_payment_search" model="ir.ui.view">
+        <field name="name">medilab.payment.search</field>
+        <field name="model">medilab.payment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="receipt_code" />
+                <field name="invoice_id" />
+                <field name="partner_id" />
+                <filter name="pending" string="Pending" domain="[('status', '=', 'pending')]" />
+                <filter name="confirmed" string="Confirmed" domain="[('status', '=', 'confirmed')]" />
+                <filter name="rejected" string="Rejected" domain="[('status', '=', 'rejected')]" />
+                <separator />
+                <filter name="online" string="Online" domain="[('method', '=', 'online')]" />
+                <filter name="manual" string="Cash or bank transfer" domain="[('method', '!=', 'online')]" />
+                <filter name="overpaying" string="Overpaying" domain="[('is_overpaying', '=', True)]" />
+                <separator />
+                <filter name="payment_date" string="Paid on" date="payment_date" />
+                <filter name="group_by_invoice" string="Invoice" context="{'group_by': 'invoice_id'}" />
+                <filter name="group_by_status" string="Status" context="{'group_by': 'status'}" />
+                <filter name="group_by_method" string="Method" context="{'group_by': 'method'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_payment" model="ir.actions.act_window">
+        <field name="name">Payments</field>
+        <field name="res_model">medilab.payment</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

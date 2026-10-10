@@ -958,6 +958,8 @@ model User {
   notifications  Notification[] @relation("NotificationUser")
   /// Job runs the user started by hand.
   triggered_runs JobRun[]     @relation("JobTrigger")
+  /// Jobs whose next run the user asked for by hand.
+  requested_runs ScheduledJob[] @relation("JobRunRequester")
   /// Mobile devices the user receives reminders on.
   devices    MobileDevice[]
 
@@ -1770,6 +1772,12 @@ model ScheduledJob {
   claim_timeout_minutes Int     @default(30)
   /// Minutes before the first retry; each later retry waits twice as long.
   retry_delay_minutes Int       @default(5)
+  /// Administrator who asked for the next run by hand; cleared when that run starts.
+  run_requested_by_id Int?
+  /// When the run by hand was asked for.
+  run_requested_at    DateTime?
+  /// Administrator who asked for the next run by hand.
+  run_requested_by    User?     @relation("JobRunRequester", fields: [run_requested_by_id], references: [id], onDelete: Restrict)
   /// Items queued for the job.
   items               JobItem[]
   /// Runs of the job.
@@ -1829,6 +1837,12 @@ model JobRun {
   log             String?      @db.Text
   /// Administrator who ran the job by hand; empty for a scheduled run.
   triggered_by_id Int?
+  /// The cron pass the run belongs to, so the batches of one pass share one run.
+  cron_pass       String?      @db.VarChar
+  /// Items done in the run.
+  done_count      Int          @default(0)
+  /// Items that failed an attempt in the run.
+  failed_count    Int          @default(0)
   /// The job run.
   job             ScheduledJob @relation(fields: [job_id], references: [id], onDelete: Restrict)
   /// Administrator who ran the job by hand.

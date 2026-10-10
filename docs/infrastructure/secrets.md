@@ -6,13 +6,15 @@ Doppler is the only store for credentials. Terraform in `infra/` reads the `dev`
 
 `task doppler` logs the Doppler CLI in and selects `medilab` `dev` for the repository. The login is stored by the CLI, so nothing is written to the shell or the user environment, and the same steps work on Windows, Linux and macOS.
 
-Every local program that needs a secret is started through `doppler run --project medilab --config dev -- <program>`: the `task tf:*` commands, and the `doppler`, `sonarqube` and `context7` MCP servers in `.mcp.json`. `doppler run` injects the secrets of `dev`, including `DOPPLER_TOKEN`, into that program only.
+Every local program that needs a secret is started through `doppler run --project medilab --config dev -- <program>`: the `task tf:*` commands, the `task up`, `upgrade`, `restart` and `reset` commands that start the application, and the `doppler`, `sonarqube` and `context7` MCP servers in `.mcp.json`. `doppler run` injects the secrets of `dev`, including `DOPPLER_TOKEN`, into that program only.
+
+The application reads provider credentials from its environment: Docker Compose passes `PAYOS_CLIENT_ID`, `PAYOS_API_KEY` and `PAYOS_CHECKSUM_KEY` through to the Odoo container, empty when Doppler holds none. `src/core/.env.local` is committed, so no secret ever goes there.
 
 ## Doppler config
 
 | Project   | Config | Contains                                                                                | Read by                                              |
 | --------- | ------ | --------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `medilab` | `dev`  | `CONTEXT7_TOKEN`, `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN` | every `task tf:*`, the pipelines and the MCP servers |
+| `medilab` | `dev`  | `CONTEXT7_TOKEN`, `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`, `PAYOS_CLIENT_ID`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN` | every `task tf:*`, the application started by `task up`, the pipelines and the MCP servers |
 
 - Seed `dev` by hand; Terraform cannot create the config it reads.
 - Set `TF_VAR_doppler_config=<config>` to read another config.
@@ -20,6 +22,7 @@ Every local program that needs a secret is started through `doppler run --projec
 - `GITHUB_TOKEN` needs permission to write Actions secrets on the repository.
 - `CONTEXT7_TOKEN` is a Context7 API key, read by the `context7` MCP server.
 - `TERRAFORM_TOKEN` is an HCP Terraform team token with write access to the workspace.
+- `PAYOS_CLIENT_ID`, `PAYOS_API_KEY` and `PAYOS_CHECKSUM_KEY` are the PayOS merchant credentials of the sandbox, read by the application ([PayOS](../specs/payos.md)). They are not published to GitHub: the pipelines mock PayOS.
 - Every token has the least access it needs, an expiry, and is entered through a prompt or a pipe, never printed or pasted into chat.
 
 ## Published to GitHub

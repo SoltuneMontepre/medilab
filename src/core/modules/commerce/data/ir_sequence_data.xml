@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="sequence_invoice" model="ir.sequence">
+        <field name="name">Invoice</field>
+        <field name="code">medilab.invoice</field>
+        <field name="implementation">no_gap</field>
+        <field name="padding">4</field>
+        <field name="suffix"> %(range_y)s/HD</field>
+        <field name="use_date_range" eval="True" />
+    </record>
+    <!-- Standard, not no_gap: a creation that rolls back after PayOS answered must never reuse its order code. -->
+    <record id="sequence_payment_link" model="ir.sequence">
+        <field name="name">Payment link order code</field>
+        <field name="code">medilab.payment.link</field>
+        <field name="implementation">standard</field>
+        <field name="padding">1</field>
+    </record>
+    <record id="sequence_receipt" model="ir.sequence">
+        <field name="name">Receipt</field>
+        <field name="code">medilab.payment.receipt</field>
+        <field name="implementation">no_gap</field>
+        <field name="padding">4</field>
+        <field name="suffix"> %(range_y)s/PT</field>
+        <field name="use_date_range" eval="True" />
+    </record>
+</odoo>

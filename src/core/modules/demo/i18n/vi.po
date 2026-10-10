@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:34+0000\n"
+"POT-Creation-Date: 2026-10-10 14:37+0000\n"
 "PO-Revision-Date: 2026-10-10 03:45+0000\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
@@ -97,6 +97,21 @@ msgid "Collect whole heads in clean paper bags."
 msgstr "Lấy nguyên cây, đựng trong túi giấy sạch."
 
 #. module: demo
+#: model:medilab.scheduled.job,name:demo.demo_scheduled_job_echo
+msgid "Demo echo"
+msgstr "Demo echo"
+
+#. module: demo
+#: model:ir.actions.server,name:demo.demo_ir_cron_echo_ir_actions_server
+msgid "Demo: echo"
+msgstr "Demo: echo"
+
+#. module: demo
+#: model:ir.model.fields,field_description:demo.field_medilab_scheduled_job__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: demo
 #: model:medilab.sample.type,disposal_method:demo.sample_type_cabbage
 msgid "Dispose of as organic waste."
 msgstr "Hủy như rác thải hữu cơ."
@@ -171,6 +186,11 @@ msgstr "Trưởng Phòng Kinh Doanh"
 #: model:medilab.parameter.group,name:demo.group_heavy_metals
 msgid "Heavy metals"
 msgstr "Kim loại nặng"
+
+#. module: demo
+#: model:ir.model.fields,field_description:demo.field_medilab_scheduled_job__id
+msgid "ID"
+msgstr "ID"
 
 #. module: demo
 #: model:medilab.role,name:demo.demo_role_lab_head
@@ -301,6 +321,11 @@ msgstr "Nhân Viên Kinh Doanh"
 #: model:medilab.role,name:demo.demo_role_sample_delivery_staff
 msgid "Sample delivery staff"
 msgstr "Nhân Viên Giao Nhận Mẫu"
+
+#. module: demo
+#: model:ir.model,name:demo.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr "Tác Vụ Định Kỳ"
 
 #. module: demo
 #: model:ir.module.module,summary:base.module_demo

@@ -15,13 +15,17 @@ How code inside an Odoo module is laid out.
 | `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
 | `tasks`             | Task types and tasks                                                                                                                                                             |
 | `management`        | Features only managers use                                                                                                                                                       |
-| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, menus and the theme                                                                        |
+| `invoicing`         | Invoices, payments, payment links and reconciliation, in the E-commerce module                                                                                                   |
+| `pricing`           | Prices, taxes, service packages and subcontract costs, in the E-commerce module                                                                                                  |
+| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, settings, scheduled jobs, menus and the theme                                              |
 
 ## Files
 
 - One model per file, named after the model: `test_parameter.py`.
 - Views of a model go in `<model>_views.xml`.
 - Menus are defined only in `views/system/menus.xml` and loaded last in `__manifest__.py`, after the actions they open.
+- Code that talks to an external provider and is no model lives in `services/<provider>_client.py`, such as `services/payos_client.py`; models call it and tests replace its one network method.
+- Routes live in `controllers/<route>.py`, such as `controllers/payos_webhook.py`.
 - Theme assets live in `static/src/theme/`, split into `scss/`, `js/`, `xml/` and `img/`.
 
 ## Permissions
@@ -37,7 +41,9 @@ Technical names used in Python live in the `constants/` package at the root of t
 | File                       | Contains                                                                   |
 | -------------------------- | -------------------------------------------------------------------------- |
 | `constants/models.py`      | Database model names, such as `MODEL_TEST_PARAMETER`                       |
+| `constants/payos.py`       | PayOS endpoints, environment variable names, status mapping and limits     |
 | `constants/permissions.py` | Actions, scopes and access domains of permissions, such as `SCOPE_DOMAINS` |
+| `constants/sequences.py`   | Codes of sequences that do not number a model's own records, such as `SEQUENCE_RECEIPT` |
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`           |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.

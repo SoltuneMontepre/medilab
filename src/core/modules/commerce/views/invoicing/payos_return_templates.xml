@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="payos_return_page" name="PayOS return page">
+        <t t-call="web.frontend_layout">
+            <t t-set="no_footer" t-value="True" />
+            <div class="container py-5 text-center">
+                <t t-if="cancelled">
+                    <h1>Payment cancelled</h1>
+                    <p class="lead">Nothing was paid. You can pay the invoice later from the same link while it is valid.</p>
+                </t>
+                <t t-else="">
+                    <h1>Thank you</h1>
+                    <p class="lead">Your payment is recorded as soon as PayOS confirms it. You can close this page.</p>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

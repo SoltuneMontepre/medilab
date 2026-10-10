@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_payment_link_list" model="ir.ui.view">
+        <field name="name">medilab.payment.link.list</field>
+        <field name="model">medilab.payment.link</field>
+        <field name="arch" type="xml">
+            <list create="0" duplicate="0" delete="0">
+                <field name="create_date" string="Created on" />
+                <field name="invoice_id" />
+                <field name="partner_id" />
+                <field name="provider_order_code" />
+                <field name="amount" sum="Amount" />
+                <field name="amount_paid" sum="Paid" />
+                <field name="expires_at" />
+                <field name="status" widget="badge" decoration-info="status in ('created', 'pending')" decoration-success="status == 'paid'" decoration-danger="status == 'failed'" />
+                <field name="currency_id" column_invisible="1" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_payment_link_form" model="ir.ui.view">
+        <field name="name">medilab.payment.link.form</field>
+        <field name="model">medilab.payment.link</field>
+        <field name="arch" type="xml">
+            <form create="0" duplicate="0" delete="0">
+                <header>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="status not in ('created', 'pending')" confirm="Cancel this payment link at PayOS?" />
+                    <field name="status" widget="statusbar" statusbar_visible="created,pending,paid" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_name" /></h1>
+                    </div>
+                    <div class="alert alert-info" role="status" invisible="status != 'created'">
+                        The link is being prepared: PayOS could not be reached, so the call waits in the job queue.
+                    </div>
+                    <group>
+                        <group name="invoice">
+                            <field name="invoice_id" readonly="1" />
+                            <field name="partner_id" />
+                            <field name="amount" readonly="1" />
+                            <field name="amount_paid" />
+                            <field name="currency_id" invisible="1" />
+                        </group>
+                        <group name="provider">
+                            <field name="provider_order_code" />
+                            <field name="provider_payment_link_id" />
+                            <field name="checkout_url" widget="url" />
+                            <field name="expires_at" readonly="1" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Transactions" name="transactions">
+                            <field name="transaction_ids" readonly="1">
+                                <list>
+                                    <field name="reference" />
+                                    <field name="transacted_at" />
+                                    <field name="transacted_date" />
+                                    <field name="amount" sum="Total" />
+                                    <field name="currency_id" column_invisible="1" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_payment_link_search" model="ir.ui.view">
+        <field name="name">medilab.payment.link.search</field>
+        <field name="model">medilab.payment.link</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="invoice_id" />
+                <field name="partner_id" />
+                <field name="provider_order_code" />
+                <filter name="open" string="Open" domain="[('status', 'in', ('created', 'pending'))]" />
+                <filter name="paid" string="Paid" domain="[('status', '=', 'paid')]" />
+                <filter name="closed" string="Failed, cancelled or expired" domain="[('status', 'in', ('failed', 'cancelled', 'expired'))]" />
+                <separator />
+                <filter name="expires_at" string="Expires on" date="expires_at" />
+                <filter name="group_by_status" string="Status" context="{'group_by': 'status'}" />
+                <filter name="group_by_invoice" string="Invoice" context="{'group_by': 'invoice_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_payment_link" model="ir.actions.act_window">
+        <field name="name">Payment Links</field>
+        <field name="res_model">medilab.payment.link</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

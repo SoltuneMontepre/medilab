@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.commerce</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="laboratory.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='medilab']" position="inside">
+                <block title="E-commerce" name="commerce">
+                    <setting id="medilab_invoice_due_days" string="Invoice due days" help="Days a customer has to pay an invoice after it is posted.">
+                        <field name="invoice_due_days" />
+                    </setting>
+                    <setting id="medilab_payos_enabled" string="PayOS payments" help="Take online payments through PayOS. The credentials come from the environment, never from here.">
+                        <field name="payos_enabled" />
+                        <field name="payos_configured" invisible="1" />
+                        <div class="text-warning mt-2" invisible="not payos_enabled or payos_configured">
+                            <i class="fa fa-warning" title="Warning" /> PayOS credentials are not configured: set PAYOS_CLIENT_ID, PAYOS_API_KEY and PAYOS_CHECKSUM_KEY in the environment.
+                        </div>
+                        <div class="content-group mt-2" invisible="not payos_enabled">
+                            <div class="row">
+                                <label for="payos_method_qr_transfer" class="col-lg-6 o_light_label" />
+                                <field name="payos_method_qr_transfer" />
+                            </div>
+                            <div class="row">
+                                <label for="payos_link_expiry_hours" class="col-lg-6 o_light_label" />
+                                <field name="payos_link_expiry_hours" />
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

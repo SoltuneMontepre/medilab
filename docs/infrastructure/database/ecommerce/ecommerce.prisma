@@ -226,6 +226,8 @@ model Contact {
   name   String          @db.VarChar
   /// Orders on which this person is the customer's contact.
   orders CustomerOrder[]
+  /// Invoices billed to this contact.
+  invoices Invoice[]
 
   @@map("res_partner")
 }
@@ -244,6 +246,10 @@ model User {
   reviewed_payments     Payment[]              @relation("PaymentReviewer")
   /// Reconciliation days the user locked.
   locked_days           ReconciliationDay[]    @relation("ReconciliationLocker")
+  /// Underpaid payment links the user acknowledged.
+  acknowledged_links    PaymentLink[]          @relation("PaymentLinkAcknowledger")
+  /// Overpaying payments the user acknowledged.
+  acknowledged_payments Payment[]              @relation("PaymentAcknowledger")
   /// Cancellation requests the user sent.
   cancellation_requests CancellationRequest[]  @relation("CancellationRequester")
   /// Cancellation requests the user decided.
@@ -543,6 +549,8 @@ model Invoice {
   order_id        Int
   /// The quotation whose prices and tax rates the invoice uses.
   quotation_id    Int
+  /// The contact billed: the order's customer, or one of its people; set on the invoice itself until orders exist.
+  partner_id      Int
   /// advance, final or adjustment.
   kind            String        @db.VarChar
   /// draft, posted or cancelled.
@@ -559,9 +567,15 @@ model Invoice {
   amount_tax      Decimal       @db.Decimal
   /// Total including VAT; negative for an adjustment that lowers the amount.
   amount_total    Decimal       @db.Decimal
+  /// Sum of the totals of the posted adjustment invoices that correct this invoice.
+  amount_adjustment Decimal     @default(0) @db.Decimal
+  /// What the customer still owes: the total and its adjustments minus the confirmed payments; 0 on an adjustment invoice.
+  amount_owed     Decimal       @default(0) @db.Decimal
   /// Sum of the confirmed payments.
   amount_paid     Decimal       @default(0) @db.Decimal
-  /// not_paid, partially_paid or paid, from the confirmed payments.
+  /// Sum of the pending payments, shown so the same payment is not recorded twice.
+  amount_pending  Decimal       @default(0) @db.Decimal
+  /// not_paid, partially_paid or paid, from the confirmed payments; an adjustment mirrors the invoice it corrects.
   payment_status  String        @default("not_paid") @db.VarChar
   /// When the invoice was last emailed to the customer.
   sent_at         DateTime?
@@ -571,6 +585,8 @@ model Invoice {
   order           CustomerOrder @relation(fields: [order_id], references: [id], onDelete: Restrict)
   /// The quotation the invoice uses.
   quotation       Quotation     @relation(fields: [quotation_id], references: [id], onDelete: Restrict)
+  /// The contact billed.
+  partner         Contact       @relation(fields: [partner_id], references: [id], onDelete: Restrict)
   /// The invoice an adjustment invoice corrects.
   adjusts         Invoice?      @relation("Adjustments", fields: [adjusts_id], references: [id], onDelete: Restrict)
   /// Adjustment invoices that correct this invoice.
@@ -595,6 +611,8 @@ model InvoiceLine {
   invoice_id        Int
   /// The quotation line billed; empty for the advance and its deduction.
   quotation_line_id Int?
+  /// Position of the line on the invoice.
+  sequence          Int            @default(10)
   /// Text printed on the line, in the customer's language.
   description       String         @db.VarChar
   /// line, advance or advance_deduction.
@@ -620,7 +638,7 @@ model Payment {
   id               Int          @id @default(autoincrement())
   /// The invoice paid.
   invoice_id       Int
-  /// Amount paid; never more than the invoice's remaining amount.
+  /// Amount paid; a manual payment never exceeds the invoice's remaining amount, an online payment is recorded as PayOS confirmed it.
   amount           Decimal      @db.Decimal
   /// Date the money was received.
   payment_date     DateTime     @db.Date
@@ -638,16 +656,32 @@ model Payment {
   rejection_reason String?      @db.Text
   /// Unique receipt number, filled from a sequence when the payment is confirmed.
   receipt_code     String?      @unique @db.VarChar
-  /// The receipt's PDF.
+  /// The receipt's PDF, stored at confirmation.
   receipt_attachment_id Int?
+  /// True when this payment took the invoice's owed amount below zero; decided once, when it was recorded.
+  is_overpaying    Boolean      @default(false)
+  /// True when the online payment was recorded after its reconciliation day was locked; decided once.
+  recorded_after_lock Boolean   @default(false)
+  /// The accountant who acknowledged the overpayment before locking its day.
+  acknowledged_by_id Int?
+  /// When the overpayment was acknowledged.
+  acknowledged_at  DateTime?
+  /// Why the overpayment is accepted as it is.
+  acknowledgement_reason String? @db.Text
   /// The invoice paid.
   invoice          Invoice      @relation(fields: [invoice_id], references: [id], onDelete: Restrict)
   /// The Odoo user who recorded the payment.
   recorded_by      User?        @relation("PaymentRecorder", fields: [recorded_by_id], references: [id], onDelete: Restrict)
   /// The accountant who confirmed or rejected it.
   reviewed_by      User?        @relation("PaymentReviewer", fields: [reviewed_by_id], references: [id], onDelete: Restrict)
-  /// The online payment link the payment came from.
-  payment_link     PaymentLink?
+  /// The accountant who acknowledged the overpayment.
+  acknowledged_by  User?        @relation("PaymentAcknowledger", fields: [acknowledged_by_id], references: [id], onDelete: Restrict)
+  /// The payment link the online payment came from; empty for a manual payment.
+  payment_link_id  Int?
+  /// The payment link the online payment came from.
+  payment_link     PaymentLink? @relation(fields: [payment_link_id], references: [id], onDelete: Restrict)
+  /// The PayOS transfer the online payment records.
+  transaction      PaymentLinkTransaction?
 
   @@index([invoice_id, status])
   @@map("medilab_payment")
@@ -656,28 +690,71 @@ model Payment {
 /// A PayOS payment link for an invoice, and the state PayOS reports for it.
 model PaymentLink {
   /// Row identifier.
-  id                  Int       @id @default(autoincrement())
+  id                       Int                      @id @default(autoincrement())
   /// The invoice to pay.
-  invoice_id          Int
-  /// Order code sent to PayOS; unique, so a repeated notification is recognised.
-  provider_order_code BigInt    @unique
+  invoice_id               Int
+  /// Order code sent to PayOS, from the sequence medilab.payment.link; unique, so a notification finds its link.
+  provider_order_code      Int                      @unique
   /// Amount the link asks for.
-  amount              Decimal   @db.Decimal
-  /// Checkout page PayOS returned.
-  checkout_url        String    @db.VarChar
-  /// created, pending, paid, failed, cancelled or expired, as PayOS reports it.
-  status              String    @db.VarChar
-  /// When the link expires.
-  expires_at          DateTime?
-  /// The payment recorded when PayOS confirmed it.
-  payment_id          Int?      @unique
+  amount                   Decimal                  @db.Decimal
+  /// Checkout page PayOS returned; empty while the creation waits in the job queue after an outage.
+  checkout_url             String?                  @db.VarChar
+  /// created, pending, paid, failed, cancelled or expired; moves forward only, and PayOS's paid wins over a local cancelled or expired.
+  status                   String                   @db.VarChar
+  /// When the link stops being payable at PayOS; always sent to PayOS.
+  expires_at               DateTime
+  /// Id PayOS gave the link.
+  provider_payment_link_id String?                  @db.VarChar
+  /// Sum of the transfers PayOS reported.
+  amount_paid              Decimal                  @default(0) @db.Decimal
+  /// The accountant who acknowledged that the link stays underpaid.
+  acknowledged_by_id       Int?
+  /// When the underpaid link was acknowledged.
+  acknowledged_at          DateTime?
+  /// Why the underpaid link is accepted as it is.
+  acknowledgement_reason   String?                  @db.Text
+  /// The amount paid the acknowledgement was given for; a later transfer needs a new acknowledgement.
+  acknowledged_amount_paid Decimal?                 @db.Decimal
   /// The invoice to pay.
-  invoice             Invoice   @relation(fields: [invoice_id], references: [id], onDelete: Restrict)
-  /// The payment recorded when PayOS confirmed it.
-  payment             Payment?  @relation(fields: [payment_id], references: [id], onDelete: Restrict)
+  invoice                  Invoice                  @relation(fields: [invoice_id], references: [id], onDelete: Restrict)
+  /// The accountant who acknowledged the underpaid link.
+  acknowledged_by          User?                    @relation("PaymentLinkAcknowledger", fields: [acknowledged_by_id], references: [id], onDelete: Restrict)
+  /// Transfers PayOS reported for the link.
+  transactions             PaymentLinkTransaction[]
+  /// The online payments recorded from the link's transfers, one per transfer.
+  payments                 Payment[]
 
   @@index([status])
   @@map("medilab_payment_link")
+}
+
+/// One transfer PayOS reported for a payment link; created by the notification and the status check, never by users.
+model PaymentLinkTransaction {
+  /// Row identifier.
+  id              Int         @id @default(autoincrement())
+  /// The payment link the transfer paid.
+  link_id         Int
+  /// The bank reference PayOS sends for the transfer; unique, so a repeated notification is recognised.
+  reference       String      @unique @db.VarChar
+  /// Amount transferred.
+  amount          Decimal     @db.Decimal
+  /// When the transfer was made, in UTC; PayOS reports it in Vietnam time.
+  transacted_at   DateTime
+  /// The Vietnam day of the transfer; reconciliation groups transfers by it.
+  transacted_date DateTime    @db.Date
+  /// The online payment that records the transfer; empty until the payments feature records it.
+  payment_id      Int?        @unique
+  /// The reconciliation day of the transfer's Vietnam day, once the accountant opens it.
+  day_id          Int?
+  /// The payment link the transfer paid.
+  link            PaymentLink @relation(fields: [link_id], references: [id], onDelete: Restrict)
+  /// The online payment that records the transfer.
+  payment         Payment?    @relation(fields: [payment_id], references: [id], onDelete: Restrict)
+  /// The reconciliation day of the transfer.
+  day             ReconciliationDay? @relation(fields: [day_id], references: [id], onDelete: SetNull)
+
+  @@index([transacted_date])
+  @@map("medilab_payment_link_transaction")
 }
 
 /// One day of PayOS transactions reconciled by the accountant. A locked day's online payments can no longer be changed.
@@ -694,6 +771,8 @@ model ReconciliationDay {
   locked_at    DateTime?
   /// The accountant who locked the day.
   locked_by    User?     @relation("ReconciliationLocker", fields: [locked_by_id], references: [id], onDelete: Restrict)
+  /// The PayOS transfers of the day.
+  transactions PaymentLinkTransaction[]
 
   @@map("medilab_reconciliation_day")
 }

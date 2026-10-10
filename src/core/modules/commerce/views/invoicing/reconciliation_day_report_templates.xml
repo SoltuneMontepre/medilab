@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_reconciliation_day_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h2>PayOS reconciliation <span t-field="o.day" /></h2>
+                <table class="table table-sm table-borderless mt-4 w-auto">
+                    <tr><th>Status</th><td><span t-field="o.status" /></td></tr>
+                    <tr t-if="o.locked_at"><th>Locked by</th><td><span t-field="o.locked_by_id.name" /> on <span t-field="o.locked_at" /></td></tr>
+                    <tr><th>Transactions</th><td><span t-field="o.transaction_count" /></td></tr>
+                    <tr><th>PayOS total</th><td><strong><span t-field="o.total_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></strong></td></tr>
+                </table>
+                <table class="table table-sm mt-4">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Time</th>
+                            <th class="text-end">Amount</th>
+                            <th>Invoice</th>
+                            <th>Receipt</th>
+                            <th>State</th>
+                            <th>Acknowledged</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o.transaction_ids" t-as="transaction">
+                            <td><span t-field="transaction.reference" /></td>
+                            <td><span t-field="transaction.transacted_at" /></td>
+                            <td class="text-end"><span t-field="transaction.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td>
+                            <td><span t-field="transaction.invoice_id.code" /></td>
+                            <td>
+                                <span t-field="transaction.payment_id.receipt_code" />
+                                <span t-if="transaction.recorded_after_lock" class="text-muted">(recorded after the lock)</span>
+                            </td>
+                            <td><span t-field="transaction.match_state" /></td>
+                            <td>
+                                <t t-if="transaction.match_state == 'overpaying' and transaction.payment_id.acknowledged_at">
+                                    <span t-field="transaction.payment_id.acknowledged_by_id.name" />, <span t-field="transaction.payment_id.acknowledged_at" t-options='{"widget": "date"}' />: <span t-field="transaction.payment_id.acknowledgement_reason" />
+                                </t>
+                                <t t-elif="transaction.match_state == 'underpaid' and transaction.link_id.is_acknowledged">
+                                    <span t-field="transaction.link_id.acknowledged_by_id.name" />, <span t-field="transaction.link_id.acknowledged_at" t-options='{"widget": "date"}' />: <span t-field="transaction.link_id.acknowledgement_reason" />
+                                </t>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_reconciliation_day">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="commerce.report_reconciliation_day_document" />
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_reconciliation_day" model="ir.actions.report">
+        <field name="name">PayOS reconciliation</field>
+        <field name="model">medilab.reconciliation.day</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">commerce.report_reconciliation_day</field>
+        <field name="print_report_name">'Reconciliation %s' % object.day</field>
+        <field name="binding_model_id" ref="model_medilab_reconciliation_day" />
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

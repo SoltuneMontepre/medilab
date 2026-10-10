@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:39+0000\n"
+"POT-Creation-Date: 2026-10-10 14:37+0000\n"
 "PO-Revision-Date: 2026-10-05 01:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
@@ -57,6 +57,12 @@ msgstr "và %s bản ghi khác"
 
 #. module: laboratory
 #. odoo-python
+#: code:addons/laboratory/models/system/scheduled_job.py:0
+msgid "%s runs within a minute."
+msgstr "%s sẽ chạy trong vòng một phút."
+
+#. module: laboratory
+#. odoo-python
 #: code:addons/laboratory/models/system/person.py:0
 msgid ""
 "%s signs in, so their login cannot be emptied; archive the person instead."
@@ -69,6 +75,11 @@ msgstr ""
 #: code:addons/laboratory/models/master_data/parameter_group.py:0
 msgid "A group that has parameters cannot have sub-groups: %s."
 msgstr "Nhóm đã có chỉ tiêu không thể có nhóm con: %s."
+
+#. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_scheduled_job_key_unique
+msgid "A job with this key already exists."
+msgstr "Đã có tác vụ với khóa này."
 
 #. module: laboratory
 #. odoo-python
@@ -149,6 +160,7 @@ msgstr "Hành động"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__active
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__cron_active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__active
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__active
@@ -269,6 +281,11 @@ msgid "Archiving and Deleting Rules"
 msgstr "Quy tắc lưu trữ và xóa"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__attempts
+msgid "Attempts"
+msgstr "Số lần thử"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__available_additional_identifiers_metadata
 msgid "Available Additional Identifiers Metadata"
 msgstr "Siêu dữ liệu mã định danh bổ sung khả dụng"
@@ -309,6 +326,11 @@ msgid "Barcode"
 msgstr "Mã vạch"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__batch_size
+msgid "Batch Size"
+msgstr "Kích thước lô"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__cas_number
 msgid "CAS Number"
 msgstr "Số CAS"
@@ -322,6 +344,18 @@ msgstr "Hiệu chuẩn"
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_machine_search
 msgid "Calibration Overdue"
 msgstr "Quá hạn hiệu chuẩn"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_list
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+msgid "Cancel"
+msgstr "Hủy"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_job_item__status__cancelled
+msgid "Cancelled"
+msgstr "Đã hủy"
 
 #. module: laboratory
 #: model:ir.ui.menu,name:laboratory.menu_master_data_catalog
@@ -363,6 +397,16 @@ msgid "City"
 msgstr "Thành phố"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__claim_timeout_minutes
+msgid "Claim Timeout Minutes"
+msgstr "Phút hết hạn nhận"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__claimed_at
+msgid "Claimed At"
+msgstr "Nhận lúc"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__code
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__code
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_group__code
@@ -377,6 +421,16 @@ msgstr "Thành phố"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_method__code
 msgid "Code"
 msgstr "Mã"
+
+#. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_code_formats
+msgid "Code Formats"
+msgstr "Định Dạng Mã"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.res_config_settings_view_form
+msgid "Code formats"
+msgstr "Định dạng mã"
 
 #. module: laboratory
 #: model:ir.model,name:laboratory.model_medilab_code_mixin
@@ -417,6 +471,11 @@ msgstr "Địa chỉ đầy đủ một dòng"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__complete_name
 msgid "Complete Name"
 msgstr "Tên đầy đủ"
+
+#. module: laboratory
+#: model:ir.model,name:laboratory.model_res_config_settings
+msgid "Config Settings"
+msgstr "Cấu Hình Hệ Thống"
 
 #. module: laboratory
 #: model:ir.model,name:laboratory.model_res_partner
@@ -478,6 +537,8 @@ msgstr "Tạo vai trò"
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_department__create_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__create_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__create_uid
@@ -491,6 +552,7 @@ msgstr "Tạo vai trò"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_role__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__create_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__create_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__create_uid
@@ -502,6 +564,8 @@ msgstr "Người tạo"
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_department__create_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__create_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__create_date
@@ -515,6 +579,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_role__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__create_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__create_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__create_date
@@ -522,6 +587,16 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_unit_category__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__cron_id
+msgid "Cron"
+msgstr "Cron"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__cron_pass
+msgid "Cron Pass"
+msgstr "Lượt cron"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__decimals
@@ -595,6 +670,8 @@ msgstr "Hủy tất cả thay đổi"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_code_mixin__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_department__display_name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__display_name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__display_name
@@ -609,11 +686,13 @@ msgstr "Hủy tất cả thay đổi"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_role__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__display_name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_method__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_unit_category__display_name
+#: model:ir.model.fields,field_description:laboratory.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:laboratory.field_res_partner__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
@@ -624,10 +703,54 @@ msgid "Disposal Method"
 msgstr "Cách hủy mẫu"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__document_id
+msgid "Document"
+msgstr "Chứng từ"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__document_model
+msgid "Document Model"
+msgstr "Loại chứng từ"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_permission__document_model
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_permission_search
 msgid "Document Type"
 msgstr "Loại Chứng Từ"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_job_item__status__done
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_search
+msgid "Done"
+msgstr "Hoàn thành"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__done_at
+msgid "Done At"
+msgstr "Hoàn thành lúc"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__done_count
+msgid "Done Count"
+msgstr "Số mục hoàn thành"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__duration
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__last_run_duration
+msgid "Duration"
+msgstr "Thời lượng"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_run_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_run_list
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+msgid "Duration (s)"
+msgstr "Thời lượng (giây)"
+
+#. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_scheduled_job_cron_unique
+msgid "Each job has its own cron."
+msgstr "Mỗi tác vụ có cron riêng."
 
 #. module: laboratory
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_permission_group_unique
@@ -650,6 +773,11 @@ msgid "Edit departments"
 msgstr "Sửa phòng ban"
 
 #. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_job_item_edit_all
+msgid "Edit job items"
+msgstr "Sửa mục tác vụ"
+
+#. module: laboratory
 #: model:medilab.permission,name:laboratory.permission_person_edit_all
 msgid "Edit people"
 msgstr "Sửa nhân sự"
@@ -668,6 +796,11 @@ msgstr "Sửa quyền"
 #: model:medilab.permission,name:laboratory.permission_role_edit_all
 msgid "Edit roles"
 msgstr "Sửa vai trò"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_scheduled_job_edit_all
+msgid "Edit scheduled jobs"
+msgstr "Sửa tác vụ định kỳ"
 
 #. module: laboratory
 #: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__partner_share
@@ -692,10 +825,21 @@ msgid "Employee"
 msgstr "Nhân viên"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__ended_at
+msgid "Ended At"
+msgstr "Kết thúc lúc"
+
+#. module: laboratory
 #. odoo-javascript
 #: code:addons/laboratory/static/src/theme/xml/app_drawer.xml:0
 msgid "Esc"
 msgstr "Esc"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_list
+msgid "Every"
+msgstr "Mỗi"
 
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_quality_registration_search
@@ -706,6 +850,20 @@ msgstr "Đã hết hạn"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__factor
 msgid "Factor"
 msgstr "Hệ số"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_job_item__status__failed
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_job_run__status__failed
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_run_search
+msgid "Failed"
+msgstr "Thất bại"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__failed_count
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__failed_count
+msgid "Failed Count"
+msgstr "Số mục thất bại"
 
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_parameter_group_form
@@ -772,10 +930,17 @@ msgid "Has Tax ID"
 msgstr "Có mã số thuế"
 
 #. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_search
+msgid "Has failed items"
+msgstr "Có mục thất bại"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_archive_mixin__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_code_mixin__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_department__id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__id
@@ -790,11 +955,13 @@ msgstr "Có mã số thuế"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_role__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_method__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_unit_category__id
+#: model:ir.model.fields,field_description:laboratory.field_res_config_settings__id
 #: model:ir.model.fields,field_description:laboratory.field_res_partner__id
 msgid "ID"
 msgstr "ID"
@@ -835,6 +1002,16 @@ msgid "Industry"
 msgstr "Ngành"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__interval_number
+msgid "Interval Number"
+msgstr "Khoảng lặp"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__interval_type
+msgid "Interval Unit"
+msgstr "Đơn vị khoảng lặp"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__is_public
 msgid "Is Public"
 msgstr "Công khai"
@@ -851,9 +1028,55 @@ msgid "Issuing Authority"
 msgstr "Cơ quan ban hành"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__item_key
+msgid "Item Key"
+msgstr "Khóa mục"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__item_ids
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+msgid "Items"
+msgstr "Các mục"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__job_id
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__job_id
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_run_search
+msgid "Job"
+msgstr "Tác vụ"
+
+#. module: laboratory
+#: model:ir.model,name:laboratory.model_medilab_job_item
+msgid "Job Item"
+msgstr "Mục Tác Vụ"
+
+#. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_job_item
+#: model:ir.ui.menu,name:laboratory.menu_job_item
+msgid "Job Items"
+msgstr "Mục Tác Vụ"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__function
 msgid "Job Position"
 msgstr "Chức vụ"
+
+#. module: laboratory
+#: model:ir.model,name:laboratory.model_medilab_job_run
+msgid "Job Run"
+msgstr "Lượt Chạy Tác Vụ"
+
+#. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_job_run
+#: model:ir.ui.menu,name:laboratory.menu_job_run
+msgid "Job Runs"
+msgstr "Lượt Chạy Tác Vụ"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__key
+msgid "Key"
+msgstr "Khóa"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__kind
@@ -869,6 +1092,11 @@ msgstr "LOD"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method__loq
 msgid "LOQ"
 msgstr "LOQ"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.res_config_settings_view_form
+msgid "Laboratory"
+msgstr "Phòng Thí Nghiệm"
 
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.login_layout
@@ -888,8 +1116,32 @@ msgid "Language"
 msgstr "Ngôn ngữ"
 
 #. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_list
+msgid "Last Duration (s)"
+msgstr "Thời lượng lần cuối (giây)"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__last_error
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_form
+msgid "Last Error"
+msgstr "Lỗi gần nhất"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__last_run_id
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+msgid "Last Run"
+msgstr "Lượt chạy gần nhất"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__lastcall
+msgid "Last Scheduled Run"
+msgstr "Lượt chạy theo lịch gần nhất"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_department__write_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__write_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__write_uid
@@ -903,6 +1155,7 @@ msgstr "Ngôn ngữ"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_role__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__write_uid
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__write_uid
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__write_uid
@@ -914,6 +1167,8 @@ msgstr "Cập nhật lần cuối bởi"
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_department__write_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__write_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_measurement_unit__write_date
@@ -927,6 +1182,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_role__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__write_date
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__write_date
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__write_date
@@ -948,6 +1204,7 @@ msgstr "Giới hạn dạng chữ"
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__limit_ids
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_regulation_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
 msgid "Limits"
 msgstr "Giới hạn"
 
@@ -955,6 +1212,12 @@ msgstr "Giới hạn"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__location
 msgid "Location"
 msgstr "Vị trí"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__log
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_run_form
+msgid "Log"
+msgstr "Nhật ký"
 
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.login_layout
@@ -1037,6 +1300,11 @@ msgid "Master Data"
 msgstr "Danh Mục"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__max_attempts
+msgid "Max Attempts"
+msgstr "Số lần thử tối đa"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__max_value
 msgid "Maximum"
 msgstr "Tối đa"
@@ -1051,6 +1319,11 @@ msgstr "Đơn Vị Đo"
 #: model:ir.ui.menu,name:laboratory.menu_measurement_unit
 msgid "Measurement Units"
 msgstr "Đơn Vị Đo"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.res_config_settings_view_form
+msgid "MediLab"
+msgstr "MediLab"
 
 #. module: laboratory
 #: model:ir.module.module,shortdesc:base.module_laboratory
@@ -1089,6 +1362,7 @@ msgstr "Model máy"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_role__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_sample_type__name
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_test_parameter__name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__name
@@ -1108,6 +1382,11 @@ msgid "Name"
 msgstr "Tên"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__next_attempt_at
+msgid "Next Attempt At"
+msgstr "Thử lại lúc"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__next_calibration_date
 msgid "Next Calibration Date"
 msgstr "Ngày hiệu chuẩn tiếp theo"
@@ -1121,6 +1400,16 @@ msgstr "Ngày đến hạn tiếp theo"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__next_maintenance_date
 msgid "Next Maintenance Date"
 msgstr "Ngày bảo trì tiếp theo"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__nextcall
+msgid "Next Run"
+msgstr "Lượt chạy tiếp theo"
+
+#. module: laboratory
+#: model:ir.model.fields,help:laboratory.field_medilab_scheduled_job__nextcall
+msgid "Next planned execution date for this job."
+msgstr "Thời điểm chạy theo lịch tiếp theo của tác vụ."
 
 #. module: laboratory
 #. odoo-javascript
@@ -1145,6 +1434,18 @@ msgstr "Ghi chú"
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_subcontractor_form
 msgid "Notes"
 msgstr "Ghi chú"
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/job_item.py:0
+msgid "Only a failed item can be retried."
+msgstr "Chỉ thử lại được mục đã thất bại."
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/job_item.py:0
+msgid "Only a pending or failed item can be cancelled."
+msgstr "Chỉ hủy được mục đang chờ hoặc đã thất bại."
 
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_permission_search
@@ -1203,6 +1504,11 @@ msgid "Parent name"
 msgstr "Tên công ty cha"
 
 #. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_job_run__status__partly_failed
+msgid "Partly Failed"
+msgstr "Thất bại một phần"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_id
 msgid "Partner"
 msgstr "Đối tác"
@@ -1211,6 +1517,23 @@ msgstr "Đối tác"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__same_vat_partner_id
 msgid "Partner with same Tax ID"
 msgstr "Đối tác có cùng mã số thuế"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__payload
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_form
+msgid "Payload"
+msgstr "Dữ liệu"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_job_item__status__pending
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_search
+msgid "Pending"
+msgstr "Đang chờ"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__pending_count
+msgid "Pending Count"
+msgstr "Số mục đang chờ"
 
 #. module: laboratory
 #: model:ir.actions.act_window,name:laboratory.action_medilab_person
@@ -1264,6 +1587,21 @@ msgstr "Quyền: department.edit.all"
 #: model:res.groups,name:laboratory.group_permission_department_read_all
 msgid "Permission: department.read.all"
 msgstr "Quyền: department.read.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_job_item_edit_all
+msgid "Permission: job.item.edit.all"
+msgstr "Quyền: job.item.edit.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_job_item_read_all
+msgid "Permission: job.item.read.all"
+msgstr "Quyền: job.item.read.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_job_run_read_all
+msgid "Permission: job.run.read.all"
+msgstr "Quyền: job.run.read.all"
 
 #. module: laboratory
 #: model:res.groups,name:laboratory.group_permission_permission_edit_all
@@ -1346,6 +1684,16 @@ msgid "Permission: role.read.all"
 msgstr "Quyền: role.read.all"
 
 #. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_scheduled_job_edit_all
+msgid "Permission: scheduled.job.edit.all"
+msgstr "Quyền: scheduled.job.edit.all"
+
+#. module: laboratory
+#: model:res.groups,name:laboratory.group_permission_scheduled_job_read_all
+msgid "Permission: scheduled.job.read.all"
+msgstr "Quyền: scheduled.job.read.all"
+
+#. module: laboratory
 #: model:ir.actions.act_window,name:laboratory.action_medilab_permission
 #: model:ir.model.fields,field_description:laboratory.field_medilab_role__permission_ids
 #: model:ir.ui.menu,name:laboratory.menu_permission
@@ -1370,6 +1718,30 @@ msgid "Post Test Requirements"
 msgstr "Yêu cầu sau thử nghiệm"
 
 #. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.res_config_settings_view_form
+msgid ""
+"Prefix and length of the codes given to parameters, groups, sample types, "
+"dossiers, subcontractors and documents."
+msgstr "Tiền tố và độ dài của mã cấp cho chỉ tiêu, nhóm, loại mẫu, hồ sơ, thầu phụ và chứng từ."
+
+#. module: laboratory
+#: model:ir.model.fields,help:laboratory.field_medilab_scheduled_job__lastcall
+msgid ""
+"Previous time the cron ran successfully, provided to the job through the "
+"context on the `lastcall` key"
+msgstr "Lần gần nhất cron chạy thành công, được cung cấp cho tác vụ qua khóa `lastcall` trong ngữ cảnh"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__progress_done
+msgid "Progress Done"
+msgstr "Đã xử lý"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__progress_remaining
+msgid "Progress Remaining"
+msgstr "Còn lại"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__properties
 msgid "Properties"
 msgstr "Thuộc tính"
@@ -1391,6 +1763,11 @@ msgid "Quality Registrations"
 msgstr "Hồ Sơ Đăng Ký Chất Lượng"
 
 #. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+msgid "Queue"
+msgstr "Hàng đợi"
+
+#. module: laboratory
 #: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__action__read
 msgid "Read"
 msgstr "Xem"
@@ -1399,6 +1776,16 @@ msgstr "Xem"
 #: model:medilab.permission,name:laboratory.permission_department_read_all
 msgid "Read departments"
 msgstr "Xem phòng ban"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_job_item_read_all
+msgid "Read job items"
+msgstr "Xem mục tác vụ"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_job_run_read_all
+msgid "Read job runs"
+msgstr "Xem lượt chạy tác vụ"
 
 #. module: laboratory
 #: model:medilab.permission,name:laboratory.permission_person_read_all
@@ -1419,6 +1806,11 @@ msgstr "Xem quyền"
 #: model:medilab.permission,name:laboratory.permission_role_read_all
 msgid "Read roles"
 msgstr "Xem vai trò"
+
+#. module: laboratory
+#: model:medilab.permission,name:laboratory.permission_scheduled_job_read_all
+msgid "Read scheduled jobs"
+msgstr "Xem tác vụ định kỳ"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine_service__reference
@@ -1465,6 +1857,11 @@ msgid "Repair"
 msgstr "Sửa chữa"
 
 #. module: laboratory
+#: model:ir.model.fields,help:laboratory.field_medilab_scheduled_job__interval_number
+msgid "Repeat every x."
+msgstr "Lặp lại mỗi x."
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_quality_registration__report_mark
 msgid "Report Mark"
 msgstr "Ký hiệu trên phiếu kết quả"
@@ -1490,6 +1887,18 @@ msgid "Retired"
 msgstr "Ngừng sử dụng"
 
 #. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_form
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_list
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+msgid "Retry"
+msgstr "Thử lại"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__retry_delay_minutes
+msgid "Retry Delay Minutes"
+msgstr "Phút chờ thử lại"
+
+#. module: laboratory
 #: model:ir.model,name:laboratory.model_medilab_role
 msgid "Role"
 msgstr "Vai Trò"
@@ -1513,6 +1922,40 @@ msgstr "Vai Trò"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_parameter_method_machine__run_minutes
 msgid "Run Minutes"
 msgstr "Thời gian chạy (phút)"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__run_requested_at
+msgid "Run Requested At"
+msgstr "Yêu cầu chạy lúc"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__run_requested_by_id
+msgid "Run Requested By"
+msgstr "Người yêu cầu chạy"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_run_search
+msgid "Run by hand"
+msgstr "Chạy thủ công"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+msgid "Run now"
+msgstr "Chạy ngay"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_job_item__status__running
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_job_run__status__running
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_run_search
+msgid "Running"
+msgstr "Đang chạy"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__run_ids
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+msgid "Runs"
+msgstr "Lượt chạy"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__user_id
@@ -1555,6 +1998,27 @@ msgid "Save manually"
 msgstr "Lưu thủ công"
 
 #. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_form
+msgid "Schedule"
+msgstr "Lịch chạy"
+
+#. module: laboratory
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_scheduled_job_search
+msgid "Schedule off"
+msgstr "Tắt lịch"
+
+#. module: laboratory
+#: model:ir.model,name:laboratory.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr "Tác Vụ Định Kỳ"
+
+#. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_scheduled_job
+#: model:ir.ui.menu,name:laboratory.menu_scheduled_job
+msgid "Scheduled Jobs"
+msgstr "Tác Vụ Định Kỳ"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_permission__scope
 msgid "Scope"
 msgstr "Phạm vi"
@@ -1581,6 +2045,12 @@ msgid "Service History"
 msgstr "Lịch sử bảo trì"
 
 #. module: laboratory
+#: model:ir.actions.act_window,name:laboratory.action_medilab_settings
+#: model:ir.ui.menu,name:laboratory.menu_settings
+msgid "Settings"
+msgstr "Cấu Hình"
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_share
 msgid "Share Partner"
 msgstr "Đối tác chia sẻ"
@@ -1589,6 +2059,11 @@ msgstr "Đối tác chia sẻ"
 #: model:ir.model.fields.selection,name:laboratory.selection__medilab_permission__action__sign
 msgid "Sign"
 msgstr "Ký"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__started_at
+msgid "Started At"
+msgstr "Bắt đầu lúc"
 
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__state_id
@@ -1601,7 +2076,11 @@ msgid "Stats"
 msgstr "Thống kê"
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_item__status
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__status
 #: model:ir.model.fields,field_description:laboratory.field_medilab_machine__status
+#: model:ir.model.fields,field_description:laboratory.field_medilab_scheduled_job__last_run_status
+#: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_job_item_search
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_machine_search
 msgid "Status"
 msgstr "Trạng thái"
@@ -1642,6 +2121,16 @@ msgstr "Thầu Phụ"
 #: model:ir.ui.menu,name:laboratory.menu_subcontractor
 msgid "Subcontractors"
 msgstr "Thầu Phụ"
+
+#. module: laboratory
+#: model:ir.model.fields.selection,name:laboratory.selection__medilab_job_run__status__succeeded
+msgid "Succeeded"
+msgstr "Thành công"
+
+#. module: laboratory
+#: model:ir.ui.menu,name:laboratory.menu_system_root
+msgid "System"
+msgstr "Hệ Thống"
 
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.login_layout
@@ -1739,6 +2228,11 @@ msgstr "Không thể đổi tên vai trò quản trị viên."
 #: code:addons/laboratory/models/system/role.py:0
 msgid "The administrator role holds every permission; none can be removed."
 msgstr "Vai trò quản trị viên nắm mọi quyền; không thể gỡ quyền nào."
+
+#. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_scheduled_job_limits_positive
+msgid "The batch size and the attempts must be at least 1."
+msgstr "Kích thước lô và số lần thử phải từ 1 trở lên."
 
 #. module: laboratory
 #: model:ir.model.constraint,message:laboratory.constraint_medilab_chemical_code_unique
@@ -1950,6 +2444,11 @@ msgid "This user already belongs to another person."
 msgstr "Tài khoản này đã thuộc về một nhân sự khác."
 
 #. module: laboratory
+#: model:ir.model.constraint,message:laboratory.constraint_medilab_job_item_key_unique
+msgid "This work is already queued for the job."
+msgstr "Công việc này đã được xếp hàng cho tác vụ."
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__tz
 msgid "Timezone"
 msgstr "Múi giờ"
@@ -1958,6 +2457,17 @@ msgstr "Múi giờ"
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__tz_offset
 msgid "Timezone offset"
 msgstr "Độ lệch múi giờ"
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_job_run__triggered_by_id
+msgid "Triggered By"
+msgstr "Người chạy thủ công"
+
+#. module: laboratory
+#. odoo-python
+#: code:addons/laboratory/models/system/scheduled_job.py:0
+msgid "Turn the schedule of %s on before running it."
+msgstr "Bật lịch chạy của %s trước khi chạy."
 
 #. module: laboratory
 #: model_terms:ir.ui.view,arch_db:laboratory.view_medilab_machine_search

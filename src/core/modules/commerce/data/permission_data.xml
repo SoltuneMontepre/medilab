@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="permission_invoice_read_all" model="medilab.permission">
+        <field name="name">Read invoices</field>
+        <field name="document_model">medilab.invoice</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_invoice_create_all" model="medilab.permission">
+        <field name="name">Create invoices</field>
+        <field name="document_model">medilab.invoice</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_invoice_edit_all" model="medilab.permission">
+        <field name="name">Edit invoices</field>
+        <field name="document_model">medilab.invoice</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_invoice_delete_all" model="medilab.permission">
+        <field name="name">Delete invoices</field>
+        <field name="document_model">medilab.invoice</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_invoice_line_read_all" model="medilab.permission">
+        <field name="name">Read invoice lines</field>
+        <field name="document_model">medilab.invoice.line</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_invoice_line_create_all" model="medilab.permission">
+        <field name="name">Create invoice lines</field>
+        <field name="document_model">medilab.invoice.line</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_invoice_line_edit_all" model="medilab.permission">
+        <field name="name">Edit invoice lines</field>
+        <field name="document_model">medilab.invoice.line</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_invoice_line_delete_all" model="medilab.permission">
+        <field name="name">Delete invoice lines</field>
+        <field name="document_model">medilab.invoice.line</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_payment_link_read_all" model="medilab.permission">
+        <field name="name">Read payment links</field>
+        <field name="document_model">medilab.payment.link</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_payment_link_create_all" model="medilab.permission">
+        <field name="name">Create payment links</field>
+        <field name="document_model">medilab.payment.link</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_payment_link_edit_all" model="medilab.permission">
+        <field name="name">Edit payment links</field>
+        <field name="document_model">medilab.payment.link</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_payment_link_transaction_read_all" model="medilab.permission">
+        <field name="name">Read payment link transactions</field>
+        <field name="document_model">medilab.payment.link.transaction</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_payment_read_all" model="medilab.permission">
+        <field name="name">Read payments</field>
+        <field name="document_model">medilab.payment</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_payment_create_all" model="medilab.permission">
+        <field name="name">Create payments</field>
+        <field name="document_model">medilab.payment</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_payment_edit_all" model="medilab.permission">
+        <field name="name">Edit payments</field>
+        <field name="document_model">medilab.payment</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_payment_delete_all" model="medilab.permission">
+        <field name="name">Delete payments</field>
+        <field name="document_model">medilab.payment</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_reconciliation_day_read_all" model="medilab.permission">
+        <field name="name">Read reconciliation days</field>
+        <field name="document_model">medilab.reconciliation.day</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_reconciliation_day_create_all" model="medilab.permission">
+        <field name="name">Create reconciliation days</field>
+        <field name="document_model">medilab.reconciliation.day</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_reconciliation_day_edit_all" model="medilab.permission">
+        <field name="name">Edit reconciliation days</field>
+        <field name="document_model">medilab.reconciliation.day</field>
+        <field name="action">edit</field>
+    </record>
+</odoo>

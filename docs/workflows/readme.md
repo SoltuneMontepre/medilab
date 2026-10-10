@@ -7,3 +7,4 @@ Step-by-step procedures for recurring tasks.
 - [Reporting a bug](reporting-bug.md): turn a defect into a GitHub bug issue linked to the rule it breaks
 - [Fixing a bug](fixing-bug.md): reproduce the lowest open bug, prove it with a failing test, fix it and open its pull request
 - [Creating a pull request](creating-pr.md): open a pull request, wait for the pipelines and fix what SonarQube reports
+- [Setting up a laboratory](setting-up.md): install the modules and configure a laboratory step by step, with what to check after each step

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_invoice_advance_sao_mai" model="medilab.invoice">
+        <field name="code">0001 26/HD</field>
+        <field name="partner_id" ref="demo_res_partner_customer_sao_mai" />
+        <field name="kind">advance</field>
+        <field name="status">posted</field>
+        <field name="posted_at">2026-03-02 02:15:00</field>
+        <field name="due_date">2026-03-05</field>
+        <field name="line_ids" eval="[Command.create({'description': 'Advance 50% on quotation 0001 26/BG', 'kind': 'advance', 'amount_untaxed': 2500000, 'tax_rate': 8})]" />
+    </record>
+    <record id="demo_invoice_final_sao_mai" model="medilab.invoice">
+        <field name="code">0002 26/HD</field>
+        <field name="partner_id" ref="demo_res_partner_customer_sao_mai" />
+        <field name="kind">final</field>
+        <field name="status">posted</field>
+        <field name="posted_at">2026-03-20 03:40:00</field>
+        <field name="due_date">2026-04-05</field>
+        <field
+            name="line_ids"
+            eval="[
+                Command.create({'description': 'Lead (Pb) on bottled water, 2 samples', 'amount_untaxed': 3000000, 'tax_rate': 8}),
+                Command.create({'description': 'Coliforms on bottled water, 2 samples', 'amount_untaxed': 2000000, 'tax_rate': 8}),
+                Command.create({'description': 'Advance deducted (0001 26/HD)', 'kind': 'advance_deduction', 'amount_untaxed': -2500000, 'tax_rate': 8}),
+            ]"
+        />
+    </record>
+    <record id="demo_invoice_adjustment_raise_sao_mai" model="medilab.invoice">
+        <field name="code">0003 26/HD</field>
+        <field name="partner_id" ref="demo_res_partner_customer_sao_mai" />
+        <field name="kind">adjustment</field>
+        <field name="adjusts_id" ref="demo_invoice_final_sao_mai" />
+        <field name="status">posted</field>
+        <field name="posted_at">2026-03-25 08:05:00</field>
+        <field name="due_date">2026-04-05</field>
+        <field name="line_ids" eval="[Command.create({'description': 'Express handling agreed on 0002 26/HD', 'amount_untaxed': 300000, 'tax_rate': 8})]" />
+    </record>
+    <record id="demo_invoice_final_binh_an" model="medilab.invoice">
+        <field name="code">0004 26/HD</field>
+        <field name="partner_id" ref="demo_res_partner_customer_binh_an" />
+        <field name="kind">final</field>
+        <field name="status">posted</field>
+        <field name="posted_at">2026-07-10 01:30:00</field>
+        <field name="due_date">2026-07-20</field>
+        <field
+            name="line_ids"
+            eval="[
+                Command.create({'description': 'Total hardness on process water, 4 samples', 'amount_untaxed': 4000000, 'tax_rate': 8}),
+                Command.create({'description': 'Heavy metals panel on process water, 1 sample', 'amount_untaxed': 1000000, 'tax_rate': 10}),
+            ]"
+        />
+    </record>
+    <record id="demo_invoice_adjustment_lower_binh_an" model="medilab.invoice">
+        <field name="code">0005 26/HD</field>
+        <field name="partner_id" ref="demo_res_partner_customer_binh_an" />
+        <field name="kind">adjustment</field>
+        <field name="adjusts_id" ref="demo_invoice_final_binh_an" />
+        <field name="status">posted</field>
+        <field name="posted_at">2026-07-15 07:20:00</field>
+        <field name="due_date">2026-07-20</field>
+        <field name="line_ids" eval="[Command.create({'description': 'Volume discount agreed on 0004 26/HD', 'amount_untaxed': -400000, 'tax_rate': 8})]" />
+    </record>
+    <record id="demo_invoice_draft_binh_an" model="medilab.invoice">
+        <field name="partner_id" ref="demo_res_partner_customer_binh_an" />
+        <field name="kind">final</field>
+        <field name="line_ids" eval="[Command.create({'description': 'Pesticide residues on vegetables, 3 samples', 'amount_untaxed': 6000000, 'tax_rate': 8})]" />
+    </record>
+    <record id="demo_invoice_cancelled_sao_mai" model="medilab.invoice">
+        <field name="partner_id" ref="demo_res_partner_customer_sao_mai" />
+        <field name="kind">final</field>
+        <field name="status">cancelled</field>
+        <field name="line_ids" eval="[Command.create({'description': 'Nitrate on vegetables, 1 sample', 'amount_untaxed': 800000, 'tax_rate': 8})]" />
+    </record>
+</odoo>

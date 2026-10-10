@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="job_payos_calls" model="medilab.scheduled.job">
+        <field name="key">payos.calls</field>
+        <field name="name">PayOS queued calls</field>
+        <field name="cron_id" ref="cron_payos_calls" />
+    </record>
+    <record id="job_payos_poll" model="medilab.scheduled.job">
+        <field name="key">payos.poll</field>
+        <field name="name">PayOS status check</field>
+        <field name="cron_id" ref="cron_payos_poll" />
+    </record>
+</odoo>

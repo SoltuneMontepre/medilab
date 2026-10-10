@@ -10,6 +10,10 @@ services:
       USER: ${MEDILAB_DB_USER:-root}
       PASSWORD: ${MEDILAB_DB_PASSWORD:-root}
       MEDILAB_DEMO_PASSWORD: ${MEDILAB_DEMO_PASSWORD:-}
+      # PayOS credentials, injected by doppler run; empty when Doppler holds none.
+      PAYOS_CLIENT_ID: ${PAYOS_CLIENT_ID:-}
+      PAYOS_API_KEY: ${PAYOS_API_KEY:-}
+      PAYOS_CHECKSUM_KEY: ${PAYOS_CHECKSUM_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy

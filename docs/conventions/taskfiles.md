@@ -12,7 +12,7 @@ tools/
 │   ├── ai.taskfile.yml         AI tooling: the npx check for the MCP servers, Serena with the OdooLS adapter, OdooLS download
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint
-│   ├── test.taskfile.yml       tests: core, e2e, apps
+│   ├── test.taskfile.yml       tests: core, uninstall, e2e, apps
 │   └── tf.taskfile.yml         Terraform: setup, init, plan, apply, output
 └── scripts/
     ├── log.sh                  output helpers sourced by the tasks
@@ -36,6 +36,7 @@ tools/
 
 - Task runs commands in its built-in shell, which understands Bash syntax on every platform, including Windows without Git Bash. Do not rely on programs that are missing from a plain Windows install.
 - A program started through a wrapper such as `doppler run -- <program>` runs directly, not in a shell, so shell builtins and Unix tools like `env` fail on Windows. Set its environment with the taskfile's `env:` block.
+- The tasks that start the application (`up`, `upgrade`, `restart`, `reset`) run Docker Compose through `{{.DOPPLER_RUN}}`, so the provider secrets of Doppler reach the containers; the test tasks do not, since the tests mock every provider.
 - Use `printf`, not `echo -e`; it behaves the same in every shell.
 - A multi-line command starts with `set -e` when a failed step must stop the task.
 - Check that an external tool exists before using it, and say how to install it when it does not.

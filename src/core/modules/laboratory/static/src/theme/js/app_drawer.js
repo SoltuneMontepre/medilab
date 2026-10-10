@@ -7,6 +7,7 @@ const APP_ICONS_BY_XMLID = {
     "laboratory.menu_sample_collection_root": "mdi:package-variant",
     "laboratory.menu_master_data_root": "mdi:database",
     "laboratory.menu_people_root": "mdi:account-group",
+    "laboratory.menu_system_root": "mdi:cogs",
     "base.menu_administration": "mdi:cog",
     "base.menu_management": "mdi:apps",
 };

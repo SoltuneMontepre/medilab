@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The advance of Sao Mai, paid through PayOS in two transfers. -->
+    <record id="demo_payment_link_advance_sao_mai_paid" model="medilab.payment.link">
+        <field name="invoice_id" ref="demo_invoice_advance_sao_mai" />
+        <field name="provider_order_code">1</field>
+        <field name="amount">2700000</field>
+        <field name="status">paid</field>
+        <field name="expires_at">2026-03-05 02:20:00</field>
+        <field name="provider_payment_link_id">6f1a2b3c4d5e4f60a1b2c3d4e5f60711</field>
+        <field name="checkout_url">https://pay.payos.vn/web/6f1a2b3c4d5e4f60a1b2c3d4e5f60711</field>
+    </record>
+    <!-- The final invoice of Sao Mai: a link the customer let expire, one the accountant cancelled, and one being prepared. -->
+    <record id="demo_payment_link_final_sao_mai_expired" model="medilab.payment.link">
+        <field name="invoice_id" ref="demo_invoice_final_sao_mai" />
+        <field name="provider_order_code">2</field>
+        <field name="amount">2700000</field>
+        <field name="status">expired</field>
+        <field name="expires_at">2026-03-23 03:45:00</field>
+        <field name="provider_payment_link_id">7a2b3c4d5e6f4071b2c3d4e5f6071822</field>
+        <field name="checkout_url">https://pay.payos.vn/web/7a2b3c4d5e6f4071b2c3d4e5f6071822</field>
+    </record>
+    <record id="demo_payment_link_final_sao_mai_cancelled" model="medilab.payment.link">
+        <field name="invoice_id" ref="demo_invoice_final_sao_mai" />
+        <field name="provider_order_code">3</field>
+        <field name="amount">2700000</field>
+        <field name="status">cancelled</field>
+        <field name="expires_at">2026-03-28 08:10:00</field>
+        <field name="provider_payment_link_id">8b3c4d5e6f704182c3d4e5f607182933</field>
+        <field name="checkout_url">https://pay.payos.vn/web/8b3c4d5e6f704182c3d4e5f607182933</field>
+    </record>
+    <record id="demo_payment_link_final_sao_mai_created" model="medilab.payment.link">
+        <field name="invoice_id" ref="demo_invoice_final_sao_mai" />
+        <field name="provider_order_code">4</field>
+        <field name="amount">3024000</field>
+        <field name="status">created</field>
+        <field name="expires_at" eval="(DateTime.now() + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <!-- The final invoice of Bình An: a first link PayOS reported as failed, then a pending one paid in part. -->
+    <record id="demo_payment_link_final_binh_an_failed" model="medilab.payment.link">
+        <field name="invoice_id" ref="demo_invoice_final_binh_an" />
+        <field name="provider_order_code">5</field>
+        <field name="amount">5420000</field>
+        <field name="status">failed</field>
+        <field name="expires_at">2026-07-13 01:35:00</field>
+        <field name="provider_payment_link_id">9c4d5e6f70814293d4e5f60718293a44</field>
+        <field name="checkout_url">https://pay.payos.vn/web/9c4d5e6f70814293d4e5f60718293a44</field>
+    </record>
+    <record id="demo_payment_link_final_binh_an_pending" model="medilab.payment.link">
+        <field name="invoice_id" ref="demo_invoice_final_binh_an" />
+        <field name="provider_order_code">6</field>
+        <field name="amount">4988000</field>
+        <field name="status">pending</field>
+        <field name="expires_at" eval="(DateTime.now() + timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="provider_payment_link_id">ad5e6f708192a3b4e5f60718293a4b55</field>
+        <field name="checkout_url">https://pay.payos.vn/web/ad5e6f708192a3b4e5f60718293a4b55</field>
+    </record>
+</odoo>

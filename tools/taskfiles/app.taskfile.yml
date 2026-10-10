@@ -7,6 +7,8 @@ env:
 
 vars:
   LOG: tools/scripts/log.sh
+  # The app reads provider secrets from its environment, so Compose runs under Doppler.
+  COMPOSE: "{{.DOPPLER_RUN}} docker compose"
 
 tasks:
   up:
@@ -14,7 +16,7 @@ tasks:
     desc: "Start the local infrastrucure and application"
     silent: true
     cmds:
-      - docker compose up -d
+      - "{{.COMPOSE}} up -d"
       - task: print
 
   stop:
@@ -27,7 +29,7 @@ tasks:
     desc: "Restart Odoo after changing modules or config"
     silent: true
     cmds:
-      - docker compose restart odoo
+      - "{{.COMPOSE}} restart odoo"
 
   logs:
     desc: "Follow the app's log"
@@ -44,11 +46,11 @@ tasks:
       - docker compose stop odoo
       - |
         if [ "{{.MODULES}}" = "all" ]; then
-          docker compose run --rm -T odoo --stop-after-init -u all
+          {{.COMPOSE}} run --rm -T odoo --stop-after-init -u all
         else
-          docker compose run --rm -T odoo --stop-after-init -i "{{.MODULES | replace " " ","}}" -u "{{.MODULES | replace " " ","}}"
+          {{.COMPOSE}} run --rm -T odoo --stop-after-init -i "{{.MODULES | replace " " ","}}" -u "{{.MODULES | replace " " ","}}"
         fi
-      - docker compose up -d
+      - "{{.COMPOSE}} up -d"
       - . {{.LOG}} && log_ok "Modules upgraded ({{.MODULES}})."
       - task: print
 

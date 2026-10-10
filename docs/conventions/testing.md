@@ -7,6 +7,7 @@ How tests are written, where they live and how they run.
 | Layer        | Tool                                             | Location                              | Command          |
 | ------------ | ------------------------------------------------ | ------------------------------------- | ---------------- |
 | Odoo modules | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`    | `task test:core` |
+| Module operations | Odoo standalone functions (`@standalone`)   | `src/core/modules/<module>/tests/`    | `task test:uninstall` |
 | Browser      | Cypress                                          | `src/tests/cypress/e2e/`         | `task test:e2e`  |
 | Applications | `bun test` and `cargo test`                      | next to the code, in each application | `task test:apps` |
 
@@ -20,6 +21,11 @@ How tests are written, where they live and how they run.
 - Use `TransactionCase` for models and `HttpCase` for routes.
 - `task test:core` installs the modules in a throwaway database, runs only their tests with `--test-tags /<module>`, and drops the database afterwards. `task test:core MODULES=a,b` limits it to those modules; the default is `laboratory`.
 - `task test:core` also writes the coverage report `src/core/modules/coverage.xml`, which is not committed.
+
+## Module operations
+
+- Installing or uninstalling a module is forbidden inside a test case, so a check that needs it is a function decorated with `@standalone("<tag>")` from `odoo.tests.common`, in its own file under the module's `tests/` package and imported by `tests/__init__.py`. The normal runner ignores it.
+- `task test:uninstall` installs `laboratory`, `commerce` and `inventory` in a throwaway database and runs the functions tagged `medilab_uninstall` with Odoo's `test_module_operations` script, which only logs a failure, so the task fails on the log line. It drops the database afterwards.
 
 ## Pipeline
 
