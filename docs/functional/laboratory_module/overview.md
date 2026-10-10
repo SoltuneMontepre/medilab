@@ -1,6 +1,6 @@
 # Laboratory Module Overview
 
-The Laboratory module is the core of MediLab. It holds the master data, the test requests, the samples and their results, and the signing that approves them. E-commerce and Inventory depend on it; it depends on no other MediLab module. The tables are drawn in [laboratory.prisma](../../infrastructure/database/laboratory/laboratory.prisma).
+The Laboratory module is the core of MediLab. It holds the master data, the test requests, the samples and their results, and the signing that approves them. E-commerce and Inventory depend on it; it depends on no other MediLab module. It builds on Odoo's Employees, Calendar, Discuss and portal, as listed in [Module boundaries](../../business/module-boundaries.md#odoo-apps). The tables are drawn in [laboratory.prisma](../../infrastructure/database/laboratory/laboratory.prisma).
 
 ## Core entities
 

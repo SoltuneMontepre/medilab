@@ -30,7 +30,7 @@ The administrator maintains the master data of the Laboratory module: test param
 - **US-AD13** As an administrator, I want to maintain departments, their teams and people with their contact details, login account, department and team, so that everyone who works for the laboratory is recorded in one place.
 - **US-AD14** As an administrator, I want to maintain the approval chain of each document type, for signing it and for change requests on it, so that every document is signed by the right roles in the right order.
 - **US-AD15** As an administrator, I want to group permissions into roles, assign roles to people and give a person extra permissions, so that everyone can do exactly their part of the work.
-- **US-AD16** As an administrator, I want to configure task types, what creates their tasks and where the tasks go, so that work reaches the right people automatically.
+- **US-AD16** As an administrator, I want to choose where the tasks of each task type go and their default deadline, so that work reaches the right people automatically.
 
 ## II. Feature details
 
@@ -120,15 +120,15 @@ Follows [Approval and signing chain](../../../business/approval-and-signing-chai
 
 | Rule              | Description                                                                                                                       |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Departments       | The administrator creates the laboratory's departments and puts people in them.                                                   |
-| Teams             | A department can be split into teams (tổ), each with its team lead. A person can belong to one team of their department.          |
-| Person            | A person's details are their contact. A person who signs in is linked to their Odoo user, which holds only the login.             |
+| Departments       | The administrator creates the laboratory's departments and puts people in them. Departments are Odoo's employee departments, and the head of a department is its manager. |
+| Teams             | A department can be split into teams (tổ), each with its team lead. A team is a department under its department, and its manager is its team lead. A person can belong to one team of their department. |
+| Person            | A person is an Odoo employee. Their details are the employee's work contact. A person who signs in is linked to their Odoo user, which holds only the login. |
 | Permissions       | A permission is an action on a document type: read, create, edit, archive, delete or sign. Each covers every record, only those of the person's department or only those of the person's team. |
 | Roles             | A role is a set of permissions. The administrator assigns roles to people and can give a person extra permissions directly. |
 | Approval chain    | Each document type has one chain for signing it and one for change requests on it.                                               |
 | Levels            | A chain has levels signed in order. Each level names one of the roles that signs it, whether the signer must belong to the department that did the work, and whether it can reject. |
-| Task types        | Each task type has its trigger, whether the system creates its tasks, the document and action they open, where they go and their default deadline. See [SH-10](../../shared.md#sh-10-tasks-and-to-do-list). |
-| Archiving         | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Task types are archived, never deleted. Roles are never archived. |
+| Task types        | Task types come with the modules, each with its trigger and the document and action its tasks open. The administrator chooses where new tasks go, a department queue, the holders of a role or a person, and the default deadline. See [SH-10](../../shared.md#sh-10-tasks-and-to-do-list). |
+| Archiving         | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Roles are never archived. |
 | Deleting          | The administrator can delete a department, team, person, role or approval chain when nothing refers to it: a department with no teams, people, parameter and method pairs or tasks; a team with no people; a person with no tasks, bookings or signatures; a role that no person holds and no approval level or task type names; a chain none of whose levels has been signed. Deleting a person also removes their roles, a role its permissions, and a chain its levels. |
 
 Acceptance criteria:
@@ -138,7 +138,6 @@ Acceptance criteria:
 - A chain cannot have two levels in the same position.
 - A person without a permission for an action, through a role or directly, cannot take it and does not see it in the interface.
 - A permission given to a person directly adds to the permissions of their roles.
-- A task type with automatic creation turned off creates no tasks.
 - A permission limited to the person's department hides the records of other departments.
 - A permission limited to the person's team hides the records of other teams.
 - A person's team must belong to their department.
@@ -146,7 +145,7 @@ Acceptance criteria:
 - Deleting a department that has people, parameter and method pairs or tasks, or a role that a person holds or an approval level or task type names, is refused with a message listing them.
 - A role cannot be archived; it is removed from people, approval levels and task types, then deleted.
 - A person who has signed a document, or a chain with a signed level, cannot be deleted; the message lists the signatures.
-- A task type cannot be deleted, only archived.
+- A task type cannot be created, archived or deleted on the screen; only its route, role and default deadline change.
 
 ## III. Related documents
 
