@@ -57,7 +57,7 @@ Xây dựng một desktop application cho phép kỹ thuật viên:
 
 ## 2.3. Quyết định kiến trúc đã chốt
 
-Hệ thống web chính hiện tại là **Odoo 19 monolith**. Vì vậy, ở giai đoạn hiện tại dự án **không tạo một hệ thống account/auth riêng cho Sync App**.
+Hệ thống web chính hiện tại là **Odoo 20 monolith**. Vì vậy, ở giai đoạn hiện tại dự án **không tạo một hệ thống account/auth riêng cho Sync App**.
 
 Quyết định:
 
@@ -239,7 +239,7 @@ Use case:
        plane       |                  | direct transfer
                    v                  v
 +--------------------------------+  +-----------------------+
-|       Odoo 19 Monolith         |  |      S3 / MinIO       |
+|       Odoo 20 Monolith         |  |      S3 / MinIO       |
 |                                |  |                       |
 | Existing Auth / res.users      |  | Object Storage        |
 | Groups / ACL / Record Rules    |  | Multipart Upload      |
@@ -327,7 +327,7 @@ Mục tiêu của việc tách này là tránh giữ các Odoo HTTP worker cho p
 | File Watcher | notify |
 | Local Database | SQLite |
 | Hash | SHA-256 hoặc BLAKE3 |
-| Backend | **Odoo 19 / Python** |
+| Backend | **Odoo 20 / Python** |
 | API | REST cho control plane; presigned S3/MinIO URLs cho data plane |
 | Realtime | Odoo WebSocket ban đầu; có thể tách Hub khi scale |
 | Database | **PostgreSQL dùng chung với Odoo** |
@@ -1635,7 +1635,7 @@ Download queue if required
 
 ### 23.1. Phase 1-3: có thể dùng WebSocket của Odoo
 
-Odoo 19 có dedicated gevent/WebSocket worker trong multiprocessing deployment.
+Odoo 20 có dedicated gevent/WebSocket worker trong multiprocessing deployment.
 
 Vì vậy không cần tách Go service ngay từ MVP chỉ vì có WebSocket.
 
@@ -2807,7 +2807,7 @@ Control Plane
 REST + WebSocket
         |
         v
-Odoo 19 / Python
+Odoo 20 / Python
 PostgreSQL dùng chung
 Odoo ACL / Record Rules
 

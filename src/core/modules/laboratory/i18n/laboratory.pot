@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 19.0-20260926\n"
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 04:23+0000\n"
-"PO-Revision-Date: 2026-10-10 04:23+0000\n"
+"POT-Creation-Date: 2026-10-10 07:39+0000\n"
+"PO-Revision-Date: 2026-10-10 07:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -157,6 +157,16 @@ msgid "Active Lang Count"
 msgstr ""
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__additional_identifiers
+msgid "Additional Identifiers"
+msgstr ""
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__address
+msgid "Address (without name)"
+msgstr ""
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__type
 msgid "Address Type"
 msgstr ""
@@ -164,6 +174,11 @@ msgstr ""
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__type_address_label
 msgid "Address Type Description"
+msgstr ""
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__address_inline
+msgid "Address inline (without name)"
 msgstr ""
 
 #. module: laboratory
@@ -244,6 +259,11 @@ msgstr ""
 #. module: laboratory
 #: model:ir.model,name:laboratory.model_medilab_archive_mixin
 msgid "Archiving and Deleting Rules"
+msgstr ""
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__available_additional_identifiers_metadata
+msgid "Available Additional Identifiers Metadata"
 msgstr ""
 
 #. module: laboratory
@@ -372,33 +392,8 @@ msgid "Company"
 msgstr ""
 
 #. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_registry
-msgid "Company ID"
-msgstr ""
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_registry_label
-msgid "Company ID Label"
-msgstr ""
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_name
-msgid "Company Name"
-msgstr ""
-
-#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__commercial_company_name
 msgid "Company Name Entity"
-msgstr ""
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_registry_placeholder
-msgid "Company Registry Placeholder"
-msgstr ""
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__company_type
-msgid "Company Type"
 msgstr ""
 
 #. module: laboratory
@@ -407,13 +402,18 @@ msgid "Complete Address"
 msgstr ""
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__contact_address_inline
+msgid "Complete Address inline"
+msgstr ""
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__complete_name
 msgid "Complete Name"
 msgstr ""
 
 #. module: laboratory
+#: model:ir.model,name:laboratory.model_res_partner
 #: model:ir.model.fields,field_description:laboratory.field_medilab_person__partner_id
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__child_ids
 msgid "Contact"
 msgstr ""
 
@@ -607,6 +607,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_method__display_name
 #: model:ir.model.fields,field_description:laboratory.field_medilab_unit_category__display_name
+#: model:ir.model.fields,field_description:laboratory.field_res_partner__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -727,16 +728,6 @@ msgid "Formula"
 msgstr ""
 
 #. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_latitude
-msgid "Geo Latitude"
-msgstr ""
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_longitude
-msgid "Geo Longitude"
-msgstr ""
-
-#. module: laboratory
 #. odoo-python
 #: code:addons/laboratory/models/system/permission.py:0
 msgid ""
@@ -766,6 +757,11 @@ msgid "Groups"
 msgstr ""
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__has_vat
+msgid "Has Tax ID"
+msgstr ""
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_archive_mixin__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_chemical__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_code_mixin__id
@@ -789,6 +785,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_field__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_testing_method__id
 #: model:ir.model.fields,field_description:laboratory.field_medilab_unit_category__id
+#: model:ir.model.fields,field_description:laboratory.field_res_partner__id
 msgid "ID"
 msgstr ""
 
@@ -869,6 +866,13 @@ msgid "Laboratory management system"
 msgstr ""
 
 #. module: laboratory
+#: model:ir.module.module,summary:base.module_laboratory
+msgid ""
+"Laboratory testing core: test catalog, parameters, samples, results and "
+"machines."
+msgstr ""
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__lang
 msgid "Language"
 msgstr ""
@@ -922,6 +926,11 @@ msgid "Last Updated on"
 msgstr ""
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_latitude
+msgid "Latitude"
+msgstr ""
+
+#. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_regulation_limit__limit_text
 msgid "Limit Text"
 msgstr ""
@@ -945,6 +954,11 @@ msgstr ""
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_person__login
 msgid "Login"
+msgstr ""
+
+#. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_longitude
+msgid "Longitude"
 msgstr ""
 
 #. module: laboratory
@@ -1025,6 +1039,11 @@ msgstr ""
 #: model:ir.actions.act_window,name:laboratory.action_medilab_measurement_unit
 #: model:ir.ui.menu,name:laboratory.menu_measurement_unit
 msgid "Measurement Units"
+msgstr ""
+
+#. module: laboratory
+#: model:ir.module.module,shortdesc:base.module_laboratory
+msgid "Medilab - Laboratory"
 msgstr ""
 
 #. module: laboratory
@@ -1175,11 +1194,6 @@ msgstr ""
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__partner_id
 msgid "Partner"
-msgstr ""
-
-#. module: laboratory
-#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__same_company_registry_partner_id
-msgid "Partner with same Company Registry"
 msgstr ""
 
 #. module: laboratory
@@ -1424,6 +1438,11 @@ msgid "Related Company"
 msgstr ""
 
 #. module: laboratory
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__child_ids
+msgid "Related Contacts"
+msgstr ""
+
+#. module: laboratory
 #. odoo-javascript
 #: code:addons/laboratory/static/src/theme/xml/user_switch.xml:0
 msgid "Remove user from switcher"
@@ -1606,6 +1625,9 @@ msgstr ""
 
 #. module: laboratory
 #: model:ir.actions.act_window,name:laboratory.action_medilab_subcontractor
+#: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__subcontractor_ids
+#: model:ir.model.fields,field_description:laboratory.field_res_partner__subcontractor_ids
+#: model:ir.model.fields,field_description:laboratory.field_res_users__subcontractor_ids
 #: model:ir.ui.menu,name:laboratory.menu_subcontractor
 msgid "Subcontractors"
 msgstr ""
@@ -1633,6 +1655,13 @@ msgstr ""
 #. module: laboratory
 #: model:ir.model.fields,field_description:laboratory.field_medilab_subcontractor__vat_label
 msgid "Tax ID Label"
+msgstr ""
+
+#. module: laboratory
+#: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__has_vat
+msgid ""
+"Technical field indicating whether the Tax ID is not a placeholder.Returns "
+"False for placeholder values such as '/', 'NA', 'na', or an empty string."
 msgstr ""
 
 #. module: laboratory
@@ -1839,13 +1868,6 @@ msgid "The reference of a regulation must be unique."
 msgstr ""
 
 #. module: laboratory
-#: model:ir.model.fields,help:laboratory.field_medilab_subcontractor__company_registry
-msgid ""
-"The registry number of the company. Use it if it is different from the Tax "
-"ID. It must be unique across all partners of a same country"
-msgstr ""
-
-#. module: laboratory
 #. odoo-python
 #: code:addons/laboratory/models/system/role.py:0
 msgid ""
@@ -1863,13 +1885,13 @@ msgstr ""
 #. module: laboratory
 #. odoo-python
 #: code:addons/laboratory/models/system/permission.py:0
-msgid "These permissions come with a module and cannot be deleted: %s"
+msgid "These accesses still use the permission's group: %s"
 msgstr ""
 
 #. module: laboratory
 #. odoo-python
 #: code:addons/laboratory/models/system/permission.py:0
-msgid "These record rules still use the permission's group: %s"
+msgid "These permissions come with a module and cannot be deleted: %s"
 msgstr ""
 
 #. module: laboratory
