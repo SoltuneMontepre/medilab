@@ -413,7 +413,9 @@ model Contact {
   /// Subcontractors for which this person is the contact person.
   subcontractor_contact_for  Subcontractor[] @relation("SubcontractorContactPerson")
   /// The customer whose details this contact holds.
-  customer                   Customer?
+  customer                   Customer?       @relation("CustomerPartner")
+  /// Customers for which this person is the default contact.
+  default_contact_for        Customer[]      @relation("CustomerDefaultContact")
   /// Test requests whose report this contact receives.
   received_reports           TestRequest[]   @relation("ReportRecipient")
   /// The person whose details this contact holds.
@@ -625,19 +627,29 @@ model QualityRegistrationParameterMethod {
 /// A company or individual who asks the laboratory for tests. Their details and their people are their contact; people who use the customer portal have Odoo users.
 model Customer {
   /// Row identifier.
-  id            Int           @id @default(autoincrement())
+  id                  Int        @id @default(autoincrement())
   /// Unique code of the customer, such as KH.0001; filled from a sequence when left empty.
-  code          String        @unique @db.VarChar
+  code                String     @unique @db.VarChar
   /// The contact holding the customer's details: name, address, email, phone, and for a company its people.
-  partner_id    Int           @unique
+  partner_id          Int        @unique
   /// Citizen ID of an individual: personal data, masked in the audit trail and read only by those who maintain customers.
-  citizen_id    String?       @db.VarChar
+  citizen_id          String?    @db.VarChar
+  /// The person of a business the laboratory contacts by default; empty for an individual, who is their own contact.
+  default_contact_id  Int?
+  /// The existing customer a self-registered account matched on tax code or citizen ID; empty when not flagged or once sales reviewed it.
+  duplicate_of_id     Int?
   /// False when the customer is archived.
-  active        Boolean       @default(true)
+  active              Boolean    @default(true)
   /// The contact holding the customer's details.
-  partner       Contact       @relation(fields: [partner_id], references: [id], onDelete: Restrict)
+  partner             Contact    @relation("CustomerPartner", fields: [partner_id], references: [id], onDelete: Restrict)
+  /// The person of a business the laboratory contacts by default.
+  default_contact     Contact?   @relation("CustomerDefaultContact", fields: [default_contact_id], references: [id], onDelete: SetNull)
+  /// The existing customer a self-registered account matched.
+  duplicate_of        Customer?  @relation("CustomerDuplicate", fields: [duplicate_of_id], references: [id], onDelete: SetNull)
+  /// Self-registered accounts flagged as possible duplicates of this customer.
+  possible_duplicates Customer[] @relation("CustomerDuplicate")
   /// Test requests of the customer.
-  test_requests TestRequest[]
+  test_requests       TestRequest[]
 
   @@map("medilab_customer")
 }
@@ -1626,6 +1638,8 @@ model NotificationEvent {
   name          Json
   /// True for events people cannot turn off, such as a password reset or a payment receipt.
   mandatory     Boolean                  @default(false)
+  /// False when the administrator turned the event off; no notification of it is created. Ignored for mandatory events.
+  enabled       Boolean                  @default(true)
   /// Notifications of this event.
   notifications Notification[]
   /// People's channel choices for this event.

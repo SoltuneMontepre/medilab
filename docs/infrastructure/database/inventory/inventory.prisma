@@ -137,6 +137,8 @@ model StockItem {
   minimum_quantity             Decimal?            @db.Decimal
   /// Days an opened container stays usable; empty when opening does not shorten its life.
   shelf_life_after_opening_days Int?
+  /// Average cost of one unit of the item's stock, updated by every receipt; used by the moving average costing method.
+  average_cost                 Decimal?            @db.Decimal
   /// False when the item is archived.
   active                       Boolean             @default(true)
   /// The Laboratory chemical the item stocks.
@@ -338,61 +340,65 @@ model StockContainer {
 /// Who made it and when are Odoo's creation fields. An issue or transfer is done when the receiving side confirms receipt; stock on hand follows done moves.
 model StockMove {
   /// Row identifier.
-  id                Int             @id @default(autoincrement())
+  id                 Int                @id @default(autoincrement())
   /// receipt, issue, transfer, relocation, preparation, consumption, waste, disposal or adjustment.
-  kind              String          @db.VarChar
+  kind               String             @db.VarChar
   /// The item moved.
-  item_id           Int
+  item_id            Int
   /// The lot moved; empty for an item not tracked by lot.
-  lot_id            Int?
+  lot_id             Int?
   /// The container moved or used; empty for an item not tracked by container.
-  container_id      Int?
+  container_id       Int?
   /// Quantity moved, in the item's unit; always positive.
-  quantity          Decimal         @db.Decimal
+  quantity           Decimal            @db.Decimal
   /// Location the stock leaves; empty for a receipt.
-  from_location_id  Int?
+  from_location_id   Int?
   /// Location the stock enters; empty for a consumption or a disposal.
-  to_location_id    Int?
+  to_location_id     Int?
   /// The test result the stock was used for.
-  test_result_id    Int?
+  test_result_id     Int?
   /// The machine service the spare part was used in.
   machine_service_id Int?
   /// The receipt line the stock came in on.
-  receipt_line_id   Int?
+  receipt_line_id    Int?
   /// The requisition or transfer line the stock was issued on.
-  transfer_line_id  Int?
+  transfer_line_id   Int?
   /// The preparation the stock was deducted for.
-  preparation_id    Int?
+  preparation_id     Int?
   /// When the move was applied to stock on hand; empty while issued stock is in transit.
-  done_at           DateTime?
+  done_at            DateTime?
   /// True when the system made the move from the method's usual use, rather than a person.
-  automatic         Boolean         @default(false)
+  automatic          Boolean            @default(false)
   /// Why the move was made, such as a calibration, cleaning or a spill.
-  reason            String?         @db.Text
+  reason             String?            @db.Text
+  /// Cost of one unit moved, from the costing method when the move was done.
+  unit_cost          Decimal?           @db.Decimal
+  /// Quantity of a receipt of an item tracked by quantity not yet used up; first in, first out takes stock from the oldest receipts first. Empty for other moves.
+  remaining_quantity Decimal?           @db.Decimal
   /// The item moved.
-  item              StockItem       @relation(fields: [item_id], references: [id], onDelete: Restrict)
+  item               StockItem          @relation(fields: [item_id], references: [id], onDelete: Restrict)
   /// The lot moved.
-  lot               StockLot?       @relation(fields: [lot_id], references: [id], onDelete: Restrict)
+  lot                StockLot?          @relation(fields: [lot_id], references: [id], onDelete: Restrict)
   /// The container moved or used.
-  container         StockContainer? @relation(fields: [container_id], references: [id], onDelete: Restrict)
+  container          StockContainer?    @relation(fields: [container_id], references: [id], onDelete: Restrict)
   /// Location the stock leaves.
-  from_location     StockLocation?  @relation("MoveFrom", fields: [from_location_id], references: [id], onDelete: Restrict)
+  from_location      StockLocation?     @relation("MoveFrom", fields: [from_location_id], references: [id], onDelete: Restrict)
   /// Location the stock enters.
-  to_location       StockLocation?  @relation("MoveTo", fields: [to_location_id], references: [id], onDelete: Restrict)
+  to_location        StockLocation?     @relation("MoveTo", fields: [to_location_id], references: [id], onDelete: Restrict)
   /// The test result the stock was used for.
-  test_result       TestResult?     @relation(fields: [test_result_id], references: [id], onDelete: Restrict)
+  test_result        TestResult?        @relation(fields: [test_result_id], references: [id], onDelete: Restrict)
   /// The machine service the spare part was used in.
-  machine_service   MachineService? @relation(fields: [machine_service_id], references: [id], onDelete: Restrict)
+  machine_service    MachineService?    @relation(fields: [machine_service_id], references: [id], onDelete: Restrict)
   /// The receipt line the stock came in on.
-  receipt_line      ReceiptLine?    @relation(fields: [receipt_line_id], references: [id], onDelete: Restrict)
+  receipt_line       ReceiptLine?       @relation(fields: [receipt_line_id], references: [id], onDelete: Restrict)
   /// The requisition or transfer line the stock was issued on.
-  transfer_line     StockTransferLine? @relation(fields: [transfer_line_id], references: [id], onDelete: Restrict)
+  transfer_line      StockTransferLine? @relation(fields: [transfer_line_id], references: [id], onDelete: Restrict)
   /// The preparation the stock was deducted for.
-  preparation       Preparation?    @relation("PreparationInput", fields: [preparation_id], references: [id], onDelete: Restrict)
+  preparation        Preparation?       @relation("PreparationInput", fields: [preparation_id], references: [id], onDelete: Restrict)
   /// Charges the move made to cost centres.
-  charges           StockCharge[]
+  charges            StockCharge[]
   /// The stock take line the correction came from.
-  take_line        StockTakeLine?
+  take_line          StockTakeLine?
 
   @@index([item_id])
   @@index([lot_id])

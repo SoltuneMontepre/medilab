@@ -22,7 +22,9 @@ Stories: US-AD13, US-AD15
 
 ## Specs
 
+- [Audit trail](audit-trail.md): how actions on documents are recorded, protected, gathered into a document's history and reported
 - [Permissions](permissions.md): how permission, role and person records become Odoo groups and accesses, and how the own-department scope is applied
+- [Stock costing and charges](stock-costing.md): how moves are costed, stock is valued and charged to cost centres, budgets are used up and charges are exported
 
 ## Related documents
 
