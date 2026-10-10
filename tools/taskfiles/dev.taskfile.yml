@@ -93,7 +93,7 @@ tasks:
     desc: "Ruff check and pylint-odoo on the addons"
     cmds:
       - "{{.UV}} run ruff check {{.LINT_TARGET}}"
-      - "{{.UV}} run pylint --rcfile={{.PROJECT_DIR}}/.pylintrc {{.LINT_TARGET}}/*"
+      - "{{.UV}} run pylint --rcfile={{.PROJECT_DIR}}/.pylintrc {{.LINT_TARGET}}/*/"
 
   format:
     desc: "Ruff format the addons"

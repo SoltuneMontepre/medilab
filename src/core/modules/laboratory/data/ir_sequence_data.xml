@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="sequence_parameter_group" model="ir.sequence">
+        <field name="name">Parameter Group</field>
+        <field name="code">medilab.parameter.group</field>
+        <field name="prefix">NCT.</field>
+        <field name="padding">4</field>
+    </record>
+
+    <record id="sequence_quality_registration" model="ir.sequence">
+        <field name="name">Quality Registration</field>
+        <field name="code">medilab.quality.registration</field>
+        <field name="prefix">HS.</field>
+        <field name="padding">4</field>
+    </record>
+
+    <record id="sequence_sample_type" model="ir.sequence">
+        <field name="name">Sample Type</field>
+        <field name="code">medilab.sample.type</field>
+        <field name="prefix">LM.</field>
+        <field name="padding">4</field>
+    </record>
+
+    <record id="sequence_subcontractor" model="ir.sequence">
+        <field name="name">Subcontractor</field>
+        <field name="code">medilab.subcontractor</field>
+        <field name="prefix">TP.</field>
+        <field name="padding">4</field>
+    </record>
+
+    <record id="sequence_test_parameter" model="ir.sequence">
+        <field name="name">Test Parameter</field>
+        <field name="code">medilab.test.parameter</field>
+        <field name="prefix">CT.</field>
+        <field name="padding">4</field>
+    </record>
+</odoo>

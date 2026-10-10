@@ -11,6 +11,8 @@ license-allowed=AGPL-3,GPL-2,GPL-2 or any later version,GPL-3,GPL-3 or any later
 [MESSAGES CONTROL]
 disable=all
 
+# odoo-addons-relative-import stays off: a module imports its own constants by full path, as
+# docs/conventions/python.md (Imports) requires.
 enable=anomalous-backslash-in-string,
     assignment-from-none,
     attribute-deprecated,
@@ -48,7 +50,6 @@ enable=anomalous-backslash-in-string,
     missing-return,
     no-search-all,
     no-write-in-compute,
-    odoo-addons-relative-import,
     odoo-exception-warning,
     pointless-statement,
     pointless-string-statement,

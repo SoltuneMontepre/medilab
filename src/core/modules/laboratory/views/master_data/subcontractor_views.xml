@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_subcontractor_list" model="ir.ui.view">
+        <field name="name">medilab.subcontractor.list</field>
+        <field name="model">medilab.subcontractor</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="accreditation_expiry and accreditation_expiry &lt; current_date">
+                <field name="code" />
+                <field name="name" />
+                <field name="contact_person_id" />
+                <field name="phone" optional="show" />
+                <field name="email" optional="show" />
+                <field name="accreditation_number" />
+                <field name="accreditation_expiry" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_subcontractor_form" model="ir.ui.view">
+        <field name="name">medilab.subcontractor.form</field>
+        <field name="model">medilab.subcontractor</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" required="0" placeholder="Filled from the sequence when left empty" />
+                            <field name="vat" />
+                            <field name="street" />
+                            <field name="city" />
+                            <field name="country_id" />
+                            <field name="phone" />
+                            <field name="email" />
+                        </group>
+                        <group>
+                            <field
+                                name="contact_person_id"
+                                context="{'default_parent_id': partner_id, 'default_is_company': False}"
+                            />
+                            <field name="accreditation_number" />
+                            <field name="accreditation_expiry" />
+                            <field name="contract_reference" />
+                        </group>
+                    </group>
+                    <field name="note" placeholder="Notes" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_subcontractor_search" model="ir.ui.view">
+        <field name="name">medilab.subcontractor.search</field>
+        <field name="model">medilab.subcontractor</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" string="Name" />
+                <field name="accreditation_number" />
+                <filter
+                    name="accreditation_expired"
+                    string="Accreditation Expired"
+                    domain="[('accreditation_expiry', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_subcontractor" model="ir.actions.act_window">
+        <field name="name">Subcontractors</field>
+        <field name="res_model">medilab.subcontractor</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

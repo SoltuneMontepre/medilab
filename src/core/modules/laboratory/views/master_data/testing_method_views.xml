@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_testing_method_list" model="ir.ui.view">
+        <field name="name">medilab.testing.method.list</field>
+        <field name="model">medilab.testing.method</field>
+        <field name="arch" type="xml">
+            <list duplicate="0">
+                <field name="code" />
+                <field name="name" />
+                <field name="field_id" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_testing_method_form" model="ir.ui.view">
+        <field name="name">medilab.testing.method.form</field>
+        <field name="model">medilab.testing.method</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="code" />
+                        <h1><field name="code" /></h1>
+                    </div>
+                    <group>
+                        <field name="name" />
+                        <field name="field_id" />
+                    </group>
+                    <notebook>
+                        <page string="Chemicals" name="chemicals">
+                            <field name="chemical_ids">
+                                <list>
+                                    <field name="code" />
+                                    <field name="name" />
+                                    <field name="cas_number" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_testing_method_search" model="ir.ui.view">
+        <field name="name">medilab.testing.method.search</field>
+        <field name="model">medilab.testing.method</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" string="Name" />
+                <field name="field_id" />
+                <field name="chemical_ids" />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+                <filter name="group_by_field" string="Testing Field" context="{'group_by': 'field_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_testing_method" model="ir.actions.act_window">
+        <field name="name">Testing Methods</field>
+        <field name="res_model">medilab.testing.method</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
