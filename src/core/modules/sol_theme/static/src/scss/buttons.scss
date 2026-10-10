@@ -94,9 +94,13 @@
         gap: 0.4rem;
 
         &::before {
-            font-family: "FontAwesome", sans-serif;
-            content: "\f067";
-            font-size: 0.75rem;
+            font-family: "Material Symbols Outlined";
+            content: "add";
+            font-size: 1.1rem;
+            font-weight: 400;
+            line-height: 1;
+            text-rendering: geometricPrecision;
+            word-break: keep-all;
         }
     }
 
