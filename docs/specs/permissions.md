@@ -16,13 +16,13 @@ Departments, people, roles and permissions are records administrators maintain. 
 | `Role`       | One group whose implied groups are the groups of the role's permissions.                       |
 | `Person`     | The person's Odoo user holds the groups of the person's roles and of their direct permissions. |
 
-Departments and people are Odoo's: a department is an `hr.department` and a person is an `hr.employee`, both extended by the laboratory module. Roles and permissions are the module's own models.
+A department is Odoo's `hr.department`, extended by the laboratory module. A person is the module's `medilab.person`, which delegates to an Odoo employee (`hr.employee`) with `_inherits`: the person's table holds their team, roles and direct permissions, and the employee their name, user, work contact and department. Roles and permissions are the module's own models.
 
 Odoo checks a user's groups transitively: a role group implies its permission groups, so a user holding the role group holds every access of those permissions. An access (Odoo's `ir.access`) gives its group one operation on a model, limited to the records of its domain; menus whose action model the user cannot read are hidden by Odoo. Generated groups have no privilege, so the user form shows them as independent extra rights, which matches permissions adding up.
 
 ### Permission
 
-A permission is one action on one document type within one scope. Its code is derived from the three: the document type is the model name without `medilab.`, or, for an Odoo model, the name of its MediLab concept, such as `person` for `hr.employee` and `department` for `hr.department`. So a permission to edit people of the person's department is `person.edit.own_department`. No two permissions share the same document type, action and scope. The document type, action and scope cannot change once the permission exists; the name can.
+A permission is one action on one document type within one scope. Its code is derived from the three: the document type is the model name without `medilab.`, or, for an Odoo model, the name of its MediLab concept, such as `department` for `hr.department`. So a permission to edit people of the person's department is `person.edit.own_department`. No two permissions share the same document type, action and scope. The document type, action and scope cannot change once the permission exists; the name can.
 
 | Action    | Operation of the access                                                 |
 | --------- | ----------------------------------------------------------------------- |
@@ -38,7 +38,7 @@ A permission is one action on one document type within one scope. Its code is de
 | `all`            | every record: `[(1, '=', 1)]`                                                               |
 | `own_department` | `[('department_id', '=', user.employee_id.department_id.id)]`                               |
 
-The team scope (`own_team`) planned for teams within departments follows the same mechanism through the person's team, `team_id` on the employee, a department whose parent is the person's department, and is built with teams.
+The team scope (`own_team`) planned for teams within departments follows the same mechanism through the person's team, `team_id` on the person, a department whose parent is the person's department, and is built with teams.
 
 Odoo combines the accesses of the groups a user holds with "or": a person holding `person.read.all` and `person.read.own_department` reads every person. The own-department scope exists only for document types that have a `department_id` field; creating such a permission for another document type is refused. A record without a department belongs to nobody's department, so an own-department permission does not show it.
 
@@ -67,11 +67,11 @@ A role holds permissions. Creating a role creates its group, `sol_laboratory.gro
 
 The **administrator** role ships with the module. Its group, `sol_laboratory.group_role_administrator`, implies Odoo's settings group, so a person holding the role also configures Odoo. Every permission a module creates is added to the administrator role, so its group implies every permission group, including those of features added later. The role cannot be deleted or renamed, and no permission can be removed from it.
 
-The person of Odoo's default administrator, the employee Odoo's `hr` app creates for the user created with the database, is the administrator person: they hold the administrator role, and they cannot be archived or deleted, lose the role or be given another user.
+The person of Odoo's default administrator, the employee Odoo's `hr` app creates for the user created with the database, belongs to the administrator person: they hold the administrator role, and they cannot be archived or deleted, lose the role or be given another user.
 
 ### Person
 
-A person is an Odoo employee, extended with their roles and direct permissions. Their details are the employee's work contact, which Odoo's `hr` app keeps; their login is the employee's Odoo user. When a person is saved with a login and has no user yet, the Odoo user is created as an internal user and linked to the employee. A login belongs to one person, and the login of a person who signs in cannot be emptied; the person is archived instead. Passwords are set by Odoo administrators from the user form, which the person form opens.
+A person delegates to an Odoo employee, so the person form shows and writes the employee's fields. Their details are the employee's work contact, which Odoo's `hr` app keeps; their login is the employee's Odoo user. When a person is saved with a login and has no user yet, the Odoo user is created as an internal user and linked to the employee. A login belongs to one person, and the login of a person who signs in cannot be emptied; the person is archived instead. Passwords are set by Odoo administrators from the user form, which the person form opens.
 
 The effective permissions of a person are those of their roles plus their direct permissions. Whenever a person is created, changes roles, direct permissions or user, or is deleted, the Odoo user's groups are set to the internal user group, the groups of the person's roles and the groups of their direct permissions. Only groups that belong to a role or a permission are added or removed; any other group of the user is left as it is. The synchronisation runs with full rights, because the authorisation that matters is the permission on the person record itself.
 
@@ -83,7 +83,7 @@ Archiving a person archives their Odoo user, so they can no longer sign in; unar
 
 ### Enforcement in the API
 
-Accesses enforce `read`, `create` and `delete`, and their domain limits `create` to the person's department when that is the scope. `edit` and `archive` share Odoo's write operation, so the shared mixin `medilab.permission.mixin`, inherited by departments and people through their Odoo models, by roles and permissions and by every document model of later features, splits them:
+Accesses enforce `read`, `create` and `delete`, and their domain limits `create` to the person's department when that is the scope. `edit` and `archive` share Odoo's write operation, so the shared mixin `medilab.permission.mixin`, inherited by departments through their Odoo model, by people, by roles and permissions and by every document model of later features, splits them:
 
 - Writing `active` needs the archive permission; writing any other field needs the edit permission.
 - Each is checked against the records inside that action's scope, found from the permissions of the user's groups for the model and action, so a person with `edit` on every record and `archive` on their own department cannot archive another department's records, even though Odoo combines the two write accesses with "or".

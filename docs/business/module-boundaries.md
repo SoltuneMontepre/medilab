@@ -10,7 +10,7 @@ MediLab is built on Odoo Community and extends its apps where they hold a concep
 
 - A module depends only on Odoo Community apps and the MediLab modules above. No module depends on Odoo Enterprise, so every module installs on a free Odoo.
 - A module depends on as few apps as it needs. An app that only brings features MediLab does not use, or a concept that does not fit, is not added; MediLab keeps its own model instead.
-- When an app has the concept, MediLab extends its model with `_inherit` and its views, instead of adding a model of its own.
+- When an app has the concept, MediLab extends its model with `_inherit` and its views, instead of adding a model of its own. A MediLab concept with its own lifecycle, permissions or links, which the app holds only part of, is its own model delegating to the app's record with `_inherits`, as [Database conventions](../conventions/database.md#models) states.
 
 | Module     | Odoo apps it depends on                             |
 | ---------- | --------------------------------------------------- |
@@ -26,7 +26,7 @@ Each module also has every app its own apps depend on: `mail`, `bus` and `resour
 | Concept                                   | Built on                                                                                                                                                         |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Department, team                          | `hr.department`; a team is a department whose parent is its department                                                                                           |
-| Person                                    | `hr.employee`, with their Odoo user and work contact                                                                                                             |
+| Person                                    | `medilab.person`, delegating to `hr.employee` with `_inherits`: its table holds the team, roles and direct permissions, and the employee the name, user, work contact and department |
 | Role, permission                          | MediLab roles and permissions generating Odoo groups (`res.groups`) and accesses (`ir.access`), see [Permissions](../specs/permissions.md)                        |
 | Customer, subcontractor, supplier         | `res.partner`, with the customer, subcontractor and supplier details MediLab keeps for it                                                                        |
 | Personal schedule, reminders              | `calendar.event`: every planned task and machine booking has one, kept in step both ways with MediLab's task management; its alarm is the reminder               |

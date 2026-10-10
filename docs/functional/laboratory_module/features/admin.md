@@ -122,7 +122,7 @@ Follows [Approval and signing chain](../../../business/approval-and-signing-chai
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Departments       | The administrator creates the laboratory's departments and puts people in them. Departments are Odoo's employee departments, and the head of a department is its manager. |
 | Teams             | A department can be split into teams (tổ), each with its team lead. A team is a department under its department, and its manager is its team lead. A person can belong to one team of their department. |
-| Person            | A person is an Odoo employee. Their details are the employee's work contact. A person who signs in is linked to their Odoo user, which holds only the login. |
+| Person            | Each person has an Odoo employee. Their details are the employee's work contact. A person who signs in is linked to their Odoo user, which holds only the login. |
 | Permissions       | A permission is an action on a document type: read, create, edit, archive, delete or sign. Each covers every record, only those of the person's department or only those of the person's team. |
 | Roles             | A role is a set of permissions. The administrator assigns roles to people and can give a person extra permissions directly. |
 | Approval chain    | Each document type has one chain for signing it and one for change requests on it.                                               |
