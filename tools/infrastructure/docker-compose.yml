@@ -9,6 +9,7 @@ services:
       HOST: postgres
       USER: ${MEDILAB_DB_USER:-root}
       PASSWORD: ${MEDILAB_DB_PASSWORD:-root}
+      MEDILAB_DEMO_PASSWORD: ${MEDILAB_DEMO_PASSWORD:-}
     depends_on:
       postgres:
         condition: service_healthy

@@ -32,9 +32,9 @@ tasks:
       - defer: docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
       - |
         docker compose run --rm -T --user root --entrypoint bash odoo -c '
-          pip install -q --break-system-packages coverage
+          pip install -q --root-user-action=ignore --break-system-packages coverage
           cd /mnt/extra-addons
-          python3 -m coverage run --branch --source={{.MODULES}} --omit="*/tests/*" --data-file=/tmp/.coverage -m odoo             --db_host "$HOST" --db_user "$USER" --db_password "$PASSWORD"             -d {{.TEST_DB}} -i {{.MODULES}} --test-enable --test-tags "{{.TAGS}}" --stop-after-init --log-level=test
+          runuser -u odoo -- python3 -m coverage run --branch --source={{.MODULES}} --omit="*/tests/*" --data-file=/tmp/.coverage -m odoo             --db_host "$HOST" --db_user "$USER" --db_password "$PASSWORD"             -d {{.TEST_DB}} -i {{.MODULES}} --test-enable --test-tags "{{.TAGS}}" --stop-after-init --log-level=test
           status=$?
           python3 -m coverage xml --data-file=/tmp/.coverage -o coverage.xml
           exit $status'

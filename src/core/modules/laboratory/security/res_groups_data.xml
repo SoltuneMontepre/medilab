@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_role_administrator" model="res.groups">
+        <field name="name">Role: administrator</field>
+        <field name="implied_ids" eval="[Command.link(ref('base.group_system'))]" />
+    </record>
+</odoo>

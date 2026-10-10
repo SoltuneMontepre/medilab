@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="parameter_method_lead_aas" model="medilab.parameter.method">
+        <field name="department_id" ref="demo_department_chemistry" />
+    </record>
+    <record id="parameter_method_lead_icpms" model="medilab.parameter.method">
+        <field name="department_id" ref="demo_department_chemistry" />
+    </record>
+    <record id="parameter_method_ph_water" model="medilab.parameter.method">
+        <field name="department_id" ref="demo_department_chemistry" />
+    </record>
+    <record id="parameter_method_ph_soil" model="medilab.parameter.method">
+        <field name="department_id" ref="demo_department_chemistry" />
+    </record>
+    <record id="parameter_method_chlorpyrifos_quechers" model="medilab.parameter.method">
+        <field name="department_id" ref="demo_department_chemistry" />
+    </record>
+    <record id="parameter_method_coliforms_mpn" model="medilab.parameter.method">
+        <field name="department_id" ref="demo_department_microbiology" />
+    </record>
+    <record id="parameter_method_coliforms_colony" model="medilab.parameter.method">
+        <field name="department_id" ref="demo_department_microbiology" />
+    </record>
+    <record id="parameter_method_e_coli_membrane" model="medilab.parameter.method">
+        <field name="department_id" ref="demo_department_microbiology" />
+    </record>
+    <record id="parameter_method_e_coli_colony" model="medilab.parameter.method">
+        <field name="department_id" ref="demo_department_microbiology" />
+    </record>
+</odoo>
