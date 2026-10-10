@@ -617,7 +617,7 @@ model Customer {
   @@map("medilab_customer")
 }
 
-/// A request for the laboratory to test the samples of one customer. E-commerce creates it from a confirmed order; without E-commerce the laboratory creates it.
+/// A request for the laboratory to test the samples of one customer. E-commerce creates it from a confirmed order with the samples sales defined on the quotation; without E-commerce sample delivery staff create it.
 model TestRequest {
   /// Row identifier.
   id           Int      @id @default(autoincrement())
@@ -649,6 +649,8 @@ model TestRequest {
   samples      Sample[]
   /// Reports of the request, one per version.
   reports      TestReport[]
+  /// Handover records of the request's samples.
+  handover_records HandoverRecord[]
 
   @@index([customer_id])
   @@map("medilab_test_request")
@@ -718,6 +720,8 @@ model Sample {
   disposed_by          Person?      @relation("SampleDisposer", fields: [disposed_by_id], references: [id], onDelete: Restrict)
   /// Handovers of the sample to the departments that test it.
   handovers            SampleHandover[]
+  /// Handover records that list the sample.
+  handover_lines       HandoverRecordSample[]
 
   @@index([request_id])
   @@index([sample_type_id])
@@ -740,12 +744,20 @@ model SampleTest {
   status              String           @db.VarChar
   /// When the laboratory plans to finish the test: the request's expected date minus the safety margin. A test whose due date is close is scheduled first.
   due_date            DateTime?
+  /// Why the test was cancelled, such as the parameter cannot be tested on this sample.
+  cancel_reason       String?          @db.Text
+  /// Head of department who cancelled the test.
+  cancelled_by_id     Int?
+  /// When the test was cancelled.
+  cancelled_at        DateTime?
   /// The sample tested.
   sample              Sample           @relation(fields: [sample_id], references: [id], onDelete: Cascade)
   /// The parameter tested.
   parameter           TestParameter    @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The way of testing chosen.
   parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
+  /// Head of department who cancelled the test.
+  cancelled_by        Person?          @relation("SampleTestCanceller", fields: [cancelled_by_id], references: [id], onDelete: Restrict)
   /// Results of the test, one per attempt.
   results             TestResult[]
   /// Machine bookings for the test.
@@ -848,6 +860,8 @@ model Person {
   tasks         Task[]           @relation("TaskAssignee")
   /// Tasks the person assigned.
   assigned_tasks Task[]          @relation("TaskAssigner")
+  /// Sample tests the person cancelled.
+  cancelled_sample_tests SampleTest[] @relation("SampleTestCanceller")
   /// Machine bookings the person runs.
   bookings      MachineBooking[]
   /// Samples the person received.
@@ -862,6 +876,8 @@ model Person {
   carried_dispatches SubcontractDispatch[] @relation("DispatchCourier")
   /// Sample handovers the person received for their department.
   received_handovers SampleHandover[] @relation("HandoverReceiver")
+  /// Handover records of samples the person took from customers.
+  handover_records   HandoverRecord[] @relation("HandoverRecordReceiver")
   /// Change requests the person asked for.
   change_requests ChangeRequest[] @relation("ChangeRequester")
   /// Signatures the person gave.
@@ -1136,8 +1152,10 @@ model Task {
   department_id  Int?
   /// Person who does the task; empty while it waits in the department's queue.
   assignee_id    Int?
-  /// Person who assigned the task.
+  /// Person who assigned the task; the assignee themselves when they claimed it.
   assigned_by_id Int?
+  /// Why the task was last moved to another person or department.
+  reassign_reason String?     @db.Text
   /// When the task must be done.
   deadline       DateTime?
   /// Planned start on the assignee's schedule.
@@ -1280,6 +1298,69 @@ model SampleHandover {
   @@map("medilab_sample_handover")
 }
 
+/// Handover record (biên bản giao nhận mẫu): the samples a customer hands to the laboratory, signed by the customer by hand on the mobile app. A signed record is never edited; a correction is a new record.
+model HandoverRecord {
+  /// Row identifier.
+  id                   Int                    @id @default(autoincrement())
+  /// Unique code of the record; filled from a sequence.
+  code                 String                 @unique @db.VarChar
+  /// The test request whose samples are handed over.
+  request_id           Int
+  /// When the samples were handed over.
+  handed_over_at       DateTime
+  /// Name of the customer's person who handed the samples over and signed.
+  handed_over_by_name  String                 @db.VarChar
+  /// Sample delivery staff who took the samples.
+  received_by_id       Int
+  /// draft or signed.
+  status               String                 @default("draft") @db.VarChar
+  /// When the customer signed.
+  signed_at            DateTime?
+  /// Image of the customer's handwritten signature.
+  signature_attachment_id Int?
+  /// The mobile device the customer signed on.
+  signed_device_id     Int?
+  /// The record's PDF.
+  attachment_id        Int?
+  /// When the PDF was emailed to the customer.
+  sent_at              DateTime?
+  /// The test request whose samples are handed over.
+  request              TestRequest            @relation(fields: [request_id], references: [id], onDelete: Restrict)
+  /// Sample delivery staff who took the samples.
+  received_by          Person                 @relation("HandoverRecordReceiver", fields: [received_by_id], references: [id], onDelete: Restrict)
+  /// The mobile device the customer signed on.
+  signed_device        MobileDevice?          @relation(fields: [signed_device_id], references: [id], onDelete: SetNull)
+  /// Samples on the record.
+  samples              HandoverRecordSample[]
+
+  @@index([request_id])
+  @@map("medilab_handover_record")
+}
+
+/// Links a handover record to the samples it lists, with the amount and condition as they were handed over. Unique on (record_id, sample_id).
+model HandoverRecordSample {
+  /// Row identifier.
+  id        Int            @id @default(autoincrement())
+  /// The handover record.
+  record_id Int
+  /// The sample handed over.
+  sample_id Int
+  /// Amount handed over, such as "2 bottles of 1 L".
+  quantity  String         @db.VarChar
+  /// good, damaged or insufficient, as handed over.
+  condition String         @db.VarChar
+  /// What was wrong with the sample when handed over.
+  condition_note String?   @db.Text
+  /// The handover record.
+  record    HandoverRecord @relation(fields: [record_id], references: [id], onDelete: Cascade)
+  /// The sample handed over.
+  sample    Sample         @relation(fields: [sample_id], references: [id], onDelete: Restrict)
+
+  @@unique([record_id, sample_id])
+  @@index([sample_id])
+  @@map("medilab_handover_record_sample")
+}
+
 /// The test report (phiếu kết quả) of one test request, covering all its samples. A change request creates a new version that replaces it.
 /// Unique on (request_id, version).
 model TestReport {
@@ -1368,6 +1449,8 @@ model MobileDevice {
   active       Boolean   @default(true)
   /// Push deliveries sent to the device.
   deliveries   NotificationDelivery[]
+  /// Handover records customers signed on the device.
+  signed_handover_records HandoverRecord[]
   /// The Odoo user signed in on the device.
   user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
