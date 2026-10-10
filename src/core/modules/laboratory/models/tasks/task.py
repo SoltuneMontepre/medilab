@@ -1,6 +1,5 @@
-from datetime import datetime, time, timedelta
-
-import pytz
+from datetime import UTC, datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -18,6 +17,7 @@ from odoo.addons.laboratory.constants.tasks import FINAL_STATUSES, MANUAL_TRIGGE
 TASK_ACTION_CONTEXT = "medilab_task_action"
 OPEN_STATUSES = ("assigned", "in_progress")
 NEXT_UP_LIMIT = 6
+NOT_IN = "not in"
 CLAIMABLE_LIMIT = 3
 
 
@@ -268,7 +268,7 @@ class Task(models.Model):
         domain = (
             Domain("document_model", "=", document._name)
             & Domain("document_id", "in", document.ids)
-            & Domain("status", "not in", FINAL_STATUSES)
+            & Domain("status", NOT_IN, FINAL_STATUSES)
             & Domain("type_id.trigger", "!=", MANUAL_TRIGGER)
         )
         if action:
@@ -276,7 +276,7 @@ class Task(models.Model):
         return self.sudo().search(domain)
 
     def _in_use_domain(self):
-        return Domain("status", "not in", FINAL_STATUSES)
+        return Domain("status", NOT_IN, FINAL_STATUSES)
 
     @api.model
     def get_dashboard_data(self):
@@ -308,14 +308,14 @@ class Task(models.Model):
             "finished_week_count": self.search_count(finished & Domain("done_at", ">=", day_start - timedelta(days=6))),
             "claimable_count": self.search_count(claimable),
             "claimable": self.search(claimable, limit=CLAIMABLE_LIMIT)._dashboard_values(),
-            "unfinished_count": self.search_count(Domain("status", "not in", FINAL_STATUSES)),
+            "unfinished_count": self.search_count(Domain("status", NOT_IN, FINAL_STATUSES)),
         }
 
     @api.model
     def _today_bounds(self):
-        tz = pytz.timezone(self.env.user.tz or "UTC")
-        today = fields.Date.context_today(self.with_context(tz=tz.zone))
-        start = tz.localize(datetime.combine(today, time.min)).astimezone(pytz.UTC).replace(tzinfo=None)
+        tz_name = self.env.user.tz or "UTC"
+        today = fields.Date.context_today(self.with_context(tz=tz_name))
+        start = datetime.combine(today, time.min, tzinfo=ZoneInfo(tz_name)).astimezone(UTC).replace(tzinfo=None)
         return start, start + timedelta(days=1)
 
     def _dashboard_values(self):

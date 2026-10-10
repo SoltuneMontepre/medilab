@@ -110,7 +110,15 @@ export class TimelineModel extends Model {
         isPoint,
       });
     }
-    const sorted = [...rows.values()].sort((a, b) => (a.key === false ? 1 : b.key === false ? -1 : String(a.label).localeCompare(String(b.label))));
+    const sorted = [...rows.values()].sort((a, b) => {
+      if (a.key === false) {
+        return 1;
+      }
+      if (b.key === false) {
+        return -1;
+      }
+      return String(a.label).localeCompare(String(b.label));
+    });
     for (const row of sorted) {
       row.lanes = assignLanes(row.items);
     }
