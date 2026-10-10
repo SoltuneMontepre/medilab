@@ -27,7 +27,8 @@ Code-first: changes and updates are available later.
 - Odoo adds the primary key `id`, and `create_uid`, `create_date`, `write_uid` and `write_date`; do not declare them, and do not add a field that only repeats when or by whom a record was created.
 - Measured values, limits, factors and money are numeric (`fields.Float` with digits, or `fields.Monetary`), never stored where floating point can round them; a measured value keeps how many decimals it shows.
 - A field searched with "contains", such as a catalog name, gets `index="trigram"`.
-- Use what Odoo `base` gives before adding a table: `res.partner` for contacts and tax IDs, `res.users` for logins, settings fields for system parameters, `ir.cron` for schedules, `ir.sequence` for numbers, `ir.attachment` for files, `res.currency` for money.
+- Use what the Odoo apps give before adding a table: [Module boundaries](../business/module-boundaries.md#odoo-apps) lists the app model each concept is built on, such as `hr.employee` for people, `project.task` for tasks and `stock.lot` for lots. From `base`: `res.partner` for contacts and tax IDs, `res.users` for logins, settings fields for system parameters, `ir.cron` for schedules, `ir.sequence` for numbers, `ir.attachment` for files, `res.currency` for money.
+- A model that extends an Odoo model uses `_inherit` with the Odoo name and no `_name`; its class is named after the Odoo model, such as `HrEmployee` in `hr_employee.py`, and its added fields follow the rules below.
 - Every model class has a comment on the line above it with its Vietnamese term from the [glossary](../glossaries.md). A model that only links two others says what the link is for:
 
   ```python
@@ -50,15 +51,15 @@ Code-first: changes and updates are available later.
   ```
 
 - The same applies to the [database diagrams](../infrastructure/readme.md), with a `///` comment above every field.
-- Each module has its own diagram in `docs/infrastructure/database/<module>/<module>.prisma`, in its own folder. A table another module owns appears only with the columns the module uses.
-- A module keeps its data in its own tables rather than adding columns to tables of another module.
+- Each module has its own diagram in `docs/infrastructure/database/<module>/<module>.prisma`, in its own folder. A table another module or an Odoo app owns appears only with the columns the module uses and the columns it adds, named by its Odoo table, such as `hr_employee`.
+- A module adds columns to an Odoo app's table when the data belongs to that concept, such as the roles of a person on `hr_employee`. It keeps its data in its own tables rather than adding columns to tables of another MediLab module.
 - Terms from the business domain follow the [glossary](../glossaries.md).
 
 ## Relationships
 
 - Use `Many2one`, `One2many` and `Many2many` to relate models.
 - A `One2many` always has its `Many2one` on the other model as the inverse.
-- A relationship to a model of another module is allowed only toward a module the current one depends on; Laboratory depends on no other module.
+- A relationship to a model of another module is allowed only toward a module the current one depends on: an Odoo app it depends on, or Laboratory for E-commerce and Inventory. Laboratory depends on no other MediLab module.
 
 ## Constraints and indexes
 
@@ -71,3 +72,4 @@ Code-first: changes and updates are available later.
 - [Module structure](module_structure.md)
 - [Glossary](glossary.md)
 - [Translation and menus](translation.md)
+- [Module boundaries](../business/module-boundaries.md)

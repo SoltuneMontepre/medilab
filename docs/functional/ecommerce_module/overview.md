@@ -2,7 +2,7 @@
 
 In a testing laboratory, everything begins with a sale. Sales generates the lab's income and tracks every client order from the first request until the samples are ready to be collected. In MediLab the E-commerce module covers the customer portal, customer profiles, quotations, test requests, invoices, payments, tax calculation, discounts and sales analytics.
 
-Dependencies: [core laboratory module](../laboratory_module/overview.md).
+Dependencies: [core laboratory module](../laboratory_module/overview.md). It builds on Odoo's Sales, eCommerce, Invoicing, payment providers and the Vietnamese accounting localisation, as listed in [Module boundaries](../../business/module-boundaries.md#odoo-apps): an order is an Odoo sale order, an invoice is an Odoo invoice and a payment is an Odoo payment.
 
 ## Purpose
 

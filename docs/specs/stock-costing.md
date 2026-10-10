@@ -18,23 +18,27 @@ Every move of stock carries a cost, stock on hand has a value, and stock is char
 
 A change applies to moves done after it; moves and charges already made keep their unit cost and value.
 
+### Costing in Odoo
+
+Costing and valuation are Odoo's `stock_account`. The `inventory.costing_method` setting sets the costing method of the product category that holds every stock item: `fifo` is Odoo's first in, first out and `moving_average` is Odoo's average cost. Items tracked by container or lot keep the cost of each lot (`lot_valuated`), so first in, first out costs a container at its lot's price.
+
 ### Cost of a move
 
-Every move stores `unit_cost` when it is done, and the value of a move is its quantity times its unit cost. A receipt takes the unit price of its receipt line, excluding VAT, and writes it on the lot it creates. Every other move takes its unit cost from the costing method in force:
+Every move stores its unit cost (`price_unit`) and value when it is done, as Odoo computes them; the value of a move is its quantity times its unit cost. A receipt takes the unit price of its purchase order line, or the price typed on the receipt, excluding VAT, and writes it on the lot it creates. Every other move takes its unit cost from the costing method in force:
 
-| Stock                | First in, first out                                                                                                                                    | Moving average          |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
-| Tracked by container | The container's lot unit cost; for a prepared solution, the container's own unit cost                                                                  | The item's average cost |
-| Tracked by lot       | The lot's unit cost                                                                                                                                    | The item's average cost |
-| Tracked by quantity  | The receipts of the item still holding stock, oldest first: the move takes from each one's `remaining_quantity` and costs at their weighted unit price | The item's average cost |
+| Stock                | First in, first out                                                                                                  | Moving average          |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Tracked by container | The cost of the container's lot; for a prepared solution, the cost of its preparation                                | The item's average cost |
+| Tracked by lot       | The cost of the lot                                                                                                  | The item's average cost |
+| Tracked by quantity  | The incoming moves of the item still holding stock, oldest first, each at its own unit cost (Odoo's `remaining_qty`) | The item's average cost |
 
-- **Average cost.** Every receipt updates the item's `average_cost` to the value of the stock on hand plus the value received, divided by the quantity on hand plus the quantity received. Moves other than receipts do not change it. When the method changes to moving average, the average cost of each item is set from its stock value under first in, first out.
-- **Remaining quantity.** A receipt of an item tracked by quantity starts with its received quantity as `remaining_quantity`. Moves that take stock out of the laboratory (consumption, waste, disposal, a missing quantity) lower the oldest receipts' remaining quantity first; moves between locations and stores do not. A quantity found at a stock take is added to the newest receipt.
-- **Prepared solution.** A preparation's unit cost is the value of the moves that deducted its ingredients and waste, divided by the quantity made, written on the solution's container.
+- **Average cost.** Every receipt updates the item's average cost (`standard_price`) to the value of the stock on hand plus the value received, divided by the quantity on hand plus the quantity received. Moves other than receipts do not change it. When the method changes to moving average, Odoo revalues the stock of each item at its value under first in, first out.
+- **Remaining quantity.** Moves that take stock out of the laboratory (consumption, waste, disposal, a missing quantity) use up the oldest incoming moves first; moves between locations and stores do not. A quantity found at a stock take is a new incoming move at the item's current cost.
+- **Prepared solution.** A preparation's cost is the value of the moves that deducted its ingredients and waste, which Odoo's manufacturing costing gives the solution it makes; the solution's container is costed at it.
 
 ### Stock value
 
-Stock on hand is valued per item, lot, container and location by the costing method in force: under first in, first out, each container at its unit cost or its lot's, each lot quant at its lot's unit cost, and an item tracked by quantity at the value of its receipts' remaining quantities; under moving average, every quantity at its item's average cost. Stock in transit counts in no store.
+Stock on hand is valued by Odoo per item, lot and location with the costing method in force: under first in, first out, each lot at its cost and an item tracked by quantity at the value of its incoming moves' remaining quantities; under moving average, every quantity at its item's average cost. Stock in transit counts in no store.
 
 ### Cost centre of a store
 
@@ -42,7 +46,7 @@ A store held by a department or team is charged to that department's or team's c
 
 ### Charges
 
-A move charges or credits a cost centre with a `StockCharge` of its quantity, unit cost and value, negative for a credit, posted on the day the move is done. Stock is charged once, at the charge point:
+A move charges or credits a cost centre, an Odoo analytic account, with a `StockCharge` of its quantity, unit cost and value, negative for a credit, posted on the day the move is done. Stock is charged once, at the charge point:
 
 | Move                                   | On issue                                                       | On use                    |
 | -------------------------------------- | -------------------------------------------------------------- | ------------------------- |

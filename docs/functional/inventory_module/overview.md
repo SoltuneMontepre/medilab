@@ -1,6 +1,6 @@
 # Inventory Module Overview
 
-The Inventory module keeps the laboratory's stock: chemicals and reagents, consumables and machine spare parts. It tracks stores and the places inside them, lots and the containers of each lot with their expiry, how stock moves between stores, what each test uses, what it costs each department and team, and buys stock from suppliers. It depends on the Laboratory module, which holds the chemicals themselves (name, CAS number, storage conditions), the testing methods, the departments and their teams. The tables are drawn in [inventory.prisma](../../infrastructure/database/inventory/inventory.prisma).
+The Inventory module keeps the laboratory's stock: chemicals and reagents, consumables and machine spare parts. It tracks stores and the places inside them, lots and the containers of each lot with their expiry, how stock moves between stores, what each test uses, what it costs each department and team, and buys stock from suppliers. It depends on the Laboratory module, which holds the chemicals themselves (name, CAS number, storage conditions), the testing methods, the departments and their teams. It builds on Odoo's Inventory, its stock valuation and expiry dates, Purchase and Manufacturing, as listed in [Module boundaries](../../business/module-boundaries.md#odoo-apps): a stock item is an Odoo product, a container is an Odoo package and a recipe is an Odoo bill of materials. The tables are drawn in [inventory.prisma](../../infrastructure/database/inventory/inventory.prisma).
 
 ## Stock
 

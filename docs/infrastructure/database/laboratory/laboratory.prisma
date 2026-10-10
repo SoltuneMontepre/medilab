@@ -1,4 +1,4 @@
-// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, audit, locks, notifications and scheduled jobs. System parameters are Odoo settings stored in ir.config_parameter. Odoo owns the schema; this file only draws it.
+// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, audit, locks, notifications and scheduled jobs. Tables of the Odoo apps the module builds on (hr, uom, maintenance, resource, project, calendar, mail and base) appear with the columns the module uses and the columns it adds, under their Odoo table names. System parameters are Odoo settings stored in ir.config_parameter. Odoo owns the schema; this file only draws it.
 
 datasource db {
   provider = "postgresql"
@@ -218,67 +218,58 @@ model TestingField {
   @@map("medilab_testing_field")
 }
 
-/// A department of the laboratory.
+/// Odoo's employee department (hr.department), shown with the columns this schema uses and the columns the laboratory adds. A team (tổ) is a department whose parent is its department.
 model Department {
   /// Row identifier.
   id                Int               @id @default(autoincrement())
-  /// Department name.
-  name              String            @db.VarChar
+  /// Department or team name in each language.
+  name              Json
+  /// The department a team belongs to; empty for a department.
+  parent_id         Int?
+  /// The head of the department, or the lead of a team.
+  manager_id        Int?
   /// False when the department is archived.
   active            Boolean           @default(true)
+  /// The department a team belongs to.
+  parent            Department?       @relation("DepartmentTeams", fields: [parent_id], references: [id], onDelete: Restrict)
+  /// Teams the department is split into.
+  teams             Department[]      @relation("DepartmentTeams")
+  /// The head of the department, or the lead of a team.
+  manager           Person?           @relation("DepartmentManager", fields: [manager_id], references: [id], onDelete: SetNull)
   /// Parameter and method pairs the department tests in-house.
   parameter_methods ParameterMethod[]
-  /// Teams the department is split into.
-  teams             Team[]
   /// People in the department.
-  people            Person[]
+  people            Person[]          @relation("PersonDepartment")
+  /// People in the team.
+  team_people       Person[]          @relation("PersonTeam")
   /// Notification events whose notifications go to the department.
   notification_recipients NotificationEventRecipient[]
-  /// Tasks in the department's queue.
-  tasks             Task[]
+  /// The project holding the department's task queue.
+  task_project      Project?
   /// Samples handed over to the department.
   handovers         SampleHandover[]
 
-  @@map("medilab_department")
+  @@index([parent_id])
+  @@map("hr_department")
 }
 
-/// A team (tổ) within a department.
-model Team {
-  /// Row identifier.
-  id            Int        @id @default(autoincrement())
-  /// Team name.
-  name          String     @db.VarChar
-  /// Department the team belongs to.
-  department_id Int
-  /// Person who leads the team.
-  lead_id       Int?
-  /// False when the team is archived.
-  active        Boolean    @default(true)
-  /// Department the team belongs to.
-  department    Department @relation(fields: [department_id], references: [id], onDelete: Restrict)
-  /// Person who leads the team.
-  lead          Person?    @relation("TeamLead", fields: [lead_id], references: [id], onDelete: Restrict)
-  /// People in the team.
-  people        Person[]   @relation("TeamMember")
-
-  @@index([department_id])
-  @@map("medilab_team")
-}
-
-/// The unit in which a measured value is expressed.
+/// Odoo's unit of measure (uom.uom), shown with the columns this schema uses: the unit in which a measured value is expressed.
+/// Units that share a reference unit convert into each other.
 model MeasurementUnit {
   /// Row identifier.
   id                Int               @id @default(autoincrement())
-  /// Unique unit symbol, such as mg/kg.
-  name              String            @unique @db.VarChar
-  /// The kind of quantity the unit measures; units convert only within one category.
-  category_id       Int
-  /// Number of reference units in one of this unit, such as 0.001 for µg/L when mg/L is the reference; 1 for the reference unit.
-  factor            Decimal @db.Decimal             @default(1)
+  /// Unit symbol in each language, such as mg/kg.
+  name              Json
+  /// The unit this one is a multiple of, such as mg/L for µg/L; empty for a reference unit.
+  relative_uom_id   Int?
+  /// Number of reference units in one of this unit, such as 0.001 for µg/L when mg/L is the reference.
+  relative_factor   Decimal           @db.Decimal @default(1)
   /// False when the unit is archived.
   active            Boolean           @default(true)
-  /// The kind of quantity the unit measures.
-  category          UnitCategory      @relation(fields: [category_id], references: [id], onDelete: Restrict)
+  /// The unit this one is a multiple of.
+  reference_unit    MeasurementUnit?  @relation("UnitReference", fields: [relative_uom_id], references: [id], onDelete: Cascade)
+  /// Units that are multiples of this one.
+  related_units     MeasurementUnit[] @relation("UnitReference")
   /// Parameter and method pairs whose results use this unit.
   parameter_methods ParameterMethod[]
   /// Sample types whose minimum amount uses this unit.
@@ -290,22 +281,8 @@ model MeasurementUnit {
   /// Results whose copied limits are in this unit.
   result_limits     TestResult[] @relation("ResultLimitUnit")
 
-  @@index([category_id])
-  @@map("medilab_measurement_unit")
-}
-
-/// A kind of quantity, such as mass concentration in liquid; units in one category convert into each other.
-model UnitCategory {
-  /// Row identifier.
-  id     Int               @id @default(autoincrement())
-  /// Category name in each language.
-  name   Json
-  /// False when the category is archived.
-  active Boolean           @default(true)
-  /// Units in the category.
-  units  MeasurementUnit[]
-
-  @@map("medilab_unit_category")
+  @@index([relative_uom_id])
+  @@map("uom_uom")
 }
 
 /// How one parameter is tested with one method, by the laboratory or by a subcontractor, and the unit of its result.
@@ -458,20 +435,20 @@ model TestParameterSampleType {
   @@map("medilab_test_parameter_sample_type_rel")
 }
 
-/// Laboratory equipment used to run tests.
+/// Odoo's maintenance equipment (maintenance.equipment), shown with the columns this schema uses and the columns the laboratory adds: laboratory equipment used to run tests.
 model Machine {
   /// Row identifier.
   id                    Int                    @id @default(autoincrement())
   /// Unique code of the machine.
   code                  String                 @unique @db.VarChar
-  /// Name of the machine, such as "HPLC 1".
-  name                  String                 @db.VarChar
+  /// Name of the machine in each language, such as "HPLC 1".
+  name                  Json
   /// Model of the machine, as named by the manufacturer.
   model                 String?                @db.VarChar
   /// Company that made the machine.
   manufacturer          String?                @db.VarChar
   /// Serial number given by the manufacturer.
-  serial_number         String?                @db.VarChar
+  serial_no             String?                @db.VarChar
   /// Where the machine is, such as "Room 203, bench 2".
   location              String?                @db.VarChar
   /// in_use, under_repair or retired.
@@ -482,8 +459,12 @@ model Machine {
   maintenance_interval_days Int?
   /// Date the next maintenance is due, from the latest maintenance record and the interval.
   next_maintenance_date DateTime?              @db.Date
+  /// Working hours in which the machine can be booked.
+  resource_calendar_id  Int?
   /// False when the machine is archived.
   active                Boolean                @default(true)
+  /// Working hours in which the machine can be booked.
+  working_time          WorkingTime?           @relation("MachineWorkingTime", fields: [resource_calendar_id], references: [id], onDelete: Restrict)
   /// Calibration, maintenance and repair records of the machine.
   services              MachineService[]
   /// Parameter and method pairs the machine can run.
@@ -494,32 +475,50 @@ model Machine {
   results               TestResult[]
 
   @@index([next_calibration_date])
-  @@map("medilab_machine")
+  @@map("maintenance_equipment")
 }
 
-/// One calibration, maintenance or repair done on a machine.
+/// Odoo's maintenance request (maintenance.request), shown with the columns this schema uses and the columns the laboratory adds: one calibration, maintenance or repair done on a machine.
 model MachineService {
   /// Row identifier.
-  id           Int       @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
+  /// Subject of the service.
+  name          String    @db.VarChar
   /// The machine serviced.
-  machine_id   Int
+  equipment_id  Int
   /// calibration, maintenance or repair.
-  kind         String    @db.VarChar
+  kind          String    @db.VarChar
+  /// preventive for calibration and maintenance, corrective for repair.
+  maintenance_type String @db.VarChar
   /// Date the service was done.
-  service_date DateTime  @db.Date
+  close_date    DateTime? @db.Date
   /// Date the next service of this kind is due, such as the calibration certificate's expiry.
   next_due_date DateTime? @db.Date
   /// Person or company that did the service.
-  performed_by String?   @db.VarChar
+  performed_by  String?   @db.VarChar
   /// Number of the calibration certificate or service report.
-  reference    String?   @db.VarChar
+  reference     String?   @db.VarChar
   /// What was done and found.
-  note         String?   @db.Text
+  description   String?   @db.Text
   /// The machine serviced.
-  machine      Machine   @relation(fields: [machine_id], references: [id], onDelete: Restrict)
+  machine       Machine   @relation(fields: [equipment_id], references: [id], onDelete: Restrict)
 
-  @@index([machine_id, kind, service_date])
-  @@map("medilab_machine_service")
+  @@index([equipment_id, kind, close_date])
+  @@map("maintenance_request")
+}
+
+/// Odoo's working time (resource.calendar), shown with the columns this schema uses: the hours in which people work and machines can be booked.
+model WorkingTime {
+  /// Row identifier.
+  id        Int       @id @default(autoincrement())
+  /// Name of the working time, such as "Laboratory hours".
+  name      String    @db.VarChar
+  /// Time zone of the hours.
+  tz        String    @db.VarChar
+  /// Machines booked within these hours.
+  machines  Machine[] @relation("MachineWorkingTime")
+
+  @@map("resource_calendar")
 }
 
 /// A machine that can run a parameter and method pair, and how long one run takes. Unique on (parameter_method_id, machine_id).
@@ -871,38 +870,34 @@ model TestResult {
   @@map("medilab_test_result")
 }
 
-/// Someone who works for the laboratory. Their details are their contact; their login is their Odoo user.
+/// Odoo's employee (hr.employee), shown with the columns this schema uses and the columns the laboratory adds: someone who works for the laboratory. Their details are their work contact; their login is their Odoo user.
 model Person {
   /// Row identifier.
   id            Int          @id @default(autoincrement())
-  /// The contact holding the person's details: name, email, phone, address.
-  partner_id    Int          @unique
+  /// The contact holding the person's details: name, email, phone, address; kept by Odoo's hr app.
+  work_contact_id Int        @unique
   /// The Odoo user the person logs in as; empty for people who never sign in.
   user_id       Int?         @unique
   /// Department of the person.
   department_id Int?
-  /// Team of the person, within their department.
+  /// Team of the person: a department whose parent is the person's department.
   team_id       Int?
   /// False when the person is archived.
   active        Boolean      @default(true)
   /// The contact holding the person's details.
-  partner       Contact      @relation(fields: [partner_id], references: [id], onDelete: Restrict)
+  work_contact  Contact      @relation(fields: [work_contact_id], references: [id], onDelete: Restrict)
   /// The Odoo user the person logs in as.
   user          User?        @relation(fields: [user_id], references: [id], onDelete: Restrict)
   /// Department of the person.
-  department    Department?  @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  department    Department?  @relation("PersonDepartment", fields: [department_id], references: [id], onDelete: Restrict)
   /// Team of the person.
-  team          Team?        @relation("TeamMember", fields: [team_id], references: [id], onDelete: Restrict)
-  /// Teams the person leads.
-  led_teams     Team[]       @relation("TeamLead")
+  team          Department?  @relation("PersonTeam", fields: [team_id], references: [id], onDelete: Restrict)
+  /// Departments the person heads and teams the person leads.
+  managed_departments Department[] @relation("DepartmentManager")
   /// Roles the person holds.
   roles         PersonRole[]
   /// Permissions given to the person directly, on top of their roles.
   permissions   PersonPermission[]
-  /// Tasks assigned to the person.
-  tasks         Task[]           @relation("TaskAssignee")
-  /// Tasks the person assigned.
-  assigned_tasks Task[]          @relation("TaskAssigner")
   /// Sample tests the person cancelled.
   cancelled_sample_tests SampleTest[] @relation("SampleTestCanceller")
   /// Machine bookings the person runs.
@@ -927,7 +922,8 @@ model Person {
   signatures    Signature[]
 
   @@index([department_id])
-  @@map("medilab_person")
+  @@index([team_id])
+  @@map("hr_employee")
 }
 
 /// Odoo's login account table, shown with the columns this schema uses. Each user has its own contact for its details.
@@ -942,6 +938,12 @@ model User {
   partner    Contact @relation("UserPartner", fields: [partner_id], references: [id], onDelete: Restrict)
   /// The person this account belongs to.
   person     Person?
+  /// Odoo roles the user holds, from their person's MediLab roles.
+  odoo_roles OdooRoleUser[]
+  /// Tasks assigned to the user.
+  tasks      TaskAssignee[]
+  /// Tasks the user assigned.
+  assigned_tasks Task[]   @relation("TaskAssigner")
   /// Results the user entered.
   entered_results TestResult[]
   /// Audit entries of the user's actions.
@@ -954,8 +956,6 @@ model User {
   watched_locks  DocumentLockWatcher[] @relation("LockWatcher")
   /// The user's notification channel choices.
   notification_preferences NotificationPreference[] @relation("PreferenceUser")
-  /// Notifications sent to the user.
-  notifications  Notification[] @relation("NotificationUser")
   /// Job runs the user started by hand.
   triggered_runs JobRun[]     @relation("JobTrigger")
   /// Mobile devices the user receives reminders on.
@@ -988,8 +988,12 @@ model Role {
   name            Json
   /// The Odoo group generated for the role, which implies the groups of its permissions.
   group_id        Int              @unique
+  /// The Odoo role of the role, whose users are the users of the role's holders.
+  odoo_role_id    Int              @unique
   /// The Odoo group generated for the role.
   group           Group            @relation("RoleGroup", fields: [group_id], references: [id], onDelete: Restrict)
+  /// The Odoo role of the role.
+  odoo_role       OdooRole         @relation(fields: [odoo_role_id], references: [id], onDelete: Restrict)
   /// People who hold the role.
   people          PersonRole[]
   /// Permissions the role contains.
@@ -1002,6 +1006,39 @@ model Role {
   notification_recipients NotificationEventRecipient[]
 
   @@map("medilab_role")
+}
+
+/// Odoo's role (res.role), shown with the columns this schema uses. Each MediLab role has one; work routed to it, such as a task, waits for one of its users.
+model OdooRole {
+  /// Row identifier.
+  id         Int            @id @default(autoincrement())
+  /// Unique role name.
+  name       String         @unique @db.VarChar
+  /// False when the role is archived.
+  active     Boolean        @default(true)
+  /// The MediLab role it belongs to.
+  role       Role?
+  /// Users who hold the role.
+  users      OdooRoleUser[]
+  /// Tasks waiting for one of the role's users.
+  tasks      Task[]
+
+  @@map("res_role")
+}
+
+/// Odoo's link between roles and the users who hold them.
+model OdooRoleUser {
+  /// The Odoo role.
+  res_role_id  Int
+  /// A user who holds the role.
+  res_users_id Int
+  /// The Odoo role.
+  role         OdooRole @relation(fields: [res_role_id], references: [id], onDelete: Cascade)
+  /// The user.
+  user         User     @relation(fields: [res_users_id], references: [id], onDelete: Cascade)
+
+  @@id([res_role_id, res_users_id])
+  @@map("res_role_res_users_rel")
 }
 
 /// Links people to the roles they hold.
@@ -1164,7 +1201,7 @@ model Signature {
   @@map("medilab_signature")
 }
 
-/// A kind of task, such as sample collection or testing a parameter, and how its tasks are created and routed.
+/// A kind of task, such as sample collection or testing a parameter, and how its tasks are created and routed. Task types come with the modules; on the screen only their route, role and default deadline change.
 model TaskType {
   /// Row identifier.
   id             Int      @id @default(autoincrement())
@@ -1174,20 +1211,16 @@ model TaskType {
   name           Json
   /// Event that creates its tasks, such as sample_received or signature_requested; manual for tasks people create.
   trigger        String   @db.VarChar
-  /// True when the system creates a task when the trigger happens; false to turn the automatic task off.
-  auto_create    Boolean  @default(true)
   /// Technical name of the document its tasks open, such as medilab.sample.test.
   document_model String?  @db.VarChar
   /// Action its tasks open on the document, such as enter_result or sign.
   action         String?  @db.VarChar
-  /// Where a new task goes: department for the department that does the work, role for people holding role_id, or person.
+  /// Where a new task goes: department for the department the event names, role for people holding role_id, or person for the person the event names.
   route          String   @db.VarChar
   /// The role whose holders receive the task when route is role.
   role_id        Int?
   /// Hours from creation to the deadline, when the document gives no due date.
   deadline_hours Int?
-  /// False when the task type is archived.
-  active         Boolean  @default(true)
   /// The role whose holders receive the task.
   role           Role?    @relation(fields: [role_id], references: [id], onDelete: Restrict)
   /// Tasks of this type.
@@ -1196,57 +1229,117 @@ model TaskType {
   @@map("medilab_task_type")
 }
 
-/// Work waiting for a department or a person, with a deadline, that opens the document and action to do it.
+/// Odoo's project (project.project), shown with the columns this schema uses and the columns the laboratory adds. Each department has one that holds its task queue; one shared project holds the tasks routed to a role or a person.
+model Project {
+  /// Row identifier.
+  id            Int         @id @default(autoincrement())
+  /// Project name in each language, such as "Chemistry tasks".
+  name          Json
+  /// The department whose queue the project holds; empty for the shared project.
+  department_id Int?        @unique
+  /// The department whose queue the project holds.
+  department    Department? @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  /// Tasks of the project.
+  tasks         Task[]
+
+  @@map("project_project")
+}
+
+/// Odoo's project task (project.task), shown with the columns this schema uses and the columns the laboratory adds: work waiting for a department, a role or a person, with a deadline, that opens the document and action to do it.
 /// Points to its document by document_model and document_id, indexed together.
 model Task {
   /// Row identifier.
   id             Int          @id @default(autoincrement())
-  /// The kind of task.
-  type_id        Int
   /// Short description of the work, such as "Test lead on sample PTN-0042".
   name           String       @db.VarChar
   /// Details of the work.
-  note           String?      @db.Text
+  description    String?      @db.Text
+  /// The project holding the task: its department's queue, or the shared project.
+  project_id     Int
+  /// The kind of task.
+  type_id        Int
   /// Technical name of the document the task opens.
   document_model String?      @db.VarChar
   /// Id of the document the task opens.
   document_id    Int?
   /// Action the task opens on the document, such as enter_result or sign.
   action         String?      @db.VarChar
-  /// Department whose queue holds the task until someone is assigned.
-  department_id  Int?
-  /// Person who does the task; empty while it waits in the department's queue.
-  assignee_id    Int?
-  /// Person who assigned the task; the assignee themselves when they claimed it.
+  /// The Odoo role whose users can claim the task while it is unassigned.
+  role_id        Int?
+  /// User who assigned the task; the assignee themselves when they claimed it.
   assigned_by_id Int?
   /// Why the task was last moved to another person or department.
   reassign_reason String?     @db.Text
   /// When the task must be done.
-  deadline       DateTime?
+  date_deadline  DateTime?
   /// Planned start on the assignee's schedule.
   planned_start  DateTime?
   /// Planned end on the assignee's schedule.
   planned_end    DateTime?
+  /// The calendar event showing the planned time on the assignee's schedule, with its reminder.
+  calendar_event_id Int?      @unique
   /// open, assigned, in_progress, done or cancelled.
   status         String       @db.VarChar
-  /// When the task was done.
-  done_at        DateTime?
+  /// Odoo's task state, kept in step with status: 1_done when done, 1_canceled when cancelled, 01_in_progress otherwise.
+  state          String       @db.VarChar
+  /// When the task was done or cancelled.
+  date_end       DateTime?
+  /// The project holding the task.
+  project        Project      @relation(fields: [project_id], references: [id], onDelete: Restrict)
   /// The kind of task.
   type           TaskType     @relation(fields: [type_id], references: [id], onDelete: Restrict)
-  /// Department whose queue holds the task.
-  department     Department?  @relation(fields: [department_id], references: [id], onDelete: Restrict)
-  /// Person who does the task.
-  assignee       Person?      @relation("TaskAssignee", fields: [assignee_id], references: [id], onDelete: Restrict)
-  /// Person who assigned the task.
-  assigned_by    Person?      @relation("TaskAssigner", fields: [assigned_by_id], references: [id], onDelete: Restrict)
+  /// The Odoo role whose users can claim the task.
+  role           OdooRole?    @relation(fields: [role_id], references: [id], onDelete: Restrict)
+  /// User who assigned the task.
+  assigned_by    User?        @relation("TaskAssigner", fields: [assigned_by_id], references: [id], onDelete: Restrict)
+  /// The calendar event of the planned time.
+  calendar_event CalendarEvent? @relation("TaskEvent", fields: [calendar_event_id], references: [id], onDelete: SetNull)
+  /// The user who does the task; at most one, empty while it waits in a queue.
+  assignees      TaskAssignee[]
   /// Machine bookings made for the task.
   bookings       MachineBooking[]
 
-  @@index([assignee_id, status])
-  @@index([department_id, status])
+  @@index([project_id, status])
   @@index([document_model, document_id])
-  @@index([deadline])
-  @@map("medilab_task")
+  @@index([date_deadline])
+  @@map("project_task")
+}
+
+/// Odoo's link between tasks and the users assigned to them. MediLab allows one assignee per task.
+model TaskAssignee {
+  /// The task.
+  task_id Int
+  /// The user who does the task.
+  user_id Int
+  /// The task.
+  task    Task @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  /// The user who does the task.
+  user    User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([task_id, user_id])
+  @@index([user_id])
+  @@map("project_task_user_rel")
+}
+
+/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task or a machine booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+model CalendarEvent {
+  /// Row identifier.
+  id        Int             @id @default(autoincrement())
+  /// Title shown on the calendar.
+  name      String          @db.VarChar
+  /// Start of the event.
+  start     DateTime
+  /// End of the event.
+  stop      DateTime
+  /// User who organises the event.
+  user_id   Int?
+  /// The task whose planned time the event shows.
+  task      Task?           @relation("TaskEvent")
+  /// The machine booking the event shows.
+  booking   MachineBooking? @relation("BookingEvent")
+
+  @@index([start])
+  @@map("calendar_event")
 }
 
 /// A sample test waiting for, or holding, a slot on a machine.
@@ -1272,8 +1365,10 @@ model MachineBooking {
   ends_at          DateTime?
   /// queued, scheduled, in_progress, done or cancelled.
   status           String     @db.VarChar
-  /// When the reminder before the start was sent; empty until it is sent.
-  reminder_sent_at DateTime?
+  /// The calendar event showing a scheduled booking on the person's schedule, with its reminder; empty while the booking waits in the queue.
+  calendar_event_id Int?     @unique
+  /// The calendar event of the booking.
+  calendar_event   CalendarEvent? @relation("BookingEvent", fields: [calendar_event_id], references: [id], onDelete: SetNull)
   /// The machine booked.
   machine          Machine    @relation(fields: [machine_id], references: [id], onDelete: Restrict)
   /// The sample test run on the machine.
@@ -1512,8 +1607,8 @@ model MobileDevice {
   last_seen_at DateTime
   /// False when the user signed out or the token was rejected; no reminder is pushed to it.
   active       Boolean   @default(true)
-  /// Push deliveries sent to the device.
-  deliveries   NotificationDelivery[]
+  /// Pushes sent to the device.
+  pushes       PushDelivery[]
   /// Handover records customers signed on the device.
   signed_handover_records HandoverRecord[]
   /// The Odoo user signed in on the device.
@@ -1628,7 +1723,7 @@ model DocumentLockWatcher {
   @@map("medilab_document_lock_watcher_rel")
 }
 
-/// A kind of event people are notified about, such as a booking reminder or a quotation sent.
+/// Odoo's message subtype (mail.message.subtype), shown with the columns this schema uses and the columns the laboratory adds: a kind of event people are notified about, such as a booking reminder or a quotation sent.
 model NotificationEvent {
   /// Row identifier.
   id            Int                      @id @default(autoincrement())
@@ -1636,18 +1731,20 @@ model NotificationEvent {
   code          String                   @unique @db.VarChar
   /// Event name in each language.
   name          Json
+  /// Technical name of the document type the event is about, such as medilab.machine.booking; empty for every type.
+  res_model     String?                  @db.VarChar
   /// True for events people cannot turn off, such as a password reset or a payment receipt.
   mandatory     Boolean                  @default(false)
   /// False when the administrator turned the event off; no notification of it is created. Ignored for mandatory events.
   enabled       Boolean                  @default(true)
-  /// Notifications of this event.
-  notifications Notification[]
+  /// Messages of this event.
+  messages      Message[]
   /// People's channel choices for this event.
   preferences   NotificationPreference[]
   /// Roles and departments notified of this event.
   recipients    NotificationEventRecipient[]
 
-  @@map("medilab_notification_event")
+  @@map("mail_message_subtype")
 }
 
 /// Who receives the notifications of one event: everyone holding a role, everyone in a department, or both. Configured by the administrator.
@@ -1693,132 +1790,114 @@ model NotificationPreference {
   @@map("medilab_notification_preference")
 }
 
-/// One message to one user about one event, delivered on each of their channels.
-/// Partial index on user_id where read_at is empty, for unread counts. The cleanup job removes read notifications after their retention period.
+/// Odoo's message (mail.message), shown with the columns this schema uses and the column the laboratory adds: one notification of one event about one document, sent to its recipients.
+/// Partial unique index on notification_key where it is set.
+model Message {
+  /// Row identifier.
+  id               Int               @id @default(autoincrement())
+  /// Technical name of the document the message is about.
+  model            String?           @db.VarChar
+  /// Id of the document the message is about.
+  res_id           Int?
+  /// The event notified.
+  subtype_id       Int?
+  /// Title of the notification.
+  subject          String?           @db.VarChar
+  /// Text of the notification.
+  body             String?           @db.Text
+  /// Unique key that stops the same notification being created twice, such as booking:42:reminder.
+  notification_key String?           @db.VarChar
+  /// The event notified.
+  event            NotificationEvent? @relation(fields: [subtype_id], references: [id], onDelete: SetNull)
+  /// One notification per recipient.
+  notifications    Notification[]
+
+  @@index([model, res_id])
+  @@map("mail_message")
+}
+
+/// Odoo's notification (mail.notification), shown with the columns this schema uses and the column the laboratory adds: one message to one recipient, in their inbox or by e-mail.
+/// The cleanup job removes read notifications after their retention period.
 model Notification {
   /// Row identifier.
-  id             Int                    @id @default(autoincrement())
-  /// Unique key that stops the same notification being created twice, such as booking:42:reminder.
-  key            String                 @unique @db.VarChar
-  /// The event notified.
-  event_id       Int
-  /// The Odoo user notified.
-  user_id        Int
-  /// Title in the user's language.
-  title          String                 @db.VarChar
-  /// Message in the user's language.
-  body           String?                @db.Text
-  /// Technical name of the document the notification opens.
-  document_model String?                @db.VarChar
-  /// Id of the document the notification opens.
-  document_id    Int?
-  /// Action the notification opens on the document.
-  action         String?                @db.VarChar
-  /// When the user read it in the application; empty while unread.
-  read_at        DateTime?
-  /// The event notified.
-  event          NotificationEvent      @relation(fields: [event_id], references: [id], onDelete: Restrict)
-  /// The Odoo user notified.
-  user           User                   @relation("NotificationUser", fields: [user_id], references: [id], onDelete: Cascade)
-  /// Deliveries of the notification, one per channel.
-  deliveries     NotificationDelivery[]
+  id                  Int            @id @default(autoincrement())
+  /// The message notified.
+  mail_message_id     Int
+  /// The contact of the user notified.
+  res_partner_id      Int
+  /// inbox for the pop-up in the application, or email.
+  notification_type   String         @db.VarChar
+  /// Odoo's sending status: ready, sent, bounce, exception or canceled.
+  notification_status String         @db.VarChar
+  /// Delivery status Brevo reported for an e-mail: delivered, opened, bounced or failed.
+  brevo_status        String?        @db.VarChar
+  /// True once the user read it in the application.
+  is_read             Boolean        @default(false)
+  /// When the user read it.
+  read_date           DateTime?
+  /// The message notified.
+  message             Message        @relation(fields: [mail_message_id], references: [id], onDelete: Cascade)
+  /// Pushes of the notification to the user's mobile devices.
+  pushes              PushDelivery[]
 
-  @@map("medilab_notification")
+  @@index([res_partner_id, is_read])
+  @@map("mail_notification")
 }
 
-/// Sending one notification on one channel. Unique on (notification_id, channel). Partial index on id where status is pending.
-model NotificationDelivery {
+/// Pushing one notification to one mobile device through Firebase Cloud Messaging. Unique on (notification_id, mobile_device_id). Partial index on id where status is pending.
+model PushDelivery {
   /// Row identifier.
-  id               Int           @id @default(autoincrement())
-  /// The notification sent.
+  id               Int          @id @default(autoincrement())
+  /// The notification pushed.
   notification_id  Int
-  /// popup, email, sms or push.
-  channel          String        @db.VarChar
+  /// The mobile device pushed to.
+  mobile_device_id Int
   /// pending, sent, failed or skipped.
-  status           String        @db.VarChar
+  status           String       @db.VarChar
   /// When it was sent.
   sent_at          DateTime?
-  /// Error the provider returned on the last failed attempt.
-  error            String?       @db.Text
-  /// The mobile device pushed to, for the push channel.
-  mobile_device_id Int?
-  /// The notification sent.
-  notification     Notification  @relation(fields: [notification_id], references: [id], onDelete: Cascade)
+  /// Error Firebase returned on the last failed attempt.
+  error            String?      @db.Text
+  /// The notification pushed.
+  notification     Notification @relation(fields: [notification_id], references: [id], onDelete: Cascade)
   /// The mobile device pushed to.
-  mobile_device    MobileDevice? @relation(fields: [mobile_device_id], references: [id], onDelete: SetNull)
+  mobile_device    MobileDevice @relation(fields: [mobile_device_id], references: [id], onDelete: Cascade)
 
-  @@unique([notification_id, channel])
-  @@map("medilab_notification_delivery")
+  @@unique([notification_id, mobile_device_id])
+  @@map("medilab_push_delivery")
 }
 
-/// A recurring job identified by its key, scheduled by an Odoo cron and working through a queue of items (SH-09).
-/// The cron holds the schedule and the on or off switch, and stops two runs overlapping; Odoo's cron progress counts the items done and remaining.
-model ScheduledJob {
+/// Odoo's scheduled action (ir.cron), shown with the columns this schema uses and the columns the laboratory adds: a recurring job (SH-09).
+/// Odoo holds the schedule and the on or off switch, stops two runs overlapping, and counts the work done and remaining in its cron progress.
+model Cron {
   /// Row identifier.
   id                  Int       @id @default(autoincrement())
-  /// Unique key of the job, such as notifications.send or bookings.remind.
-  key                 String    @unique @db.VarChar
-  /// Job name in each language.
-  name                Json
-  /// The Odoo cron that runs the job; its schedule is the job's schedule.
-  cron_id             Int       @unique
-  /// Most items handled in one run.
-  batch_size          Int       @default(100)
-  /// Attempts before an item is marked failed and an administrator is told.
+  /// Name of the job.
+  cron_name           String    @db.VarChar
+  /// False when the job is turned off.
+  active              Boolean   @default(true)
+  /// Next time the job runs.
+  nextcall            DateTime
+  /// Last time a run succeeded.
+  lastcall            DateTime?
+  /// Failures in a row; reset on success.
+  failure_count       Int       @default(0)
+  /// Attempts before the job is marked failed and an administrator is told.
   max_attempts        Int       @default(5)
-  /// Minutes after which an item still running is treated as abandoned and goes back to pending.
-  claim_timeout_minutes Int     @default(30)
   /// Minutes before the first retry; each later retry waits twice as long.
   retry_delay_minutes Int       @default(5)
-  /// Items queued for the job.
-  items               JobItem[]
   /// Runs of the job.
   runs                JobRun[]
 
-  @@map("medilab_scheduled_job")
+  @@map("ir_cron")
 }
 
-/// One unit of work queued for a job, such as one reminder to send. Unique on (job_id, item_key), so the same work is never queued twice.
-/// Points to its document by document_model and document_id.
-/// Partial index on (job_id, next_attempt_at) where status is pending or running. The cleanup job removes finished items after their retention period.
-model JobItem {
-  /// Row identifier.
-  id              Int          @id @default(autoincrement())
-  /// The job the item is queued for.
-  job_id          Int
-  /// Key of the work within the job, such as delivery:812.
-  item_key        String       @db.VarChar
-  /// Technical name of the document the work is about.
-  document_model  String?      @db.VarChar
-  /// Id of the document the work is about.
-  document_id     Int?
-  /// Data the job needs to do the work.
-  payload         Json?
-  /// pending, running, done, failed or cancelled.
-  status          String       @db.VarChar
-  /// When a run took the item; a running item claimed longer ago than the job's claim timeout goes back to pending.
-  claimed_at      DateTime?
-  /// Attempts made so far.
-  attempts        Int          @default(0)
-  /// Earliest time the item is tried again.
-  next_attempt_at DateTime
-  /// Error of the last failed attempt.
-  last_error      String?      @db.Text
-  /// When the item was done.
-  done_at         DateTime?
-  /// The job the item is queued for.
-  job             ScheduledJob @relation(fields: [job_id], references: [id], onDelete: Restrict)
-
-  @@unique([job_id, item_key])
-  @@map("medilab_job_item")
-}
-
-/// One run of a job, with its result and log (SH-09). Items done and remaining are counted by Odoo's cron progress.
+/// One run of a job, with its result and log (SH-09). Work done and remaining is counted by Odoo's cron progress.
 model JobRun {
   /// Row identifier.
   id              Int          @id @default(autoincrement())
-  /// The job run.
-  job_id          Int
+  /// The scheduled action run.
+  cron_id         Int
   /// When the run started.
   started_at      DateTime
   /// When the run ended; empty while it runs.
@@ -1829,8 +1908,8 @@ model JobRun {
   log             String?      @db.Text
   /// Administrator who ran the job by hand; empty for a scheduled run.
   triggered_by_id Int?
-  /// The job run.
-  job             ScheduledJob @relation(fields: [job_id], references: [id], onDelete: Restrict)
+  /// The scheduled action run.
+  cron            Cron         @relation(fields: [cron_id], references: [id], onDelete: Cascade)
   /// Administrator who ran the job by hand.
   triggered_by    User?        @relation("JobTrigger", fields: [triggered_by_id], references: [id], onDelete: Restrict)
   /// Audit entries written by the run.
@@ -1838,7 +1917,7 @@ model JobRun {
   /// Archive files the run wrote.
   archive_files   ArchiveFile[]
 
-  @@index([job_id, started_at])
+  @@index([cron_id, started_at])
   @@map("medilab_job_run")
 }
 
@@ -1855,8 +1934,8 @@ model ArchiveFile {
   period_end   DateTime  @db.Date
   /// Number of records in the file.
   row_count    Int
-  /// Key of the file in object storage.
-  storage_key  String    @unique @db.VarChar
+  /// The Odoo attachment holding the file in object storage.
+  attachment_id Int      @unique
   /// SHA-256 of the file, checked before the archived records are removed.
   checksum     String    @db.VarChar
   /// Size of the file in bytes.
