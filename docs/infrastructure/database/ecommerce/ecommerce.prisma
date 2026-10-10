@@ -1,5 +1,6 @@
-// E-commerce module tables as the Odoo ORM creates them: prices, taxes, packages, orders, quotations, invoices, payments, support and feedback. Odoo owns the schema; this file only draws it.
+// E-commerce module tables as the Odoo ORM creates them: products and prices, taxes, packages, orders, quotations, invoices, payments, support and feedback. Odoo owns the schema; this file only draws it.
 // Money columns are Odoo Monetary fields in VND, rounded by the currency.
+// Tables of the Odoo apps the module builds on (product, sale, account, payment, rating and base) appear with the columns the module uses and the columns it adds, under their Odoo table names.
 // Laboratory tables appear only with the columns this module uses; the full tables are in ../laboratory/laboratory.prisma.
 
 datasource db {
@@ -10,19 +11,11 @@ datasource db {
 /// Laboratory's test parameter, shown with the columns this module uses.
 model TestParameter {
   /// Row identifier.
-  id            Int                  @id @default(autoincrement())
+  id      Int      @id @default(autoincrement())
   /// Unique code of the parameter.
-  code          String               @unique @db.VarChar
-  /// The parameter's catalog price.
-  price         ParameterPrice?
-  /// Packages that include the parameter.
-  package_lines ServicePackageLine[]
-  /// Order lines of the parameter.
-  order_lines    OrderLine[]
-  /// Template lines of the parameter.
-  template_lines OrderTemplateLine[]
-  /// Quotation lines of the parameter.
-  quotation_lines QuotationLine[]
+  code    String   @unique @db.VarChar
+  /// The product that sells the parameter.
+  product Product?
 
   @@map("medilab_test_parameter")
 }
@@ -30,11 +23,11 @@ model TestParameter {
 /// Laboratory's sample type, shown with the columns this module uses.
 model SampleType {
   /// Row identifier.
-  id                Int               @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   /// Unique code of the sample type.
-  code              String            @unique @db.VarChar
-  /// Quotation samples of the type.
-  quotation_samples QuotationSample[]
+  code          String        @unique @db.VarChar
+  /// Order samples of the type.
+  order_samples OrderSample[]
 
   @@map("medilab_sample_type")
 }
@@ -42,11 +35,11 @@ model SampleType {
 /// Laboratory's regulation, shown with the columns this module uses.
 model Regulation {
   /// Row identifier.
-  id                Int               @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   /// Unique code of the regulation.
-  code              String            @unique @db.VarChar
-  /// Quotation samples compared with the regulation.
-  quotation_samples QuotationSample[]
+  code          String        @unique @db.VarChar
+  /// Order samples compared with the regulation.
+  order_samples OrderSample[]
 
   @@map("medilab_regulation")
 }
@@ -54,157 +47,38 @@ model Regulation {
 /// Laboratory's way of testing a parameter, shown with the columns this module uses.
 model ParameterMethod {
   /// Row identifier.
-  id               Int               @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   /// The subcontractor that tests it; empty when the laboratory tests it in-house.
   subcontractor_id Int?
   /// What the subcontractor charges for it.
-  subcontract_cost SubcontractCost?
+  subcontract_cost SupplierInfo?
 
   @@map("medilab_parameter_method")
-}
-
-/// The catalog price of one test parameter.
-model ParameterPrice {
-  /// Row identifier.
-  id           Int           @id @default(autoincrement())
-  /// The parameter the price is for.
-  parameter_id Int           @unique
-  /// Price of one test, excluding VAT.
-  list_price   Decimal       @db.Decimal
-  /// The tax added to the price on quotations and invoices.
-  tax_id       Int
-  /// The parameter the price is for.
-  parameter    TestParameter @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
-  /// The tax added to the price.
-  tax          Tax           @relation(fields: [tax_id], references: [id], onDelete: Restrict)
-
-  @@index([tax_id])
-  @@map("medilab_parameter_price")
-}
-
-/// What a subcontractor charges the laboratory for one test of a parameter and method pair, for margin reporting.
-model SubcontractCost {
-  /// Row identifier.
-  id                  Int             @id @default(autoincrement())
-  /// The subcontracted parameter and method pair.
-  parameter_method_id Int             @unique
-  /// Cost of one test, excluding VAT.
-  cost                Decimal         @db.Decimal
-  /// The subcontracted parameter and method pair.
-  parameter_method    ParameterMethod @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
-
-  @@map("medilab_subcontract_cost")
-}
-
-/// A tax added to prices, such as VAT 10% or not subject to VAT.
-model Tax {
-  /// Row identifier.
-  id               Int              @id @default(autoincrement())
-  /// Unique code of the tax, such as VAT10 or KCT.
-  code             String           @unique @db.VarChar
-  /// Tax name as printed on quotations and invoices, in each language.
-  name             Json
-  /// False when the tax is archived.
-  active           Boolean          @default(true)
-  /// The tax's rate over time.
-  rates            TaxRate[]
-  /// Parameter prices that use the tax.
-  parameter_prices ParameterPrice[]
-  /// Packages that use the tax.
-  packages         ServicePackage[]
-  /// Quotation lines that use the tax.
-  quotation_lines  QuotationLine[]
-
-  @@map("medilab_tax")
-}
-
-/// The rate of a tax for a period. Periods of one tax do not overlap.
-model TaxRate {
-  /// Row identifier.
-  id          Int       @id @default(autoincrement())
-  /// The tax.
-  tax_id      Int
-  /// Rate in percent, such as 8 or 10; 0 for a tax that adds nothing.
-  rate        Decimal   @db.Decimal
-  /// First day the rate applies.
-  valid_from  DateTime  @db.Date
-  /// Last day the rate applies; empty when it applies until further notice.
-  valid_until DateTime? @db.Date
-  /// The tax.
-  tax         Tax       @relation(fields: [tax_id], references: [id], onDelete: Cascade)
-
-  @@index([tax_id, valid_from])
-  @@map("medilab_tax_rate")
-}
-
-/// A set of parameters from any groups sold together at its own price. A trigram index on name serves catalog search.
-model ServicePackage {
-  /// Row identifier.
-  id         Int                  @id @default(autoincrement())
-  /// Short unique code of the package.
-  code       String               @unique @db.VarChar
-  /// Package name in each language.
-  name       Json
-  /// Price of the whole package, excluding VAT.
-  list_price Decimal              @db.Decimal
-  /// The tax added to the price on quotations and invoices.
-  tax_id     Int
-  /// False when the package is archived and no longer offered.
-  active     Boolean              @default(true)
-  /// The tax added to the price.
-  tax        Tax                  @relation(fields: [tax_id], references: [id], onDelete: Restrict)
-  /// Parameters in the package.
-  lines      ServicePackageLine[]
-  /// Order lines of the package.
-  order_lines     OrderLine[]
-  /// Template lines of the package.
-  template_lines  OrderTemplateLine[]
-  /// Quotation lines of the package.
-  quotation_lines QuotationLine[]
-
-  @@index([tax_id])
-  @@map("medilab_service_package")
-}
-
-/// One parameter a package includes, and how many times. Unique on (package_id, parameter_id).
-model ServicePackageLine {
-  /// Row identifier.
-  id           Int            @id @default(autoincrement())
-  /// The package.
-  package_id   Int
-  /// A parameter the package includes.
-  parameter_id Int
-  /// How many times the package includes the parameter; at least 1.
-  quantity     Int            @default(1)
-  /// The package.
-  package      ServicePackage @relation(fields: [package_id], references: [id], onDelete: Cascade)
-  /// The parameter.
-  parameter    TestParameter  @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
-
-  @@unique([package_id, parameter_id])
-  @@index([parameter_id])
-  @@map("medilab_service_package_line")
 }
 
 /// Laboratory's customer, shown with the columns this module uses.
 model Customer {
   /// Row identifier.
-  id          Int                 @id @default(autoincrement())
+  id               Int                 @id @default(autoincrement())
   /// Unique code of the customer.
-  code        String              @unique @db.VarChar
+  code             String              @unique @db.VarChar
+  /// The contact holding the customer's details; its payment terms and credit limit are the customer's in Odoo.
+  partner_id       Int                 @unique
+  /// The contact holding the customer's details.
+  partner          Contact             @relation("CustomerPartner", fields: [partner_id], references: [id], onDelete: Restrict)
   /// The customer's sales settings.
-  sales_terms CustomerSalesTerms?
+  sales_terms      CustomerSalesTerms?
   /// Orders of the customer.
-  orders      CustomerOrder[]
+  orders           SaleOrder[]
   /// Order templates of the customer.
-  templates   OrderTemplate[]
+  templates        OrderTemplate[]
   /// Support requests of the customer.
   support_requests SupportRequest[]
 
   @@map("medilab_customer")
 }
 
-/// How sales may deal with one customer.
+/// How sales may deal with one customer, on top of the payment terms and credit limit Odoo keeps on the customer's contact.
 model CustomerSalesTerms {
   /// Row identifier.
   id           Int      @id @default(autoincrement())
@@ -218,14 +92,38 @@ model CustomerSalesTerms {
   @@map("medilab_customer_sales_terms")
 }
 
+/// Laboratory's test request, shown with the columns this module uses.
+model TestRequest {
+  /// Row identifier.
+  id     Int         @id @default(autoincrement())
+  /// Unique code of the request.
+  code   String      @unique @db.VarChar
+  /// The order the request was created from.
+  orders SaleOrder[]
+
+  @@map("medilab_test_request")
+}
+
 /// Odoo's contact table, shown with the columns this module uses.
 model Contact {
   /// Row identifier.
-  id     Int             @id @default(autoincrement())
+  id                 Int            @id @default(autoincrement())
   /// Name of the company or person.
-  name   String          @db.VarChar
-  /// Orders on which this person is the customer's contact.
-  orders CustomerOrder[]
+  name               String         @db.VarChar
+  /// The customer whose details this contact holds.
+  customer           Customer?      @relation("CustomerPartner")
+  /// Orders on which this contact is the customer's contact.
+  orders             SaleOrder[]    @relation("OrderContact")
+  /// Invoices addressed to this contact.
+  invoices           Invoice[]
+  /// Payments from this contact.
+  payments           Payment[]
+  /// Online payments by this contact.
+  transactions       PaymentTransaction[]
+  /// Subcontract costs this contact charges as a subcontractor.
+  supplier_infos     SupplierInfo[]
+  /// Ratings this contact gave.
+  ratings            Rating[]
 
   @@map("res_partner")
 }
@@ -233,129 +131,374 @@ model Contact {
 /// Odoo's login account table, shown with the columns this module uses.
 model User {
   /// Row identifier.
-  id                    Int                    @id @default(autoincrement())
+  id                     Int                   @id @default(autoincrement())
   /// Login name, usually the email address.
-  login                 String                 @unique @db.VarChar
+  login                  String                @unique @db.VarChar
   /// Orders the user owns as salesperson.
-  sales_orders          CustomerOrder[]        @relation("OrderSalesperson")
-  /// Payments the user recorded.
-  recorded_payments     Payment[]              @relation("PaymentRecorder")
+  sales_orders           SaleOrder[]           @relation("OrderSalesperson")
   /// Payments the user confirmed or rejected.
-  reviewed_payments     Payment[]              @relation("PaymentReviewer")
+  reviewed_payments      Payment[]             @relation("PaymentReviewer")
   /// Reconciliation days the user locked.
-  locked_days           ReconciliationDay[]    @relation("ReconciliationLocker")
+  locked_days            ReconciliationDay[]   @relation("ReconciliationLocker")
   /// Cancellation requests the user sent.
-  cancellation_requests CancellationRequest[]  @relation("CancellationRequester")
+  cancellation_requests  CancellationRequest[] @relation("CancellationRequester")
   /// Cancellation requests the user decided.
   cancellation_decisions CancellationRequest[] @relation("CancellationDecider")
   /// Support requests the user opened.
-  opened_support   SupportRequest[]  @relation("SupportOpener")
+  opened_support         SupportRequest[]      @relation("SupportOpener")
   /// Support requests the user handles.
-  handled_support  SupportRequest[]  @relation("SupportHandler")
-  /// Support messages the user wrote.
-  support_messages SupportMessage[]  @relation("SupportAuthor")
-  /// Feedback the user gave.
-  feedback         Feedback[]        @relation("FeedbackGiver")
+  handled_support        SupportRequest[]      @relation("SupportHandler")
 
   @@map("res_users")
 }
 
-/// Laboratory's test request, shown with the columns this module uses.
-model TestRequest {
+/// Odoo's product (product.template), shown with the columns this module uses and the columns it adds: a test parameter or a service package for sale. A trigram index on name serves catalog search.
+/// Exactly one of parameter_id and is_package is set; a package is a combo product.
+model Product {
   /// Row identifier.
-  id     Int             @id @default(autoincrement())
-  /// Unique code of the request.
-  code   String          @unique @db.VarChar
-  /// The order the request was created from.
-  orders CustomerOrder[]
+  id             Int             @id @default(autoincrement())
+  /// Product name in each language, taken from the parameter for a parameter product.
+  name           Json
+  /// service for a parameter, combo for a service package.
+  type           String          @db.VarChar
+  /// Short unique code of a package; a parameter product uses its parameter's code.
+  default_code   String?         @unique @db.VarChar
+  /// Catalog price of one test or of the whole package, excluding VAT.
+  list_price     Decimal         @db.Decimal
+  /// True when the product can be sold.
+  sale_ok        Boolean         @default(true)
+  /// The parameter the product sells; empty for a package.
+  parameter_id   Int?            @unique
+  /// False when the product is archived and no longer offered.
+  active         Boolean         @default(true)
+  /// The parameter the product sells.
+  parameter      TestParameter?  @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
+  /// Taxes added to the price on quotations and invoices.
+  taxes          ProductTax[]
+  /// The parts of a package, one combo per parameter.
+  combos         PackageCombo[]
+  /// Combo items that include the product.
+  combo_items    ComboItem[]
+  /// What subcontractors charge for the parameter.
+  supplier_infos SupplierInfo[]
+  /// Order lines of the product.
+  order_lines    SaleOrderLine[]
+  /// Template lines of the product.
+  template_lines OrderTemplateLine[]
 
-  @@map("medilab_test_request")
+  @@map("product_template")
 }
 
-/// A customer's order for tests. While it is a draft it is the customer's cart; sales turns it into quotations and confirms it.
-model CustomerOrder {
+/// Odoo's tax (account.tax), shown with the columns this module uses: a tax added to prices, such as VAT 10% or not subject to VAT.
+model Tax {
   /// Row identifier.
-  id              Int                   @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
+  /// Tax name as printed on quotations and invoices, in each language.
+  name        Json
+  /// Rate in percent, such as 8 or 10; 0 for a tax that adds nothing.
+  amount      Decimal      @db.Decimal
+  /// percent for a rate.
+  amount_type String       @db.VarChar
+  /// sale for taxes on what the laboratory sells.
+  type_tax_use String      @db.VarChar
+  /// False when the tax is archived.
+  active      Boolean      @default(true)
+  /// Products that use the tax.
+  products    ProductTax[]
+  /// Order lines that use the tax.
+  order_lines OrderLineTax[]
+
+  @@map("account_tax")
+}
+
+/// Odoo's link between products and the taxes added to their price.
+model ProductTax {
+  /// The product.
+  prod_id Int
+  /// A tax of the product.
+  tax_id  Int
+  /// The product.
+  product Product @relation(fields: [prod_id], references: [id], onDelete: Cascade)
+  /// The tax.
+  tax     Tax     @relation(fields: [tax_id], references: [id], onDelete: Restrict)
+
+  @@id([prod_id, tax_id])
+  @@map("product_taxes_rel")
+}
+
+/// Odoo's link between a combo product and its combos; each combo of a package holds one parameter.
+model PackageCombo {
+  /// The package.
+  product_template_id Int
+  /// A combo of the package.
+  product_combo_id    Int
+  /// The package.
+  package             Product @relation(fields: [product_template_id], references: [id], onDelete: Cascade)
+  /// The combo.
+  combo               Combo   @relation(fields: [product_combo_id], references: [id], onDelete: Restrict)
+
+  @@id([product_template_id, product_combo_id])
+  @@map("product_combo_product_template_rel")
+}
+
+/// Odoo's combo (product.combo), shown with the columns this module uses: one part of a service package.
+model Combo {
+  /// Row identifier.
+  id       Int            @id @default(autoincrement())
+  /// Name of the part in each language.
+  name     Json
+  /// Packages the combo belongs to.
+  packages PackageCombo[]
+  /// The one item of the combo: the parameter it includes.
+  items    ComboItem[]
+
+  @@map("product_combo")
+}
+
+/// Odoo's combo item (product.combo.item), shown with the columns this module uses and the column it adds: one parameter a package includes, and how many times.
+model ComboItem {
+  /// Row identifier.
+  id         Int     @id @default(autoincrement())
+  /// The combo the item belongs to.
+  combo_id   Int
+  /// The parameter product the item includes.
+  product_id Int
+  /// How many times the package includes the parameter; at least 1.
+  quantity   Int     @default(1)
+  /// The combo the item belongs to.
+  combo      Combo   @relation(fields: [combo_id], references: [id], onDelete: Cascade)
+  /// The parameter product the item includes.
+  product    Product @relation(fields: [product_id], references: [id], onDelete: Restrict)
+
+  @@index([combo_id])
+  @@map("product_combo_item")
+}
+
+/// Odoo's vendor price (product.supplierinfo), shown with the columns this module uses and the column it adds: what a subcontractor charges the laboratory for one test of a parameter and method pair, for margin reporting.
+model SupplierInfo {
+  /// Row identifier.
+  id                  Int              @id @default(autoincrement())
+  /// The subcontractor's contact.
+  partner_id          Int
+  /// The parameter product.
+  product_tmpl_id     Int
+  /// The subcontracted parameter and method pair.
+  parameter_method_id Int?             @unique
+  /// Cost of one test, excluding VAT.
+  price               Decimal          @db.Decimal
+  /// The subcontractor's contact.
+  partner             Contact          @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  /// The parameter product.
+  product             Product          @relation(fields: [product_tmpl_id], references: [id], onDelete: Cascade)
+  /// The subcontracted parameter and method pair.
+  parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+
+  @@map("product_supplierinfo")
+}
+
+/// Odoo's sale order (sale.order), shown with the columns this module uses and the columns it adds: a customer's order for tests. While it is a draft from the portal it is the customer's cart; sales prices it, sends it as a quotation and confirms it.
+model SaleOrder {
+  /// Row identifier.
+  id                Int                   @id @default(autoincrement())
   /// Unique order code; filled from a sequence when the order is created.
-  code            String                @unique @db.VarChar
+  name              String                @unique @db.VarChar
   /// The customer who orders.
-  customer_id     Int
+  customer_id       Int
   /// The customer's contact for this order: the person sales and the system reach about it.
-  contact_id      Int?
-  /// portal when the customer built it, or sales when a salesperson created it for the customer.
-  source          String                @db.VarChar
-  /// draft, submitted, claimed, confirmed, completed or cancelled.
-  status          String                @db.VarChar
-  /// not_paid, partially_paid or paid, from the confirmed payments on the order's posted invoices; kept on the order for filtering.
-  payment_status  String                @default("not_paid") @db.VarChar
-  /// none, requested, approved or rejected: where the order stands in its approval chain, kept in step with its signatures.
-  approval_status String                @default("none") @db.VarChar
+  partner_id        Int
   /// The salesperson who claimed the order; empty while it waits in the queue.
-  salesperson_id  Int?
+  user_id           Int?
+  /// Odoo's state: draft until sent, sent while a quotation waits for the customer, sale once confirmed, cancel.
+  state             String                @db.VarChar
+  /// portal when the customer built it, or sales when a salesperson created it for the customer.
+  source            String                @db.VarChar
+  /// draft, submitted, claimed, confirmed, completed or cancelled.
+  order_status      String                @db.VarChar
+  /// not_paid, partially_paid or paid, from the payments on the order's posted invoices; kept on the order for filtering.
+  payment_status    String                @default("not_paid") @db.VarChar
+  /// none, requested, approved or rejected: where the order stands in its approval chain, kept in step with its signatures.
+  approval_status   String                @default("none") @db.VarChar
   /// When the customer submitted the order.
-  submitted_at    DateTime?
+  submitted_at      DateTime?
   /// When a salesperson claimed the order.
-  claimed_at      DateTime?
-  /// When sales confirmed the order.
-  confirmed_at    DateTime?
+  claimed_at        DateTime?
+  /// When sales confirmed the order: Odoo's order date once confirmed.
+  date_order        DateTime
+  /// The date the customer expects the results.
+  expected_result_date DateTime?          @db.Date
+  /// When the advance must be paid; 3 days after sending by default, set by sales.
+  payment_deadline  DateTime?
+  /// online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
+  advance_method    String?               @db.VarChar
+  /// full, percentage or fixed.
+  advance_mode      String?               @db.VarChar
+  /// The percentage or fixed amount of the advance, depending on advance_mode.
+  advance_value     Decimal?              @db.Decimal
+  /// Total excluding VAT, after discounts.
+  amount_untaxed    Decimal               @db.Decimal
+  /// Total VAT.
+  amount_tax        Decimal               @db.Decimal
+  /// Total including VAT.
+  amount_total      Decimal               @db.Decimal
   /// The test request the confirmed order produced.
-  test_request_id Int?
+  test_request_id   Int?
   /// The order this one was reordered from.
   reordered_from_id Int?
   /// The customer.
-  customer        Customer              @relation(fields: [customer_id], references: [id], onDelete: Restrict)
+  customer          Customer              @relation(fields: [customer_id], references: [id], onDelete: Restrict)
   /// The customer's contact for this order.
-  contact         Contact?              @relation(fields: [contact_id], references: [id], onDelete: Restrict)
+  contact           Contact               @relation("OrderContact", fields: [partner_id], references: [id], onDelete: Restrict)
   /// The salesperson who claimed the order.
-  salesperson     User?                 @relation("OrderSalesperson", fields: [salesperson_id], references: [id], onDelete: Restrict)
+  salesperson       User?                 @relation("OrderSalesperson", fields: [user_id], references: [id], onDelete: Restrict)
   /// The test request the confirmed order produced.
-  test_request    TestRequest?          @relation(fields: [test_request_id], references: [id], onDelete: Restrict)
+  test_request      TestRequest?          @relation(fields: [test_request_id], references: [id], onDelete: Restrict)
   /// The order this one was reordered from.
-  reordered_from  CustomerOrder?        @relation("Reorders", fields: [reordered_from_id], references: [id], onDelete: SetNull)
+  reordered_from    SaleOrder?            @relation("Reorders", fields: [reordered_from_id], references: [id], onDelete: SetNull)
   /// Orders reordered from this one.
-  reorders        CustomerOrder[]       @relation("Reorders")
-  /// Parameters and packages in the order.
-  lines           OrderLine[]
-  /// Quotations of the order, one per revision.
-  quotations      Quotation[]
+  reorders          SaleOrder[]           @relation("Reorders")
+  /// Samples the customer will send.
+  samples           OrderSample[]
+  /// Parameters and packages in the order, with their prices.
+  lines             SaleOrderLine[]
+  /// Quotations sent for the order, one per revision.
+  quotations        Quotation[]
   /// Invoices of the order.
-  invoices        Invoice[]
+  invoices          Invoice[]
   /// Cancellation requests on the order.
   cancellation_requests CancellationRequest[]
   /// Support requests about the order.
-  support_requests SupportRequest[]
-  /// The customer's feedback on the order.
-  feedback        Feedback?
+  support_requests  SupportRequest[]
 
-  @@index([customer_id, status])
-  @@index([status, submitted_at])
-  @@index([salesperson_id, status])
-  @@map("medilab_customer_order")
+  @@index([customer_id, order_status])
+  @@index([order_status, submitted_at])
+  @@index([user_id, order_status])
+  @@map("sale_order")
 }
 
-/// One parameter or package in an order, with its quantity. Exactly one of parameter_id and package_id is set.
-model OrderLine {
+/// A sample the customer will send, as sales defines it on the order. Confirming the order creates one expected sample of the test request for each.
+model OrderSample {
   /// Row identifier.
-  id           Int             @id @default(autoincrement())
+  id                   Int             @id @default(autoincrement())
   /// The order.
-  order_id     Int
-  /// The parameter ordered; empty for a package line.
-  parameter_id Int?
-  /// The package ordered; empty for a parameter line.
-  package_id   Int?
-  /// How many times it is ordered; at least 1.
-  quantity     Int             @default(1)
-  /// Position of the line in the order.
-  sequence     Int             @default(10)
+  order_id             Int
+  /// Name the customer gives the sample, such as "Lavie bottled water 1 L".
+  customer_sample_name String          @db.VarChar
+  /// The sample type (nền mẫu).
+  sample_type_id       Int
+  /// solid, liquid, gas or semi_solid.
+  physical_state       String          @db.VarChar
+  /// The regulation the sample's results are compared with; empty when none.
+  regulation_id        Int?
+  /// Position of the sample in the order.
+  sequence             Int             @default(10)
   /// The order.
-  order        CustomerOrder   @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  /// The parameter ordered.
-  parameter    TestParameter?  @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
-  /// The package ordered.
-  package      ServicePackage? @relation(fields: [package_id], references: [id], onDelete: Restrict)
+  order                SaleOrder       @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  /// The sample type.
+  sample_type          SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
+  /// The regulation the results are compared with.
+  regulation           Regulation?     @relation(fields: [regulation_id], references: [id], onDelete: Restrict)
+  /// Lines tested on the sample.
+  lines                SaleOrderLine[]
 
   @@index([order_id])
-  @@map("medilab_order_line")
+  @@map("medilab_order_sample")
+}
+
+/// Odoo's sale order line (sale.order.line), shown with the columns this module uses and the column it adds: one parameter or package in an order, with its price. Price, discount and taxes are kept on the line, so a sent quotation never changes with the catalog.
+/// The parameters of a package are lines linked to the package's line, as Odoo adds them for a combo product.
+model SaleOrderLine {
+  /// Row identifier.
+  id              Int             @id @default(autoincrement())
+  /// The order.
+  order_id        Int
+  /// The parameter or package product.
+  product_id      Int
+  /// The package line a parameter line belongs to; empty for a line ordered on its own.
+  linked_line_id  Int?
+  /// The sample the line is tested on; required before the quotation is sent.
+  sample_id       Int?
+  /// How many times it is ordered; at least 1.
+  product_uom_qty Decimal         @db.Decimal
+  /// Catalog price of one unit, excluding VAT, copied when the line is priced.
+  price_unit      Decimal         @db.Decimal
+  /// Discount on the line in percent.
+  discount        Decimal         @default(0) @db.Decimal
+  /// Line total excluding VAT, after its discount.
+  price_subtotal  Decimal         @db.Decimal
+  /// VAT of the line.
+  price_tax       Decimal         @db.Decimal
+  /// True for the line of a down payment, which the final invoice deducts.
+  is_downpayment  Boolean         @default(false)
+  /// Position of the line in the order.
+  sequence        Int             @default(10)
+  /// The order.
+  order           SaleOrder       @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  /// The parameter or package product.
+  product         Product         @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  /// The package line a parameter line belongs to.
+  linked_line     SaleOrderLine?  @relation("PackageLines", fields: [linked_line_id], references: [id], onDelete: Cascade)
+  /// The parameter lines of a package line.
+  linked_lines    SaleOrderLine[] @relation("PackageLines")
+  /// The sample the line is tested on.
+  sample          OrderSample?    @relation(fields: [sample_id], references: [id], onDelete: Restrict)
+  /// Taxes of the line.
+  taxes           OrderLineTax[]
+  /// Invoice lines that bill the line.
+  invoice_lines   InvoiceLine[]
+
+  @@index([order_id])
+  @@index([sample_id])
+  @@map("sale_order_line")
+}
+
+/// Odoo's link between order lines and their taxes.
+model OrderLineTax {
+  /// The order line.
+  sale_order_line_id Int
+  /// A tax of the line.
+  account_tax_id     Int
+  /// The order line.
+  line               SaleOrderLine @relation(fields: [sale_order_line_id], references: [id], onDelete: Cascade)
+  /// The tax.
+  tax                Tax           @relation(fields: [account_tax_id], references: [id], onDelete: Restrict)
+
+  @@id([sale_order_line_id, account_tax_id])
+  @@map("account_tax_sale_order_line_rel")
+}
+
+/// One sent revision of the priced offer for an order: its number, its status and the PDF the customer received. A new revision replaces the previous one, which stays read-only.
+/// Unique on (order_id, revision).
+model Quotation {
+  /// Row identifier.
+  id             Int        @id @default(autoincrement())
+  /// Unique quotation number in the format the administrator configures, such as 0001 26/BG-VTT; filled from a sequence.
+  code           String     @unique @db.VarChar
+  /// The order quoted.
+  order_id       Int
+  /// Revision number, 1 for the first quotation of the order.
+  revision       Int        @default(1)
+  /// The revision this one replaces; empty for revision 1.
+  replaces_id    Int?       @unique
+  /// sent, accepted, declined, expired or replaced.
+  status         String     @db.VarChar
+  /// When the quotation was sent.
+  sent_at        DateTime
+  /// Total including VAT, as sent.
+  amount_total   Decimal    @db.Decimal
+  /// The customer's reason for declining.
+  decline_reason String?    @db.Text
+  /// The PDF sent to the customer.
+  attachment_id  Int
+  /// The order quoted.
+  order          SaleOrder  @relation(fields: [order_id], references: [id], onDelete: Restrict)
+  /// The revision this one replaces.
+  replaces       Quotation? @relation("QuotationRevisions", fields: [replaces_id], references: [id], onDelete: Restrict)
+  /// The revision that replaces this one.
+  replaced_by    Quotation? @relation("QuotationRevisions")
+
+  @@unique([order_id, revision])
+  @@index([status])
+  @@map("medilab_quotation")
 }
 
 /// A saved order a returning customer reuses to create the next order faster. It has no price of its own.
@@ -377,307 +520,173 @@ model OrderTemplate {
   @@map("medilab_order_template")
 }
 
-/// One parameter or package in an order template. Exactly one of parameter_id and package_id is set.
+/// One parameter or package product in an order template, with its quantity.
 model OrderTemplateLine {
   /// Row identifier.
-  id           Int             @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   /// The template.
-  template_id  Int
-  /// The parameter; empty for a package line.
-  parameter_id Int?
-  /// The package; empty for a parameter line.
-  package_id   Int?
+  template_id Int
+  /// The parameter or package product.
+  product_id  Int
   /// How many times it is ordered; at least 1.
-  quantity     Int             @default(1)
+  quantity    Int           @default(1)
   /// The template.
-  template     OrderTemplate   @relation(fields: [template_id], references: [id], onDelete: Cascade)
-  /// The parameter.
-  parameter    TestParameter?  @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
-  /// The package.
-  package      ServicePackage? @relation(fields: [package_id], references: [id], onDelete: Restrict)
+  template    OrderTemplate @relation(fields: [template_id], references: [id], onDelete: Cascade)
+  /// The parameter or package product.
+  product     Product       @relation(fields: [product_id], references: [id], onDelete: Restrict)
 
   @@index([template_id])
   @@map("medilab_order_template_line")
 }
 
-/// One revision of the priced offer for an order. A revision replaces the previous one, which becomes read-only.
-/// Unique on (order_id, revision).
-model Quotation {
-  /// Row identifier.
-  id                 Int             @id @default(autoincrement())
-  /// Unique quotation number in the format the administrator configures, such as 0001 26/BG-VTT; filled from a sequence.
-  code               String          @unique @db.VarChar
-  /// The order quoted.
-  order_id           Int
-  /// Revision number, 1 for the first quotation of the order.
-  revision           Int             @default(1)
-  /// The revision this one replaces; empty for revision 1.
-  replaces_id        Int?            @unique
-  /// draft, sent, accepted, declined, expired or replaced.
-  status             String          @db.VarChar
-  /// Date tax rates are taken at: the date the quotation is sent.
-  quotation_date     DateTime?       @db.Date
-  /// When the quotation was sent.
-  sent_at            DateTime?
-  /// When the advance must be paid; 3 days after sending by default, set by sales.
-  payment_deadline   DateTime?
-  /// online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
-  advance_method     String          @db.VarChar
-  /// full, percentage or fixed.
-  advance_mode       String?         @db.VarChar
-  /// The percentage or fixed amount of the advance, depending on advance_mode.
-  advance_value      Decimal?        @db.Decimal
-  /// percentage or fixed, for a discount on the whole quotation; empty when there is none.
-  discount_type      String?         @db.VarChar
-  /// The percentage or amount of the whole-quotation discount.
-  discount_value     Decimal?        @db.Decimal
-  /// Total excluding VAT, after discounts.
-  amount_untaxed     Decimal         @db.Decimal
-  /// Total VAT.
-  amount_tax         Decimal         @db.Decimal
-  /// Total including VAT.
-  amount_total       Decimal         @db.Decimal
-  /// The customer's reason for declining.
-  decline_reason     String?         @db.Text
-  /// The order quoted.
-  order              CustomerOrder   @relation(fields: [order_id], references: [id], onDelete: Restrict)
-  /// The revision this one replaces.
-  replaces           Quotation?      @relation("QuotationRevisions", fields: [replaces_id], references: [id], onDelete: Restrict)
-  /// The revision that replaces this one.
-  replaced_by        Quotation?      @relation("QuotationRevisions")
-  /// Samples the customer will send.
-  samples            QuotationSample[]
-  /// Lines of the quotation.
-  lines              QuotationLine[]
-  /// Invoices issued from the quotation.
-  invoices           Invoice[]
-
-  @@unique([order_id, revision])
-  @@index([status, payment_deadline])
-  @@map("medilab_quotation")
-}
-
-/// A sample the customer will send, as sales defines it on the quotation. Confirming the order creates one expected sample of the test request for each.
-model QuotationSample {
-  /// Row identifier.
-  id                   Int             @id @default(autoincrement())
-  /// The quotation.
-  quotation_id         Int
-  /// Name the customer gives the sample, such as "Lavie bottled water 1 L".
-  customer_sample_name String          @db.VarChar
-  /// The sample type (nền mẫu).
-  sample_type_id       Int
-  /// solid, liquid, gas or semi_solid.
-  physical_state       String          @db.VarChar
-  /// The regulation the sample's results are compared with; empty when none.
-  regulation_id        Int?
-  /// Position of the sample in the quotation.
-  sequence             Int             @default(10)
-  /// The quotation.
-  quotation            Quotation       @relation(fields: [quotation_id], references: [id], onDelete: Cascade)
-  /// The sample type.
-  sample_type          SampleType      @relation(fields: [sample_type_id], references: [id], onDelete: Restrict)
-  /// The regulation the results are compared with.
-  regulation           Regulation?     @relation(fields: [regulation_id], references: [id], onDelete: Restrict)
-  /// Lines tested on the sample.
-  lines                QuotationLine[]
-
-  @@index([quotation_id])
-  @@map("medilab_quotation_sample")
-}
-
-/// One priced line of a quotation. Price, discount and tax rate are copied when the line is priced, so a sent quotation never changes with the catalog.
-/// Exactly one of parameter_id and package_id is set.
-model QuotationLine {
-  /// Row identifier.
-  id             Int             @id @default(autoincrement())
-  /// The quotation.
-  quotation_id   Int
-  /// The sample the line is tested on; required before the quotation is sent.
-  sample_id      Int?
-  /// The parameter quoted; empty for a package line.
-  parameter_id   Int?
-  /// The package quoted; empty for a parameter line.
-  package_id     Int?
-  /// How many times it is quoted; at least 1.
-  quantity       Int             @default(1)
-  /// Catalog price of one unit, excluding VAT, copied when the line is priced.
-  unit_price     Decimal         @db.Decimal
-  /// percentage or fixed, for a discount on this line; empty when there is none.
-  discount_type  String?         @db.VarChar
-  /// The percentage or amount of the line discount.
-  discount_value Decimal?        @db.Decimal
-  /// The tax of the line: the parameter's or package's, or the one sales chose.
-  tax_id         Int
-  /// Tax rate in percent in force on the quotation date, copied onto the line.
-  tax_rate       Decimal         @db.Decimal
-  /// Line total excluding VAT, after its discount.
-  amount_untaxed Decimal         @db.Decimal
-  /// VAT of the line.
-  amount_tax     Decimal         @db.Decimal
-  /// Position of the line in the quotation.
-  sequence       Int             @default(10)
-  /// The quotation.
-  quotation      Quotation       @relation(fields: [quotation_id], references: [id], onDelete: Cascade)
-  /// The sample the line is tested on.
-  sample         QuotationSample? @relation(fields: [sample_id], references: [id], onDelete: Restrict)
-  /// The parameter quoted.
-  parameter      TestParameter?  @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
-  /// The package quoted.
-  package        ServicePackage? @relation(fields: [package_id], references: [id], onDelete: Restrict)
-  /// The tax of the line.
-  tax            Tax             @relation(fields: [tax_id], references: [id], onDelete: Restrict)
-
-  @@index([quotation_id])
-  @@index([sample_id])
-  @@map("medilab_quotation_line")
-}
-
-/// An advance, final or adjustment invoice of an order. A posted invoice is never edited; an adjustment invoice corrects it.
+/// Odoo's journal entry (account.move), shown with the columns this module uses and the columns it adds: an advance, final or adjustment invoice of an order. A posted invoice is never edited; an adjustment invoice corrects it.
+/// The advance invoice is Odoo's down payment invoice. An adjustment that lowers an invoice is a credit note (out_refund); one that raises it is a new invoice linked to the original by adjusted_invoice_id.
 model Invoice {
   /// Row identifier.
   id              Int           @id @default(autoincrement())
-  /// Unique invoice number; filled from a sequence when the invoice is posted.
-  code            String?       @unique @db.VarChar
+  /// Unique invoice number; filled from the journal's sequence when the invoice is posted.
+  name            String?       @unique @db.VarChar
+  /// out_invoice for an invoice, out_refund for a credit note.
+  move_type       String        @db.VarChar
   /// The order invoiced.
   order_id        Int
-  /// The quotation whose prices and tax rates the invoice uses.
-  quotation_id    Int
+  /// The contact the invoice is addressed to.
+  partner_id      Int
   /// advance, final or adjustment.
-  kind            String        @db.VarChar
-  /// draft, posted or cancelled.
-  status          String        @db.VarChar
-  /// When the invoice was posted.
-  posted_at       DateTime?
+  invoice_kind    String        @db.VarChar
+  /// draft, posted or cancel.
+  state           String        @db.VarChar
+  /// Date of the invoice.
+  invoice_date    DateTime?     @db.Date
   /// When the invoice must be paid.
-  due_date        DateTime?     @db.Date
-  /// The invoice an adjustment invoice corrects; empty for other invoices.
-  adjusts_id      Int?
+  invoice_date_due DateTime?    @db.Date
+  /// The invoice a credit note reverses; empty for other invoices.
+  reversed_entry_id Int?
+  /// The invoice a raising adjustment adds to; empty for other invoices.
+  adjusted_invoice_id Int?
   /// Total excluding VAT.
   amount_untaxed  Decimal       @db.Decimal
   /// Total VAT.
   amount_tax      Decimal       @db.Decimal
-  /// Total including VAT; negative for an adjustment that lowers the amount.
+  /// Total including VAT.
   amount_total    Decimal       @db.Decimal
-  /// Sum of the confirmed payments.
-  amount_paid     Decimal       @default(0) @db.Decimal
-  /// not_paid, partially_paid or paid, from the confirmed payments.
-  payment_status  String        @default("not_paid") @db.VarChar
-  /// When the invoice was last emailed to the customer.
-  sent_at         DateTime?
-  /// The invoice's PDF.
-  attachment_id   Int?
+  /// Amount still to pay.
+  amount_residual Decimal       @db.Decimal
+  /// not_paid, partial, in_payment or paid, from the payments reconciled with it.
+  payment_state   String        @db.VarChar
   /// The order invoiced.
-  order           CustomerOrder @relation(fields: [order_id], references: [id], onDelete: Restrict)
-  /// The quotation the invoice uses.
-  quotation       Quotation     @relation(fields: [quotation_id], references: [id], onDelete: Restrict)
-  /// The invoice an adjustment invoice corrects.
-  adjusts         Invoice?      @relation("Adjustments", fields: [adjusts_id], references: [id], onDelete: Restrict)
-  /// Adjustment invoices that correct this invoice.
-  adjustments     Invoice[]     @relation("Adjustments")
+  order           SaleOrder     @relation(fields: [order_id], references: [id], onDelete: Restrict)
+  /// The contact the invoice is addressed to.
+  partner         Contact       @relation(fields: [partner_id], references: [id], onDelete: Restrict)
+  /// The invoice a credit note reverses.
+  reversed_entry  Invoice?      @relation("CreditNotes", fields: [reversed_entry_id], references: [id], onDelete: Restrict)
+  /// Credit notes of this invoice.
+  credit_notes    Invoice[]     @relation("CreditNotes")
+  /// The invoice a raising adjustment adds to.
+  adjusted_invoice Invoice?     @relation("RaisingAdjustments", fields: [adjusted_invoice_id], references: [id], onDelete: Restrict)
+  /// Raising adjustments of this invoice.
+  raising_adjustments Invoice[] @relation("RaisingAdjustments")
   /// Lines of the invoice.
   lines           InvoiceLine[]
   /// Payments against the invoice.
   payments        Payment[]
-  /// Online payment links of the invoice.
-  payment_links   PaymentLink[]
+  /// Online payments of the invoice.
+  transactions    PaymentTransaction[]
 
   @@index([order_id])
-  @@index([payment_status, due_date])
-  @@map("medilab_invoice")
+  @@index([payment_state, invoice_date_due])
+  @@map("account_move")
 }
 
-/// One line of an invoice: a quoted line billed, the advance, or the advance deducted on the final invoice.
+/// Odoo's journal item (account.move.line), shown with the columns this module uses: one line of an invoice, a billed order line, the advance, or the advance deducted on the final invoice.
 model InvoiceLine {
   /// Row identifier.
-  id                Int            @id @default(autoincrement())
+  id             Int            @id @default(autoincrement())
   /// The invoice.
-  invoice_id        Int
-  /// The quotation line billed; empty for the advance and its deduction.
-  quotation_line_id Int?
+  move_id        Int
   /// Text printed on the line, in the customer's language.
-  description       String         @db.VarChar
-  /// line, advance or advance_deduction.
-  kind              String         @db.VarChar
+  name           String         @db.VarChar
   /// Amount excluding VAT; negative for a deduction.
-  amount_untaxed    Decimal        @db.Decimal
-  /// Tax rate in percent, copied from the quotation.
-  tax_rate          Decimal        @db.Decimal
-  /// VAT of the line.
-  amount_tax        Decimal        @db.Decimal
+  price_subtotal Decimal        @db.Decimal
+  /// Amount including VAT.
+  price_total    Decimal        @db.Decimal
   /// The invoice.
-  invoice           Invoice        @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
-  /// The quotation line billed.
-  quotation_line    QuotationLine? @relation(fields: [quotation_line_id], references: [id], onDelete: Restrict)
+  invoice        Invoice        @relation(fields: [move_id], references: [id], onDelete: Cascade)
+  /// The order lines the line bills.
+  order_lines    SaleOrderLine[]
 
-  @@index([invoice_id])
-  @@map("medilab_invoice_line")
+  @@index([move_id])
+  @@map("account_move_line")
 }
 
-/// Money received against an invoice. A payment sales records is pending until the accountant confirms it; only confirmed payments count.
+/// Odoo's payment (account.payment), shown with the columns this module uses and the columns it adds: money received against an invoice. A payment sales records stays a draft until the accountant confirms it; only confirmed payments count.
 model Payment {
   /// Row identifier.
-  id               Int          @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
+  /// Unique receipt number, filled from the journal's sequence when the payment is confirmed.
+  name             String?   @unique @db.VarChar
   /// The invoice paid.
   invoice_id       Int
+  /// The contact who paid.
+  partner_id       Int
   /// Amount paid; never more than the invoice's remaining amount.
-  amount           Decimal      @db.Decimal
+  amount           Decimal   @db.Decimal
   /// Date the money was received.
-  payment_date     DateTime     @db.Date
+  date             DateTime  @db.Date
   /// online, bank_transfer or cash.
-  method           String       @db.VarChar
-  /// pending, confirmed or rejected.
-  status           String       @db.VarChar
-  /// The Odoo user who recorded the payment; empty for an online payment.
-  recorded_by_id   Int?
+  method           String    @db.VarChar
+  /// draft while pending, paid once confirmed, canceled when rejected.
+  state            String    @db.VarChar
   /// The accountant who confirmed or rejected it.
   reviewed_by_id   Int?
   /// When it was confirmed or rejected.
   reviewed_at      DateTime?
   /// The accountant's reason for rejecting it.
-  rejection_reason String?      @db.Text
-  /// Unique receipt number, filled from a sequence when the payment is confirmed.
-  receipt_code     String?      @unique @db.VarChar
-  /// The receipt's PDF.
-  receipt_attachment_id Int?
+  rejection_reason String?   @db.Text
+  /// The online payment it came from.
+  payment_transaction_id Int? @unique
   /// The invoice paid.
-  invoice          Invoice      @relation(fields: [invoice_id], references: [id], onDelete: Restrict)
-  /// The Odoo user who recorded the payment.
-  recorded_by      User?        @relation("PaymentRecorder", fields: [recorded_by_id], references: [id], onDelete: Restrict)
+  invoice          Invoice   @relation(fields: [invoice_id], references: [id], onDelete: Restrict)
+  /// The contact who paid.
+  partner          Contact   @relation(fields: [partner_id], references: [id], onDelete: Restrict)
   /// The accountant who confirmed or rejected it.
-  reviewed_by      User?        @relation("PaymentReviewer", fields: [reviewed_by_id], references: [id], onDelete: Restrict)
-  /// The online payment link the payment came from.
-  payment_link     PaymentLink?
+  reviewed_by      User?     @relation("PaymentReviewer", fields: [reviewed_by_id], references: [id], onDelete: Restrict)
+  /// The online payment it came from.
+  transaction      PaymentTransaction? @relation(fields: [payment_transaction_id], references: [id], onDelete: Restrict)
 
-  @@index([invoice_id, status])
-  @@map("medilab_payment")
+  @@index([invoice_id, state])
+  @@map("account_payment")
 }
 
-/// A PayOS payment link for an invoice, and the state PayOS reports for it.
-model PaymentLink {
+/// Odoo's payment transaction (payment.transaction), shown with the columns this module uses and the columns it adds: one PayOS payment link for an invoice and the state PayOS reports for it.
+model PaymentTransaction {
   /// Row identifier.
-  id                  Int       @id @default(autoincrement())
+  id                 Int       @id @default(autoincrement())
+  /// Unique reference sent to PayOS as its order code, so a repeated notification is recognised.
+  reference          String    @unique @db.VarChar
+  /// The payment link's id at PayOS.
+  provider_reference String?   @db.VarChar
   /// The invoice to pay.
-  invoice_id          Int
-  /// Order code sent to PayOS; unique, so a repeated notification is recognised.
-  provider_order_code BigInt    @unique
+  invoice_id         Int
+  /// The contact who pays.
+  partner_id         Int
   /// Amount the link asks for.
-  amount              Decimal   @db.Decimal
+  amount             Decimal   @db.Decimal
   /// Checkout page PayOS returned.
-  checkout_url        String    @db.VarChar
-  /// created, pending, paid, failed, cancelled or expired, as PayOS reports it.
-  status              String    @db.VarChar
+  checkout_url       String?   @db.VarChar
+  /// draft, pending, done, cancel or error, from what PayOS reports.
+  state              String    @db.VarChar
   /// When the link expires.
-  expires_at          DateTime?
-  /// The payment recorded when PayOS confirmed it.
-  payment_id          Int?      @unique
+  expires_at         DateTime?
   /// The invoice to pay.
-  invoice             Invoice   @relation(fields: [invoice_id], references: [id], onDelete: Restrict)
-  /// The payment recorded when PayOS confirmed it.
-  payment             Payment?  @relation(fields: [payment_id], references: [id], onDelete: Restrict)
+  invoice            Invoice   @relation(fields: [invoice_id], references: [id], onDelete: Restrict)
+  /// The contact who pays.
+  partner            Contact   @relation(fields: [partner_id], references: [id], onDelete: Restrict)
+  /// The payment posted when PayOS confirmed it.
+  payment            Payment?
 
-  @@index([status])
-  @@map("medilab_payment_link")
+  @@index([state])
+  @@map("payment_transaction")
 }
 
 /// One day of PayOS transactions reconciled by the accountant. A locked day's online payments can no longer be changed.
@@ -702,13 +711,13 @@ model ReconciliationDay {
 /// At most one open request per order (partial unique index on order_id where status is requested).
 model CancellationRequest {
   /// Row identifier.
-  id              Int           @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   /// The order to cancel.
   order_id        Int
   /// Why the customer wants to cancel.
-  reason          String        @db.Text
+  reason          String    @db.Text
   /// requested, accepted, declined or withdrawn.
-  status          String        @db.VarChar
+  status          String    @db.VarChar
   /// The Odoo user who sent the request; when is Odoo's creation time of the row.
   requested_by_id Int
   /// The salesperson who decided.
@@ -716,32 +725,32 @@ model CancellationRequest {
   /// When it was decided.
   decided_at      DateTime?
   /// The salesperson's reply to the customer.
-  reply           String?       @db.Text
+  reply           String?   @db.Text
   /// The order to cancel.
-  order           CustomerOrder @relation(fields: [order_id], references: [id], onDelete: Restrict)
+  order           SaleOrder @relation(fields: [order_id], references: [id], onDelete: Restrict)
   /// The Odoo user who sent the request.
-  requested_by    User          @relation("CancellationRequester", fields: [requested_by_id], references: [id], onDelete: Restrict)
+  requested_by    User      @relation("CancellationRequester", fields: [requested_by_id], references: [id], onDelete: Restrict)
   /// The salesperson who decided.
-  decided_by      User?         @relation("CancellationDecider", fields: [decided_by_id], references: [id], onDelete: Restrict)
+  decided_by      User?     @relation("CancellationDecider", fields: [decided_by_id], references: [id], onDelete: Restrict)
 
   @@index([order_id, status])
   @@map("medilab_cancellation_request")
 }
 
-/// A customer's request for help, followed as a conversation with sales until it is closed.
+/// A customer's request for help, followed as a conversation with sales until it is closed. The messages are Odoo messages on the request, written from the back office or the portal, with their attachments.
 model SupportRequest {
   /// Row identifier.
-  id            Int              @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   /// Unique code of the request; filled from a sequence when it is opened.
-  code          String           @unique @db.VarChar
+  code          String     @unique @db.VarChar
   /// The customer who asks for help.
   customer_id   Int
   /// The order the request is about; empty when it is about none.
   order_id      Int?
   /// Short subject of the request.
-  subject       String           @db.VarChar
+  subject       String     @db.VarChar
   /// open, answered or closed: answered once support has replied and the customer has not written since.
-  status        String           @db.VarChar
+  status        String     @db.VarChar
   /// The Odoo user who opened the request.
   opened_by_id  Int
   /// The salesperson handling the request: the order's salesperson, or whoever takes it; empty until then.
@@ -749,59 +758,40 @@ model SupportRequest {
   /// When the request was closed.
   closed_at     DateTime?
   /// The customer who asks for help.
-  customer      Customer         @relation(fields: [customer_id], references: [id], onDelete: Restrict)
+  customer      Customer   @relation(fields: [customer_id], references: [id], onDelete: Restrict)
   /// The order the request is about.
-  order         CustomerOrder?   @relation(fields: [order_id], references: [id], onDelete: Restrict)
+  order         SaleOrder? @relation(fields: [order_id], references: [id], onDelete: Restrict)
   /// The Odoo user who opened the request.
-  opened_by     User             @relation("SupportOpener", fields: [opened_by_id], references: [id], onDelete: Restrict)
+  opened_by     User       @relation("SupportOpener", fields: [opened_by_id], references: [id], onDelete: Restrict)
   /// The salesperson handling the request.
-  handled_by    User?            @relation("SupportHandler", fields: [handled_by_id], references: [id], onDelete: Restrict)
-  /// Messages of the conversation, oldest first.
-  messages      SupportMessage[]
+  handled_by    User?      @relation("SupportHandler", fields: [handled_by_id], references: [id], onDelete: Restrict)
 
   @@index([customer_id, status])
   @@index([status])
   @@map("medilab_support_request")
 }
 
-/// One message in a support conversation, from the customer or the support team. Files attached to it are Odoo attachments on the message.
-model SupportMessage {
+/// Odoo's rating (rating.rating), shown with the columns this module uses: a customer's rating and comment on a completed order. Visible to sales and management, never to other customers.
+/// One rating per order: unique on (res_model, res_id) for sale.order.
+model Rating {
   /// Row identifier.
-  id         Int            @id @default(autoincrement())
-  /// The support request.
-  request_id Int
-  /// The Odoo user who wrote the message.
-  author_id  Int
-  /// Text of the message.
-  body       String         @db.Text
-  /// When the message was sent: Odoo's creation time of the message.
-  create_date DateTime
-  /// The support request.
-  request    SupportRequest @relation(fields: [request_id], references: [id], onDelete: Cascade)
-  /// The Odoo user who wrote the message.
-  author     User           @relation("SupportAuthor", fields: [author_id], references: [id], onDelete: Restrict)
-
-  @@index([request_id, create_date])
-  @@map("medilab_support_message")
-}
-
-/// A customer's rating and comment on a completed order. Visible to sales and management, never to other customers.
-model Feedback {
-  /// Row identifier.
-  id          Int           @id @default(autoincrement())
-  /// The completed order rated; one feedback per order.
-  order_id    Int           @unique
-  /// Rating from 1 to 5.
-  rating      Int
-  /// The customer's comment.
-  comment     String?       @db.Text
-  /// The Odoo user who gave the feedback.
-  given_by_id Int
+  id         Int      @id @default(autoincrement())
+  /// sale.order.
+  res_model  String   @db.VarChar
   /// The completed order rated.
-  order       CustomerOrder @relation(fields: [order_id], references: [id], onDelete: Restrict)
-  /// The Odoo user who gave the feedback.
-  given_by    User          @relation("FeedbackGiver", fields: [given_by_id], references: [id], onDelete: Restrict)
+  res_id     Int
+  /// Rating from 1 to 5.
+  rating     Decimal  @db.Decimal
+  /// The customer's comment.
+  feedback   String?  @db.Text
+  /// The customer's contact who gave the rating.
+  partner_id Int
+  /// True once the customer has given the rating.
+  consumed   Boolean  @default(false)
+  /// The customer's contact who gave the rating.
+  partner    Contact  @relation(fields: [partner_id], references: [id], onDelete: Restrict)
 
+  @@unique([res_model, res_id])
   @@index([rating])
-  @@map("medilab_feedback")
+  @@map("rating_rating")
 }
