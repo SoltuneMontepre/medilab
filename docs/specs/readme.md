@@ -22,7 +22,7 @@ Stories: US-AD13, US-AD15
 
 ## Specs
 
-None yet.
+- [Permissions](permissions.md): how permission, role and person records become Odoo groups, access rules and record rules, and how the own-department scope is applied
 
 ## Related documents
 

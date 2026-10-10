@@ -1,0 +1,375 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* demo
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-10 03:45+0000\n"
+"PO-Revision-Date: 2026-10-10 03:45+0000\n"
+"Last-Translator: \n"
+"Language-Team: Vietnamese\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: demo
+#: model:medilab.sample.type,storage_conditions:demo.sample_type_cabbage
+msgid "0–4 °C"
+msgstr "0–4 °C"
+
+#. module: demo
+#: model:medilab.chemical,storage_conditions:demo.chemical_lead_standard
+msgid "2–8 °C"
+msgstr "2–8 °C"
+
+#. module: demo
+#: model:medilab.sample.type,storage_conditions:demo.sample_type_bottled_water
+msgid "2–8 °C, away from light"
+msgstr "2–8 °C, tránh ánh sáng"
+
+#. module: demo
+#: model:medilab.sample.type,storage_conditions:demo.sample_type_surface_water
+msgid "2–8 °C, tested within 24 hours"
+msgstr "2–8 °C, thử nghiệm trong vòng 24 giờ"
+
+#. module: demo
+#: model:medilab.role,name:demo.demo_role_accountant
+msgid "Accountant"
+msgstr "Kế Toán"
+
+#. module: demo
+#: model:medilab.chemical,name:demo.chemical_acetonitrile
+msgid "Acetonitrile"
+msgstr "Acetonitril"
+
+#. module: demo
+#: model:medilab.chemical,storage_conditions:demo.chemical_nitric_acid
+msgid "Acid cabinet, away from organic substances"
+msgstr "Tủ đựng axit, tránh xa chất hữu cơ"
+
+#. module: demo
+#: model:medilab.unit.category,name:demo.unit_category_acidity
+msgid "Acidity"
+msgstr "Độ axit"
+
+#. module: demo
+#: model:medilab.sample.type,name:demo.sample_type_animal_feed
+msgid "Animal feed"
+msgstr "Thức ăn chăn nuôi"
+
+#. module: demo
+#: model:medilab.sample.type,name:demo.sample_type_bottled_water
+msgid "Bottled water"
+msgstr "Nước đóng chai"
+
+#. module: demo
+#: model:medilab.sample.type,name:demo.sample_type_cabbage
+msgid "Cabbage"
+msgstr "Bắp cải"
+
+#. module: demo
+#: model:medilab.testing.field,name:demo.field_chemistry
+msgid "Chemistry"
+msgstr "Hóa học"
+
+#. module: demo
+#: model:medilab.test.parameter,name:demo.parameter_chlorpyrifos
+msgid "Chlorpyrifos"
+msgstr "Chlorpyrifos"
+
+#. module: demo
+#: model:medilab.test.parameter,name:demo.parameter_coliforms
+msgid "Coliforms"
+msgstr "Coliform"
+
+#. module: demo
+#: model:medilab.sample.type,sampling_requirements:demo.sample_type_bottled_water
+msgid "Collect sealed bottles from the same lot."
+msgstr "Lấy các chai còn niêm phong cùng một lô."
+
+#. module: demo
+#: model:medilab.sample.type,sampling_requirements:demo.sample_type_cabbage
+msgid "Collect whole heads in clean paper bags."
+msgstr "Lấy nguyên cây, đựng trong túi giấy sạch."
+
+#. module: demo
+#: model:medilab.sample.type,disposal_method:demo.sample_type_cabbage
+msgid "Dispose of as organic waste."
+msgstr "Hủy như rác thải hữu cơ."
+
+#. module: demo
+#: model:medilab.chemical,storage_conditions:demo.chemical_sodium_chloride
+msgid "Dry place, room temperature"
+msgstr "Nơi khô ráo, nhiệt độ phòng"
+
+#. module: demo
+#: model:medilab.test.parameter,name:demo.parameter_e_coli
+msgid "E. coli"
+msgstr "E. coli"
+
+#. module: demo
+#: model:medilab.sample.type,name:demo.sample_type_environment
+msgid "Environment"
+msgstr "Môi trường"
+
+#. module: demo
+#: model:medilab.quality.registration,name:demo.quality_registration_expired
+msgid ""
+"Environmental monitoring registration with the Ministry of Natural Resources "
+"and Environment"
+msgstr "Đăng ký quan trắc môi trường với Bộ Tài nguyên và Môi trường"
+
+#. module: demo
+#: model:medilab.chemical,storage_conditions:demo.chemical_acetonitrile
+msgid "Flammables cabinet"
+msgstr "Tủ đựng chất dễ cháy"
+
+#. module: demo
+#: model:medilab.sample.type,name:demo.sample_type_food
+msgid "Food"
+msgstr "Thực phẩm"
+
+#. module: demo
+#: model:medilab.quality.registration,name:demo.quality_registration_valid
+msgid "Food testing registration with the Ministry of Health"
+msgstr "Đăng ký kiểm nghiệm thực phẩm với Bộ Y tế"
+
+#. module: demo
+#: model:medilab.testing.method,name:demo.method_en_15662
+msgid ""
+"Foods of plant origin — Multimethod for the determination of pesticide "
+"residues using GC- and LC-based analysis following acetonitrile extraction "
+"(QuEChERS)"
+msgstr ""
+"Thực phẩm có nguồn gốc thực vật — Phương pháp đa dư lượng xác định dư lượng "
+"thuốc bảo vệ thực vật bằng GC và LC sau khi chiết bằng acetonitril (QuEChERS)"
+
+#. module: demo
+#: model:medilab.testing.method,name:demo.method_tcvn_7602
+msgid ""
+"Foodstuffs — Determination of lead content by atomic absorption "
+"spectrophotometry"
+msgstr ""
+"Thực phẩm — Xác định hàm lượng chì bằng phương pháp quang phổ hấp thụ nguyên "
+"tử"
+
+#. module: demo
+#: model:medilab.role,name:demo.demo_role_head_of_department
+msgid "Head of department"
+msgstr "Trưởng Phòng"
+
+#. module: demo
+#: model:medilab.role,name:demo.demo_role_head_of_sales
+msgid "Head of sales"
+msgstr "Trưởng Phòng Kinh Doanh"
+
+#. module: demo
+#: model:medilab.parameter.group,name:demo.group_heavy_metals
+msgid "Heavy metals"
+msgstr "Kim loại nặng"
+
+#. module: demo
+#: model:medilab.role,name:demo.demo_role_lab_head
+msgid "Lab head"
+msgstr "Trưởng Phòng Thí Nghiệm"
+
+#. module: demo
+#: model:medilab.test.parameter,name:demo.parameter_lead
+msgid "Lead (Pb)"
+msgstr "Chì (Pb)"
+
+#. module: demo
+#: model:medilab.chemical,name:demo.chemical_lead_standard
+msgid "Lead standard solution 1000 mg/L"
+msgstr "Dung dịch chuẩn chì 1000 mg/L"
+
+#. module: demo
+#: model:medilab.unit.category,name:demo.unit_category_mass
+msgid "Mass"
+msgstr "Khối lượng"
+
+#. module: demo
+#: model:medilab.unit.category,name:demo.unit_category_liquid_concentration
+msgid "Mass concentration in liquid"
+msgstr "Nồng độ khối lượng trong chất lỏng"
+
+#. module: demo
+#: model:medilab.unit.category,name:demo.unit_category_mass_fraction
+msgid "Mass fraction"
+msgstr "Phần khối lượng"
+
+#. module: demo
+#: model:medilab.unit.category,name:demo.unit_category_count_per_mass
+msgid "Microbial count per mass"
+msgstr "Mật độ vi sinh vật theo khối lượng"
+
+#. module: demo
+#: model:medilab.unit.category,name:demo.unit_category_count_per_volume
+msgid "Microbial count per volume"
+msgstr "Mật độ vi sinh vật theo thể tích"
+
+#. module: demo
+#: model:medilab.parameter.group,name:demo.group_microbiology
+#: model:medilab.testing.field,name:demo.field_microbiology
+msgid "Microbiology"
+msgstr "Vi sinh"
+
+#. module: demo
+#: model:medilab.testing.method,name:demo.method_iso_4832
+msgid ""
+"Microbiology of food and animal feeding stuffs — Enumeration of coliforms — "
+"Colony-count technique"
+msgstr ""
+"Vi sinh vật trong thực phẩm và thức ăn chăn nuôi — Định lượng coliform — Kỹ "
+"thuật đếm khuẩn lạc"
+
+#. module: demo
+#: model:medilab.testing.method,name:demo.method_iso_16649_2
+msgid ""
+"Microbiology of food and animal feeding stuffs — Enumeration of β-"
+"glucuronidase-positive Escherichia coli — Part 2: Colony-count technique at "
+"44 °C"
+msgstr ""
+"Vi sinh vật trong thực phẩm và thức ăn chăn nuôi — Định lượng Escherichia "
+"coli dương tính β-glucuronidaza — Phần 2: Kỹ thuật đếm khuẩn lạc ở 44 °C"
+
+#. module: demo
+#: model:medilab.regulation,name:demo.regulation_qcvn_6_1
+msgid ""
+"National technical regulation on natural mineral waters and bottled drinking "
+"waters"
+msgstr ""
+"Quy chuẩn kỹ thuật quốc gia đối với nước khoáng thiên nhiên và nước uống "
+"đóng chai"
+
+#. module: demo
+#: model:medilab.chemical,name:demo.chemical_nitric_acid
+msgid "Nitric acid 65%"
+msgstr "Axit nitric 65%"
+
+#. module: demo
+#: model:medilab.regulation.limit,limit_text:demo.regulation_limit_qcvn_6_1_coliforms
+#: model:medilab.regulation.limit,limit_text:demo.regulation_limit_qcvn_6_1_e_coli
+msgid "Not detected"
+msgstr "Không phát hiện"
+
+#. module: demo
+#: model:medilab.parameter.group,name:demo.group_organophosphates
+msgid "Organophosphates"
+msgstr "Lân hữu cơ"
+
+#. module: demo
+#: model:medilab.parameter.group,name:demo.group_pesticides
+msgid "Pesticides"
+msgstr "Thuốc bảo vệ thực vật"
+
+#. module: demo
+#: model:medilab.parameter.group,name:demo.group_physicochemical
+msgid "Physicochemical"
+msgstr "Hóa lý"
+
+#. module: demo
+#: model:medilab.sample.type,disposal_method:demo.sample_type_bottled_water
+msgid "Pour into the drain and recycle the bottles."
+msgstr "Đổ vào cống thải và tái chế chai."
+
+#. module: demo
+#: model:medilab.sample.type,post_test_requirements:demo.sample_type_bottled_water
+msgid "Reseal the remaining bottles and label them with the lab code."
+msgstr "Niêm phong lại các chai còn lại và dán nhãn mã PTN."
+
+#. module: demo
+#: model:medilab.chemical,storage_conditions:demo.chemical_ph_buffer
+msgid "Room temperature, tightly closed"
+msgstr "Nhiệt độ phòng, đậy kín"
+
+#. module: demo
+#: model:medilab.role,name:demo.demo_role_sales
+msgid "Sales"
+msgstr "Nhân Viên Kinh Doanh"
+
+#. module: demo
+#: model:medilab.role,name:demo.demo_role_sample_delivery_staff
+msgid "Sample delivery staff"
+msgstr "Nhân Viên Giao Nhận Mẫu"
+
+#. module: demo
+#: model:medilab.chemical,name:demo.chemical_sodium_chloride
+msgid "Sodium chloride"
+msgstr "Natri clorua"
+
+#. module: demo
+#: model:medilab.testing.method,name:demo.method_tcvn_5979
+msgid "Soil quality — Determination of pH"
+msgstr "Chất lượng đất — Xác định pH"
+
+#. module: demo
+#: model:medilab.role,name:demo.demo_role_storekeeper
+msgid "Storekeeper"
+msgstr "Thủ Kho"
+
+#. module: demo
+#: model:medilab.sample.type,name:demo.sample_type_surface_water
+msgid "Surface water"
+msgstr "Nước mặt"
+
+#. module: demo
+#: model:medilab.role,name:demo.demo_role_tester
+msgid "Tester"
+msgstr "Thử Nghiệm Viên"
+
+#. module: demo
+#: model:medilab.sample.type,name:demo.sample_type_vegetables
+msgid "Vegetables"
+msgstr "Rau"
+
+#. module: demo
+#: model:medilab.unit.category,name:demo.unit_category_volume
+msgid "Volume"
+msgstr "Thể tích"
+
+#. module: demo
+#: model:medilab.testing.method,name:demo.method_iso_17294_2
+msgid ""
+"Water quality — Application of inductively coupled plasma mass spectrometry "
+"— Part 2: Determination of selected elements"
+msgstr ""
+"Chất lượng nước — Ứng dụng phép đo phổ khối lượng plasma cảm ứng cao tần — "
+"Phần 2: Xác định một số nguyên tố"
+
+#. module: demo
+#: model:medilab.testing.method,name:demo.method_tcvn_6187_2
+msgid ""
+"Water quality — Detection and enumeration of coliform organisms — Part 2: "
+"Multiple tube (most probable number) method"
+msgstr ""
+"Chất lượng nước — Phát hiện và đếm vi khuẩn coliform — Phần 2: Phương pháp "
+"nhiều ống (số có xác suất lớn nhất)"
+
+#. module: demo
+#: model:medilab.testing.method,name:demo.method_tcvn_6492
+msgid "Water quality — Determination of pH"
+msgstr "Chất lượng nước — Xác định pH"
+
+#. module: demo
+#: model:medilab.testing.method,name:demo.method_tcvn_6187_1
+msgid ""
+"Water quality — Enumeration of Escherichia coli and coliform bacteria — Part "
+"1: Membrane filtration method"
+msgstr ""
+"Chất lượng nước — Phát hiện và đếm Escherichia coli và vi khuẩn coliform — "
+"Phần 1: Phương pháp lọc màng"
+
+#. module: demo
+#: model:medilab.test.parameter,name:demo.parameter_ph
+msgid "pH"
+msgstr "pH"
+
+#. module: demo
+#: model:medilab.chemical,name:demo.chemical_ph_buffer
+msgid "pH buffer solution 7.00"
+msgstr "Dung dịch đệm pH 7,00"

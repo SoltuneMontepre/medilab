@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_department_chemistry" model="medilab.department">
+        <field name="name">Chemistry</field>
+    </record>
+    <record id="demo_department_microbiology" model="medilab.department">
+        <field name="name">Microbiology</field>
+    </record>
+    <record id="demo_department_sample_reception" model="medilab.department">
+        <field name="name">Sample reception</field>
+    </record>
+</odoo>
