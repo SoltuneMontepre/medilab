@@ -2,4 +2,5 @@ base
 sol_laboratory
 sol_commerce
 sol_inventory
+sol_theme
 sol_demo

@@ -1,6 +1,7 @@
 # Module boundaries
 
 - E-commerce and Inventory depend on Laboratory; Laboratory depends on neither.
+- The Medilab Theme module (`sol_theme`) depends on no MediLab module, and no MediLab module depends on it.
 - Customers, tasks and schedules belong to Laboratory, so they work without E-commerce. E-commerce keeps prices, taxes, service packages and each customer's sales terms.
 - Machines and chemical information belong to Laboratory. Departments and their teams belong to Laboratory. Inventory manages stock, stores, containers and their expiry, movement between stores, recipes, suppliers and purchasing, cost centres and budgets, how much of each item one test of a method uses, and which containers and lots each test result used.
 
@@ -10,13 +11,14 @@ MediLab is built on Odoo Community and extends its apps where they hold a concep
 
 - A module depends only on Odoo Community apps and the MediLab modules above. No module depends on Odoo Enterprise, so every module installs on a free Odoo.
 - A module depends on as few apps as it needs. An app that only brings features MediLab does not use, or a concept that does not fit, is not added; MediLab keeps its own model instead.
-- When an app has the concept, MediLab extends its model with `_inherit` and its views, instead of adding a model of its own.
+- When an app has the concept, MediLab extends its model with `_inherit` and its views, instead of adding a model of its own. A MediLab concept with its own lifecycle, permissions or links, which the app holds only part of, is its own model delegating to the app's record with `_inherits`, as [Database conventions](../conventions/database.md#models) states.
 
 | Module     | Odoo apps it depends on                             |
 | ---------- | --------------------------------------------------- |
 | Laboratory | `hr`, `portal`, `calendar`                          |
 | E-commerce | `sale`, `l10n_vn`, `rating`                         |
 | Inventory  | `stock_account`, `product_expiry`, `purchase_stock` |
+| Theme      | `web`                                               |
 
 
 Each module also has every app its own apps depend on: `mail`, `bus` and `resource` through `hr`; `account`, `account_payment`, `payment` and `product` through `sale`; `account_qr_code_emv` through `l10n_vn`; `stock`, `uom` and `purchase` through Inventory's apps.
@@ -26,7 +28,7 @@ Each module also has every app its own apps depend on: `mail`, `bus` and `resour
 | Concept                                   | Built on                                                                                                                                                         |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Department, team                          | `hr.department`; a team is a department whose parent is its department                                                                                           |
-| Person                                    | `hr.employee`, with their Odoo user and work contact                                                                                                             |
+| Person                                    | `medilab.person`, delegating to `hr.employee` with `_inherits`: its table holds the team, roles and direct permissions, and the employee the name, user, work contact and department |
 | Role, permission                          | MediLab roles and permissions generating Odoo groups (`res.groups`) and accesses (`ir.access`), see [Permissions](../specs/permissions.md)                        |
 | Customer, subcontractor, supplier         | `res.partner`, with the customer, subcontractor and supplier details MediLab keeps for it                                                                        |
 | Personal schedule, reminders              | `calendar.event`: every planned task and machine booking has one, kept in step both ways with MediLab's task management; its alarm is the reminder               |

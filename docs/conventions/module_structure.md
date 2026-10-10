@@ -15,14 +15,14 @@ How code inside an Odoo module is laid out.
 | `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
 | `tasks`             | Task types and tasks                                                                                                                                                             |
 | `management`        | Features only managers use                                                                                                                                                       |
-| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, menus and the theme                                                                        |
+| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices and menus                                                                        |
 
 ## Files
 
-- One model per file, named after the model: `test_parameter.py`. An extension of an Odoo model is named after the Odoo model and lives in the folder of its MediLab concern, such as `models/system/hr_employee.py` for people and `models/tasks/calendar_event.py` for schedules.
+- One model per file, named after the model: `test_parameter.py`. An extension of an Odoo model is named after the Odoo model and lives in the folder of its MediLab concern, such as `models/system/hr_department.py` for departments and `models/tasks/calendar_event.py` for schedules.
 - Views of a model go in `<model>_views.xml`.
 - Menus are defined only in `views/system/menus.xml` and loaded last in `__manifest__.py`, after the actions they open.
-- Theme assets live in `static/src/theme/`, split into `scss/`, `js/`, `xml/` and `img/`.
+- The look of the system lives in its own module, `sol_theme`, under `static/src/`, split into `scss/`, `js/`, `xml/` and `img/`. No other module refers to its assets, so every module works with Odoo's own look.
 - A view type the module adds lives in `static/src/views/<view>/`, such as the timeline in `static/src/views/timeline/`; a screen of a concern lives in `static/src/<concern>/<screen>/`, such as `static/src/tasks/dashboard/`.
 
 ## Permissions

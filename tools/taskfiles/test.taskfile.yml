@@ -21,10 +21,12 @@ tasks:
       - task: test:apps
 
   test:core:
-    desc: "Run the Odoo module tests with coverage in a throwaway database; task test:core MODULES=a,b limits them"
+    desc: "Run the tests of every module in src/core/modules.txt with coverage in a throwaway database; task test:core MODULES=a,b limits them"
     silent: true
     vars:
-      MODULES: '{{.MODULES | default "sol_laboratory"}}'
+      ALL_MODULES:
+        sh: grep -v '^base$' src/core/modules.txt | tr -d '\r' | tr '\n' ',' | sed 's/,$//'
+      MODULES: '{{.MODULES | default .ALL_MODULES}}'
       TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
     cmds:
       - docker compose up -d --wait postgres

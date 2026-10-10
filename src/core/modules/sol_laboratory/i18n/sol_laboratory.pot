@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 14:07+0000\n"
-"PO-Revision-Date: 2026-10-10 14:07+0000\n"
+"POT-Creation-Date: 2026-10-10 07:39+0000\n"
+"PO-Revision-Date: 2026-10-10 07:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -23,22 +23,10 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
-msgid "%(person)s is not in %(department)s."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
 "%s does not tell editing from archiving yet, so it has no edit or archive "
 "permission."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s due today"
 msgstr ""
 
 #. module: sol_laboratory
@@ -47,42 +35,6 @@ msgstr ""
 msgid ""
 "%s has no department, so a permission on it cannot be limited to the "
 "person's department."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is already claimed."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is already finished."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is cancelled by the system when its work is cancelled."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is done by the system once its work is done."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is finished and cannot be assigned again."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is not open."
 msgstr ""
 
 #. module: sol_laboratory
@@ -101,33 +53,9 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s needs an assignee or a department whose queue holds it."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s open"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s overdue"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid ""
 "%s signs in, so their login cannot be emptied; archive the person instead."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s waits in a queue you do not belong to."
 msgstr ""
 
 #. module: sol_laboratory
@@ -159,11 +87,6 @@ msgid "A permission with this code already exists."
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__person
-msgid "A person"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_unique
 msgid "A regulation sets at most one limit per parameter."
 msgstr ""
@@ -176,22 +99,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_run_minutes_positive
 msgid "A run takes at least one minute."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_planned_period
-msgid "A task cannot end before it starts."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "A task created by hand needs an assignee and a deadline."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_code_unique
-msgid "A task type with this code already exists."
 msgstr ""
 
 #. module: sol_laboratory
@@ -221,15 +128,10 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__action
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__action
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__action
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 msgid "Action"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_ir_actions_act_window_view
-msgid "Action Window View"
 msgstr ""
 
 #. module: sol_laboratory
@@ -287,19 +189,8 @@ msgid "Administrator"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task
-msgid "All Tasks"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__all
 msgid "All records"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "All tasks"
 msgstr ""
 
 #. module: sol_laboratory
@@ -307,12 +198,6 @@ msgstr ""
 msgid ""
 "All the emails and documents sent to this contact will be translated in this"
 " language."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Applications"
 msgstr ""
 
 #. module: sol_laboratory
@@ -373,35 +258,6 @@ msgid "Archiving and Deleting Rules"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_reassign
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
-msgid "Assign"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_task_reassign
-msgid "Assign Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__assigned
-msgid "Assigned"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assigned_by_id
-msgid "Assigned By"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Assignee"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__available_additional_identifiers_metadata
 msgid "Available Additional Identifiers Metadata"
 msgstr ""
@@ -432,11 +288,6 @@ msgid "Avatar 512"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_awaiting
-msgid "Awaiting Tasks"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__bank_ids
 msgid "Banks"
 msgstr ""
@@ -452,12 +303,6 @@ msgid "CAS Number"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Calendar"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__calibration
 msgid "Calibration"
 msgstr ""
@@ -465,16 +310,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
 msgid "Calibration Overdue"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Cancel Task"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__cancelled
-msgid "Cancelled"
 msgstr ""
 
 #. module: sol_laboratory
@@ -512,28 +347,8 @@ msgid "Chemicals"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_type.py:0
-msgid "Choose the role whose holders receive tasks of %s."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__city
 msgid "City"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_awaiting_list
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
-msgid "Claim"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
-msgid "Closed By System"
 msgstr ""
 
 #. module: sol_laboratory
@@ -546,10 +361,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__code
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__code
 msgid "Code"
 msgstr ""
 
@@ -651,16 +466,6 @@ msgid "Create roles"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_create_all
-msgid "Create tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_create_own_department
-msgid "Create tasks of their department"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__create_uid
@@ -677,13 +482,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -704,31 +509,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_date
 msgid "Created on"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Day"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__deadline
-msgid "Deadline"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Deadline: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -739,11 +527,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_default
 msgid "Default"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__deadline_hours
-msgid "Default Deadline (Hours)"
 msgstr ""
 
 #. module: sol_laboratory
@@ -772,29 +555,14 @@ msgid "Delete roles"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_delete_all
-msgid "Delete tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_delete_own_department
-msgid "Delete tasks of their department"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_department
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__department_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__department_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__department
-msgid "Department queue"
 msgstr ""
 
 #. module: sol_laboratory
@@ -804,32 +572,12 @@ msgid "Departments"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Details of the work"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__permission_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "Direct Permissions"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
-msgid "Discard"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Discard all changes"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__display_name
@@ -849,14 +597,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -866,45 +616,11 @@ msgid "Disposal Method"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Document"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__document_model
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 msgid "Document Type"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__done
-msgid "Done"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
-msgid "Done At"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Due %s"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Due today at %s"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Due tomorrow at %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -948,21 +664,6 @@ msgid "Edit roles"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_type_edit_all
-msgid "Edit task types"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_edit_all
-msgid "Edit tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_edit_own_department
-msgid "Edit tasks of their department"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__partner_share
 msgid ""
 "Either customer (not a user), either shared user. Indicated the current "
@@ -979,12 +680,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__employee
 msgid "Employee"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Esc"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1007,23 +702,6 @@ msgid "Filled from the sequence when left empty"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Find an app"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_finished
-msgid "Finished Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Finished tasks"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__email_formatted
 msgid "Format email address \"Name <email@domain>\""
 msgstr ""
@@ -1039,11 +717,6 @@ msgid "Formula"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.task.type,name:sol_laboratory.task_type_general
-msgid "General task"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
@@ -1052,32 +725,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Give a reason for moving %s to another person or department."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid "Give a role to people from the person."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Good afternoon, %s"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Good evening, %s"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Good morning, %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1102,13 +751,6 @@ msgid "Has Tax ID"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__role
-msgid "Holders of a role"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__id
@@ -1128,14 +770,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__id
 msgid "ID"
 msgstr ""
 
@@ -1165,16 +809,6 @@ msgid "Image 512"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__in_my_queue
-msgid "In My Queue"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
-msgid "In progress"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine__status__in_use
 msgid "In use"
 msgstr ""
@@ -1182,11 +816,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__industry_id
 msgid "Industry"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__is_mine
-msgid "Is Mine"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1226,11 +855,6 @@ msgid "LOQ"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Laboratory management system"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.module.module,summary:base.module_laboratory
 msgid ""
 "Laboratory testing core: test catalog, parameters, samples, results and "
@@ -1259,13 +883,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -1286,13 +910,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -1313,19 +937,8 @@ msgid "Limits"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "List"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location
 msgid "Location"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Log in"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1388,24 +1001,8 @@ msgid "Maintenance Interval Days"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Manage samples, testing processes and results on a unified platform."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__manufacturer
 msgid "Manufacturer"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Mark Done"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Mark done"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1455,35 +1052,6 @@ msgid "Model"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Month"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Move"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "My Queue"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_mine
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "My Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "My tasks"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__name
@@ -1496,8 +1064,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__name
@@ -1512,13 +1078,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__name
 msgid "Name"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Next"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1537,47 +1099,6 @@ msgid "Next Maintenance Date"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Next up"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/js/boolean_button_group_field.js:0
-msgid "No"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "No app matches your search."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "No deadline"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "No open tasks. Tasks you are given or claim appear here."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_model.js:0
-msgid "None"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Not Finished"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__note
@@ -1588,53 +1109,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__comment
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_form
 msgid "Notes"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Nothing is planned or due in this period."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Nothing open on your list."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Nothing planned today. Give a task a planned start to see it here."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_type.py:0
-msgid "Only a task type routed to a role names a role."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Only an assigned task can be started."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Only the assignee of %s can do this."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__open
-msgid "Open"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Overdue since %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1837,51 +1311,6 @@ msgid "Permission: role.read.all"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_create_all
-msgid "Permission: task.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_create_own_department
-msgid "Permission: task.create.own_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_delete_all
-msgid "Permission: task.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_delete_own_department
-msgid "Permission: task.delete.own_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_edit_all
-msgid "Permission: task.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_edit_own_department
-msgid "Permission: task.edit.own_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_read_all
-msgid "Permission: task.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_read_own_department
-msgid "Permission: task.read.own_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_type_edit_all
-msgid "Permission: task.type.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_permission
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__permission_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_permission
@@ -1901,24 +1330,8 @@ msgid "Phone"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_end
-msgid "Planned End"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_start
-msgid "Planned Start"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__post_test_requirements
 msgid "Post Test Requirements"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Previous"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1973,31 +1386,6 @@ msgid "Read roles"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_read_all
-msgid "Read tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_read_own_department
-msgid "Read tasks of their department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
-msgid "Reason"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason_required
-msgid "Reason Required"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__reassign_reason
-msgid "Reassign Reason"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__reference
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ref
 msgid "Reference"
@@ -2028,12 +1416,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__child_ids
 msgid "Related Contacts"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/user_switch.xml:0
-msgid "Remove user from switcher"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2088,12 +1470,6 @@ msgid "Roles"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__route
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_type_search
-msgid "Route"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__run_minutes
 msgid "Run Minutes"
 msgstr ""
@@ -2124,24 +1500,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__sampling_requirements
 msgid "Sampling Requirements"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Save"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Save manually"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Scale"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2176,27 +1534,8 @@ msgid "Share Partner"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Show as"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Show awaiting tasks"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__sign
 msgid "Sign"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Start"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2211,8 +1550,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__status
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Status"
 msgstr ""
@@ -2255,57 +1594,8 @@ msgid "Subcontractors"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "System administration"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "System introduction"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__category_id
 msgid "Tags"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_task
-msgid "Task"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_task_type
-msgid "Task Type"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_type
-#: model:ir.ui.menu,name:sol_laboratory.menu_task_type
-msgid "Task Types"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_type.py:0
-msgid ""
-"Task types come with the modules; only their route, role and default "
-"deadline can change."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.client,name:sol_laboratory.action_medilab_task_dashboard
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__task_ids
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__task_ids
-#: model:ir.ui.menu,name:sol_laboratory.menu_tasks_root
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_calendar
-msgid "Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Tasks of %s are created by the system."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2437,11 +1727,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_code_unique
 msgid "The code of a testing method must be unique."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_deadline_hours_positive
-msgid "The default deadline cannot be negative."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2592,14 +1877,6 @@ msgid "This user already belongs to another person."
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_actions_act_window_view__view_mode__timeline
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_ui_view__type__timeline
-msgid "Timeline"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__tz
 msgid "Timezone"
 msgstr ""
@@ -2607,28 +1884,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__tz_offset
 msgid "Timezone offset"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Today"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__trigger
-msgid "Trigger"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__type_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Type"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Unassigned"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2695,17 +1950,6 @@ msgid "Valid Until"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_ir_ui_view
-msgid "View"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__view_mode
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__type
-msgid "View Type"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_parameter_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__parameter_method_id
 msgid "Way of Testing"
@@ -2725,23 +1969,11 @@ msgid "Website Link"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Week"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__tz
 msgid ""
 "When printing documents and exporting/importing data, time values are computed according to this timezone.\n"
 "If the timezone is not set, UTC (Coordinated Universal Time) is used.\n"
 "Anywhere else, time values are computed according to the time offset of your web client."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/js/boolean_button_group_field.js:0
-msgid "Yes"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2758,6 +1990,688 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__zip
 msgid "Zip"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "%(person)s is not in %(department)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s due today"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is already claimed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is already finished."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is cancelled by the system when its work is cancelled."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is done by the system once its work is done."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is finished and cannot be assigned again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is not open."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s needs an assignee or a department whose queue holds it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s open"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s overdue"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s waits in a queue you do not belong to."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__person
+msgid "A person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_planned_period
+msgid "A task cannot end before it starts."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "A task created by hand needs an assignee and a deadline."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_code_unique
+msgid "A task type with this code already exists."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_actions_act_window_view
+msgid "Action Window View"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task
+msgid "All Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "All tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_reassign
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
+msgid "Assign"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_task_reassign
+msgid "Assign Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__assigned
+msgid "Assigned"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assigned_by_id
+msgid "Assigned By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Assignee"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_awaiting
+msgid "Awaiting Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Calendar"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Cancel Task"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__cancelled
+msgid "Cancelled"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_type.py:0
+msgid "Choose the role whose holders receive tasks of %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_awaiting_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
+msgid "Claim"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
+msgid "Closed By System"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_create_all
+msgid "Create tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_create_own_department
+msgid "Create tasks of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Day"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__deadline
+msgid "Deadline"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Deadline: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__deadline_hours
+msgid "Default Deadline (Hours)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_delete_all
+msgid "Delete tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_delete_own_department
+msgid "Delete tasks of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__department
+msgid "Department queue"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Details of the work"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
+msgid "Discard"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Document"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__done
+msgid "Done"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
+msgid "Done At"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Due %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Due today at %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Due tomorrow at %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_type_edit_all
+msgid "Edit task types"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_edit_all
+msgid "Edit tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_edit_own_department
+msgid "Edit tasks of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_finished
+msgid "Finished Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Finished tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.task.type,name:sol_laboratory.task_type_general
+msgid "General task"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Give a reason for moving %s to another person or department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Good afternoon, %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Good evening, %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Good morning, %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__role
+msgid "Holders of a role"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__in_my_queue
+msgid "In My Queue"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
+msgid "In progress"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__is_mine
+msgid "Is Mine"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "List"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Mark Done"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Mark done"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Month"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Move"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "My Queue"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_mine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "My Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "My tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Next"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Next up"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "No deadline"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "No open tasks. Tasks you are given or claim appear here."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_model.js:0
+msgid "None"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Not Finished"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Nothing is planned or due in this period."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Nothing open on your list."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Nothing planned today. Give a task a planned start to see it here."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_type.py:0
+msgid "Only a task type routed to a role names a role."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Only an assigned task can be started."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Only the assignee of %s can do this."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__open
+msgid "Open"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Overdue since %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_create_all
+msgid "Permission: task.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_create_own_department
+msgid "Permission: task.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_delete_all
+msgid "Permission: task.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_delete_own_department
+msgid "Permission: task.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_edit_all
+msgid "Permission: task.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_edit_own_department
+msgid "Permission: task.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_read_all
+msgid "Permission: task.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_read_own_department
+msgid "Permission: task.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_type_edit_all
+msgid "Permission: task.type.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_end
+msgid "Planned End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_start
+msgid "Planned Start"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Previous"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_read_all
+msgid "Read tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_read_own_department
+msgid "Read tasks of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
+msgid "Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason_required
+msgid "Reason Required"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__reassign_reason
+msgid "Reassign Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__route
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_type_search
+msgid "Route"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Scale"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Show as"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Show awaiting tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Start"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_task
+msgid "Task"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_task_type
+msgid "Task Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_type
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_type
+msgid "Task Types"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_type.py:0
+msgid ""
+"Task types come with the modules; only their route, role and default "
+"deadline can change."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.client,name:sol_laboratory.action_medilab_task_dashboard
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__task_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__task_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_tasks_root
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_calendar
+msgid "Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Tasks of %s are created by the system."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_deadline_hours_positive
+msgid "The default deadline cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_actions_act_window_view__view_mode__timeline
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_ui_view__type__timeline
+msgid "Timeline"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Today"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__trigger
+msgid "Trigger"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__type_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Unassigned"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_ui_view
+msgid "View"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__view_mode
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__type
+msgid "View Type"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Week"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2783,3 +2697,4 @@ msgstr ""
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
 msgid "waiting in your queues"
 msgstr ""
+

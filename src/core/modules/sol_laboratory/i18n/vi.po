@@ -24,23 +24,11 @@ msgstr "%(document_type)s không có quyền %(action)s."
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
-msgid "%(person)s is not in %(department)s."
-msgstr "%(person)s không thuộc %(department)s."
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
 "%s does not tell editing from archiving yet, so it has no edit or archive "
 "permission."
 msgstr "%s chưa phân biệt sửa và lưu trữ, nên chưa có quyền sửa hoặc lưu trữ."
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s due today"
-msgstr "%s đến hạn hôm nay"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -54,46 +42,9 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is already claimed."
-msgstr "%s đã có người nhận."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is already finished."
-msgstr "%s đã kết thúc."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is cancelled by the system when its work is cancelled."
-msgstr "%s được hệ thống hủy khi công việc của nhiệm vụ bị hủy."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is done by the system once its work is done."
-msgstr "%s được hệ thống đánh dấu hoàn thành khi công việc của nhiệm vụ hoàn thành."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is finished and cannot be assigned again."
-msgstr "%s đã kết thúc và không thể giao lại."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is not open."
-msgstr "%s không còn mở."
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
 msgid ""
-"%s is tested either in-house by a department or by a subcontractor, not "
-"both."
+"%s is tested either in-house by a department or by a subcontractor, not both."
 msgstr ""
 "%s được thử tại phòng thí nghiệm bởi một phòng ban hoặc bởi một thầu phụ, "
 "không thể cả hai."
@@ -106,36 +57,12 @@ msgstr "và %s bản ghi khác"
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s needs an assignee or a department whose queue holds it."
-msgstr "%s cần có người thực hiện hoặc phòng ban giữ nhiệm vụ trong hàng đợi."
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s open"
-msgstr "%s đang mở"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s overdue"
-msgstr "%s quá hạn"
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid ""
 "%s signs in, so their login cannot be emptied; archive the person instead."
 msgstr ""
 "%s đang đăng nhập vào hệ thống, nên không thể xóa tên đăng nhập; hãy lưu trữ "
 "nhân sự thay vào đó."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s waits in a queue you do not belong to."
-msgstr "%s đang chờ trong hàng đợi mà bạn không thuộc về."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -166,11 +93,6 @@ msgid "A permission with this code already exists."
 msgstr "Đã có quyền với mã này."
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__person
-msgid "A person"
-msgstr "Một nhân sự"
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_unique
 msgid "A regulation sets at most one limit per parameter."
 msgstr "Mỗi quy chuẩn chỉ đặt tối đa một giới hạn cho mỗi chỉ tiêu."
@@ -184,22 +106,6 @@ msgstr "Đã có vai trò với mã này."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_run_minutes_positive
 msgid "A run takes at least one minute."
 msgstr "Một lần chạy mất ít nhất một phút."
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_planned_period
-msgid "A task cannot end before it starts."
-msgstr "Nhiệm vụ không thể kết thúc trước khi bắt đầu."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "A task created by hand needs an assignee and a deadline."
-msgstr "Nhiệm vụ tạo thủ công cần có người thực hiện và hạn chót."
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_code_unique
-msgid "A task type with this code already exists."
-msgstr "Đã có loại nhiệm vụ với mã này."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_one_default
@@ -228,16 +134,11 @@ msgstr "Được công nhận"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__action
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__action
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__action
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 msgid "Action"
 msgstr "Hành động"
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_ir_actions_act_window_view
-msgid "Action Window View"
-msgstr "Giao diện của hành động cửa sổ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__active
@@ -294,34 +195,17 @@ msgid "Administrator"
 msgstr "Quản Trị Viên"
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task
-msgid "All Tasks"
-msgstr "Tất cả nhiệm vụ"
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__all
 msgid "All records"
 msgstr "Mọi bản ghi"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "All tasks"
-msgstr "Tất cả nhiệm vụ"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__lang
 msgid ""
-"All the emails and documents sent to this contact will be translated in this"
-" language."
+"All the emails and documents sent to this contact will be translated in this "
+"language."
 msgstr ""
 "Tất cả email và tài liệu gửi cho liên hệ này sẽ được dịch sang ngôn ngữ này."
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Applications"
-msgstr "Ứng dụng"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
@@ -381,35 +265,6 @@ msgid "Archiving and Deleting Rules"
 msgstr "Quy tắc lưu trữ và xóa"
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_reassign
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
-msgid "Assign"
-msgstr "Giao việc"
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_task_reassign
-msgid "Assign Tasks"
-msgstr "Giao nhiệm vụ"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__assigned
-msgid "Assigned"
-msgstr "Đã giao"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assigned_by_id
-msgid "Assigned By"
-msgstr "Người giao"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Assignee"
-msgstr "Người thực hiện"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__available_additional_identifiers_metadata
 msgid "Available Additional Identifiers Metadata"
 msgstr "Siêu dữ liệu mã định danh bổ sung khả dụng"
@@ -440,11 +295,6 @@ msgid "Avatar 512"
 msgstr "Ảnh đại diện 512"
 
 #. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_awaiting
-msgid "Awaiting Tasks"
-msgstr "Nhiệm vụ chờ nhận"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__bank_ids
 msgid "Banks"
 msgstr "Ngân hàng"
@@ -460,12 +310,6 @@ msgid "CAS Number"
 msgstr "Số CAS"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Calendar"
-msgstr "Lịch"
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__calibration
 msgid "Calibration"
 msgstr "Hiệu chuẩn"
@@ -474,16 +318,6 @@ msgstr "Hiệu chuẩn"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
 msgid "Calibration Overdue"
 msgstr "Quá hạn hiệu chuẩn"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Cancel Task"
-msgstr "Hủy nhiệm vụ"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__cancelled
-msgid "Cancelled"
-msgstr "Đã hủy"
 
 #. module: sol_laboratory
 #: model:ir.ui.menu,name:sol_laboratory.menu_master_data_catalog
@@ -520,29 +354,9 @@ msgid "Chemicals"
 msgstr "Hóa Chất"
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_type.py:0
-msgid "Choose the role whose holders receive tasks of %s."
-msgstr "Chọn vai trò mà người giữ vai trò đó nhận nhiệm vụ của %s."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__city
 msgid "City"
 msgstr "Thành phố"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_awaiting_list
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
-msgid "Claim"
-msgstr "Nhận việc"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
-msgid "Closed By System"
-msgstr "Do hệ thống kết thúc"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__code
@@ -554,10 +368,10 @@ msgstr "Do hệ thống kết thúc"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__code
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__code
 msgid "Code"
 msgstr "Mã"
 
@@ -659,16 +473,6 @@ msgid "Create roles"
 msgstr "Tạo vai trò"
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_create_all
-msgid "Create tasks"
-msgstr "Tạo nhiệm vụ"
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_create_own_department
-msgid "Create tasks of their department"
-msgstr "Tạo nhiệm vụ của phòng ban mình"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__create_uid
@@ -685,13 +489,13 @@ msgstr "Tạo nhiệm vụ của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -712,32 +516,15 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Day"
-msgstr "Ngày"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__deadline
-msgid "Deadline"
-msgstr "Hạn chót"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Deadline: %s"
-msgstr "Hạn chót: %s"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__decimals
@@ -748,11 +535,6 @@ msgstr "Số chữ số thập phân"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_default
 msgid "Default"
 msgstr "Mặc định"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__deadline_hours
-msgid "Default Deadline (Hours)"
-msgstr "Hạn chót mặc định (giờ)"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__delete
@@ -780,30 +562,15 @@ msgid "Delete roles"
 msgstr "Xóa vai trò"
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_delete_all
-msgid "Delete tasks"
-msgstr "Xóa nhiệm vụ"
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_delete_own_department
-msgid "Delete tasks of their department"
-msgstr "Xóa nhiệm vụ của phòng ban mình"
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_department
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__department_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__department_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Department"
 msgstr "Phòng Ban"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__department
-msgid "Department queue"
-msgstr "Hàng đợi phòng ban"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_department
@@ -812,32 +579,12 @@ msgid "Departments"
 msgstr "Phòng Ban"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Details of the work"
-msgstr "Chi tiết công việc"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__permission_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "Direct Permissions"
 msgstr "Quyền Trực Tiếp"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
-msgid "Discard"
-msgstr "Hủy"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Discard all changes"
-msgstr "Hủy tất cả thay đổi"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__display_name
@@ -857,14 +604,16 @@ msgstr "Hủy tất cả thay đổi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -874,46 +623,12 @@ msgid "Disposal Method"
 msgstr "Cách hủy mẫu"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Document"
-msgstr "Chứng từ"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__document_model
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 msgid "Document Type"
 msgstr "Loại Chứng Từ"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__done
-msgid "Done"
-msgstr "Hoàn thành"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
-msgid "Done At"
-msgstr "Hoàn thành lúc"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Due %s"
-msgstr "Đến hạn %s"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Due today at %s"
-msgstr "Đến hạn hôm nay lúc %s"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Due tomorrow at %s"
-msgstr "Đến hạn ngày mai lúc %s"
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_permission_group_unique
@@ -956,21 +671,6 @@ msgid "Edit roles"
 msgstr "Sửa vai trò"
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_type_edit_all
-msgid "Edit task types"
-msgstr "Sửa loại nhiệm vụ"
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_edit_all
-msgid "Edit tasks"
-msgstr "Sửa nhiệm vụ"
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_edit_own_department
-msgid "Edit tasks of their department"
-msgstr "Sửa nhiệm vụ của phòng ban mình"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__partner_share
 msgid ""
 "Either customer (not a user), either shared user. Indicated the current "
@@ -993,12 +693,6 @@ msgid "Employee"
 msgstr "Nhân viên"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Esc"
-msgstr "Esc"
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_search
 msgid "Expired"
 msgstr "Đã hết hạn"
@@ -1018,23 +712,6 @@ msgid "Filled from the sequence when left empty"
 msgstr "Tự sinh khi để trống"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Find an app"
-msgstr "Tìm ứng dụng"
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_finished
-msgid "Finished Tasks"
-msgstr "Nhiệm vụ đã hoàn thành"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Finished tasks"
-msgstr "Nhiệm vụ đã hoàn thành"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__email_formatted
 msgid "Format email address \"Name <email@domain>\""
 msgstr "Định dạng địa chỉ email \"Tên <email@domain>\""
@@ -1050,11 +727,6 @@ msgid "Formula"
 msgstr "Công thức"
 
 #. module: sol_laboratory
-#: model:medilab.task.type,name:sol_laboratory.task_type_general
-msgid "General task"
-msgstr "Nhiệm vụ chung"
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
@@ -1063,33 +735,9 @@ msgstr "Hãy cấp quyền cho vai trò từ vai trò, và cho nhân sự từ n
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Give a reason for moving %s to another person or department."
-msgstr "Nhập lý do chuyển %s cho người hoặc phòng ban khác."
-
-#. module: sol_laboratory
-#. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid "Give a role to people from the person."
 msgstr "Hãy gán vai trò cho nhân sự từ nhân sự."
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Good afternoon, %s"
-msgstr "Chào buổi chiều, %s"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Good evening, %s"
-msgstr "Chào buổi tối, %s"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Good morning, %s"
-msgstr "Chào buổi sáng, %s"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__grade
@@ -1113,13 +761,6 @@ msgid "Has Tax ID"
 msgstr "Có mã số thuế"
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__role
-msgid "Holders of a role"
-msgstr "Người giữ một vai trò"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__id
@@ -1139,14 +780,16 @@ msgstr "Người giữ một vai trò"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__id
 msgid "ID"
 msgstr "ID"
 
@@ -1176,16 +819,6 @@ msgid "Image 512"
 msgstr "Hình ảnh 512"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__in_my_queue
-msgid "In My Queue"
-msgstr "Trong hàng đợi của tôi"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
-msgid "In progress"
-msgstr "Đang thực hiện"
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine__status__in_use
 msgid "In use"
 msgstr "Đang sử dụng"
@@ -1194,11 +827,6 @@ msgstr "Đang sử dụng"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__industry_id
 msgid "Industry"
 msgstr "Ngành"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__is_mine
-msgid "Is Mine"
-msgstr "Của tôi"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__is_public
@@ -1237,11 +865,6 @@ msgid "LOQ"
 msgstr "LOQ"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Laboratory management system"
-msgstr "Hệ thống quản lý phòng thử nghiệm"
-
-#. module: sol_laboratory
 #: model:ir.module.module,summary:base.module_laboratory
 msgid ""
 "Laboratory testing core: test catalog, parameters, samples, results and "
@@ -1270,13 +893,13 @@ msgstr "Ngôn ngữ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -1297,13 +920,13 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -1324,20 +947,9 @@ msgid "Limits"
 msgstr "Giới hạn"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "List"
-msgstr "Danh sách"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location
 msgid "Location"
 msgstr "Vị trí"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Log in"
-msgstr "Đăng nhập"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__login
@@ -1399,26 +1011,9 @@ msgid "Maintenance Interval Days"
 msgstr "Chu kỳ bảo trì (ngày)"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Manage samples, testing processes and results on a unified platform."
-msgstr ""
-"Quản lý mẫu, quy trình thử nghiệm và kết quả trên một nền tảng thống nhất."
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__manufacturer
 msgid "Manufacturer"
 msgstr "Nhà sản xuất"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Mark Done"
-msgstr "Đánh dấu hoàn thành"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Mark done"
-msgstr "Đánh dấu hoàn thành"
 
 #. module: sol_laboratory
 #: model:ir.ui.menu,name:sol_laboratory.menu_master_data_root
@@ -1467,35 +1062,6 @@ msgid "Model"
 msgstr "Model máy"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Month"
-msgstr "Tháng"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Move"
-msgstr "Di chuyển"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "My Queue"
-msgstr "Hàng đợi của tôi"
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_mine
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "My Tasks"
-msgstr "Nhiệm vụ của tôi"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "My tasks"
-msgstr "Nhiệm vụ của tôi"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__name
@@ -1508,8 +1074,6 @@ msgstr "Nhiệm vụ của tôi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__name
@@ -1524,14 +1088,10 @@ msgstr "Nhiệm vụ của tôi"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__name
 msgid "Name"
 msgstr "Tên"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Next"
-msgstr "Tiếp"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__next_calibration_date
@@ -1549,47 +1109,6 @@ msgid "Next Maintenance Date"
 msgstr "Ngày bảo trì tiếp theo"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Next up"
-msgstr "Việc tiếp theo"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/js/boolean_button_group_field.js:0
-msgid "No"
-msgstr "Không"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "No app matches your search."
-msgstr "Không có ứng dụng nào khớp với tìm kiếm."
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "No deadline"
-msgstr "Không có hạn chót"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "No open tasks. Tasks you are given or claim appear here."
-msgstr "Không có nhiệm vụ đang mở. Nhiệm vụ được giao hoặc bạn nhận sẽ hiện ở đây."
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_model.js:0
-msgid "None"
-msgstr "Không có"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Not Finished"
-msgstr "Chưa kết thúc"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__note
@@ -1601,53 +1120,6 @@ msgstr "Ghi chú"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_form
 msgid "Notes"
 msgstr "Ghi chú"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Nothing is planned or due in this period."
-msgstr "Không có việc nào được lên kế hoạch hoặc đến hạn trong khoảng thời gian này."
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Nothing open on your list."
-msgstr "Bạn không có việc nào đang mở."
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Nothing planned today. Give a task a planned start to see it here."
-msgstr "Hôm nay chưa có kế hoạch. Đặt thời gian bắt đầu dự kiến cho nhiệm vụ để thấy ở đây."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_type.py:0
-msgid "Only a task type routed to a role names a role."
-msgstr "Chỉ loại nhiệm vụ chuyển đến một vai trò mới ghi vai trò."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Only an assigned task can be started."
-msgstr "Chỉ nhiệm vụ đã giao mới có thể bắt đầu."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Only the assignee of %s can do this."
-msgstr "Chỉ người thực hiện %s mới có thể làm việc này."
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__open
-msgid "Open"
-msgstr "Mở"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Overdue since %s"
-msgstr "Quá hạn từ %s"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
@@ -1849,51 +1321,6 @@ msgid "Permission: role.read.all"
 msgstr "Quyền: role.read.all"
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_create_all
-msgid "Permission: task.create.all"
-msgstr "Quyền: task.create.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_create_own_department
-msgid "Permission: task.create.own_department"
-msgstr "Quyền: task.create.own_department"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_delete_all
-msgid "Permission: task.delete.all"
-msgstr "Quyền: task.delete.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_delete_own_department
-msgid "Permission: task.delete.own_department"
-msgstr "Quyền: task.delete.own_department"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_edit_all
-msgid "Permission: task.edit.all"
-msgstr "Quyền: task.edit.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_edit_own_department
-msgid "Permission: task.edit.own_department"
-msgstr "Quyền: task.edit.own_department"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_read_all
-msgid "Permission: task.read.all"
-msgstr "Quyền: task.read.all"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_read_own_department
-msgid "Permission: task.read.own_department"
-msgstr "Quyền: task.read.own_department"
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_type_edit_all
-msgid "Permission: task.type.edit.all"
-msgstr "Quyền: task.type.edit.all"
-
-#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_permission
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__permission_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_permission
@@ -1913,25 +1340,9 @@ msgid "Phone"
 msgstr "Điện thoại"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_end
-msgid "Planned End"
-msgstr "Kết thúc dự kiến"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_start
-msgid "Planned Start"
-msgstr "Bắt đầu dự kiến"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__post_test_requirements
 msgid "Post Test Requirements"
 msgstr "Yêu cầu sau thử nghiệm"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Previous"
-msgstr "Trước"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__properties
@@ -1985,31 +1396,6 @@ msgid "Read roles"
 msgstr "Xem vai trò"
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_read_all
-msgid "Read tasks"
-msgstr "Xem nhiệm vụ"
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_read_own_department
-msgid "Read tasks of their department"
-msgstr "Xem nhiệm vụ của phòng ban mình"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
-msgid "Reason"
-msgstr "Lý do"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason_required
-msgid "Reason Required"
-msgstr "Cần lý do"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__reassign_reason
-msgid "Reassign Reason"
-msgstr "Lý do giao lại"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__reference
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ref
 msgid "Reference"
@@ -2041,12 +1427,6 @@ msgstr "Công ty liên quan"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__child_ids
 msgid "Related Contacts"
 msgstr "Liên hệ liên quan"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/user_switch.xml:0
-msgid "Remove user from switcher"
-msgstr "Xóa người dùng khỏi danh sách"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__repair
@@ -2100,12 +1480,6 @@ msgid "Roles"
 msgstr "Vai Trò"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__route
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_type_search
-msgid "Route"
-msgstr "Nơi nhận"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__run_minutes
 msgid "Run Minutes"
 msgstr "Thời gian chạy (phút)"
@@ -2139,24 +1513,6 @@ msgid "Sampling Requirements"
 msgstr "Yêu cầu lấy mẫu"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Save"
-msgstr "Lưu"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Save manually"
-msgstr "Lưu thủ công"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Scale"
-msgstr "Tỷ lệ"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__scope
 msgid "Scope"
 msgstr "Phạm vi"
@@ -2188,28 +1544,9 @@ msgid "Share Partner"
 msgstr "Đối tác chia sẻ"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Show as"
-msgstr "Hiển thị dạng"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Show awaiting tasks"
-msgstr "Xem nhiệm vụ chờ nhận"
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__sign
 msgid "Sign"
 msgstr "Ký"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Start"
-msgstr "Bắt đầu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__state_id
@@ -2223,8 +1560,8 @@ msgstr "Thống kê"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__status
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Status"
 msgstr "Trạng thái"
@@ -2267,58 +1604,9 @@ msgid "Subcontractors"
 msgstr "Thầu Phụ"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "System administration"
-msgstr "Quản trị hệ thống"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "System introduction"
-msgstr "Giới thiệu hệ thống"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__category_id
 msgid "Tags"
 msgstr "Thẻ"
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_task
-msgid "Task"
-msgstr "Nhiệm Vụ"
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_task_type
-msgid "Task Type"
-msgstr "Loại Nhiệm Vụ"
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_type
-#: model:ir.ui.menu,name:sol_laboratory.menu_task_type
-msgid "Task Types"
-msgstr "Loại nhiệm vụ"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_type.py:0
-msgid ""
-"Task types come with the modules; only their route, role and default "
-"deadline can change."
-msgstr "Loại nhiệm vụ đi kèm các phân hệ; chỉ có thể đổi nơi nhận, vai trò và hạn chót mặc định."
-
-#. module: sol_laboratory
-#: model:ir.actions.client,name:sol_laboratory.action_medilab_task_dashboard
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__task_ids
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__task_ids
-#: model:ir.ui.menu,name:sol_laboratory.menu_tasks_root
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_calendar
-msgid "Tasks"
-msgstr "Nhiệm vụ"
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Tasks of %s are created by the system."
-msgstr "Nhiệm vụ của %s do hệ thống tạo."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__vat
@@ -2454,11 +1742,6 @@ msgid "The code of a testing method must be unique."
 msgstr "Mã phương pháp thử phải là duy nhất."
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_deadline_hours_positive
-msgid "The default deadline cannot be negative."
-msgstr "Hạn chót mặc định không được âm."
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
@@ -2554,8 +1837,8 @@ msgstr "Số hiệu quy chuẩn phải là duy nhất."
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid ""
-"The role code %s may contain only lowercase letters, digits and underscores,"
-" and starts with a letter."
+"The role code %s may contain only lowercase letters, digits and underscores, "
+"and starts with a letter."
 msgstr ""
 "Mã vai trò %s chỉ gồm chữ thường, chữ số và dấu gạch dưới, và bắt đầu bằng "
 "một chữ cái."
@@ -2617,14 +1900,6 @@ msgid "This user already belongs to another person."
 msgstr "Tài khoản này đã thuộc về một nhân sự khác."
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_actions_act_window_view__view_mode__timeline
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_ui_view__type__timeline
-msgid "Timeline"
-msgstr "Dòng thời gian"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__tz
 msgid "Timezone"
 msgstr "Múi giờ"
@@ -2633,28 +1908,6 @@ msgstr "Múi giờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__tz_offset
 msgid "Timezone offset"
 msgstr "Độ lệch múi giờ"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Today"
-msgstr "Hôm nay"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__trigger
-msgid "Trigger"
-msgstr "Sự kiện tạo"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__type_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Type"
-msgstr "Loại"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Unassigned"
-msgstr "Chưa giao"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
@@ -2720,17 +1973,6 @@ msgid "Valid Until"
 msgstr "Hiệu lực đến"
 
 #. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_ir_ui_view
-msgid "View"
-msgstr "Giao diện"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__view_mode
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__type
-msgid "View Type"
-msgstr "Loại giao diện"
-
-#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_parameter_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__parameter_method_id
 msgid "Way of Testing"
@@ -2750,27 +1992,17 @@ msgid "Website Link"
 msgstr "Liên kết website"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Week"
-msgstr "Tuần"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__tz
 msgid ""
-"When printing documents and exporting/importing data, time values are computed according to this timezone.\n"
+"When printing documents and exporting/importing data, time values are "
+"computed according to this timezone.\n"
 "If the timezone is not set, UTC (Coordinated Universal Time) is used.\n"
-"Anywhere else, time values are computed according to the time offset of your web client."
+"Anywhere else, time values are computed according to the time offset of your "
+"web client."
 msgstr ""
 "Khi in tài liệu và xuất/nhập dữ liệu, thời gian được tính theo múi giờ này.\n"
 "Nếu chưa đặt múi giờ, hệ thống dùng UTC (Giờ phối hợp quốc tế).\n"
 "Ở những nơi khác, thời gian được tính theo độ lệch múi giờ của trình duyệt."
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/js/boolean_button_group_field.js:0
-msgid "Yes"
-msgstr "Có"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -2789,6 +2021,727 @@ msgstr "Bạn có thể dùng '/' để cho biết khách hàng không có mã s
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__zip
 msgid "Zip"
 msgstr "Mã bưu chính"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "%(person)s is not in %(department)s."
+msgstr "%(person)s không thuộc %(department)s."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s due today"
+msgstr "%s đến hạn hôm nay"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is already claimed."
+msgstr "%s đã có người nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is already finished."
+msgstr "%s đã kết thúc."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is cancelled by the system when its work is cancelled."
+msgstr "%s được hệ thống hủy khi công việc của nhiệm vụ bị hủy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is done by the system once its work is done."
+msgstr "%s được hệ thống đánh dấu hoàn thành khi công việc của nhiệm vụ hoàn thành."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is finished and cannot be assigned again."
+msgstr "%s đã kết thúc và không thể giao lại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is not open."
+msgstr "%s không còn mở."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid ""
+"%s is tested either in-house by a department or by a subcontractor, not "
+"both."
+msgstr ""
+"%s được thử tại phòng thí nghiệm bởi một phòng ban hoặc bởi một thầu phụ, "
+"không thể cả hai."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s needs an assignee or a department whose queue holds it."
+msgstr "%s cần có người thực hiện hoặc phòng ban giữ nhiệm vụ trong hàng đợi."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s open"
+msgstr "%s đang mở"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s overdue"
+msgstr "%s quá hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s waits in a queue you do not belong to."
+msgstr "%s đang chờ trong hàng đợi mà bạn không thuộc về."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__person
+msgid "A person"
+msgstr "Một nhân sự"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_planned_period
+msgid "A task cannot end before it starts."
+msgstr "Nhiệm vụ không thể kết thúc trước khi bắt đầu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "A task created by hand needs an assignee and a deadline."
+msgstr "Nhiệm vụ tạo thủ công cần có người thực hiện và hạn chót."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_code_unique
+msgid "A task type with this code already exists."
+msgstr "Đã có loại nhiệm vụ với mã này."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_actions_act_window_view
+msgid "Action Window View"
+msgstr "Giao diện của hành động cửa sổ"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task
+msgid "All Tasks"
+msgstr "Tất cả nhiệm vụ"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "All tasks"
+msgstr "Tất cả nhiệm vụ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__lang
+msgid ""
+"All the emails and documents sent to this contact will be translated in this"
+" language."
+msgstr ""
+"Tất cả email và tài liệu gửi cho liên hệ này sẽ được dịch sang ngôn ngữ này."
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_reassign
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
+msgid "Assign"
+msgstr "Giao việc"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_task_reassign
+msgid "Assign Tasks"
+msgstr "Giao nhiệm vụ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__assigned
+msgid "Assigned"
+msgstr "Đã giao"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assigned_by_id
+msgid "Assigned By"
+msgstr "Người giao"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Assignee"
+msgstr "Người thực hiện"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_awaiting
+msgid "Awaiting Tasks"
+msgstr "Nhiệm vụ chờ nhận"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Calendar"
+msgstr "Lịch"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Cancel Task"
+msgstr "Hủy nhiệm vụ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__cancelled
+msgid "Cancelled"
+msgstr "Đã hủy"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_type.py:0
+msgid "Choose the role whose holders receive tasks of %s."
+msgstr "Chọn vai trò mà người giữ vai trò đó nhận nhiệm vụ của %s."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_awaiting_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
+msgid "Claim"
+msgstr "Nhận việc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
+msgid "Closed By System"
+msgstr "Do hệ thống kết thúc"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_create_all
+msgid "Create tasks"
+msgstr "Tạo nhiệm vụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_create_own_department
+msgid "Create tasks of their department"
+msgstr "Tạo nhiệm vụ của phòng ban mình"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Day"
+msgstr "Ngày"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__deadline
+msgid "Deadline"
+msgstr "Hạn chót"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Deadline: %s"
+msgstr "Hạn chót: %s"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__deadline_hours
+msgid "Default Deadline (Hours)"
+msgstr "Hạn chót mặc định (giờ)"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_delete_all
+msgid "Delete tasks"
+msgstr "Xóa nhiệm vụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_delete_own_department
+msgid "Delete tasks of their department"
+msgstr "Xóa nhiệm vụ của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__department
+msgid "Department queue"
+msgstr "Hàng đợi phòng ban"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Details of the work"
+msgstr "Chi tiết công việc"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
+msgid "Discard"
+msgstr "Hủy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Document"
+msgstr "Chứng từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__done
+msgid "Done"
+msgstr "Hoàn thành"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
+msgid "Done At"
+msgstr "Hoàn thành lúc"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Due %s"
+msgstr "Đến hạn %s"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Due today at %s"
+msgstr "Đến hạn hôm nay lúc %s"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Due tomorrow at %s"
+msgstr "Đến hạn ngày mai lúc %s"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_type_edit_all
+msgid "Edit task types"
+msgstr "Sửa loại nhiệm vụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_edit_all
+msgid "Edit tasks"
+msgstr "Sửa nhiệm vụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_edit_own_department
+msgid "Edit tasks of their department"
+msgstr "Sửa nhiệm vụ của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_finished
+msgid "Finished Tasks"
+msgstr "Nhiệm vụ đã hoàn thành"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Finished tasks"
+msgstr "Nhiệm vụ đã hoàn thành"
+
+#. module: sol_laboratory
+#: model:medilab.task.type,name:sol_laboratory.task_type_general
+msgid "General task"
+msgstr "Nhiệm vụ chung"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Give a reason for moving %s to another person or department."
+msgstr "Nhập lý do chuyển %s cho người hoặc phòng ban khác."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Good afternoon, %s"
+msgstr "Chào buổi chiều, %s"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Good evening, %s"
+msgstr "Chào buổi tối, %s"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Good morning, %s"
+msgstr "Chào buổi sáng, %s"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__role
+msgid "Holders of a role"
+msgstr "Người giữ một vai trò"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__in_my_queue
+msgid "In My Queue"
+msgstr "Trong hàng đợi của tôi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
+msgid "In progress"
+msgstr "Đang thực hiện"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__is_mine
+msgid "Is Mine"
+msgstr "Của tôi"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "List"
+msgstr "Danh sách"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Mark Done"
+msgstr "Đánh dấu hoàn thành"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Mark done"
+msgstr "Đánh dấu hoàn thành"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Month"
+msgstr "Tháng"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Move"
+msgstr "Di chuyển"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "My Queue"
+msgstr "Hàng đợi của tôi"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_mine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "My Tasks"
+msgstr "Nhiệm vụ của tôi"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "My tasks"
+msgstr "Nhiệm vụ của tôi"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Next"
+msgstr "Tiếp"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Next up"
+msgstr "Việc tiếp theo"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "No deadline"
+msgstr "Không có hạn chót"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "No open tasks. Tasks you are given or claim appear here."
+msgstr "Không có nhiệm vụ đang mở. Nhiệm vụ được giao hoặc bạn nhận sẽ hiện ở đây."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_model.js:0
+msgid "None"
+msgstr "Không có"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Not Finished"
+msgstr "Chưa kết thúc"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Nothing is planned or due in this period."
+msgstr "Không có việc nào được lên kế hoạch hoặc đến hạn trong khoảng thời gian này."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Nothing open on your list."
+msgstr "Bạn không có việc nào đang mở."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Nothing planned today. Give a task a planned start to see it here."
+msgstr "Hôm nay chưa có kế hoạch. Đặt thời gian bắt đầu dự kiến cho nhiệm vụ để thấy ở đây."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_type.py:0
+msgid "Only a task type routed to a role names a role."
+msgstr "Chỉ loại nhiệm vụ chuyển đến một vai trò mới ghi vai trò."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Only an assigned task can be started."
+msgstr "Chỉ nhiệm vụ đã giao mới có thể bắt đầu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Only the assignee of %s can do this."
+msgstr "Chỉ người thực hiện %s mới có thể làm việc này."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__open
+msgid "Open"
+msgstr "Mở"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Overdue since %s"
+msgstr "Quá hạn từ %s"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_create_all
+msgid "Permission: task.create.all"
+msgstr "Quyền: task.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_create_own_department
+msgid "Permission: task.create.own_department"
+msgstr "Quyền: task.create.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_delete_all
+msgid "Permission: task.delete.all"
+msgstr "Quyền: task.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_delete_own_department
+msgid "Permission: task.delete.own_department"
+msgstr "Quyền: task.delete.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_edit_all
+msgid "Permission: task.edit.all"
+msgstr "Quyền: task.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_edit_own_department
+msgid "Permission: task.edit.own_department"
+msgstr "Quyền: task.edit.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_read_all
+msgid "Permission: task.read.all"
+msgstr "Quyền: task.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_read_own_department
+msgid "Permission: task.read.own_department"
+msgstr "Quyền: task.read.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_type_edit_all
+msgid "Permission: task.type.edit.all"
+msgstr "Quyền: task.type.edit.all"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_end
+msgid "Planned End"
+msgstr "Kết thúc dự kiến"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_start
+msgid "Planned Start"
+msgstr "Bắt đầu dự kiến"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Previous"
+msgstr "Trước"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_read_all
+msgid "Read tasks"
+msgstr "Xem nhiệm vụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_read_own_department
+msgid "Read tasks of their department"
+msgstr "Xem nhiệm vụ của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
+msgid "Reason"
+msgstr "Lý do"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason_required
+msgid "Reason Required"
+msgstr "Cần lý do"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__reassign_reason
+msgid "Reassign Reason"
+msgstr "Lý do giao lại"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__route
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_type_search
+msgid "Route"
+msgstr "Nơi nhận"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Scale"
+msgstr "Tỷ lệ"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Show as"
+msgstr "Hiển thị dạng"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Show awaiting tasks"
+msgstr "Xem nhiệm vụ chờ nhận"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Start"
+msgstr "Bắt đầu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_task
+msgid "Task"
+msgstr "Nhiệm Vụ"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_task_type
+msgid "Task Type"
+msgstr "Loại Nhiệm Vụ"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_type
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_type
+msgid "Task Types"
+msgstr "Loại nhiệm vụ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_type.py:0
+msgid ""
+"Task types come with the modules; only their route, role and default "
+"deadline can change."
+msgstr "Loại nhiệm vụ đi kèm các phân hệ; chỉ có thể đổi nơi nhận, vai trò và hạn chót mặc định."
+
+#. module: sol_laboratory
+#: model:ir.actions.client,name:sol_laboratory.action_medilab_task_dashboard
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__task_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__task_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_tasks_root
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_calendar
+msgid "Tasks"
+msgstr "Nhiệm vụ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Tasks of %s are created by the system."
+msgstr "Nhiệm vụ của %s do hệ thống tạo."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_deadline_hours_positive
+msgid "The default deadline cannot be negative."
+msgstr "Hạn chót mặc định không được âm."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/role.py:0
+msgid ""
+"The role code %s may contain only lowercase letters, digits and underscores,"
+" and starts with a letter."
+msgstr ""
+"Mã vai trò %s chỉ gồm chữ thường, chữ số và dấu gạch dưới, và bắt đầu bằng "
+"một chữ cái."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_actions_act_window_view__view_mode__timeline
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_ui_view__type__timeline
+msgid "Timeline"
+msgstr "Dòng thời gian"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Today"
+msgstr "Hôm nay"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__trigger
+msgid "Trigger"
+msgstr "Sự kiện tạo"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__type_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Type"
+msgstr "Loại"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Unassigned"
+msgstr "Chưa giao"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_ui_view
+msgid "View"
+msgstr "Giao diện"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__view_mode
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__type
+msgid "View Type"
+msgstr "Loại giao diện"
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Week"
+msgstr "Tuần"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__tz
+msgid ""
+"When printing documents and exporting/importing data, time values are computed according to this timezone.\n"
+"If the timezone is not set, UTC (Coordinated Universal Time) is used.\n"
+"Anywhere else, time values are computed according to the time offset of your web client."
+msgstr ""
+"Khi in tài liệu và xuất/nhập dữ liệu, thời gian được tính theo múi giờ này.\n"
+"Nếu chưa đặt múi giờ, hệ thống dùng UTC (Giờ phối hợp quốc tế).\n"
+"Ở những nơi khác, thời gian được tính theo độ lệch múi giờ của trình duyệt."
 
 #. module: sol_laboratory
 #. odoo-javascript
@@ -2813,3 +2766,4 @@ msgstr "nhiệm vụ chưa kết thúc bạn có thể xem."
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
 msgid "waiting in your queues"
 msgstr "đang chờ trong hàng đợi của bạn"
+

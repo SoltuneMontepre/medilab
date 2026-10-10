@@ -1,0 +1,107 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* laboratory
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-10 07:39+0000\n"
+"PO-Revision-Date: 2026-10-10 07:39+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/xml/app_drawer.xml:0
+msgid "Applications"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/xml/form_status_indicator.xml:0
+msgid "Discard"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/xml/form_status_indicator.xml:0
+msgid "Discard all changes"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/xml/app_drawer.xml:0
+msgid "Esc"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/xml/app_drawer.xml:0
+msgid "Find an app"
+msgstr ""
+
+#. module: sol_theme
+#: model_terms:ir.ui.view,arch_db:sol_theme.login_layout
+msgid "Laboratory management system"
+msgstr ""
+
+#. module: sol_theme
+#: model_terms:ir.ui.view,arch_db:sol_theme.login_layout
+msgid "Log in"
+msgstr ""
+
+#. module: sol_theme
+#: model_terms:ir.ui.view,arch_db:sol_theme.login_layout
+msgid "Manage samples, testing processes and results on a unified platform."
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/boolean_button_group_field.js:0
+msgid "No"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/xml/app_drawer.xml:0
+msgid "No app matches your search."
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/xml/user_switch.xml:0
+msgid "Remove user from switcher"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/xml/form_status_indicator.xml:0
+msgid "Save"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/xml/form_status_indicator.xml:0
+msgid "Save manually"
+msgstr ""
+
+#. module: sol_theme
+#: model_terms:ir.ui.view,arch_db:sol_theme.login_layout
+msgid "System administration"
+msgstr ""
+
+#. module: sol_theme
+#: model_terms:ir.ui.view,arch_db:sol_theme.login_layout
+msgid "System introduction"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/boolean_button_group_field.js:0
+msgid "Yes"
+msgstr ""

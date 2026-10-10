@@ -235,11 +235,11 @@ model Department {
   /// Teams the department is split into.
   teams             Department[]      @relation("DepartmentTeams")
   /// The head of the department, or the lead of a team.
-  manager           Person?           @relation("DepartmentManager", fields: [manager_id], references: [id], onDelete: SetNull)
+  manager           Employee?         @relation("DepartmentManager", fields: [manager_id], references: [id], onDelete: SetNull)
   /// Parameter and method pairs the department tests in-house.
   parameter_methods ParameterMethod[]
-  /// People in the department.
-  people            Person[]          @relation("PersonDepartment")
+  /// Employees in the department.
+  employees         Employee[]        @relation("EmployeeDepartment")
   /// People in the team.
   team_people       Person[]          @relation("PersonTeam")
   /// Notification events whose notifications go to the department.
@@ -406,8 +406,8 @@ model Contact {
   default_contact_for        Customer[]      @relation("CustomerDefaultContact")
   /// Test requests whose report this contact receives.
   received_reports           TestRequest[]   @relation("ReportRecipient")
-  /// The person whose details this contact holds.
-  person                     Person?
+  /// The employee whose details this contact holds.
+  employee                   Employee?
   /// Odoo users whose details this contact holds.
   users                      User[]          @relation("UserPartner")
 
@@ -859,30 +859,20 @@ model TestResult {
   @@map("medilab_test_result")
 }
 
-/// Odoo's employee (hr.employee), shown with the columns this schema uses and the columns the laboratory adds: someone who works for the laboratory. Their details are their work contact; their login is their Odoo user.
+/// Someone who works for the laboratory (medilab.person). It delegates to their Odoo employee with _inherits: this table holds the team, roles and direct permissions, and the employee their name, user, work contact and department.
 model Person {
   /// Row identifier.
   id            Int          @id @default(autoincrement())
-  /// The contact holding the person's details: name, email, phone, address; kept by Odoo's hr app.
-  work_contact_id Int        @unique
-  /// The Odoo user the person logs in as; empty for people who never sign in.
-  user_id       Int?         @unique
-  /// Department of the person.
-  department_id Int?
+  /// The Odoo employee the person delegates to.
+  employee_id   Int          @unique
   /// Team of the person: a department whose parent is the person's department.
   team_id       Int?
   /// False when the person is archived.
   active        Boolean      @default(true)
-  /// The contact holding the person's details.
-  work_contact  Contact      @relation(fields: [work_contact_id], references: [id], onDelete: Restrict)
-  /// The Odoo user the person logs in as.
-  user          User?        @relation(fields: [user_id], references: [id], onDelete: Restrict)
-  /// Department of the person.
-  department    Department?  @relation("PersonDepartment", fields: [department_id], references: [id], onDelete: Restrict)
+  /// The Odoo employee the person delegates to.
+  employee      Employee     @relation(fields: [employee_id], references: [id], onDelete: Cascade)
   /// Team of the person.
   team          Department?  @relation("PersonTeam", fields: [team_id], references: [id], onDelete: Restrict)
-  /// Departments the person heads and teams the person leads.
-  managed_departments Department[] @relation("DepartmentManager")
   /// Roles the person holds.
   roles         PersonRole[]
   /// Tasks assigned to the person.
@@ -914,8 +904,34 @@ model Person {
   /// Signatures the person gave.
   signatures    Signature[]
 
-  @@index([department_id])
   @@index([team_id])
+  @@map("medilab_person")
+}
+
+/// Odoo's employee (hr.employee), shown with the columns this schema uses: the Odoo record a person delegates to.
+model Employee {
+  /// Row identifier.
+  id              Int          @id @default(autoincrement())
+  /// The contact holding the employee's details: name, email, phone, address; kept by Odoo's hr app.
+  work_contact_id Int          @unique
+  /// The Odoo user the employee logs in as; empty for people who never sign in.
+  user_id         Int?         @unique
+  /// Department of the employee.
+  department_id   Int?
+  /// False when the employee is archived.
+  active          Boolean      @default(true)
+  /// The contact holding the employee's details.
+  work_contact    Contact      @relation(fields: [work_contact_id], references: [id], onDelete: Restrict)
+  /// The Odoo user the employee logs in as.
+  user            User?        @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  /// Department of the employee.
+  department      Department?  @relation("EmployeeDepartment", fields: [department_id], references: [id], onDelete: Restrict)
+  /// Departments the employee heads and teams the employee leads.
+  managed_departments Department[] @relation("DepartmentManager")
+  /// The MediLab person of the employee.
+  person          Person?
+
+  @@index([department_id])
   @@map("hr_employee")
 }
 
@@ -929,8 +945,8 @@ model User {
   partner_id Int
   /// The contact Odoo creates for the user's details.
   partner    Contact @relation("UserPartner", fields: [partner_id], references: [id], onDelete: Restrict)
-  /// The person this account belongs to.
-  person     Person?
+  /// The employee this account belongs to.
+  employee   Employee?
   /// Results the user entered.
   entered_results TestResult[]
   /// Audit entries of the user's actions.

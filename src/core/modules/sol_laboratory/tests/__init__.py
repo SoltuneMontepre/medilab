@@ -25,5 +25,4 @@ from . import (
     test_task_todo_list,
     test_task_types,
     test_tree_filters,
-    test_webmanifest,
 )
