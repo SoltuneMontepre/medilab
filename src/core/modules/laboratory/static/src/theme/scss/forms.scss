@@ -429,13 +429,18 @@
             box-shadow: none !important;
             min-height: 0 !important;
             padding: 0 !important;
-            width: auto !important;
             color: $ml-text !important;
         }
 
         input.o_input {
             flex: 1 1 auto !important;
             min-width: 0;
+            width: auto !important;
+        }
+
+        // Odoo 20 leaves the ghost value empty until the user types, which would put the symbol over the digits.
+        .o_monetary_ghost_value:empty + span {
+            visibility: hidden;
         }
 
         &:hover:not(:focus-within) {
@@ -943,13 +948,13 @@
                         }
                     }
 
-                    tr:not(.o_data_row):has(a) > td {
+                    tr:not(.o_data_row):has(.o_field_x2many_list_row_add) > td {
                         padding: 0.85rem 1rem !important;
                         background: $ml-surface !important;
                         border-bottom: none !important;
                     }
 
-                    tr:not(.o_data_row):not(:has(a)) {
+                    tr:not(.o_data_row):not(:has(.o_field_x2many_list_row_add)) {
                         display: none;
                     }
                 }
@@ -964,15 +969,15 @@
         }
 
         .o_field_x2many_list_row_add,
-        .o_field_x2many_list_row_add a,
-        .o_field_x2many_list_row_add a:hover {
+        .o_field_x2many_list_row_add .btn-link,
+        .o_field_x2many_list_row_add .btn-link:hover {
             color: $ml-primary !important;
             font-size: 0.75rem;
             font-weight: 600;
             letter-spacing: 0.03em;
         }
 
-        .o_field_x2many_list_row_add a:hover {
+        .o_field_x2many_list_row_add .btn-link:hover {
             text-decoration: underline;
         }
     }

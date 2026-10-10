@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_parameter_price_lead" model="medilab.parameter.price">
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="list_price">250000</field>
+        <field name="tax_id" ref="demo_tax_vat10" />
+    </record>
+    <record id="demo_parameter_price_coliforms" model="medilab.parameter.price">
+        <field name="parameter_id" ref="parameter_coliforms" />
+        <field name="list_price">120000</field>
+        <field name="tax_id" ref="demo_tax_vat10" />
+    </record>
+    <record id="demo_parameter_price_e_coli" model="medilab.parameter.price">
+        <field name="parameter_id" ref="parameter_e_coli" />
+        <field name="list_price">150000</field>
+        <field name="tax_id" ref="demo_tax_vat10" />
+    </record>
+    <record id="demo_parameter_price_ph" model="medilab.parameter.price">
+        <field name="parameter_id" ref="parameter_ph" />
+        <field name="list_price">50000</field>
+        <field name="tax_id" ref="demo_tax_vat10" />
+    </record>
+    <record id="demo_parameter_price_chlorpyrifos" model="medilab.parameter.price">
+        <field name="parameter_id" ref="parameter_chlorpyrifos" />
+        <field name="list_price">600000</field>
+        <field name="tax_id" ref="demo_tax_vat10" />
+    </record>
+</odoo>

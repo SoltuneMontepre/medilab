@@ -71,8 +71,12 @@ model ParameterPrice {
   parameter_id Int           @unique
   /// Price of one test, excluding VAT.
   list_price   Decimal       @db.Decimal
+  /// The currency of the price, always VND.
+  currency_id  Int
   /// The tax added to the price on quotations and invoices.
   tax_id       Int
+  /// False when the price is archived and the parameter is no longer sold.
+  active       Boolean       @default(true)
   /// The parameter the price is for.
   parameter    TestParameter @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
   /// The tax added to the price.
@@ -90,6 +94,10 @@ model SubcontractCost {
   parameter_method_id Int             @unique
   /// Cost of one test, excluding VAT.
   cost                Decimal         @db.Decimal
+  /// The currency of the cost, always VND.
+  currency_id         Int
+  /// False when the cost is archived.
+  active              Boolean         @default(true)
   /// The subcontracted parameter and method pair.
   parameter_method    ParameterMethod @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
 
@@ -147,6 +155,8 @@ model ServicePackage {
   name       Json
   /// Price of the whole package, excluding VAT.
   list_price Decimal              @db.Decimal
+  /// The currency of the price, always VND.
+  currency_id Int
   /// The tax added to the price on quotations and invoices.
   tax_id     Int
   /// False when the package is archived and no longer offered.

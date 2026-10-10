@@ -67,6 +67,16 @@ msgid "Bottled water"
 msgstr "Nước đóng chai"
 
 #. module: demo
+#: model:medilab.service.package,name:demo.demo_service_package_bottled_water_basic
+msgid "Bottled water basic"
+msgstr "Nước đóng chai cơ bản"
+
+#. module: demo
+#: model:medilab.service.package,name:demo.demo_service_package_bottled_water_microbiology
+msgid "Bottled water microbiology"
+msgstr "Vi sinh nước đóng chai"
+
+#. module: demo
 #: model:medilab.sample.type,name:demo.sample_type_cabbage
 msgid "Cabbage"
 msgstr "Bắp cải"
@@ -263,6 +273,11 @@ msgid "Not detected"
 msgstr "Không phát hiện"
 
 #. module: demo
+#: model:medilab.tax,name:demo.demo_tax_kct
+msgid "Not subject to VAT"
+msgstr "Không chịu thuế GTGT"
+
+#. module: demo
 #: model:medilab.parameter.group,name:demo.group_organophosphates
 msgid "Organophosphates"
 msgstr "Lân hữu cơ"
@@ -331,6 +346,11 @@ msgstr "Nước mặt"
 #: model:medilab.role,name:demo.demo_role_tester
 msgid "Tester"
 msgstr "Thử Nghiệm Viên"
+
+#. module: demo
+#: model:medilab.tax,name:demo.demo_tax_vat10
+msgid "VAT 10%"
+msgstr "Thuế GTGT 10%"
 
 #. module: demo
 #: model:medilab.sample.type,name:demo.sample_type_vegetables
