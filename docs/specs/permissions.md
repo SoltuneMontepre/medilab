@@ -36,6 +36,8 @@ A permission is one action on one document type within one scope. Its code is de
 | `all`            | every record: `[(1, '=', 1)]`                                                                            |
 | `own_department` | `[('department_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]`             |
 
+The team scope (`own_team`) planned for teams within departments follows the same mechanism through the person's team and is built with teams.
+
 A scope-`all` permission needs its always-true rule because Odoo applies only the rules of groups the user holds and combines them with "or": a person holding `person.read.all` and `person.read.own_department` reads every person. The own-department scope exists only for document types that have a `department_id` field; creating such a permission for another document type is refused. A record without a department belongs to nobody's department, so an own-department permission does not show it.
 
 The generated group, access rule and record rule carry external identifiers of the laboratory module that are not updated on upgrade:
