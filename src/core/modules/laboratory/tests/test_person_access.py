@@ -57,3 +57,14 @@ class TestPersonAccess(PeopleCase):
         fields = self.as_person(self.env[MODEL_PERSON], self.head).fields_get()
 
         self.assertFalse({"user_id", "login", "role_ids", "permission_ids"} & set(fields))
+
+    def test_person_editor_cannot_change_another_contact(self):
+        stranger = self.env["res.partner"].create({"name": "Mai Thi Thao", "email": "thao@customer.example"})
+        people = self.as_person(self.env[MODEL_PERSON], self.head)
+        self.grant(self.head, "person.create.own_department")
+
+        with self.assertRaises(AccessError):
+            people.create({"partner_id": stranger.id, "email": "giang@lab.example", "department_id": self.chemistry.id})
+        with self.assertRaises(AccessError):
+            self.as_person(self.chemist, self.head).write({"partner_id": stranger.id})
+        self.assertEqual(stranger.email, "thao@customer.example")

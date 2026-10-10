@@ -69,7 +69,8 @@ class Person(models.Model):
             if not vals.get("partner_id"):
                 vals["partner_id"] = self.env["res.partner"].sudo().create(contact).id
             elif contact:
-                self.env["res.partner"].sudo().browse(vals["partner_id"]).write(contact)
+                # An existing contact may belong to anyone, so only administrators change it with full rights.
+                self._contact_env()["res.partner"].browse(vals["partner_id"]).write(contact)
             if vals.get("login"):
                 self._check_field_access(self._fields["login"], "write")
             logins.append(vals.pop("login", False))
@@ -86,6 +87,10 @@ class Person(models.Model):
         login = vals.pop("login", None)
         if login is not None:
             self._check_field_access(self._fields["login"], "write")
+            if login and len(self) > 1:
+                raise UserError(self.env._("A login belongs to one person only."))
+        if "partner_id" in vals and any(person.partner_id.id != vals["partner_id"] for person in self):
+            self._contact_env()["res.partner"].browse(vals["partner_id"]).check_access("write")
         self._check_administrator_change(vals)
         previous_users = self.sudo().user_id
         if contact or login is not None:
@@ -141,10 +146,23 @@ class Person(models.Model):
         if administrator and self.env.ref(ADMINISTRATOR_ROLE) not in administrator.sudo().role_ids:
             raise UserError(self.env._("The person of Odoo's default administrator keeps the administrator role."))
 
+    def _contact_env(self):
+        if self.env.su or self.env.user.has_group(ADMINISTRATOR_GROUP):
+            return self.sudo().env
+        return self.env
+
     def _set_login(self, login):
         # The Odoo user is created on the person's own contact, as an internal user.
         self.ensure_one()
         person = self.sudo()
+        if not login:
+            if person.user_id:
+                raise UserError(
+                    self.env._(
+                        "%s signs in, so their login cannot be emptied; archive the person instead.", person.name
+                    )
+                )
+            return
         if person.user_id:
             person.user_id.login = login
             return

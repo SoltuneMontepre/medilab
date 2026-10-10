@@ -37,7 +37,7 @@
                     </group>
                     <notebook>
                         <page string="Roles" name="roles" groups="laboratory.group_role_administrator">
-                            <field name="role_ids">
+                            <field name="role_ids" readonly="1">
                                 <list>
                                     <field name="code" />
                                     <field name="name" />

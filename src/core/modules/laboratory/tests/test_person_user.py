@@ -1,3 +1,4 @@
+from odoo.exceptions import UserError
 from odoo.fields import Command
 from odoo.tests import tagged
 
@@ -92,3 +93,15 @@ class TestPersonUser(PeopleCase):
         self.assertEqual(
             self.env[MODEL_PERSON].search([("department_id", "=", self.microbiology.id)]), self.microbiologist
         )
+
+    def test_login_of_a_person_who_signs_in_cannot_be_emptied(self):
+        with self.assertRaises(UserError):
+            self.chemist.write({"login": False})
+
+        self.assertEqual(self.chemist.user_id.login, "an.nguyen")
+
+    def test_one_login_cannot_be_given_to_several_people(self):
+        newcomers = self.create_person("Le Van Cuong") | self.create_person("Pham Thi Dung")
+
+        with self.assertRaises(UserError):
+            newcomers.write({"login": "shared.login"})

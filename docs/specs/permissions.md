@@ -48,7 +48,9 @@ The generated group, access rule and record rule carry external identifiers of t
 
 The dots of the code become underscores in the identifier. Because the identifiers are stable, views refer to a permission's group as any other group: a field or button with `groups="laboratory.group_permission_person_sign_all"` is removed from the view for everyone else.
 
-Every feature declares the permissions of its document types in the laboratory module's `data/permission_data.xml`: `read`, `create`, `edit` and `delete` for every document type, `archive` for a type that can be archived, `sign` for a type that is signed, each with scope `all`, and the same actions with scope `own_department` for a type that has a department. A test walks every document model and fails when one of its applicable actions has no scope-`all` permission, so a feature cannot lock the administrator out of a new document type. A permission a module ships cannot be deleted from the screen; a permission an administrator created can, and its rule, access rule and group go with it.
+Every feature declares the permissions of its document types in the laboratory module's `data/permission_data.xml`: `read`, `create`, `edit` and `delete` for every document type, `archive` for a type that can be archived, `sign` for a type that is signed, each with scope `all`, and the same actions with scope `own_department` for a type that has a department. A test walks every model that inherits the shared mixin below and fails when one of its applicable actions has no scope-`all` permission, so a feature cannot lock the administrator out of a new document type. A permission a module ships cannot be deleted from the screen; a permission an administrator created can, and its rule, access rule and group go with it, unless another record rule still uses its group, in which case the refusal names that rule.
+
+A permission is refused when Odoo cannot enforce it as stated: `archive` on a document type that cannot be archived, and `edit` or `archive` on a document type that does not inherit the shared mixin, since Odoo alone cannot tell editing from archiving there. The master data of the laboratory still uses its own access rules and joins the mixin when its access moves to permissions.
 
 ### Role
 
@@ -60,17 +62,19 @@ The person of Odoo's default administrator, the user created with the database, 
 
 ### Person
 
-A person's details are their contact; their login is their Odoo user. When a person is saved with a login and has no user yet, the Odoo user is created on the person's contact as an internal user. Passwords are set by Odoo administrators from the user form, which the person form opens.
+A person's details are their contact; their login is their Odoo user. When a person is saved with a login and has no user yet, the Odoo user is created on the person's contact as an internal user. A login belongs to one person, and the login of a person who signs in cannot be emptied; the person is archived instead. Passwords are set by Odoo administrators from the user form, which the person form opens.
 
 The effective permissions of a person are those of their roles plus their direct permissions. Whenever a person is created, changes roles, direct permissions or user, or is deleted, the Odoo user's groups are set to the internal user group, the groups of the person's roles and the groups of their direct permissions. Only groups that belong to a role or a permission are added or removed; any other group of the user is left as it is. The synchronisation runs with full rights, because the authorisation that matters is the permission on the person record itself.
 
-Only administrators grant access: the person's user, login, roles and direct permissions, and a role's permissions, are limited to the administrator group, so they are neither shown to nor writable by anyone else. Without this, a person allowed to edit people could move their user onto a person with stronger roles.
+Only administrators grant access: the person's user, login, roles and direct permissions, and a role's permissions, are limited to the administrator group, so they are neither shown to nor writable by anyone else. Without this, a person allowed to edit people could move their user onto a person with stronger roles. Who holds a role or a permission is set from the person, and a role's permissions from the role; the reverse links on roles and permissions are read-only, because only the person and the role keep the users' groups in sync.
+
+A person's contact details are written with full rights only on the contact the person was created with. Pointing a person at another contact, or giving details for an existing contact, needs the right to change that contact unless the user is an administrator, so a person editor cannot change the details of someone else's contact.
 
 Archiving a person archives their Odoo user, so they can no longer sign in; unarchiving the person restores the user.
 
 ### Enforcement in the API
 
-Access rules and record rules enforce `read`, `create` and `delete`, and record rules limit `create` to the person's department when that is the scope. `edit` and `archive` share Odoo's write operation, so the shared mixin `medilab.permission.mixin`, inherited by every document model, splits them:
+Access rules and record rules enforce `read`, `create` and `delete`, and record rules limit `create` to the person's department when that is the scope. `edit` and `archive` share Odoo's write operation, so the shared mixin `medilab.permission.mixin`, inherited by departments, people, roles and permissions and by every document model of later features, splits them:
 
 - Writing `active` needs the archive permission; writing any other field needs the edit permission.
 - Each is checked against the records inside that action's scope, found from the permissions of the user's groups for the model and action, so a person with `edit` on every record and `archive` on their own department cannot archive another department's records, even though Odoo combines the two write rules with "or".

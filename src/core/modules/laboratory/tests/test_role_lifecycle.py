@@ -13,10 +13,10 @@ class TestRoleLifecycle(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.read, cls.edit = cls.env[MODEL_PERMISSION].create(
+        cls.read, cls.delete = cls.env[MODEL_PERMISSION].create(
             [
                 {"name": "Read parameters", "document_model": MODEL_TEST_PARAMETER, "action": "read"},
-                {"name": "Edit parameters", "document_model": MODEL_TEST_PARAMETER, "action": "edit"},
+                {"name": "Delete parameters", "document_model": MODEL_TEST_PARAMETER, "action": "delete"},
             ]
         )
         cls.role = cls.env[MODEL_ROLE].create(
@@ -35,16 +35,16 @@ class TestRoleLifecycle(TransactionCase):
         export = self.env.ref("base.group_allow_export")
         self.role.group_id.implied_ids = [Command.link(export.id)]
 
-        self.role.permission_ids = [Command.set(self.edit.ids)]
+        self.role.permission_ids = [Command.set(self.delete.ids)]
 
-        self.assertEqual(self.role.group_id.implied_ids, self.edit.group_id | export)
+        self.assertEqual(self.role.group_id.implied_ids, self.delete.group_id | export)
 
     def test_holder_of_the_role_holds_its_permissions(self):
         user = new_test_user(self.env, login="role.holder", groups="base.group_user,laboratory.group_role_qa_tester")
 
         self.assertIn(self.read.group_id, user.all_group_ids)
-        self.role.permission_ids = [Command.link(self.edit.id)]
-        self.assertIn(self.edit.group_id, user.all_group_ids)
+        self.role.permission_ids = [Command.link(self.delete.id)]
+        self.assertIn(self.delete.group_id, user.all_group_ids)
         self.role.permission_ids = [Command.unlink(self.read.id)]
         self.assertNotIn(self.read.group_id, user.all_group_ids)
 

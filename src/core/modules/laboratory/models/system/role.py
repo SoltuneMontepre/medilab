@@ -53,6 +53,7 @@ class Role(models.Model):
         groups = self.env["res.groups"].sudo()
         xml_ids = []
         for vals in vals_list:
+            self._check_holders(vals)
             self._check_code(vals["code"])
             if not vals.get("group_id"):
                 group = groups.create({"name": f"Role: {vals['code']}"})
@@ -64,6 +65,7 @@ class Role(models.Model):
         return roles
 
     def write(self, vals):
+        self._check_holders(vals)
         if "code" in vals and any(role.code != vals["code"] for role in self):
             raise UserError(self.env._("The code of a role cannot change; create another role."))
         if "group_id" in vals and any(role.group_id.id != vals["group_id"] for role in self):
@@ -91,6 +93,11 @@ class Role(models.Model):
         if not self.env.context.get(MODULE_UNINSTALL_FLAG):
             groups.unlink()
         return result
+
+    def _check_holders(self, vals):
+        # People get a role from the person, where their user's groups are kept in sync.
+        if "person_ids" in vals:
+            raise UserError(self.env._("Give a role to people from the person."))
 
     def _check_code(self, code):
         if not CODE_PATTERN.fullmatch(code or ""):
