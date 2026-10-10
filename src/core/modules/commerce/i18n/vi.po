@@ -66,8 +66,8 @@ msgstr "Thuế suất không được âm."
 
 #. module: commerce
 #: model:ir.model.constraint,message:commerce.constraint_medilab_parameter_price_parameter_unique
-msgid "A test parameter has only one price."
-msgstr "Mỗi chỉ tiêu chỉ có một giá."
+msgid "A test parameter has only one price, archived prices included."
+msgstr "Mỗi chỉ tiêu chỉ có một giá, kể cả giá đã lưu trữ."
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__active
@@ -311,19 +311,15 @@ msgid "Name"
 msgstr "Tên"
 
 #. module: commerce
-#: model:ir.model.fields,field_description:commerce.field_medilab_test_parameter__overpriced_package_ids
-msgid "Overpriced Packages"
-msgstr "Nhóm dịch vụ giá cao hơn tổng giá chỉ tiêu"
-
-#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_service_package_line__package_id
 msgid "Package"
 msgstr "Nhóm Dịch Vụ"
 
 #. module: commerce
-#: model:ir.model.fields,field_description:commerce.field_medilab_test_parameter__package_line_ids
-msgid "Package Lines"
-msgstr "Dòng Nhóm Dịch Vụ"
+#. odoo-python
+#: code:addons/commerce/models/pricing/parameter_price.py:0
+msgid "Package prices"
+msgstr "Giá nhóm dịch vụ"
 
 #. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_parameter_price__parameter_id
@@ -492,11 +488,6 @@ msgid "The rate periods of %(tax)s overlap: %(rate)s and %(other)s."
 msgstr "Các thời kỳ thuế suất của %(tax)s bị chồng lấn: %(rate)s và %(other)s."
 
 #. module: commerce
-#: model_terms:ir.ui.view,arch_db:commerce.view_medilab_test_parameter_form
-msgid "These packages cost more than their parameters bought one by one:"
-msgstr "Các nhóm dịch vụ sau có giá cao hơn tổng giá các chỉ tiêu khi mua lẻ:"
-
-#. module: commerce
 #: model:ir.model.fields,field_description:commerce.field_medilab_tax_rate__valid_from
 msgid "Valid From"
 msgstr "Áp dụng từ"
@@ -510,3 +501,11 @@ msgstr "Áp dụng đến"
 #: model:ir.model.fields,field_description:commerce.field_medilab_subcontract_cost__parameter_method_id
 msgid "Way of Testing"
 msgstr "Cách Thử"
+
+#. module: commerce
+#. odoo-python
+#: code:addons/commerce/models/pricing/parameter_price.py:0
+msgid ""
+"With this price, these packages cost more than their parameters bought one "
+"by one: %s"
+msgstr "Với giá này, các nhóm dịch vụ sau có giá cao hơn tổng giá các chỉ tiêu khi mua lẻ: %s"

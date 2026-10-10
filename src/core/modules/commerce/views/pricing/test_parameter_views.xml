@@ -5,12 +5,6 @@
         <field name="model">medilab.test.parameter</field>
         <field name="inherit_id" ref="laboratory.view_medilab_test_parameter_form" />
         <field name="arch" type="xml">
-            <xpath expr="//sheet" position="before">
-                <div class="alert alert-warning mb-0" role="alert" invisible="not overpriced_package_ids">
-                    These packages cost more than their parameters bought one by one:
-                    <field name="overpriced_package_ids" widget="many2many_tags" readonly="1" />
-                </div>
-            </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="Price" name="price">
                     <field name="price_ids" context="{'active_test': False}">

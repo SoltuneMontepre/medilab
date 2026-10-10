@@ -37,7 +37,12 @@ class ServicePackage(models.Model):
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a service package must be unique.")
     _price_positive = models.Constraint("CHECK(list_price >= 0)", "A price cannot be negative.")
 
-    @api.depends("list_price", "line_ids.quantity", "line_ids.parameter_id.price_ids.list_price")
+    @api.depends(
+        "list_price",
+        "line_ids.quantity",
+        "line_ids.parameter_id.price_ids.list_price",
+        "line_ids.parameter_id.price_ids.active",
+    )
     def _compute_parts_price(self):
         for package in self:
             package.parts_price = sum(

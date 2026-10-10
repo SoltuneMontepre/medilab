@@ -14,7 +14,7 @@ class PricingCase(MasterDataCase):
         super().setUpClass()
         cls.vat = cls.env[MODEL_TAX].create(
             {
-                "code": "VAT10",
+                "code": "TEST-VAT10",
                 "name": "VAT 10%",
                 "rate_ids": [
                     Command.create({"rate": 8, "valid_from": date(2025, 1, 1), "valid_until": date(2025, 6, 30)}),

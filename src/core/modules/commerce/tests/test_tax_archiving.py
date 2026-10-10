@@ -31,7 +31,7 @@ class TestTaxArchiving(PricingCase):
     def test_unused_tax_is_deleted_with_its_rates(self):
         tax = self.env[MODEL_TAX].create(
             {
-                "code": "KCT",
+                "code": "TEST-KCT",
                 "name": "Not subject to VAT",
                 "rate_ids": [Command.create({"rate": 0, "valid_from": "2020-01-01"})],
             }

@@ -38,11 +38,11 @@ class TestPricingAccess(PricingCase):
         price = self.lead_price.with_user(self.sales)
         package = self.package.with_user(self.sales)
 
-        self.assertEqual((price.list_price, price.tax_id.code), (150000, "VAT10"))
+        self.assertEqual((price.list_price, price.tax_id.code), (150000, "TEST-VAT10"))
         self.assertEqual(package.line_ids.parameter_id, self.parameter)
         self.assertEqual(tax.rate_ids.mapped("rate"), [8, 10])
         for action in (
-            lambda: tax.create({"code": "VAT5", "name": "VAT 5%"}),
+            lambda: tax.create({"code": "TEST-VAT5", "name": "VAT 5%"}),
             lambda: price.write({"list_price": 1}),
             lambda: package.write({"line_ids": [Command.create({"parameter_id": self.parameter.id})]}),
             lambda: tax.rate_ids[0].write({"rate": 5}),
@@ -65,7 +65,7 @@ class TestPricingAccess(PricingCase):
     def test_administrator_changes_prices_taxes_and_packages(self):
         self.lead_price.with_user(self.administrator).list_price = 160000
         self.package.with_user(self.administrator).action_archive()
-        tax = self.env[MODEL_TAX].with_user(self.administrator).create({"code": "VAT5", "name": "VAT 5%"})
+        tax = self.env[MODEL_TAX].with_user(self.administrator).create({"code": "TEST-VAT5", "name": "VAT 5%"})
         tax.unlink()
 
         self.assertEqual(self.lead_price.list_price, 160000)

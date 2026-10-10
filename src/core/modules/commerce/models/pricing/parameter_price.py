@@ -1,6 +1,13 @@
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo.fields import Domain
+from odoo.tools import format_list
 
-from odoo.addons.commerce.constants.models import MODEL_PARAMETER_PRICE, MODEL_TAX, MODEL_VND_MIXIN
+from odoo.addons.commerce.constants.models import (
+    MODEL_PARAMETER_PRICE,
+    MODEL_SERVICE_PACKAGE_LINE,
+    MODEL_TAX,
+    MODEL_VND_MIXIN,
+)
 from odoo.addons.laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
 
 
@@ -21,5 +28,36 @@ class ParameterPrice(models.Model):
     # False when the price is archived and the parameter is no longer sold.
     active = fields.Boolean(default=True)
 
-    _parameter_unique = models.Constraint("UNIQUE(parameter_id)", "A test parameter has only one price.")
+    _parameter_unique = models.Constraint(
+        "UNIQUE(parameter_id)", "A test parameter has only one price, archived prices included."
+    )
     _price_positive = models.Constraint("CHECK(list_price >= 0)", "A price cannot be negative.")
+
+    @api.onchange("list_price")
+    def _onchange_list_price(self):
+        # Warns whoever lowers the price about the active packages it makes cost more than their parts.
+        change = self.list_price - self._origin.list_price
+        if change >= 0:
+            return None
+        lines = self.env[MODEL_SERVICE_PACKAGE_LINE].search(
+            Domain("parameter_id", "=", self.parameter_id._origin.id) & Domain("package_id.active", "=", True)
+        )
+        packages = lines.filtered(
+            lambda line: (
+                self.currency_id.compare_amounts(
+                    line.package_id.list_price, line.package_id.parts_price + line.quantity * change
+                )
+                > 0
+            )
+        ).package_id
+        if not packages:
+            return None
+        return {
+            "warning": {
+                "title": self.env._("Package prices"),
+                "message": self.env._(
+                    "With this price, these packages cost more than their parameters bought one by one: %s",
+                    format_list(self.env, packages.mapped("display_name")),
+                ),
+            }
+        }

@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 from odoo.addons.commerce.constants.models import MODEL_VND_MIXIN
 from odoo.addons.commerce.constants.xml_ids import VND
@@ -14,3 +14,13 @@ class VndMixin(models.AbstractModel):
 
     def _compute_currency_id(self):
         self.currency_id = self.env.ref(VND)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Odoo rounds money on insert only through a stored currency field, so new amounts are rounded here.
+        vnd = self.env.ref(VND)
+        for vals in vals_list:
+            for name, value in vals.items():
+                if self._fields[name].type == "monetary":
+                    vals[name] = vnd.round(value)
+        return super().create(vals_list)
