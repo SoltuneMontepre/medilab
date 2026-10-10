@@ -41,7 +41,7 @@ Each module also has every app its own apps depend on, such as `bus` through `ma
 | Settings, numbering, languages            | `res.config.settings` and `ir.config_parameter`, `ir.sequence`, `res.lang` with Odoo's translations                                                    |
 | Customer portal                           | `portal` and `website_sale`                                                                                                                            |
 | Test parameter or package for sale        | `product.template` of type service for a parameter; a service package is a combo product                                                               |
-| Price, customer sales terms               | `product.pricelist`, the partner's payment terms (`account.payment.term`) and credit limit                                                             |
+| Price, customer sales terms               | The product's sales price; the customer contact's payment terms (`account.payment.term`) and credit limit. There are no customer price lists          |
 | Tax                                       | `account.tax`                                                                                                                                          |
 | Order, cart, quotation                    | `sale.order`; the cart is the `website_sale` cart; each sent quotation is kept as a MediLab revision with its PDF                                     |
 | Order template                            | `sale.order.template`                                                                                                                                  |

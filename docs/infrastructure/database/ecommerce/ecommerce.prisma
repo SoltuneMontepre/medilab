@@ -62,7 +62,7 @@ model Customer {
   id               Int                 @id @default(autoincrement())
   /// Unique code of the customer.
   code             String              @unique @db.VarChar
-  /// The contact holding the customer's details; its pricelist, payment terms and credit limit are the customer's in Odoo.
+  /// The contact holding the customer's details; its payment terms and credit limit are the customer's in Odoo.
   partner_id       Int                 @unique
   /// The contact holding the customer's details.
   partner          Contact             @relation("CustomerPartner", fields: [partner_id], references: [id], onDelete: Restrict)
@@ -78,7 +78,7 @@ model Customer {
   @@map("medilab_customer")
 }
 
-/// How sales may deal with one customer, on top of the pricelist, payment terms and credit limit Odoo keeps on the customer's contact.
+/// How sales may deal with one customer, on top of the payment terms and credit limit Odoo keeps on the customer's contact.
 model CustomerSalesTerms {
   /// Row identifier.
   id           Int      @id @default(autoincrement())
