@@ -17,6 +17,7 @@
         "data/laboratory/role.xml",
         "data/laboratory/person.xml",
         "data/laboratory/parameter_method.xml",
+        "data/laboratory/task.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

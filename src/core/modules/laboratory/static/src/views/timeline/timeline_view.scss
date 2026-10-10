@@ -1,0 +1,150 @@
+.o_timeline {
+    background: $ml-surface;
+
+    .o_timeline_toolbar {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid $ml-border;
+    }
+
+    .o_timeline_title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: $ml-text;
+    }
+
+    .o_timeline_grid {
+        overflow: auto;
+    }
+
+    .o_timeline_head,
+    .o_timeline_row {
+        display: grid;
+        grid-template-columns: 12rem minmax(36rem, 1fr);
+        border-bottom: 1px solid $ml-border;
+    }
+
+    .o_timeline_head {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: $ml-surface;
+    }
+
+    .o_timeline_label {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        padding: 0.6rem 1rem;
+        background: $ml-surface;
+        border-right: 1px solid $ml-border;
+        font-weight: 600;
+        color: $ml-text-secondary;
+    }
+
+    .o_timeline_tick {
+        padding: 0.45rem 0.25rem;
+        font-size: 0.75rem;
+        text-align: center;
+        color: $ml-text-muted;
+        white-space: nowrap;
+        overflow: hidden;
+        border-left: 1px solid $ml-border;
+
+        &.o_timeline_tick_today {
+            color: $ml-primary;
+            font-weight: 700;
+        }
+    }
+
+    .o_timeline_tick_weekend {
+        background: $ml-bg;
+    }
+
+    .o_timeline_lane {
+        position: relative;
+    }
+
+    .o_timeline_lines {
+        position: absolute;
+        inset: 0;
+
+        > div {
+            border-left: 1px solid $ml-border;
+        }
+    }
+
+    .o_timeline_now {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        z-index: 1;
+        background: $ml-danger;
+    }
+
+    .o_timeline_item {
+        position: absolute;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        height: 26px;
+        padding: 0 0.5rem;
+        border: 1px solid transparent;
+        border-left-width: 4px;
+        border-radius: $ml-radius-sm;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-align: left;
+        color: $ml-text;
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            box-shadow: 0 2px 8px rgba($ml-secondary, 0.18);
+            z-index: 2;
+        }
+
+        &:focus-visible {
+            outline: 2px solid $ml-accent;
+            outline-offset: 1px;
+        }
+    }
+
+    .o_timeline_item_waiting {
+        background: $ml-warning-soft;
+        border-color: $ml-warning;
+    }
+
+    .o_timeline_item_forward {
+        background: $ml-accent-soft;
+        border-color: $ml-accent;
+    }
+
+    .o_timeline_item_finished {
+        background: $ml-success-soft;
+        border-color: $ml-success;
+        color: $ml-text-muted;
+    }
+
+    .o_timeline_item_stopped {
+        background: $ml-danger-soft;
+        border-color: $ml-danger;
+        color: $ml-text-muted;
+        text-decoration: line-through;
+    }
+
+    .o_timeline_item_point {
+        border-style: dashed;
+        border-left-style: solid;
+    }
+
+    .o_timeline_item_overdue {
+        border-color: $ml-danger;
+    }
+
+    .o_timeline_empty {
+        padding: 3rem 1rem;
+        text-align: center;
+        color: $ml-text-muted;
+    }
+}

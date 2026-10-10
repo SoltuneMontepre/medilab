@@ -15,6 +15,7 @@
         "data/role_data.xml",
         "data/permission_data.xml",
         "data/person_data.xml",
+        "data/task_type_data.xml",
         "views/system/favicon_templates.xml",
         "views/system/login_templates.xml",
         "views/system/res_users_views.xml",
@@ -34,6 +35,9 @@
         "views/system/permission_views.xml",
         "views/system/person_views.xml",
         "views/system/role_views.xml",
+        "views/tasks/task_type_views.xml",
+        "views/tasks/task_reassign_views.xml",
+        "views/tasks/task_views.xml",
         "views/system/menus.xml",
     ],
     "assets": {
@@ -80,6 +84,9 @@
             "laboratory/static/src/theme/xml/form_status_indicator.xml",
             "laboratory/static/src/theme/xml/breadcrumbs.xml",
             "laboratory/static/src/theme/xml/view_button.xml",
+            "laboratory/static/src/views/control_panel/*",
+            "laboratory/static/src/views/timeline/*",
+            "laboratory/static/src/tasks/dashboard/*",
         ],
         "web.assets_frontend": [
             "laboratory/static/lib/iconify/iconify-icon.min.js",

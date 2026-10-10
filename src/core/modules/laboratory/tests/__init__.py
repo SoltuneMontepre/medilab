@@ -17,6 +17,13 @@ from . import (
     test_regulation_constraints,
     test_role_lifecycle,
     test_subcontractor,
+    test_task_claiming,
+    test_task_dashboard,
+    test_task_document,
+    test_task_lifecycle,
+    test_task_reassigning,
+    test_task_todo_list,
+    test_task_types,
     test_tree_filters,
     test_webmanifest,
 )

@@ -23,7 +23,16 @@
     <record id="demo_role_head_of_department" model="medilab.role">
         <field name="code">head_of_department</field>
         <field name="name">Head of department</field>
-        <field name="permission_ids" eval="[Command.set([ref('laboratory.permission_person_read_own_department'), ref('laboratory.permission_department_read_all')])]" />
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('laboratory.permission_person_read_own_department'),
+                ref('laboratory.permission_department_read_all'),
+                ref('laboratory.permission_task_read_own_department'),
+                ref('laboratory.permission_task_create_own_department'),
+                ref('laboratory.permission_task_edit_own_department'),
+            ])]"
+        />
     </record>
     <record id="demo_role_lab_head" model="medilab.role">
         <field name="code">lab_head</field>

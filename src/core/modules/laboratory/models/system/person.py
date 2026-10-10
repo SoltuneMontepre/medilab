@@ -143,6 +143,10 @@ class Person(models.Model):
         if administrator and self.env.ref(ADMINISTRATOR_ROLE) not in administrator.sudo().role_ids:
             raise UserError(self.env._("The person of Odoo's default administrator keeps the administrator role."))
 
+    @api.model
+    def _current(self):
+        return self.sudo().search([("user_id", "=", self.env.uid)], limit=1)
+
     def _administrator(self):
         return self & self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False)
 

@@ -1164,7 +1164,7 @@ model Signature {
   @@map("medilab_signature")
 }
 
-/// A kind of task, such as sample collection or testing a parameter, and how its tasks are created and routed.
+/// A kind of task, such as sample collection or testing a parameter, and how its tasks are created and routed. Task types come with the modules; on the screen only their route, role and default deadline change.
 model TaskType {
   /// Row identifier.
   id             Int      @id @default(autoincrement())
@@ -1174,20 +1174,16 @@ model TaskType {
   name           Json
   /// Event that creates its tasks, such as sample_received or signature_requested; manual for tasks people create.
   trigger        String   @db.VarChar
-  /// True when the system creates a task when the trigger happens; false to turn the automatic task off.
-  auto_create    Boolean  @default(true)
   /// Technical name of the document its tasks open, such as medilab.sample.test.
   document_model String?  @db.VarChar
   /// Action its tasks open on the document, such as enter_result or sign.
   action         String?  @db.VarChar
-  /// Where a new task goes: department for the department that does the work, role for people holding role_id, or person.
+  /// Where a new task goes: department for the department the event names, role for people holding role_id, or person for the person the event names.
   route          String   @db.VarChar
   /// The role whose holders receive the task when route is role.
   role_id        Int?
   /// Hours from creation to the deadline, when the document gives no due date.
   deadline_hours Int?
-  /// False when the task type is archived.
-  active         Boolean  @default(true)
   /// The role whose holders receive the task.
   role           Role?    @relation(fields: [role_id], references: [id], onDelete: Restrict)
   /// Tasks of this type.

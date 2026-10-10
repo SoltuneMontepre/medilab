@@ -180,11 +180,13 @@ Acceptance criteria:
 
 Work waiting for someone is a task with a deadline, and every person sees their tasks in one to-do list.
 
-- **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. A task type says what creates its tasks (an event, or people by hand), where new tasks go (a department's queue, the holders of a role, or a person), and the deadline when the document gives none. Administrators can turn automatic creation of a task type on or off.
+- **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. Task types come with the modules that create their tasks; administrators neither create nor remove them. A task type says what creates its tasks (an event, or people by hand), where new tasks go (the queue of the department the event names, the holders of a role, or the person the event names), and the deadline when the document gives none. Administrators choose where new tasks go and the default deadline.
 - **Created by the system or by people.** The system creates a task when its event happens, such as a sample being received. People can also create a task and assign it with a deadline, such as sales scheduling a sample collection on an order.
-- **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed.
-- **Reassigning.** Moving an assigned task to another person or department needs a reason, which is kept on the task and in the audit trail.
+- **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed. A task routed to a role waits the same way until one of the role's holders claims it.
+- **Access.** Every person sees the tasks assigned to them and the queues they can claim from without any permission. Creating tasks by hand, assigning, reassigning and cancelling them, and seeing other tasks need the task permissions, such as those of the person's department for a head of department.
+- **Reassigning.** Moving a task to another department, or an assigned task to another person, needs a reason, which is kept on the task and in the audit trail.
 - **To-do list.** A person's to-do list shows their open tasks, soonest deadline first. Clicking a task opens its document at the action to take, such as entering a result or signing.
+- **Dashboard.** The Tasks app opens on the person's day: today's planned tasks against the hours of the day, the next tasks to do with the action each needs, the tasks waiting in their queues to claim, and what they finished. From it, their tasks, their finished tasks and all the tasks they can see open as a list, a calendar or a timeline.
 - **Lifecycle.** Every task goes through the same statuses: open, assigned, in progress, then done or cancelled. The state of the work itself, such as a sample or a result, belongs to that document.
 - **Done.** A task created by the system is done when its work is done, such as when the result it asked for is approved. A task created by hand is marked done by its assignee. Done tasks move to the person's completed list.
 
@@ -195,7 +197,7 @@ Acceptance criteria:
 - Reassigning a task without a reason is refused.
 - Clicking a task opens its document at its action.
 - A testing task is done when its result is approved, without anyone marking it.
-- Turning off automatic creation for a task type stops new tasks of that type; existing tasks are unchanged.
+- Changing where a task type's tasks go routes its new tasks there; existing tasks stay where they are.
 
 #### SH-11 Schedules and reminders
 

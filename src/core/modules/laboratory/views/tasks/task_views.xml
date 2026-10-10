@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_task_list" model="ir.ui.view">
+        <field name="name">medilab.task.list</field>
+        <field name="model">medilab.task</field>
+        <field name="arch" type="xml">
+            <list action="action_open_document" type="object" duplicate="0" decoration-muted="status in ('done', 'cancelled')">
+                <field name="in_my_queue" column_invisible="1" />
+                <field name="name" />
+                <field name="type_id" optional="show" />
+                <field name="deadline" widget="remaining_days" invisible="status in ('done', 'cancelled')" />
+                <field name="planned_start" optional="hide" />
+                <field name="department_id" optional="show" groups="laboratory.group_permission_task_read_all" />
+                <field name="assignee_id" optional="show" />
+                <field name="done_at" optional="hide" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-warning="status == 'open'"
+                    decoration-info="status in ('assigned', 'in_progress')"
+                    decoration-success="status == 'done'"
+                    decoration-danger="status == 'cancelled'"
+                />
+                <button name="action_claim" type="object" string="Claim" class="btn-primary btn-sm" invisible="not in_my_queue" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_task_awaiting_list" model="ir.ui.view">
+        <field name="name">medilab.task.awaiting.list</field>
+        <field name="model">medilab.task</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list action="action_open_document" type="object" create="0" duplicate="0">
+                <field name="name" />
+                <field name="type_id" optional="show" />
+                <field name="deadline" widget="remaining_days" />
+                <field name="department_id" optional="show" groups="laboratory.group_permission_task_read_all" />
+                <button name="action_claim" type="object" string="Claim" class="btn-primary btn-sm" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_task_form" model="ir.ui.view">
+        <field name="name">medilab.task.form</field>
+        <field name="model">medilab.task</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <header>
+                    <field name="is_mine" invisible="1" />
+                    <field name="in_my_queue" invisible="1" />
+                    <field name="closed_by_system" invisible="1" />
+                    <button name="action_claim" type="object" string="Claim" class="btn-primary" invisible="not in_my_queue" />
+                    <button
+                        name="action_start"
+                        type="object"
+                        string="Start"
+                        class="btn-primary"
+                        invisible="not is_mine or status != 'assigned'"
+                    />
+                    <button
+                        name="action_done"
+                        type="object"
+                        string="Mark Done"
+                        class="btn-success"
+                        invisible="not is_mine or closed_by_system or status not in ('assigned', 'in_progress')"
+                    />
+                    <button
+                        name="%(action_medilab_task_reassign)d"
+                        type="action"
+                        string="Assign"
+                        context="{'active_ids': [id]}"
+                        invisible="not id or status in ('done', 'cancelled')"
+                        groups="laboratory.group_permission_task_edit_all,laboratory.group_permission_task_edit_own_department"
+                    />
+                    <button
+                        name="action_cancel"
+                        type="object"
+                        string="Cancel Task"
+                        class="btn-danger"
+                        invisible="not id or closed_by_system or status in ('done', 'cancelled')"
+                        groups="laboratory.group_permission_task_edit_all,laboratory.group_permission_task_edit_own_department"
+                    />
+                    <field name="status" widget="statusbar" statusbar_visible="open,assigned,in_progress,done" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_document"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-text-o"
+                            string="Document"
+                            invisible="not document_id"
+                        />
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="type_id" readonly="id" domain="[('trigger', '=', 'manual')]" options="{'no_create': True}" />
+                            <field name="department_id" readonly="id" />
+                            <field name="assignee_id" readonly="id" required="not id" />
+                            <field name="assigned_by_id" invisible="not assigned_by_id" />
+                        </group>
+                        <group>
+                            <field name="deadline" required="not id" />
+                            <field name="planned_start" />
+                            <field name="planned_end" />
+                            <field name="done_at" invisible="not done_at" />
+                        </group>
+                        <field name="reassign_reason" colspan="2" invisible="not reassign_reason" />
+                        <field name="note" colspan="2" nolabel="1" placeholder="Details of the work" />
+                        <field name="document_model" invisible="1" />
+                        <field name="document_id" invisible="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_task_calendar" model="ir.ui.view">
+        <field name="name">medilab.task.calendar</field>
+        <field name="model">medilab.task</field>
+        <field name="arch" type="xml">
+            <calendar
+                string="Tasks"
+                date_start="planned_start"
+                date_stop="planned_end"
+                color="type_id"
+                mode="week"
+                quick_create="0"
+                event_open_popup="1"
+                show_date_picker="0"
+            >
+                <field name="type_id" />
+                <field name="status" />
+                <field name="deadline" />
+                <field name="assignee_id" />
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_medilab_task_timeline" model="ir.ui.view">
+        <field name="name">medilab.task.timeline</field>
+        <field name="model">medilab.task</field>
+        <field name="arch" type="xml">
+            <timeline
+                date_start="planned_start"
+                date_stop="planned_end"
+                date_deadline="deadline"
+                status_field="status"
+                row_field="assignee_id"
+                open_action="action_open_document"
+                scale="week"
+            >
+                <field name="name" />
+                <field name="status" />
+                <field name="assignee_id" />
+                <field name="type_id" />
+                <field name="department_id" />
+            </timeline>
+        </field>
+    </record>
+
+    <record id="view_medilab_task_search" model="ir.ui.view">
+        <field name="name">medilab.task.search</field>
+        <field name="model">medilab.task</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="type_id" />
+                <field name="assignee_id" />
+                <field name="department_id" />
+                <filter name="mine" string="My Tasks" domain="[('is_mine', '=', True)]" />
+                <filter name="my_queue" string="My Queue" domain="[('in_my_queue', '=', True)]" />
+                <separator />
+                <filter name="unfinished" string="Not Finished" domain="[('status', 'not in', ('done', 'cancelled'))]" />
+                <filter name="unassigned" string="Unassigned" domain="[('status', '=', 'open')]" />
+                <group>
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}" />
+                    <filter name="group_type" string="Type" context="{'group_by': 'type_id'}" />
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}" />
+                    <filter name="group_assignee" string="Assignee" context="{'group_by': 'assignee_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_task_dashboard" model="ir.actions.client">
+        <field name="name">Tasks</field>
+        <field name="tag">laboratory.task_dashboard</field>
+        <field name="path">tasks</field>
+    </record>
+
+    <record id="action_medilab_task_mine" model="ir.actions.act_window">
+        <field name="name">My Tasks</field>
+        <field name="res_model">medilab.task</field>
+        <field name="path">my-tasks</field>
+        <field name="view_mode">list,calendar,timeline,form</field>
+        <field name="domain">[('is_mine', '=', True), ('status', 'in', ('assigned', 'in_progress'))]</field>
+        <field name="context">{'timeline_row_field': 'type_id', 'view_switcher_left': True}</field>
+    </record>
+
+    <record id="action_medilab_task_finished" model="ir.actions.act_window">
+        <field name="name">Finished Tasks</field>
+        <field name="res_model">medilab.task</field>
+        <field name="path">finished-tasks</field>
+        <field name="view_mode">list,calendar,timeline,form</field>
+        <field name="domain">[('is_mine', '=', True), ('status', '=', 'done')]</field>
+        <field name="context">{'create': False, 'timeline_row_field': 'type_id', 'view_switcher_left': True}</field>
+    </record>
+
+    <record id="action_medilab_task_awaiting" model="ir.actions.act_window">
+        <field name="name">Awaiting Tasks</field>
+        <field name="res_model">medilab.task</field>
+        <field name="path">awaiting-tasks</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_medilab_task_awaiting_list" />
+        <field name="domain">[('in_my_queue', '=', True)]</field>
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <record id="action_medilab_task" model="ir.actions.act_window">
+        <field name="name">All Tasks</field>
+        <field name="res_model">medilab.task</field>
+        <field name="path">all-tasks</field>
+        <field name="view_mode">list,calendar,timeline,form</field>
+        <field name="context">{'search_default_unfinished': 1, 'view_switcher_left': True}</field>
+    </record>
+</odoo>
