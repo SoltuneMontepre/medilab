@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="partner_northern_testing" model="res.partner">
+        <field name="name">Northern Testing Laboratory</field>
+        <field name="is_company" eval="True" />
+        <field name="street">12 Tran Hung Dao</field>
+        <field name="city">Hanoi</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">+84 24 3826 0001</field>
+        <field name="email">contact@northern-testing.example</field>
+    </record>
+    <record id="partner_northern_testing_contact" model="res.partner">
+        <field name="name">Nguyen Thi Lan</field>
+        <field name="parent_id" ref="partner_northern_testing" />
+        <field name="email">lan.nguyen@northern-testing.example</field>
+    </record>
+    <record id="partner_coastal_analytics" model="res.partner">
+        <field name="name">Coastal Analytical Services</field>
+        <field name="is_company" eval="True" />
+        <field name="street">45 Bach Dang</field>
+        <field name="city">Da Nang</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">+84 236 382 0002</field>
+    </record>
+    <record id="partner_coastal_analytics_contact" model="res.partner">
+        <field name="name">Tran Van Minh</field>
+        <field name="parent_id" ref="partner_coastal_analytics" />
+    </record>
+    <record id="partner_southern_micro" model="res.partner">
+        <field name="name">Southern Microbiology Centre</field>
+        <field name="is_company" eval="True" />
+        <field name="street">88 Nguyen Hue</field>
+        <field name="city">Ho Chi Minh City</field>
+        <field name="country_id" ref="base.vn" />
+    </record>
+    <record id="partner_southern_micro_contact" model="res.partner">
+        <field name="name">Le Thi Hoa</field>
+        <field name="parent_id" ref="partner_southern_micro" />
+    </record>
+
+    <record id="subcontractor_northern_testing" model="medilab.subcontractor">
+        <field name="partner_id" ref="partner_northern_testing" />
+        <field name="contact_person_id" ref="partner_northern_testing_contact" />
+        <field name="accreditation_number">VILAS 101</field>
+        <field name="accreditation_expiry" eval="(DateTime.today() + relativedelta(years=2)).strftime('%Y-%m-%d')" />
+        <field name="contract_reference">HD-2026/01</field>
+    </record>
+    <record id="subcontractor_coastal_analytics" model="medilab.subcontractor">
+        <field name="partner_id" ref="partner_coastal_analytics" />
+        <field name="contact_person_id" ref="partner_coastal_analytics_contact" />
+        <field name="accreditation_number">VILAS 202</field>
+        <field name="accreditation_expiry" eval="(DateTime.today() - relativedelta(months=3)).strftime('%Y-%m-%d')" />
+        <field name="contract_reference">HD-2024/07</field>
+    </record>
+    <record id="subcontractor_southern_micro" model="medilab.subcontractor">
+        <field name="partner_id" ref="partner_southern_micro" />
+        <field name="contact_person_id" ref="partner_southern_micro_contact" />
+        <field name="accreditation_number">VILAS 303</field>
+        <field name="note">Accreditation without expiry date.</field>
+    </record>
+</odoo>
