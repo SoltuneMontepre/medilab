@@ -120,7 +120,7 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 
 - From the first signature the document is read-only for everyone, including administrators.
 - **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature once every higher level has withdrawn theirs. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
-- **After the document's process is completed**, such as a test request completed, an order completed or an invoice paid, the document can no longer be reopened. To change it, a user raises a **change request** stating what to change and why.
+- **After the document's process is completed**, such as a test request completed, an order completed or an invoice paid, the document can no longer be reopened. To change it, a person who can edit that type of document raises a **change request** stating what to change and why.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Lab Head for a test result.
 - When the chain approves, the system creates a **new version** of the document, unsigned, linked to the signed one; the signed version is kept unchanged and marked as replaced. The new version must be signed again.
 - Anyone concerned can follow the status of the change request: requested, approved, rejected, applied.
@@ -181,7 +181,8 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 
 - **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. A task type says what creates its tasks (an event, or people by hand), where new tasks go (a department's queue, the holders of a role, or a person), and the deadline when the document gives none. Administrators can turn automatic creation of a task type on or off.
 - **Created by the system or by people.** The system creates a task when its event happens, such as a sample being received. People can also create a task and assign it with a deadline, such as sales scheduling a sample collection on an order.
-- **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person.
+- **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed.
+- **Reassigning.** Moving an assigned task to another person or department needs a reason, which is kept on the task and in the audit trail.
 - **To-do list.** A person's to-do list shows their open tasks, soonest deadline first. Clicking a task opens its document at the action to take, such as entering a result or signing.
 - **Lifecycle.** Every task goes through the same statuses: open, assigned, in progress, then done or cancelled. The state of the work itself, such as a sample or a result, belongs to that document.
 - **Done.** A task created by the system is done when its work is done, such as when the result it asked for is approved. A task created by hand is marked done by its assignee. Done tasks move to the person's completed list.
@@ -189,6 +190,8 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 Acceptance criteria:
 
 - A task assigned to a person appears in their to-do list with its deadline.
+- A person can claim an unassigned task of their own department, not of another; a task already claimed cannot be claimed again.
+- Reassigning a task without a reason is refused.
 - Clicking a task opens its document at its action.
 - A testing task is done when its result is approved, without anyone marking it.
 - Turning off automatic creation for a task type stops new tasks of that type; existing tasks are unchanged.
