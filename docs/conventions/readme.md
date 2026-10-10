@@ -15,4 +15,4 @@ Code conventions for agents and the system.
 - [Taskfiles](taskfiles.md): task layout, shell rules, colored output helpers
 - [Terraform](terraform.md): provider pinning, lock file, deprecations
 - [Frontend](frontend.md): frontend code rules
-- [Styling](styling.md): styling rules
+- [Styling](styling.md): colors by meaning for buttons, statuses and rows
