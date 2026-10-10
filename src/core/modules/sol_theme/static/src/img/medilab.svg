@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img">
+  <title>MediLab — chữ M kết hợp bình thí nghiệm</title>
+  <rect width="1024" height="1024" rx="224" fill="#0083EF"/>
+  <path fill="#FFFFFF" transform="translate(192 232) scale(2.5)" d="M0 0H64L128 56L192 0H256V224H211L149 126V91H152C160 91 160 79 152 79H104C96 79 96 91 104 91H107V126L45 224H0Z"/>
+</svg>

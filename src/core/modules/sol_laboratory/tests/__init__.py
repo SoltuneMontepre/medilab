@@ -18,5 +18,4 @@ from . import (
     test_role_lifecycle,
     test_subcontractor,
     test_tree_filters,
-    test_webmanifest,
 )

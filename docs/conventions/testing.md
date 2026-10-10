@@ -18,7 +18,7 @@ How tests are written, where they live and how they run.
 - One test class per file, named after the file: `test_parameter_constraints.py` holds `TestParameterConstraints`.
 - Tag each class `@tagged("post_install", "-at_install")`.
 - Use `TransactionCase` for models and `HttpCase` for routes.
-- `task test:core` installs the modules in a throwaway database, runs only their tests with `--test-tags /<module>`, and drops the database afterwards. `task test:core MODULES=a,b` limits it to those modules; the default is `sol_laboratory`.
+- `task test:core` installs the modules in a throwaway database, runs only their tests with `--test-tags /<module>`, and drops the database afterwards. `task test:core MODULES=a,b` limits it to those modules; by default it runs every module in `src/core/modules.txt`.
 - `task test:core` also writes the coverage report `src/core/modules/coverage.xml`, which is not committed.
 
 ## Pipeline

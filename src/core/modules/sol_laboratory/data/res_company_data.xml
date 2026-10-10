@@ -2,6 +2,6 @@
 <odoo>
     <record id="base.main_company" model="res.company">
         <field name="name">Medilab</field>
-        <field name="logo" type="bytes" file="sol_laboratory/static/src/theme/img/icons/icon-512x512.png"/>
+        <field name="logo" type="bytes" file="sol_laboratory/static/description/icon.png"/>
     </record>
 </odoo>

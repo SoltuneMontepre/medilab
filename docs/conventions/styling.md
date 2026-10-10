@@ -4,7 +4,7 @@ How screens look, so the same meaning always has the same look.
 
 ## Colors carry meaning
 
-Buttons, status badges and list rows take their color from what they mean. The colors are the theme tokens in `sol_laboratory/static/src/theme/scss/tokens.scss`, which `odoo_variables.scss` maps onto Odoo's theme colors, so views use the Odoo classes and stylesheets use the tokens; neither repeats a color code.
+Buttons, status badges and list rows take their color from what they mean. The colors are the theme tokens in `sol_theme/static/src/scss/tokens.scss`, which `odoo_variables.scss` maps onto Odoo's theme colors, so views use the Odoo classes and stylesheets use the tokens; neither repeats a color code.
 
 | Meaning                                   | Color  | Token                     | Buttons                                              | Statuses and rows                                                  |
 | ----------------------------------------- | ------ | ------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------ |

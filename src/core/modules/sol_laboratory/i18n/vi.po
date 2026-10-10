@@ -206,12 +206,6 @@ msgstr ""
 "Tất cả email và tài liệu gửi cho liên hệ này sẽ được dịch sang ngôn ngữ này."
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Applications"
-msgstr "Ứng dụng"
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
 msgid "Archive"
 msgstr "Lưu trữ"
@@ -579,18 +573,6 @@ msgid "Direct Permissions"
 msgstr "Quyền Trực Tiếp"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Discard"
-msgstr "Hủy"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Discard all changes"
-msgstr "Hủy tất cả thay đổi"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__display_name
@@ -692,12 +674,6 @@ msgid "Employee"
 msgstr "Nhân viên"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Esc"
-msgstr "Esc"
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_search
 msgid "Expired"
 msgstr "Đã hết hạn"
@@ -715,12 +691,6 @@ msgstr "Hệ số"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
 msgid "Filled from the sequence when left empty"
 msgstr "Tự sinh khi để trống"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Find an app"
-msgstr "Tìm ứng dụng"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__email_formatted
@@ -871,11 +841,6 @@ msgid "LOQ"
 msgstr "LOQ"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Laboratory management system"
-msgstr "Hệ thống quản lý phòng thử nghiệm"
-
-#. module: sol_laboratory
 #: model:ir.module.module,summary:base.module_laboratory
 msgid ""
 "Laboratory testing core: test catalog, parameters, samples, results and "
@@ -957,11 +922,6 @@ msgid "Location"
 msgstr "Vị trí"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Log in"
-msgstr "Đăng nhập"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__login
 msgid "Login"
 msgstr "Tên đăng nhập"
@@ -1019,12 +979,6 @@ msgstr "Bảo trì"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__maintenance_interval_days
 msgid "Maintenance Interval Days"
 msgstr "Chu kỳ bảo trì (ngày)"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Manage samples, testing processes and results on a unified platform."
-msgstr ""
-"Quản lý mẫu, quy trình thử nghiệm và kết quả trên một nền tảng thống nhất."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__manufacturer
@@ -1121,18 +1075,6 @@ msgstr "Ngày đến hạn tiếp theo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__next_maintenance_date
 msgid "Next Maintenance Date"
 msgstr "Ngày bảo trì tiếp theo"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/js/boolean_button_group_field.js:0
-msgid "No"
-msgstr "Không"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "No app matches your search."
-msgstr "Không có ứng dụng nào khớp với tìm kiếm."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__note
@@ -1454,12 +1396,6 @@ msgid "Related Contacts"
 msgstr "Liên hệ liên quan"
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/user_switch.xml:0
-msgid "Remove user from switcher"
-msgstr "Xóa người dùng khỏi danh sách"
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__repair
 msgid "Repair"
 msgstr "Sửa chữa"
@@ -1541,18 +1477,6 @@ msgstr "Loại Mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__sampling_requirements
 msgid "Sampling Requirements"
 msgstr "Yêu cầu lấy mẫu"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Save"
-msgstr "Lưu"
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Save manually"
-msgstr "Lưu thủ công"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__scope
@@ -1642,16 +1566,6 @@ msgstr "Thầu Phụ"
 #: model:ir.ui.menu,name:sol_laboratory.menu_subcontractor
 msgid "Subcontractors"
 msgstr "Thầu Phụ"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "System administration"
-msgstr "Quản trị hệ thống"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "System introduction"
-msgstr "Giới thiệu hệ thống"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__category_id
@@ -2055,12 +1969,6 @@ msgstr ""
 "Ở những nơi khác, thời gian được tính theo độ lệch múi giờ của trình duyệt."
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/js/boolean_button_group_field.js:0
-msgid "Yes"
-msgstr "Có"
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission_mixin.py:0
 msgid "You are not allowed to %(action)s these records: %(records)s"
@@ -2077,3 +1985,4 @@ msgstr "Bạn có thể dùng '/' để cho biết khách hàng không có mã s
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__zip
 msgid "Zip"
 msgstr "Mã bưu chính"
+

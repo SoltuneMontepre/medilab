@@ -1,6 +1,6 @@
 from odoo.addons.web.controllers.webmanifest import WebManifest
 
-ICON_PATH = "sol_laboratory/static/src/theme/img/icons/icon-%s.png"
+ICON_PATH = "sol_theme/static/src/img/icons/icon-%s.png"
 THEME_COLOR = "#0A4D8C"
 BACKGROUND_COLOR = "#F2F5F9"
 

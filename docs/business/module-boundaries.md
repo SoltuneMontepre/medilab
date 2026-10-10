@@ -1,6 +1,7 @@
 # Module boundaries
 
 - E-commerce and Inventory depend on Laboratory; Laboratory depends on neither.
+- The Medilab Theme module (`sol_theme`) depends on no MediLab module, and no MediLab module depends on it.
 - Customers, tasks and schedules belong to Laboratory, so they work without E-commerce. E-commerce keeps prices, taxes, service packages and each customer's sales terms.
 - Machines and chemical information belong to Laboratory. Departments and their teams belong to Laboratory. Inventory manages stock, stores, containers and their expiry, movement between stores, recipes, suppliers and purchasing, cost centres and budgets, how much of each item one test of a method uses, and which containers and lots each test result used.
 
@@ -17,6 +18,7 @@ MediLab is built on Odoo Community and extends its apps where they hold a concep
 | Laboratory | `hr`, `portal`, `calendar`                          |
 | E-commerce | `sale`, `l10n_vn`, `rating`                         |
 | Inventory  | `stock_account`, `product_expiry`, `purchase_stock` |
+| Theme      | `web`                                               |
 
 
 Each module also has every app its own apps depend on: `mail`, `bus` and `resource` through `hr`; `account`, `account_payment`, `payment` and `product` through `sale`; `account_qr_code_emv` through `l10n_vn`; `stock`, `uom` and `purchase` through Inventory's apps.

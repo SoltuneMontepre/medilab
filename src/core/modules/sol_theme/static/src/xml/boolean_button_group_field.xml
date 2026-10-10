@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <t t-name="sol_laboratory.BooleanButtonGroupField">
+    <t t-name="sol_theme.BooleanButtonGroupField">
         <div class="o_boolean_button_group btn-group" role="group">
             <button type="button"
                 class="btn"

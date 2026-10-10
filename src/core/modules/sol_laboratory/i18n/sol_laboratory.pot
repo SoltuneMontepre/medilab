@@ -199,12 +199,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Applications"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
 msgid "Archive"
 msgstr ""
@@ -572,18 +566,6 @@ msgid "Direct Permissions"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Discard"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Discard all changes"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__display_name
@@ -682,12 +664,6 @@ msgid "Employee"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Esc"
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_search
 msgid "Expired"
 msgstr ""
@@ -704,12 +680,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
 msgid "Filled from the sequence when left empty"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "Find an app"
 msgstr ""
 
 #. module: sol_laboratory
@@ -861,11 +831,6 @@ msgid "LOQ"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Laboratory management system"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.module.module,summary:base.module_laboratory
 msgid ""
 "Laboratory testing core: test catalog, parameters, samples, results and "
@@ -947,11 +912,6 @@ msgid "Location"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Log in"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__login
 msgid "Login"
 msgstr ""
@@ -1008,11 +968,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__maintenance_interval_days
 msgid "Maintenance Interval Days"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "Manage samples, testing processes and results on a unified platform."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1109,18 +1064,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__next_maintenance_date
 msgid "Next Maintenance Date"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/js/boolean_button_group_field.js:0
-msgid "No"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/app_drawer.xml:0
-msgid "No app matches your search."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1443,12 +1386,6 @@ msgid "Related Contacts"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/user_switch.xml:0
-msgid "Remove user from switcher"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__repair
 msgid "Repair"
 msgstr ""
@@ -1529,18 +1466,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__sampling_requirements
 msgid "Sampling Requirements"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Save"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/xml/form_status_indicator.xml:0
-msgid "Save manually"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1630,16 +1555,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__subcontractor_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_subcontractor
 msgid "Subcontractors"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "System administration"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.login_layout
-msgid "System introduction"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2026,12 +1941,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/theme/js/boolean_button_group_field.js:0
-msgid "Yes"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission_mixin.py:0
 msgid "You are not allowed to %(action)s these records: %(records)s"
@@ -2046,3 +1955,4 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__zip
 msgid "Zip"
 msgstr ""
+

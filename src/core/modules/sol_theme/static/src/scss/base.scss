@@ -98,7 +98,7 @@ header.o_navbar .o_main_navbar {
     .o_view_nocontent_neutral_face:before {
         width: 120px;
         height: 140px;
-        background: transparent url("/sol_laboratory/static/src/theme/img/empty_document.svg") no-repeat center;
+        background: transparent url("/sol_theme/static/src/img/empty_document.svg") no-repeat center;
         background-size: contain;
     }
 
@@ -107,7 +107,7 @@ header.o_navbar .o_main_navbar {
         height: 80px;
         margin-top: 30px;
         margin-bottom: 30px;
-        background: transparent url("/sol_laboratory/static/src/theme/img/empty_folder.svg") no-repeat center;
+        background: transparent url("/sol_theme/static/src/img/empty_folder.svg") no-repeat center;
         background-size: contain;
     }
 
