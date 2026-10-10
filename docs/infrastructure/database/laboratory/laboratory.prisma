@@ -896,8 +896,6 @@ model Person {
   managed_departments Department[] @relation("DepartmentManager")
   /// Roles the person holds.
   roles         PersonRole[]
-  /// Tasks assigned to the person.
-  tasks         Task[]       @relation("TaskAssignee")
   /// Permissions given to the person directly, on top of their roles.
   permissions   PersonPermission[]
   /// Sample tests the person cancelled.
@@ -942,6 +940,8 @@ model User {
   person     Person?
   /// Odoo roles the user holds, from their person's MediLab roles.
   odoo_roles OdooRoleUser[]
+  /// Tasks assigned to the user.
+  tasks      TaskAssignee[]
   /// Tasks the user assigned.
   assigned_tasks Task[]   @relation("TaskAssigner")
   /// Results the user entered.
@@ -1246,7 +1246,6 @@ model Project {
 }
 
 /// Odoo's project task (project.task), shown with the columns this schema uses and the columns the laboratory adds: work waiting for a department, a role or a person, with a deadline, that opens the document and action to do it.
-/// The assignee is a person; when they have an Odoo user, Odoo's own assignees (user_ids) hold that user, so the task shows in Odoo's task views.
 /// Points to its document by document_model and document_id, indexed together.
 model Task {
   /// Row identifier.
@@ -1267,8 +1266,6 @@ model Task {
   action         String?      @db.VarChar
   /// The Odoo role whose users can claim the task while it is unassigned.
   role_id        Int?
-  /// Person who does the task, whether or not they sign in; empty while it waits in a queue.
-  assignee_id    Int?
   /// User who assigned the task; the assignee themselves when they claimed it.
   assigned_by_id Int?
   /// Why the task was last moved to another person or department.
@@ -1297,16 +1294,31 @@ model Task {
   assigned_by    User?        @relation("TaskAssigner", fields: [assigned_by_id], references: [id], onDelete: Restrict)
   /// The calendar event of the planned time.
   calendar_event CalendarEvent? @relation("TaskEvent", fields: [calendar_event_id], references: [id], onDelete: SetNull)
-  /// Person who does the task.
-  assignee       Person?      @relation("TaskAssignee", fields: [assignee_id], references: [id], onDelete: Restrict)
+  /// The user who does the task; at most one, empty while it waits in a queue.
+  assignees      TaskAssignee[]
   /// Machine bookings made for the task.
   bookings       MachineBooking[]
 
   @@index([project_id, status])
-  @@index([assignee_id, status])
   @@index([document_model, document_id])
   @@index([date_deadline])
   @@map("project_task")
+}
+
+/// Odoo's link between tasks and the users assigned to them. MediLab allows one assignee per task.
+model TaskAssignee {
+  /// The task.
+  task_id Int
+  /// The user who does the task.
+  user_id Int
+  /// The task.
+  task    Task @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  /// The user who does the task.
+  user    User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([task_id, user_id])
+  @@index([user_id])
+  @@map("project_task_user_rel")
 }
 
 /// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task or a machine booking on the attendees' calendars. Its alarm sends the reminder before it starts.

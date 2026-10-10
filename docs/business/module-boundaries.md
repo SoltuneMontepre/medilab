@@ -46,7 +46,7 @@ Each module also has every app its own apps depend on, such as `bus` through `ma
 | Order, cart, quotation                    | `sale.order`; the cart is the `website_sale` cart; each sent quotation is kept as a MediLab revision with its PDF                                     |
 | Order template                            | `sale.order.template`                                                                                                                                  |
 | Invoice, advance and adjustment invoice   | `account.move`: an advance invoice is a down payment invoice, an adjustment invoice is a credit or debit note                                          |
-| Payment, receipt, payment link            | `account.payment`, `payment.transaction`; PayOS is a payment provider (`payment.provider`)                                                             |
+| Payment, receipt, payment link            | `account.payment`, `payment.transaction`; PayOS is a payment provider (`payment.provider`); a bank transfer is paid from the invoice's VietQR code (`l10n_vn`)                                                             |
 | Support conversation                      | Odoo messages on the MediLab support request, from the back office and the portal                                                                     |
 | Feedback                                  | `rating.rating`                                                                                                                                        |
 | Stock item, chemical in stock             | `product.product`, storable                                                                                                                            |
