@@ -108,7 +108,7 @@ class TestPermissionGeneration(TransactionCase):
 
         self.assertEqual(
             permission._access_values()["domain"],
-            "[('department_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]",
+            "[('department_id', 'in', user.employee_id.department_id.ids)]",
         )
 
     def test_deleting_a_permission_deletes_what_it_generated(self):
@@ -151,8 +151,15 @@ class TestPermissionGeneration(TransactionCase):
         with self.assertRaises(UserError):
             self.env.ref("sol_laboratory.permission_permission_read_all").unlink()
 
-    def test_document_types_are_medilab_models(self):
+    def test_document_types_are_medilab_models_and_departments(self):
         document_types = [name for name, _label in self.env[MODEL_PERMISSION]._selection_document_model()]
 
         self.assertIn(MODEL_TEST_PARAMETER, document_types)
-        self.assertTrue(all(name.startswith("medilab.") for name in document_types))
+        self.assertIn(MODEL_DEPARTMENT, document_types)
+        self.assertTrue(all(name.startswith("medilab.") for name in set(document_types) - {MODEL_DEPARTMENT}))
+
+    def test_department_permissions_keep_the_department_document_type(self):
+        permission = self.env.ref("sol_laboratory.permission_department_edit_all")
+
+        self.assertEqual((permission.document_model, permission.code), (MODEL_DEPARTMENT, "department.edit.all"))
+        self.assertEqual(self.generated("access", permission.code).model_id.model, MODEL_DEPARTMENT)

@@ -21,10 +21,8 @@
         <menuitem id="menu_subcontractor" action="action_medilab_subcontractor" sequence="30" />
     </menuitem>
 
-    <menuitem id="menu_people_root" name="People" sequence="30">
-        <menuitem id="menu_department" action="action_medilab_department" sequence="10" />
-        <menuitem id="menu_person" action="action_medilab_person" sequence="20" />
-        <menuitem id="menu_role" action="action_medilab_role" sequence="30" />
-        <menuitem id="menu_permission" action="action_medilab_permission" sequence="40" />
-    </menuitem>
+    <!-- Departments are Odoo's own menu in the Employees app. -->
+    <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
+    <menuitem id="menu_role" action="action_medilab_role" parent="hr.menu_hr_root" sequence="20" />
+    <menuitem id="menu_permission" action="action_medilab_permission" parent="hr.menu_hr_root" sequence="30" />
 </odoo>

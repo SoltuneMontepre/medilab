@@ -27,8 +27,10 @@ class TestAdministratorRole(TransactionCase):
         self.assertIn(permission, self.administrator.permission_ids)
         self.assertIn(permission.group_id, user.all_group_ids)
 
-    def test_administrator_also_configures_odoo(self):
-        self.assertIn(self.env.ref("base.group_system"), self.administrator.group_id.implied_ids)
+    def test_administrator_also_configures_odoo_and_manages_its_employees(self):
+        implied = self.administrator.group_id.implied_ids
+
+        self.assertTrue(self.env.ref("base.group_system") | self.env.ref("hr.group_hr_manager") <= implied)
 
     def test_administrator_role_cannot_be_deleted_renamed_or_stripped(self):
         refused = (

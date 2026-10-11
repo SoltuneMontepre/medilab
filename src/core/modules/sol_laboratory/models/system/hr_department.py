@@ -4,11 +4,10 @@ from odoo.fields import Domain
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_EMPLOYEE_VERSION,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
 )
-
-HR_VERSION = "hr.version"
 
 
 # Phòng Ban
@@ -25,5 +24,5 @@ class HrDepartment(models.Model):
 
     def _referring_fields(self):
         # People name their department through their employee's version; the person stands for it.
-        fields = [field for field in super()._referring_fields() if field.model_name != HR_VERSION]
+        fields = [field for field in super()._referring_fields() if field.model_name != MODEL_EMPLOYEE_VERSION]
         return [*fields, self.env[MODEL_PERSON]._fields["department_id"]]
