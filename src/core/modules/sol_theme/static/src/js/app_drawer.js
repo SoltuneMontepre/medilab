@@ -4,7 +4,7 @@ import { useBus } from "@web/core/utils/hooks";
 import { proxy, signal, useOnChange } from "@odoo/owl";
 
 const APP_ICONS_BY_XMLID = {
-    "sol_laboratory.menu_sample_collection_root": "mdi:package-variant",
+    "sol_laboratory.menu_laboratory_root": "mdi:flask",
     "sol_laboratory.menu_master_data_root": "mdi:database",
     "sol_laboratory.menu_people_root": "mdi:account-group",
     "base.menu_administration": "mdi:cog",

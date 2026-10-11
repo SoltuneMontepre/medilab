@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_sample_collection_root" name="Sample Collection" sequence="10" />
+    <menuitem id="menu_laboratory_root" name="Laboratory" sequence="10">
+        <menuitem id="menu_test_request" action="action_medilab_test_request" sequence="10" />
+        <menuitem id="menu_sample" action="action_medilab_sample" sequence="20" />
+        <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
+    </menuitem>
 
     <menuitem id="menu_master_data_root" name="Master Data" sequence="20">
         <menuitem id="menu_master_data_catalog" name="Catalog" sequence="10">
