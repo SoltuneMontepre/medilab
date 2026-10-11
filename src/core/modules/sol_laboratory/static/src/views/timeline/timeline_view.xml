@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sol_laboratory.TimelineView">
+        <div t-att-class="this.props.className" t-ref="this.rootRef">
+            <Layout display="this.props.display">
+                <t t-set-slot="control-panel-additional-actions">
+                    <CogMenu/>
+                </t>
+                <t t-set-slot="control-panel-actions">
+                    <SearchBar toggler="this.searchBarToggler"/>
+                </t>
+                <t t-set-slot="control-panel-navigation-additional">
+                    <t t-component="this.searchBarToggler.component" t-props="this.searchBarToggler.props"/>
+                </t>
+                <t t-if="this.model.isReady()">
+                    <t t-component="this.props.Renderer" model="this.model" openRecord.bind="this.openRecord"/>
+                </t>
+            </Layout>
+        </div>
+    </t>
+
+    <t t-name="sol_laboratory.TimelineRenderer">
+        <div class="o_timeline d-flex flex-column h-100">
+            <div class="o_timeline_toolbar d-flex flex-wrap align-items-center gap-2">
+                <div class="btn-group" role="group" aria-label="Move">
+                    <button type="button" class="btn btn-secondary oi" data-icon="chevron_left"
+                            aria-label="Previous" data-tooltip="Previous"
+                            t-on-click="() => this.model.move(-1)"/>
+                    <button type="button" class="btn btn-secondary" t-on-click="() => this.model.today()">Today</button>
+                    <button type="button" class="btn btn-secondary oi" data-icon="chevron_right"
+                            aria-label="Next" data-tooltip="Next"
+                            t-on-click="() => this.model.move(1)"/>
+                </div>
+                <h2 class="o_timeline_title mb-0" t-out="this.title"/>
+                <div class="btn-group ms-auto" role="group" aria-label="Scale">
+                    <t t-foreach="this.scales" t-as="scale" t-key="scale.key">
+                        <button type="button" class="btn btn-secondary"
+                                t-att-class="{ active: scale.key === this.model.meta.scale }"
+                                t-att-aria-pressed="scale.key === this.model.meta.scale ? 'true' : 'false'"
+                                t-on-click="() => this.model.setScale(scale.key)"
+                                t-out="scale.label"/>
+                    </t>
+                </div>
+            </div>
+            <div class="o_timeline_grid flex-grow-1">
+                <t t-set="ticks" t-value="this.ticks"/>
+                <div class="o_timeline_head">
+                    <div class="o_timeline_label"/>
+                    <div class="o_timeline_lane d-flex">
+                        <t t-foreach="ticks" t-as="tick" t-key="tick.key">
+                            <div class="o_timeline_tick"
+                                 t-att-class="{ o_timeline_tick_today: tick.isToday, o_timeline_tick_weekend: tick.isWeekend }"
+                                 t-att-style="'width: ' + tick.width + '%'"
+                                 t-out="tick.label"/>
+                        </t>
+                    </div>
+                </div>
+                <t t-foreach="this.model.data.rows" t-as="row" t-key="row.key">
+                    <div class="o_timeline_row">
+                        <div class="o_timeline_label text-truncate" t-att-title="row.label" t-out="row.label"/>
+                        <div class="o_timeline_lane" t-att-style="this.rowStyle(row)">
+                            <div class="o_timeline_lines d-flex">
+                                <t t-foreach="ticks" t-as="tick" t-key="tick.key">
+                                    <div t-att-class="{ o_timeline_tick_weekend: tick.isWeekend }"
+                                         t-att-style="'width: ' + tick.width + '%'"/>
+                                </t>
+                            </div>
+                            <div t-if="this.nowOffset !== null" class="o_timeline_now"
+                                 t-att-style="'left: ' + this.nowOffset + '%'"/>
+                            <t t-foreach="row.items" t-as="item" t-key="item.id">
+                                <button type="button" class="o_timeline_item"
+                                        t-att-class="this.itemClass(item)"
+                                        t-att-style="this.itemStyle(item)"
+                                        t-att-title="this.itemTooltip(item)"
+                                        t-on-click="() => this.props.openRecord(item.id)">
+                                    <span class="text-truncate" t-out="item.name"/>
+                                </button>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+                <div t-if="!this.model.hasData()" class="o_timeline_empty">
+                    Nothing is planned or due in this period.
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

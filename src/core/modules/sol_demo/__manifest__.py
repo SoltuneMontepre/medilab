@@ -21,6 +21,7 @@
         "data/sol_commerce/parameter_price.xml",
         "data/sol_commerce/subcontract_cost.xml",
         "data/sol_commerce/service_package.xml",
+        "data/sol_laboratory/task.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,
