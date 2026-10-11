@@ -26,14 +26,6 @@ msgstr "%(document_type)s không có quyền %(action)s."
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
-"%s does not tell editing from archiving yet, so it has no edit or archive "
-"permission."
-msgstr "%s chưa phân biệt sửa và lưu trữ, nên chưa có quyền sửa hoặc lưu trữ."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/system/permission.py:0
-msgid ""
 "%s has no department, so a permission on it cannot be limited to the "
 "person's department."
 msgstr ""
@@ -334,11 +326,6 @@ msgstr "Nhóm Đơn Vị"
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__is_company
 msgid "Check if the contact is a company, otherwise it is a person"
 msgstr "Đánh dấu nếu liên hệ là công ty, nếu không là cá nhân"
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__employee
-msgid "Check this box if this contact is an Employee."
-msgstr "Đánh dấu nếu liên hệ này là nhân viên."
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_chemical
@@ -2767,3 +2754,307 @@ msgstr "nhiệm vụ chưa kết thúc bạn có thể xem."
 msgid "waiting in your queues"
 msgstr "đang chờ trong hàng đợi của bạn"
 
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_create_all
+msgid "Create chemicals"
+msgstr "Tạo hóa chất"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_edit_all
+msgid "Edit chemicals"
+msgstr "Sửa hóa chất"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_archive_all
+msgid "Archive chemicals"
+msgstr "Lưu trữ hóa chất"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_delete_all
+msgid "Delete chemicals"
+msgstr "Xóa hóa chất"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_create_all
+msgid "Create machines"
+msgstr "Tạo máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_edit_all
+msgid "Edit machines"
+msgstr "Sửa máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_archive_all
+msgid "Archive machines"
+msgstr "Lưu trữ máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_delete_all
+msgid "Delete machines"
+msgstr "Xóa máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_create_all
+msgid "Create machine services"
+msgstr "Tạo lịch sử bảo trì máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_edit_all
+msgid "Edit machine services"
+msgstr "Sửa lịch sử bảo trì máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_delete_all
+msgid "Delete machine services"
+msgstr "Xóa lịch sử bảo trì máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_create_all
+msgid "Create measurement units"
+msgstr "Tạo đơn vị đo"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_edit_all
+msgid "Edit measurement units"
+msgstr "Sửa đơn vị đo"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_archive_all
+msgid "Archive measurement units"
+msgstr "Lưu trữ đơn vị đo"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_delete_all
+msgid "Delete measurement units"
+msgstr "Xóa đơn vị đo"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_create_all
+msgid "Create parameter groups"
+msgstr "Tạo nhóm chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_edit_all
+msgid "Edit parameter groups"
+msgstr "Sửa nhóm chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_archive_all
+msgid "Archive parameter groups"
+msgstr "Lưu trữ nhóm chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_delete_all
+msgid "Delete parameter groups"
+msgstr "Xóa nhóm chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_create_all
+msgid "Create ways of testing"
+msgstr "Tạo cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_edit_all
+msgid "Edit ways of testing"
+msgstr "Sửa cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_archive_all
+msgid "Archive ways of testing"
+msgstr "Lưu trữ cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_create_own_department
+msgid "Create ways of testing of their department"
+msgstr "Tạo cách thử của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_edit_own_department
+msgid "Edit ways of testing of their department"
+msgstr "Sửa cách thử của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_archive_own_department
+msgid "Archive ways of testing of their department"
+msgstr "Lưu trữ cách thử của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_create_all
+msgid "Create machines for ways of testing"
+msgstr "Tạo máy cho cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_edit_all
+msgid "Edit machines for ways of testing"
+msgstr "Sửa máy cho cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_delete_all
+msgid "Delete machines for ways of testing"
+msgstr "Xóa máy cho cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_create_all
+msgid "Create quality registrations"
+msgstr "Tạo hồ sơ đăng ký chất lượng"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_edit_all
+msgid "Edit quality registrations"
+msgstr "Sửa hồ sơ đăng ký chất lượng"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_archive_all
+msgid "Archive quality registrations"
+msgstr "Lưu trữ hồ sơ đăng ký chất lượng"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_delete_all
+msgid "Delete quality registrations"
+msgstr "Xóa hồ sơ đăng ký chất lượng"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_create_all
+msgid "Create regulations"
+msgstr "Tạo quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_edit_all
+msgid "Edit regulations"
+msgstr "Sửa quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_archive_all
+msgid "Archive regulations"
+msgstr "Lưu trữ quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_delete_all
+msgid "Delete regulations"
+msgstr "Xóa quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_create_all
+msgid "Create regulation limits"
+msgstr "Tạo giới hạn quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_edit_all
+msgid "Edit regulation limits"
+msgstr "Sửa giới hạn quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_delete_all
+msgid "Delete regulation limits"
+msgstr "Xóa giới hạn quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_create_all
+msgid "Create sample types"
+msgstr "Tạo loại mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_edit_all
+msgid "Edit sample types"
+msgstr "Sửa loại mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_archive_all
+msgid "Archive sample types"
+msgstr "Lưu trữ loại mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_delete_all
+msgid "Delete sample types"
+msgstr "Xóa loại mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_create_all
+msgid "Create subcontractors"
+msgstr "Tạo thầu phụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_edit_all
+msgid "Edit subcontractors"
+msgstr "Sửa thầu phụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_archive_all
+msgid "Archive subcontractors"
+msgstr "Lưu trữ thầu phụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_create_all
+msgid "Create test parameters"
+msgstr "Tạo chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_edit_all
+msgid "Edit test parameters"
+msgstr "Sửa chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_archive_all
+msgid "Archive test parameters"
+msgstr "Lưu trữ chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_create_all
+msgid "Create testing fields"
+msgstr "Tạo lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_edit_all
+msgid "Edit testing fields"
+msgstr "Sửa lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_archive_all
+msgid "Archive testing fields"
+msgstr "Lưu trữ lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_delete_all
+msgid "Delete testing fields"
+msgstr "Xóa lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_create_all
+msgid "Create testing methods"
+msgstr "Tạo phương pháp thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_edit_all
+msgid "Edit testing methods"
+msgstr "Sửa phương pháp thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_archive_all
+msgid "Archive testing methods"
+msgstr "Lưu trữ phương pháp thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_delete_all
+msgid "Delete testing methods"
+msgstr "Xóa phương pháp thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_create_all
+msgid "Create unit categories"
+msgstr "Tạo nhóm đơn vị"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_edit_all
+msgid "Edit unit categories"
+msgstr "Sửa nhóm đơn vị"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_archive_all
+msgid "Archive unit categories"
+msgstr "Lưu trữ nhóm đơn vị"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_delete_all
+msgid "Delete unit categories"
+msgstr "Xóa nhóm đơn vị"

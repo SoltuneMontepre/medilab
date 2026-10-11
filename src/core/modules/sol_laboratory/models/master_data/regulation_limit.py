@@ -4,6 +4,7 @@ from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PERMISSION_MIXIN,
     MODEL_REGULATION,
     MODEL_REGULATION_LIMIT,
     MODEL_TEST_PARAMETER,
@@ -13,8 +14,10 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Giới Hạn Quy Chuẩn
 class RegulationLimit(models.Model):
     _name = MODEL_REGULATION_LIMIT
+    _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Regulation Limit"
     _order = "regulation_id, id"
+    _permission_actions = ("create", "edit", "delete")
 
     # The regulation that sets the limit.
     regulation_id = fields.Many2one(MODEL_REGULATION, required=True, ondelete="cascade")

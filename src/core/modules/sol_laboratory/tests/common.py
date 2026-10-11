@@ -39,3 +39,16 @@ class MasterDataCase(TransactionCase):
         return cls.env[MODEL_TEST_PARAMETER].create(
             {"name": name, "group_ids": [group.id], "main_group_id": group.id, **vals}
         )
+
+
+class UnshippedPermissionCase(TransactionCase):
+    """Test parameters that also list read, delete and sign, whose permissions no module ships, so tests create them."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.classPatch(
+            type(cls.env[MODEL_TEST_PARAMETER]),
+            "_permission_actions",
+            ("read", "create", "edit", "archive", "delete", "sign"),
+        )

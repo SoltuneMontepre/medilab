@@ -1,15 +1,21 @@
 from odoo import fields, models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_CHEMICAL, MODEL_TESTING_METHOD
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ARCHIVE_MIXIN,
+    MODEL_CHEMICAL,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_TESTING_METHOD,
+)
 
 
 # Hóa Chất
 class Chemical(models.Model):
     _name = MODEL_CHEMICAL
-    _inherit = [MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
     _description = "Chemical"
     _order = "code"
     _rec_names_search = ("name", "code", "cas_number")
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique code of the chemical.
     code = fields.Char(required=True, copy=False)

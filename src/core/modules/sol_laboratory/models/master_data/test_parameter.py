@@ -7,6 +7,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CODE_MIXIN,
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
+    MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE_TYPE,
     MODEL_TEST_PARAMETER,
 )
@@ -15,10 +16,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Chỉ Tiêu
 class TestParameter(models.Model):
     _name = MODEL_TEST_PARAMETER
-    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
     _description = "Test Parameter"
     _order = "code"
     _rec_names_search = ("name", "code")
+    _permission_actions = ("create", "edit", "archive")
 
     # Unique code staff and documents use for the parameter; filled from a sequence when left empty.
     code = fields.Char(required=True, copy=False, index="trigram")

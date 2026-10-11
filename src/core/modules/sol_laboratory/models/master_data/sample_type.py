@@ -4,6 +4,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE_TYPE,
 )
 
@@ -11,11 +12,12 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Loại Mẫu
 class SampleType(models.Model):
     _name = MODEL_SAMPLE_TYPE
-    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
     _description = "Sample Type"
     _parent_store = True
     _order = "code"
     _rec_names_search = ("name", "code")
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique code of the sample type, such as LM.0001; filled from a sequence when left empty.
     code = fields.Char(required=True, copy=False)

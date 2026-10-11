@@ -55,7 +55,7 @@ The administrator maintains the master data of the Laboratory module: test param
 | Regulations          | A regulation, such as QCVN 6-1:2010/BYT, applies to sample types and sets at most one limit per parameter: a minimum, a maximum, or both, in a unit, or a text such as "Not detected" without a unit. A limit has at least one of them. |
 | Quality registration | A dossier is registered with an authority, has validity dates and covers parameter and method pairs. Its mark is printed after the name of each covered parameter on the report. A dossier counts as expired after its last valid day, and its mark is no longer printed. |
 | Expiry warning       | Administrators are warned a number of days before a dossier expires and on the day it expires. The number of days is a system setting the administrator configures. |
-| Permissions          | Only administrators create, edit, archive and delete master data. Everyone else reads it.                                                        |
+| Permissions          | Creating, editing, archiving and deleting master data are permissions the administrator holds and can give to other roles and people. Everyone who works for the laboratory reads it. |
 | Archiving            | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Test parameters, their parameter and method pairs and subcontractors are archived, never deleted. |
 | Deleting             | Units, unit categories, testing fields, testing methods, parameter groups, sample types, regulations, quality registration dossiers, machines and chemicals can also be deleted when nothing refers to them, such as a sample type no parameter, sample or regulation names. |
 

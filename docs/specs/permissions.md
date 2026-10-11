@@ -1,6 +1,6 @@
 # Permissions
 
-Stories: US-AD13, US-AD15
+Stories: US-AD01 to US-AD13, US-AD15
 
 ## Goal
 
@@ -57,9 +57,11 @@ The permission catalogue belongs to the modules: users read permissions, rename 
 
 Task types come with the modules in the same way: every internal user reads them, and only `edit` is a permission, for their route, role and default deadline. Tasks add two accesses that no permission carries: every internal user reads the tasks assigned to them and the open tasks of the queues they can claim from ([SH-10](../functional/shared.md#sh-10-tasks-and-to-do-list)). Claiming, starting and finishing their own tasks go through the task's buttons, which check the person and write with full rights.
 
+Master data is read the same way: every internal user reads it, because test requests, samples and tasks show it to everyone who works for the laboratory. Its other actions are permissions, given to roles and people like any other. Test parameters, their ways of testing and subcontractors have no `delete` permission, since they are archived, never deleted; machine services, machines of ways of testing and regulation limits have no `archive`, since they cannot be archived. A way of testing names the department that tests it, so its permissions also come with scope `own_department`. A subcontractor's name, tax ID, address, phone and email are held by its company contact, which only Odoo's contact managers may create or change; the subcontractor's `create` and `edit` permissions cover them, so they are written with full rights once the subcontractor's own permission is checked, and Odoo's rule that a record needs the same rights on the contact it delegates to does not apply to subcontractors. Linking a subcontractor to an existing contact needs the right to edit that contact.
+
 The Odoo apps MediLab builds on ship groups of their own, such as the employee and calendar managers. MediLab users get access through permissions only; the apps' own groups are given to administrators through the administrator role.
 
-A permission is refused when Odoo cannot enforce it as stated: `archive` on a document type that cannot be archived, and `edit` or `archive` on a document type that does not inherit the shared mixin, since Odoo alone cannot tell editing from archiving there. The master data of the laboratory still uses its own accesses and joins the mixin when its access moves to permissions.
+A permission is refused when its document type does not list its action in `_permission_actions`, when it is `archive` on a document type that cannot be archived, or when its document type does not inherit the shared mixin, since only the mixin tells editing from archiving.
 
 ### Role
 
@@ -83,7 +85,7 @@ Archiving a person archives their Odoo user, so they can no longer sign in; unar
 
 ### Enforcement in the API
 
-Accesses enforce `read`, `create` and `delete`, and their domain limits `create` to the person's department when that is the scope. `edit` and `archive` share Odoo's write operation, so the shared mixin `medilab.permission.mixin`, inherited by departments through their Odoo model, by people, by roles and permissions and by every document model of later features, splits them:
+Accesses enforce `read`, `create` and `delete`, and their domain limits `create` to the person's department when that is the scope. `edit` and `archive` share Odoo's write operation, so the shared mixin `medilab.permission.mixin`, inherited by departments through their Odoo model, by people, by roles and permissions, by master data and by every document model of later features, splits them:
 
 - Writing `active` needs the archive permission; writing any other field needs the edit permission.
 - Each is checked against the records inside that action's scope, found from the permissions of the user's groups for the model and action, so a person with `edit` on every record and `archive` on their own department cannot archive another department's records, even though Odoo combines the two write accesses with "or".
@@ -119,8 +121,6 @@ A way of testing names the department that tests it in-house, or a subcontractor
 | Shipped with the module | Permissions, the administrator role, the administrator person | The module, on every install. Users choose among them and assign them; they cannot delete them on the screen.  |
 | User data               | Departments, people, roles other than the administrator       | Administrators and the people they give the permissions to.                                                    |
 | Demo data               | Departments, people with their users, roles                   | Only the `sol_demo` module. It assigns shipped permissions to its roles and people and never creates a permission. |
-
-The master data of the laboratory still gives its access through Odoo's settings group and the internal user group, until its access moves to permissions.
 
 ### Lifecycle
 

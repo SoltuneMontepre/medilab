@@ -12,12 +12,6 @@ class ArchiveMixin(models.AbstractModel):
     _name = MODEL_ARCHIVE_MIXIN
     _description = "Archiving and Deleting Rules"
 
-    def _has_field_access(self, field, operation):
-        # The interface offers Archive whenever the active field is writable.
-        if field.name == "active" and operation == "write" and not self.browse().has_access("write"):
-            return False
-        return super()._has_field_access(field, operation)
-
     def write(self, vals):
         if vals.get("active") is False:
             self.filtered("active")._check_unused(archiving=True)

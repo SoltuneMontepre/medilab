@@ -6,6 +6,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_PARAMETER_GROUP,
+    MODEL_PERMISSION_MIXIN,
     MODEL_TEST_PARAMETER,
 )
 
@@ -13,11 +14,12 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Nhóm Chỉ Tiêu
 class ParameterGroup(models.Model):
     _name = MODEL_PARAMETER_GROUP
-    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
     _description = "Parameter Group"
     _parent_store = True
     _order = "code"
     _rec_names_search = ("name", "code")
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique code of the group, such as NCT.0001; filled from a sequence when left empty.
     code = fields.Char(required=True, copy=False)

@@ -6,6 +6,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
+    MODEL_PERMISSION_MIXIN,
     MODEL_SUBCONTRACTOR,
     MODEL_TEST_PARAMETER,
     MODEL_TESTING_METHOD,
@@ -15,10 +16,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Cách Thử
 class ParameterMethod(models.Model):
     _name = MODEL_PARAMETER_METHOD
-    _inherit = [MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
     _description = "Way of Testing"
     _order = "parameter_id, is_default desc, id"
     _rec_names_search = ("parameter_id", "method_id")
+    _permission_actions = ("create", "edit", "archive")
 
     # The parameter being tested.
     parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="cascade")

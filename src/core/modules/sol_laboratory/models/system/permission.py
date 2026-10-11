@@ -18,7 +18,6 @@ IR_MODEL = "ir.model"
 IR_ACCESS = "ir.access"
 IDENTITY_FIELDS = ("document_model", "action", "scope", "group_id")
 HOLDER_FIELDS = ("role_ids", "person_ids")
-WRITE_ACTIONS = ("edit", "archive")
 
 
 # Quyền
@@ -195,14 +194,11 @@ class Permission(models.Model):
                     label,
                 )
             )
-        if document_model not in self.env.registry[MODEL_PERMISSION_MIXIN]._inherit_children:
-            if action in WRITE_ACTIONS:
-                raise ValidationError(
-                    self.env._(
-                        "%s does not tell editing from archiving yet, so it has no edit or archive permission.", label
-                    )
-                )
-        elif action not in model._supported_permission_actions():
+        # Only the mixin enforces permissions, so a model without it has none.
+        if (
+            document_model not in self.env.registry[MODEL_PERMISSION_MIXIN]._inherit_children
+            or action not in model._supported_permission_actions()
+        ):
             raise ValidationError(
                 self.env._(
                     "%(document_type)s has no %(action)s permission.",
