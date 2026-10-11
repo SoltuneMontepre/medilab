@@ -21,6 +21,7 @@
         "data/sol_laboratory/customer.xml",
         "data/sol_laboratory/test_request.xml",
         "data/sol_laboratory/sample.xml",
+        "data/sol_laboratory/task.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

@@ -31,3 +31,7 @@ access_medilab_testing_method_user,medilab.testing.method user,medilab.testing.m
 access_medilab_testing_method_system,medilab.testing.method system,medilab.testing.method,base.group_system,crud,
 access_medilab_unit_category_user,medilab.unit.category user,medilab.unit.category,base.group_user,r,
 access_medilab_unit_category_system,medilab.unit.category system,medilab.unit.category,base.group_system,crud,
+access_medilab_task_type_user,medilab.task.type user,medilab.task.type,base.group_user,r,
+access_medilab_task_assignee,medilab.task assignee,medilab.task,base.group_user,r,"[('assignee_id.user_id', '=', user.id)]"
+access_medilab_task_queue,medilab.task queue,medilab.task,base.group_user,r,"['&', ('status', '=', 'open'), '|', ('department_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)]), '&', '&', ('department_id', '=', False), ('type_id.route', '=', 'role'), ('type_id.role_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]"
+access_medilab_task_reassign_user,medilab.task.reassign user,medilab.task.reassign,base.group_user,crud,

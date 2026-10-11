@@ -15,6 +15,7 @@
         "data/role_data.xml",
         "data/permission_data.xml",
         "data/person_data.xml",
+        "data/task_type_data.xml",
         "views/master_data/chemical_views.xml",
         "views/master_data/customer_views.xml",
         "views/master_data/machine_views.xml",
@@ -35,8 +36,18 @@
         "views/system/permission_views.xml",
         "views/system/person_views.xml",
         "views/system/role_views.xml",
+        "views/tasks/task_type_views.xml",
+        "views/tasks/task_reassign_views.xml",
+        "views/tasks/task_views.xml",
         "views/testing/res_config_settings_views.xml",
         "views/system/menus.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "sol_laboratory/static/src/views/control_panel/*",
+            "sol_laboratory/static/src/views/timeline/*",
+            "sol_laboratory/static/src/tasks/dashboard/*",
+        ],
+    },
     "application": True,
 }
