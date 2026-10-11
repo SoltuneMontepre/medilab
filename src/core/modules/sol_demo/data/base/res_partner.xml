@@ -3,10 +3,12 @@
     <record id="demo_res_partner_administrator" model="res.partner">
         <field name="name">Phan Minh Quan</field>
         <field name="email">phan.minh.quan@medilab.example</field>
+        <field name="lang">en_US</field>
     </record>
     <record id="demo_res_partner_sales" model="res.partner">
         <field name="name">Nguyen Thi Thu</field>
         <field name="email">nguyen.thi.thu@medilab.example</field>
+        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_head_of_sales" model="res.partner">
         <field name="name">Tran Quoc Bao</field>
@@ -43,5 +45,23 @@
     <record id="demo_res_partner_chemistry_tester" model="res.partner">
         <field name="name">Ly Van Hung</field>
         <field name="email">ly.van.hung@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_an_phat" model="res.partner">
+        <field name="name">Công ty TNHH Thực phẩm An Phát</field>
+        <field name="vat">0316289451</field>
+        <field name="street">27 Lê Văn Việt</field>
+        <field name="city">Thủ Đức</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="email">kinhdoanh@anphat-food.example</field>
+        <field name="lang">vi_VN</field>
+    </record>
+    <record id="demo_res_partner_greenleaf" model="res.partner">
+        <field name="name">Greenleaf Foods Pte. Ltd.</field>
+        <field name="vat">201912345R</field>
+        <field name="street">10 Anson Road</field>
+        <field name="city">Singapore</field>
+        <field name="country_id" ref="base.sg" />
+        <field name="email">quality@greenleaf-foods.example</field>
+        <field name="lang">en_US</field>
     </record>
 </odoo>

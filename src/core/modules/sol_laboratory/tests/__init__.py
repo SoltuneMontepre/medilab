@@ -3,6 +3,7 @@ from . import (
     test_administrator_role,
     test_archiving_and_deleting,
     test_code_sequences,
+    test_languages,
     test_machines_and_chemicals,
     test_master_data_access,
     test_own_department_scope,
@@ -17,5 +18,6 @@ from . import (
     test_regulation_constraints,
     test_role_lifecycle,
     test_subcontractor,
+    test_translations,
     test_tree_filters,
 )
