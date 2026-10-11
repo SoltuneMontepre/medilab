@@ -63,6 +63,7 @@
             "sol_theme/static/src/js/iconify_setup.js",
             "sol_theme/static/src/scss/icons.scss",
             "sol_theme/static/src/scss/login.scss",
+            "sol_theme/static/src/scss/portal.scss",
             "sol_theme/static/src/xml/user_switch.xml",
         ],
     },

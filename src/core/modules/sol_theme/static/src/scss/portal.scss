@@ -1,0 +1,5 @@
+// Odoo's portal colours buttons and links on public pages with the company's e-mail colours; the theme's colours win.
+html:root {
+    --portal-primary-color: #{$ml-primary};
+    --portal-text-color: #{$ml-text-on-primary};
+}
