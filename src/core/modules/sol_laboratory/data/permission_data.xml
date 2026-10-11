@@ -110,4 +110,53 @@
         <field name="action">delete</field>
         <field name="scope">own_department</field>
     </record>
+    <record id="permission_task_type_edit_all" model="medilab.permission">
+        <field name="name">Edit task types</field>
+        <field name="document_model">medilab.task.type</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_task_read_all" model="medilab.permission">
+        <field name="name">Read tasks</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_task_create_all" model="medilab.permission">
+        <field name="name">Create tasks</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_task_edit_all" model="medilab.permission">
+        <field name="name">Edit tasks</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_task_delete_all" model="medilab.permission">
+        <field name="name">Delete tasks</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_task_read_own_department" model="medilab.permission">
+        <field name="name">Read tasks of their department</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_task_create_own_department" model="medilab.permission">
+        <field name="name">Create tasks of their department</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_task_edit_own_department" model="medilab.permission">
+        <field name="name">Edit tasks of their department</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_task_delete_own_department" model="medilab.permission">
+        <field name="name">Delete tasks of their department</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
 </odoo>

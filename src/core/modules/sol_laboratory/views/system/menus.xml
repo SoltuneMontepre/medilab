@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <menuitem id="menu_tasks_root" name="Tasks" action="action_medilab_task_dashboard" sequence="5">
+        <menuitem id="menu_task_mine" action="action_medilab_task_mine" sequence="10" />
+        <menuitem id="menu_task_finished" action="action_medilab_task_finished" sequence="20" />
+        <menuitem id="menu_task_all" action="action_medilab_task" sequence="30" />
+        <menuitem
+            id="menu_task_type"
+            action="action_medilab_task_type"
+            sequence="40"
+            groups="group_permission_task_type_edit_all"
+        />
+    </menuitem>
+
     <menuitem id="menu_sample_collection_root" name="Sample Collection" sequence="10" />
 
     <menuitem id="menu_master_data_root" name="Master Data" sequence="20">

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_task_standard_solutions" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Prepare lead standard solutions</field>
+        <field name="department_id" ref="demo_department_chemistry" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_task_ph_meter_log" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Check the pH meter calibration log</field>
+        <field name="department_id" ref="demo_department_chemistry" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_task_media_preparation" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Prepare culture media for the week</field>
+        <field name="department_id" ref="demo_department_microbiology" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_task_retained_samples" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Sort retained samples in fridge 2</field>
+        <field name="department_id" ref="demo_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="deadline" eval="DateTime.now().replace(hour=16, minute=0, second=0).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_task_balance_check" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Daily check of analytical balance AB-02</field>
+        <field name="department_id" ref="demo_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_task_waste_log" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Update the chemical waste log</field>
+        <field name="department_id" ref="demo_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">in_progress</field>
+        <field name="deadline" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_task_method_review" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Review the method sheet for lead by AAS</field>
+        <field name="department_id" ref="demo_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="reassign_reason">The previous assignee is on leave this week.</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_task_internal_audit" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Internal audit briefing</field>
+        <field name="note">Bring the nonconformity records of last quarter.</field>
+        <field name="department_id" ref="demo_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="planned_start" eval="(DateTime.now() + relativedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="planned_end" eval="(DateTime.now() + relativedelta(minutes=90)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_task_fume_hood" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Clean fume hood 1</field>
+        <field name="department_id" ref="demo_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">done</field>
+        <field name="deadline" eval="(DateTime.now() - relativedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="done_at" eval="(DateTime.now() - relativedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_task_old_reagents" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_general" />
+        <field name="name">Return expired reagents to the supplier</field>
+        <field name="department_id" ref="demo_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">cancelled</field>
+        <field name="deadline" eval="(DateTime.now() - relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+</odoo>

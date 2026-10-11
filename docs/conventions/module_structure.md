@@ -23,6 +23,7 @@ How code inside an Odoo module is laid out.
 - Views of a model go in `<model>_views.xml`.
 - Menus are defined only in `views/system/menus.xml` and loaded last in `__manifest__.py`, after the actions they open.
 - The look of the system lives in its own module, `sol_theme`, under `static/src/`, split into `scss/`, `js/`, `xml/` and `img/`. No other module refers to its assets, so every module works with Odoo's own look.
+- A view type the module adds lives in `static/src/views/<view>/`, such as the timeline in `static/src/views/timeline/`; a screen of a concern lives in `static/src/<concern>/<screen>/`, such as `static/src/tasks/dashboard/`.
 
 ## Permissions
 
@@ -39,6 +40,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/models.py`      | Database model names, such as `MODEL_TEST_PARAMETER`                       |
 | `constants/permissions.py` | Actions, scopes and access domains of permissions, such as `SCOPE_DOMAINS` |
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`           |
+| `constants/tasks.py`       | Task triggers and statuses, such as `MANUAL_TRIGGER`                       |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
 - Python code refers to a model by its constant, never by repeating the string: `_name = MODEL_TEST_PARAMETER`, `self.env[MODEL_TEST_PARAMETER]`.

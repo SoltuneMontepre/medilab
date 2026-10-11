@@ -65,7 +65,7 @@
             font-weight: 400;
             line-height: 1.4;
             min-height: 0 !important;
-            margin: 0 0 0.75rem;
+            margin: 0 0 0.5rem;
             width: 100%;
 
             .o_field_widget,
@@ -93,7 +93,7 @@
         border-top: none;
         border-radius: 0 0 $ml-radius-lg $ml-radius-lg;
         box-shadow: $ml-shadow-form;
-        padding: 0.35rem 1.25rem 0.85rem;
+        padding: 0.35rem 1.25rem 1.25rem;
         margin: 0 0 1rem !important;
         width: 100% !important;
         max-width: none !important;
@@ -410,6 +410,17 @@
     .o_required_modifier.o_field_invalid:not(.o_readonly_modifier):not(.o_data_cell)::after {
         content: "Required field" !important;
         color: $ml-danger;
+    }
+
+    // The title has room under the name for the message, so it takes no height of its own there.
+    .oe_title .o_required_modifier:not(.o_readonly_modifier)::after {
+        position: absolute;
+        top: 100%;
+        left: 0;
+    }
+
+    .oe_title .o_required_modifier:not(.o_readonly_modifier) {
+        position: relative;
     }
 
     // CSS content cannot use .po translations, so the Vietnamese label is set by language here.
