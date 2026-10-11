@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Not noupdate, so an upgrade also installs the languages on an existing database; it skips those already active. -->
+<odoo>
+    <function model="res.lang" name="action_unarchive" eval="[[ref('base.lang_en'), ref('base.lang_vi_VN')]]"/>
+</odoo>
