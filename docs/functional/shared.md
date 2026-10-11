@@ -94,7 +94,7 @@ Every action in the system is recorded and can be reported on.
 - Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document. The history of a document includes the entries of the documents under it, such as the samples and sample tests of a test request.
 - **Audit reports** can be generated for a period and exported for compliance purposes.
 - Personal data in the trail is limited to what is needed to identify who acted.
-- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. Logins come from Odoo's own login log.
+- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. A login is recorded when Odoo writes its own login log, and a logout when the person signs out.
 - Odoo's field tracking shows the changes of a document in its chatter to everyone who reads it; the audit trail is the record that no one can edit or remove, kept apart from the chatter.
 
 Acceptance criteria:

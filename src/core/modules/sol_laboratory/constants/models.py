@@ -1,6 +1,10 @@
 """Technical names of the database models of the Laboratory module."""
 
 MODEL_ARCHIVE_MIXIN = "medilab.archive.mixin"
+MODEL_AUDIT_CHANGE = "medilab.audit.change"
+MODEL_AUDIT_ENTRY = "medilab.audit.entry"
+MODEL_AUDIT_MIXIN = "medilab.audit.mixin"
+MODEL_AUDIT_REPORT = "medilab.audit.report"
 MODEL_CHEMICAL = "medilab.chemical"
 MODEL_CODE_MIXIN = "medilab.code.mixin"
 MODEL_DEPARTMENT = "medilab.department"

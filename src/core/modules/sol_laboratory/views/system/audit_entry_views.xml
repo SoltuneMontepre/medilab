@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_audit_entry_list" model="ir.ui.view">
+        <field name="name">medilab.audit.entry.list</field>
+        <field name="model">medilab.audit.entry</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" duplicate="0">
+                <field name="create_date" string="Date" />
+                <field name="user_id" />
+                <field name="source" optional="show" />
+                <field name="action" />
+                <field name="document_model" />
+                <field name="document_name" />
+                <field name="change_ids" widget="many2many_tags" optional="show" />
+                <field name="note" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_audit_entry_form" model="ir.ui.view">
+        <field name="name">medilab.audit.entry.form</field>
+        <field name="model">medilab.audit.entry</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0" duplicate="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="create_date" string="Date" />
+                            <field name="user_id" />
+                            <field name="source" />
+                            <field name="action" />
+                        </group>
+                        <group>
+                            <field name="document_model" />
+                            <field name="document_id" />
+                            <field name="document_name" />
+                            <field name="note" />
+                        </group>
+                    </group>
+                    <field name="change_ids">
+                        <list>
+                            <field name="field_label" />
+                            <field name="old_value" />
+                            <field name="new_value" />
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_audit_entry_search" model="ir.ui.view">
+        <field name="name">medilab.audit.entry.search</field>
+        <field name="model">medilab.audit.entry</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="document_name" />
+                <field name="document_model" />
+                <field name="user_id" />
+                <field name="action" />
+                <field name="source" />
+                <field name="note" />
+                <filter name="period" string="Date" date="create_date" />
+                <separator />
+                <filter name="data_changes" string="Data changes" domain="[('action', 'in', ['create', 'edit', 'archive', 'delete'])]" />
+                <filter name="signatures" string="Signatures and approvals" domain="[('action', 'in', ['approve', 'reject', 'sign', 'withdraw'])]" />
+                <filter name="sessions" string="Logins and logouts" domain="[('action', 'in', ['login', 'logout'])]" />
+                <filter name="system_events" string="System events" domain="[('action', 'in', ['job', 'integration', 'error'])]" />
+                <group>
+                    <filter name="group_by_user" string="User" context="{'group_by': 'user_id'}" />
+                    <filter name="group_by_document_model" string="Document Type" context="{'group_by': 'document_model'}" />
+                    <filter name="group_by_action" string="Action" context="{'group_by': 'action'}" />
+                    <filter name="group_by_source" string="Source" context="{'group_by': 'source'}" />
+                    <filter name="group_by_date" string="Date" context="{'group_by': 'create_date:day'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_audit_entry" model="ir.actions.act_window">
+        <field name="name">Audit Trail</field>
+        <field name="res_model">medilab.audit.entry</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

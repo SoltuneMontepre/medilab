@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loading the demo data writes the create entries; these steps add an edit, and a parameter no longer offered is archived. -->
+<odoo noupdate="1">
+    <function model="medilab.chemical" name="write">
+        <value eval="[ref('chemical_nitric_acid')]" />
+        <value eval="{'storage_conditions': 'Acid cabinet, below 30 °C, away from organic substances and metals'}" />
+    </function>
+
+    <record id="demo_test_parameter_cadmium" model="medilab.test.parameter">
+        <field name="name">Cadmium (Cd)</field>
+        <field name="group_ids" eval="[Command.set([ref('group_heavy_metals')])]" />
+        <field name="main_group_id" ref="group_heavy_metals" />
+    </record>
+    <function model="medilab.test.parameter" name="action_archive">
+        <value eval="[ref('demo_test_parameter_cadmium')]" />
+    </function>
+</odoo>

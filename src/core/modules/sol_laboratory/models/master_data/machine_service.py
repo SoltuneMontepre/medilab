@@ -2,12 +2,13 @@ from odoo import api, fields, models
 from odoo.fields import Domain
 from odoo.tools import format_date
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE, MODEL_MACHINE_SERVICE
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_MACHINE, MODEL_MACHINE_SERVICE
 
 
 # Lịch Sử Bảo Trì Máy
 class MachineService(models.Model):
     _name = MODEL_MACHINE_SERVICE
+    _inherit = [MODEL_AUDIT_MIXIN]
     _description = "Machine Service"
     _order = "service_date desc, id desc"
 

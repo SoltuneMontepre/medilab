@@ -46,4 +46,9 @@
         <field name="partner_id" ref="demo_res_partner_storekeeper" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
+    <record id="demo_res_users_auditor" model="res.users">
+        <field name="login">demo.auditor</field>
+        <field name="partner_id" ref="demo_res_partner_auditor" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
+    </record>
 </odoo>

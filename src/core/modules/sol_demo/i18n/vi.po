@@ -1,16 +1,15 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* demo
+# 	* sol_demo
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:34+0000\n"
-"PO-Revision-Date: 2026-10-10 03:45+0000\n"
+"POT-Creation-Date: 2026-10-11 09:52+0000\n"
+"PO-Revision-Date: 2026-10-11 09:52+0000\n"
 "Last-Translator: \n"
-"Language-Team: Vietnamese\n"
-"Language: vi\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
@@ -48,8 +47,8 @@ msgstr "Acetonitril"
 
 #. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.chemical_nitric_acid
-msgid "Acid cabinet, away from organic substances"
-msgstr "Tủ đựng axit, tránh xa chất hữu cơ"
+msgid "Acid cabinet, below 30 °C, away from organic substances and metals"
+msgstr "Tủ đựng axit, dưới 30 °C, tránh xa chất hữu cơ và kim loại"
 
 #. module: sol_demo
 #: model:medilab.unit.category,name:sol_demo.unit_category_acidity
@@ -62,6 +61,11 @@ msgid "Animal feed"
 msgstr "Thức ăn chăn nuôi"
 
 #. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_auditor
+msgid "Auditor"
+msgstr "Kiểm Toán Viên"
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.sample_type_bottled_water
 msgid "Bottled water"
 msgstr "Nước đóng chai"
@@ -70,6 +74,11 @@ msgstr "Nước đóng chai"
 #: model:medilab.sample.type,name:sol_demo.sample_type_cabbage
 msgid "Cabbage"
 msgstr "Bắp cải"
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_cadmium
+msgid "Cadmium (Cd)"
+msgstr "Cadimi (Cd)"
 
 #. module: sol_demo
 #: model:medilab.testing.field,name:sol_demo.field_chemistry
@@ -119,8 +128,8 @@ msgstr "Môi trường"
 #. module: sol_demo
 #: model:medilab.quality.registration,name:sol_demo.quality_registration_expired
 msgid ""
-"Environmental monitoring registration with the Ministry of Natural Resources "
-"and Environment"
+"Environmental monitoring registration with the Ministry of Natural Resources"
+" and Environment"
 msgstr "Đăng ký quan trắc môi trường với Bộ Tài nguyên và Môi trường"
 
 #. module: sol_demo
@@ -203,7 +212,7 @@ msgid "Mass fraction"
 msgstr "Phần khối lượng"
 
 #. module: sol_demo
-#: model:ir.module.module,shortdesc:base.module_demo
+#: model:ir.module.module,shortdesc:base.module_sol_demo
 msgid "Medilab - Testing Data"
 msgstr "Medilab - Dữ liệu thử nghiệm"
 
@@ -235,9 +244,9 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.testing.method,name:sol_demo.method_iso_16649_2
 msgid ""
-"Microbiology of food and animal feeding stuffs — Enumeration of β-"
-"glucuronidase-positive Escherichia coli — Part 2: Colony-count technique at "
-"44 °C"
+"Microbiology of food and animal feeding stuffs — Enumeration of "
+"β-glucuronidase-positive Escherichia coli — Part 2: Colony-count technique "
+"at 44 °C"
 msgstr ""
 "Vi sinh vật trong thực phẩm và thức ăn chăn nuôi — Định lượng Escherichia "
 "coli dương tính β-glucuronidaza — Phần 2: Kỹ thuật đếm khuẩn lạc ở 44 °C"
@@ -245,8 +254,8 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.regulation,name:sol_demo.regulation_qcvn_6_1
 msgid ""
-"National technical regulation on natural mineral waters and bottled drinking "
-"waters"
+"National technical regulation on natural mineral waters and bottled drinking"
+" waters"
 msgstr ""
 "Quy chuẩn kỹ thuật quốc gia đối với nước khoáng thiên nhiên và nước uống "
 "đóng chai"
@@ -303,7 +312,7 @@ msgid "Sample delivery staff"
 msgstr "Nhân Viên Giao Nhận Mẫu"
 
 #. module: sol_demo
-#: model:ir.module.module,summary:base.module_demo
+#: model:ir.module.module,summary:base.module_sol_demo
 msgid "Seeds and configure data for demo purposes."
 msgstr "Tạo và cấu hình dữ liệu cho mục đích trình diễn."
 
@@ -368,8 +377,8 @@ msgstr "Chất lượng nước — Xác định pH"
 #. module: sol_demo
 #: model:medilab.testing.method,name:sol_demo.method_tcvn_6187_1
 msgid ""
-"Water quality — Enumeration of Escherichia coli and coliform bacteria — Part "
-"1: Membrane filtration method"
+"Water quality — Enumeration of Escherichia coli and coliform bacteria — Part"
+" 1: Membrane filtration method"
 msgstr ""
 "Chất lượng nước — Phát hiện và đếm Escherichia coli và vi khuẩn coliform — "
 "Phần 1: Phương pháp lọc màng"

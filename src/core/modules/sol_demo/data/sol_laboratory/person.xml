@@ -49,6 +49,11 @@
         <field name="user_id" ref="demo_res_users_storekeeper" />
         <field name="role_ids" eval="[Command.set([ref('demo_role_storekeeper')])]" />
     </record>
+    <record id="demo_person_auditor" model="medilab.person">
+        <field name="partner_id" ref="demo_res_partner_auditor" />
+        <field name="user_id" ref="demo_res_users_auditor" />
+        <field name="role_ids" eval="[Command.set([ref('demo_role_auditor')])]" />
+    </record>
     <record id="demo_person_microbiology_tester" model="medilab.person">
         <field name="partner_id" ref="demo_res_partner_microbiology_tester" />
         <field name="department_id" ref="demo_department_microbiology" />

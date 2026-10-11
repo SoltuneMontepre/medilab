@@ -19,6 +19,8 @@ Every action on a document is recorded once, with who did it, when, from where, 
 | `unlink` | `delete`                                        | None; the entry's note keeps the record's display name            |
 
 - Only stored fields are recorded; computed fields that are not stored, binary fields and Odoo's bookkeeping fields (`create_uid`, `create_date`, `write_uid`, `write_date`, `__last_update`) are left out. A model can leave out more fields with `_audit_exclude`.
+- The fields a document delegates to an Odoo record with `_inherits`, such as a subcontractor's contact details, are recorded as the document's own.
+- A call that changes no recorded field writes no entry. A document edited together with the documents under it, such as a regulation and its limits, writes no entry for the list itself: each document under it writes its own.
 - Values are written as text: a relation as the display name and id of the record, a selection as its value, a date in ISO format.
 - A field marked `audit_mask=True`, such as a customer's citizen ID, records that it changed, with both values written as `***`.
 - Entries are written with full rights, so a person who cannot read the audit trail still produces entries.
@@ -37,7 +39,7 @@ The user is the signed-in Odoo user; for a job, the user who ran it by hand, or 
 
 ### Logins and settings
 
-Logins and logouts write an entry when Odoo writes its own login log and when a session ends. Settings are audited by auditing writes to Odoo's system parameter table, so each changed setting records its key and its old and new value; secrets never reach that table.
+Logins and logouts write an entry on the user, when Odoo writes its own login log and when the person signs out. Settings are audited by auditing writes to Odoo's system parameter table, so each changed setting records its key and its old and new value; secrets never reach that table.
 
 ### Protection
 
@@ -45,11 +47,13 @@ Nobody edits or deletes an audit entry or change, administrators included: the m
 
 ### History of a document
 
-Every audited form has a **History** button that opens the entries of the document and of the documents under it, newest first. A model names the relations of the documents under it in `_audit_children`, such as `sample_ids` on a test request and `test_ids` on a sample, and the history follows them recursively.
+Every audited form has a **History** button, shown to those who can read the trail, that opens the entries of the document and of the documents under it, newest first. A model names the relations of the documents under it in `_audit_children`, such as `sample_ids` on a test request and `test_ids` on a sample, and the history follows them recursively.
 
 ### Search and reports
 
+- The **Audit Trail** app holds the trail and the report.
 - An **Audit trail** screen lists entries, searched by document type, document, user, period, action and source, with the changes of each entry.
+- Once a document is deleted, its entries are named, and found, by the name its delete entry keeps.
 - An **Audit report** for a period, filtered the same way, prints as PDF or exports to a spreadsheet, one row per change; an entry without changes is one row.
 - The retention period is the system parameter `audit.retention_days`, empty by default, which keeps entries for ever.
 

@@ -3,6 +3,7 @@ from odoo.exceptions import ValidationError
 from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_MEASUREMENT_UNIT,
     MODEL_REGULATION,
     MODEL_REGULATION_LIMIT,
@@ -13,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Giới Hạn Quy Chuẩn
 class RegulationLimit(models.Model):
     _name = MODEL_REGULATION_LIMIT
+    _inherit = [MODEL_AUDIT_MIXIN]
     _description = "Regulation Limit"
     _order = "regulation_id, id"
 

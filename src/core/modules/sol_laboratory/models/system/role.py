@@ -6,6 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -19,7 +20,7 @@ CODE_PATTERN = re.compile(r"[a-z][a-z0-9_]*")
 # Vai Trò
 class Role(models.Model):
     _name = MODEL_ROLE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Role"
     _order = "code"
     _rec_names_search = ("name", "code")

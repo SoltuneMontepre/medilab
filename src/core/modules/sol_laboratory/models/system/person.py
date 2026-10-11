@@ -4,6 +4,7 @@ from odoo.fields import Command
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
@@ -19,7 +20,7 @@ RES_PARTNER = "res.partner"
 # Nhân Sự
 class Person(models.Model):
     _name = MODEL_PERSON
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Person"
     _rec_names_search = ("name", "email")
 

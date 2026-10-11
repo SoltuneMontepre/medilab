@@ -2,6 +2,7 @@ from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_CHEMICAL,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
@@ -11,7 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Phương Pháp Thử
 class TestingMethod(models.Model):
     _name = MODEL_TESTING_METHOD
-    _inherit = [MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Testing Method"
     _rec_name = "code"
     _order = "code"

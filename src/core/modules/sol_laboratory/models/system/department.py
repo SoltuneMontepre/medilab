@@ -2,6 +2,7 @@ from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -11,7 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Phòng Ban
 class Department(models.Model):
     _name = MODEL_DEPARTMENT
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Department"
     _order = "name"
 

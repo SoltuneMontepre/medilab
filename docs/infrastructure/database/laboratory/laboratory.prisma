@@ -1551,7 +1551,7 @@ model MobileDevice {
 
 /// One recorded action or event (SH-05). Entries are never edited; only the cleanup job removes them after the audit retention period, once they are in an archive file.
 /// Points to its document by document_model and document_id, indexed together. A BRIN index on create_date serves period reports.
-/// Logins are read from Odoo's login log (res.users.log), not written here.
+/// Logins and logouts are entries on the user who signs in or out (document_model res.users), written when Odoo writes its login log (res.users.log) and when the person signs out.
 model AuditEntry {
   /// Row identifier.
   id             Int           @id @default(autoincrement())

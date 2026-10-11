@@ -27,4 +27,9 @@
         <menuitem id="menu_role" action="action_medilab_role" sequence="30" />
         <menuitem id="menu_permission" action="action_medilab_permission" sequence="40" />
     </menuitem>
+
+    <menuitem id="menu_audit_root" name="Audit Trail" sequence="40">
+        <menuitem id="menu_audit_entry" action="action_medilab_audit_entry" sequence="10" />
+        <menuitem id="menu_audit_report" action="action_medilab_audit_report" sequence="20" />
+    </menuitem>
 </odoo>

@@ -1,12 +1,17 @@
 from odoo import fields, models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_MEASUREMENT_UNIT, MODEL_UNIT_CATEGORY
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
+    MODEL_MEASUREMENT_UNIT,
+    MODEL_UNIT_CATEGORY,
+)
 
 
 # Đơn Vị Đo
 class MeasurementUnit(models.Model):
     _name = MODEL_MEASUREMENT_UNIT
-    _inherit = [MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Measurement Unit"
     _order = "name"
 

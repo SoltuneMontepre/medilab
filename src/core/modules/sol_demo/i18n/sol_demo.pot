@@ -1,13 +1,13 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* demo
+# 	* sol_demo
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:34+0000\n"
-"PO-Revision-Date: 2026-10-10 07:34+0000\n"
+"POT-Creation-Date: 2026-10-11 09:52+0000\n"
+"PO-Revision-Date: 2026-10-11 09:52+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -47,7 +47,7 @@ msgstr ""
 
 #. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.chemical_nitric_acid
-msgid "Acid cabinet, away from organic substances"
+msgid "Acid cabinet, below 30 °C, away from organic substances and metals"
 msgstr ""
 
 #. module: sol_demo
@@ -61,6 +61,11 @@ msgid "Animal feed"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_auditor
+msgid "Auditor"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.sample_type_bottled_water
 msgid "Bottled water"
 msgstr ""
@@ -68,6 +73,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.sample_type_cabbage
 msgid "Cabbage"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_cadmium
+msgid "Cadmium (Cd)"
 msgstr ""
 
 #. module: sol_demo
@@ -198,7 +208,7 @@ msgid "Mass fraction"
 msgstr ""
 
 #. module: sol_demo
-#: model:ir.module.module,shortdesc:base.module_demo
+#: model:ir.module.module,shortdesc:base.module_sol_demo
 msgid "Medilab - Testing Data"
 msgstr ""
 
@@ -292,7 +302,7 @@ msgid "Sample delivery staff"
 msgstr ""
 
 #. module: sol_demo
-#: model:ir.module.module,summary:base.module_demo
+#: model:ir.module.module,summary:base.module_sol_demo
 msgid "Seeds and configure data for demo purposes."
 msgstr ""
 
