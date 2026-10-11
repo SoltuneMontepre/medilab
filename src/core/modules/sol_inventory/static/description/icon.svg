@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img">
+  <title>MediLab Inventory — chữ M kết hợp bình thí nghiệm trong thùng hàng</title>
+  <rect width="1024" height="1024" rx="224" fill="#0083EF"/>
+  <path fill="#FFFFFF" d="M150 300H874V388H150Z"/>
+  <path fill="#FFFFFF" d="M190 404H834V838C834 858 818 874 798 874H226C206 874 190 858 190 838Z"/>
+  <path fill="#0A4D8C" d="M462 300H562V388H462Z"/>
+  <path fill="#0083EF" transform="translate(320 470) scale(1.5)" d="M0 0H64L128 56L192 0H256V224H211L149 126V91H152C160 91 160 79 152 79H104C96 79 96 91 104 91H107V126L45 224H0Z"/>
+</svg>
