@@ -8,6 +8,20 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 - Documents describe what the system should do. They are not a description of existing code.
 - `questions/` holds the owner's open questions, one file per topic: `questions/<topic>.md`.
 
+## MCP servers
+
+`.mcp.json` configures these servers; `task ai:setup` installs what they need. Use them whenever the task calls for them, before falling back to the shell:
+
+| Server      | Use it to                                                                                              |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
+| `serena`    | Find symbols, references and definitions in the modules, and edit code by symbol, instead of grepping. |
+| `postgres`  | Query the local database to check records, schema and constraints after an install or upgrade.        |
+| `context7`  | Read current documentation of Odoo and other libraries before relying on an API.                       |
+| `sonarqube` | Read the quality gate and issues of a branch or pull request, and fix what it reports.                 |
+| `doppler`   | Look up which secrets and configs exist. Never print a secret's value.                                 |
+
+When a server is not connected, say so, then continue with the shell.
+
 ## Hard Rules
 
 - **Read first.** Read the current state of the files before changing anything; they may have changed since you last saw them.

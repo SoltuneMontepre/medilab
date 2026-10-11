@@ -2,13 +2,15 @@
 
 ## About the project
 
-Medilab is a laboratory management system built on Odoo 20. It is designed to help laboratories manage their laboratory testing processes efficiently. The system provides a comprehensive solution for managing sales, inventory, and laboratory operations.
+Medilab is a laboratory management system built on Odoo 20 Community and the Odoo apps it already offers, such as Employees, Calendar, Sales, Invoicing and Inventory; it needs no Odoo Enterprise app. It is designed to help laboratories manage their laboratory testing processes efficiently. The system provides a comprehensive solution for managing sales, inventory, and laboratory operations.
 
 Each installation serves one laboratory company; there is no multi-company setup. The system serves laboratories testing in four sectors: food (thực phẩm), cosmetics (mỹ phẩm), pharmaceuticals (dược phẩm) and environment (môi trường).
 
 ## Modules
 
 MediLab is split into three modules that can each be installed from the Odoo marketplace and support each other: **E-commerce**, **Inventory** and **Laboratory Testing (core)**. Each module is designed to handle specific aspects of laboratory management, allowing users to customize their experience based on their needs.
+
+The MediLab look (colours, navigation, icons, login page and app icons) is a fourth, optional module, **Medilab Theme** (`sol_theme`). A laboratory that prefers Odoo's own look leaves it out.
 
 [E-commerce Module](./ecommerce_module/overview.md): The E-commerce module allows users to manage their laboratory sales processes, including creating and managing sales orders, invoices, quotations, and customer information. It also provides tools for tracking sales performance and generating reports.
 

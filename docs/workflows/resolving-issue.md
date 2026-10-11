@@ -14,7 +14,7 @@ How an open feature issue is implemented, checked in the browser and opened as a
 3. **Branch** from an up-to-date `main`: `feat/<issue number>-<short-description>`, following [Git](../conventions/git.md).
 4. **Plan.** Turn each checklist item and acceptance criterion into the models, views, data and tests to write. Ask the owner when the documents do not answer something; add what stays undecided to `questions/<topic>.md`. Do not guess.
 5. **Implement**, following the [module structure](../conventions/module_structure.md), [database](../conventions/database.md), [Python](../conventions/python.md) and [translation and menus](../conventions/translation.md) conventions: one model per file in its concern folder, a `MODEL_*` constant per model, a comment with the Vietnamese term above each model class and a comment above each field, access rules, sequences, views, menus and Vietnamese translations.
-   Add the feature's demo data to the `demo` module ([demo data](../conventions/demo_data.md)).
+   Add the feature's demo data to the `sol_demo` module ([demo data](../conventions/demo_data.md)).
 6. **Test.** Write a test for each acceptance criterion ([testing](../conventions/testing.md)), then run `task lint`, `task typecheck` and `task test:core`. Fix everything they report.
 7. **Check in the browser.**
    - Start the app with `task up`, then `task upgrade MODULES=<module>`.

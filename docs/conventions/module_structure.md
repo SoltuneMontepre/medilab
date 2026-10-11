@@ -16,19 +16,19 @@ How code inside an Odoo module is laid out.
 | `tasks`             | Task types and tasks                                                                                                                                                             |
 | `management`        | Features only managers use                                                                                                                                                       |
 | `pricing`           | Parameter prices, taxes and their rates, subcontract costs and service packages                                                                                                  |
-| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices, menus and the theme                                                                        |
+| `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices and menus                                                                                   |
 
 ## Files
 
-- One model per file, named after the model: `test_parameter.py`.
+- One model per file, named after the model: `test_parameter.py`. An extension of an Odoo model is named after the Odoo model and lives in the folder of its MediLab concern, such as `models/system/hr_department.py` for departments and `models/tasks/calendar_event.py` for schedules.
 - Views of a model go in `<model>_views.xml`.
 - Menus are defined only in `views/system/menus.xml` and loaded last in `__manifest__.py`, after the actions they open.
-- Theme assets live in `static/src/theme/`, split into `scss/`, `js/`, `xml/` and `img/`.
+- The look of the system lives in its own module, `sol_theme`, under `static/src/`, split into `scss/`, `js/`, `xml/` and `img/`. No other module refers to its assets, so every module works with Odoo's own look.
 
 ## Permissions
 
 - Each new document model inherits `medilab.permission.mixin` and ships its permissions in its module's `data/permission_data.xml`: one per action in its `_permission_actions`, with scope `all`, and the same actions with scope `own_department` only when the model has `department_id`. A test fails when one is missing.
-- Permissions, the administrator role and the administrator person are shipped data. Departments, people and other roles are user data. Demo data lives only in the `demo` module, which assigns shipped permissions and never creates one.
+- Permissions, the administrator role and the administrator person are shipped data. Departments, people and other roles are user data. Demo data lives only in the `sol_demo` module, which assigns shipped permissions and never creates one.
 - [Permissions](../specs/permissions.md) describes the mechanism.
 
 ## Constants
