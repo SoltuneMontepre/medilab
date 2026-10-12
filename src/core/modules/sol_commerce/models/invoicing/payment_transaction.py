@@ -224,6 +224,8 @@ class PaymentTransaction(models.Model):
         )
         if existing:
             return existing
+        if invoice.amount_residual <= 0:
+            raise UserError(self.env._("This invoice is already paid."))
         return self.sudo()._create_payos_transaction(invoice)
 
     def _create_online_payment(self):

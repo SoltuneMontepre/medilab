@@ -14,6 +14,8 @@ _logger = logging.getLogger(__name__)
 
 POLL_AGAIN = timedelta(minutes=5)
 PAYOS_LINK_EXISTS = "PayOS already has this order and did not return a checkout URL. Another link was not created."
+# An unlinked bank account accepts 9 characters. A linked account is not a separate setting here.
+PAYOS_DESCRIPTION_LIMIT = 9
 
 
 class PayosLinkUnavailable(PermanentJobError):
@@ -70,7 +72,7 @@ class ScheduledJob(models.Model):
     def _payos_create_link(self, client, order_code, amount):
         base = self.env["ir.config_parameter"].sudo().get_str("web.base.url")
         return_url = f"{base}/payment/payos/return"
-        description = f"Medilab {order_code}"[:25]
+        description = self._payos_description(order_code)
         payload = {
             "orderCode": order_code,
             "amount": amount,
@@ -84,6 +86,13 @@ class ScheduledJob(models.Model):
         if ("orderCode" in data or "amount" in data) and not self._payos_link_matches(data, amount, order_code):
             raise PermanentJobError("PayOS link does not match this payment")
         return data.get("checkoutUrl")
+
+    def _payos_description(self, order_code):
+        """The bank memo is the order code. It is not cut down, and it fits an unlinked account."""
+        description = str(int(order_code))
+        if not description.isdigit() or len(description) > PAYOS_DESCRIPTION_LIMIT:
+            raise PermanentJobError("The PayOS order code does not fit the payment description.")
+        return description
 
     def _claim_pending_item(self, item):
         """Claim one pending item. A cron worker that already took it is left alone."""

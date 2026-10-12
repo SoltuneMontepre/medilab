@@ -439,6 +439,72 @@ class TestPayos(InvoicingCase):
         self.assertEqual(transaction.payos_checkout_url, "https://pay.payos.vn/web/abc")
         self.assertFalse(transaction.payment_id)
 
+    def test_the_description_is_the_order_code_and_is_signed_as_sent(self):
+        transaction = self.transaction()
+        item = self.calls_item(transaction)
+        seen = {}
+
+        def request(method, url, json=None, headers=None, timeout=None):
+            if method == "GET":
+                return self.payos_response(404, {"code": "404", "desc": "Not Found"})
+            seen["payload"] = json
+            return self.payos_response(
+                200,
+                {
+                    "code": "00",
+                    "data": {
+                        "checkoutUrl": "https://pay.payos.vn/web/abc",
+                        "orderCode": int(transaction.reference),
+                        "amount": int(transaction.amount),
+                    },
+                },
+            )
+
+        with payos_env(), patch("requests.request", side_effect=request):
+            item.job_id._handle_payos_calls(item)
+
+        payload = seen["payload"]
+        description = str(int(transaction.reference))
+        client = PayosClient("id", "key", CHECKSUM)
+        self.assertEqual(payload["description"], description)
+        self.assertLessEqual(len(description), 9)
+        self.assertTrue(description.isascii() and description.isdigit())
+        self.assertEqual(
+            payload["signature"],
+            client.payment_request_signature(
+                payload["amount"], payload["cancelUrl"], description, payload["orderCode"], payload["returnUrl"]
+            ),
+        )
+
+    def test_a_nine_digit_order_code_fits_and_a_longer_one_is_not_sent(self):
+        job = self.env["medilab.scheduled.job"].search([("key", "=", "payos.calls")], limit=1)
+        client = PayosClient("id", "key", CHECKSUM)
+        calls = []
+        client.request = lambda *args, **kwargs: calls.append(args)
+
+        self.assertEqual(job._payos_description(999_999_999), "999999999")
+        with self.assertRaises(PermanentJobError):
+            job._payos_create_link(client, 1_000_000_000, 1000)
+
+        self.assertFalse(calls)
+
+    def test_a_paid_invoice_does_not_start_another_payos_link(self):
+        transaction = self.transaction()
+        payment = self.env["account.payment"].create_pending_payment(self.invoice, self.invoice.amount_residual, "cash")
+        payment.action_post()
+
+        self.assertEqual(self.env["payment.transaction"].portal_start_payos(self.invoice), transaction)
+        transaction.with_context(payment_safe_write=True).write({"state": "done"})
+        with self.assertRaises(UserError):
+            self.env["payment.transaction"].portal_start_payos(self.invoice)
+
+        self.assertEqual(
+            self.env["payment.transaction"].search_count(
+                [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+            ),
+            1,
+        )
+
     def test_an_existing_checkout_url_is_reused_without_a_second_link(self):
         transaction = self.transaction()
         item = self.calls_item(transaction)
