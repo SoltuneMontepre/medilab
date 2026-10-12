@@ -13,4 +13,4 @@ Read [AGENTS.md](../../../AGENTS.md), the [docs index](../../../docs/readme.md) 
 - Ask the owner, not the author, what a rule is when the documents do not say. Post findings as statements.
 - Say which document needs updating and what it should say; do not edit it.
 - Show the owner the findings and post the review only after they say so. Change nothing on the pull request's branch.
-- Reply with the review link, the findings and what was not checked.
+- Post only the findings. Reply with the review link, what was checked and what was not.
