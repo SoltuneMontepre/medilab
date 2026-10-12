@@ -69,7 +69,7 @@ class TestPayments(InvoicingCase):
         self.env.ref("sol_commerce.payment_method_payos_qr").active = True
         transaction = self.env["payment.transaction"]._create_payos_transaction(self.invoice)
         transaction.with_context(payment_safe_write=True).write({"amount": self.invoice.amount_residual + 1_000})
-        transaction._set_done()
+        transaction.with_context(payment_safe_write=True)._set_done()
 
         payment = transaction._create_online_payment()
 
@@ -98,7 +98,7 @@ class TestPayments(InvoicingCase):
         self.env.ref("sol_commerce.payment_provider_payos").is_published = True
         self.env.ref("sol_commerce.payment_method_payos_qr").active = True
         transaction = self.env["payment.transaction"]._create_payos_transaction(self.invoice)
-        transaction._set_done()
+        transaction.with_context(payment_safe_write=True)._set_done()
         day = self.env["medilab.reconciliation.day"].create(
             {"day": self.env["medilab.reconciliation.day"]._vietnam_day(transaction.create_date)}
         )
@@ -148,6 +148,9 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.invoice = cls.order.create_advance_invoice()
+        private_order = cls.order.copy()
+        private_order.action_confirm()
+        cls.private_invoice = private_order.create_advance_invoice()
         cls.customer = cls.portal_user("payer.customer", cls.partner)
         cls.other = cls.portal_user("payer.other", cls.env["res.partner"].create({"name": "Other customer"}))
 
@@ -166,9 +169,9 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
         self.authenticate(self.other.login, self.other.login)
 
         response = self.url_open(
-            f"/my/invoices/{self.invoice.id}/pay", data={"amount": "1"}, allow_redirects=False
+            f"/my/invoices/{self.private_invoice.id}/pay", data={"amount": "1"}, allow_redirects=False
         )
 
         self.assertIn(response.status_code, (301, 302, 303))
         self.assertTrue(response.headers["Location"].endswith("/my"))
-        self.assertFalse(self.env["account.payment"].search([("invoice_ids", "in", self.invoice.id)]))
+        self.assertFalse(self.env["account.payment"].search([("invoice_ids", "in", self.private_invoice.id)]))

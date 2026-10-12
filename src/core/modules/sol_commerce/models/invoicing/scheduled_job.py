@@ -24,7 +24,7 @@ class ScheduledJob(models.Model):
         if client is None:
             raise PermanentJobError("PayOS credentials are not set")
         order_code = int(transaction._payos_order_code())
-        base = self.env["ir.config_parameter"].sudo().get_param("web.base.url")
+        base = self.env["ir.config_parameter"].sudo().get_str("web.base.url")
         return_url = f"{base}/payment/payos/return"
         description = f"Medilab {order_code}"[:25]
         amount = int(transaction.amount)
@@ -39,7 +39,7 @@ class ScheduledJob(models.Model):
         body = client.request("POST", "/v2/payment-requests", payload)
         checkout_url = (body.get("data") or {}).get("checkoutUrl")
         transaction.with_context(payment_safe_write=True).write({"payos_checkout_url": checkout_url})
-        transaction._set_pending()
+        transaction.with_context(payment_safe_write=True)._set_pending()
         self.env[MODEL_SCHEDULED_JOB].queue("payos.poll", transaction.reference, document=transaction)
 
     def _handle_payos_poll(self, item):

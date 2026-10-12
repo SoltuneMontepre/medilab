@@ -10,11 +10,12 @@ class PaymentProvider(models.Model):
     code = fields.Selection(selection_add=[("payos", "PayOS")], ondelete={"payos": "set default"})
 
     def _compute_feature_support_fields(self):
-        super()._compute_feature_support_fields()
+        result = super()._compute_feature_support_fields()
         # PayOS takes the customer to its own page. Refunds are a later feature.
         self.filtered(lambda provider: provider.code == "payos").update(
             {"support_refund": "none", "support_tokenization": False}
         )
+        return result
 
     def _get_default_payment_method_codes(self):
         self.ensure_one()

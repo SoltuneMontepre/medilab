@@ -37,14 +37,21 @@ class InvoicingCase(TransactionCase):
             }
         )
         cls.order.action_confirm()
+        if not cls.env["account.journal"].search(
+            [("type", "=", "cash"), ("company_id", "=", company.id)], limit=1
+        ):
+            cls.env["account.journal"].create(
+                {"name": "Cash", "type": "cash", "code": "CSH", "company_id": company.id}
+            )
 
-    def portal_user(self, login, partner):
-        return self.env["res.users"].create(
+    @classmethod
+    def portal_user(cls, login, partner):
+        return cls.env["res.users"].create(
             {
                 "name": login,
                 "login": login,
                 "password": login,
                 "partner_id": partner.id,
-                "group_ids": [Command.set(self.env.ref("base.group_portal").ids)],
+                "group_ids": [Command.set(cls.env.ref("base.group_portal").ids)],
             }
         )

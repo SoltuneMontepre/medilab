@@ -41,12 +41,12 @@ class AccountMove(models.Model):
             if move.move_type != "out_invoice" or move.invoice_kind not in ("advance", "final"):
                 move.amount_owed = move.amount_residual
                 continue
-            credits = move.reversal_move_ids.filtered(
+            lowering = move.reversal_move_ids.filtered(
                 lambda refund: refund.state == "posted" and refund.invoice_kind == "adjustment"
             )
             raises = move.raising_adjustment_ids.filtered(lambda invoice: invoice.state == "posted")
             move.amount_owed = (
-                move.amount_residual - sum(credits.mapped("amount_residual")) + sum(raises.mapped("amount_residual"))
+                move.amount_residual - sum(lowering.mapped("amount_residual")) + sum(raises.mapped("amount_residual"))
             )
 
     def button_draft(self):

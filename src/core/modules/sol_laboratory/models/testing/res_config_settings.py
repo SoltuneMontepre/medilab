@@ -13,7 +13,7 @@ class ResConfigSettings(models.TransientModel):
     def _get_parameter(self, field_name):
         # sudo: only administrators may read system parameters, while features read them for everyone.
         field = self._fields[field_name]
-        stored = self.env["ir.config_parameter"].sudo().get_param(field.config_parameter)
+        stored = self.env["ir.config_parameter"].sudo().get_str(field.config_parameter)
         if stored in (False, None, ""):
             default = field.default
             return default(self) if callable(default) else default

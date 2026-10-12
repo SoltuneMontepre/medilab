@@ -33,7 +33,7 @@ class PermanentJobError(Exception):
 # Tác Vụ Định Kỳ
 class ScheduledJob(models.Model):
     _name = MODEL_SCHEDULED_JOB
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, "mail.thread", "mail.activity.mixin"]
     _description = "Scheduled Job"
     _order = "name"
     # Jobs come with modules: administrators change their schedule and limits, run them and retry their items.

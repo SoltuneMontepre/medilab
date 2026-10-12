@@ -54,6 +54,7 @@ class ReconciliationDay(models.Model):
         missing = self.transaction_ids.filtered(lambda tx: tx.state == "done" and not tx.payment_id)
         for transaction in missing:
             transaction._create_online_payment()
+        self.invalidate_recordset(["transaction_ids", "missing_payment_count"])
         return True
 
     def action_lock(self):

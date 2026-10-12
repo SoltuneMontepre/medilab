@@ -58,6 +58,27 @@ class TestPayos(InvoicingCase):
         self.assertTrue(self.method.active)
         self.assertEqual(self.env["res.config.settings"]._get_parameter("payos_expiry_hours"), 12)
 
+    def test_payos_declares_qr_and_no_refunds(self):
+        self.provider.invalidate_recordset(["support_refund", "support_tokenization"])
+
+        self.assertEqual(self.provider.support_refund, "none")
+        self.assertFalse(self.provider.support_tokenization)
+        self.assertEqual(self.provider._get_default_payment_method_codes(), {"qr"})
+        other = self.env["payment.provider"].create({"name": "Manual", "code": "none"})
+        self.assertNotEqual(other._get_default_payment_method_codes(), {"qr"})
+
+    def test_the_client_rejects_a_bad_payload_and_logs_the_call(self):
+        client = PayosClient("id", "key", CHECKSUM)
+        self.assertFalse(client.matches("nope", "sig"))
+        response = type("Response", (), {"raise_for_status": lambda self: None, "json": lambda self: {"ok": True}})()
+
+        with patch("requests.request", return_value=response) as request:
+            body = client.request("GET", "/v2/payment-requests/100001")
+
+        self.assertEqual(body, {"ok": True})
+        self.assertEqual(request.call_args.args[0], "GET")
+        self.assertIn("100001", request.call_args.args[1])
+
     def test_a_call_without_credentials_does_not_reach_payos(self):
         transaction = self.transaction()
         item = self.env[MODEL_SCHEDULED_JOB].queue("payos.calls", transaction.reference, document=transaction)
@@ -73,7 +94,7 @@ class TestPayos(InvoicingCase):
 
     def test_the_call_job_stores_the_checkout_url_and_queues_a_poll(self):
         transaction = self.transaction()
-        item = self.env[MODEL_SCHEDULED_JOB].search(
+        item = self.env["medilab.job.item"].search(
             [("item_key", "=", transaction.reference), ("job_id.key", "=", "payos.calls")]
         )
         client = PayosClient("id", "key", CHECKSUM)
@@ -175,7 +196,7 @@ class TestPayosWebhook(InvoicingCase, HttpCase):
         self.assertEqual(transactions.filtered(lambda tx: tx.payos_bank_reference == "FT2").amount, 500000)
 
     def test_the_return_url_does_not_confirm_the_payment(self):
-        self.transaction._set_pending()
+        self.transaction.with_context(payment_safe_write=True)._set_pending()
 
         response = self.url_open(f"/payment/payos/return?orderCode={self.transaction.reference}")
 

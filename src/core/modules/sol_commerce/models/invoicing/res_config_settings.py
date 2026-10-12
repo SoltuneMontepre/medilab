@@ -32,10 +32,11 @@ class ResConfigSettings(models.TransientModel):
         return values
 
     def set_values(self):
-        super().set_values()
+        result = super().set_values()
         provider = self.env.ref("sol_commerce.payment_provider_payos", raise_if_not_found=False)
         method = self.env.ref("sol_commerce.payment_method_payos_qr", raise_if_not_found=False)
         if provider:
             provider.is_published = self.payos_enabled
         if method:
             method.active = self.payos_qr_enabled and self.payos_enabled
+        return result

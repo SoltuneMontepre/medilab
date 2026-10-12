@@ -5,7 +5,7 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_out_invoice_tree" />
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='invoice_date'][@string='Invoice Date']" position="after">
+            <xpath expr="//field[@name='invoice_date'][contains(@column_invisible, 'out_invoice')]" position="after">
                 <field name="invoice_kind" optional="show" />
                 <field name="order_id" optional="hide" />
                 <field name="amount_owed" optional="show" />
