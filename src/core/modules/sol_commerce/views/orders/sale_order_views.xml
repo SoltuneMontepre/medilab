@@ -76,6 +76,49 @@
                     invisible="quotation_follow_up != 'unpaid' or state != 'sent'"
                 />
                 <button
+                    name="action_confirm_order"
+                    type="object"
+                    string="Confirm order"
+                    class="btn-primary"
+                    invisible="order_status != 'claimed' or quotation_follow_up != 'paid'"
+                />
+                <button
+                    name="action_request_approval"
+                    type="object"
+                    string="Request approval"
+                    class="btn-primary"
+                    invisible="order_status != 'confirmed' or approval_status != 'none' or not approval_can_sign"
+                />
+                <button
+                    name="action_sign"
+                    type="object"
+                    string="Approve"
+                    class="btn-primary"
+                    invisible="order_status != 'confirmed' or approval_status != 'requested' or not approval_can_sign"
+                />
+                <button
+                    name="%(action_medilab_order_reject)d"
+                    type="action"
+                    string="Reject"
+                    class="btn-danger"
+                    context="{'default_order_id': id}"
+                    invisible="order_status != 'confirmed' or approval_status != 'requested' or not approval_can_reject"
+                />
+                <button
+                    name="action_withdraw"
+                    type="object"
+                    string="Withdraw signature"
+                    class="btn-secondary"
+                    invisible="not approval_can_withdraw"
+                />
+                <button
+                    name="action_start_sample_collection"
+                    type="object"
+                    string="Start sample collection"
+                    class="btn-primary"
+                    invisible="order_status != 'confirmed' or approval_status != 'approved'"
+                />
+                <button
                     name="action_sales_cancel"
                     type="object"
                     string="Cancel"
@@ -83,6 +126,15 @@
                     invisible="order_status in ('completed', 'cancelled')"
                     confirm="Cancel this order?"
                 />
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <div
+                    class="alert alert-warning"
+                    role="alert"
+                    invisible="not show_unpaid_warning or order_status not in ('claimed', 'confirmed')"
+                >
+                    Nothing has been paid on this order. It can still be confirmed.
+                </div>
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="customer_id" />
@@ -97,6 +149,12 @@
                 <field name="claimed_at" readonly="1" />
                 <field name="reordered_from_id" readonly="1" />
                 <field name="approval_status" readonly="1" />
+                <field name="document_version" readonly="1" />
+                <field name="test_request_id" readonly="1" invisible="not test_request_id" />
+                <field name="show_unpaid_warning" invisible="1" />
+                <field name="approval_can_sign" invisible="1" />
+                <field name="approval_can_reject" invisible="1" />
+                <field name="approval_can_withdraw" invisible="1" />
                 <field name="currency_id" invisible="1" />
                 <field name="catalog_total" />
             </xpath>

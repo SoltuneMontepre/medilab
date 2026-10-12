@@ -1,0 +1,133 @@
+from datetime import timedelta
+
+from odoo import fields
+from odoo.exceptions import UserError
+from odoo.tests import tagged
+
+from .order_case import OrderCase
+from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION
+
+
+@tagged("post_install", "-at_install")
+class TestQuotationAdvance(OrderCase):
+    def customer_notices(self, order):
+        return order.message_ids.filtered(
+            lambda message: message.message_type == "comment" and message.partner_ids == self.contact
+        )
+
+    def test_sending_with_an_advance_creates_one_invoice_and_one_customer_notice(self):
+        order = self.make_quotable_order()
+        total = order.amount_total
+
+        order.with_user(self.sales).action_send_quotation()
+
+        invoice = order.sudo().invoice_ids
+        self.assertEqual(len(invoice), 1)
+        self.assertEqual(invoice.state, "posted")
+        self.assertEqual(invoice.move_type, "out_invoice")
+        self.assertTrue(invoice.line_ids.sale_line_ids.filtered("is_downpayment"))
+        self.assertEqual(invoice.amount_total, total)
+        notices = self.customer_notices(order)
+        self.assertEqual(len(notices), 1)
+        self.assertEqual(notices.attachment_ids, order._latest_quotation().attachment_id)
+        self.assertEqual(order.order_status, "claimed")
+
+    def test_the_advance_follows_the_percentage_and_the_fixed_amount(self):
+        percentage = self.make_quotable_order()
+        percentage.write({"advance_mode": "percentage", "advance_value": 30})
+        fixed = self.make_quotable_order()
+        fixed.write({"advance_mode": "fixed", "advance_value": 50000})
+
+        percentage.with_user(self.sales).action_send_quotation()
+        fixed.with_user(self.sales).action_send_quotation()
+
+        self.assertAlmostEqual(percentage.sudo().invoice_ids.amount_total, percentage.amount_total * 0.3)
+        self.assertAlmostEqual(fixed.sudo().invoice_ids.amount_total, 50000)
+
+    def test_an_advance_needs_a_method_and_a_value(self):
+        order = self.make_quotable_order()
+        order.advance_method = False
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_send_quotation()
+        order.write({"advance_method": "cash", "advance_mode": "percentage", "advance_value": 0})
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_send_quotation()
+        order.advance_value = 101
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_send_quotation()
+
+        self.assertFalse(order.quotation_ids)
+        self.assertFalse(order.sudo().invoice_ids)
+
+    def test_sending_a_second_time_does_not_create_a_second_invoice(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_send_quotation()
+
+        self.assertEqual(len(order.sudo().invoice_ids), 1)
+        self.assertEqual(len(self.customer_notices(order)), 1)
+
+    def test_only_the_head_of_sales_sends_without_an_advance(self):
+        order = self.make_quotable_order()
+        order.advance_method = "none"
+
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_send_quotation()
+        self.assertFalse(order.quotation_ids)
+
+        order.with_user(self.head).action_send_quotation()
+
+        self.assertEqual(order._latest_quotation().status, "sent")
+        self.assertFalse(order.sudo().invoice_ids)
+        self.assertEqual(len(self.customer_notices(order)), 1)
+
+    def test_paying_the_advance_accepts_the_quotation(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        self.assertEqual(order.quotation_follow_up, "unpaid")
+
+        self.pay_advance(order)
+
+        self.assertEqual(order._latest_quotation().status, "accepted")
+        self.assertEqual(order.quotation_follow_up, "paid")
+        self.assertFalse(order.show_unpaid_warning)
+
+    def test_the_customer_accepts_a_quotation_sent_without_an_advance(self):
+        order = self.make_quotable_order()
+        order.advance_method = "none"
+        order.with_user(self.head).action_send_quotation()
+
+        order._latest_quotation().action_accept()
+
+        self.assertEqual(order._latest_quotation().status, "accepted")
+        self.assertEqual(order.quotation_follow_up, "paid")
+        self.assertTrue(order.show_unpaid_warning)
+
+    def test_only_a_quotation_without_an_advance_is_accepted_by_the_customer(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+
+        with self.assertRaises(UserError):
+            order._latest_quotation().action_accept()
+
+        self.assertEqual(order._latest_quotation().status, "sent")
+
+    def test_follow_up_shows_unpaid_paid_declined_and_expired(self):
+        unpaid, paid, declined, expired = (self.make_quotable_order() for _ in range(4))
+        for order in (unpaid, paid, declined, expired):
+            order.with_user(self.sales).action_send_quotation()
+        self.pay_advance(paid)
+        declined._latest_quotation().action_decline("Too expensive")
+        expired.payment_deadline = fields.Datetime.now() - timedelta(days=1)
+        self.env[MODEL_QUOTATION]._flag_expired()
+
+        self.assertEqual(
+            [order.quotation_follow_up for order in (unpaid, paid, declined, expired)],
+            ["unpaid", "paid", "declined", "expired"],
+        )
+
+    def test_the_company_does_not_ask_the_customer_to_sign_online(self):
+        self.assertFalse(self.env.company.portal_confirmation_sign)
+        self.assertFalse(self.make_order([(self.lead_product, 1)]).require_signature)

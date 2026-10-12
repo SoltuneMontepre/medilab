@@ -2,8 +2,14 @@ from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Command
 
-from odoo.addons.sol_commerce.constants.models import MODEL_ORDER_SAMPLE, MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER_LINE
-from odoo.addons.sol_commerce.constants.orders import PORTAL_LOCKED_LINE_FIELDS
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_ORDER_SAMPLE,
+    MODEL_PRODUCT_TEMPLATE,
+    MODEL_SALE_ORDER,
+    MODEL_SALE_ORDER_LINE,
+)
+from odoo.addons.sol_commerce.constants.orders import APPROVAL_FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
+from odoo.addons.sol_laboratory.constants.approvals import APPROVAL_SYSTEM_CONTEXT
 
 
 # Dòng Đơn Hàng
@@ -52,15 +58,34 @@ class SaleOrderLine(models.Model):
             if line.sample_id.order_id != line.order_id:
                 raise ValidationError(self.env._("A line can only be tested on a sample of its own order."))
 
+    def _signed_lines(self):
+        # The lines of a down payment are Odoo's own bookkeeping and follow the invoice, signed or not.
+        return self.filtered(lambda line: not line.is_downpayment)
+
+    def _check_approval_freeze(self, orders):
+        """A line of an order with a standing signature keeps what was signed, for the superuser too."""
+        if self.env.context.get(APPROVAL_SYSTEM_CONTEXT):
+            return
+        if orders.sudo().filtered(lambda order: order._approval_has_standing()):
+            raise UserError(self.env._("The order has signatures; withdraw them before changing its lines."))
+
     @api.model_create_multi
     def create(self, vals_list):
+        order_ids = [vals["order_id"] for vals in vals_list if vals.get("order_id") and not vals.get("is_downpayment")]
+        self._check_approval_freeze(self.env[MODEL_SALE_ORDER].browse(order_ids))
         lines = super().create(vals_list)
         lines._add_package_parts()
         return lines
 
+    def unlink(self):
+        self._check_approval_freeze(self._signed_lines().order_id)
+        return super().unlink()
+
     def write(self, vals):
         if PORTAL_LOCKED_LINE_FIELDS & set(vals) and self.env.user.share and not self.env.su:
             raise AccessError(self.env._("You cannot change the price of an order."))
+        if APPROVAL_FROZEN_LINE_FIELDS & set(vals):
+            self._check_approval_freeze(self._signed_lines().order_id)
         result = super().write(vals)
         if "product_uom_qty" in vals:
             self._sync_package_part_quantities()

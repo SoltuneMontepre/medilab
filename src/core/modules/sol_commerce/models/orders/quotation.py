@@ -3,6 +3,7 @@ from odoo.exceptions import UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
+    ADVANCE_NONE,
     QUOTATION_ACCEPTED,
     QUOTATION_DECLINED,
     QUOTATION_EXPIRED,
@@ -70,6 +71,22 @@ class Quotation(models.Model):
             if quotation.status == QUOTATION_REPLACED:
                 raise UserError(self.env._("A replaced quotation cannot be sent. Send the current revision instead."))
         return self.order_id.action_send_quotation()
+
+    def action_accept(self):
+        """The customer accepts a quotation sent without an advance; with an advance, paying it accepts."""
+        self.ensure_one()
+        if self.order_id.advance_method != ADVANCE_NONE:
+            raise UserError(self.env._("Pay the advance invoice to accept this quotation."))
+        if self.status != QUOTATION_SENT:
+            raise UserError(self.env._("Only a quotation that was sent can be accepted."))
+        self._accept()
+        return True
+
+    def _accept(self):
+        """Accept the quotations still open, whether the customer or the payment of the advance did it."""
+        self.sudo().filtered(lambda quotation: quotation.status in (QUOTATION_SENT, QUOTATION_EXPIRED)).write(
+            {"status": QUOTATION_ACCEPTED}
+        )
 
     def action_decline(self, reason):
         """The customer declines the quotation with a reason; the order stays as it is."""

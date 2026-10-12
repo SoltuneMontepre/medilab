@@ -1681,3 +1681,275 @@ msgstr "Đơn hàng của bạn"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "is in the sales queue."
 msgstr "đang trong hàng đợi bán hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "%s is not a customer yet. Create the customer first."
+msgstr "%s chưa là khách hàng. Hãy tạo khách hàng trước."
+
+#. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_medilab_customer_sales_terms_customer_unique
+msgid "A customer has only one set of sales terms."
+msgstr "Mỗi khách hàng chỉ có một bộ điều khoản bán hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "A replaced quotation cannot be confirmed."
+msgstr "Không thể xác nhận báo giá đã bị thay thế."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Accept quotation"
+msgstr "Chấp nhận báo giá"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "Accept the quotation before"
+msgstr "Hãy chấp nhận báo giá trước"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__allow_credit
+msgid "Allow Credit"
+msgstr "Cho phép ghi nợ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__approval_can_reject
+msgid "Approval Can Reject"
+msgstr "Có thể từ chối phê duyệt"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__approval_can_sign
+msgid "Approval Can Sign"
+msgstr "Có thể ký phê duyệt"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__approval_can_withdraw
+msgid "Approval Can Withdraw"
+msgstr "Có thể rút chữ ký"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Approve"
+msgstr "Phê duyệt"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid ""
+"Choose how the advance is paid, or no advance, before sending the quotation."
+msgstr "Hãy chọn cách thanh toán tạm ứng, hoặc không tạm ứng, trước khi gửi báo giá."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid ""
+"Choose whether the advance is the full amount, a percentage or a fixed "
+"amount."
+msgstr "Hãy chọn tạm ứng là toàn bộ số tiền, một tỷ lệ phần trăm hay một số tiền cố định."
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_res_company
+msgid "Company"
+msgstr "Công ty"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Confirm order"
+msgstr "Xác nhận đơn hàng"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_customer_sales_terms_create_all
+msgid "Create customer sales terms"
+msgstr "Tạo điều khoản bán hàng của khách hàng"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_customer_sales_terms
+msgid "Customer Sales Terms"
+msgstr "Điều Khoản Bán Hàng"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_customer_sales_terms
+#: model:ir.ui.menu,name:sol_commerce.menu_customer_sales_terms
+msgid "Customer sales terms"
+msgstr "Điều khoản bán hàng của khách hàng"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_customer_sales_terms_delete_all
+msgid "Delete customer sales terms"
+msgstr "Xóa điều khoản bán hàng của khách hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_order_reject_form
+msgid "Discard"
+msgstr "Bỏ qua"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__document_version
+msgid "Document Version"
+msgstr "Phiên bản chứng từ"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_customer_sales_terms_edit_all
+msgid "Edit customer sales terms"
+msgstr "Sửa điều khoản bán hàng của khách hàng"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_account_move
+msgid "Journal Entry"
+msgstr "Bút toán"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Nothing has been paid on this order. It can still be confirmed."
+msgstr "Đơn hàng này chưa được thanh toán khoản nào. Vẫn có thể xác nhận đơn hàng."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_company__portal_confirmation_sign
+msgid "Online Signature"
+msgstr "Chữ ký trực tuyến"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "Only a claimed order can be confirmed."
+msgstr "Chỉ đơn hàng đã nhận xử lý mới được xác nhận."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "Only a confirmed order can be signed."
+msgstr "Chỉ đơn hàng đã xác nhận mới được ký."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation.py:0
+msgid "Only a quotation that was sent can be accepted."
+msgstr "Chỉ báo giá đã gửi mới được chấp nhận."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/customer_sales_terms.py:0
+msgid "Only the Head of Sales can change the sales terms of a customer."
+msgstr "Chỉ Trưởng phòng kinh doanh mới được thay đổi điều khoản bán hàng của khách hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid "Only the Head of Sales can send a quotation without an advance."
+msgstr "Chỉ Trưởng phòng kinh doanh mới được gửi báo giá không tạm ứng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation.py:0
+msgid "Pay the advance invoice to accept this quotation."
+msgstr "Hãy thanh toán hóa đơn tạm ứng để chấp nhận báo giá này."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid "Quotation %(code)s is ready. Accept it before %(deadline)s."
+msgstr "Báo giá %(code)s đã sẵn sàng. Hãy chấp nhận trước %(deadline)s."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid ""
+"Quotation %(code)s is ready. Pay the advance of %(amount)s before "
+"%(deadline)s."
+msgstr "Báo giá %(code)s đã sẵn sàng. Hãy thanh toán tạm ứng %(amount)s trước %(deadline)s."
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_customer_sales_terms_read_all
+msgid "Read customer sales terms"
+msgstr "Xem điều khoản bán hàng của khách hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_order_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Reject"
+msgstr "Từ chối"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_order_reject
+msgid "Reject an Order"
+msgstr "Từ chối đơn hàng"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_order_reject
+msgid "Reject the approval"
+msgstr "Từ chối phê duyệt"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Request approval"
+msgstr "Yêu cầu phê duyệt"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__show_unpaid_warning
+msgid "Show Unpaid Warning"
+msgstr "Hiện cảnh báo chưa thanh toán"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_sign_all
+msgid "Sign orders"
+msgstr "Ký đơn hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Start sample collection"
+msgstr "Bắt đầu thu mẫu"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_test_request
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__test_request_id
+msgid "Test Request"
+msgstr "Yêu Cầu Thử Nghiệm"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid "The advance amount must be above 0."
+msgstr "Số tiền tạm ứng phải lớn hơn 0."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
+msgid "The advance percentage must be above 0 and at most 100."
+msgstr "Tỷ lệ tạm ứng phải lớn hơn 0 và không quá 100."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "The approval of this order was already requested."
+msgstr "Đơn hàng này đã được yêu cầu phê duyệt."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "The approval of this order was rejected: %s"
+msgstr "Phê duyệt đơn hàng này đã bị từ chối: %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "The customer must accept the quotation before the order is confirmed."
+msgstr "Khách hàng phải chấp nhận báo giá trước khi xác nhận đơn hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid "The order has signatures; withdraw them before changing its lines."
+msgstr "Đơn hàng đã có chữ ký; hãy rút chữ ký trước khi sửa các dòng của đơn hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
+msgid "The order must be approved before the samples are collected."
+msgstr "Đơn hàng phải được phê duyệt trước khi thu mẫu."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Withdraw signature"
+msgstr "Rút chữ ký"

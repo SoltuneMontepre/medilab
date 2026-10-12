@@ -74,6 +74,25 @@ class TestQuotationPortal(HttpCase, OrderCase):
         self.assertEqual(messages.partner_ids, self.sales.partner_id)
         self.assertIn("Reason for declining", self.page().text)
 
+    def test_customer_accepts_a_quotation_sent_without_an_advance(self):
+        self.order.advance_method = "none"
+        token = re.search(r'name="csrf_token" value="([^"]+)"', self.page().text).group(1)
+
+        response = self.url_open(
+            f"/orders/{self.order.id}/quotation/accept", data={"csrf_token": token}, allow_redirects=False
+        )
+
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(self.quotation.status, "accepted")
+        self.assertEqual(self.order.order_status, "claimed")
+        self.assertFalse(self.order.test_request_id)
+
+    def test_accept_is_offered_only_without_an_advance(self):
+        self.assertNotIn("Accept quotation", self.page().text)
+        self.order.advance_method = "none"
+
+        self.assertIn("Accept quotation", self.page().text)
+
     def test_declining_without_a_reason_redirects_with_an_error(self):
         response = self.post_decline("  ")
 

@@ -11,7 +11,8 @@
                     This is revision <t t-out="quotation.revision" />. Earlier revisions were replaced and no longer apply.
                 </div>
                 <p>Status: <t t-out="statuses[quotation.status]" /></p>
-                <p t-if="order.payment_deadline">Pay the advance before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                <p t-if="order.payment_deadline and order.advance_method != 'none'">Pay the advance before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                <p t-if="order.payment_deadline and order.advance_method == 'none'">Accept the quotation before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
                 <table class="table">
                     <thead>
                         <tr>
@@ -45,6 +46,10 @@
                     </tfoot>
                 </table>
                 <p t-if="quotation.decline_reason">Reason for declining: <t t-out="quotation.decline_reason" /></p>
+                <form t-if="quotation.status == 'sent' and order.advance_method == 'none'" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <button type="submit" class="btn btn-success">Accept quotation</button>
+                </form>
                 <form t-if="quotation.status == 'sent'" t-att-action="'/orders/%s/quotation/decline' % order.id" method="post" class="mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <textarea name="reason" class="form-control mb-2" placeholder="Reason" required="required" />

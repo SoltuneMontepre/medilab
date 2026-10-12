@@ -31,7 +31,11 @@ class TestQuotationSend(OrderCase):
 
     def test_cannot_send_when_a_catalog_line_has_no_sample(self):
         order = self.make_order(
-            [(self.lead_product, 1), (self.package_product, 1)], status="claimed", user_id=self.sales.id
+            [(self.lead_product, 1), (self.package_product, 1)],
+            status="claimed",
+            user_id=self.sales.id,
+            advance_method="cash",
+            advance_mode="full",
         )
         order._catalog_lines().filtered(
             lambda line: line.product_id.product_tmpl_id == self.lead_product

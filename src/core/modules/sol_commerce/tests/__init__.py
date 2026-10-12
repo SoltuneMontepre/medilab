@@ -1,10 +1,13 @@
 from . import (
     test_catalog_page,
     test_order_access,
+    test_order_approval,
     test_order_cancellation,
     test_order_cart,
+    test_order_confirmation,
     test_order_samples,
     test_pricing_access,
+    test_quotation_advance,
     test_quotation_decline,
     test_quotation_expiry,
     test_quotation_portal,

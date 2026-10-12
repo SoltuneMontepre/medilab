@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_customer_sales_terms_list" model="ir.ui.view">
+        <field name="name">medilab.customer.sales.terms.list</field>
+        <field name="model">medilab.customer.sales.terms</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="customer_id" />
+                <field name="allow_credit" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_medilab_customer_sales_terms" model="ir.actions.act_window">
+        <field name="name">Customer sales terms</field>
+        <field name="res_model">medilab.customer.sales.terms</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

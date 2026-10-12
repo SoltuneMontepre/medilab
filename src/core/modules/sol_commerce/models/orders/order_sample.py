@@ -39,6 +39,28 @@ class OrderSample(models.Model):
             copies |= copy
         return copies
 
+    def _test_request_values(self):
+        """The sample as a test request takes it: a package carries its parameters, any other line is one parameter."""
+        self.ensure_one()
+        lines = []
+        for line in self.line_ids._catalog_lines():
+            template = line.product_id.product_tmpl_id
+            if template.service_package_id:
+                parameters = [
+                    {"parameter_id": part.product_id.product_tmpl_id.parameter_id.id, "quantity": part.product_uom_qty}
+                    for part in line.linked_line_ids
+                ]
+                lines.append({"parameters": parameters})
+            else:
+                lines.append({"parameter_id": template.parameter_id.id, "quantity": line.product_uom_qty})
+        return {
+            "customer_sample_name": self.customer_sample_name,
+            "sample_type_id": self.sample_type_id.id,
+            "physical_state": self.physical_state,
+            "regulation_id": self.regulation_id.id,
+            "lines": lines,
+        }
+
     def action_copy_sample(self):
         """The Copy button: a button result must be serializable, so it does not return the copies."""
         self.copy_sample()

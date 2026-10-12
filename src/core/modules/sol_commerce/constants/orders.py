@@ -29,6 +29,12 @@ QUOTATION_DECLINED = "declined"
 QUOTATION_EXPIRED = "expired"
 QUOTATION_REPLACED = "replaced"
 
+ADVANCE_NONE = "none"
+ADVANCE_FULL = "full"
+ADVANCE_PERCENTAGE = "percentage"
+ADVANCE_FIXED = "fixed"
+ADVANCE_PAID_STATES = ("paid", "in_payment")
+
 FOLLOW_UP_UNPAID = "unpaid"
 FOLLOW_UP_PAID = "paid"
 FOLLOW_UP_BY_QUOTATION_STATUS = {
@@ -37,6 +43,11 @@ FOLLOW_UP_BY_QUOTATION_STATUS = {
     QUOTATION_DECLINED: QUOTATION_DECLINED,
     QUOTATION_EXPIRED: QUOTATION_EXPIRED,
 }
+
+# The line fields that stop changing once the order has a standing signature.
+APPROVAL_FROZEN_LINE_FIELDS = frozenset(
+    {"product_id", "product_uom_qty", "price_unit", "discount", "tax_ids", "sample_id"}
+)
 
 PORTAL_LOCKED_ORDER_FIELDS = frozenset(
     {
@@ -53,6 +64,7 @@ PORTAL_LOCKED_ORDER_FIELDS = frozenset(
         "reorder_note",
         "source",
         "submitted_at",
+        "test_request_id",
         "user_id",
     }
 )

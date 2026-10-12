@@ -1,9 +1,17 @@
 from . import (
+    account_move,
     cancellation_request,
+    customer_sales_terms,
+    order_reject,
     order_sample,
     product_template,
     quotation,
+    res_company,
     res_config_settings,
     sale_order,
+    sale_order_advance,
+    sale_order_approval,
+    sale_order_confirmation,
     sale_order_line,
+    test_request,
 )

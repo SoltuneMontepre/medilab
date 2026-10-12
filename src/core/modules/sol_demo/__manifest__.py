@@ -5,7 +5,7 @@
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
-    "depends": ["sol_laboratory", "sol_commerce"],
+    "depends": ["account", "sol_laboratory", "sol_commerce"],
     "data": [
         "data/measurement_unit_data.xml",
         "data/subcontractor_data.xml",
@@ -21,6 +21,7 @@
         "data/sol_laboratory/person.xml",
         "data/sol_laboratory/parameter_method.xml",
         "data/sol_laboratory/customer.xml",
+        "data/sol_commerce/customer_sales_terms.xml",
         "data/sol_laboratory/test_request.xml",
         "data/sol_laboratory/sample.xml",
         "data/sol_commerce/tax.xml",

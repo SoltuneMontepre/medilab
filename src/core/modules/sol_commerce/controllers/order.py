@@ -98,6 +98,18 @@ class CustomerOrder(http.Controller):
             },
         )
 
+    @http.route("/orders/<int:order_id>/quotation/accept", type="http", auth="user", methods=["POST"], website=False)
+    def accept_quotation(self, order_id, **kwargs):
+        order = self._order(order_id)
+        current = order._latest_quotation() if order else None
+        if not current:
+            return request.not_found()
+        try:
+            current.action_accept()
+        except UserError as error:
+            return request.redirect(f"/orders/{order.id}/quotation?error={quote(str(error))}")
+        return request.redirect(f"/orders/{order.id}/quotation")
+
     @http.route("/orders/<int:order_id>/quotation/decline", type="http", auth="user", methods=["POST"], website=False)
     def decline_quotation(self, order_id, reason=None, **kwargs):
         order = self._order(order_id)
