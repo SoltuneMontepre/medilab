@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sol_commerce</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="E-commerce" string="E-commerce" name="sol_commerce">
+                    <block title="Invoices" name="invoices_setting_container">
+                        <setting
+                            id="medilab_invoices"
+                            string="Customer invoices"
+                            help="Advance, final and adjustment invoices take their number from the sales journal sequence, which restarts each year."
+                        >
+                            <button
+                                name="%(action_medilab_invoice)d"
+                                type="action"
+                                string="Invoices"
+                                class="btn-link"
+                                icon="oi-arrow-right"
+                            />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,6 +1,10 @@
 """Technical names of the database models of the E-commerce module."""
 
+MODEL_ACCOUNT_MOVE = "account.move"
+MODEL_INVOICE_ADJUSTMENT = "medilab.invoice.adjustment"
 MODEL_PARAMETER_PRICE = "medilab.parameter.price"
+MODEL_SALE_ADVANCE_PAYMENT_INV = "sale.advance.payment.inv"
+MODEL_SALE_ORDER = "sale.order"
 MODEL_SERVICE_PACKAGE = "medilab.service.package"
 MODEL_SERVICE_PACKAGE_LINE = "medilab.service.package.line"
 MODEL_SUBCONTRACT_COST = "medilab.subcontract.cost"
