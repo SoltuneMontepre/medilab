@@ -110,6 +110,76 @@
         <field name="action">delete</field>
         <field name="scope">own_department</field>
     </record>
+    <record id="permission_customer_read_all" model="medilab.permission">
+        <field name="name">Read customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_customer_create_all" model="medilab.permission">
+        <field name="name">Create customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_customer_edit_all" model="medilab.permission">
+        <field name="name">Edit customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_customer_archive_all" model="medilab.permission">
+        <field name="name">Archive customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_customer_delete_all" model="medilab.permission">
+        <field name="name">Delete customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_test_request_read_all" model="medilab.permission">
+        <field name="name">Read test requests</field>
+        <field name="document_model">medilab.test.request</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_test_request_create_all" model="medilab.permission">
+        <field name="name">Create test requests</field>
+        <field name="document_model">medilab.test.request</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_test_request_edit_all" model="medilab.permission">
+        <field name="name">Edit test requests</field>
+        <field name="document_model">medilab.test.request</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_sample_read_all" model="medilab.permission">
+        <field name="name">Read samples</field>
+        <field name="document_model">medilab.sample</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_sample_create_all" model="medilab.permission">
+        <field name="name">Create samples</field>
+        <field name="document_model">medilab.sample</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_sample_edit_all" model="medilab.permission">
+        <field name="name">Edit samples</field>
+        <field name="document_model">medilab.sample</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_sample_test_read_all" model="medilab.permission">
+        <field name="name">Read sample tests</field>
+        <field name="document_model">medilab.sample.test</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_sample_test_create_all" model="medilab.permission">
+        <field name="name">Create sample tests</field>
+        <field name="document_model">medilab.sample.test</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_sample_test_edit_all" model="medilab.permission">
+        <field name="name">Edit sample tests</field>
+        <field name="document_model">medilab.sample.test</field>
+        <field name="action">edit</field>
+    </record>
     <record id="permission_task_type_edit_all" model="medilab.permission">
         <field name="name">Edit task types</field>
         <field name="document_model">medilab.task.type</field>
