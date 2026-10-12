@@ -2631,7 +2631,25 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
+msgid "Add at least one parameter to %(samples)s before confirming test request %(code)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
+msgid "Test request %(code)s cannot be confirmed until its order is paid or the customer is allowed credit."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
 msgid "Test request %(code)s cannot go from %(current)s to %(next)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
+msgid "Test request %(code)s needs at least one sample before it can be confirmed."
 msgstr ""
 
 #. module: sol_laboratory

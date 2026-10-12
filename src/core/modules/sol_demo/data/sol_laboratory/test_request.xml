@@ -53,6 +53,14 @@
         <field name="report_recipient_id" ref="demo_res_partner_an_phu_quality" />
         <field name="status">reported</field>
     </record>
+    <record id="demo_test_request_order" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=10)).strftime('%Y-%m-%d')" />
+        <field name="report_language">vi</field>
+        <field name="delivery_method">email</field>
+        <field name="report_recipient_id" ref="demo_res_partner_an_phu_quality" />
+    </record>
     <record id="demo_test_request_cancelled" model="medilab.test.request">
         <field name="customer_id" ref="demo_customer_pham_van_long" />
         <field name="request_date" eval="(DateTime.today() - relativedelta(days=26)).strftime('%Y-%m-%d')" />

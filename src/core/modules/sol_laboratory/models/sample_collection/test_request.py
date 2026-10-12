@@ -1,6 +1,7 @@
-from odoo import fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
-from odoo.fields import Domain
+from odoo.fields import Command, Domain
+from odoo.tools import format_list
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CODE_MIXIN,
@@ -87,6 +88,90 @@ class TestRequest(models.Model):
     def action_confirm(self):
         self._set_status("confirmed")
 
+    @api.model
+    def create_from_order(
+        self,
+        customer,
+        samples,
+        expected_date=False,
+        report_language="bilingual",
+        delivery_method="in_person",
+        delivery_note=False,
+        report_recipient=False,
+    ):
+        # E-commerce calls this when an order is confirmed, with one entry per sample on the quotation.
+        return self.create(
+            {
+                "customer_id": customer.id,
+                "expected_date": expected_date,
+                "report_language": report_language,
+                "delivery_method": delivery_method,
+                "delivery_note": delivery_note,
+                "report_recipient_id": report_recipient.id if report_recipient else False,
+                "sample_ids": [
+                    Command.create(
+                        {
+                            "customer_sample_name": sample["customer_sample_name"],
+                            "sample_type_id": sample["sample_type_id"],
+                            "physical_state": sample["physical_state"],
+                            "regulation_id": sample.get("regulation_id") or False,
+                            "test_ids": [
+                                Command.create(test) for test in self._sample_tests_from_lines(sample.get("lines", ()))
+                            ],
+                        }
+                    )
+                    for sample in samples
+                ],
+            }
+        )
+
+    @api.model
+    def _sample_tests_from_lines(self, lines):
+        # A package line carries the parameters of the package; any other line is one parameter.
+        tests = []
+        for line in lines:
+            if "parameters" in line:
+                tests.extend(
+                    {"parameter_id": parameter["parameter_id"], "quantity": parameter.get("quantity", 1)}
+                    for parameter in line["parameters"]
+                )
+            else:
+                tests.append({"parameter_id": line["parameter_id"], "quantity": line.get("quantity", 1)})
+        return tests
+
+    def _credit_blocks_confirmation(self):
+        # E-commerce refuses when the request's order has no payment and the customer may not order on credit.
+        # A request without an order is never refused.
+        self.ensure_one()
+        return False
+
+    def _check_ready_to_confirm(self):
+        for request in self:
+            if not request.sample_ids:
+                raise UserError(
+                    self.env._(
+                        "Test request %(code)s needs at least one sample before it can be confirmed.",
+                        code=request.code,
+                    )
+                )
+            empty = request.sample_ids.filtered(lambda sample: not sample.test_ids)
+            if empty:
+                raise UserError(
+                    self.env._(
+                        "Add at least one parameter to %(samples)s before confirming test request %(code)s.",
+                        samples=format_list(self.env, empty.mapped("code")),
+                        code=request.code,
+                    )
+                )
+            if request._credit_blocks_confirmation():
+                raise UserError(
+                    self.env._(
+                        "Test request %(code)s cannot be confirmed until its order is paid "
+                        "or the customer is allowed credit.",
+                        code=request.code,
+                    )
+                )
+
     def action_cancel(self):
         self._set_status("cancelled")
         # Editing the request is the permission that matters; its samples and sample tests follow with full rights.
@@ -111,6 +196,8 @@ class TestRequest(models.Model):
         return statuses
 
     def _set_status(self, status):
+        if status == "confirmed":
+            self._check_ready_to_confirm()
         labels = dict(self._fields["status"]._description_selection(self.env))
         for request in self:
             if status not in request._next_statuses():

@@ -145,6 +145,33 @@
         />
     </record>
 
+    <record id="demo_sample_order_package" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_order" />
+        <field name="customer_sample_name">Nước uống đóng chai An Phú 1 L</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="sample_form">Sealed bottle</field>
+        <field name="container_type">1 L PET bottle</field>
+        <field name="regulation_id" ref="regulation_qcvn_6_1" />
+        <field
+            name="test_ids"
+            eval="[
+                Command.create({'parameter_id': ref('parameter_ph')}),
+                Command.create({'parameter_id': ref('parameter_coliforms')}),
+                Command.create({'parameter_id': ref('parameter_lead')}),
+            ]"
+        />
+    </record>
+    <record id="demo_sample_order_cabbage" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_order" />
+        <field name="customer_sample_name">Bắp cải Đà Lạt lô 21</field>
+        <field name="sample_type_id" ref="sample_type_cabbage" />
+        <field name="physical_state">solid</field>
+        <field name="sample_form">Whole head</field>
+        <field name="container_type">Paper bag</field>
+        <field name="test_ids" eval="[Command.create({'parameter_id': ref('parameter_chlorpyrifos')})]" />
+    </record>
+
     <record id="demo_sample_garden_water_cancelled" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_cancelled" />
         <field name="customer_sample_name">Nước ao vườn nhà</field>
