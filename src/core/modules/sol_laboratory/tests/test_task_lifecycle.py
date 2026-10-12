@@ -39,7 +39,7 @@ class TestTaskLifecycle(TaskCase):
     def test_closing_leaves_tasks_of_other_actions_and_hand_tasks_open(self):
         task = self.receive_sample(self.chemistry)
         by_hand = self.create_by_hand(
-            self.chemist, document_model="medilab.department", document_id=self.chemistry.id, action="enter_result"
+            self.chemist, document_model=self.chemistry._name, document_id=self.chemistry.id, action="enter_result"
         )
 
         self.tasks._close_for_document(self.chemistry, "sign")

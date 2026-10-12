@@ -14,4 +14,4 @@ Read [AGENTS.md](../../../AGENTS.md) and the docs index first; they override any
 - Sign in to the local app only with the local development account from the project's configuration; never with real credentials.
 - Ask the owner when the documents do not answer something, record what stays open in `questions/<topic>.md` with the story IDs it blocks, and do not guess.
 - Commits and the pull request carry no co-author or attribution lines.
-- Finish with the pull request link, the tests and browser checks that passed, the design choices the owner did not give, and the questions added.
+- Finish with the pull request link, the tests and browser checks that passed, the design choices the owner did not give, the questions added, and the issues unblocked.
