@@ -19,7 +19,7 @@ How a pull request is checked against the conventions, the business rules and th
 - A finding is a statement of what differs from a convention or a rule, with a link to the line. Link to the commit that was reviewed, not to a branch.
 - A question the owner can answer, such as what the rule is, is asked to the owner before posting and never posted to the author. The review carries the answer as a statement.
 - A finding that the documents are wrong or missing a rule says which document needs updating and what it should say. The reviewer does not edit the documents.
-- The review carries only the findings. What was checked and what was not, including the pipeline results, goes in the reply to the owner.
+- The review carries only the findings. After posting, reply with nothing.
 
 ## Posting
 
