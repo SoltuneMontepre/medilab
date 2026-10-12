@@ -42,5 +42,25 @@
     <menuitem id="menu_role" action="action_medilab_role" parent="hr.menu_hr_root" sequence="20" />
     <menuitem id="menu_permission" action="action_medilab_permission" parent="hr.menu_hr_root" sequence="30" />
 
+    <menuitem id="menu_jobs" name="Jobs" sequence="80">
+        <menuitem
+            id="menu_scheduled_job"
+            action="action_medilab_scheduled_job"
+            sequence="10"
+            groups="group_permission_scheduled_job_read_all"
+        />
+        <menuitem
+            id="menu_job_item"
+            action="action_medilab_job_item"
+            sequence="20"
+            groups="group_permission_job_item_read_all"
+        />
+        <menuitem
+            id="menu_job_run"
+            action="action_medilab_job_run"
+            sequence="30"
+            groups="group_permission_job_run_read_all"
+        />
+    </menuitem>
     <menuitem id="menu_settings" name="Settings" action="action_medilab_settings" sequence="90" groups="base.group_system" />
 </odoo>
