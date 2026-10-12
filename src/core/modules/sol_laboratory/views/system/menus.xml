@@ -41,4 +41,6 @@
     <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
     <menuitem id="menu_role" action="action_medilab_role" parent="hr.menu_hr_root" sequence="20" />
     <menuitem id="menu_permission" action="action_medilab_permission" parent="hr.menu_hr_root" sequence="30" />
+
+    <menuitem id="menu_settings" name="Settings" action="action_medilab_settings" sequence="90" groups="base.group_system" />
 </odoo>

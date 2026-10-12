@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="action_medilab_code_formats" model="ir.actions.act_window">
+        <field name="name">Code Formats</field>
+        <field name="res_model">ir.sequence</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[("code", "=like", "medilab.%")]</field>
+    </record>
+
+    <record id="action_medilab_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{"module": "sol_laboratory", "bin_size": False}</field>
+    </record>
+
     <record id="res_config_settings_view_form" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.inherit.sol_laboratory</field>
         <field name="model">res.config.settings</field>
@@ -7,6 +21,21 @@
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
                 <app data-string="Laboratory" string="Laboratory" name="sol_laboratory">
+                    <block title="Codes" name="codes_setting_container">
+                        <setting
+                            id="medilab_code_formats"
+                            string="Code formats"
+                            help="Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents."
+                        >
+                            <button
+                                name="%(action_medilab_code_formats)d"
+                                type="action"
+                                string="Code formats"
+                                class="btn-link"
+                                icon="oi-arrow-right"
+                            />
+                        </setting>
+                    </block>
                     <block title="Testing Schedule" name="testing_schedule_setting_container">
                         <setting id="safety_margin_setting">
                             <field name="safety_margin_days" class="o_light_label" />

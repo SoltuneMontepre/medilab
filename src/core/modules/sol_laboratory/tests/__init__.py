@@ -8,6 +8,7 @@ from . import (
     test_lab_codes,
     test_machines_and_chemicals,
     test_master_data_access,
+    test_module_boundaries,
     test_own_department_scope,
     test_parameter_constraints,
     test_parameter_method_department,
@@ -22,6 +23,7 @@ from . import (
     test_role_lifecycle,
     test_sample_label,
     test_sample_test_due_date,
+    test_settings,
     test_subcontractor,
     test_task_claiming,
     test_task_dashboard,
@@ -34,4 +36,5 @@ from . import (
     test_test_request_from_order,
     test_test_request_lifecycle,
     test_tree_filters,
+    test_uninstall,
 )
