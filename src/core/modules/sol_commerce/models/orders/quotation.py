@@ -3,6 +3,7 @@ from odoo.exceptions import AccessError, UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_QUOTATION, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
+    ADVANCE_TOUCHED_STATES,
     QUOTATION_ACCEPTED,
     QUOTATION_DECLINED,
     QUOTATION_EXPIRED,
@@ -91,12 +92,19 @@ class Quotation(models.Model):
 
     def _accept(self):
         """Accept the quotations that are still sent, whether the customer or the payment of the advance did it."""
-        self.sudo().filtered(lambda quotation: quotation.status == QUOTATION_SENT).write({"status": QUOTATION_ACCEPTED})
+        self.sudo().filtered(
+            lambda quotation: quotation.status == QUOTATION_SENT and quotation.order_id.state != "draft"
+        ).write({"status": QUOTATION_ACCEPTED})
+
+    def _is_advance_touched(self):
+        """True when the customer has paid, or started paying, the advance invoice."""
+        self.ensure_one()
+        return self.sudo().advance_invoice_id.payment_state in ADVANCE_TOUCHED_STATES
 
     def _cancel_advance_invoice(self):
         """Cancel the advance invoice nobody paid, so a replaced quotation cannot be paid and only the new one can."""
         for invoice in self.sudo().advance_invoice_id.with_user(SUPERUSER_ID):
-            if invoice.payment_state != "not_paid":
+            if invoice.state == "cancel" or invoice.payment_state in ADVANCE_TOUCHED_STATES:
                 continue
             if invoice.state == "posted":
                 invoice.button_draft()

@@ -12,6 +12,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER,
 )
 from odoo.addons.sol_commerce.constants.orders import (
+    ADVANCE_PAID_STATES,
     APPROVAL_APPROVED,
     APPROVAL_NONE,
     CUSTOMER_CANCELLABLE,
@@ -479,6 +480,10 @@ class SaleOrder(models.Model):
                 raise UserError(self.env._("Send a quotation before revising it."))
             if latest.status == QUOTATION_ACCEPTED:
                 raise UserError(self.env._("An accepted quotation cannot be revised."))
+            if latest._is_advance_touched():
+                raise UserError(self.env._("The customer has paid the advance, so this quotation cannot be revised."))
+        for order in self:
+            order._latest_quotation()._cancel_advance_invoice()
         self.filtered(lambda order: order.state == "sent").write({"state": "draft"})
         return True
 
@@ -489,3 +494,5 @@ class SaleOrder(models.Model):
             latest = order._latest_quotation()
             if latest.status == QUOTATION_EXPIRED:
                 latest.write({"status": QUOTATION_SENT})
+                if latest.advance_invoice_id.payment_state in ADVANCE_PAID_STATES:
+                    latest._accept()

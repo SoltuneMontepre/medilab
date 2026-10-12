@@ -34,6 +34,7 @@ ADVANCE_FULL = "full"
 ADVANCE_PERCENTAGE = "percentage"
 ADVANCE_FIXED = "fixed"
 ADVANCE_PAID_STATES = ("paid", "in_payment")
+ADVANCE_TOUCHED_STATES = (*ADVANCE_PAID_STATES, "partial")
 # The advance fields stop changing once the current revision is sent.
 ADVANCE_FIELDS = frozenset({"advance_method", "advance_mode", "advance_value"})
 # The quotation statuses under which the order's advance, lines and samples stay as quoted.

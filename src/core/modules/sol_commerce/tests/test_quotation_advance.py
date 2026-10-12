@@ -160,6 +160,59 @@ class TestQuotationAdvance(OrderCase):
         self.assertEqual(order._latest_quotation().status, "expired")
         self.assertEqual(order.quotation_follow_up, "expired")
 
+    def test_extending_the_deadline_accepts_an_expired_quotation_whose_advance_was_paid(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        order.payment_deadline = fields.Datetime.now() - timedelta(days=1)
+        self.env[MODEL_QUOTATION]._flag_expired()
+        self.pay_advance(order)
+        self.assertEqual(order._latest_quotation().status, "expired")
+
+        order.payment_deadline = fields.Datetime.now() + timedelta(days=3)
+
+        self.assertEqual(order._latest_quotation().status, "accepted")
+        self.assertEqual(order.quotation_follow_up, "paid")
+
+    def test_extending_the_deadline_keeps_an_unpaid_expired_quotation_sent(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        order.payment_deadline = fields.Datetime.now() - timedelta(days=1)
+        self.env[MODEL_QUOTATION]._flag_expired()
+
+        order.payment_deadline = fields.Datetime.now() + timedelta(days=3)
+
+        self.assertEqual(order._latest_quotation().status, "sent")
+
+    def test_paying_the_old_advance_during_a_revision_does_not_accept_the_quotation(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        quotation = order._latest_quotation()
+        invoice = quotation.advance_invoice_id
+        order.with_user(self.sales).action_revise_quotation()
+        self.assertEqual(invoice.state, "cancel")
+
+        invoice._invoice_paid_hook()
+
+        self.assertEqual(quotation.status, "sent")
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_confirm_order()
+        quotation.write({"status": "accepted"})
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_confirm_order()
+        self.assertFalse(order.test_request_id)
+
+    def test_a_quotation_whose_advance_was_paid_cannot_be_revised(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        self.pay_advance(order)
+        order._latest_quotation().write({"status": "sent"})
+
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).action_revise_quotation()
+
+        self.assertEqual(order.state, "sent")
+        self.assertEqual(order._latest_quotation().advance_invoice_id.state, "posted")
+
     def test_follow_up_shows_unpaid_paid_declined_and_expired(self):
         unpaid, paid, declined, expired = (self.make_quotable_order() for _ in range(4))
         for order in (unpaid, paid, declined, expired):
