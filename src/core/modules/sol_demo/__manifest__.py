@@ -17,6 +17,7 @@
         "data/sol_commerce/customer.xml",
         "data/hr/hr_department.xml",
         "data/sol_laboratory/role.xml",
+        "data/sol_laboratory/approval_chain.xml",
         "data/sol_laboratory/person.xml",
         "data/sol_laboratory/parameter_method.xml",
         "data/sol_laboratory/customer.xml",

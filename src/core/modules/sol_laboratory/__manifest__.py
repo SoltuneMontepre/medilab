@@ -32,6 +32,7 @@
         "views/sample_collection/sample_label_report.xml",
         "views/sample_collection/sample_views.xml",
         "views/sample_collection/test_request_views.xml",
+        "views/system/approval_chain_views.xml",
         "views/system/permission_views.xml",
         "views/system/person_views.xml",
         "views/system/role_views.xml",

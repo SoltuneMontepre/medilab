@@ -70,10 +70,32 @@ msgid "<span>Due</span>"
 msgstr "<span>Hạn</span>"
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_level_sequence_unique
+msgid "A chain cannot have two levels in the same position."
+msgstr "Một chuỗi không thể có hai cấp ở cùng một vị trí."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/approval_chain.py:0
+msgid "A chain with signatures cannot be deleted; archive it instead. Signatures: %s"
+msgstr "Không thể xóa chuỗi đã có chữ ký; hãy lưu trữ chuỗi. Chữ ký: %s"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_chain_purpose_unique
+msgid "A document type cannot have two chains for the same purpose."
+msgstr "Một loại chứng từ không thể có hai chuỗi cho cùng một mục đích."
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_group.py:0
 msgid "A group that has parameters cannot have sub-groups: %s."
 msgstr "Nhóm đã có chỉ tiêu không thể có nhóm con: %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/approval_level.py:0
+msgid "A level with signatures cannot be deleted. Signatures: %s"
+msgstr "Không thể xóa cấp đã có chữ ký. Chữ ký: %s"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -102,9 +124,22 @@ msgid "A permission with this code already exists."
 msgstr "Đã có quyền với mã này."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/person.py:0
+msgid "A person who signed cannot be deleted; archive them instead. Signatures: %s"
+msgstr "Không thể xóa nhân sự đã ký; hãy lưu trữ nhân sự. Chữ ký: %s"
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_unique
 msgid "A regulation sets at most one limit per parameter."
 msgstr "Mỗi quy chuẩn chỉ đặt tối đa một giới hạn cho mỗi chỉ tiêu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A rejection needs a reason."
+msgstr "Từ chối cần có lý do."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_role_code_unique
@@ -115,6 +150,12 @@ msgstr "Đã có vai trò với mã này."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_run_minutes_positive
 msgid "A run takes at least one minute."
 msgstr "Một lần chạy mất ít nhất một phút."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature is withdrawn, not deleted."
+msgstr "Chữ ký được rút lại, không bị xóa."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_one_default
@@ -173,6 +214,7 @@ msgstr "Cần xử lý"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__active
 msgid "Active"
 msgstr "Đang hoạt động"
 
@@ -263,6 +305,42 @@ msgid "All the emails and documents sent to this contact will be translated in t
 msgstr "Tất cả email và tài liệu gửi cho liên hệ này sẽ được dịch sang ngôn ngữ này."
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_reject
+msgid "Approval Can Reject"
+msgstr "Có Thể Từ Chối"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_sign
+msgid "Approval Can Sign"
+msgstr "Có Thể Ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_withdraw
+msgid "Approval Can Withdraw"
+msgstr "Có Thể Rút Lại"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_approval_chain
+msgid "Approval Chain"
+msgstr "Chuỗi Phê Duyệt"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_approval_chain
+#: model:ir.ui.menu,name:sol_laboratory.menu_approval_chain
+msgid "Approval Chains"
+msgstr "Chuỗi Phê Duyệt"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_approval_level
+msgid "Approval Level"
+msgstr "Cấp Phê Duyệt"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_approval_mixin
+msgid "Approval by Signatures"
+msgstr "Phê duyệt bằng chữ ký"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__approved
 msgid "Approved"
 msgstr "Đã duyệt"
@@ -271,6 +349,11 @@ msgstr "Đã duyệt"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
 msgid "Archive"
 msgstr "Lưu trữ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_archive_all
+msgid "Archive approval chains"
+msgstr "Lưu trữ chuỗi phê duyệt"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_archive_all
@@ -323,6 +406,8 @@ msgstr "Lưu trữ nhân sự của phòng ban mình"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_search
 msgid "Archived"
 msgstr "Đã lưu trữ"
 
@@ -453,6 +538,11 @@ msgid "Calibration Overdue"
 msgstr "Quá hạn hiệu chuẩn"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__can_reject
+msgid "Can Reject"
+msgstr "Được Từ Chối"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Cancel"
 msgstr "Hủy"
@@ -481,6 +571,16 @@ msgstr "Danh mục thử nghiệm"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_measurement_unit_search
 msgid "Category"
 msgstr "Nhóm Đơn Vị"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__chain_id
+msgid "Chain"
+msgstr "Chuỗi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_approval_chain__purpose__change_request
+msgid "Change request"
+msgstr "Yêu cầu thay đổi"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__channel_member_ids
@@ -677,6 +777,16 @@ msgid "Create"
 msgstr "Tạo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_create_all
+msgid "Create approval chains"
+msgstr "Tạo chuỗi phê duyệt"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_create_all
+msgid "Create approval levels"
+msgstr "Tạo cấp phê duyệt"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_create_all
 msgid "Create customers"
 msgstr "Tạo khách hàng"
@@ -744,6 +854,9 @@ msgstr "Tạo yêu cầu thử nghiệm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -775,6 +888,9 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -807,6 +923,11 @@ msgid "Decimals"
 msgstr "Số chữ số thập phân"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__decision
+msgid "Decision"
+msgstr "Quyết định"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_default
 msgid "Default"
 msgstr "Mặc định"
@@ -815,6 +936,16 @@ msgstr "Mặc định"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__delete
 msgid "Delete"
 msgstr "Xóa"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_delete_all
+msgid "Delete approval chains"
+msgstr "Xóa chuỗi phê duyệt"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_delete_all
+msgid "Delete approval levels"
+msgstr "Xóa cấp phê duyệt"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_delete_all
@@ -912,6 +1043,10 @@ msgstr "Quyền Trực Tiếp"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -930,8 +1065,16 @@ msgstr "Đã hủy mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_model
 msgid "Document Type"
 msgstr "Loại Chứng Từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_version
+msgid "Document Version"
+msgstr "Phiên Bản Chứng Từ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__street_number2
@@ -963,6 +1106,16 @@ msgstr "Mỗi vai trò có nhóm riêng."
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__edit
 msgid "Edit"
 msgstr "Sửa"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_edit_all
+msgid "Edit approval chains"
+msgstr "Sửa chuỗi phê duyệt"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_edit_all
+msgid "Edit approval levels"
+msgstr "Sửa cấp phê duyệt"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_edit_all
@@ -1052,6 +1205,12 @@ msgstr "Bắt buộc chọn thành phố"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__en
 msgid "English"
 msgstr "Tiếng Anh"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Every level has already signed."
+msgstr "Mọi cấp đã ký."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__expected
@@ -1222,6 +1381,10 @@ msgstr "Tòa nhà"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__id
 msgid "ID"
 msgstr "ID"
 
@@ -1429,6 +1592,9 @@ msgstr "Ngôn ngữ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -1460,6 +1626,9 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -1474,6 +1643,22 @@ msgstr "Thông báo cuối cùng đã đọc từ Lịch"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__partner_latitude
 msgid "Latitude"
 msgstr "Vĩ độ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__level_id
+msgid "Level"
+msgstr "Cấp"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__level_name
+msgid "Level Name"
+msgstr "Tên Cấp"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__level_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
+msgid "Levels"
+msgstr "Các cấp"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__limit_text
@@ -1679,6 +1864,8 @@ msgstr "Hạn hoạt động của tôi"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__name
 msgid "Name"
 msgstr "Tên"
 
@@ -1787,6 +1974,24 @@ msgstr "Số tin nhắn bị lỗi gửi"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__on_hold
 msgid "On Hold"
 msgstr "Tạm giữ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Only people of the department that did the work can act at this level."
+msgstr "Chỉ nhân sự thuộc phòng ban đã thực hiện công việc mới có thể thao tác ở cấp này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Only people with the role %s can act at this level."
+msgstr "Chỉ nhân sự có vai trò %s mới có thể thao tác ở cấp này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "Only the person who signed can withdraw a signature."
+msgstr "Chỉ người đã ký mới có thể rút lại chữ ký."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__open
@@ -1908,6 +2113,51 @@ msgstr "Quyền"
 #: model:ir.model,name:sol_laboratory.model_medilab_permission_mixin
 msgid "Permission Checks"
 msgstr "Kiểm Tra Quyền"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_archive_all
+msgid "Permission: approval.chain.archive.all"
+msgstr "Quyền: approval.chain.archive.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_create_all
+msgid "Permission: approval.chain.create.all"
+msgstr "Quyền: approval.chain.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_delete_all
+msgid "Permission: approval.chain.delete.all"
+msgstr "Quyền: approval.chain.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_edit_all
+msgid "Permission: approval.chain.edit.all"
+msgstr "Quyền: approval.chain.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_read_all
+msgid "Permission: approval.chain.read.all"
+msgstr "Quyền: approval.chain.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_create_all
+msgid "Permission: approval.level.create.all"
+msgstr "Quyền: approval.level.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_delete_all
+msgid "Permission: approval.level.delete.all"
+msgstr "Quyền: approval.level.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_edit_all
+msgid "Permission: approval.level.edit.all"
+msgstr "Quyền: approval.level.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_read_all
+msgid "Permission: approval.level.read.all"
+msgstr "Quyền: approval.level.read.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_archive_all
@@ -2070,6 +2320,11 @@ msgid "Permission: sample.test.read.all"
 msgstr "Quyền: sample.test.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_signature_read_all
+msgid "Permission: signature.read.all"
+msgstr "Quyền: signature.read.all"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_test_request_create_all
 msgid "Permission: test.request.create.all"
 msgstr "Quyền: test.request.create.all"
@@ -2147,6 +2402,11 @@ msgid "Properties Base Definition"
 msgstr "Định nghĩa cơ sở của thuộc tính"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__purpose
+msgid "Purpose"
+msgstr "Mục đích"
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_quality_registration
 msgid "Quality Registration"
 msgstr "Hồ Sơ Đăng Ký Chất Lượng"
@@ -2166,6 +2426,16 @@ msgstr "Số lần thử"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__read
 msgid "Read"
 msgstr "Xem"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_read_all
+msgid "Read approval chains"
+msgstr "Xem chuỗi phê duyệt"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_read_all
+msgid "Read approval levels"
+msgstr "Xem cấp phê duyệt"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_read_all
@@ -2208,6 +2478,11 @@ msgid "Read samples"
 msgstr "Xem mẫu"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_signature_read_all
+msgid "Read signatures"
+msgstr "Xem chữ ký"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_read_all
 msgid "Read test requests"
 msgstr "Xem yêu cầu thử nghiệm"
@@ -2244,6 +2519,7 @@ msgstr "Quy Chuẩn"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__rejected
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__rejected
 msgid "Rejected"
 msgstr "Từ chối"
 
@@ -2341,6 +2617,7 @@ msgstr "Ngừng sử dụng"
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_role
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__role_id
 msgid "Role"
 msgstr "Vai Trò"
 
@@ -2387,6 +2664,11 @@ msgstr "Số ngày dự phòng"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__user_id
 msgid "Salesperson"
 msgstr "Nhân viên kinh doanh"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__same_department
+msgid "Same Department"
+msgstr "Cùng Phòng Ban"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample
@@ -2460,6 +2742,11 @@ msgid "Semi-solid"
 msgstr "Bán rắn"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__sequence
+msgid "Sequence"
+msgstr "Thứ tự"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__serial_number
 msgid "Serial Number"
 msgstr "Số sê-ri"
@@ -2485,6 +2772,36 @@ msgstr "Đối tác chia sẻ"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__sign
 msgid "Sign"
 msgstr "Ký"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_signature
+msgid "Signature"
+msgstr "Chữ Ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__signed
+msgid "Signed"
+msgstr "Đã ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_id
+msgid "Signer"
+msgstr "Người Ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_name
+msgid "Signer Name"
+msgstr "Tên Người Ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_role
+msgid "Signer Role"
+msgstr "Vai Trò Người Ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_approval_chain__purpose__signing
+msgid "Signing"
+msgstr "Ký duyệt"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__signup_type
@@ -2796,9 +3113,27 @@ msgstr "Liên hệ của khách hàng"
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "The document has signatures; withdraw them before changing it."
+msgstr "Chứng từ đã có chữ ký; hãy rút lại chữ ký trước khi sửa."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid "The document type, action and scope of %s cannot change; create another permission."
 msgstr "Không thể đổi loại chứng từ, hành động và phạm vi của %s; hãy tạo quyền khác."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "The document was rejected: %s"
+msgstr "Chứng từ bị từ chối: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "The document was rejected; withdraw the rejection first."
+msgstr "Chứng từ đã bị từ chối; hãy rút lại việc từ chối trước."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_measurement_unit_factor_positive
@@ -2881,6 +3216,12 @@ msgid "The person of Odoo's default administrator keeps their user."
 msgstr "Nhân sự của quản trị viên mặc định của Odoo phải giữ tài khoản của mình."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "The process of the document is completed, so a signature cannot be withdrawn."
+msgstr "Quy trình của chứng từ đã hoàn tất nên không thể rút lại chữ ký."
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_code_unique
 msgid "The reference of a regulation must be unique."
 msgstr "Số hiệu quy chuẩn phải là duy nhất."
@@ -2947,10 +3288,28 @@ msgid "This contact is already a person."
 msgstr "Liên hệ này đã là một nhân sự."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "This document type has no approval chain."
+msgstr "Loại chứng từ này chưa có chuỗi phê duyệt."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__email_normalized
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__email_normalized
 msgid "This field is used to search on email address as the primary email field can contain more than strictly an email address."
 msgstr "Trường này dùng để tìm theo địa chỉ email, vì trường email chính có thể chứa nhiều hơn một địa chỉ email."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "This level cannot reject."
+msgstr "Cấp này không được từ chối."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "This signature is already withdrawn."
+msgstr "Chữ ký này đã được rút lại."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_person_user_unique
@@ -3091,6 +3450,17 @@ msgstr "Liên hệ này có phải là nhân viên không."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "Withdraw the signatures of the higher levels first."
+msgstr "Hãy rút lại chữ ký của các cấp cao hơn trước."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__withdrawn_at
+msgid "Withdrawn At"
+msgstr "Rút Lại Lúc"
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/permission_mixin.py:0
 #: code:addons/sol_laboratory/models/system/permission_mixin.py:0
 msgid "You are not allowed to %(action)s these records: %(records)s"
@@ -3101,6 +3471,18 @@ msgstr "Bạn không được phép thực hiện hành động %(action)s trên
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__vat
 msgid "You can use '/' to indicate that the customer has no Tax ID."
 msgstr "Bạn có thể dùng '/' để cho biết khách hàng không có mã số thuế."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "You have already signed this document."
+msgstr "Bạn đã ký chứng từ này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "You have no signature on this document to withdraw."
+msgstr "Bạn không có chữ ký nào trên chứng từ này để rút lại."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__zip
@@ -3338,6 +3720,7 @@ msgstr "Hủy"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_id
 msgid "Document"
 msgstr "Chứng từ"
 
@@ -3640,6 +4023,7 @@ msgstr "Xem nhiệm vụ của phòng ban mình"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__reason
 msgid "Reason"
 msgstr "Lý do"
 

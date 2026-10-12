@@ -1,4 +1,6 @@
 from . import (
+    approval_chain,
+    approval_level,
     hr_department,
     hr_employee,
     ir_actions_act_window_view,
@@ -7,4 +9,5 @@ from . import (
     permission,
     person,
     role,
+    signature,
 )

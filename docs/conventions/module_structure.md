@@ -45,6 +45,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`           |
 | `constants/settings.py`    | System parameter keys and their defaults, such as `SAFETY_MARGIN_PARAMETER` |
 | `constants/tasks.py`       | Task triggers and statuses, such as `MANUAL_TRIGGER`                       |
+| `constants/approvals.py`   | Approval chain purposes, signature decisions and approval states, such as `DECISION_SIGNED` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
 - Python code refers to a model by its constant, never by repeating the string: `_name = MODEL_TEST_PARAMETER`, `self.env[MODEL_TEST_PARAMETER]`.
