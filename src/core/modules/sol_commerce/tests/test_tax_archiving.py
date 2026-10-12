@@ -43,11 +43,13 @@ class TestTaxArchiving(PricingCase):
         self.assertFalse(rates.exists())
 
     def test_parameter_of_active_package_cannot_be_archived(self):
+        self.pair.action_archive()
         package = self.create_package(300000, (self.parameter, 2))
 
-        with self.assertRaises(UserError):
+        with self.assertRaises(UserError) as refusal:
             self.parameter.action_archive()
 
+        self.assertIn(package.name, str(refusal.exception))
         package.action_archive()
         self.parameter.action_archive()
         self.assertFalse(self.parameter.active)

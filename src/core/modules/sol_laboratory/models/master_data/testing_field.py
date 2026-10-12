@@ -13,9 +13,9 @@ class TestingField(models.Model):
     _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique code of the field.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Field name in each language, such as Chemistry.
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # False when the field is archived.
     active = fields.Boolean(default=True)
 

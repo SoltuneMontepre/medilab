@@ -20,9 +20,9 @@ class Regulation(models.Model):
     _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique reference of the regulation, such as QCVN 6-1:2010/BYT.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Title of the regulation in each language.
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # The ministry or body that issued the regulation.
     issuing_authority = fields.Char()
     # Sample types the regulation applies to.

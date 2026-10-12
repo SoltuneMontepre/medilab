@@ -24,10 +24,14 @@ class RegulationLimit(models.Model):
     # The parameter the limit applies to.
     parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict", index=True)
     # The unit of the minimum and maximum; empty for a text-only limit.
-    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, ondelete="restrict")
-    # Lowest allowed value; 0 when there is no lower limit.
+    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, ondelete="restrict", index=True)
+    # True when a minimum is set. The minimum itself may be 0.
+    min_set = fields.Boolean(string="Has a minimum")
+    # Lowest allowed value, including 0. Meaningful when a minimum is set.
     min_value = fields.Float(string="Minimum", digits=0)
-    # Highest allowed value; 0 when there is no upper limit.
+    # True when a maximum is set. The maximum itself may be 0.
+    max_set = fields.Boolean(string="Has a maximum")
+    # Highest allowed value, including 0. Meaningful when a maximum is set.
     max_value = fields.Float(string="Maximum", digits=0)
     # Decimals the limit shows on the report, such as 2 for 0.50.
     decimals = fields.Integer()
@@ -47,22 +51,22 @@ class RegulationLimit(models.Model):
         # A limit keeps its unit and parameter in use while its regulation is active.
         return Domain("regulation_id.active", "=", True)
 
-    @api.constrains("min_value", "max_value", "limit_text", "unit_id")
+    @api.constrains("min_set", "max_set", "min_value", "max_value", "limit_text", "unit_id")
     def _check_limit(self):
         for limit in self:
-            if not (limit.min_value or limit.max_value or limit.limit_text):
+            if not (limit.min_set or limit.max_set or limit.limit_text):
                 raise ValidationError(
                     self.env._(
                         "The limit for %s needs a minimum, a maximum or a text.", limit.parameter_id.display_name
                     )
                 )
-            if (limit.min_value or limit.max_value) and not limit.unit_id:
+            if (limit.min_set or limit.max_set) and not limit.unit_id:
                 raise ValidationError(
                     self.env._(
                         "The limit for %s needs a unit for its minimum or maximum.", limit.parameter_id.display_name
                     )
                 )
-            if limit.min_value and limit.max_value and limit.min_value > limit.max_value:
+            if limit.min_set and limit.max_set and limit.min_value > limit.max_value:
                 raise ValidationError(
                     self.env._("The minimum of the limit for %s is above its maximum.", limit.parameter_id.display_name)
                 )

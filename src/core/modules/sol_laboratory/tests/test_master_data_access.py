@@ -192,5 +192,6 @@ class TestMasterDataAccess(MasterDataCase, PeopleCase):
         self.assertFalse(category.active)
         category.unlink()
         self.assertFalse(category.exists())
+        self.pair.with_user(administrator).action_archive()
         self.parameter.with_user(administrator).action_archive()
         self.assertFalse(self.parameter.active)

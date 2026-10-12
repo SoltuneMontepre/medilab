@@ -1,6 +1,7 @@
 from odoo.tests import TransactionCase
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_DEPARTMENT,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_GROUP,
     MODEL_PARAMETER_METHOD,
@@ -25,11 +26,13 @@ class MasterDataCase(TransactionCase):
         )
         cls.group = cls.env[MODEL_PARAMETER_GROUP].create({"name": "Heavy metals"})
         cls.parameter = cls.create_parameter("Lead (Pb)", cls.group)
+        cls.department = cls.env[MODEL_DEPARTMENT].create({"name": "Analytical chemistry"})
         cls.pair = cls.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": cls.parameter.id,
                 "method_id": cls.method.id,
                 "unit_id": cls.unit.id,
+                "department_id": cls.department.id,
                 "is_default": True,
             }
         )

@@ -35,6 +35,7 @@ class ArchiveMixin(models.AbstractModel):
             raise UserError(self.env._("This cannot be archived while these records use it:\n%s", "\n".join(lines)))
         raise UserError(self.env._("This cannot be deleted while these records refer to it:\n%s", "\n".join(lines)))
 
+    @api.ormcache()
     def _referring_fields(self):
         # Relations deleted along with the record (ondelete cascade) are parts of it and never block it.
         # Models without their own table, such as Odoo's public employees, only show other tables.

@@ -24,7 +24,7 @@ class Subcontractor(models.Model):
     _check_inherits_access = False
 
     # Unique code of the subcontractor, such as TP.0001; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # The company contact of the subcontractor, which holds its name, address and people.
     partner_id = fields.Many2one(RES_PARTNER, required=True, ondelete="restrict")
     # The person the laboratory deals with by default; usually one of the company's people, but any person contact is allowed.

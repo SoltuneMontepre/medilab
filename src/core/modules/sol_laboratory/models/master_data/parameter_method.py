@@ -20,16 +20,16 @@ class ParameterMethod(models.Model):
     _description = "Way of Testing"
     _order = "parameter_id, is_default desc, id"
     _rec_names_search = ("parameter_id", "method_id")
-    _permission_actions = ("create", "edit", "archive")
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # The parameter being tested.
-    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="cascade")
+    parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict")
     # The method used to test it.
     method_id = fields.Many2one(
         MODEL_TESTING_METHOD, required=True, ondelete="restrict", index=True, string="Testing Method"
     )
     # The unit the result is expressed in.
-    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, required=True, ondelete="restrict")
+    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, required=True, ondelete="restrict", index=True)
     # The subcontractor that tests it; empty when the laboratory tests it in-house.
     subcontractor_id = fields.Many2one(MODEL_SUBCONTRACTOR, ondelete="restrict", index=True)
     # The department that tests it in-house; empty when a subcontractor tests it.
@@ -48,7 +48,7 @@ class ParameterMethod(models.Model):
     active = fields.Boolean(default=True)
 
     _parameter_method_unique = models.UniqueIndex(
-        "(parameter_id, method_id, COALESCE(subcontractor_id, 0))",
+        "(parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active",
         "The parameter is already tested with this method by the same laboratory.",
     )
     _one_default = models.UniqueIndex(
@@ -71,6 +71,10 @@ class ParameterMethod(models.Model):
                         pair.display_name,
                     )
                 )
+            if not pair.department_id and not pair.subcontractor_id:
+                raise ValidationError(
+                    self.env._("%s needs the department that tests it, or a subcontractor.", pair.display_name)
+                )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -80,6 +84,10 @@ class ParameterMethod(models.Model):
     def write(self, vals):
         if vals.get("is_default"):
             self._unset_defaults([vals["parameter_id"]] if vals.get("parameter_id") else self.parameter_id.ids)
+        # Archiving drops the default so another way of testing can take it. Done with full rights so archive
+        # alone is enough; the permission check would otherwise also demand edit.
+        if vals.get("active") is False and not vals.get("is_default"):
+            self.filtered("is_default").sudo().write({"is_default": False})
         return super().write(vals)
 
     def _unset_defaults(self, parameter_ids):

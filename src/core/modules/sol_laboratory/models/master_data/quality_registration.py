@@ -19,9 +19,9 @@ class QualityRegistration(models.Model):
     _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique code of the dossier; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Dossier name in each language.
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # The ministry or body the dossier is registered with.
     issuing_authority = fields.Char()
     # First day the registration is valid.
@@ -36,6 +36,7 @@ class QualityRegistration(models.Model):
         "medilab_quality_registration_parameter_method_rel",
         "registration_id",
         "parameter_method_id",
+        ondelete="restrict",
         string="Covered Ways of Testing",
     )
     # False when the dossier is archived.

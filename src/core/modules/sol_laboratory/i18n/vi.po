@@ -43,6 +43,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "%s needs the department that tests it, or a subcontractor."
+msgstr "%s cần phòng ban thử nó, hoặc một thầu phụ."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/master_data/archive_mixin.py:0
 msgid "%s more"
 msgstr "và %s bản ghi khác"
@@ -2867,6 +2873,26 @@ msgstr "Sửa cách thử của phòng ban mình"
 #: model:medilab.permission,name:sol_laboratory.permission_parameter_method_archive_own_department
 msgid "Archive ways of testing of their department"
 msgstr "Lưu trữ cách thử của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_delete_all
+msgid "Delete ways of testing"
+msgstr "Xóa cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_delete_own_department
+msgid "Delete ways of testing of their department"
+msgstr "Xóa cách thử của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__min_set
+msgid "Has a minimum"
+msgstr "Có giá trị tối thiểu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__max_set
+msgid "Has a maximum"
+msgstr "Có giá trị tối đa"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_create_all
