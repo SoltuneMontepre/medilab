@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_all_orders" model="res.groups">
+        <field name="name">All orders</field>
+    </record>
+    <record id="sol_laboratory.group_role_administrator" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('group_all_orders'))]" />
+    </record>
+</odoo>

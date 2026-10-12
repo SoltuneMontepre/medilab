@@ -1,0 +1,337 @@
+from odoo import api, fields, models
+from odoo.exceptions import AccessError, UserError
+from odoo.fields import Command
+from odoo.tools import format_list
+
+from odoo.addons.sol_commerce.constants.models import MODEL_CANCELLATION_REQUEST, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.orders import (
+    APPROVAL_APPROVED,
+    APPROVAL_NONE,
+    CUSTOMER_CANCELLABLE,
+    FINISHED_STATUSES,
+    PORTAL_LOCKED_ORDER_FIELDS,
+    REQUESTED,
+    SOURCE_PORTAL,
+    SOURCE_SALES,
+    STATUS_CANCELLED,
+    STATUS_CLAIMED,
+    STATUS_COMPLETED,
+    STATUS_CONFIRMED,
+    STATUS_DRAFT,
+    STATUS_SUBMITTED,
+)
+from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN
+
+
+# Đơn Hàng
+class SaleOrder(models.Model):
+    _name = MODEL_SALE_ORDER
+    _inherit = [MODEL_SALE_ORDER, MODEL_PERMISSION_MIXIN]
+    _permission_actions = ("read", "create", "edit", "delete")
+
+    # The customer who orders: the company, or the individual when they order for themselves.
+    customer_id = fields.Many2one("res.partner", string="Customer", ondelete="restrict", index=True)
+    # The contact sales reaches about this order.
+    partner_id = fields.Many2one(string="Contact")
+    # portal when the customer built it, or sales when a salesperson created it for the customer.
+    source = fields.Selection(
+        [(SOURCE_PORTAL, "Portal"), (SOURCE_SALES, "Sales")],
+        string="Order Source",
+        required=True,
+        default=SOURCE_PORTAL,
+    )
+    # draft, submitted, claimed, confirmed, completed or cancelled.
+    order_status = fields.Selection(
+        [
+            (STATUS_DRAFT, "Draft"),
+            (STATUS_SUBMITTED, "Submitted"),
+            (STATUS_CLAIMED, "Claimed"),
+            (STATUS_CONFIRMED, "Confirmed"),
+            (STATUS_COMPLETED, "Completed"),
+            (STATUS_CANCELLED, "Cancelled"),
+        ],
+        required=True,
+        default=STATUS_DRAFT,
+        index=True,
+    )
+    # When the customer submitted the order.
+    submitted_at = fields.Datetime()
+    # When a salesperson claimed the order.
+    claimed_at = fields.Datetime()
+    # The date the customer expects the results.
+    expected_result_date = fields.Date()
+    # The order this one was reordered from.
+    reordered_from_id = fields.Many2one(MODEL_SALE_ORDER, ondelete="set null", index=True)
+    # Orders reordered from this one.
+    reorder_ids = fields.One2many(MODEL_SALE_ORDER, "reordered_from_id")
+    # Catalog items left out of this reorder because they are no longer sold.
+    reorder_note = fields.Text(copy=False)
+    # none, requested, approved or rejected. Approved means the approval is signed.
+    approval_status = fields.Selection(
+        [
+            (APPROVAL_NONE, "Not requested"),
+            ("requested", "Requested"),
+            (APPROVAL_APPROVED, "Approved"),
+            ("rejected", "Rejected"),
+        ],
+        required=True,
+        default=APPROVAL_NONE,
+    )
+    # Total of the catalog prices times their quantities, excluding VAT.
+    catalog_total = fields.Monetary(compute="_compute_catalog_total")
+    # Cancellation requests on the order.
+    cancellation_request_ids = fields.One2many(MODEL_CANCELLATION_REQUEST, "order_id")
+
+    _customer_status_idx = models.Index("(customer_id, order_status)")
+    _status_submitted_idx = models.Index("(order_status, submitted_at)")
+    _salesperson_status_idx = models.Index("(user_id, order_status)")
+
+    @api.depends(
+        "order_line.price_unit", "order_line.product_uom_qty", "order_line.display_type", "order_line.product_id"
+    )
+    def _compute_catalog_total(self):
+        for order in self:
+            order.catalog_total = sum(line.price_unit * line.product_uom_qty for line in order._catalog_lines())
+
+    def _catalog_lines(self):
+        return self.order_line._catalog_lines()
+
+    @api.model
+    def default_get(self, fields_list):
+        vals = super().default_get(fields_list)
+        if self.env.context.get("medilab_sales_order"):
+            vals.update(
+                {
+                    "source": SOURCE_SALES,
+                    "user_id": self.env.uid,
+                    "order_status": STATUS_CLAIMED,
+                    "claimed_at": fields.Datetime.now(),
+                }
+            )
+        return vals
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        now = fields.Datetime.now()
+        if self.env.context.get("medilab_sales_order"):
+            for vals in vals_list:
+                vals.setdefault("source", SOURCE_SALES)
+                vals.setdefault("user_id", self.env.uid)
+                vals.setdefault("order_status", STATUS_CLAIMED)
+        for vals in vals_list:
+            if vals.get("order_status") == STATUS_SUBMITTED and not vals.get("submitted_at"):
+                vals["submitted_at"] = now
+            if vals.get("order_status") == STATUS_CLAIMED and not vals.get("claimed_at"):
+                vals["claimed_at"] = now
+        wanted_users = [vals.get("user_id") for vals in vals_list]
+        orders = super().create(vals_list)
+        for order, user_id in zip(orders, wanted_users, strict=True):
+            if order.source == SOURCE_PORTAL and order.order_status in (STATUS_DRAFT, STATUS_SUBMITTED):
+                if order.user_id:
+                    order.with_context(medilab_status_change=True).write({"user_id": False})
+            elif user_id and order.user_id.id != user_id:
+                order.write({"user_id": user_id})
+        orders.order_line._lock_catalog_price()
+        return orders
+
+    def write(self, vals):
+        self._check_portal_write(vals)
+        if "order_status" in vals and not self.env.context.get("medilab_status_change"):
+            raise UserError(self.env._("Change the order status with its actions."))
+        return super().write(vals)
+
+    def _check_portal_write(self, vals):
+        if self.env.su or not self.env.user.share:
+            return
+        if PORTAL_LOCKED_ORDER_FIELDS & set(vals):
+            raise AccessError(self.env._("You cannot change prices or internal fields of an order."))
+
+    def _set_status(self, status, extra=None):
+        vals = {"order_status": status, **(extra or {})}
+        return self.with_context(medilab_status_change=True).write(vals)
+
+    def customer_cancel_mode(self):
+        self.ensure_one()
+        if self.order_status == STATUS_CONFIRMED:
+            return "request"
+        if self.order_status in CUSTOMER_CANCELLABLE:
+            return "cancel"
+        return ""
+
+    def open_cancellation_request(self):
+        self.ensure_one()
+        # The customer cannot read the request model; the order still knows its open request.
+        return self.sudo().cancellation_request_ids.filtered(lambda request: request.status == REQUESTED)[:1]
+
+    def _owned_by(self, user):
+        self.ensure_one()
+        if user._is_public():
+            return False
+        commercial = user.partner_id.commercial_partner_id
+        partners = (self.customer_id | self.partner_id).mapped("commercial_partner_id")
+        return commercial in partners
+
+    def _check_customer_owner(self):
+        if self.env.su:
+            return
+        others = self.filtered(lambda order: not order._owned_by(self.env.user))
+        if others:
+            raise AccessError(self.env._("This order is not yours."))
+
+    def add_catalog_product(self, product, quantity=1):
+        """Add a parameter or package to the cart, or raise its quantity."""
+        self.ensure_one()
+        if self.order_status != STATUS_DRAFT:
+            raise UserError(self.env._("Only a draft order can be changed."))
+        product = product.sudo()
+        if not product.sale_ok or not (product.parameter_id or product.service_package_id):
+            raise UserError(self.env._("This item is not in the catalog."))
+        if quantity < 1:
+            raise UserError(self.env._("A catalog line needs a quantity of at least 1."))
+        variant = product.product_variant_ids[:1]
+        line = self._catalog_lines().filtered(lambda item: item.product_id == variant)[:1]
+        if line:
+            line.product_uom_qty += quantity
+        else:
+            self.env["sale.order.line"].sudo().create(
+                {"order_id": self.id, "product_id": variant.id, "product_uom_qty": quantity}
+            )
+        self._catalog_lines()._lock_catalog_price()
+        return self
+
+    def action_submit(self, visitor=None):
+        """Put the cart in the sales queue. A visitor gives their details and e-mail address first."""
+        for order in self:
+            if order.order_status != STATUS_DRAFT:
+                raise UserError(self.env._("Only a draft order can be submitted."))
+            if not order._catalog_lines():
+                raise UserError(self.env._("Add at least one parameter or service package."))
+            if not order.customer_id:
+                order.sudo()._attach_visitor(visitor or {})
+        self.sudo()._set_status(STATUS_SUBMITTED, {"submitted_at": fields.Datetime.now(), "user_id": False})
+        return True
+
+    def _attach_visitor(self, visitor):
+        self.ensure_one()
+        name = (visitor.get("name") or "").strip()
+        email = (visitor.get("email") or "").strip()
+        if not email:
+            raise UserError(self.env._("Enter an e-mail address."))
+        if not name:
+            raise UserError(self.env._("Enter your name."))
+        partner = (
+            self.env["res.partner"]
+            .sudo()
+            .create({"name": name, "email": email, "phone": (visitor.get("phone") or "").strip()})
+        )
+        self.with_context(medilab_status_change=True).write({"partner_id": partner.id, "customer_id": partner.id})
+
+    def action_claim(self):
+        """Give the submitted order to the current salesperson."""
+        for order in self:
+            if order.order_status != STATUS_SUBMITTED or order.user_id:
+                raise UserError(self.env._("This order is already claimed."))
+        self._set_status(STATUS_CLAIMED, {"user_id": self.env.uid, "claimed_at": fields.Datetime.now()})
+        return True
+
+    def action_customer_cancel(self):
+        """Cancel until the order is confirmed."""
+        self._check_customer_owner()
+        for order in self:
+            if order.order_status == STATUS_CONFIRMED:
+                raise UserError(self.env._("A confirmed order cannot be cancelled directly."))
+            if order.order_status not in CUSTOMER_CANCELLABLE:
+                raise UserError(self.env._("This order cannot be cancelled."))
+        return self.sudo()._cancel_order()
+
+    def action_sales_cancel(self):
+        """Cancel an order sales owns, including a confirmed one the laboratory has not finished."""
+        for order in self:
+            if order.order_status in FINISHED_STATUSES:
+                raise UserError(self.env._("This order cannot be cancelled."))
+            message = order._cancellation_block_message() if order.order_status == STATUS_CONFIRMED else False
+            if message:
+                raise UserError(message)
+        return self._cancel_order()
+
+    def _cancel_order(self):
+        self._cancel_laboratory_documents()
+        self._set_status(STATUS_CANCELLED)
+        cancellable = self.filtered(lambda order: order.state != "cancel")
+        if cancellable:
+            # Reading invoices to cancel drafts needs accounting access the salesperson does not have.
+            cancellable.sudo()._action_cancel()
+        return True
+
+    def _cancel_laboratory_documents(self):
+        """Cancel the test request and everything under it, once that model exists."""
+        if "medilab.test.request" not in self.env:
+            return
+        return
+
+    def _laboratory_blocks_cancellation(self):
+        """True when testing is finished or results are released. The laboratory model fills this in."""
+        self.ensure_one()
+        return False
+
+    def _cancellation_block_message(self):
+        self.ensure_one()
+        if self.approval_status == APPROVAL_APPROVED:
+            return self.env._(
+                "The approval is signed, so this order cannot be cancelled. The laboratory will contact you."
+            )
+        if self._laboratory_blocks_cancellation():
+            return self.env._(
+                "Testing is completed or results are released, so this order cannot be cancelled. "
+                "The laboratory will contact you."
+            )
+        return False
+
+    def action_reorder(self):
+        """Create a draft with the same parameters and packages at current prices."""
+        self.ensure_one()
+        self._check_customer_owner()
+        omitted = []
+        commands = []
+        for line in self._catalog_lines():
+            product = line.product_id.product_tmpl_id
+            if not product.sale_ok:
+                omitted.append(product.display_name)
+                continue
+            commands.append(Command.create({"product_id": line.product_id.id, "product_uom_qty": line.product_uom_qty}))
+        return self.sudo().create(
+            {
+                "partner_id": self.partner_id.id,
+                "customer_id": self.customer_id.id,
+                "source": SOURCE_PORTAL,
+                "order_status": STATUS_DRAFT,
+                "user_id": False,
+                "reordered_from_id": self.id,
+                "reorder_note": self._reorder_note(omitted),
+                "order_line": commands,
+            }
+        )
+
+    def _reorder_note(self, omitted):
+        if not omitted:
+            return False
+        return self.env._(
+            "These items are no longer in the catalog and were left out: %s",
+            format_list(self.env, omitted),
+        )
+
+    def action_request_cancellation(self, reason):
+        self.ensure_one()
+        self._check_customer_owner()
+        if self.order_status != STATUS_CONFIRMED:
+            raise UserError(self.env._("Only a confirmed order that is not completed can be cancelled by request."))
+        text = (reason or "").strip()
+        if not text:
+            raise UserError(self.env._("Give a reason for the cancellation."))
+        if self.open_cancellation_request():
+            raise UserError(self.env._("This order already has an open cancellation request."))
+        return (
+            self.env[MODEL_CANCELLATION_REQUEST]
+            .sudo()
+            .create({"order_id": self.id, "reason": text, "requested_by_id": self.env.uid})
+        )
