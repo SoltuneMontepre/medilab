@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_commerce_root" name="E-commerce" sequence="40">
+        <menuitem id="menu_prices" name="Prices" sequence="10">
+            <menuitem id="menu_parameter_price" action="action_medilab_parameter_price" sequence="10" />
+            <menuitem id="menu_service_package" action="action_medilab_service_package" sequence="20" />
+            <menuitem id="menu_subcontract_cost" action="action_medilab_subcontract_cost" sequence="30" />
+            <menuitem id="menu_tax" action="action_medilab_tax" sequence="40" />
+        </menuitem>
+    </menuitem>
+</odoo>
