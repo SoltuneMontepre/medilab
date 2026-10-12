@@ -19,15 +19,32 @@ class ScheduledJob(models.Model):
     def _handle_payos_calls(self, item):
         transaction = item._document()
         if not transaction or transaction.payos_checkout_url:
-            return
+            return None
         client = payos_client_from_env()
         if client is None:
-            raise PermanentJobError("PayOS credentials are not set")
+            # The item stays queued. Setting the secrets later lets the same item continue.
+            _logger.error("PayOS credentials are not set")
+            return fields.Datetime.now() + POLL_AGAIN
         order_code = int(transaction._payos_order_code())
+        amount = int(transaction.amount)
+        checkout_url = self._payos_checkout_url(client, order_code, amount)
+        if not checkout_url:
+            return fields.Datetime.now() + POLL_AGAIN
+        transaction.with_context(payment_safe_write=True).write({"payos_checkout_url": checkout_url})
+        transaction.with_context(payment_safe_write=True)._set_pending()
+        self.env[MODEL_SCHEDULED_JOB].queue("payos.poll", transaction.reference, document=transaction)
+        return None
+
+    def _payos_checkout_url(self, client, order_code, amount):
+        remote = client.request("GET", f"/v2/payment-requests/{order_code}")
+        data = (remote or {}).get("data") or {}
+        if data:
+            if not self._payos_link_matches(data, amount, order_code):
+                raise PermanentJobError("PayOS link does not match this payment")
+            return data.get("checkoutUrl")
         base = self.env["ir.config_parameter"].sudo().get_str("web.base.url")
         return_url = f"{base}/payment/payos/return"
         description = f"Medilab {order_code}"[:25]
-        amount = int(transaction.amount)
         payload = {
             "orderCode": order_code,
             "amount": amount,
@@ -36,36 +53,35 @@ class ScheduledJob(models.Model):
             "returnUrl": return_url,
             "signature": client.payment_request_signature(amount, return_url, description, order_code, return_url),
         }
-        body = client.request("POST", "/v2/payment-requests", payload)
-        checkout_url = (body.get("data") or {}).get("checkoutUrl")
-        transaction.with_context(payment_safe_write=True).write({"payos_checkout_url": checkout_url})
-        transaction.with_context(payment_safe_write=True)._set_pending()
-        self.env[MODEL_SCHEDULED_JOB].queue("payos.poll", transaction.reference, document=transaction)
+        body = client.request("POST", "/v2/payment-requests", payload) or {}
+        return (body.get("data") or {}).get("checkoutUrl")
+
+    def _payos_link_matches(self, data, amount, order_code):
+        try:
+            remote_amount = int(data.get("amount"))
+            remote_code = int(data.get("orderCode"))
+        except (TypeError, ValueError):
+            return False
+        return remote_amount == int(amount) and remote_code == int(order_code)
 
     def _handle_payos_poll(self, item):
         transaction = item._document()
-        if not transaction or transaction.state in ("done", "error"):
+        if not transaction:
             return None
         client = payos_client_from_env()
         if client is None:
-            return None
+            return fields.Datetime.now() + POLL_AGAIN
         order_code = transaction._payos_order_code()
-        body = client.request("GET", f"/v2/payment-requests/{order_code}")
+        body = client.request("GET", f"/v2/payment-requests/{order_code}") or {}
         data = body.get("data") or body
-        status = data.get("status")
-        if status == "PAID":
-            transaction.with_context(payment_safe_write=True)._process(
-                {
-                    "paid": True,
-                    "amount": data.get("amount", transaction.amount),
-                    "bank_reference": data.get("reference"),
-                    "recorded_after_lock": self.env["medilab.reconciliation.day"].sudo()._today_is_locked(),
-                }
-            )
-            if transaction.state == "done":
-                transaction._create_online_payment()
+        # amount on the payment request is what was asked. Money received is each transfer.
+        self.env["payment.transaction"]._payos_record_transfers(order_code, data.get("transactions") or [])
+        remaining = data.get("amountRemaining")
+        if isinstance(remaining, (int, float)) and not isinstance(remaining, bool) and remaining > 0:
+            return fields.Datetime.now() + POLL_AGAIN
+        if data.get("status") == "PAID":
             return None
-        if transaction._payos_expired():
+        if transaction._payos_expired() and not transaction.payos_bank_reference and transaction.state != "done":
             transaction.with_context(payment_safe_write=True)._process({"expired": True})
             return None
         return fields.Datetime.now() + POLL_AGAIN
@@ -73,4 +89,3 @@ class ScheduledJob(models.Model):
     def _handle_overdue_reminders(self, item):
         # The customer's channel and Brevo come later. The job keeps the invoice and does not send.
         _logger.info("Overdue reminder waiting for a channel: %s", item.item_key)
-        return

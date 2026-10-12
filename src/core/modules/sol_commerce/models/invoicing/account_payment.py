@@ -122,10 +122,11 @@ class AccountPayment(models.Model):
 
     def _online_day_locked(self):
         self.ensure_one()
-        day = self.env["medilab.reconciliation.day"]._vietnam_day(self.create_date)
-        return bool(
-            self.env["medilab.reconciliation.day"].sudo().search_count([("day", "=", day), ("status", "=", "locked")])
-        )
+        days = self.env["medilab.reconciliation.day"]
+        moment = self.payment_transaction_id.payos_transferred_at
+        if not moment:
+            return False
+        return days._day_is_locked(days._vietnam_day(moment))
 
     def _check_billing(self):
         if self.env.su or self.env.user.has_group(BILLING_GROUP) or self.env.user.has_group(ADMINISTRATOR_GROUP):
@@ -159,10 +160,23 @@ class AccountPayment(models.Model):
     @api.model
     def portal_pay_invoice(self, invoice):
         """The customer pays their own invoice. The amount is what is still owed, not a value from the request."""
+        self._check_portal_invoice(invoice)
+        self._lock_invoices(invoice)
+        existing = self.sudo().search(
+            [("invoice_ids", "in", invoice.ids), ("method", "=", "bank_transfer"), ("state", "=", "draft")],
+            limit=1,
+        )
+        if existing:
+            return existing
+        if invoice.amount_residual <= 0:
+            raise UserError(self.env._("This invoice is already paid."))
+        return self.sudo().create_pending_payment(invoice, invoice.amount_residual, "bank_transfer")
+
+    @api.model
+    def _check_portal_invoice(self, invoice):
         user = self.env.user
         commercial = invoice.partner_id.commercial_partner_id
         if commercial != user.partner_id.commercial_partner_id:
             raise AccessError(self.env._("This invoice belongs to another customer."))
         if invoice.state != "posted" or invoice.move_type not in ("out_invoice", "out_refund"):
             raise AccessError(self.env._("Only a posted invoice can be paid."))
-        return self.sudo().create_pending_payment(invoice, invoice.amount_residual, "bank_transfer")

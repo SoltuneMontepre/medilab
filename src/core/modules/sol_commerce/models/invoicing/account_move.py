@@ -42,9 +42,12 @@ class AccountMove(models.Model):
                 move.amount_owed = move.amount_residual
                 continue
             lowering = move.reversal_move_ids.filtered(
-                lambda refund: refund.state == "posted" and refund.invoice_kind == "adjustment"
+                lambda refund: refund.state == "posted"
+                and refund.invoice_kind == "adjustment"
+                and refund.amount_residual
             )
             raises = move.raising_adjustment_ids.filtered(lambda invoice: invoice.state == "posted")
+            # A reconciled credit note is already in amount_residual. Only an open one is subtracted here.
             move.amount_owed = (
                 move.amount_residual - sum(lowering.mapped("amount_residual")) + sum(raises.mapped("amount_residual"))
             )
@@ -74,7 +77,20 @@ class AccountMove(models.Model):
         else:
             move = self._create_raising_adjustment(difference)
         move.action_post()
+        if difference < 0:
+            self._reconcile_adjustment(move)
         return move
+
+    def _portal_payos_available(self):
+        """Whether this customer may start PayOS. Credentials stay on the server."""
+        self.ensure_one()
+        provider = self.env.ref("sol_commerce.payment_provider_payos", raise_if_not_found=False)
+        method = self.env.ref("sol_commerce.payment_method_payos_qr", raise_if_not_found=False)
+        if not provider or not method:
+            return False
+        provider = provider.sudo()
+        method = method.sudo()
+        return bool(provider.is_published and method.active)
 
     def action_print_invoice(self):
         self._check_billing()
@@ -111,11 +127,22 @@ class AccountMove(models.Model):
             }
         )
 
+    def _reconcile_adjustment(self, refund):
+        refund_lines = refund.line_ids.filtered(
+            lambda line: line.account_type == "asset_receivable" and not line.reconciled
+        )
+        invoice_lines = self.line_ids.filtered(
+            lambda line: line.account_type == "asset_receivable" and not line.reconciled
+        )
+        if refund_lines and invoice_lines:
+            (refund_lines + invoice_lines).reconcile()
+
     def _adjustment_line_values(self, amount):
-        # The difference is the amount owed, so the line carries no tax of its own.
+        # The difference follows the taxes of the invoice lines it corrects.
+        taxes = self.invoice_line_ids.filtered(lambda line: line.display_type == "product").tax_ids
         return {
             "name": self.env._("Adjustment of %s", self.name or self.env._("invoice")),
             "quantity": 1,
             "price_unit": amount,
-            "tax_ids": [Command.clear()],
+            "tax_ids": [Command.set(taxes.ids)],
         }

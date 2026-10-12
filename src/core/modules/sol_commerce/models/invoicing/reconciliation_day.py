@@ -27,10 +27,14 @@ class ReconciliationDay(models.Model):
     locked_by_id = fields.Many2one("res.users", readonly=True, copy=False)
     # When the day was locked.
     locked_at = fields.Datetime(readonly=True, copy=False)
-    # PayOS transactions whose moment in Vietnam falls on this day.
+    # The accountant accepts overpayments or amount differences and may then lock the day.
+    discrepancies_acknowledged = fields.Boolean(copy=False)
+    # PayOS transactions whose transfer time in Vietnam falls on this day.
     transaction_ids = fields.Many2many(MODEL_PAYMENT_TRANSACTION, compute="_compute_transaction_ids")
     # Confirmed PayOS transactions of the day that have no payment yet.
     missing_payment_count = fields.Integer(compute="_compute_transaction_ids")
+    # Payments whose amount is not the transfer, or that are more than the invoice.
+    mismatch_count = fields.Integer(compute="_compute_transaction_ids")
 
     _day_unique = models.Constraint("UNIQUE(day)", "A day is reconciled once.")
 
@@ -41,12 +45,18 @@ class ReconciliationDay(models.Model):
             if not record.day:
                 record.transaction_ids = transactions
                 record.missing_payment_count = 0
+                record.mismatch_count = 0
                 continue
             found = transactions.search(
-                [("provider_code", "=", "payos"), ("create_date", ">=", record._start()), ("create_date", "<", record._end())]
+                [
+                    ("provider_code", "=", "payos"),
+                    ("payos_transferred_at", ">=", record._start()),
+                    ("payos_transferred_at", "<", record._end()),
+                ]
             )
             record.transaction_ids = found
             record.missing_payment_count = len(found.filtered(lambda tx: tx.state == "done" and not tx.payment_id))
+            record.mismatch_count = len(found.filtered(record._amount_mismatch))
 
     def action_post_missing_payments(self):
         """Post a payment for each confirmed PayOS transaction of the day that has none."""
@@ -54,17 +64,28 @@ class ReconciliationDay(models.Model):
         missing = self.transaction_ids.filtered(lambda tx: tx.state == "done" and not tx.payment_id)
         for transaction in missing:
             transaction._create_online_payment()
-        self.invalidate_recordset(["transaction_ids", "missing_payment_count"])
+        self.invalidate_recordset(["transaction_ids", "missing_payment_count", "mismatch_count"])
         return True
 
     def action_lock(self):
         self.ensure_one()
         if self.status == "locked":
             raise UserError(self.env._("This day is already locked."))
+        self.invalidate_recordset(["transaction_ids", "missing_payment_count", "mismatch_count"])
+        if self.missing_payment_count:
+            raise UserError(self.env._("Post the missing payments before locking this day."))
+        if self.mismatch_count and not self.discrepancies_acknowledged:
+            raise UserError(self.env._("Acknowledge the amount differences before locking this day."))
         self.write(
             {"status": "locked", "locked_by_id": self.env.user.id, "locked_at": fields.Datetime.now()}
         )
         return True
+
+    def _amount_mismatch(self, transaction):
+        payment = transaction.payment_id
+        if transaction.state != "done" or not payment:
+            return False
+        return payment.exceeds_residual or payment.amount != transaction.amount
 
     def write(self, vals):
         if vals.get("status") == "open" and any(day.status == "locked" for day in self):
@@ -85,5 +106,23 @@ class ReconciliationDay(models.Model):
         return moment.astimezone(VIETNAM).date()
 
     @api.model
-    def _today_is_locked(self):
-        return bool(self.search_count([("day", "=", self._vietnam_day(fields.Datetime.now())), ("status", "=", "locked")]))
+    def _day_is_locked(self, day):
+        if not day:
+            return False
+        return bool(self.sudo().search_count([("day", "=", day), ("status", "=", "locked")]))
+
+    @api.model
+    def _payos_moment(self, value):
+        """PayOS transactionDateTime is Vietnam local time. Store it as UTC."""
+        if not isinstance(value, str) or not value:
+            return False
+        naive = False
+        for pattern in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"):
+            try:
+                naive = datetime.strptime(value[:19], pattern)
+                break
+            except ValueError:
+                continue
+        if not naive:
+            return False
+        return naive.replace(tzinfo=VIETNAM).astimezone(UTC).replace(tzinfo=None)
