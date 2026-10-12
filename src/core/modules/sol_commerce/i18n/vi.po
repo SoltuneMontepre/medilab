@@ -1987,3 +1987,15 @@ msgstr "Hóa đơn tạm ứng"
 #: code:addons/sol_commerce/models/orders/quotation.py:0
 msgid "Only the customer of the order can accept its quotation."
 msgstr "Chỉ khách hàng của đơn hàng mới được chấp nhận báo giá này."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "The customer has paid the advance, so this quotation cannot be revised."
+msgstr "Khách hàng đã thanh toán tạm ứng, nên báo giá này không thể sửa đổi."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "The quotation is being revised. Send the new revision first."
+msgstr "Báo giá đang được sửa đổi. Hãy gửi bản sửa đổi mới trước."
