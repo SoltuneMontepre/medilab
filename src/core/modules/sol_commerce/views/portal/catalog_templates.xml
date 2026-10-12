@@ -193,6 +193,7 @@
                 <p t-if="request.params.get('error')" class="text-danger" t-out="request.params.get('error')" />
                 <h1 t-out="order.name" />
                 <p>Status: <t t-out="dict(order._fields['order_status']._description_selection(order.env))[order.order_status]" /></p>
+                <p t-if="order._latest_quotation()"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
                 <p t-if="order.reorder_note" t-out="order.reorder_note" />
                 <table class="table">
                     <thead>

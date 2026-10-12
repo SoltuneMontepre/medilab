@@ -1,9 +1,9 @@
 from odoo.fields import Command
 
 from .common import PricingCase
-from odoo.addons.sol_commerce.constants.models import MODEL_PARAMETER_PRICE, MODEL_PRODUCT_TEMPLATE
+from odoo.addons.sol_commerce.constants.models import MODEL_ORDER_SAMPLE, MODEL_PARAMETER_PRICE, MODEL_PRODUCT_TEMPLATE
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_PERSON
+from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_PERSON, MODEL_SAMPLE_TYPE
 
 ORDER_PERMISSIONS = (
     "order.read.all",
@@ -11,6 +11,11 @@ ORDER_PERMISSIONS = (
     "order.edit.all",
     "cancellation.request.read.all",
     "cancellation.request.edit.all",
+    "order.sample.read.all",
+    "order.sample.create.all",
+    "order.sample.edit.all",
+    "order.sample.delete.all",
+    "quotation.read.all",
 )
 
 
@@ -28,6 +33,7 @@ class OrderCase(PricingCase):
         products = cls.env[MODEL_PRODUCT_TEMPLATE]
         cls.lead_product = products.search([("parameter_id", "=", cls.parameter.id)], limit=1)
         cls.package_product = products.search([("service_package_id", "=", cls.package.id)], limit=1)
+        cls.sample_type = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled water", "code": "LM-QUOTE"})
         cls.customer = cls.env["res.partner"].create({"name": "Cong ty Nuoc Sach", "is_company": True})
         cls.contact = cls.env["res.partner"].create(
             {"name": "Pham Thi Hoa", "parent_id": cls.customer.id, "email": "hoa@nuocsach.example"}
@@ -70,3 +76,19 @@ class OrderCase(PricingCase):
                 **vals,
             }
         )
+
+    def make_sample(self, order, name="Lavie bottled water 1 L"):
+        return self.env[MODEL_ORDER_SAMPLE].create(
+            {
+                "order_id": order.id,
+                "customer_sample_name": name,
+                "sample_type_id": self.sample_type.id,
+                "physical_state": "liquid",
+            }
+        )
+
+    def make_quotable_order(self, lines=None):
+        """A claimed order of the first salesperson whose catalog lines are all tested on one sample."""
+        order = self.make_order(lines or [(self.lead_product, 1)], status="claimed", user_id=self.sales.id)
+        order._catalog_lines().sample_id = self.make_sample(order)
+        return order

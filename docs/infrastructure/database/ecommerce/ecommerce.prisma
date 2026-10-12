@@ -318,6 +318,8 @@ model SaleOrder {
   payment_status    String                @default("not_paid") @db.VarChar
   /// none, requested, approved or rejected: where the order stands in its approval chain, kept in step with its signatures.
   approval_status   String                @default("none") @db.VarChar
+  /// unpaid, paid, declined or expired: where the latest quotation stands, kept on the order for filtering; empty when none was sent.
+  quotation_follow_up String?            @db.VarChar
   /// When the customer submitted the order.
   submitted_at      DateTime?
   /// When a salesperson claimed the order.
@@ -372,6 +374,7 @@ model SaleOrder {
   @@index([customer_id, order_status])
   @@index([order_status, submitted_at])
   @@index([user_id, order_status])
+  @@index([quotation_follow_up])
   @@map("sale_order")
 }
 

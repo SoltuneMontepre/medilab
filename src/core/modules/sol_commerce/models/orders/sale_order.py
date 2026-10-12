@@ -1,15 +1,30 @@
+from datetime import timedelta
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tools import format_list
 
-from odoo.addons.sol_commerce.constants.models import MODEL_CANCELLATION_REQUEST, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_CANCELLATION_REQUEST,
+    MODEL_ORDER_SAMPLE,
+    MODEL_QUOTATION,
+    MODEL_SALE_ORDER,
+)
 from odoo.addons.sol_commerce.constants.orders import (
     APPROVAL_APPROVED,
     APPROVAL_NONE,
     CUSTOMER_CANCELLABLE,
     FINISHED_STATUSES,
+    FOLLOW_UP_BY_QUOTATION_STATUS,
+    FOLLOW_UP_PAID,
+    FOLLOW_UP_UNPAID,
     PORTAL_LOCKED_ORDER_FIELDS,
+    QUOTATION_ACCEPTED,
+    QUOTATION_DECLINED,
+    QUOTATION_EXPIRED,
+    QUOTATION_REPLACED,
+    QUOTATION_SENT,
     REQUESTED,
     SOURCE_PORTAL,
     SOURCE_SALES,
@@ -20,6 +35,8 @@ from odoo.addons.sol_commerce.constants.orders import (
     STATUS_DRAFT,
     STATUS_SUBMITTED,
 )
+from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
+from odoo.addons.sol_commerce.constants.xml_ids import QUOTATION_REPORT
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN
 
 
@@ -81,7 +98,32 @@ class SaleOrder(models.Model):
     catalog_total = fields.Monetary(compute="_compute_catalog_total")
     # Cancellation requests on the order.
     cancellation_request_ids = fields.One2many(MODEL_CANCELLATION_REQUEST, "order_id")
-
+    # When the advance must be paid; 3 days after sending by default, set by sales.
+    payment_deadline = fields.Datetime(copy=False)
+    # online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
+    advance_method = fields.Selection(
+        [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash"), ("none", "No advance")]
+    )
+    # full, percentage or fixed.
+    advance_mode = fields.Selection([("full", "Full amount"), ("percentage", "Percentage"), ("fixed", "Fixed amount")])
+    # The percentage or fixed amount of the advance, depending on the advance mode.
+    advance_value = fields.Float()
+    # Samples the customer will send.
+    sample_ids = fields.One2many(MODEL_ORDER_SAMPLE, "order_id", string="Samples")
+    # Quotations sent for the order, one per revision.
+    quotation_ids = fields.One2many(MODEL_QUOTATION, "order_id", string="Quotations")
+    # Where the latest quotation stands: unpaid until the advance is paid, declined or expired; empty when none was sent.
+    quotation_follow_up = fields.Selection(
+        [
+            (FOLLOW_UP_UNPAID, "Unpaid"),
+            (FOLLOW_UP_PAID, "Paid"),
+            (QUOTATION_DECLINED, "Declined"),
+            (QUOTATION_EXPIRED, "Expired"),
+        ],
+        compute="_compute_quotation_follow_up",
+        store=True,
+        index="btree_not_null",
+    )
     _customer_status_idx = models.Index("(customer_id, order_status)")
     _status_submitted_idx = models.Index("(order_status, submitted_at)")
     _salesperson_status_idx = models.Index("(user_id, order_status)")
@@ -138,7 +180,10 @@ class SaleOrder(models.Model):
         self._check_portal_write(vals)
         if "order_status" in vals and not self.env.context.get("medilab_status_change"):
             raise UserError(self.env._("Change the order status with its actions."))
-        return super().write(vals)
+        result = super().write(vals)
+        if "payment_deadline" in vals:
+            self._reopen_expired_quotations()
+        return result
 
     def _check_portal_write(self, vals):
         if self.env.su or not self.env.user.share:
@@ -335,3 +380,112 @@ class SaleOrder(models.Model):
             .sudo()
             .create({"order_id": self.id, "reason": text, "requested_by_id": self.env.uid})
         )
+
+    @api.depends("quotation_ids.status", "quotation_ids.revision")
+    def _compute_quotation_follow_up(self):
+        for order in self:
+            order.quotation_follow_up = FOLLOW_UP_BY_QUOTATION_STATUS.get(order._latest_quotation().status, False)
+
+    def _latest_quotation(self):
+        self.ensure_one()
+        return self.sudo().quotation_ids.sorted("revision")[-1:]
+
+    def action_send_quotation(self):
+        """Store the next revision of the quotation as a PDF and mark the revision before it replaced."""
+        self.check_access("write")
+        for order in self:
+            order._check_quotation_can_be_sent()
+        for order in self:
+            order._send_quotation()
+        return True
+
+    def _check_quotation_can_be_sent(self):
+        self.ensure_one()
+        if self.order_status in FINISHED_STATUSES:
+            raise UserError(self.env._("This order cannot be quoted."))
+        lines = self._catalog_lines()
+        if not lines:
+            raise UserError(self.env._("Add at least one parameter or service package before sending the quotation."))
+        unassigned = lines.filtered(lambda line: not line.sample_id)
+        if unassigned:
+            raise UserError(
+                self.env._(
+                    "Give these items a sample before sending the quotation:\n%s",
+                    "\n".join(unassigned.mapped("product_id.display_name")),
+                )
+            )
+        latest = self._latest_quotation()
+        if latest.status == QUOTATION_REPLACED:
+            raise UserError(self.env._("A replaced quotation cannot be sent. Send the current revision instead."))
+        if latest.status == QUOTATION_ACCEPTED:
+            raise UserError(self.env._("An accepted quotation cannot be replaced."))
+        if latest.status == QUOTATION_SENT and self.state != "draft":
+            raise UserError(self.env._("This quotation was already sent. Revise it to send a new revision."))
+
+    def _send_quotation(self):
+        self.ensure_one()
+        now = fields.Datetime.now()
+        if not self.payment_deadline or self.payment_deadline <= now:
+            days = (
+                self.env["ir.config_parameter"]
+                .sudo()
+                .get_int(PAYMENT_DEADLINE_PARAMETER, DEFAULT_PAYMENT_DEADLINE_DAYS)
+            )
+            self.payment_deadline = now + timedelta(days=days)
+        previous = self._latest_quotation()
+        revision = previous.revision + 1
+        quotation = (
+            self.env[MODEL_QUOTATION]
+            .sudo()
+            .create(
+                {
+                    "order_id": self.id,
+                    "revision": revision,
+                    "replaces_id": previous.id,
+                    "amount_total": self.amount_total,
+                    "attachment_id": self._create_quotation_attachment(revision).id,
+                }
+            )
+        )
+        quotation.attachment_id.write({"res_model": MODEL_QUOTATION, "res_id": quotation.id})
+        previous.write({"status": QUOTATION_REPLACED})
+        if self.state == "draft":
+            self.state = "sent"
+        return quotation
+
+    def _create_quotation_attachment(self, revision):
+        self.ensure_one()
+        content, _report_type = self.env["ir.actions.report"].sudo()._render_qweb_pdf(QUOTATION_REPORT, self.ids)
+        return (
+            self.env["ir.attachment"]
+            .sudo()
+            .create(
+                {
+                    "name": f"{self.name}-R{revision}.pdf",
+                    "raw": content,
+                    "mimetype": "application/pdf",
+                    "res_model": MODEL_SALE_ORDER,
+                    "res_id": self.id,
+                }
+            )
+        )
+
+    def action_revise_quotation(self):
+        """Start a new revision; the next send stores it and replaces the current quotation."""
+        self.check_access("write")
+        for order in self:
+            latest = order._latest_quotation()
+            if not latest:
+                raise UserError(self.env._("Send a quotation before revising it."))
+            if latest.status == QUOTATION_ACCEPTED:
+                raise UserError(self.env._("An accepted quotation cannot be revised."))
+        self.filtered(lambda order: order.state == "sent").write({"state": "draft"})
+        return True
+
+    def _reopen_expired_quotations(self):
+        """Moving the payment deadline into the future makes an expired quotation sent again."""
+        now = fields.Datetime.now()
+        for order in self.filtered(lambda item: item.payment_deadline and item.payment_deadline > now):
+            latest = order._latest_quotation()
+            if latest.status == QUOTATION_EXPIRED:
+                latest.write({"status": QUOTATION_SENT})

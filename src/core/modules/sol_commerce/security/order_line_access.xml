@@ -14,6 +14,24 @@
     <record id="sol_laboratory.access_permission_cancellation_request_edit_all" model="ir.access">
         <field name="domain">[("order_id.user_id", "=", user.id)]</field>
     </record>
+    <record id="sol_laboratory.access_permission_order_sample_read_all" model="ir.access">
+        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
+    </record>
+    <record id="sol_laboratory.access_permission_order_sample_edit_all" model="ir.access">
+        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
+    </record>
+    <record id="sol_laboratory.access_permission_order_sample_delete_all" model="ir.access">
+        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
+    </record>
+    <record id="sol_laboratory.access_permission_quotation_read_all" model="ir.access">
+        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
+    </record>
+    <record id="sol_laboratory.access_permission_quotation_edit_all" model="ir.access">
+        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
+    </record>
+    <record id="sol_laboratory.access_permission_quotation_delete_all" model="ir.access">
+        <field name="domain">[("order_id.user_id", "=", user.id)]</field>
+    </record>
 
     <record id="access_sale_order_all" model="ir.access">
         <field name="name">All orders</field>
@@ -25,6 +43,20 @@
     <record id="access_cancellation_request_all" model="ir.access">
         <field name="name">All cancellation requests</field>
         <field name="model_id" ref="model_medilab_cancellation_request" />
+        <field name="group_id" ref="group_all_orders" />
+        <field name="operation">crud</field>
+        <field name="domain">[(1, "=", 1)]</field>
+    </record>
+    <record id="access_order_sample_all" model="ir.access">
+        <field name="name">All order samples</field>
+        <field name="model_id" ref="model_medilab_order_sample" />
+        <field name="group_id" ref="group_all_orders" />
+        <field name="operation">crud</field>
+        <field name="domain">[(1, "=", 1)]</field>
+    </record>
+    <record id="access_quotation_all" model="ir.access">
+        <field name="name">All quotations</field>
+        <field name="model_id" ref="model_medilab_quotation" />
         <field name="group_id" ref="group_all_orders" />
         <field name="operation">crud</field>
         <field name="domain">[(1, "=", 1)]</field>

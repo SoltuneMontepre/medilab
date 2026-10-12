@@ -16,6 +16,13 @@
                 <field name="user_id" />
                 <field name="source" />
                 <field name="order_status" />
+                <field
+                    name="quotation_follow_up"
+                    widget="badge"
+                    decoration-success="quotation_follow_up == 'paid'"
+                    decoration-warning="quotation_follow_up == 'unpaid'"
+                    decoration-danger="quotation_follow_up in ('declined', 'expired')"
+                />
                 <field name="submitted_at" />
                 <field name="currency_id" column_invisible="1" />
                 <field name="catalog_total" />
@@ -55,6 +62,20 @@
                     invisible="order_status != 'submitted' or user_id"
                 />
                 <button
+                    name="action_send_quotation"
+                    type="object"
+                    string="Send quotation"
+                    class="btn-primary"
+                    invisible="order_status in ('draft', 'submitted', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid') and state != 'draft'"
+                />
+                <button
+                    name="action_revise_quotation"
+                    type="object"
+                    string="Revise quotation"
+                    class="btn-secondary"
+                    invisible="quotation_follow_up != 'unpaid' or state != 'sent'"
+                />
+                <button
                     name="action_sales_cancel"
                     type="object"
                     string="Cancel"
@@ -67,6 +88,11 @@
                 <field name="customer_id" />
                 <field name="source" readonly="1" />
                 <field name="expected_result_date" />
+                <field name="payment_deadline" />
+                <field name="advance_method" />
+                <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
+                <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
+                <field name="quotation_follow_up" />
                 <field name="submitted_at" readonly="1" />
                 <field name="claimed_at" readonly="1" />
                 <field name="reordered_from_id" readonly="1" />
@@ -74,7 +100,36 @@
                 <field name="currency_id" invisible="1" />
                 <field name="catalog_total" />
             </xpath>
+            <xpath expr="//list[@name='sol_list']/field[@name='currency_id']" position="after">
+                <field name="sample_id" domain="[('order_id', '=', parent.id)]" />
+            </xpath>
             <xpath expr="//notebook" position="inside">
+                <page string="Samples" name="samples">
+                    <field name="sample_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle" />
+                            <field name="customer_sample_name" />
+                            <field name="sample_type_id" />
+                            <field name="physical_state" />
+                            <field name="regulation_id" />
+                            <button name="copy_sample" type="object" string="Copy" class="btn-secondary" />
+                        </list>
+                    </field>
+                </page>
+                <page string="Revisions" name="revisions">
+                    <field name="quotation_ids" readonly="1">
+                        <list decoration-muted="status == 'replaced'">
+                            <field name="revision" />
+                            <field name="code" />
+                            <field name="status" />
+                            <field name="sent_at" />
+                            <field name="currency_id" column_invisible="1" />
+                            <field name="amount_total" />
+                            <field name="decline_reason" />
+                            <field name="attachment_id" />
+                        </list>
+                    </field>
+                </page>
                 <page string="Cancellation" name="cancellation">
                     <field name="reorder_note" invisible="not reorder_note" />
                     <field name="cancellation_request_ids">
@@ -102,6 +157,11 @@
                 <filter name="draft" string="Draft" domain="[('order_status', '=', 'draft')]" />
                 <filter name="confirmed" string="Confirmed" domain="[('order_status', '=', 'confirmed')]" />
                 <filter name="cancelled" string="Cancelled" domain="[('order_status', '=', 'cancelled')]" />
+                <separator />
+                <filter name="unpaid" string="Quotation unpaid" domain="[('quotation_follow_up', '=', 'unpaid')]" />
+                <filter name="paid" string="Quotation paid" domain="[('quotation_follow_up', '=', 'paid')]" />
+                <filter name="quotation_declined" string="Quotation declined" domain="[('quotation_follow_up', '=', 'declined')]" />
+                <filter name="quotation_expired" string="Quotation expired" domain="[('quotation_follow_up', '=', 'expired')]" />
             </search>
         </field>
     </record>
