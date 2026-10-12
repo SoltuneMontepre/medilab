@@ -1,1 +1,1 @@
-from . import portal
+from . import payos, portal

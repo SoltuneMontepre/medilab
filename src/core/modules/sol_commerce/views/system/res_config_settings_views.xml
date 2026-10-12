@@ -22,6 +22,17 @@
                             />
                         </setting>
                     </block>
+                    <block title="PayOS" name="payos_setting_container">
+                        <setting id="payos_enabled_setting" help="Customers can pay with PayOS only while this is on. The keys stay in the environment.">
+                            <field name="payos_enabled" />
+                        </setting>
+                        <setting id="payos_qr_setting" help="The QR method shown on the portal.">
+                            <field name="payos_qr_enabled" />
+                        </setting>
+                        <setting id="payos_expiry_setting">
+                            <field name="payos_expiry_hours" />
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>
