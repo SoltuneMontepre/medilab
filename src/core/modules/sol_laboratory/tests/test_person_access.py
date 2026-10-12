@@ -3,7 +3,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .people_case import PeopleCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
+from odoo.addons.sol_laboratory.constants.models import MODEL_EMPLOYEE, MODEL_PERSON
 
 
 @tagged("post_install", "-at_install")
@@ -56,7 +56,7 @@ class TestPersonAccess(PeopleCase):
     def test_person_editor_does_not_see_users_roles_or_permissions(self):
         fields = self.as_person(self.env[MODEL_PERSON], self.head).fields_get()
 
-        self.assertFalse({"user_id", "login", "role_ids", "permission_ids"} & set(fields))
+        self.assertFalse({"user_id", "work_contact_id", "login", "role_ids", "permission_ids"} & set(fields))
 
     def test_person_editor_cannot_change_another_contact(self):
         stranger = self.env["res.partner"].create({"name": "Mai Thi Thao", "email": "thao@customer.example"})
@@ -64,7 +64,18 @@ class TestPersonAccess(PeopleCase):
         self.grant(self.head, "person.create.own_department")
 
         with self.assertRaises(AccessError):
-            people.create({"partner_id": stranger.id, "email": "giang@lab.example", "department_id": self.chemistry.id})
+            people.create(
+                {"work_contact_id": stranger.id, "work_email": "giang@lab.example", "department_id": self.chemistry.id}
+            )
         with self.assertRaises(AccessError):
-            self.as_person(self.chemist, self.head).write({"partner_id": stranger.id})
+            self.as_person(self.chemist, self.head).write({"work_contact_id": stranger.id})
         self.assertEqual(stranger.email, "thao@customer.example")
+
+    def test_person_editor_cannot_move_a_person_onto_another_employee(self):
+        stranger = self.env[MODEL_EMPLOYEE].create({"name": "Mai Thi Thao", "department_id": self.chemistry.id})
+        self.grant(self.head, "person.create.own_department")
+
+        with self.assertRaises(AccessError):
+            self.as_person(self.env[MODEL_PERSON], self.head).create({"employee_id": stranger.id})
+        with self.assertRaises(AccessError):
+            self.as_person(self.chemist, self.head).write({"employee_id": stranger.id})

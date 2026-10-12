@@ -4,7 +4,7 @@ from odoo.fields import Command
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
-    MODEL_DEPARTMENT,
+    MODEL_EMPLOYEE,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -12,23 +12,28 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_PERSON, ADMINISTRATOR_ROLE
 
-CONTACT_FIELDS = ("name", "email", "phone")
-RES_PARTNER = "res.partner"
-
 
 # Nhân Sự
 class Person(models.Model):
     _name = MODEL_PERSON
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherits = {MODEL_EMPLOYEE: "employee_id"}
+    # The permissions on the person decide; the employee is read and written for them.
+    _check_inherits_access = False
     _description = "Person"
-    _rec_names_search = ("name", "email")
+    _rec_names_search = ("name", "work_email")
 
-    # The contact holding the person's details: name, email, phone, address.
-    partner_id = fields.Many2one(RES_PARTNER, string="Contact", required=True, ondelete="restrict", copy=False)
+    # The Odoo employee the person delegates to, holding their name, user, work contact and department.
+    employee_id = fields.Many2one(MODEL_EMPLOYEE, required=True, ondelete="cascade", copy=False)
     # The Odoo user the person logs in as; empty for people who never sign in.
-    user_id = fields.Many2one("res.users", ondelete="restrict", copy=False, groups=ADMINISTRATOR_GROUP)
-    # Department of the person.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True)
+    user_id = fields.Many2one(related="employee_id.user_id", inherited=True, readonly=False, groups=ADMINISTRATOR_GROUP)
+    # The contact holding the person's details: name, email, phone, address.
+    work_contact_id = fields.Many2one(
+        related="employee_id.work_contact_id", inherited=True, readonly=False, groups=ADMINISTRATOR_GROUP
+    )
+    # Department of the person. Odoo keeps it, like every field of the employee's version, where only employee
+    # officers read; re-declared, it is read with full rights.
+    department_id = fields.Many2one(related="employee_id.department_id", inherited=True, readonly=False)
     # False when the person is archived.
     active = fields.Boolean(default=True)
     # Roles the person holds.
@@ -50,31 +55,25 @@ class Person(models.Model):
         string="Direct Permissions",
         groups=ADMINISTRATOR_GROUP,
     )
-    # The person's name, held by their contact.
-    name = fields.Char(related="partner_id.name", readonly=False, required=True)
-    # The person's email address, held by their contact.
-    email = fields.Char(related="partner_id.email", readonly=False)
-    # The person's phone number, held by their contact.
-    phone = fields.Char(related="partner_id.phone", readonly=False)
     # The login of the person's Odoo user; filling it on a person without a user creates the user.
     login = fields.Char(related="user_id.login", readonly=False, groups=ADMINISTRATOR_GROUP)
 
-    _partner_unique = models.Constraint("UNIQUE(partner_id)", "This contact is already a person.")
-    _user_unique = models.Constraint("UNIQUE(user_id)", "This user already belongs to another person.")
+    _employee_unique = models.Constraint("UNIQUE(employee_id)", "This employee is already a person.")
 
     @api.model_create_multi
     def create(self, vals_list):
+        self.check_access("create")
         logins = []
         for vals in vals_list:
-            contact = {field_name: vals.pop(field_name) for field_name in CONTACT_FIELDS if field_name in vals}
-            if not vals.get("partner_id"):
-                vals["partner_id"] = self.env[RES_PARTNER].sudo().create(contact).id
-            elif contact:
-                self.env[RES_PARTNER].browse(vals["partner_id"]).write(contact)
-            if vals.get("login"):
-                self.check_field_access(self._fields["login"], "write")
+            employee_vals = self._pop_employee_vals(vals)
+            for name in vals:
+                if name in self._fields:
+                    self.check_field_access(self._fields[name], "write")
             logins.append(vals.pop("login", False))
-        people = super().create(vals_list)
+            vals["employee_id"] = self._employee_for(vals.get("employee_id"), employee_vals).id
+        # Odoo would also require reading the employee, which only its own groups give; the person's access decides.
+        people = super(Person, self.sudo()).create(vals_list).with_env(self.env)
+        people.check_access("create")
         for person, login in zip(people, logins, strict=True):
             if login:
                 person._set_login(login)
@@ -83,22 +82,28 @@ class Person(models.Model):
 
     def write(self, vals):
         vals = dict(vals)
-        contact = {field_name: vals.pop(field_name) for field_name in CONTACT_FIELDS if field_name in vals}
+        employee_vals = self._pop_employee_vals(vals)
         login = vals.pop("login", None)
-        self._check_write(vals, contact, login)
-        previous_users = self.sudo().user_id
+        self._check_write(vals, employee_vals, login)
+        previous_users = self.sudo().user_id if "employee_id" in vals else None
         result = super().write(vals) if vals else True
-        if contact:
-            self.sudo().partner_id.write(contact)
+        if employee_vals:
+            self.sudo().employee_id.write(employee_vals)
         if login is not None:
             for person in self:
                 person._set_login(login)
         if "role_ids" in vals:
             self._check_administrator_role()
         if "active" in vals:
+            employees = self.sudo().employee_id
+            if vals["active"]:
+                employees.action_unarchive()
+            else:
+                employees.action_archive()
             self.sudo().user_id.write({"active": vals["active"]})
-        if {"role_ids", "permission_ids", "user_id"} & set(vals):
+        if "employee_id" in vals:
             self._strip_user_groups(previous_users - self.sudo().user_id)
+        if {"role_ids", "permission_ids", "employee_id"} & set(vals):
             self._sync_user_groups()
         return result
 
@@ -118,15 +123,38 @@ class Person(models.Model):
         self._strip_user_groups(users)
         return result
 
-    def _check_write(self, vals, contact, login):
+    def _pop_employee_vals(self, vals):
+        # The employee's fields are written with full rights, once the person's own checks have passed.
+        employee_vals = {}
+        for name in [name for name in vals if name in self._fields and self._fields[name].inherited]:
+            self.check_field_access(self._fields[name], "write")
+            employee_vals[name] = vals.pop(name)
+        return employee_vals
+
+    def _employee_for(self, employee_id, employee_vals):
+        employees = self.env[MODEL_EMPLOYEE].sudo()
+        if employee_id:
+            # Delegating to an existing employee changes their details, so it needs the right to edit them.
+            self.env[MODEL_EMPLOYEE].browse(employee_id).check_access("write")
+            employee = employees.browse(employee_id)
+        else:
+            # A user may already have an employee, such as the one Odoo's demo data gives the default administrator.
+            employee = employees.env["res.users"].browse(employee_vals.get("user_id")).employee_id
+        if not employee:
+            return employees.create(employee_vals)
+        if employee_vals:
+            employee.write(employee_vals)
+        return employee
+
+    def _check_write(self, vals, employee_vals, login):
         if login is not None:
             self.check_field_access(self._fields["login"], "write")
             if login and len(self) > 1:
                 raise UserError(self.env._("A login belongs to one person only."))
-        if "partner_id" in vals and any(person.partner_id.id != vals["partner_id"] for person in self):
-            self.env[RES_PARTNER].browse(vals["partner_id"]).check_access("write")
+        if "employee_id" in vals and any(person.employee_id.id != vals["employee_id"] for person in self):
+            self.env[MODEL_EMPLOYEE].browse(vals["employee_id"]).check_access("write")
         self._check_administrator_change(vals)
-        if contact or login is not None:
+        if employee_vals or login is not None:
             self._check_permission("edit")
 
     def _check_administrator_change(self, vals):
@@ -135,7 +163,10 @@ class Person(models.Model):
             return
         if vals.get("active") is False:
             raise UserError(self.env._("The person of Odoo's default administrator cannot be archived."))
-        if "user_id" in vals and vals["user_id"] != administrator.sudo().user_id.id:
+        administrator = administrator.sudo()
+        if ("user_id" in vals and vals["user_id"] != administrator.user_id.id) or (
+            "employee_id" in vals and vals["employee_id"] != administrator.employee_id.id
+        ):
             raise UserError(self.env._("The person of Odoo's default administrator keeps their user."))
 
     def _check_administrator_role(self):
@@ -148,7 +179,7 @@ class Person(models.Model):
         return self.sudo().search([("user_id", "=", self.env.uid)], limit=1)
 
     def _administrator(self):
-        return self & self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False)
+        return self & (self.env.ref(ADMINISTRATOR_PERSON, raise_if_not_found=False) or self.browse())
 
     def _set_login(self, login):
         self.ensure_one()
@@ -170,7 +201,7 @@ class Person(models.Model):
             .create(
                 {
                     "login": login,
-                    "partner_id": person.partner_id.id,
+                    "partner_id": person.work_contact_id.id,
                     "group_ids": [Command.set(self.env.ref("base.group_user").ids)],
                 }
             )

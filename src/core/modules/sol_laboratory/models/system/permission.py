@@ -10,7 +10,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
     MODEL_ROLE,
 )
-from odoo.addons.sol_laboratory.constants.permissions import DEPARTMENT_FIELD, OPERATIONS, SCOPE_DOMAINS
+from odoo.addons.sol_laboratory.constants.permissions import (
+    DEPARTMENT_FIELD,
+    ODOO_DOCUMENT_TYPES,
+    OPERATIONS,
+    SCOPE_DOMAINS,
+)
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_ROLE, MODULE
 
 DOCUMENT_MODEL_PREFIX = "medilab."
@@ -85,7 +90,9 @@ class Permission(models.Model):
         names = [
             name
             for name, model in self.env.registry.items()
-            if name.startswith(DOCUMENT_MODEL_PREFIX) and not model._abstract and not model._transient
+            if (name.startswith(DOCUMENT_MODEL_PREFIX) or name in ODOO_DOCUMENT_TYPES)
+            and not model._abstract
+            and not model._transient
         ]
         labels = {model.model: model.name for model in self.env[IR_MODEL].sudo().search([("model", "in", names)])}
         return sorted((name, labels.get(name, name)) for name in names)
@@ -99,7 +106,8 @@ class Permission(models.Model):
 
     @api.model
     def _make_code(self, document_model, action, scope):
-        return f"{document_model.removeprefix(DOCUMENT_MODEL_PREFIX)}.{action}.{scope}"
+        document_type = ODOO_DOCUMENT_TYPES.get(document_model) or document_model.removeprefix(DOCUMENT_MODEL_PREFIX)
+        return f"{document_type}.{action}.{scope}"
 
     @api.depends("document_model", "action", "scope")
     def _compute_code(self):

@@ -3,7 +3,7 @@ from lxml import etree
 from odoo.exceptions import AccessError
 from odoo.tests import TransactionCase, new_test_user, tagged
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT
+from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_EMPLOYEE
 
 
 @tagged("post_install", "-at_install")
@@ -27,13 +27,13 @@ class TestPermissionEnforcement(TransactionCase):
     def archive_offered(self, user):
         return not self.env[MODEL_DEPARTMENT].with_user(user).fields_get(["active"], ["readonly"])["active"]["readonly"]
 
-    def test_user_without_permission_cannot_take_any_action(self):
+    def test_user_without_permission_reads_departments_as_in_odoo_but_takes_no_other_action(self):
         user = self.user_with()
         departments = self.env[MODEL_DEPARTMENT].with_user(user)
         chemistry = self.chemistry.with_user(user)
 
+        self.assertIn(self.chemistry, departments.search([]))
         for action in (
-            lambda: departments.search([]),
             lambda: departments.create({"name": "Microbiology"}),
             lambda: chemistry.write({"name": "Analytical chemistry"}),
             chemistry.action_archive,
@@ -99,3 +99,10 @@ class TestPermissionEnforcement(TransactionCase):
         department.unlink()
         self.assertTrue(self.archive_offered(user))
         self.assertEqual(self.view_flags(user)["form"], {"create": None, "edit": None, "delete": None})
+
+    def test_manager_of_a_department_edits_it_only_with_the_permission(self):
+        user = self.user_with()
+        self.chemistry.manager_id = self.env[MODEL_EMPLOYEE].create({"name": "Do Thi Giang", "user_id": user.id})
+
+        with self.assertRaises(AccessError):
+            self.chemistry.with_user(user).write({"name": "Analytical chemistry"})

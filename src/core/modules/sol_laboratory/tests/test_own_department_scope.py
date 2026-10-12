@@ -27,6 +27,18 @@ class TestOwnDepartmentScope(PeopleCase):
     def test_person_without_a_department_is_hidden(self):
         self.assertNotIn(self.unassigned, self.people.search([]))
 
+    def test_head_without_a_department_sees_nobody(self):
+        self.head.department_id = False
+
+        self.assertFalse(self.people.search([]))
+
+    def test_moving_to_another_department_moves_what_the_head_sees(self):
+        self.assertIn(self.chemist, self.people.search([]))
+
+        self.head.department_id = self.microbiology
+
+        self.assertEqual(self.people.search([]), self.microbiologist | self.head)
+
     def test_editing_is_limited_to_the_own_department(self):
         self.grant(self.head, "person.edit.own_department")
 

@@ -13,6 +13,7 @@ from . import (
     test_permission_enforcement,
     test_permission_generation,
     test_person_access,
+    test_person_employee,
     test_person_user,
     test_regulation_constraints,
     test_role_lifecycle,

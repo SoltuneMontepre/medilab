@@ -43,10 +43,11 @@ class ArchiveMixin(models.AbstractModel):
 
     def _referring_fields(self):
         # Relations deleted along with the record (ondelete cascade) are parts of it and never block it.
+        # Models without their own table, such as Odoo's public employees, only show other tables.
         return [
             field
             for model in self.env.registry.values()
-            if not model._abstract and not model._transient
+            if not model._abstract and not model._transient and model._auto
             for field in model._fields.values()
             if field.type in ("many2one", "many2many")
             and field.store

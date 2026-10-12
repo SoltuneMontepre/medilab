@@ -15,6 +15,7 @@ class TestAdministratorPerson(TransactionCase):
         user = self.env.ref("base.user_admin")
 
         self.assertEqual(self.person.user_id, user)
+        self.assertEqual(self.person.employee_id, user.employee_id)
         self.assertIn(self.role, self.person.role_ids)
         self.assertIn(self.role.group_id, user.group_ids)
 
@@ -24,6 +25,9 @@ class TestAdministratorPerson(TransactionCase):
             self.person.unlink,
             lambda: self.person.write({"role_ids": [Command.unlink(self.role.id)]}),
             lambda: self.person.write({"user_id": False}),
+            lambda: self.person.employee_id.write({"user_id": False}),
+            self.person.employee_id.action_archive,
+            self.person.employee_id.unlink,
         ):
             with self.subTest(action=action), self.assertRaises(UserError):
                 action()

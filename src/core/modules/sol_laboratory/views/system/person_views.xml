@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Odoo counts the employee's access into the person views, so the administrator fields name their group here. -->
     <record id="view_medilab_person_list" model="ir.ui.view">
         <field name="name">medilab.person.list</field>
         <field name="model">medilab.person</field>
@@ -7,10 +8,15 @@
             <list duplicate="0">
                 <field name="name" />
                 <field name="department_id" />
-                <field name="email" optional="show" />
-                <field name="phone" optional="show" />
-                <field name="login" optional="show" />
-                <field name="role_ids" widget="many2many_tags" optional="show" />
+                <field name="work_email" optional="show" />
+                <field name="work_phone" optional="show" />
+                <field name="login" optional="show" groups="sol_laboratory.group_role_administrator" />
+                <field
+                    name="role_ids"
+                    widget="many2many_tags"
+                    optional="show"
+                    groups="sol_laboratory.group_role_administrator"
+                />
             </list>
         </field>
     </record>
@@ -40,10 +46,10 @@
                     <group>
                         <group>
                             <field name="department_id" />
-                            <field name="email" />
-                            <field name="phone" />
+                            <field name="work_email" />
+                            <field name="work_phone" />
                         </group>
-                        <group>
+                        <group groups="sol_laboratory.group_role_administrator">
                             <field name="login" />
                             <field name="user_id" readonly="1" />
                         </group>
@@ -81,7 +87,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="name" />
-                <field name="email" />
+                <field name="work_email" />
                 <field name="department_id" />
                 <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
                 <filter name="group_by_department" string="Department" context="{'group_by': 'department_id'}" />

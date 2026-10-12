@@ -22,15 +22,17 @@ class TestPersonUser(PeopleCase):
     def test_login_creates_an_internal_user_on_the_persons_contact(self):
         user = self.chemist.user_id
 
-        self.assertEqual(user.partner_id, self.chemist.partner_id)
+        self.assertEqual(user.partner_id, self.chemist.work_contact_id)
         self.assertEqual(self.chemist.login, user.login)
         self.assertEqual(user.login, "an.nguyen")
         self.assertTrue(user._is_internal())
 
     def test_details_are_kept_on_the_contact(self):
-        self.chemist.write({"name": "Nguyen Van Anh", "email": "anh.nguyen@lab.example", "phone": "0901 234 567"})
+        self.chemist.write(
+            {"name": "Nguyen Van Anh", "work_email": "anh.nguyen@lab.example", "work_phone": "0901 234 567"}
+        )
 
-        partner = self.chemist.partner_id
+        partner = self.chemist.work_contact_id
         self.assertEqual(
             (partner.name, partner.email, partner.phone), ("Nguyen Van Anh", "anh.nguyen@lab.example", "0901 234 567")
         )
@@ -72,12 +74,12 @@ class TestPersonUser(PeopleCase):
         self.assertNotIn(self.permissions("person.read.all").group_id, previous.group_ids)
         self.assertIn(self.permissions("person.read.all").group_id, newcomer.group_ids)
 
-    def test_archiving_a_person_archives_their_user(self):
+    def test_archiving_a_person_archives_their_user_and_employee(self):
         self.chemist.action_archive()
-        self.assertFalse(self.chemist.user_id.active)
+        self.assertFalse(self.chemist.user_id.active or self.chemist.employee_id.active)
 
         self.chemist.action_unarchive()
-        self.assertTrue(self.chemist.user_id.active)
+        self.assertTrue(self.chemist.user_id.active and self.chemist.employee_id.active)
 
     def test_deleting_a_person_takes_their_groups_off_the_user(self):
         self.grant(self.chemist, "person.read.all")
@@ -88,7 +90,7 @@ class TestPersonUser(PeopleCase):
         self.assertEqual(user.group_ids, self.env.ref("base.group_user"))
 
     def test_people_of_a_department_are_listed_on_it(self):
-        self.assertEqual(self.env[MODEL_DEPARTMENT].browse(self.chemistry.id).person_ids, self.chemist)
+        self.assertEqual(self.env[MODEL_DEPARTMENT].browse(self.chemistry.id).member_ids, self.chemist.employee_id)
         self.assertEqual(
             self.env[MODEL_PERSON].search([("department_id", "=", self.microbiology.id)]), self.microbiologist
         )
