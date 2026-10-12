@@ -7,6 +7,7 @@ from . import (
     test_pricing_access,
     test_quotation_decline,
     test_quotation_expiry,
+    test_quotation_portal,
     test_quotation_send,
     test_service_package,
     test_tax_archiving,
