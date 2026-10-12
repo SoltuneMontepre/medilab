@@ -54,7 +54,7 @@ class InvoicePortal(PortalAccount):
         if self._payos_url_is_safe(transaction.payos_checkout_url):
             return request.redirect(transaction.payos_checkout_url, local=False)
         if transaction.payos_checkout_url:
-            return self._payos_page(invoice, failed=True, message=request.env._("The payment link is not valid."))
+            return self._payos_page(invoice, failed=True, message=self._invalid_link_message())
         transaction_id = transaction.id
         invoice_id = invoice.id
         # The invoice row lock ends with this commit. PayOS is called only after that, on the claimed job item.
@@ -85,16 +85,19 @@ class InvoicePortal(PortalAccount):
         if not item or item.status in ("running", "done", "cancelled"):
             return "pending", ""
         if item.status == "failed":
-            return "failed", item.last_error or request.env._("The payment link is not valid.")
+            return "failed", item.last_error or self._invalid_link_message()
         job = item.job_id
         if not job._claim_pending_item(item):
             return "pending", ""
         job._run_claimed_item(item)
         item.invalidate_recordset(["status", "last_error"])
         if item.status == "failed":
-            return "failed", item.last_error or request.env._("The payment link is not valid.")
+            return "failed", item.last_error or self._invalid_link_message()
         _logger.info("PayOS link for order %s is %s", transaction.reference, item.status)
         return "pending", ""
+
+    def _invalid_link_message(self):
+        return request.env._("The payment link is not valid.")
 
     def _payos_url_is_safe(self, url):
         if not isinstance(url, str) or not url:
