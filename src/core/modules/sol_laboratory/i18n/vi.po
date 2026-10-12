@@ -2631,8 +2631,26 @@ msgstr "Yêu Cầu Thử Nghiệm"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
+msgid "Add at least one parameter to %(samples)s before confirming test request %(code)s."
+msgstr "Thêm ít nhất một chỉ tiêu cho %(samples)s trước khi xác nhận yêu cầu thử nghiệm %(code)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
+msgid "Test request %(code)s cannot be confirmed until its order is paid or the customer is allowed credit."
+msgstr "Yêu cầu thử nghiệm %(code)s không thể xác nhận khi đơn hàng chưa thanh toán và khách hàng không được phép nợ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
 msgid "Test request %(code)s cannot go from %(current)s to %(next)s."
 msgstr "Yêu cầu thử nghiệm %(code)s không thể chuyển từ %(current)s sang %(next)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
+msgid "Test request %(code)s needs at least one sample before it can be confirmed."
+msgstr "Yêu cầu thử nghiệm %(code)s cần ít nhất một mẫu trước khi xác nhận."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__testing

@@ -33,7 +33,9 @@ class Sample(models.Model):
         MODEL_TEST_REQUEST, string="Test Request", required=True, ondelete="cascade", index=True
     )
     # Name the customer gives the sample, such as "Lavie bottled water 1 L"; hidden from testers.
-    customer_sample_name = fields.Char(string="Customer's Sample Name", required=True, groups=TEST_REQUEST_READER_GROUP)
+    customer_sample_name = fields.Char(
+        string="Customer's Sample Name", required=True, index="trigram", groups=TEST_REQUEST_READER_GROUP
+    )
     # The sample type (nền mẫu), such as bottled drinking water.
     sample_type_id = fields.Many2one(MODEL_SAMPLE_TYPE, required=True, ondelete="restrict", index=True)
     # Whether the sample is solid, liquid, gas or semi-solid.
