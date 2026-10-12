@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_invoice_pay" inherit_id="account.portal_invoice_page">
+        <xpath expr="//div[@id='invoice_content']" position="before">
+            <form t-if="invoice.amount_residual" action="/my/invoices/#{invoice.id}/pay" method="post" class="mb-3">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <button t-if="invoice._portal_payos_available()" class="btn btn-primary" name="method" value="payos" type="submit">PayOS</button>
+                <button class="btn btn-light" name="method" value="bank_transfer" type="submit">Bank transfer</button>
+            </form>
+        </xpath>
+    </template>
+</odoo>

@@ -54,6 +54,9 @@ class PayosClient:
             headers={"x-client-id": self.client_id, "x-api-key": self.api_key},
             timeout=30,
         )
+        # A missing payment request is how a retry learns the link was never created.
+        if getattr(response, "status_code", 200) == 404:
+            return None
         response.raise_for_status()
         return response.json()
 

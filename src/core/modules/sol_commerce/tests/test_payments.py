@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import HttpCase, tagged
@@ -98,13 +99,17 @@ class TestPayments(InvoicingCase):
         self.env.ref("sol_commerce.payment_provider_payos").is_published = True
         self.env.ref("sol_commerce.payment_method_payos_qr").active = True
         transaction = self.env["payment.transaction"]._create_payos_transaction(self.invoice)
+        moment = fields.Datetime.now()
+        transaction.with_context(payment_safe_write=True).write({"payos_transferred_at": moment})
         transaction.with_context(payment_safe_write=True)._set_done()
         day = self.env["medilab.reconciliation.day"].create(
-            {"day": self.env["medilab.reconciliation.day"]._vietnam_day(transaction.create_date)}
+            {"day": self.env["medilab.reconciliation.day"]._vietnam_day(moment)}
         )
 
         self.assertIn(transaction, day.transaction_ids)
         self.assertEqual(day.missing_payment_count, 1)
+        with self.assertRaises(UserError):
+            day.action_lock()
         day.action_post_missing_payments()
         self.assertTrue(transaction.payment_id)
         self.assertEqual(day.missing_payment_count, 0)
@@ -115,17 +120,50 @@ class TestPayments(InvoicingCase):
         with self.assertRaises(UserError):
             day.write({"status": "open"})
 
+    def test_an_overpayment_blocks_the_lock_until_it_is_acknowledged(self):
+        self.env.ref("sol_commerce.payment_provider_payos").is_published = True
+        self.env.ref("sol_commerce.payment_method_payos_qr").active = True
+        transaction = self.env["payment.transaction"]._create_payos_transaction(self.invoice)
+        paid = self.invoice.amount_total + 1
+        self.env["payment.transaction"]._payos_apply_webhook(
+            {
+                "orderCode": int(transaction.reference),
+                "amount": paid,
+                "code": "00",
+                "reference": "FT-LOCK-OVER",
+                "transactionDateTime": "2026-10-12 11:00:00",
+            }
+        )
+        day = self.env["medilab.reconciliation.day"].create({"day": "2026-10-12"})
+
+        self.assertTrue(transaction.payment_id.exceeds_residual)
+        self.assertEqual(transaction.payment_id.amount, paid)
+        self.assertGreater(day.mismatch_count, 0)
+        with self.assertRaises(UserError):
+            day.action_lock()
+        day.discrepancies_acknowledged = True
+        day.action_lock()
+        self.assertEqual(day.status, "locked")
+        self.assertEqual(transaction.payment_id.amount, paid)
+
     def test_payos_after_the_lock_is_stored_as_recorded_after_the_lock(self):
         self.env.ref("sol_commerce.payment_provider_payos").is_published = True
         self.env.ref("sol_commerce.payment_method_payos_qr").active = True
         transaction = self.env["payment.transaction"]._create_payos_transaction(self.invoice)
-        day = self.env["medilab.reconciliation.day"].create(
-            {"day": self.env["medilab.reconciliation.day"]._vietnam_day(transaction.create_date)}
-        )
+        days = self.env["medilab.reconciliation.day"]
+        moment = fields.Datetime.now()
+        day = days.create({"day": days._vietnam_day(moment)})
         day.action_lock()
+        local = days._vietnam_day(moment).strftime("%Y-%m-%d")
 
         confirmed = self.env["payment.transaction"]._payos_apply_webhook(
-            {"orderCode": int(transaction.reference), "amount": 1_000_000, "code": "00", "reference": "FT-LATE"}
+            {
+                "orderCode": int(transaction.reference),
+                "amount": 1_000_000,
+                "code": "00",
+                "reference": "FT-LATE",
+                "transactionDateTime": f"{local} 15:00:00",
+            }
         )
 
         self.assertEqual(confirmed, transaction)
@@ -156,22 +194,123 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
 
     def test_a_customer_pays_their_invoice_for_the_amount_still_owed(self):
         self.authenticate(self.customer.login, self.customer.login)
+        token = self.csrf_token()
+
+        refused = self.url_open(
+            f"/my/invoices/{self.invoice.id}/pay", data={"amount": "1"}, allow_redirects=False
+        )
+        self.assertEqual(refused.status_code, 400)
+        self.assertFalse(
+            self.env["account.payment"].search([("invoice_ids", "in", self.invoice.id), ("method", "=", "bank_transfer")])
+        )
 
         response = self.url_open(
-            f"/my/invoices/{self.invoice.id}/pay", data={"amount": "1"}, allow_redirects=False
+            f"/my/invoices/{self.invoice.id}/pay",
+            data={"csrf_token": token, "method": "bank_transfer", "amount": "1"},
+            allow_redirects=False,
+        )
+        again = self.url_open(
+            f"/my/invoices/{self.invoice.id}/pay",
+            data={"csrf_token": token, "method": "bank_transfer", "amount": "9"},
+            allow_redirects=False,
         )
 
         self.assertIn(response.status_code, (301, 302, 303))
-        payment = self.env["account.payment"].search([("invoice_ids", "in", self.invoice.id), ("method", "=", "bank_transfer")])
+        self.assertIn(again.status_code, (301, 302, 303))
+        payment = self.env["account.payment"].search(
+            [("invoice_ids", "in", self.invoice.id), ("method", "=", "bank_transfer")]
+        )
+        self.assertEqual(len(payment), 1)
         self.assertEqual(payment.amount, self.invoice.amount_residual)
+        self.assertEqual(payment.state, "draft")
 
     def test_another_customer_cannot_pay_the_invoice(self):
         self.authenticate(self.other.login, self.other.login)
 
         response = self.url_open(
-            f"/my/invoices/{self.private_invoice.id}/pay", data={"amount": "1"}, allow_redirects=False
+            f"/my/invoices/{self.private_invoice.id}/pay",
+            data={"csrf_token": self.csrf_token(), "method": "bank_transfer", "amount": "1"},
+            allow_redirects=False,
         )
 
         self.assertIn(response.status_code, (301, 302, 303))
         self.assertTrue(response.headers["Location"].endswith("/my"))
         self.assertFalse(self.env["account.payment"].search([("invoice_ids", "in", self.private_invoice.id)]))
+
+    def test_another_customer_cannot_open_the_receipt(self):
+        payment = self.env["account.payment"].create_pending_payment(self.invoice, 1_000_000, "bank_transfer")
+        payment.action_post()
+        self.authenticate(self.other.login, self.other.login)
+
+        response = self.url_open(
+            f"/my/invoices/{self.invoice.id}/receipt/{payment.id}", allow_redirects=False
+        )
+
+        self.assertIn(response.status_code, (301, 302, 303))
+        self.assertTrue(response.headers["Location"].endswith("/my"))
+
+    def test_the_owner_opens_the_receipt_and_not_someone_elses(self):
+        payment = self.env["account.payment"].create_pending_payment(self.invoice, 1_000_000, "cash")
+        payment.action_post()
+        self.authenticate(self.customer.login, self.customer.login)
+
+        receipt = self.url_open(f"/my/invoices/{self.invoice.id}/receipt/{payment.id}")
+        missing = self.url_open(f"/my/invoices/{self.invoice.id}/receipt/999999", allow_redirects=False)
+
+        self.assertEqual(receipt.status_code, 200)
+        self.assertIn("1000000", receipt.text.replace(",", "").replace("\xa0", "").replace(" ", ""))
+        self.assertIn(missing.status_code, (301, 302, 303))
+        self.assertTrue(missing.headers["Location"].endswith("/my"))
+
+    def test_payos_checkout_follows_the_provider_and_a_paid_invoice_is_refused(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = False
+        method.active = False
+        self.authenticate(self.customer.login, self.customer.login)
+        token = self.csrf_token()
+
+        refused = self.url_open(
+            f"/my/invoices/{self.invoice.id}/pay",
+            data={"csrf_token": token, "method": "payos"},
+            allow_redirects=False,
+        )
+        self.assertIn(refused.status_code, (301, 302, 303))
+        self.assertFalse(
+            self.env["payment.transaction"].search(
+                [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+            )
+        )
+
+        provider.is_published = True
+        method.active = True
+        started = self.url_open(
+            f"/my/invoices/{self.invoice.id}/pay",
+            data={"csrf_token": token, "method": "payos"},
+            allow_redirects=False,
+        )
+        transaction = self.env["payment.transaction"].search(
+            [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+        self.assertEqual(len(transaction), 1)
+        self.assertIn(started.status_code, (301, 302, 303))
+        self.assertTrue(started.headers["Location"].endswith(f"/my/invoices/{self.invoice.id}"))
+
+        transaction.with_context(payment_safe_write=True).write({"payos_checkout_url": "https://pay.example/checkout"})
+        checkout = self.url_open(
+            f"/my/invoices/{self.invoice.id}/pay",
+            data={"csrf_token": token, "method": "payos"},
+            allow_redirects=False,
+        )
+        self.assertEqual(checkout.headers["Location"], "https://pay.example/checkout")
+
+        payment = self.env["account.payment"].create_pending_payment(
+            self.private_invoice, self.private_invoice.amount_residual, "cash"
+        )
+        payment.action_post()
+        paid = self.url_open(
+            f"/my/invoices/{self.private_invoice.id}/pay",
+            data={"csrf_token": token, "method": "bank_transfer"},
+            allow_redirects=False,
+        )
+        self.assertTrue(paid.headers["Location"].endswith("/my"))

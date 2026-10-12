@@ -37,7 +37,52 @@ class TestInvoices(InvoicingCase):
         self.assertEqual(credit.invoice_kind, "adjustment")
         self.assertEqual(credit.reversed_entry_id, invoice)
         self.assertEqual(credit.amount_total, 500_000)
+        self.assertEqual(credit.amount_residual, 0)
+        self.assertEqual(invoice.amount_residual, 4_500_000)
         self.assertEqual(invoice.amount_owed, 4_500_000)
+
+        payment = self.env["account.payment"].create_pending_payment(invoice, 4_500_000, "cash")
+        payment.action_post()
+        self.assertEqual(invoice.amount_residual, 0)
+        self.assertEqual(invoice.amount_owed, 0)
+
+    def test_an_adjustment_uses_the_tax_of_the_invoice_line(self):
+        tax = self.env["account.tax"].create(
+            {
+                "name": "Adjustment VAT 10",
+                "amount": 10,
+                "amount_type": "percent",
+                "type_tax_use": "sale",
+                "price_include_override": "tax_excluded",
+            }
+        )
+        invoice = self.env["account.move"].create(
+            {
+                "move_type": "out_invoice",
+                "invoice_kind": "final",
+                "partner_id": self.partner.id,
+                "invoice_line_ids": [
+                    Command.create(
+                        {
+                            "product_id": self.product.id,
+                            "quantity": 1,
+                            "price_unit": 1_000_000,
+                            "tax_ids": [Command.set(tax.ids)],
+                        }
+                    )
+                ],
+            }
+        )
+        invoice.action_post()
+
+        credit = invoice.action_adjust(-100_000)
+
+        self.assertEqual(credit.invoice_line_ids.tax_ids, tax)
+        self.assertEqual(credit.amount_untaxed, 100_000)
+        self.assertEqual(credit.amount_tax, 10_000)
+        self.assertEqual(credit.amount_total, 110_000)
+        self.assertEqual(invoice.amount_residual, invoice.amount_total - 110_000)
+        self.assertEqual(invoice.amount_owed, invoice.amount_residual)
 
     def test_a_raising_adjustment_adds_what_is_owed(self):
         invoice = self.order.create_advance_invoice()
@@ -48,6 +93,24 @@ class TestInvoices(InvoicingCase):
         self.assertEqual(raised.adjusted_invoice_id, invoice)
         self.assertEqual(invoice.amount_total, 5_000_000)
         self.assertEqual(invoice.amount_owed, 5_500_000)
+        self.assertEqual(invoice.amount_residual, 5_000_000)
+        self.assertEqual(raised.amount_residual, 500_000)
+
+    def test_repeated_adjustments_change_the_obligation_once_each(self):
+        invoice = self.order.create_advance_invoice()
+
+        invoice.action_adjust(-500_000)
+        invoice.action_adjust(-500_000)
+        raised = invoice.action_adjust(500_000)
+
+        self.assertEqual(invoice.amount_total, 5_000_000)
+        self.assertEqual(invoice.amount_residual, 4_000_000)
+        self.assertEqual(invoice.amount_owed, 4_500_000)
+        self.assertEqual(raised.amount_residual, 500_000)
+        payment = self.env["account.payment"].create_pending_payment(invoice, 4_000_000, "cash")
+        payment.action_post()
+        self.assertEqual(invoice.amount_residual, 0)
+        self.assertEqual(invoice.amount_owed, 500_000)
 
     def test_a_posted_invoice_cannot_go_back_to_draft(self):
         invoice = self.order.create_advance_invoice()
@@ -105,6 +168,16 @@ class TestInvoicePortalUrl(InvoicingCase, HttpCase):
     def test_another_customers_invoice_url_does_not_open(self):
         self.authenticate(self.other.login, self.other.login)
         response = self.url_open(f"/my/invoices/{self.invoice.id}", allow_redirects=False)
+
+        self.assertIn(response.status_code, (301, 302, 303))
+        self.assertTrue(response.headers["Location"].endswith("/my"))
+
+    def test_a_draft_invoice_url_does_not_open(self):
+        draft = self.order.create_final_invoice()
+        customer = self.portal_user("khach.draft", self.partner)
+        self.authenticate(customer.login, customer.login)
+
+        response = self.url_open(f"/my/invoices/{draft.id}", allow_redirects=False)
 
         self.assertIn(response.status_code, (301, 302, 303))
         self.assertTrue(response.headers["Location"].endswith("/my"))
