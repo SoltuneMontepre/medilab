@@ -1,6 +1,10 @@
 """Technical names of the database models of the E-commerce module."""
 
+MODEL_CANCELLATION_REQUEST = "medilab.cancellation.request"
 MODEL_PARAMETER_PRICE = "medilab.parameter.price"
+MODEL_PRODUCT_TEMPLATE = "product.template"
+MODEL_SALE_ORDER = "sale.order"
+MODEL_SALE_ORDER_LINE = "sale.order.line"
 MODEL_SERVICE_PACKAGE = "medilab.service.package"
 MODEL_SERVICE_PACKAGE_LINE = "medilab.service.package.line"
 MODEL_SUBCONTRACT_COST = "medilab.subcontract.cost"

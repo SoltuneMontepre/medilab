@@ -1,6 +1,7 @@
 from odoo import api, fields, models
 
 from odoo.addons.sol_commerce.constants.models import (
+    MODEL_PRODUCT_TEMPLATE,
     MODEL_SERVICE_PACKAGE,
     MODEL_SERVICE_PACKAGE_LINE,
     MODEL_TAX,
@@ -49,6 +50,30 @@ class ServicePackage(models.Model):
                 line.quantity * line.parameter_id.price_ids[:1].list_price for line in package.line_ids
             )
             package.is_overpriced = package._costs_more_than_parts()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        packages = super().create(vals_list)
+        packages._sync_catalog_product()
+        return packages
+
+    def write(self, vals):
+        if vals.get("active") is False:
+            products = self._catalog_products()
+            products._refuse_if_on_open_orders()
+            products.write({"sale_ok": False})
+        result = super().write(vals)
+        if not self.env.context.get("medilab_skip_catalog_product"):
+            self._sync_catalog_product()
+        return result
+
+    def _catalog_products(self):
+        return self.env[MODEL_PRODUCT_TEMPLATE].sudo().search([("service_package_id", "in", self.ids)])
+
+    def _sync_catalog_product(self):
+        products = self.env[MODEL_PRODUCT_TEMPLATE]
+        for package in self:
+            products._sync_package_product(package)
 
     def _costs_more_than_parts(self, parts_change=0):
         """Return whether the package costs more than its parts, after an optional change to their price."""

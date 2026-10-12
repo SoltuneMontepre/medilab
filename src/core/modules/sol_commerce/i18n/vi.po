@@ -509,3 +509,143 @@ msgid ""
 "With this price, these packages cost more than their parameters bought one "
 "by one: %s"
 msgstr "Với giá này, các nhóm dịch vụ sau có giá cao hơn tổng giá các chỉ tiêu khi mua lẻ: %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Add at least one parameter or service package."
+msgstr "Thêm ít nhất một chỉ tiêu hoặc một nhóm dịch vụ."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "A catalog line needs a quantity of at least 1."
+msgstr "Dòng danh mục cần số lượng ít nhất là 1."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "A confirmed order cannot be cancelled directly."
+msgstr "Đơn hàng đã xác nhận không hủy trực tiếp được."
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_cancellation_request
+msgid "Cancellation requests"
+msgstr "Yêu Cầu Hủy"
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_sale_order
+msgid "Orders"
+msgstr "Đơn Hàng"
+
+#. module: sol_commerce
+#: model:ir.ui.menu,name:sol_commerce.menu_sale_order_queue
+msgid "Unclaimed queue"
+msgstr "Hàng đợi chưa nhận"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Enter an e-mail address."
+msgstr "Nhập địa chỉ thư điện tử."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Enter your name."
+msgstr "Nhập tên của bạn."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Give a reason for the cancellation."
+msgstr "Cho biết lý do hủy."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "This order already has an open cancellation request."
+msgstr "Đơn hàng này đang có một yêu cầu hủy chưa được xử lý."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "This order is already claimed."
+msgstr "Đơn hàng này đã được nhận."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "These items are no longer in the catalog and were left out: %s"
+msgstr "Các mục sau không còn trong danh mục nên không được đưa vào: %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "The approval is signed, so this order cannot be cancelled. The laboratory will contact you."
+msgstr "Đơn hàng đã được ký duyệt nên không hủy được. Phòng thí nghiệm sẽ liên hệ với bạn."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Testing is completed or results are released, so this order cannot be cancelled. The laboratory will contact you."
+msgstr "Việc thử nghiệm đã hoàn tất hoặc kết quả đã được phát hành nên đơn hàng không hủy được. Phòng thí nghiệm sẽ liên hệ với bạn."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
+msgid "You cannot change the price of an order."
+msgstr "Bạn không thể sửa giá của đơn hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "You cannot change prices or internal fields of an order."
+msgstr "Bạn không thể sửa giá hoặc các trường nội bộ của đơn hàng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/cancellation_request.py:0
+msgid "Write a reply to the customer."
+msgstr "Viết lời phản hồi cho khách hàng."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Save as draft"
+msgstr "Lưu nháp"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Submit"
+msgstr "Gửi"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Request cancellation"
+msgstr "Yêu cầu hủy"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Cancel"
+msgstr "Hủy"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Reorder"
+msgstr "Đặt lại"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+msgid "Catalog"
+msgstr "Danh mục"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Total excluding VAT"
+msgstr "Tổng chưa gồm thuế GTGT"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "If an advance was paid, it stays on the invoice and is settled outside the system."
+msgstr "Nếu đã thanh toán tạm ứng, khoản tiền vẫn nằm trên hóa đơn và được xử lý bên ngoài hệ thống."
+

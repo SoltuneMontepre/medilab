@@ -140,4 +140,44 @@
         <field name="document_model">medilab.service.package.line</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_order_read_all" model="medilab.permission">
+        <field name="name">Read orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_order_create_all" model="medilab.permission">
+        <field name="name">Create orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_order_edit_all" model="medilab.permission">
+        <field name="name">Edit orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_order_delete_all" model="medilab.permission">
+        <field name="name">Delete orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_cancellation_request_read_all" model="medilab.permission">
+        <field name="name">Read cancellation requests</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_cancellation_request_create_all" model="medilab.permission">
+        <field name="name">Create cancellation requests</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_cancellation_request_edit_all" model="medilab.permission">
+        <field name="name">Edit cancellation requests</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_cancellation_request_delete_all" model="medilab.permission">
+        <field name="name">Delete cancellation requests</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">delete</field>
+    </record>
 </odoo>

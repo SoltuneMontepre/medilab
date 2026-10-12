@@ -3,10 +3,30 @@
     <record id="demo_role_sales" model="medilab.role">
         <field name="code">sales</field>
         <field name="name">Sales</field>
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('sol_commerce.permission_order_read_all'),
+                ref('sol_commerce.permission_order_create_all'),
+                ref('sol_commerce.permission_order_edit_all'),
+                ref('sol_commerce.permission_cancellation_request_read_all'),
+                ref('sol_commerce.permission_cancellation_request_edit_all'),
+            ])]"
+        />
     </record>
     <record id="demo_role_head_of_sales" model="medilab.role">
         <field name="code">head_of_sales</field>
         <field name="name">Head of sales</field>
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('sol_commerce.permission_order_read_all'),
+                ref('sol_commerce.permission_order_create_all'),
+                ref('sol_commerce.permission_order_edit_all'),
+                ref('sol_commerce.permission_cancellation_request_read_all'),
+                ref('sol_commerce.permission_cancellation_request_edit_all'),
+            ])]"
+        />
     </record>
     <record id="demo_role_accountant" model="medilab.role">
         <field name="code">accountant</field>

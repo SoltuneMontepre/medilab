@@ -13,6 +13,7 @@
         "data/machine_data.xml",
         "data/base/res_partner.xml",
         "data/base/res_users.xml",
+        "data/sol_commerce/customer.xml",
         "data/hr/hr_department.xml",
         "data/sol_laboratory/role.xml",
         "data/sol_laboratory/person.xml",
