@@ -1,0 +1,168 @@
+from odoo import api, fields, models
+from odoo.exceptions import AccessError, UserError
+from odoo.fields import Command
+
+from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT
+from odoo.addons.sol_commerce.models.invoicing.account_move import ADMINISTRATOR_GROUP, BILLING_GROUP
+
+METHODS = {"online", "bank_transfer", "cash"}
+JOURNAL_TYPE = {"online": "bank", "bank_transfer": "bank", "cash": "cash"}
+
+
+# Phiếu thu
+class AccountPayment(models.Model):
+    _inherit = MODEL_ACCOUNT_PAYMENT
+
+    # online, bank_transfer or cash.
+    method = fields.Selection(
+        [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash")],
+        string="Collection Method",
+    )
+    # The accountant who confirmed or rejected the payment.
+    reviewed_by_id = fields.Many2one("res.users", string="Reviewed By", readonly=True, copy=False)
+    # When it was confirmed or rejected.
+    reviewed_at = fields.Datetime(readonly=True, copy=False)
+    # Why the accountant rejected it.
+    rejection_reason = fields.Text(copy=False)
+    # The PayOS amount was more than the invoice still owed. The invoice keeps Odoo's payment status.
+    exceeds_residual = fields.Boolean(readonly=True, copy=False)
+
+    @api.model
+    def create_pending_payment(self, invoice, amount, method):
+        """Sales records a cash or transfer payment. It stays a draft until the accountant confirms it."""
+        if method not in METHODS - {"online"}:
+            raise UserError(self.env._("Sales records cash and bank transfers. Online payments come from PayOS."))
+        self._lock_invoices(invoice)
+        if amount > invoice.amount_residual:
+            raise UserError(self.env._("A payment cannot be more than the amount still owed."))
+        return self.create(self._payment_values(invoice, amount, method))
+
+    def action_post(self):
+        if self.filtered("method"):
+            self._check_billing()
+            self._lock_invoices(self.invoice_ids)
+            for payment in self:
+                payment._check_collection_amount()
+            self.write({"reviewed_by_id": self.env.user.id, "reviewed_at": fields.Datetime.now()})
+        posted = super().action_post()
+        for payment in self.filtered("method"):
+            payment._reconcile_with_invoices()
+        return posted
+
+    def action_reject_payment(self):
+        """Cancel a draft payment and leave the reason as an activity for the salesperson."""
+        self.ensure_one()
+        self._check_billing()
+        reason = self.rejection_reason
+        if not reason:
+            raise UserError(self.env._("A rejected payment needs a reason."))
+        if any(payment.state != "draft" for payment in self):
+            raise UserError(self.env._("Only a draft payment can be rejected."))
+        self.write(
+            {
+                "rejection_reason": reason,
+                "reviewed_by_id": self.env.user.id,
+                "reviewed_at": fields.Datetime.now(),
+            }
+        )
+        invoices = self.invoice_ids
+        previous = {invoice.id: invoice.payment_state for invoice in invoices}
+        self.action_cancel()
+        for invoice in invoices:
+            if invoice.payment_state != previous[invoice.id]:
+                raise UserError(self.env._("Rejecting a payment must leave the invoice as it was."))
+        self._notify_salesperson(reason)
+        return True
+
+    def write(self, vals):
+        frozen = self.filtered(
+            lambda payment: payment.method == "online" and payment.state != "draft" and payment._online_day_locked()
+        )
+        changed = {"amount", "partner_id", "journal_id", "method", "date"} & set(vals)
+        if frozen and (changed or vals.get("state") in {"draft", "canceled", "rejected"}):
+            raise UserError(self.env._("An online payment of a locked day cannot be changed."))
+        return super().write(vals)
+
+    def _check_collection_amount(self):
+        self.ensure_one()
+        owed = sum(self.invoice_ids.mapped("amount_residual"))
+        if self.method == "online":
+            if self.amount > owed:
+                self.exceeds_residual = True
+            return
+        if self.method in ("cash", "bank_transfer") and self.amount > owed:
+            raise UserError(self.env._("A payment cannot be more than the amount still owed."))
+
+    def _reconcile_with_invoices(self):
+        self.ensure_one()
+        if not self.invoice_ids or not self.move_id:
+            return
+        _liquidity, counterpart, _writeoff = self._seek_for_lines()
+        receivable = self.invoice_ids.line_ids.filtered(
+            lambda line: line.account_type == "asset_receivable" and not line.reconciled
+        )
+        lines = counterpart + receivable
+        if lines:
+            lines.reconcile()
+
+    def _notify_salesperson(self, reason):
+        salesperson = self.invoice_ids.invoice_user_id[:1]
+        if not salesperson:
+            return
+        self.env["mail.activity"].sudo().create(
+            {
+                "res_model_id": self.env["ir.model"]._get(self._name).id,
+                "res_id": self.id,
+                "user_id": salesperson.id,
+                "summary": self.env._("Payment rejected"),
+                "note": reason,
+                "activity_type_id": self.env.ref("mail.mail_activity_data_todo").id,
+            }
+        )
+
+    def _online_day_locked(self):
+        self.ensure_one()
+        day = self.env["medilab.reconciliation.day"]._vietnam_day(self.create_date)
+        return bool(
+            self.env["medilab.reconciliation.day"].sudo().search_count([("day", "=", day), ("status", "=", "locked")])
+        )
+
+    def _check_billing(self):
+        if self.env.su or self.env.user.has_group(BILLING_GROUP) or self.env.user.has_group(ADMINISTRATOR_GROUP):
+            return
+        raise AccessError(self.env._("Only the accountant can confirm or reject a payment."))
+
+    @api.model
+    def _lock_invoices(self, invoices):
+        if invoices:
+            self.env.cr.execute("SELECT id FROM account_move WHERE id IN %s FOR UPDATE", (tuple(invoices.ids),))
+
+    @api.model
+    def _payment_values(self, invoice, amount, method):
+        journal = self.env["account.journal"].search(
+            [("type", "=", JOURNAL_TYPE[method]), ("company_id", "=", invoice.company_id.id)], limit=1
+        )
+        if not journal:
+            raise UserError(self.env._("The company has no journal for this payment."))
+        return {
+            "amount": amount,
+            "payment_type": "inbound",
+            "partner_type": "customer",
+            "partner_id": invoice.partner_id.id,
+            "currency_id": invoice.currency_id.id,
+            "journal_id": journal.id,
+            "method": method,
+            "invoice_ids": [Command.set(invoice.ids)],
+            "memo": invoice.name,
+        }
+
+    @api.model
+    def portal_pay_invoice(self, invoice):
+        """The customer pays their own invoice. The amount is what is still owed, not a value from the request."""
+        user = self.env.user
+        commercial = invoice.partner_id.commercial_partner_id
+        if commercial != user.partner_id.commercial_partner_id:
+            raise AccessError(self.env._("This invoice belongs to another customer."))
+        if invoice.state != "posted" or invoice.move_type not in ("out_invoice", "out_refund"):
+            raise AccessError(self.env._("Only a posted invoice can be paid."))
+        return self.sudo().create_pending_payment(invoice, invoice.amount_residual, "bank_transfer")

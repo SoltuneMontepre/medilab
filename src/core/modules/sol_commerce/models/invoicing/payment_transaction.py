@@ -17,6 +17,8 @@ class PaymentTransaction(models.Model):
     payos_bank_reference = fields.Char(copy=False)
     # The PayOS checkout page for the link. Empty until the call succeeds.
     payos_checkout_url = fields.Char(copy=False)
+    # PayOS reported this transfer after the Vietnam day was locked.
+    recorded_after_lock = fields.Boolean(copy=False)
 
     def _apply_updates(self, payment_data):
         if self.provider_code != "payos":
@@ -24,6 +26,8 @@ class PaymentTransaction(models.Model):
         bank_reference = payment_data.get("bank_reference")
         if bank_reference:
             self.payos_bank_reference = bank_reference
+        if payment_data.get("recorded_after_lock"):
+            self.recorded_after_lock = True
         if payment_data.get("amount") is not None:
             self.amount = payment_data["amount"]
         if payment_data.get("paid"):
@@ -55,6 +59,7 @@ class PaymentTransaction(models.Model):
         bank_reference = str(data.get("reference") or "")
         if not order_code or str(data.get("code")) != "00":
             return self.browse()
+        locked = self.env["medilab.reconciliation.day"].sudo()._today_is_locked()
         if bank_reference:
             existing = self.search(
                 [("payos_bank_reference", "=", bank_reference), ("provider_code", "=", "payos")], limit=1
@@ -64,17 +69,20 @@ class PaymentTransaction(models.Model):
         link = self.search([("reference", "=", order_code), ("provider_code", "=", "payos")], limit=1)
         if not link:
             return self.browse()
-        target = link if not link.payos_bank_reference else self._payos_extra_transfer(link, bank_reference, data)
+        target = link if not link.payos_bank_reference else self._payos_extra_transfer(link, bank_reference, data, locked)
         target.with_context(payment_safe_write=True)._process(
             {
                 "paid": True,
                 "amount": data.get("amount", target.amount),
                 "bank_reference": bank_reference,
+                "recorded_after_lock": locked,
             }
         )
+        if target.state == "done":
+            target._create_online_payment()
         return target
 
-    def _payos_extra_transfer(self, link, bank_reference, data):
+    def _payos_extra_transfer(self, link, bank_reference, data, recorded_after_lock=False):
         # The link keeps the order code. A later transfer is its own transaction so its money is not dropped.
         reference = bank_reference or self._compute_reference("payos", prefix=link.reference)
         return self.create(
@@ -87,6 +95,7 @@ class PaymentTransaction(models.Model):
                 "currency_id": link.currency_id.id,
                 "partner_id": link.partner_id.id,
                 "operation": "online_redirect",
+                "recorded_after_lock": recorded_after_lock,
                 "invoice_ids": [Command.set(link.invoice_ids.ids)],
             }
         )
@@ -119,3 +128,19 @@ class PaymentTransaction(models.Model):
             }
         )
         return transaction.action_payos_checkout()
+
+    def _create_online_payment(self):
+        """Post the payment PayOS confirmed. The amount is PayOS's amount, even when it is more than the invoice."""
+        self.ensure_one()
+        if self.payment_id or self.state != "done" or not self.invoice_ids:
+            return self.payment_id
+        invoice = self.invoice_ids[:1]
+        payment = self.env["account.payment"].sudo().create(
+            {
+                **self.env["account.payment"]._payment_values(invoice, self.amount, "online"),
+                "payment_transaction_id": self.id,
+            }
+        )
+        payment.action_post()
+        self.with_context(payment_safe_write=True).write({"payment_id": payment.id})
+        return payment

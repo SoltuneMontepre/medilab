@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from odoo import fields, models
@@ -5,6 +6,8 @@ from odoo import fields, models
 from odoo.addons.sol_commerce.services.payos_client import payos_client_from_env
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
+
+_logger = logging.getLogger(__name__)
 
 POLL_AGAIN = timedelta(minutes=5)
 
@@ -52,10 +55,22 @@ class ScheduledJob(models.Model):
         status = data.get("status")
         if status == "PAID":
             transaction.with_context(payment_safe_write=True)._process(
-                {"paid": True, "amount": data.get("amount", transaction.amount), "bank_reference": data.get("reference")}
+                {
+                    "paid": True,
+                    "amount": data.get("amount", transaction.amount),
+                    "bank_reference": data.get("reference"),
+                    "recorded_after_lock": self.env["medilab.reconciliation.day"].sudo()._today_is_locked(),
+                }
             )
+            if transaction.state == "done":
+                transaction._create_online_payment()
             return None
         if transaction._payos_expired():
             transaction.with_context(payment_safe_write=True)._process({"expired": True})
             return None
         return fields.Datetime.now() + POLL_AGAIN
+
+    def _handle_overdue_reminders(self, item):
+        # The customer's channel and Brevo come later. The job keeps the invoice and does not send.
+        _logger.info("Overdue reminder waiting for a channel: %s", item.item_key)
+        return

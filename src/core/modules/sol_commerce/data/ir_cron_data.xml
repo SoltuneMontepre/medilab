@@ -16,4 +16,12 @@
         <field name="interval_number">5</field>
         <field name="interval_type">minutes</field>
     </record>
+    <record id="ir_cron_overdue_reminders" model="ir.cron">
+        <field name="name">Overdue reminders</field>
+        <field name="model_id" ref="sol_laboratory.model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("overdue.reminders")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
 </odoo>

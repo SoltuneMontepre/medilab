@@ -1,3 +1,4 @@
+from odoo import http
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
 
@@ -16,3 +17,13 @@ class InvoicePortal(PortalAccount):
         return super().portal_my_invoice_detail(
             invoice_id, access_token=access_token, report_type=report_type, download=download, **kw
         )
+
+    @http.route("/my/invoices/<int:invoice_id>/pay", type="http", auth="user", methods=["POST"], csrf=False)
+    def portal_pay_invoice(self, invoice_id, **kwargs):
+        # amount in the request is ignored. The customer pays what the invoice still owes.
+        try:
+            invoice = self._document_check_access("account.move", invoice_id)
+        except (AccessError, MissingError):
+            return request.redirect("/my")
+        request.env["account.payment"].portal_pay_invoice(invoice)
+        return request.redirect(f"/my/invoices/{invoice_id}")
