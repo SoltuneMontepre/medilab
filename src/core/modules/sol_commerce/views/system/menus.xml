@@ -5,6 +5,9 @@
     <menuitem id="menu_cancellation_request" name="Cancellation requests" parent="sale.sale_menu_root" action="action_medilab_cancellation_request" sequence="17" />
 
     <menuitem id="menu_commerce_root" name="E-commerce" sequence="40">
+        <menuitem id="menu_invoice" action="action_medilab_invoice" sequence="5" />
+        <menuitem id="menu_payment" action="action_medilab_payment" sequence="6" />
+        <menuitem id="menu_reconciliation" action="action_medilab_reconciliation_day" sequence="7" />
         <menuitem id="menu_prices" name="Prices" sequence="10">
             <menuitem id="menu_parameter_price" action="action_medilab_parameter_price" sequence="10" />
             <menuitem id="menu_service_package" action="action_medilab_service_package" sequence="20" />
