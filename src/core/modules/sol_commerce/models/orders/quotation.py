@@ -1,7 +1,7 @@
-from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo import SUPERUSER_ID, api, fields, models
+from odoo.exceptions import AccessError, UserError
 
-from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_QUOTATION, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_NONE,
     QUOTATION_ACCEPTED,
@@ -51,6 +51,8 @@ class Quotation(models.Model):
     amount_total = fields.Monetary(required=True)
     # The customer's reason for declining.
     decline_reason = fields.Text()
+    # The advance invoice sent with the quotation; empty when it was sent without an advance.
+    advance_invoice_id = fields.Many2one(MODEL_ACCOUNT_MOVE, ondelete="restrict", copy=False, index="btree_not_null")
     # The PDF sent to the customer.
     attachment_id = fields.Many2one("ir.attachment", required=True, ondelete="restrict")
 
@@ -75,7 +77,11 @@ class Quotation(models.Model):
     def action_accept(self):
         """The customer accepts a quotation sent without an advance; with an advance, paying it accepts."""
         self.ensure_one()
-        if self.order_id.advance_method != ADVANCE_NONE:
+        user = self.env.user
+        order = self.order_id.sudo()
+        if not (user.share and order._owned_by(user)):
+            raise AccessError(self.env._("Only the customer of the order can accept its quotation."))
+        if order.advance_method != ADVANCE_NONE:
             raise UserError(self.env._("Pay the advance invoice to accept this quotation."))
         if self.status != QUOTATION_SENT:
             raise UserError(self.env._("Only a quotation that was sent can be accepted."))
@@ -83,10 +89,17 @@ class Quotation(models.Model):
         return True
 
     def _accept(self):
-        """Accept the quotations still open, whether the customer or the payment of the advance did it."""
-        self.sudo().filtered(lambda quotation: quotation.status in (QUOTATION_SENT, QUOTATION_EXPIRED)).write(
-            {"status": QUOTATION_ACCEPTED}
-        )
+        """Accept the quotations that are still sent, whether the customer or the payment of the advance did it."""
+        self.sudo().filtered(lambda quotation: quotation.status == QUOTATION_SENT).write({"status": QUOTATION_ACCEPTED})
+
+    def _cancel_advance_invoice(self):
+        """Cancel the advance invoice nobody paid, so a replaced quotation cannot be paid and only the new one can."""
+        for invoice in self.sudo().advance_invoice_id.with_user(SUPERUSER_ID):
+            if invoice.payment_state != "not_paid":
+                continue
+            if invoice.state == "posted":
+                invoice.button_draft()
+            invoice.button_cancel()
 
     def action_decline(self, reason):
         """The customer declines the quotation with a reason; the order stays as it is."""

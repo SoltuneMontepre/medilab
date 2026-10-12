@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from odoo import fields
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 
 from .order_case import OrderCase
@@ -10,6 +10,10 @@ from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION
 
 @tagged("post_install", "-at_install")
 class TestQuotationAdvance(OrderCase):
+    def as_customer(self, order):
+        """The latest quotation as the customer's portal user reaches it on the portal."""
+        return order._latest_quotation().with_user(self.portal).sudo()
+
     def customer_notices(self, order):
         return order.message_ids.filtered(
             lambda message: message.message_type == "comment" and message.partner_ids == self.contact
@@ -99,7 +103,7 @@ class TestQuotationAdvance(OrderCase):
         order.advance_method = "none"
         order.with_user(self.head).action_send_quotation()
 
-        order._latest_quotation().action_accept()
+        self.as_customer(order).action_accept()
 
         self.assertEqual(order._latest_quotation().status, "accepted")
         self.assertEqual(order.quotation_follow_up, "paid")
@@ -110,9 +114,51 @@ class TestQuotationAdvance(OrderCase):
         order.with_user(self.sales).action_send_quotation()
 
         with self.assertRaises(UserError):
-            order._latest_quotation().action_accept()
+            self.as_customer(order).action_accept()
 
         self.assertEqual(order._latest_quotation().status, "sent")
+
+    def test_a_salesperson_cannot_accept_for_the_customer(self):
+        order = self.make_quotable_order()
+        order.advance_method = "none"
+        order.with_user(self.head).action_send_quotation()
+        quotation = order._latest_quotation()
+
+        for caller in (quotation.with_user(self.sales), quotation.with_user(self.head), quotation):
+            with self.assertRaises(AccessError):
+                caller.action_accept()
+
+        self.assertEqual(quotation.status, "sent")
+
+    def test_paying_the_invoice_of_a_replaced_revision_does_not_accept_the_new_one(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        first = order._latest_quotation()
+        old_invoice = first.advance_invoice_id
+        order.with_user(self.sales).action_revise_quotation()
+        order.with_user(self.sales).action_send_quotation()
+        second = order._latest_quotation()
+
+        old_invoice._invoice_paid_hook()
+
+        self.assertEqual(old_invoice.state, "cancel")
+        self.assertEqual(second.advance_invoice_id.state, "posted")
+        self.assertNotEqual(second.advance_invoice_id, old_invoice)
+        self.assertEqual(second.status, "sent")
+        self.assertEqual(first.status, "replaced")
+        self.pay_advance(order)
+        self.assertEqual(second.status, "accepted")
+
+    def test_paying_after_the_quotation_expired_does_not_accept_it(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        order.payment_deadline = fields.Datetime.now() - timedelta(days=1)
+        self.env[MODEL_QUOTATION]._flag_expired()
+
+        self.pay_advance(order)
+
+        self.assertEqual(order._latest_quotation().status, "expired")
+        self.assertEqual(order.quotation_follow_up, "expired")
 
     def test_follow_up_shows_unpaid_paid_declined_and_expired(self):
         unpaid, paid, declined, expired = (self.make_quotable_order() for _ in range(4))

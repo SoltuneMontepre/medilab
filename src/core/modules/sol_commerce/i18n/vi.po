@@ -1953,3 +1953,14 @@ msgstr "Đơn hàng phải được phê duyệt trước khi thu mẫu."
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Withdraw signature"
 msgstr "Rút chữ ký"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__advance_invoice_id
+msgid "Advance Invoice"
+msgstr "Hóa đơn tạm ứng"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation.py:0
+msgid "Only the customer of the order can accept its quotation."
+msgstr "Chỉ khách hàng của đơn hàng mới được chấp nhận báo giá này."

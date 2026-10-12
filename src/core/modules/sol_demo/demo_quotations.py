@@ -125,7 +125,7 @@ def _confirmed_order(env, product, tax, sales, head):
     """An order the Head of Sales quoted without an advance, the customer accepted and sales confirmed."""
     order = _quotable_order(env, product, tax, advance_method="none")
     order.with_user(head).action_send_quotation()
-    order._latest_quotation().action_accept()
+    order._latest_quotation()._accept()
     order.with_user(sales).action_confirm_order()
     return order
 

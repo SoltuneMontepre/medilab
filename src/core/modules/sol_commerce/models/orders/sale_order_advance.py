@@ -30,8 +30,11 @@ class SaleOrderAdvance(models.Model):
             raise UserError(self.env._("The advance amount must be above 0."))
 
     def _send_quotation(self):
+        previous = self._latest_quotation()
         quotation = super()._send_quotation()
+        previous._cancel_advance_invoice()
         invoice = self._create_advance_invoice()
+        quotation.sudo().advance_invoice_id = invoice
         self._notify_quotation_sent(quotation, invoice)
         return quotation
 

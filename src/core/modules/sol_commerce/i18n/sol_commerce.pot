@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 16:41+0000\n"
-"PO-Revision-Date: 2026-10-12 16:41+0000\n"
+"POT-Creation-Date: 2026-10-12 17:06+0000\n"
+"PO-Revision-Date: 2026-10-12 17:06+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -206,6 +206,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.module.module,summary:base.module_sol_commerce
 msgid "Adds e-commerce features into the exising core laboratory module."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__advance_invoice_id
+msgid "Advance Invoice"
 msgstr ""
 
 #. module: sol_commerce
@@ -1088,6 +1093,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
 msgid "Only the Head of Sales can send a quotation without an advance."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation.py:0
+msgid "Only the customer of the order can accept its quotation."
 msgstr ""
 
 #. module: sol_commerce

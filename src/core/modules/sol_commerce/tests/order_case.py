@@ -150,7 +150,9 @@ class OrderCase(PricingCase):
 
     def pay_advance(self, order):
         """Register an ordinary Odoo payment of the order's advance invoice."""
-        invoices = order.sudo().invoice_ids
+        invoices = order.sudo().invoice_ids.filtered(
+            lambda invoice: invoice.state == "posted" and invoice.payment_state == "not_paid"
+        )
         self.env["account.payment.register"].with_context(active_model="account.move", active_ids=invoices.ids).create(
             {}
         ).action_create_payments()

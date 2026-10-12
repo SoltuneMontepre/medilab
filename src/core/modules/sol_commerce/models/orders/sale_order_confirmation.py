@@ -1,3 +1,5 @@
+from contextvars import ContextVar
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
@@ -11,8 +13,9 @@ from odoo.addons.sol_commerce.constants.orders import (
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_TEST_REQUEST
 
-# Context key that lets Odoo's own confirmation run once the order passed the checks above.
-ODOO_CONFIRM_CONTEXT = "medilab_odoo_confirm"
+# Ids of the orders that passed the checks and whose Odoo confirmation is running now. Only the code below fills it,
+# so a caller cannot ask for the confirmation to skip the checks the way a context key would allow.
+CONFIRMING_ORDER_IDS = ContextVar("medilab_confirming_order_ids", default=frozenset())
 
 
 # Đơn Hàng: confirming the order creates its test request.
@@ -40,7 +43,7 @@ class SaleOrderConfirmation(models.Model):
 
     def action_confirm(self):
         # Odoo's own Confirm button and every other caller go through the same checks.
-        if self.env.context.get(ODOO_CONFIRM_CONTEXT):
+        if self and set(self.ids) <= CONFIRMING_ORDER_IDS.get():
             return super().action_confirm()
         return self.action_confirm_order()
 
@@ -52,7 +55,11 @@ class SaleOrderConfirmation(models.Model):
             order._confirm_order()
         odoo_pending = self.filtered(lambda order: order.state in ("draft", "sent"))
         if odoo_pending:
-            odoo_pending.with_context(**{ODOO_CONFIRM_CONTEXT: True}).action_confirm()
+            token = CONFIRMING_ORDER_IDS.set(CONFIRMING_ORDER_IDS.get() | frozenset(odoo_pending.ids))
+            try:
+                odoo_pending.action_confirm()
+            finally:
+                CONFIRMING_ORDER_IDS.reset(token)
         return True
 
     def _check_can_be_confirmed(self):

@@ -12,7 +12,7 @@ class TestOrderConfirmation(OrderCase):
         order = self.make_quotable_order(lines)
         order.advance_method = "none"
         order.with_user(self.head).action_send_quotation()
-        order._latest_quotation().action_accept()
+        order._latest_quotation()._accept()
         order.with_user(self.sales).action_confirm_order()
         return order
 
@@ -78,6 +78,18 @@ class TestOrderConfirmation(OrderCase):
         self.assertEqual(order.order_status, "confirmed")
         self.assertEqual(order.state, "sale")
         self.assertTrue(order.test_request_id)
+
+    def test_the_confirm_context_key_cannot_skip_the_checks(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+
+        for context in ({"medilab_odoo_confirm": True}, {"medilab_confirming_order_ids": [order.id]}):
+            with self.assertRaises(UserError):
+                order.with_user(self.sales).with_context(**context).action_confirm()
+
+        self.assertEqual(order.order_status, "claimed")
+        self.assertEqual(order.state, "sent")
+        self.assertFalse(order.test_request_id)
 
     def test_an_order_is_confirmed_once(self):
         order = self.make_confirmed_order()
