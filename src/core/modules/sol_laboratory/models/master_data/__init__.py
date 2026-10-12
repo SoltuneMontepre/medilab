@@ -1,7 +1,6 @@
 from . import (
-    archive_mixin,
     chemical,
-    code_mixin,
+    customer,
     machine,
     machine_service,
     measurement_unit,

@@ -6,6 +6,16 @@
         <field
             name="permission_ids"
             eval="[Command.set([
+                ref('sol_laboratory.permission_customer_read_all'),
+                ref('sol_laboratory.permission_test_request_read_all'),
+                ref('sol_laboratory.permission_test_request_create_all'),
+                ref('sol_laboratory.permission_test_request_edit_all'),
+                ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_sample_create_all'),
+                ref('sol_laboratory.permission_sample_edit_all'),
+                ref('sol_laboratory.permission_sample_test_read_all'),
+                ref('sol_laboratory.permission_sample_test_create_all'),
+                ref('sol_laboratory.permission_sample_test_edit_all'),
                 ref('sol_commerce.permission_order_read_all'),
                 ref('sol_commerce.permission_order_create_all'),
                 ref('sol_commerce.permission_order_edit_all'),
@@ -20,6 +30,16 @@
         <field
             name="permission_ids"
             eval="[Command.set([
+                ref('sol_laboratory.permission_customer_read_all'),
+                ref('sol_laboratory.permission_test_request_read_all'),
+                ref('sol_laboratory.permission_test_request_create_all'),
+                ref('sol_laboratory.permission_test_request_edit_all'),
+                ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_sample_create_all'),
+                ref('sol_laboratory.permission_sample_edit_all'),
+                ref('sol_laboratory.permission_sample_test_read_all'),
+                ref('sol_laboratory.permission_sample_test_create_all'),
+                ref('sol_laboratory.permission_sample_test_edit_all'),
                 ref('sol_commerce.permission_order_read_all'),
                 ref('sol_commerce.permission_order_create_all'),
                 ref('sol_commerce.permission_order_edit_all'),
@@ -35,10 +55,32 @@
     <record id="demo_role_sample_delivery_staff" model="medilab.role">
         <field name="code">sample_delivery_staff</field>
         <field name="name">Sample delivery staff</field>
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('sol_laboratory.permission_customer_read_all'),
+                ref('sol_laboratory.permission_test_request_read_all'),
+                ref('sol_laboratory.permission_test_request_create_all'),
+                ref('sol_laboratory.permission_test_request_edit_all'),
+                ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_sample_create_all'),
+                ref('sol_laboratory.permission_sample_edit_all'),
+                ref('sol_laboratory.permission_sample_test_read_all'),
+                ref('sol_laboratory.permission_sample_test_create_all'),
+                ref('sol_laboratory.permission_sample_test_edit_all'),
+            ])]"
+        />
     </record>
     <record id="demo_role_tester" model="medilab.role">
         <field name="code">tester</field>
         <field name="name">Tester</field>
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_sample_test_read_all'),
+            ])]"
+        />
     </record>
     <record id="demo_role_head_of_department" model="medilab.role">
         <field name="code">head_of_department</field>
@@ -48,6 +90,8 @@
             eval="[Command.set([
                 ref('sol_laboratory.permission_person_read_own_department'),
                 ref('sol_laboratory.permission_department_read_all'),
+                ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_task_read_own_department'),
                 ref('sol_laboratory.permission_task_create_own_department'),
                 ref('sol_laboratory.permission_task_edit_own_department'),
@@ -57,7 +101,17 @@
     <record id="demo_role_lab_head" model="medilab.role">
         <field name="code">lab_head</field>
         <field name="name">Lab head</field>
-        <field name="permission_ids" eval="[Command.set([ref('sol_laboratory.permission_person_read_all'), ref('sol_laboratory.permission_department_read_all')])]" />
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('sol_laboratory.permission_person_read_all'),
+                ref('sol_laboratory.permission_department_read_all'),
+                ref('sol_laboratory.permission_customer_read_all'),
+                ref('sol_laboratory.permission_test_request_read_all'),
+                ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_sample_test_read_all'),
+            ])]"
+        />
     </record>
     <record id="demo_role_storekeeper" model="medilab.role">
         <field name="code">storekeeper</field>
