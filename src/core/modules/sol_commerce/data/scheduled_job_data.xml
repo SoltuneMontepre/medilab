@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="scheduled_job_payos_calls" model="medilab.scheduled.job">
+        <field name="key">payos.calls</field>
+        <field name="name">PayOS calls</field>
+        <field name="cron_id" ref="ir_cron_payos_calls" />
+        <field name="batch_size">20</field>
+        <field name="max_attempts">5</field>
+    </record>
+    <record id="scheduled_job_payos_poll" model="medilab.scheduled.job">
+        <field name="key">payos.poll</field>
+        <field name="name">PayOS poll</field>
+        <field name="cron_id" ref="ir_cron_payos_poll" />
+        <field name="batch_size">20</field>
+        <field name="max_attempts">3</field>
+    </record>
+    <record id="scheduled_job_overdue_reminders" model="medilab.scheduled.job">
+        <field name="key">overdue.reminders</field>
+        <field name="name">Overdue reminders</field>
+        <field name="cron_id" ref="ir_cron_overdue_reminders" />
+        <field name="batch_size">50</field>
+        <field name="max_attempts">3</field>
+    </record>
+</odoo>

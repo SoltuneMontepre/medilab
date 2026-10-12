@@ -6,11 +6,11 @@ from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
+    MODEL_RES_CONFIG_SETTINGS,
     MODEL_SAMPLE,
     MODEL_SAMPLE_TEST,
     MODEL_TEST_PARAMETER,
 )
-from odoo.addons.sol_laboratory.constants.settings import DEFAULT_SAFETY_MARGIN_DAYS, SAFETY_MARGIN_PARAMETER
 
 CANCELLABLE_STATUSES = ("waiting", "assigned", "testing")
 FINISHED_STATUSES = ("approved", "cancelled")
@@ -59,7 +59,7 @@ class SampleTest(models.Model):
     @api.depends("sample_id.request_id.expected_date")
     def _compute_due_date(self):
         # The margin is read here and is not a dependency: changing it leaves due dates already stored.
-        margin = self.env["ir.config_parameter"].sudo().get_int(SAFETY_MARGIN_PARAMETER, DEFAULT_SAFETY_MARGIN_DAYS)
+        margin = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("safety_margin_days")
         # The laboratory's time zone, so the due date does not depend on who saved the request.
         laboratory_tz = ZoneInfo(self.env.company.tz or "UTC")
         for test in self:
