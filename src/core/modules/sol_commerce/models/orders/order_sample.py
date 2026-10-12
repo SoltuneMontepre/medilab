@@ -1,6 +1,7 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ORDER_SAMPLE, MODEL_SALE_ORDER, MODEL_SALE_ORDER_LINE
+from odoo.addons.sol_commerce.constants.orders import FROZEN_SAMPLE_FIELDS
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_REGULATION, MODEL_SAMPLE_TYPE
 
 
@@ -29,6 +30,21 @@ class OrderSample(models.Model):
     sequence = fields.Integer(default=10)
     # Lines tested on the sample.
     line_ids = fields.One2many(MODEL_SALE_ORDER_LINE, "sample_id", string="Lines")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        orders = self.env[MODEL_SALE_ORDER].browse([vals["order_id"] for vals in vals_list if vals.get("order_id")])
+        orders._check_content_freeze()
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if FROZEN_SAMPLE_FIELDS & set(vals):
+            self.order_id._check_content_freeze()
+        return super().write(vals)
+
+    def unlink(self):
+        self.order_id._check_content_freeze()
+        return super().unlink()
 
     def copy_sample(self):
         """Duplicate each sample and its catalog lines on the same order."""

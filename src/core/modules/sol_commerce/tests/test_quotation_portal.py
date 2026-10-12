@@ -74,8 +74,14 @@ class TestQuotationPortal(HttpCase, OrderCase):
         self.assertEqual(messages.partner_ids, self.sales.partner_id)
         self.assertIn("Reason for declining", self.page().text)
 
-    def test_customer_accepts_a_quotation_sent_without_an_advance(self):
+    def send_without_an_advance(self):
+        self.order = self.make_quotable_order()
         self.order.advance_method = "none"
+        self.order.with_user(self.head).action_send_quotation()
+        self.quotation = self.order._latest_quotation()
+
+    def test_customer_accepts_a_quotation_sent_without_an_advance(self):
+        self.send_without_an_advance()
         token = re.search(r'name="csrf_token" value="([^"]+)"', self.page().text).group(1)
 
         response = self.url_open(
@@ -89,9 +95,36 @@ class TestQuotationPortal(HttpCase, OrderCase):
 
     def test_accept_is_offered_only_without_an_advance(self):
         self.assertNotIn("Accept quotation", self.page().text)
-        self.order.advance_method = "none"
+        self.send_without_an_advance()
 
         self.assertIn("Accept quotation", self.page().text)
+
+    def test_accept_follows_the_advance_invoice_of_the_quotation(self):
+        self.order.with_user(self.sales).action_revise_quotation()
+        self.order.with_user(self.sales).write({"advance_method": "none"})
+
+        self.assertNotIn("Accept quotation", self.page().text)
+
+    def test_a_revision_in_progress_does_not_show_the_live_lines(self):
+        total = self.quotation.amount_total
+        self.assertIn(self.lead_product.name, self.page().text)
+        self.order.with_user(self.sales).action_revise_quotation()
+        self.order._catalog_lines().write({"price_unit": 1})
+
+        text = self.page().text
+
+        self.assertIn("This quotation is being revised", text)
+        self.assertNotIn(self.lead_product.name, text)
+        self.assertEqual(self.quotation.amount_total, total)
+
+    def test_line_amounts_follow_the_discount(self):
+        self.order = self.make_quotable_order()
+        self.order._catalog_lines().discount = 50
+        self.order.with_user(self.sales).action_send_quotation()
+        line = self.order._catalog_lines()
+
+        self.assertLess(line.price_subtotal, line.price_unit * line.product_uom_qty)
+        self.assertIn(f"{line.price_subtotal}", self.page().text)
 
     def test_declining_without_a_reason_redirects_with_an_error(self):
         response = self.post_decline("  ")

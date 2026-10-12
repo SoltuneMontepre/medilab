@@ -3,7 +3,6 @@ from odoo.exceptions import AccessError, UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_QUOTATION, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import (
-    ADVANCE_NONE,
     QUOTATION_ACCEPTED,
     QUOTATION_DECLINED,
     QUOTATION_EXPIRED,
@@ -81,7 +80,7 @@ class Quotation(models.Model):
         order = self.order_id.sudo()
         if not (user.share and order._owned_by(user)):
             raise AccessError(self.env._("Only the customer of the order can accept its quotation."))
-        if order.advance_method != ADVANCE_NONE:
+        if self.sudo().advance_invoice_id:
             raise UserError(self.env._("Pay the advance invoice to accept this quotation."))
         if self.status != QUOTATION_SENT:
             raise UserError(self.env._("Only a quotation that was sent can be accepted."))

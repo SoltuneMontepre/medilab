@@ -94,6 +94,7 @@ class CustomerOrder(http.Controller):
                 "order": order,
                 "quotation": current,
                 "quotations": order.quotation_ids.sorted("revision", reverse=True),
+                "revising": order.state == "draft",
                 "lines": order._catalog_lines(),
             },
         )

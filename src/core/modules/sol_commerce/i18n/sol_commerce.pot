@@ -1722,6 +1722,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
+msgid "The advance cannot change after the quotation is sent. Revise the quotation."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
 msgid "The advance percentage must be above 0 and at most 100."
 msgstr ""
@@ -1780,14 +1786,20 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
-msgid "The order has signatures; withdraw them before changing its lines."
+#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
+msgid "The order has signatures; withdraw them before changing its lines or samples."
 msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
 msgid "The order must be approved before the samples are collected."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
+msgid "The quotation was sent; revise it before changing its lines or samples."
 msgstr ""
 
 #. module: sol_commerce
@@ -1855,6 +1867,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "This order is not yours."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "This quotation is being revised. Its items are shown again when the new revision is sent."
 msgstr ""
 
 #. module: sol_commerce

@@ -1560,6 +1560,11 @@ msgid "This order is not yours."
 msgstr "Đơn hàng này không phải của bạn."
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+msgid "This quotation is being revised. Its items are shown again when the new revision is sent."
+msgstr "Báo giá này đang được sửa đổi. Các mục sẽ hiển thị lại khi bản sửa đổi mới được gửi."
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "This quotation was already sent. Revise it to send a new revision."
@@ -1915,6 +1920,12 @@ msgstr "Số tiền tạm ứng phải lớn hơn 0."
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
+msgid "The advance cannot change after the quotation is sent. Revise the quotation."
+msgstr "Không thể đổi khoản tạm ứng sau khi báo giá đã được gửi. Hãy sửa đổi báo giá."
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
 msgid "The advance percentage must be above 0 and at most 100."
 msgstr "Tỷ lệ tạm ứng phải lớn hơn 0 và không quá 100."
@@ -1939,15 +1950,21 @@ msgstr "Khách hàng phải chấp nhận báo giá trước khi xác nhận đ�
 
 #. module: sol_commerce
 #. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_line.py:0
-msgid "The order has signatures; withdraw them before changing its lines."
-msgstr "Đơn hàng đã có chữ ký; hãy rút chữ ký trước khi sửa các dòng của đơn hàng."
+#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
+msgid "The order has signatures; withdraw them before changing its lines or samples."
+msgstr "Đơn hàng đã có chữ ký; hãy rút chữ ký trước khi sửa các dòng hoặc mẫu của đơn hàng."
 
 #. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_approval.py:0
 msgid "The order must be approved before the samples are collected."
 msgstr "Đơn hàng phải được phê duyệt trước khi thu mẫu."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
+msgid "The quotation was sent; revise it before changing its lines or samples."
+msgstr "Báo giá đã được gửi; hãy sửa đổi báo giá trước khi sửa các dòng hoặc mẫu của đơn hàng."
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab

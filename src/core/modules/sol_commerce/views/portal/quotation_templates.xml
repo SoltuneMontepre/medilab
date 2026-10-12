@@ -11,8 +11,11 @@
                     This is revision <t t-out="quotation.revision" />. Earlier revisions were replaced and no longer apply.
                 </div>
                 <p>Status: <t t-out="statuses[quotation.status]" /></p>
-                <p t-if="order.payment_deadline and order.advance_method != 'none'">Pay the advance before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
-                <p t-if="order.payment_deadline and order.advance_method == 'none'">Accept the quotation before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                <div t-if="revising" class="alert alert-warning" role="alert">
+                    This quotation is being revised. Its items are shown again when the new revision is sent.
+                </div>
+                <p t-if="order.payment_deadline and quotation.advance_invoice_id">Pay the advance before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
+                <p t-if="order.payment_deadline and not quotation.advance_invoice_id">Accept the quotation before <t t-out="order.payment_deadline" t-options="{'widget': 'datetime'}" />.</p>
                 <table class="table">
                     <thead>
                         <tr>
@@ -22,13 +25,13 @@
                             <th class="text-end">Amount</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody t-if="not revising">
                         <t t-foreach="lines" t-as="line">
                             <tr>
                                 <td t-out="line.product_id.display_name" />
                                 <td class="text-end" t-out="line.price_unit" />
                                 <td class="text-end" t-out="line.product_uom_qty" />
-                                <td class="text-end" t-out="line.price_unit * line.product_uom_qty" />
+                                <td class="text-end" t-out="line.price_subtotal" />
                             </tr>
                             <tr t-foreach="line.linked_line_ids" t-as="part">
                                 <td class="ps-4 text-muted" t-out="part.product_id.display_name" />
@@ -46,7 +49,7 @@
                     </tfoot>
                 </table>
                 <p t-if="quotation.decline_reason">Reason for declining: <t t-out="quotation.decline_reason" /></p>
-                <form t-if="quotation.status == 'sent' and order.advance_method == 'none'" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
+                <form t-if="quotation.status == 'sent' and not quotation.advance_invoice_id" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <button type="submit" class="btn btn-success">Accept quotation</button>
                 </form>

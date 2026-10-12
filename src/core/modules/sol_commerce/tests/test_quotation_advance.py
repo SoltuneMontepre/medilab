@@ -177,3 +177,47 @@ class TestQuotationAdvance(OrderCase):
     def test_the_company_does_not_ask_the_customer_to_sign_online(self):
         self.assertFalse(self.env.company.portal_confirmation_sign)
         self.assertFalse(self.make_order([(self.lead_product, 1)]).require_signature)
+
+    def test_a_salesperson_cannot_switch_a_sent_advance_quotation_to_no_advance(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+
+        with self.assertRaises(UserError):
+            order.with_user(self.sales).write({"advance_method": "none"})
+
+        self.assertEqual(order.advance_method, "cash")
+        with self.assertRaises(UserError):
+            self.as_customer(order).action_accept()
+        self.assertEqual(order._latest_quotation().status, "sent")
+
+    def test_accepting_follows_the_advance_invoice_of_the_quotation(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        order.with_user(self.sales).action_revise_quotation()
+        order.with_user(self.sales).write({"advance_method": "none"})
+        quotation = order._latest_quotation()
+        self.assertTrue(quotation.advance_invoice_id)
+
+        with self.assertRaises(UserError):
+            self.as_customer(order).action_accept()
+
+        self.assertEqual(quotation.status, "sent")
+
+    def test_the_advance_cannot_change_after_sending_until_the_quotation_is_revised(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+
+        for values in ({"advance_method": "none"}, {"advance_mode": "fixed"}, {"advance_value": 5}):
+            with self.subTest(values=values):
+                with self.assertRaises(UserError):
+                    order.write(values)
+                with self.assertRaises(UserError):
+                    order.with_user(self.sales).write(values)
+        self.assertEqual(order.advance_method, "cash")
+        with self.assertRaises(UserError):
+            self.as_customer(order).action_accept()
+
+        order.with_user(self.sales).action_revise_quotation()
+        order.with_user(self.sales).write({"advance_method": "bank_transfer"})
+
+        self.assertEqual(order.advance_method, "bank_transfer")

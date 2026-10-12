@@ -34,6 +34,10 @@ ADVANCE_FULL = "full"
 ADVANCE_PERCENTAGE = "percentage"
 ADVANCE_FIXED = "fixed"
 ADVANCE_PAID_STATES = ("paid", "in_payment")
+# The advance fields stop changing once the current revision is sent.
+ADVANCE_FIELDS = frozenset({"advance_method", "advance_mode", "advance_value"})
+# The quotation statuses under which the order's advance, lines and samples stay as quoted.
+QUOTATION_FROZEN_STATUSES = (QUOTATION_SENT, QUOTATION_ACCEPTED)
 
 FOLLOW_UP_UNPAID = "unpaid"
 FOLLOW_UP_PAID = "paid"
@@ -47,6 +51,11 @@ FOLLOW_UP_BY_QUOTATION_STATUS = {
 # The line fields that stop changing once the order has a standing signature.
 APPROVAL_FROZEN_LINE_FIELDS = frozenset(
     {"product_id", "product_uom_qty", "price_unit", "discount", "tax_ids", "sample_id"}
+)
+
+# The sample fields that stop changing with the lines.
+FROZEN_SAMPLE_FIELDS = frozenset(
+    {"order_id", "customer_sample_name", "sample_type_id", "physical_state", "regulation_id", "sequence"}
 )
 
 PORTAL_LOCKED_ORDER_FIELDS = frozenset(

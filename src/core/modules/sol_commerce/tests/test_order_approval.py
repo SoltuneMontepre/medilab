@@ -129,6 +129,19 @@ class TestOrderApproval(OrderCase):
             self.env["sale.order.line"].create(
                 {"order_id": order.id, "product_id": self.lead_product.product_variant_ids.id}
             )
+        sample = order.sample_ids
+        for values in (
+            {"customer_sample_name": "Another sample"},
+            {"sample_type_id": self.env["medilab.sample.type"].create({"name": "Soil", "code": "LM-SOIL"}).id},
+            {"physical_state": "solid"},
+            {"regulation_id": False},
+        ):
+            with self.subTest(values=values), self.assertRaises(UserError):
+                sample.write(values)
+        with self.assertRaises(UserError):
+            sample.unlink()
+        with self.assertRaises(UserError):
+            self.make_sample(order, "Second sample")
 
         order.write({"expected_result_date": fields.Date.today()})
 
@@ -156,8 +169,9 @@ class TestOrderApproval(OrderCase):
         self.assertGreater(order.document_version, version)
         deadline = fields.Datetime.now() + timedelta(days=9)
         order.write({"payment_deadline": deadline})
-        order._catalog_lines().write({"product_uom_qty": 3})
         self.assertEqual(order.payment_deadline, deadline)
+        with self.assertRaises(UserError):
+            order._catalog_lines().write({"product_uom_qty": 3})
 
     def test_a_completed_order_keeps_its_signatures(self):
         order = self.approved_order()

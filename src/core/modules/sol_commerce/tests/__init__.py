@@ -10,6 +10,7 @@ from . import (
     test_quotation_advance,
     test_quotation_decline,
     test_quotation_expiry,
+    test_quotation_freeze,
     test_quotation_portal,
     test_quotation_send,
     test_service_package,
