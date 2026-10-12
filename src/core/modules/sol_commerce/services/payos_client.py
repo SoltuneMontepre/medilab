@@ -11,6 +11,7 @@ PAYOS_BASE_URL = "https://api-merchant.payos.vn"
 CLIENT_ID = "PAYOS_CLIENT_ID"
 API_KEY = "PAYOS_API_KEY"
 CHECKSUM_KEY = "PAYOS_CHECKSUM_KEY"
+SUCCESS_CODE = "00"
 
 
 class PayosClient:
@@ -23,9 +24,7 @@ class PayosClient:
 
     def signature(self, data):
         # PayOS signs the fields in alphabetical order, joined as key=value.
-        raw = "&".join(
-            f"{key}={data[key]}" for key in sorted(data) if key != "signature" and data[key] is not None
-        )
+        raw = "&".join(f"{key}={data[key]}" for key in sorted(data) if key != "signature" and data[key] is not None)
         return hmac.new(self.checksum_key.encode(), raw.encode(), hashlib.sha256).hexdigest()
 
     def matches(self, data, signature):
@@ -54,11 +53,15 @@ class PayosClient:
             headers={"x-client-id": self.client_id, "x-api-key": self.api_key},
             timeout=30,
         )
-        # A missing payment request is how a retry learns the link was never created.
-        if getattr(response, "status_code", 200) == 404:
+        # HTTP 404 is the SDK's not-found result. Any other error still raises.
+        if response.status_code == 404:
             return None
         response.raise_for_status()
-        return response.json()
+        body = response.json()
+        code = body.get("code") if isinstance(body, dict) else None
+        if code not in (None, SUCCESS_CODE):
+            raise requests.HTTPError(f"PayOS {method} {path} returned code {code}")
+        return body
 
 
 def payos_client_from_env():

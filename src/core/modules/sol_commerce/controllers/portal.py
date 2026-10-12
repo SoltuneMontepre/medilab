@@ -1,8 +1,6 @@
 import logging
 from urllib.parse import urlsplit
 
-import requests
-
 from odoo import http
 from odoo.exceptions import AccessError, MissingError, UserError
 from odoo.http import request
@@ -14,7 +12,6 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_PAYMENT_TRANSACTION,
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM
-from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 
 _logger = logging.getLogger(__name__)
 
@@ -60,19 +57,20 @@ class InvoicePortal(PortalAccount):
             return self._payos_page(invoice, failed=True, message=request.env._("The payment link is not valid."))
         transaction_id = transaction.id
         invoice_id = invoice.id
+        # The invoice row lock ends with this commit. PayOS is called only after that, on the claimed job item.
         request.env.cr.commit()
         transaction = request.env[MODEL_PAYMENT_TRANSACTION].sudo().browse(transaction_id)
         invoice = request.env[MODEL_ACCOUNT_MOVE].browse(invoice_id)
-        outcome = self._prepare_payos_link(transaction)
+        outcome, message = self._prepare_payos_link(transaction)
         transaction.invalidate_recordset(["payos_checkout_url"])
         if outcome != "failed" and self._payos_url_is_safe(transaction.payos_checkout_url):
             return request.redirect(transaction.payos_checkout_url, local=False)
         if outcome == "failed" or transaction.payos_checkout_url:
-            return self._payos_page(invoice, failed=True, message=request.env._("The payment link is not valid."))
+            return self._payos_page(invoice, failed=True, message=message)
         return self._payos_page(invoice, failed=False, message="")
 
     def _prepare_payos_link(self, transaction):
-        """Ask PayOS once for this order. The queued job still retries the same item."""
+        """Claim the queued PayOS item and run it once. A worker that already claimed it is not run again."""
         item = (
             request.env[MODEL_JOB_ITEM]
             .sudo()
@@ -80,21 +78,23 @@ class InvoicePortal(PortalAccount):
                 [
                     ("item_key", "=", transaction.reference),
                     ("job_id.key", "=", "payos.calls"),
-                    ("status", "in", ("pending", "running")),
                 ],
                 limit=1,
             )
         )
-        if not item:
-            return "pending"
-        try:
-            item.job_id._handle_payos_calls(item)
-        except PermanentJobError:
-            return "failed"
-        except requests.RequestException:
-            _logger.exception("PayOS link for order %s was not created", transaction.reference)
-            return "pending"
-        return "pending" if not self._payos_url_is_safe(item._document().payos_checkout_url) else "ready"
+        if not item or item.status in ("running", "done", "cancelled"):
+            return "pending", ""
+        if item.status == "failed":
+            return "failed", item.last_error or request.env._("The payment link is not valid.")
+        job = item.job_id
+        if not job._claim_pending_item(item):
+            return "pending", ""
+        job._run_claimed_item(item)
+        item.invalidate_recordset(["status", "last_error"])
+        if item.status == "failed":
+            return "failed", item.last_error or request.env._("The payment link is not valid.")
+        _logger.info("PayOS link for order %s is %s", transaction.reference, item.status)
+        return "pending", ""
 
     def _payos_url_is_safe(self, url):
         if not isinstance(url, str) or not url:

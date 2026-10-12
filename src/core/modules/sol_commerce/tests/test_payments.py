@@ -506,3 +506,144 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
                 [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
             )
         )
+
+    def test_the_portal_creates_a_link_when_payos_reports_the_order_missing(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.customer.login, self.customer.login)
+        calls = []
+
+        def request(method, url, json=None, headers=None, timeout=None):
+            calls.append(method)
+            if method == "GET":
+                return self.payos_response(404, {"code": "404", "desc": "Not Found"})
+            return self.payos_response(
+                200,
+                {
+                    "code": "00",
+                    "desc": "success",
+                    "data": {
+                        "status": "PENDING",
+                        "paymentLinkId": "abc",
+                        "checkoutUrl": "https://pay.payos.vn/web/abc",
+                    },
+                },
+            )
+
+        with (
+            patch.dict(
+                "os.environ",
+                {"PAYOS_CLIENT_ID": "id", "PAYOS_API_KEY": "key", "PAYOS_CHECKSUM_KEY": "checksum-key"},
+            ),
+            patch("requests.request", side_effect=request),
+        ):
+            opened = self._pay(self.invoice, "payos")
+
+        transaction = self.env["payment.transaction"].search(
+            [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+        self.assertEqual(calls, ["GET", "POST"])
+        self.assertEqual(opened.status_code, 303)
+        self.assertEqual(opened.headers["Location"], "https://pay.payos.vn/web/abc")
+        self.assertEqual(len(transaction), 1)
+        self.assertFalse(transaction.payment_id)
+
+    def test_the_portal_stops_when_payos_has_no_checkout_url(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.customer.login, self.customer.login)
+        calls = []
+
+        def request(method, url, json=None, headers=None, timeout=None):
+            calls.append(method)
+            order_code = int(url.rstrip("/").rsplit("/", 1)[-1])
+            return self.payos_response(
+                200,
+                {
+                    "code": "00",
+                    "desc": "success",
+                    "data": {
+                        "id": "124c33293c934a85be5b7f8761a27a07",
+                        "orderCode": order_code,
+                        "amount": int(self.invoice.amount_residual),
+                        "amountPaid": 0,
+                        "amountRemaining": int(self.invoice.amount_residual),
+                        "status": "PENDING",
+                        "transactions": [],
+                    },
+                },
+            )
+
+        with (
+            patch.dict(
+                "os.environ",
+                {"PAYOS_CLIENT_ID": "id", "PAYOS_API_KEY": "key", "PAYOS_CHECKSUM_KEY": "checksum-key"},
+            ),
+            patch("requests.request", side_effect=request),
+        ):
+            refused = self._pay(self.invoice, "payos")
+            again = self._pay(self.invoice, "payos")
+
+        transaction = self.env["payment.transaction"].search(
+            [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+        self.assertEqual(calls, ["GET"])
+        self.assertEqual(refused.status_code, 200)
+        self.assertIn('id="payos-unavailable"', refused.text)
+        self.assertIn("did not return a checkout URL", refused.text)
+        self.assertEqual(again.status_code, 200)
+        self.assertIn('id="payos-unavailable"', again.text)
+        self.assertEqual(len(transaction), 1)
+        self.assertFalse(transaction.payment_id)
+
+    def test_a_running_payos_job_is_not_called_again(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.customer.login, self.customer.login)
+        waiting = self._pay(self.invoice, "payos")
+        transaction = self.env["payment.transaction"].search(
+            [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+        item = self.env["medilab.job.item"].search(
+            [("item_key", "=", transaction.reference), ("job_id.key", "=", "payos.calls")]
+        )
+        item.status = "running"
+        calls = []
+
+        def request(method, url, json=None, headers=None, timeout=None):
+            calls.append(method)
+            return self.payos_response(500, {"code": "500", "desc": "error"})
+
+        with (
+            patch.dict(
+                "os.environ",
+                {"PAYOS_CLIENT_ID": "id", "PAYOS_API_KEY": "key", "PAYOS_CHECKSUM_KEY": "checksum-key"},
+            ),
+            patch("requests.request", side_effect=request),
+        ):
+            again = self._pay(self.invoice, "payos")
+
+        self.assertEqual(waiting.status_code, 200)
+        self.assertIn('id="payos-pending"', waiting.text)
+        self.assertEqual(again.status_code, 200)
+        self.assertIn('id="payos-pending"', again.text)
+        self.assertFalse(calls)
+        self.assertEqual(len(transaction), 1)
+        self.assertFalse(transaction.payment_id)
+
+    def payos_response(self, status, body):
+        def raise_for_status():
+            if status >= 400:
+                raise requests.HTTPError(f"HTTP {status}")
+
+        return type(
+            "Response",
+            (),
+            {"status_code": status, "json": lambda self: body, "raise_for_status": lambda self: raise_for_status()},
+        )()

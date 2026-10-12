@@ -6,7 +6,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
 
-from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_TRANSACTION
+from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT, MODEL_PAYMENT_TRANSACTION
 from odoo.addons.sol_commerce.models.invoicing.res_config_settings import DEFAULT_PAYOS_EXPIRY_HOURS
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS, MODEL_SCHEDULED_JOB
 
@@ -34,7 +34,9 @@ class PaymentTransaction(models.Model):
         "A PayOS bank transfer is recorded once.",
     )
 
-    @api.depends("provider_code", "state", "payment_id.exceeds_residual", "payment_id.amount", "invoice_ids.amount_total")
+    @api.depends(
+        "provider_code", "state", "payment_id.exceeds_residual", "payment_id.amount", "invoice_ids.amount_total"
+    )
     def _compute_payos_settlement(self):
         for transaction in self:
             payment = transaction.payment_id
@@ -98,7 +100,7 @@ class PaymentTransaction(models.Model):
         link = self.search([("reference", "=", order_code), ("provider_code", "=", "payos")], limit=1)
         if not link:
             return self.browse()
-        self.env["account.payment"]._lock_invoices(link.invoice_ids)
+        self.env[MODEL_ACCOUNT_PAYMENT]._lock_invoices(link.invoice_ids)
         self._payos_lock_order(order_code)
         link = self.search([("reference", "=", order_code), ("provider_code", "=", "payos")], limit=1)
         recorded = self.browse()
@@ -208,7 +210,7 @@ class PaymentTransaction(models.Model):
     @api.model
     def portal_start_payos(self, invoice):
         """Start PayOS for the customer's invoice. A second click reuses the open link."""
-        self.env["account.payment"]._lock_invoices(invoice)
+        self.env[MODEL_ACCOUNT_PAYMENT]._lock_invoices(invoice)
         if not invoice._portal_payos_available():
             raise UserError(self.env._("PayOS is turned off."))
         existing = self.sudo().search(
@@ -230,11 +232,15 @@ class PaymentTransaction(models.Model):
         if self.payment_id or self.state != "done" or not self.invoice_ids:
             return self.payment_id
         invoice = self.invoice_ids[:1]
-        payment = self.env["account.payment"].sudo().create(
-            {
-                **self.env["account.payment"]._payment_values(invoice, self.amount, "online"),
-                "payment_transaction_id": self.id,
-            }
+        payment = (
+            self.env[MODEL_ACCOUNT_PAYMENT]
+            .sudo()
+            .create(
+                {
+                    **self.env[MODEL_ACCOUNT_PAYMENT]._payment_values(invoice, self.amount, "online"),
+                    "payment_transaction_id": self.id,
+                }
+            )
         )
         payment.action_post()
         self.with_context(payment_safe_write=True).write({"payment_id": payment.id})

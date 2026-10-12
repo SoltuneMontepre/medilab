@@ -1,15 +1,23 @@
 import logging
 from datetime import timedelta
 
+import requests
+
 from odoo import fields, models
+from odoo.tools import SQL
 
 from odoo.addons.sol_commerce.services.payos_client import payos_client_from_env
-from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_JOB_RUN, MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 
 _logger = logging.getLogger(__name__)
 
 POLL_AGAIN = timedelta(minutes=5)
+PAYOS_LINK_EXISTS = "PayOS already has this order and did not return a checkout URL. Another link was not created."
+
+
+class PayosLinkUnavailable(PermanentJobError):
+    """PayOS already has this order. Creating another link would duplicate it."""
 
 
 # Tác Vụ Định Kỳ
@@ -36,12 +44,30 @@ class ScheduledJob(models.Model):
         return None
 
     def _payos_checkout_url(self, client, order_code, amount):
+        # None is the HTTP 404. A timeout, 401, 403, 429 or 5xx raises and must not create a link.
         remote = client.request("GET", f"/v2/payment-requests/{order_code}")
-        data = (remote or {}).get("data") or {}
-        if data:
-            if not self._payos_link_matches(data, amount, order_code):
-                raise PermanentJobError("PayOS link does not match this payment")
-            return data.get("checkoutUrl")
+        if remote is None:
+            return self._payos_create_link(client, order_code, amount)
+        data = remote.get("data") if isinstance(remote, dict) else None
+        if not data:
+            raise requests.HTTPError("PayOS did not confirm that this order is missing")
+        if not self._payos_link_matches(data, amount, order_code):
+            raise PermanentJobError("PayOS link does not match this payment")
+        checkout_url = data.get("checkoutUrl")
+        if checkout_url:
+            return checkout_url
+        raise PayosLinkUnavailable(PAYOS_LINK_EXISTS)
+
+    def _process_item(self, item, handler, run):
+        super()._process_item(item, handler, run)
+        # The missing checkout URL fails inside the handler's savepoint, so the poll is queued after it.
+        if item.status != "failed" or item.last_error != PAYOS_LINK_EXISTS:
+            return
+        document = item._document()
+        if document:
+            self.env[MODEL_SCHEDULED_JOB].queue("payos.poll", document.reference, document=document)
+
+    def _payos_create_link(self, client, order_code, amount):
         base = self.env["ir.config_parameter"].sudo().get_str("web.base.url")
         return_url = f"{base}/payment/payos/return"
         description = f"Medilab {order_code}"[:25]
@@ -54,7 +80,42 @@ class ScheduledJob(models.Model):
             "signature": client.payment_request_signature(amount, return_url, description, order_code, return_url),
         }
         body = client.request("POST", "/v2/payment-requests", payload) or {}
-        return (body.get("data") or {}).get("checkoutUrl")
+        data = body.get("data") or {}
+        if ("orderCode" in data or "amount" in data) and not self._payos_link_matches(data, amount, order_code):
+            raise PermanentJobError("PayOS link does not match this payment")
+        return data.get("checkoutUrl")
+
+    def _claim_pending_item(self, item):
+        """Claim one pending item. A cron worker that already took it is left alone."""
+        items = self.env[MODEL_JOB_ITEM].sudo()
+        items.flush_model()
+        self.env.cr.execute(
+            SQL(
+                """
+                UPDATE %(table)s SET status = 'running', claimed_at = %(now)s
+                WHERE id = %(item)s AND status = 'pending'
+                RETURNING id
+                """,
+                table=SQL.identifier(items._table),
+                now=fields.Datetime.now(),
+                item=item.id,
+            )
+        )
+        claimed = bool(self.env.cr.fetchone())
+        item.invalidate_recordset(["status", "claimed_at"])
+        return claimed
+
+    def _run_claimed_item(self, item):
+        """Run an item this request already claimed, using the cron's retry and failure rules."""
+        self.ensure_one()
+        now = fields.Datetime.now()
+        run = self.env[MODEL_JOB_RUN].sudo().create({"job_id": self.id, "started_at": now})
+        handler = getattr(self, self._handler_name(), None)
+        if handler is None:
+            run._finish("failed", f"No handler {self._handler_name()} is defined")
+            return
+        self._process_item(item, handler, run)
+        run._close()
 
     def _payos_link_matches(self, data, amount, order_code):
         try:

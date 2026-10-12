@@ -15,6 +15,7 @@ from odoo.modules.registry import Registry
 from odoo.tests import BaseCase, HttpCase, get_db_name, tagged
 
 from .invoicing_case import InvoicingCase
+from odoo.addons.sol_commerce.models.invoicing.scheduled_job import PAYOS_LINK_EXISTS
 from odoo.addons.sol_commerce.services.payos_client import PayosClient
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
@@ -49,14 +50,22 @@ class TestPayos(InvoicingCase):
 
     def test_the_portal_shows_payos_only_when_the_method_is_on(self):
         customer = self.portal_user("payos.customer", self.partner)
-        found = self.env["payment.provider"].with_user(customer)._find_available_providers(
-            self.env.company.id, customer.partner_id.id, 1000, currency_id=self.invoice.currency_id.id
+        found = (
+            self.env["payment.provider"]
+            .with_user(customer)
+            ._find_available_providers(
+                self.env.company.id, customer.partner_id.id, 1000, currency_id=self.invoice.currency_id.id
+            )
         )
         self.assertIn(self.provider, found)
 
         self.method.active = False
-        found = self.env["payment.provider"].with_user(customer)._find_available_providers(
-            self.env.company.id, customer.partner_id.id, 1000, currency_id=self.invoice.currency_id.id
+        found = (
+            self.env["payment.provider"]
+            .with_user(customer)
+            ._find_available_providers(
+                self.env.company.id, customer.partner_id.id, 1000, currency_id=self.invoice.currency_id.id
+            )
         )
         self.assertNotIn(self.provider, found)
 
@@ -165,9 +174,7 @@ class TestPayos(InvoicingCase):
                 "amount": int(transaction.amount),
                 "amountPaid": 1000000,
                 "amountRemaining": 0,
-                "transactions": [
-                    {"reference": "FT1", "amount": 1000000, "transactionDateTime": "2026-10-12 15:00:00"}
-                ],
+                "transactions": [{"reference": "FT1", "amount": 1000000, "transactionDateTime": "2026-10-12 15:00:00"}],
             }
         }
 
@@ -229,9 +236,10 @@ class TestPayos(InvoicingCase):
 
         client = PayosClient("id", "key", CHECKSUM)
         client.request = request
-        with patch(
-            "odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client
-        ), self.assertRaises(requests.Timeout):
+        with (
+            patch("odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client),
+            self.assertRaises(requests.Timeout),
+        ):
             item.job_id._handle_payos_calls(item)
 
         self.assertFalse(transaction.payos_checkout_url)
@@ -252,9 +260,10 @@ class TestPayos(InvoicingCase):
             "data": {"orderCode": int(transaction.reference), "amount": 1, "checkoutUrl": "https://pay.example/wrong"}
         }
 
-        with patch(
-            "odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client
-        ), self.assertRaises(PermanentJobError):
+        with (
+            patch("odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client),
+            self.assertRaises(PermanentJobError),
+        ):
             item.job_id._handle_payos_calls(item)
 
         self.assertFalse(transaction.payos_checkout_url)
@@ -300,7 +309,9 @@ class TestPayos(InvoicingCase):
     def test_a_stored_checkout_url_is_not_requested_again(self):
         transaction = self.transaction()
         transaction.with_context(payment_safe_write=True).write({"payos_checkout_url": "https://pay.example/kept"})
-        item = self.env[MODEL_SCHEDULED_JOB].queue("payos.calls", f"again:{transaction.reference}", document=transaction)
+        item = self.env[MODEL_SCHEDULED_JOB].queue(
+            "payos.calls", f"again:{transaction.reference}", document=transaction
+        )
 
         with patch("requests.request") as request:
             self.assertIsNone(item.job_id._handle_payos_calls(item))
@@ -315,12 +326,17 @@ class TestPayos(InvoicingCase):
         )
         client = PayosClient("id", "key", CHECKSUM)
         client.request = lambda method, path, payload=None: {
-            "data": {"orderCode": int(transaction.reference), "amount": "nope", "checkoutUrl": "https://pay.example/bad"}
+            "data": {
+                "orderCode": int(transaction.reference),
+                "amount": "nope",
+                "checkoutUrl": "https://pay.example/bad",
+            }
         }
 
-        with patch(
-            "odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client
-        ), self.assertRaises(PermanentJobError):
+        with (
+            patch("odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client),
+            self.assertRaises(PermanentJobError),
+        ):
             item.job_id._handle_payos_calls(item)
 
         self.assertFalse(transaction.payos_checkout_url)
@@ -384,6 +400,219 @@ class TestPayos(InvoicingCase):
         self.assertTrue(retry_at)
         self.assertEqual(transaction.state, "draft")
         self.assertFalse(transaction.payment_id)
+
+    def calls_item(self, transaction):
+        return self.env["medilab.job.item"].search(
+            [("item_key", "=", transaction.reference), ("job_id.key", "=", "payos.calls")]
+        )
+
+    def test_only_a_404_creates_a_link(self):
+        transaction = self.transaction()
+        item = self.calls_item(transaction)
+        order_code = int(transaction.reference)
+        amount = int(transaction.amount)
+        calls = []
+
+        def request(method, url, json=None, headers=None, timeout=None):
+            calls.append(method)
+            if method == "GET":
+                return self.payos_response(404, {"code": "404", "desc": "Not Found"})
+            return self.payos_response(
+                200,
+                {
+                    "code": "00",
+                    "desc": "success",
+                    "data": {
+                        "orderCode": order_code,
+                        "amount": amount,
+                        "status": "PENDING",
+                        "paymentLinkId": "abc",
+                        "checkoutUrl": "https://pay.payos.vn/web/abc",
+                    },
+                },
+            )
+
+        with payos_env(), patch("requests.request", side_effect=request):
+            item.job_id._handle_payos_calls(item)
+
+        self.assertEqual(calls, ["GET", "POST"])
+        self.assertEqual(transaction.payos_checkout_url, "https://pay.payos.vn/web/abc")
+        self.assertFalse(transaction.payment_id)
+
+    def test_an_existing_checkout_url_is_reused_without_a_second_link(self):
+        transaction = self.transaction()
+        item = self.calls_item(transaction)
+        calls = []
+
+        def request(method, url, json=None, headers=None, timeout=None):
+            calls.append(method)
+            return self.payos_response(
+                200,
+                {
+                    "code": "00",
+                    "desc": "success",
+                    "data": {
+                        "id": "abc",
+                        "orderCode": int(transaction.reference),
+                        "amount": int(transaction.amount),
+                        "status": "PENDING",
+                        "checkoutUrl": "https://pay.payos.vn/web/abc",
+                    },
+                },
+            )
+
+        with payos_env(), patch("requests.request", side_effect=request):
+            item.job_id._handle_payos_calls(item)
+
+        self.assertEqual(calls, ["GET"])
+        self.assertEqual(transaction.payos_checkout_url, "https://pay.payos.vn/web/abc")
+        self.assertFalse(transaction.payment_id)
+
+    def test_an_existing_order_without_a_checkout_url_is_not_created_again(self):
+        transaction = self.transaction()
+        item = self.calls_item(transaction)
+        calls = []
+
+        def request(method, url, json=None, headers=None, timeout=None):
+            calls.append(method)
+            return self.payos_response(
+                200,
+                {
+                    "code": "00",
+                    "desc": "success",
+                    "data": {
+                        "id": "124c33293c934a85be5b7f8761a27a07",
+                        "orderCode": int(transaction.reference),
+                        "amount": int(transaction.amount),
+                        "amountPaid": 0,
+                        "amountRemaining": int(transaction.amount),
+                        "status": "PENDING",
+                        "createdAt": "2024-01-15T10:30:00.000Z",
+                        "transactions": [],
+                    },
+                },
+            )
+
+        self.assertTrue(item.job_id._claim_pending_item(item))
+        with payos_env(), patch("requests.request", side_effect=request):
+            item.job_id._run_claimed_item(item)
+
+        poll = self.env["medilab.job.item"].search(
+            [("item_key", "=", transaction.reference), ("job_id.key", "=", "payos.poll")]
+        )
+        self.assertEqual(calls, ["GET"])
+        self.assertEqual(item.status, "failed")
+        self.assertEqual(item.last_error, PAYOS_LINK_EXISTS)
+        self.assertTrue(poll)
+        self.assertFalse(transaction.payos_checkout_url)
+        self.assertFalse(transaction.payment_id)
+        self.assertFalse(item.job_id._claim_pending_item(item))
+
+    def test_auth_limit_and_server_errors_do_not_create_a_link(self):
+        for status in (401, 403, 429, 500):
+            self._refuse_http_status(status)
+
+    def _refuse_http_status(self, status):
+        transaction = self.transaction()
+        item = self.calls_item(transaction)
+        calls = []
+
+        def request(method, url, json=None, headers=None, timeout=None):
+            calls.append(method)
+            return self.payos_response(status, {"code": str(status), "desc": "error"})
+
+        with payos_env(), patch("requests.request", side_effect=request), self.assertRaises(requests.HTTPError):
+            item.job_id._handle_payos_calls(item)
+
+        self.assertEqual(calls, ["GET"])
+        self.assertFalse(transaction.payos_checkout_url)
+        self.assertFalse(transaction.payment_id)
+
+    def test_a_rejected_payos_code_and_a_timeout_do_not_create_a_link(self):
+        transaction = self.transaction()
+        item = self.calls_item(transaction)
+        calls = []
+
+        def rejected(method, url, json=None, headers=None, timeout=None):
+            calls.append(method)
+            return self.payos_response(200, {"code": "20", "desc": "error", "data": None})
+
+        with payos_env(), patch("requests.request", side_effect=rejected), self.assertRaises(requests.HTTPError):
+            item.job_id._handle_payos_calls(item)
+        self.assertEqual(calls, ["GET"])
+
+        calls.clear()
+
+        def timed_out(method, url, json=None, headers=None, timeout=None):
+            calls.append(method)
+            raise requests.Timeout()
+
+        with payos_env(), patch("requests.request", side_effect=timed_out), self.assertRaises(requests.Timeout):
+            item.job_id._handle_payos_calls(item)
+        self.assertEqual(calls, ["GET"])
+        self.assertFalse(transaction.payos_checkout_url)
+
+    def test_a_create_that_times_out_is_recovered_from_the_next_read(self):
+        transaction = self.transaction()
+        item = self.calls_item(transaction)
+        posts = []
+
+        def request(method, url, json=None, headers=None, timeout=None):
+            if method == "GET" and not posts:
+                return self.payos_response(404, {"code": "404", "desc": "Not Found"})
+            if method == "POST":
+                posts.append(method)
+                raise requests.Timeout()
+            return self.payos_response(
+                200,
+                {
+                    "code": "00",
+                    "desc": "success",
+                    "data": {
+                        "orderCode": int(transaction.reference),
+                        "amount": int(transaction.amount),
+                        "status": "PENDING",
+                        "checkoutUrl": "https://pay.payos.vn/web/recovered",
+                    },
+                },
+            )
+
+        with payos_env(), patch("requests.request", side_effect=request), self.assertRaises(requests.Timeout):
+            item.job_id._handle_payos_calls(item)
+        self.assertFalse(transaction.payos_checkout_url)
+
+        with payos_env(), patch("requests.request", side_effect=request):
+            item.job_id._handle_payos_calls(item)
+
+        self.assertEqual(posts, ["POST"])
+        self.assertEqual(transaction.payos_checkout_url, "https://pay.payos.vn/web/recovered")
+        self.assertFalse(transaction.payment_id)
+
+    def test_a_second_claim_does_not_run_the_handler(self):
+        transaction = self.transaction()
+        item = self.calls_item(transaction)
+        calls = []
+
+        self.assertTrue(item.job_id._claim_pending_item(item))
+        self.assertFalse(item.job_id._claim_pending_item(item))
+        self.assertEqual(item.status, "running")
+        with patch("requests.request", side_effect=lambda *args, **kwargs: calls.append(args)):
+            if item.job_id._claim_pending_item(item):
+                item.job_id._handle_payos_calls(item)
+
+        self.assertFalse(calls)
+        self.assertFalse(transaction.payment_id)
+
+    def payos_response(self, status, body):
+        def raise_for_status():
+            if status >= 400:
+                raise requests.HTTPError(f"HTTP {status}")
+
+        return type(
+            "Response",
+            (),
+            {"status_code": status, "json": lambda self: body, "raise_for_status": lambda self: raise_for_status()},
+        )()
 
 
 @tagged("post_install", "-at_install")
