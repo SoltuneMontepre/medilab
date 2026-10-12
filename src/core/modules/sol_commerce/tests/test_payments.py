@@ -1,9 +1,15 @@
+import re
+from unittest.mock import patch
+
+import requests
+
 from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import HttpCase, tagged
 
 from .invoicing_case import InvoicingCase
+from odoo.addons.sol_commerce.services.payos_client import PayosClient
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 
 PAID_STATES = ("partial", "in_payment", "paid")
@@ -196,12 +202,12 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
         self.authenticate(self.customer.login, self.customer.login)
         token = self.csrf_token()
 
-        refused = self.url_open(
-            f"/my/invoices/{self.invoice.id}/pay", data={"amount": "1"}, allow_redirects=False
-        )
+        refused = self.url_open(f"/my/invoices/{self.invoice.id}/pay", data={"amount": "1"}, allow_redirects=False)
         self.assertEqual(refused.status_code, 400)
         self.assertFalse(
-            self.env["account.payment"].search([("invoice_ids", "in", self.invoice.id), ("method", "=", "bank_transfer")])
+            self.env["account.payment"].search(
+                [("invoice_ids", "in", self.invoice.id), ("method", "=", "bank_transfer")]
+            )
         )
 
         response = self.url_open(
@@ -242,9 +248,7 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
         payment.action_post()
         self.authenticate(self.other.login, self.other.login)
 
-        response = self.url_open(
-            f"/my/invoices/{self.invoice.id}/receipt/{payment.id}", allow_redirects=False
-        )
+        response = self.url_open(f"/my/invoices/{self.invoice.id}/receipt/{payment.id}", allow_redirects=False)
 
         self.assertIn(response.status_code, (301, 302, 303))
         self.assertTrue(response.headers["Location"].endswith("/my"))
@@ -275,7 +279,8 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
             data={"csrf_token": token, "method": "payos"},
             allow_redirects=False,
         )
-        self.assertIn(refused.status_code, (301, 302, 303))
+        self.assertEqual(refused.status_code, 200)
+        self.assertIn("PayOS is turned off", refused.text)
         self.assertFalse(
             self.env["payment.transaction"].search(
                 [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
@@ -293,16 +298,9 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
             [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
         )
         self.assertEqual(len(transaction), 1)
-        self.assertIn(started.status_code, (301, 302, 303))
-        self.assertTrue(started.headers["Location"].endswith(f"/my/invoices/{self.invoice.id}"))
-
-        transaction.with_context(payment_safe_write=True).write({"payos_checkout_url": "https://pay.example/checkout"})
-        checkout = self.url_open(
-            f"/my/invoices/{self.invoice.id}/pay",
-            data={"csrf_token": token, "method": "payos"},
-            allow_redirects=False,
-        )
-        self.assertEqual(checkout.headers["Location"], "https://pay.example/checkout")
+        self.assertEqual(started.status_code, 200)
+        self.assertIn('id="payos-pending"', started.text)
+        self.assertFalse(transaction.payment_id)
 
         payment = self.env["account.payment"].create_pending_payment(
             self.private_invoice, self.private_invoice.amount_residual, "cash"
@@ -314,3 +312,197 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
             allow_redirects=False,
         )
         self.assertTrue(paid.headers["Location"].endswith("/my"))
+
+    def _pay(self, invoice, method):
+        return self.url_open(
+            f"/my/invoices/{invoice.id}/pay",
+            data={"csrf_token": self.csrf_token(), "method": method},
+            allow_redirects=False,
+        )
+
+    def test_the_invoice_page_submits_payment_for_that_invoice(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.customer.login, self.customer.login)
+
+        page = self.url_open(f"/my/invoices/{self.invoice.id}")
+        actions = re.findall(r'action="([^"]*)"', page.text)
+
+        self.assertEqual(page.status_code, 200)
+        self.assertNotIn("#{invoice.id}", page.text)
+        self.assertIn(f"/my/invoices/{self.invoice.id}/pay", actions)
+        self.assertIn('value="payos"', page.text)
+        self.assertIn('value="bank_transfer"', page.text)
+
+        paid = self.url_open(
+            f"/my/invoices/{self.invoice.id}/pay",
+            data={"csrf_token": self.csrf_token(), "method": "bank_transfer", "amount": "1"},
+            allow_redirects=False,
+        )
+        payment = self.env["account.payment"].search(
+            [("invoice_ids", "in", self.invoice.id), ("method", "=", "bank_transfer")]
+        )
+        self.assertIn(paid.status_code, (301, 302, 303))
+        self.assertEqual(len(payment), 1)
+        self.assertEqual(payment.amount, self.invoice.amount_residual)
+
+    def test_payos_waits_and_then_opens_the_same_link(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.customer.login, self.customer.login)
+
+        waiting = self._pay(self.invoice, "payos")
+        again = self._pay(self.invoice, "payos")
+        transaction = self.env["payment.transaction"].search(
+            [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+
+        self.assertEqual(waiting.status_code, 200)
+        self.assertIn('id="payos-continue"', waiting.text)
+        self.assertEqual(again.status_code, 200)
+        self.assertEqual(len(transaction), 1)
+        self.assertFalse(transaction.payment_id)
+
+        transaction.with_context(payment_safe_write=True).write({"payos_checkout_url": "https://pay.example/checkout"})
+        checkout = self._pay(self.invoice, "payos")
+        self.assertEqual(checkout.status_code, 303)
+        self.assertEqual(checkout.headers["Location"], "https://pay.example/checkout")
+        self.assertEqual(len(transaction), 1)
+        self.assertFalse(transaction.payment_id)
+
+    def test_a_ready_payos_link_redirects_once_and_a_bad_url_does_not(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.customer.login, self.customer.login)
+        client = PayosClient("id", "key", "checksum-key")
+        client.request = lambda method, path, payload=None: (
+            None if method == "GET" else {"data": {"checkoutUrl": "https://pay.example/created"}}
+        )
+
+        with (
+            patch.dict(
+                "os.environ",
+                {"PAYOS_CLIENT_ID": "id", "PAYOS_API_KEY": "key", "PAYOS_CHECKSUM_KEY": "checksum-key"},
+            ),
+            patch("odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client),
+        ):
+            opened = self._pay(self.invoice, "payos")
+            repeated = self._pay(self.invoice, "payos")
+
+        transaction = self.env["payment.transaction"].search(
+            [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+        self.assertEqual(opened.headers["Location"], "https://pay.example/created")
+        self.assertEqual(repeated.headers["Location"], "https://pay.example/created")
+        self.assertEqual(len(transaction), 1)
+        self.assertFalse(
+            self.env["account.payment"].search([("invoice_ids", "in", self.invoice.id), ("method", "=", "online")])
+        )
+
+        transaction.with_context(payment_safe_write=True).write({"payos_checkout_url": "javascript:alert(1)"})
+        refused = self._pay(self.invoice, "payos")
+        self.assertEqual(refused.status_code, 200)
+        self.assertIn('id="payos-unavailable"', refused.text)
+        self.assertFalse(refused.headers.get("Location"))
+
+    def test_a_payos_timeout_leaves_the_one_unpaid_transaction(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.customer.login, self.customer.login)
+        client = PayosClient("id", "key", "checksum-key")
+
+        def request(method, path, payload=None):
+            raise requests.Timeout()
+
+        client.request = request
+        with (
+            patch.dict(
+                "os.environ",
+                {"PAYOS_CLIENT_ID": "id", "PAYOS_API_KEY": "key", "PAYOS_CHECKSUM_KEY": "checksum-key"},
+            ),
+            patch("odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client),
+        ):
+            waiting = self._pay(self.invoice, "payos")
+
+        transaction = self.env["payment.transaction"].search(
+            [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+        self.assertEqual(waiting.status_code, 200)
+        self.assertIn('id="payos-pending"', waiting.text)
+        self.assertEqual(len(transaction), 1)
+        self.assertFalse(transaction.payment_id)
+
+    def test_a_payos_link_for_the_wrong_amount_is_not_opened(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.customer.login, self.customer.login)
+        client = PayosClient("id", "key", "checksum-key")
+        client.request = lambda method, path, payload=None: {
+            "data": {"amount": 1, "orderCode": 1, "checkoutUrl": "https://pay.example/wrong"}
+        }
+
+        with (
+            patch.dict(
+                "os.environ",
+                {"PAYOS_CLIENT_ID": "id", "PAYOS_API_KEY": "key", "PAYOS_CHECKSUM_KEY": "checksum-key"},
+            ),
+            patch("odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client),
+        ):
+            refused = self._pay(self.invoice, "payos")
+
+        transaction = self.env["payment.transaction"].search(
+            [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+        self.assertEqual(refused.status_code, 200)
+        self.assertIn('id="payos-unavailable"', refused.text)
+        self.assertFalse(refused.headers.get("Location"))
+        self.assertEqual(len(transaction), 1)
+        self.assertFalse(transaction.payment_id)
+
+    def test_a_finished_payos_job_without_a_link_stays_pending(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.customer.login, self.customer.login)
+
+        waiting = self._pay(self.invoice, "payos")
+        transaction = self.env["payment.transaction"].search(
+            [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+        item = self.env["medilab.job.item"].search([("item_key", "=", transaction.reference)])
+        item.status = "done"
+        again = self._pay(self.invoice, "payos")
+
+        self.assertEqual(waiting.status_code, 200)
+        self.assertEqual(again.status_code, 200)
+        self.assertIn('id="payos-pending"', again.text)
+        self.assertEqual(len(transaction), 1)
+        self.assertFalse(transaction.payment_id)
+
+    def test_another_customer_cannot_start_payos(self):
+        provider = self.env.ref("sol_commerce.payment_provider_payos")
+        method = self.env.ref("sol_commerce.payment_method_payos_qr")
+        provider.is_published = True
+        method.active = True
+        self.authenticate(self.other.login, self.other.login)
+
+        response = self._pay(self.invoice, "payos")
+
+        self.assertIn(response.status_code, (301, 302, 303))
+        self.assertTrue(response.headers["Location"].endswith("/my"))
+        self.assertFalse(
+            self.env["payment.transaction"].search(
+                [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+            )
+        )

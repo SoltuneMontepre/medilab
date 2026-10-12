@@ -163,6 +163,7 @@ class TestInvoicePortalUrl(InvoicingCase, HttpCase):
         super().setUpClass()
         cls.invoice = cls.order.create_advance_invoice()
         other_partner = cls.env["res.partner"].create({"name": "Other customer"})
+        cls.customer = cls.portal_user("khach.owner", cls.partner)
         cls.other = cls.portal_user("khach.url", other_partner)
 
     def test_another_customers_invoice_url_does_not_open(self):
@@ -181,3 +182,34 @@ class TestInvoicePortalUrl(InvoicingCase, HttpCase):
 
         self.assertIn(response.status_code, (301, 302, 303))
         self.assertTrue(response.headers["Location"].endswith("/my"))
+
+    def test_the_owner_opens_the_invoice_and_its_pdf(self):
+        self.authenticate(self.customer.login, self.customer.login)
+
+        page = self.url_open(f"/my/invoices/{self.invoice.id}")
+        pdf = self.url_open(f"/my/invoices/{self.invoice.id}?report_type=pdf&download=true")
+        self.authenticate(self.other.login, self.other.login)
+        hidden = self.url_open(f"/my/invoices/{self.invoice.id}?report_type=pdf&download=true", allow_redirects=False)
+
+        self.assertEqual(page.status_code, 200)
+        self.assertIn(self.invoice.name, page.text)
+        self.assertEqual(pdf.status_code, 200)
+        self.assertIn("pdf", pdf.headers.get("Content-Type", "").lower())
+        self.assertIn(hidden.status_code, (301, 302, 303))
+        self.assertTrue(hidden.headers["Location"].endswith("/my"))
+
+    def test_a_token_opens_only_that_posted_invoice(self):
+        self.opener.cookies.clear()
+        self.invoice._portal_ensure_token()
+        draft = self.order.create_final_invoice()
+        draft._portal_ensure_token()
+
+        opened = self.url_open(f"/my/invoices/{self.invoice.id}?access_token={self.invoice.access_token}")
+        wrong = self.url_open(f"/my/invoices/{self.invoice.id}?access_token=not-the-token", allow_redirects=False)
+        hidden = self.url_open(f"/my/invoices/{draft.id}?access_token={draft.access_token}", allow_redirects=False)
+
+        self.assertEqual(opened.status_code, 200)
+        self.assertIn(hidden.status_code, (301, 302, 303))
+        self.assertTrue(hidden.headers["Location"].endswith("/my"))
+        self.assertIn(wrong.status_code, (301, 302, 303))
+        self.assertTrue(wrong.headers["Location"].endswith("/my"))

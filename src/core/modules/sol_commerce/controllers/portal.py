@@ -1,15 +1,30 @@
+import logging
+from urllib.parse import urlsplit
+
+import requests
+
 from odoo import http
 from odoo.exceptions import AccessError, MissingError, UserError
 from odoo.http import request
 
 from odoo.addons.account.controllers.portal import PortalAccount
+from odoo.addons.sol_commerce.constants.models import (
+    MODEL_ACCOUNT_MOVE,
+    MODEL_ACCOUNT_PAYMENT,
+    MODEL_PAYMENT_TRANSACTION,
+)
+from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM
+from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
+
+_logger = logging.getLogger(__name__)
 
 
 class InvoicePortal(PortalAccount):
+    @http.route(["/my/invoices/<int:invoice_id>"], type="http", auth="public", website=True)
     def portal_my_invoice_detail(self, invoice_id, access_token=None, report_type=None, download=False, **kw):
         # A customer opens only their own posted invoices. A token still has to name that invoice.
         try:
-            invoice = self._document_check_access("account.move", invoice_id, access_token)
+            invoice = self._document_check_access(MODEL_ACCOUNT_MOVE, invoice_id, access_token)
         except (AccessError, MissingError):
             return request.redirect("/my")
         if invoice.state != "posted" or invoice.move_type not in ("out_invoice", "out_refund"):
@@ -22,35 +37,91 @@ class InvoicePortal(PortalAccount):
     def portal_pay_invoice(self, invoice_id, method="bank_transfer", **kwargs):
         # The amount is computed on the server. kwargs may contain a forged amount and it is ignored.
         try:
-            invoice = self._document_check_access("account.move", invoice_id)
+            invoice = self._document_check_access(MODEL_ACCOUNT_MOVE, invoice_id)
         except (AccessError, MissingError):
             return request.redirect("/my")
         if method == "payos":
-            try:
-                transaction = request.env["payment.transaction"].portal_start_payos(invoice)
-            except (AccessError, UserError):
-                return request.redirect(f"/my/invoices/{invoice_id}")
-            if transaction.payos_checkout_url:
-                return request.redirect(transaction.payos_checkout_url, local=False)
-            return request.redirect(f"/my/invoices/{invoice_id}")
+            return self._portal_payos(invoice)
         try:
-            request.env["account.payment"].portal_pay_invoice(invoice)
+            request.env[MODEL_ACCOUNT_PAYMENT].portal_pay_invoice(invoice)
         except (AccessError, UserError):
             return request.redirect("/my")
         return request.redirect(f"/my/invoices/{invoice_id}")
 
+    def _portal_payos(self, invoice):
+        """Start or reuse the PayOS link. The network call happens after the invoice lock is released."""
+        try:
+            transaction = request.env[MODEL_PAYMENT_TRANSACTION].portal_start_payos(invoice)
+        except (AccessError, UserError) as error:
+            return self._payos_page(invoice, failed=True, message=str(error))
+        if self._payos_url_is_safe(transaction.payos_checkout_url):
+            return request.redirect(transaction.payos_checkout_url, local=False)
+        if transaction.payos_checkout_url:
+            return self._payos_page(invoice, failed=True, message=request.env._("The payment link is not valid."))
+        transaction_id = transaction.id
+        invoice_id = invoice.id
+        request.env.cr.commit()
+        transaction = request.env[MODEL_PAYMENT_TRANSACTION].sudo().browse(transaction_id)
+        invoice = request.env[MODEL_ACCOUNT_MOVE].browse(invoice_id)
+        outcome = self._prepare_payos_link(transaction)
+        transaction.invalidate_recordset(["payos_checkout_url"])
+        if outcome != "failed" and self._payos_url_is_safe(transaction.payos_checkout_url):
+            return request.redirect(transaction.payos_checkout_url, local=False)
+        if outcome == "failed" or transaction.payos_checkout_url:
+            return self._payos_page(invoice, failed=True, message=request.env._("The payment link is not valid."))
+        return self._payos_page(invoice, failed=False, message="")
+
+    def _prepare_payos_link(self, transaction):
+        """Ask PayOS once for this order. The queued job still retries the same item."""
+        item = (
+            request.env[MODEL_JOB_ITEM]
+            .sudo()
+            .search(
+                [
+                    ("item_key", "=", transaction.reference),
+                    ("job_id.key", "=", "payos.calls"),
+                    ("status", "in", ("pending", "running")),
+                ],
+                limit=1,
+            )
+        )
+        if not item:
+            return "pending"
+        try:
+            item.job_id._handle_payos_calls(item)
+        except PermanentJobError:
+            return "failed"
+        except requests.RequestException:
+            _logger.exception("PayOS link for order %s was not created", transaction.reference)
+            return "pending"
+        return "pending" if not self._payos_url_is_safe(item._document().payos_checkout_url) else "ready"
+
+    def _payos_url_is_safe(self, url):
+        if not isinstance(url, str) or not url:
+            return False
+        parts = urlsplit(url)
+        return parts.scheme == "https" and bool(parts.hostname)
+
+    def _payos_page(self, invoice, failed, message):
+        return request.render(
+            "sol_commerce.portal_payos_pending",
+            {"invoice": invoice, "failed": failed, "message": message},
+        )
+
     @http.route("/my/invoices/<int:invoice_id>/receipt/<int:payment_id>", type="http", auth="user", website=True)
     def portal_payment_receipt(self, invoice_id, payment_id, **kwargs):
         try:
-            invoice = self._document_check_access("account.move", invoice_id)
+            invoice = self._document_check_access(MODEL_ACCOUNT_MOVE, invoice_id)
         except (AccessError, MissingError):
             return request.redirect("/my")
-        payment = request.env["account.payment"].sudo().browse(payment_id).exists()
+        payment = request.env[MODEL_ACCOUNT_PAYMENT].sudo().browse(payment_id).exists()
         same_invoice = payment and invoice in payment.invoice_ids
         same_customer = payment and payment.partner_id.commercial_partner_id == invoice.partner_id.commercial_partner_id
         if not same_invoice or not same_customer:
             return request.redirect("/my")
-        html = request.env["ir.actions.report"].sudo()._render_qweb_html(
-            "account.action_report_payment_receipt", payment.ids
-        )[0]
+        html = (
+            request.env["ir.actions.report"]
+            .sudo()
+            ._render_qweb_html("account.action_report_payment_receipt", payment.ids)[0]
+        )
         return request.make_response(html, headers=[("Content-Type", "text/html; charset=utf-8")])
