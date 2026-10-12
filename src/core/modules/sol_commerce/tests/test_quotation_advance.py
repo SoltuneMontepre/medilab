@@ -190,6 +190,18 @@ class TestQuotationAdvance(OrderCase):
             self.as_customer(order).action_accept()
         self.assertEqual(order._latest_quotation().status, "sent")
 
+    def test_a_quotation_being_revised_cannot_be_accepted(self):
+        order = self.make_quotable_order()
+        order.advance_method = "none"
+        order.with_user(self.head).action_send_quotation()
+        order.with_user(self.sales).action_revise_quotation()
+        self.assertEqual(order.state, "draft")
+
+        with self.assertRaises(UserError):
+            self.as_customer(order).action_accept()
+
+        self.assertEqual(order._latest_quotation().status, "sent")
+
     def test_accepting_follows_the_advance_invoice_of_the_quotation(self):
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()

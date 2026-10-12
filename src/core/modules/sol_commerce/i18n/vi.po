@@ -1560,6 +1560,12 @@ msgid "This order is not yours."
 msgstr "Đơn hàng này không phải của bạn."
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation.py:0
+msgid "This quotation is being revised."
+msgstr "Báo giá này đang được sửa đổi."
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "This quotation is being revised. Its items are shown again when the new revision is sent."
 msgstr "Báo giá này đang được sửa đổi. Các mục sẽ hiển thị lại khi bản sửa đổi mới được gửi."

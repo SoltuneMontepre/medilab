@@ -84,6 +84,8 @@ class Quotation(models.Model):
             raise UserError(self.env._("Pay the advance invoice to accept this quotation."))
         if self.status != QUOTATION_SENT:
             raise UserError(self.env._("Only a quotation that was sent can be accepted."))
+        if order.state == "draft":
+            raise UserError(self.env._("This quotation is being revised."))
         self._accept()
         return True
 

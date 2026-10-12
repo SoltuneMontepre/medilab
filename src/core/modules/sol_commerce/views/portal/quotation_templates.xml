@@ -49,7 +49,7 @@
                     </tfoot>
                 </table>
                 <p t-if="quotation.decline_reason">Reason for declining: <t t-out="quotation.decline_reason" /></p>
-                <form t-if="quotation.status == 'sent' and not quotation.advance_invoice_id" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
+                <form t-if="quotation.status == 'sent' and not quotation.advance_invoice_id and not revising" t-att-action="'/orders/%s/quotation/accept' % order.id" method="post" class="mb-4">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <button type="submit" class="btn btn-success">Accept quotation</button>
                 </form>

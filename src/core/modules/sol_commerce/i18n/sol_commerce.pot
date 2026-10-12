@@ -1870,6 +1870,12 @@ msgid "This order is not yours."
 msgstr ""
 
 #. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/quotation.py:0
+msgid "This quotation is being revised."
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "This quotation is being revised. Its items are shown again when the new revision is sent."
 msgstr ""
