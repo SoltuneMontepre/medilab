@@ -38,3 +38,8 @@ class OrderSample(models.Model):
             sample.line_ids._catalog_lines()._copy_to_sample(copy)
             copies |= copy
         return copies
+
+    def action_copy_sample(self):
+        """The Copy button: a button result must be serializable, so it does not return the copies."""
+        self.copy_sample()
+        return True

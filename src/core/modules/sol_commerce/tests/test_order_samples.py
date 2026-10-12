@@ -68,6 +68,16 @@ class TestOrderSamples(OrderCase):
         self.assertEqual(len(copy.line_ids), 4)
         self.assertEqual(len(sample.line_ids), 4)
 
+    def test_the_copy_button_returns_a_serializable_result_and_adds_one_sample(self):
+        order = self.make_order([(self.lead_product, 1)])
+        sample = self.make_sample(order)
+        order._catalog_lines().sample_id = sample
+
+        result = sample.action_copy_sample()
+
+        self.assertIs(result, True)
+        self.assertEqual(len(order.sample_ids), 2)
+
     def test_a_line_cannot_use_a_sample_of_another_order(self):
         order = self.make_order([(self.lead_product, 1)])
         other = self.make_order([(self.lead_product, 1)])

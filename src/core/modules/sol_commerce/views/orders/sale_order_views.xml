@@ -112,7 +112,7 @@
                             <field name="sample_type_id" />
                             <field name="physical_state" />
                             <field name="regulation_id" />
-                            <button name="copy_sample" type="object" string="Copy" class="btn-secondary" />
+                            <button name="action_copy_sample" type="object" string="Copy" class="btn-secondary" />
                         </list>
                     </field>
                 </page>
