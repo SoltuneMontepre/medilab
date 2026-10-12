@@ -14,12 +14,24 @@ PREFIX = "medilab."
 OTHER_MODULES = ("sol_commerce", "sol_inventory")
 
 
-def _laboratory_counts(env):
-    return {
-        name: env[name].with_context(active_test=False).search_count([])
-        for name, model in env.registry.items()
-        if name.startswith(PREFIX) and model._original_module == MODULE and not model._abstract and not model._transient
-    }
+def _owned_ids(env, module):
+    """Records of Laboratory models that belong to another module and leave with it."""
+    data = env["ir.model.data"].search([("module", "=", module), ("model", "=like", f"{PREFIX}%")])
+    owned = {}
+    for row in data:
+        owned.setdefault(row.model, []).append(row.res_id)
+    return owned
+
+
+def _laboratory_counts(env, owned=None):
+    owned = owned or {}
+    counts = {}
+    for name, model in env.registry.items():
+        if not name.startswith(PREFIX) or model._original_module != MODULE or model._abstract or model._transient:
+            continue
+        domain = [("id", "not in", owned.get(name, []))] if owned.get(name) else []
+        counts[name] = env[name].with_context(active_test=False).search_count(domain)
+    return counts
 
 
 def _permission_codes(env, module):
@@ -32,16 +44,22 @@ def test_uninstalling_other_modules_keeps_laboratory_data(env):
     department = env[MODEL_DEPARTMENT].create({"name": "Chemistry"})
     person = env[MODEL_PERSON].create({"name": "Nguyen Van An", "department_id": department.id, "login": "an.nguyen"})
     env.cr.commit()
-    before = _laboratory_counts(env)
     for name in OTHER_MODULES:
         module = env["ir.module.module"].search([("name", "=", name)])
         if module.state != "installed":
             continue
+        before = _laboratory_counts(env, _owned_ids(env, name))
         codes = _permission_codes(env, name)
         module.button_immediate_uninstall()
         env = api.Environment(env.cr, SUPERUSER_ID, {})
         assert env["ir.module.module"].browse(module.id).state == "uninstalled", f"{name} is still installed"
-        assert _laboratory_counts(env) == before, f"uninstalling {name} changed the Laboratory data"
+        after = _laboratory_counts(env)
+        changed = {
+            key: (before.get(key), after.get(key))
+            for key in set(before) | set(after)
+            if before.get(key) != after.get(key)
+        }
+        assert after == before, f"uninstalling {name} changed the Laboratory data: {changed}"
         assert env[MODEL_DEPARTMENT].browse(department.id).exists(), "the department is gone"
         assert env[MODEL_PERSON].browse(person.id).user_id.exists(), "the person or their user is gone"
         assert not env["ir.model.data"].search([("module", "=", name)]), f"{name} left external ids behind"

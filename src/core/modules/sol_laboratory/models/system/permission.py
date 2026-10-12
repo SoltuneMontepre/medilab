@@ -149,6 +149,9 @@ class Permission(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_shipped(self):
+        # Uninstalling another module deletes the permissions it shipped. The flag is set for that delete.
+        if self.env.context.get(MODULE_UNINSTALL_FLAG):
+            return
         external_ids = self._get_external_ids()
         shipped = self.filtered(lambda p: any(not xml_id.startswith("__") for xml_id in external_ids[p.id]))
         if shipped:

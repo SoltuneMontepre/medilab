@@ -66,6 +66,8 @@ class TestPayos(InvoicingCase):
         self.assertEqual(self.provider._get_default_payment_method_codes(), {"qr"})
         other = self.env["payment.provider"].create({"name": "Manual", "code": "none"})
         self.assertNotEqual(other._get_default_payment_method_codes(), {"qr"})
+        other.with_context(force_delete=True).unlink()
+        self.assertFalse(other.exists())
 
     def test_the_client_rejects_a_bad_payload_and_logs_the_call(self):
         client = PayosClient("id", "key", CHECKSUM)

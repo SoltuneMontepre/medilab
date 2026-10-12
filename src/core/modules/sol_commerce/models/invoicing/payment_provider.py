@@ -23,6 +23,16 @@ class PaymentProvider(models.Model):
             return super()._get_default_payment_method_codes()
         return {"qr"}
 
+    def unlink(self):
+        # Odoo refuses to delete a provider that still has an external id. Drop it before the check.
+        if self.ids and self.env.context.get("force_delete"):
+            self.env.cr.execute(
+                "DELETE FROM ir_model_data WHERE model = %s AND res_id = ANY(%s)",
+                (self._name, list(self.ids)),
+            )
+            self.env.invalidate_all()
+        return super().unlink()
+
     @api.model
     def _find_available_providers(self, company_id, partner_id, amount, **kwargs):
         providers = super()._find_available_providers(company_id, partner_id, amount, **kwargs)

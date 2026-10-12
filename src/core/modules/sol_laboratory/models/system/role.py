@@ -75,7 +75,8 @@ class Role(models.Model):
         permissions_before = administrator.permission_ids
         result = super().write(vals)
         if "permission_ids" in vals:
-            if permissions_before - administrator.permission_ids:
+            # Uninstall removes the permissions that came with the module.
+            if not self.env.context.get(MODULE_UNINSTALL_FLAG) and permissions_before - administrator.permission_ids:
                 raise UserError(self.env._("The administrator role holds every permission; none can be removed."))
             self._sync_groups()
         return result
