@@ -28,12 +28,16 @@
                     <field name="locked_by_id" />
                     <field name="locked_at" />
                     <field name="missing_payment_count" />
+                    <field name="mismatch_count" />
+                    <field name="discrepancies_acknowledged" readonly="status == 'locked'" />
                 </group>
                 <field name="transaction_ids">
                     <list>
                         <field name="reference" />
                         <field name="provider_reference" />
                         <field name="amount" />
+                        <field name="payos_settlement" />
+                        <field name="payos_transferred_at" />
                         <field name="state" />
                         <field name="payos_bank_reference" />
                         <field name="recorded_after_lock" />

@@ -35,8 +35,16 @@ class PaymentProvider(models.Model):
 
     @api.model
     def _find_available_providers(self, company_id, partner_id, amount, **kwargs):
-        providers = super()._find_available_providers(company_id, partner_id, amount, **kwargs)
-        method = self.env.ref("sol_commerce.payment_method_payos_qr", raise_if_not_found=False)
+        # Portal users have no access to the provider. The result is only the published PayOS provider.
+        public = not self.env.su and not self.env.user._is_internal()
+        providers = super(PaymentProvider, self.sudo())._find_available_providers(
+            company_id, partner_id, amount, **kwargs
+        )
+        if public:
+            providers = providers.filtered("is_published")
+        method = self.sudo().env.ref("sol_commerce.payment_method_payos_qr", raise_if_not_found=False)
         if not method or not method.active:
             providers = providers.filtered(lambda provider: provider.code != "payos")
+        if public:
+            providers = providers.filtered(lambda provider: provider.code == "payos")
         return providers

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_invoice_pay" inherit_id="account.portal_invoice_page">
+        <xpath expr="//div[@id='invoice_content']" position="before">
+            <form t-if="invoice.amount_residual" t-attf-action="/my/invoices/#{invoice.id}/pay" method="post" class="mb-3">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <button t-if="invoice._portal_payos_available()" class="btn btn-primary" name="method" value="payos" type="submit">PayOS</button>
+                <button class="btn btn-light" name="method" value="bank_transfer" type="submit">Bank transfer</button>
+            </form>
+        </xpath>
+    </template>
+
+    <template id="portal_payos_pending" name="PayOS checkout">
+        <t t-call="portal.portal_layout">
+            <div class="alert alert-warning" id="payos-unavailable" t-if="failed">
+                <p t-out="message"/>
+                <a t-attf-href="/my/invoices/#{invoice.id}">Back to the invoice</a>
+            </div>
+            <div class="alert alert-info" id="payos-pending" t-else="">
+                <p id="payos-preparing">PayOS is preparing the payment link. Opening this page does not confirm the payment.</p>
+                <form t-attf-action="/my/invoices/#{invoice.id}/pay" method="post">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="method" value="payos"/>
+                    <button type="submit" class="btn btn-primary" id="payos-continue">Continue</button>
+                </form>
+            </div>
+        </t>
+    </template>
+</odoo>
