@@ -3,7 +3,7 @@ from datetime import timedelta
 from odoo import fields
 
 from .people_case import PeopleCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_ROLE, MODEL_TASK, MODEL_TASK_TYPE
+from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_ROLE, MODEL_TASK, MODEL_TASK_TYPE
 
 SAMPLE_RECEIVED = "sample_received"
 SIGNATURE_REQUESTED = "signature_requested"
@@ -22,7 +22,7 @@ class TaskCase(PeopleCase):
                     "code": "testing",
                     "name": "Testing a parameter",
                     "trigger": SAMPLE_RECEIVED,
-                    "document_model": "medilab.department",
+                    "document_model": MODEL_DEPARTMENT,
                     "action": "enter_result",
                     "route": "department",
                     "deadline_hours": 48,
