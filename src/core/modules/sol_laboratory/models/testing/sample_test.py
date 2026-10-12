@@ -50,14 +50,15 @@ class SampleTest(models.Model):
         copy=False,
         index=True,
     )
-    # When the laboratory plans to finish the test: the end of the day, in the company's time zone, a safety margin before
-    # the request's expected date.
-    due_date = fields.Datetime(compute="_compute_due_date", store=True)
+    # When the laboratory plans to finish the test. The default is the end of the day, in the company's time zone, a
+    # safety margin before the request's expected date; it can be changed, and is worked out again when that date changes.
+    due_date = fields.Datetime(compute="_compute_due_date", store=True, readonly=False)
 
     _quantity_positive = models.Constraint("CHECK(quantity >= 1)", "A parameter is tested at least once on a sample.")
 
     @api.depends("sample_id.request_id.expected_date")
     def _compute_due_date(self):
+        # The margin is read here and is not a dependency: changing it leaves due dates already stored.
         margin = self.env["ir.config_parameter"].sudo().get_int(SAFETY_MARGIN_PARAMETER, DEFAULT_SAFETY_MARGIN_DAYS)
         # The laboratory's time zone, so the due date does not depend on who saved the request.
         laboratory_tz = ZoneInfo(self.env.company.tz or "UTC")

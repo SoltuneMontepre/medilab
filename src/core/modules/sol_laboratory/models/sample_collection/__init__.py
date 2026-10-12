@@ -1,1 +1,1 @@
-from . import sample, test_request
+from . import ir_attachment, sample, test_request

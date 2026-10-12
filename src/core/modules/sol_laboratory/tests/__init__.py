@@ -31,6 +31,7 @@ from . import (
     test_task_todo_list,
     test_task_types,
     test_test_request_deletion,
+    test_test_request_from_order,
     test_test_request_lifecycle,
     test_tree_filters,
 )

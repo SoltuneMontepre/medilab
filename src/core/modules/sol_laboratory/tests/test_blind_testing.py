@@ -45,6 +45,23 @@ class TestBlindTesting(RequestCase):
         for view_type, view in views["views"].items():
             with self.subTest(view=view_type):
                 self.assertNotIn("customer_sample_name", view["arch"])
+                self.assertNotIn("ir.attachment", view["arch"])
+
+    def test_tester_cannot_read_a_sample_photo(self):
+        photo = self.env["ir.attachment"].create(
+            {
+                "name": "bottle.jpg",
+                "raw": b"photo",
+                "mimetype": "image/jpeg",
+                "res_model": MODEL_SAMPLE,
+                "res_id": self.sample.id,
+            }
+        )
+
+        with self.assertRaises(AccessError):
+            photo.with_user(self.tester).read(["name"])
+        self.assertFalse(self.env["ir.attachment"].with_user(self.tester).search([("id", "=", photo.id)]))
+        self.assertEqual(photo.with_user(self.delivery_staff).name, "bottle.jpg")
 
     def test_who_reads_test_requests_sees_the_customer(self):
         sample = self.sample.with_user(self.delivery_staff)
