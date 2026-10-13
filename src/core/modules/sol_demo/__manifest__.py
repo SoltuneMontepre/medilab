@@ -30,6 +30,8 @@
         "data/sol_laboratory/scheduled_job.xml",
         "data/sol_laboratory/job_item.xml",
         "data/sol_laboratory/job_run.xml",
+        "data/sol_laboratory/notification_demo.xml",
+        "data/sol_commerce/invoice_demo.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

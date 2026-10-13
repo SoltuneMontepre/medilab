@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_notification_recipient_role" model="medilab.notification.event.recipient">
+        <field name="event_id" ref="sol_laboratory.event_task_reminder" />
+        <field name="role_id" ref="sol_laboratory.role_administrator" />
+    </record>
+    <record id="demo_notification_recipient_department" model="medilab.notification.event.recipient">
+        <field name="event_id" ref="sol_commerce.event_invoice_overdue" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+    </record>
+    <record id="demo_notification_preference_email_off" model="medilab.notification.preference">
+        <field name="user_id" ref="demo_res_users_sales" />
+        <field name="event_id" ref="sol_commerce.event_invoice_overdue" />
+        <field name="channel">email</field>
+        <field name="enabled" eval="False" />
+    </record>
+    <record id="demo_mobile_device_active" model="medilab.mobile.device">
+        <field name="user_id" ref="demo_res_users_sales" />
+        <field name="token">demo-device-active</field>
+        <field name="platform">android</field>
+        <field name="active" eval="True" />
+    </record>
+    <record id="demo_mobile_device_off" model="medilab.mobile.device">
+        <field name="user_id" ref="demo_res_users_tester" />
+        <field name="token">demo-device-off</field>
+        <field name="platform">ios</field>
+        <field name="active" eval="False" />
+    </record>
+</odoo>

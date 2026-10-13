@@ -1,4 +1,5 @@
 from . import (
+    test_invoice_notices,
     test_invoices,
     test_payments,
     test_payos,
