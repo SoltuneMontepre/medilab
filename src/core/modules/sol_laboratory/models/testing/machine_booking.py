@@ -301,12 +301,12 @@ class MachineBooking(models.Model):
             .search(Domain("parameter_method_id.parameter_id", "=", test.parameter_id.id) & in_house)
         )
         working = self._working_time(person, _round_up(now), not_after)
-        best = None
+        best, best_end = None, None
         for link in links:
             length = _slot_length(link.run_minutes)
             start = self._free_slot(link.machine_id, length, person, not_after, working=working)
-            if start and (not best or start + length < best[2] + best[3]):
-                best = (link.parameter_method_id, link.machine_id, start, length)
+            if start and (best_end is None or start + length < best_end):
+                best, best_end = (link.parameter_method_id, link.machine_id, start, length), start + length
         return best
 
     @api.model
