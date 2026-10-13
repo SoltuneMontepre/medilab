@@ -77,6 +77,12 @@ msgstr "%s đã kết thúc."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "%s is archived and cannot be chosen."
+msgstr "%s đã được lưu trữ nên không thể được chọn."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is cancelled by the system when its work is cancelled."
 msgstr "%s được hệ thống hủy khi công việc của nhiệm vụ bị hủy."
@@ -319,6 +325,7 @@ msgid "Account Receivable Active"
 msgstr "Tài khoản phải thu đang hoạt động"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__accreditation_expired
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_search
 msgid "Accreditation Expired"
 msgstr "Hết hạn công nhận"
@@ -5607,6 +5614,16 @@ msgid ""
 msgstr ""
 "Mã quốc gia ISO gồm hai ký tự. \n"
 "Bạn có thể dùng trường này để tìm kiếm nhanh."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid ""
+"The accreditation of %(subcontractor)s expired on %(date)s. Renew it before "
+"choosing this subcontractor."
+msgstr ""
+"Công nhận của %(subcontractor)s đã hết hạn ngày %(date)s. Hãy gia hạn trước "
+"khi chọn thầu phụ này."
 
 #. module: sol_laboratory
 #. odoo-python

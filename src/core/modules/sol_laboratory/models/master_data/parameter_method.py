@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.tools import format_date
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
@@ -30,8 +31,14 @@ class ParameterMethod(models.Model):
     )
     # The unit the result is expressed in.
     unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, required=True, ondelete="restrict", index=True)
-    # The subcontractor that tests it; empty when the laboratory tests it in-house.
-    subcontractor_id = fields.Many2one(MODEL_SUBCONTRACTOR, ondelete="restrict", index=True)
+    # The subcontractor that tests it; empty when the laboratory tests it in-house. Only an active subcontractor with a
+    # valid accreditation is offered, also where the list disables the active test to show archived ways of testing.
+    subcontractor_id = fields.Many2one(
+        MODEL_SUBCONTRACTOR,
+        ondelete="restrict",
+        index=True,
+        domain=[("active", "=", True), ("accreditation_expired", "=", False)],
+    )
     # The department that tests it in-house; empty when a subcontractor tests it.
     department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True)
     # True when this way of testing is within an ISO 17025 accreditation scope.
@@ -74,6 +81,23 @@ class ParameterMethod(models.Model):
             if not pair.department_id and not pair.subcontractor_id:
                 raise ValidationError(
                     self.env._("%s needs the department that tests it, or a subcontractor.", pair.display_name)
+                )
+
+    @api.constrains("subcontractor_id")
+    def _check_subcontractor_can_be_chosen(self):
+        # Runs when a subcontractor is chosen, so a pair keeps its subcontractor after the accreditation expires.
+        for pair in self.filtered("subcontractor_id"):
+            subcontractor = pair.subcontractor_id
+            if not subcontractor.active:
+                raise ValidationError(self.env._("%s is archived and cannot be chosen.", subcontractor.display_name))
+            if subcontractor.accreditation_expired:
+                raise ValidationError(
+                    self.env._(
+                        "The accreditation of %(subcontractor)s expired on %(date)s. Renew it before choosing this "
+                        "subcontractor.",
+                        subcontractor=subcontractor.display_name,
+                        date=format_date(self.env, subcontractor.accreditation_expiry),
+                    )
                 )
 
     @api.model_create_multi

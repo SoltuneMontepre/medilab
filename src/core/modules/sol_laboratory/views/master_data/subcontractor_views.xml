@@ -4,7 +4,8 @@
         <field name="name">medilab.subcontractor.list</field>
         <field name="model">medilab.subcontractor</field>
         <field name="arch" type="xml">
-            <list decoration-muted="accreditation_expiry and accreditation_expiry &lt; current_date">
+            <list decoration-muted="accreditation_expired">
+                <field name="accreditation_expired" column_invisible="1" />
                 <field name="code" />
                 <field name="name" />
                 <field name="contact_person_id" />
@@ -63,7 +64,7 @@
                 <filter
                     name="accreditation_expired"
                     string="Accreditation Expired"
-                    domain="[('accreditation_expiry', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                    domain="[('accreditation_expired', '=', True)]"
                 />
                 <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
             </search>

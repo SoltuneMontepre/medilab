@@ -38,7 +38,7 @@
                     <notebook>
                         <page string="Ways of Testing" name="methods">
                             <field name="method_ids" context="{'active_test': False}">
-                                <list editable="bottom" decoration-muted="not active">
+                                <list editable="bottom" delete="0" decoration-muted="not active">
                                     <field name="is_default" widget="boolean_toggle" />
                                     <field name="method_id" />
                                     <field name="unit_id" />

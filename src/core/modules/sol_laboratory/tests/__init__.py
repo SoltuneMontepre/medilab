@@ -33,6 +33,7 @@ from . import (
     test_sample_test_due_date,
     test_settings,
     test_subcontractor,
+    test_subcontractor_selection,
     test_task_claiming,
     test_task_dashboard,
     test_task_document,
@@ -46,4 +47,5 @@ from . import (
     test_translations,
     test_tree_filters,
     test_uninstall,
+    test_ways_of_testing_list,
 )

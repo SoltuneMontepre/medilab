@@ -1,4 +1,5 @@
 from odoo import api, fields, models
+from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
@@ -35,6 +36,10 @@ class Subcontractor(models.Model):
     accreditation_number = fields.Char()
     # Date the accreditation certificate expires; empty when it does not expire.
     accreditation_expiry = fields.Date()
+    # True while the expiry date is in the past; such a subcontractor cannot be chosen on a way of testing.
+    accreditation_expired = fields.Boolean(
+        compute="_compute_accreditation_expired", search="_search_accreditation_expired"
+    )
     # Reference of the contract between the laboratory and the subcontractor.
     contract_reference = fields.Char()
     # Free notes about working with the subcontractor.
@@ -44,6 +49,20 @@ class Subcontractor(models.Model):
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a subcontractor must be unique.")
     _partner_unique = models.Constraint("UNIQUE(partner_id)", "This company is already a subcontractor.")
+
+    @api.depends("accreditation_expiry")
+    def _compute_accreditation_expired(self):
+        today = fields.Date.context_today(self)
+        for subcontractor in self:
+            expiry = subcontractor.accreditation_expiry
+            subcontractor.accreditation_expired = bool(expiry and expiry < today)
+
+    def _search_accreditation_expired(self, operator, value):
+        # Odoo rewrites a boolean comparison as "in" or "not in" {True} before calling a search method.
+        if operator not in ("in", "not in") or True not in value:
+            return NotImplemented
+        expired = Domain("accreditation_expiry", "<", fields.Date.context_today(self))
+        return expired if operator == "in" else ~expired
 
     def _prepare_create_values(self, vals_list):
         # Odoo always adds the contact's properties, which would write the contact as the user.

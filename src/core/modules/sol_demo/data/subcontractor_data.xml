@@ -34,6 +34,13 @@
         <field name="name">Le Thi Hoa</field>
         <field name="parent_id" ref="partner_southern_micro" />
     </record>
+    <record id="partner_mekong_food_testing" model="res.partner">
+        <field name="name">Mekong Food Testing</field>
+        <field name="street">21 Hoa Binh</field>
+        <field name="city">Can Tho</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">+84 292 383 0004</field>
+    </record>
 
     <record id="subcontractor_northern_testing" model="medilab.subcontractor">
         <field name="partner_id" ref="partner_northern_testing" />
@@ -54,5 +61,13 @@
         <field name="contact_person_id" ref="partner_southern_micro_contact" />
         <field name="accreditation_number">VILAS 303</field>
         <field name="note">Accreditation without expiry date.</field>
+    </record>
+    <record id="subcontractor_mekong_food_testing" model="medilab.subcontractor">
+        <field name="partner_id" ref="partner_mekong_food_testing" />
+        <field name="accreditation_number">VILAS 404</field>
+        <field name="accreditation_expiry" eval="(DateTime.today() + relativedelta(years=1)).strftime('%Y-%m-%d')" />
+        <field name="contract_reference">HD-2023/11</field>
+        <field name="note">No longer used by the laboratory.</field>
+        <field name="active" eval="False" />
     </record>
 </odoo>

@@ -56,7 +56,7 @@ The administrator maintains the master data of the Laboratory module: test param
 | Quality registration | A dossier is registered with an authority, has validity dates and covers parameter and method pairs. Its mark is printed after the name of each covered parameter on the report. A dossier counts as expired after its last valid day, and its mark is no longer printed. |
 | Expiry warning       | Administrators are warned a number of days before a dossier expires and on the day it expires. The number of days is a system setting the administrator configures. |
 | Permissions          | Creating, editing, archiving and deleting master data are permissions the administrator holds and can give to other roles and people. Everyone who works for the laboratory reads it. |
-| Archiving            | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Test parameters and subcontractors are archived, never deleted. A parameter and method pair can be deleted when nothing refers to it; an archived pair that a past result refers to is kept. Once a pair is archived, a new pair for the same parameter, method and subcontractor is allowed. |
+| Archiving            | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Test parameters and subcontractors are archived, never deleted. A parameter and method pair can be deleted when nothing refers to it; an archived pair that a past result refers to is kept. The Ways of Testing list on the parameter form archives a pair with its Active toggle and does not offer deleting it. Once a pair is archived, a new pair for the same parameter, method and subcontractor is allowed. |
 | Deleting             | Units, unit categories, testing fields, testing methods, parameter groups, sample types, regulations, quality registration dossiers, machines and chemicals can also be deleted when nothing refers to them, such as a sample type no parameter, sample or regulation names. |
 
 Acceptance criteria:
@@ -77,6 +77,7 @@ Acceptance criteria:
 - Saving the same parameter, method and subcontractor as a pair that is still active is refused. Once that pair is archived, the same combination can be saved again.
 - A test parameter or a subcontractor cannot be deleted, only archived.
 - A parameter and method pair that nothing refers to can be deleted. One that a dossier or a past result refers to is kept.
+- The Ways of Testing list on the parameter form does not offer deleting a pair; a pair that is no longer used is archived with its Active toggle.
 
 ### 2. Machines and chemicals (US-AD09 to US-AD11)
 
@@ -105,7 +106,8 @@ A subcontractor is a company contact with the details the laboratory needs to se
 
 | Rule                  | Description                                                                                       |
 | --------------------- | ------------------------------------------------------------------------------------------------- |
-| Expired accreditation | A subcontractor whose accreditation has expired cannot be chosen until its expiry date is renewed. |
+| Expired accreditation | A subcontractor whose accreditation expiry date is in the past cannot be chosen on a parameter and method pair until the date is renewed. The selection list offers only subcontractors that can be chosen, and saving a pair with one that cannot is refused with a message naming it, so the API follows the same rule as the interface. |
+| Kept after expiry     | The rule applies when a subcontractor is chosen. A pair saved while its subcontractor was valid keeps it after the accreditation expires. |
 | No expiry date        | A subcontractor with no accreditation expiry date can be chosen.                                  |
 | Contact person        | A subcontractor has a default contact person, usually one of its people; any person contact is allowed. |
 | Choosing the tester   | For each order, the scheduling system suggests which way of testing is used, in-house or by which subcontractor. The laboratory usually decides and can change it. |
@@ -113,9 +115,11 @@ A subcontractor is a company contact with the details the laboratory needs to se
 
 Acceptance criteria:
 
-- A subcontractor with an accreditation expiry date in the past cannot be chosen on a parameter and method pair.
-- A subcontractor with no expiry date can be chosen.
-- An archived subcontractor does not appear in selection lists.
+- A subcontractor with an accreditation expiry date in the past cannot be chosen on a parameter and method pair; saving the pair is refused with a message naming the subcontractor.
+- A subcontractor with no expiry date, or whose expiry date is today or later, can be chosen.
+- A subcontractor whose expiry date is renewed can be chosen again.
+- A pair keeps its subcontractor after the accreditation expires, and its other fields can still be edited.
+- An archived subcontractor does not appear in selection lists, and saving a pair with one is refused with a message naming it.
 
 ### 4. People and signing (US-AD13 to US-AD16)
 
