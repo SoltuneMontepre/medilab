@@ -1,12 +1,27 @@
 from lxml import etree
 
-from odoo.tests import TransactionCase, tagged
+from odoo.exceptions import AccessError
+from odoo.fields import Command
+from odoo.tests import new_test_user, tagged
 
+from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_PARAMETER
+
+PARAMETER_EDITOR_GROUPS = (
+    "base.group_user,"
+    "sol_laboratory.group_permission_test_parameter_edit_all,"
+    "sol_laboratory.group_permission_parameter_method_archive_all"
+)
 
 
 @tagged("post_install", "-at_install")
-class TestWaysOfTestingList(TransactionCase):
+class TestWaysOfTestingList(MasterDataCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Edits parameters and archives their ways of testing, but holds no delete permission.
+        cls.editor = new_test_user(cls.env, login="parameter.editor", groups=PARAMETER_EDITOR_GROUPS)
+
     def test_ways_of_testing_list_offers_archiving_but_not_deleting(self):
         arch = self.env[MODEL_TEST_PARAMETER].get_views([(False, "form")])["views"]["form"]["arch"]
         rows = etree.fromstring(arch).xpath("//field[@name='method_ids']/list")
@@ -14,3 +29,18 @@ class TestWaysOfTestingList(TransactionCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0].get("delete"), "0")
         self.assertTrue(rows[0].xpath("field[@name='active']"))
+
+    def test_active_toggle_archives_and_restores_a_way_of_testing_from_the_form(self):
+        parameter = self.parameter.with_user(self.editor)
+
+        parameter.write({"method_ids": [Command.update(self.pair.id, {"active": False})]})
+        self.assertFalse(self.pair.active)
+
+        parameter.write({"method_ids": [Command.update(self.pair.id, {"active": True})]})
+        self.assertTrue(self.pair.active)
+
+    def test_deleting_a_way_of_testing_still_needs_the_delete_permission(self):
+        with self.assertRaises(AccessError):
+            self.parameter.with_user(self.editor).write({"method_ids": [Command.delete(self.pair.id)]})
+
+        self.assertTrue(self.pair.exists())
