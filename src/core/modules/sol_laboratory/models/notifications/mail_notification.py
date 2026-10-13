@@ -1,6 +1,7 @@
 import logging
 
 from odoo import fields, models
+from odoo.exceptions import AccessError
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_NOTIFICATION
 
@@ -37,6 +38,22 @@ class MailNotification(models.Model):
 
     # Delivery status Brevo reported: sent, delivered, opened, bounced, failed or deferred.
     brevo_status = fields.Char(readonly=True, copy=False)
+
+    def action_open_document(self):
+        """Mark this inbox notification read and open the document it belongs to."""
+        self.ensure_one()
+        if not self.env.su and self.res_partner_id != self.env.user.partner_id:
+            raise AccessError(self.env._("This notification belongs to someone else."))
+        self.sudo().write({"is_read": True})
+        message = self.mail_message_id
+        if not message.model or not message.res_id:
+            return False
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": message.model,
+            "res_id": message.res_id,
+            "views": [(False, "form")],
+        }
 
     def _apply_brevo_event(self, event):
         """Record one Brevo event on the notification it names, and nowhere else."""

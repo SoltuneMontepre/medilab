@@ -2423,4 +2423,106 @@ msgstr "Khoản thanh toán bị từ chối: %(reason)s"
 #. module: sol_commerce
 msgid "Scheduled Job"
 msgstr "Tác vụ định kỳ"
+#. module: sol_commerce
+msgid "Subtotal"
+msgstr "Thành tiền trước thuế"
 
+#. module: sol_commerce
+msgid "Total"
+msgstr "Tổng cộng"
+
+#. module: sol_commerce
+msgid "Amount owed"
+msgstr "Số còn nợ"
+
+#. module: sol_commerce
+msgid "Payment details"
+msgstr "Chi tiết thanh toán"
+
+#. module: sol_commerce
+msgid "Enter an amount greater than zero."
+msgstr "Nhập số tiền lớn hơn không."
+
+#. module: sol_commerce
+msgid "A payment for this invoice is already pending."
+msgstr "Hóa đơn này đã có một khoản thanh toán đang chờ."
+
+#. module: sol_commerce
+msgid "Reconciliation day"
+msgstr "Ngày đối soát"
+
+#. module: sol_commerce
+msgid "Bank reference"
+msgstr "Mã giao dịch ngân hàng"
+
+#. module: sol_commerce
+msgid "Transfer"
+msgstr "Chuyển khoản"
+
+#. module: sol_commerce
+msgid "Invoice"
+msgstr "Hóa đơn"
+
+#. module: sol_commerce
+msgid "Note"
+msgstr "Ghi chú"
+
+#. module: sol_commerce
+msgid "Missing payment"
+msgstr "Thiếu thanh toán"
+
+#. module: sol_commerce
+msgid "Overpayment"
+msgstr "Thanh toán thừa"
+
+#. module: sol_commerce
+msgid "Recorded after lock"
+msgstr "Ghi nhận sau khi khóa"
+
+#. module: sol_commerce
+msgid "Transfer total"
+msgstr "Tổng chuyển khoản"
+
+#. module: sol_commerce
+msgid "Payment total"
+msgstr "Tổng thanh toán"
+
+#. module: sol_commerce
+msgid "Pending amount"
+msgstr "Số tiền đang chờ"
+
+#. module: sol_commerce
+msgid "Print"
+msgstr "In"
+
+#. module: sol_commerce
+msgid "'Reconciliation %s' % object.day"
+msgstr "'Đối soát %s' % object.day"
+
+#. module: sol_commerce
+msgid "<span>Difference</span>"
+msgstr "<span>Chênh lệch</span>"
+
+#. module: sol_commerce
+msgid "<span>Paid</span>"
+msgstr "<span>Đã thanh toán</span>"
+
+#. module: sol_commerce
+msgid "<span>Payment total</span>"
+msgstr "<span>Tổng thanh toán</span>"
+
+#. module: sol_commerce
+msgid "<span>Subtotal</span>"
+msgstr "<span>Thành tiền trước thuế</span>"
+
+#. module: sol_commerce
+msgid "<span>Total</span>"
+msgstr "<span>Tổng cộng</span>"
+
+#. module: sol_commerce
+msgid "<span>Transfer total</span>"
+msgstr "<span>Tổng chuyển khoản</span>"
+
+#. module: sol_commerce
+msgid "<strong>Payment details</strong>"
+msgstr "<strong>Chi tiết thanh toán</strong>"

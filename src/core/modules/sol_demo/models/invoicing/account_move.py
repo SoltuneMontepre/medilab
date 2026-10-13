@@ -8,7 +8,13 @@ from odoo.addons.sol_commerce.models.orders.sale_order_confirmation import CONFI
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 
 MARKER = "sol_demo.demo_invoice_advance"
+PARTNER_AN_PHU = "sol_demo.demo_res_partner_an_phu"
 MODEL_ACCOUNT_PAYMENT = "account.payment"
+MODEL_PRODUCT = "product.product"
+MODEL_TAX = "account.tax"
+MODEL_TRANSACTION = "payment.transaction"
+LEAD_IN_WATER = "Lead in water"
+VAT_EIGHT = "VAT 8%"
 
 
 class AccountMove(models.Model):
@@ -18,37 +24,40 @@ class AccountMove(models.Model):
     def _seed_notification_demo(self):
         """Posted invoices, payments and notification rows for a walkthrough. Safe to run again."""
         if self.env.ref(MARKER, raise_if_not_found=False):
+            self._seed_two_rate_invoice()
+            self._seed_payos_advance()
+            self._seed_failed_push()
             return
         company = self.env.company
         if not company.chart_template:
             self.env["account.chart.template"].try_loading("vn", company)
         if not self.env["account.journal"].search([("type", "=", "sale"), ("company_id", "=", company.id)], limit=1):
             return
-        an_phu = self.env.ref("sol_demo.demo_res_partner_an_phu")
+        an_phu = self.env.ref(PARTNER_AN_PHU)
         green = self.env.ref("sol_demo.demo_res_partner_green_farm")
         if not an_phu.email:
             an_phu.email = "ketoan@anphu-beverage.example"
         if not green.email:
             green.email = "ketoan@greenfarm.example"
-        product = self.env["product.product"].create(
+        product = self.env[MODEL_PRODUCT].create(
             {
-                "name": "Lead in water",
+                "name": LEAD_IN_WATER,
                 "type": "service",
                 "list_price": 5_000_000,
                 "invoice_policy": "order",
                 "taxes_id": [Command.clear()],
             }
         )
-        vat8 = self.env["account.tax"].create(
+        vat8 = self.env[MODEL_TAX].create(
             {
-                "name": "VAT 8%",
+                "name": VAT_EIGHT,
                 "amount": 8,
                 "amount_type": "percent",
                 "type_tax_use": "sale",
                 "price_include_override": "tax_excluded",
             }
         )
-        vat10 = self.env["account.tax"].create(
+        vat10 = self.env[MODEL_TAX].create(
             {
                 "name": "VAT 10%",
                 "amount": 10,
@@ -96,6 +105,9 @@ class AccountMove(models.Model):
             }
         )
         self._demo_notification_rows()
+        self._seed_two_rate_invoice()
+        self._seed_payos_advance()
+        self._seed_failed_push()
 
     def _demo_order(self, partner, product, tax):
         order = self.env["sale.order"].create(
@@ -159,14 +171,14 @@ class AccountMove(models.Model):
         tax = invoice.invoice_line_ids.tax_ids[:1]
         locked_invoice = self._demo_invoice(invoice.partner_id, product, tax, "posted")
         open_invoice = self._demo_invoice(invoice.partner_id, product, tax, "posted")
-        locked_tx = self.env["payment.transaction"]._create_payos_transaction(locked_invoice)
+        locked_tx = self.env[MODEL_TRANSACTION]._create_payos_transaction(locked_invoice)
         locked_moment = fields.Datetime.to_datetime("2020-01-02 03:00:00")
         locked_tx.with_context(payment_safe_write=True).write({"payos_transferred_at": locked_moment})
         locked_tx.with_context(payment_safe_write=True)._set_done()
         locked = reconciliation_days.create({"day": reconciliation_days._vietnam_day(locked_moment)})
         locked.action_post_missing_payments()
         locked.action_lock()
-        open_tx = self.env["payment.transaction"]._create_payos_transaction(open_invoice)
+        open_tx = self.env[MODEL_TRANSACTION]._create_payos_transaction(open_invoice)
         open_tx.with_context(payment_safe_write=True).write({"payos_transferred_at": now})
         open_tx.with_context(payment_safe_write=True)._set_done()
         opened = reconciliation_days.create({"day": reconciliation_days._vietnam_day(now)})
@@ -214,6 +226,116 @@ class AccountMove(models.Model):
                     },
                 ]
             )
+
+    def _seed_two_rate_invoice(self):
+        if self.env.ref("sol_demo.demo_invoice_two_rates", raise_if_not_found=False):
+            return
+        partner = self.env.ref(PARTNER_AN_PHU, raise_if_not_found=False)
+        if not partner:
+            return
+        product = self.env[MODEL_PRODUCT].create(
+            {"name": "Two-rate sample", "type": "service", "list_price": 1_000_000, "invoice_policy": "order"}
+        )
+        vat8 = self._demo_tax(VAT_EIGHT, 8)
+        vat10 = self._demo_tax("VAT 10%", 10)
+        invoice = self.create(
+            {
+                "move_type": "out_invoice",
+                "invoice_kind": "final",
+                "partner_id": partner.id,
+                "invoice_line_ids": [
+                    Command.create(
+                        {
+                            "product_id": product.id,
+                            "quantity": 1,
+                            "price_unit": 1_000_000,
+                            "tax_ids": [Command.set(vat8.ids)],
+                        }
+                    ),
+                    Command.create(
+                        {
+                            "product_id": product.id,
+                            "quantity": 1,
+                            "price_unit": 2_000_000,
+                            "tax_ids": [Command.set(vat10.ids)],
+                        }
+                    ),
+                ],
+            }
+        )
+        invoice.action_post()
+        self._remember({"demo_invoice_two_rates": invoice})
+
+    def _seed_payos_advance(self):
+        if self.env.ref("sol_demo.demo_invoice_payos_advance", raise_if_not_found=False):
+            return
+        provider = self.env.ref("sol_commerce.payment_provider_payos", raise_if_not_found=False)
+        partner = self.env.ref(PARTNER_AN_PHU, raise_if_not_found=False)
+        if not provider or not partner:
+            return
+        provider.is_published = True
+        method = self.env.ref("sol_commerce.payment_method_payos_qr", raise_if_not_found=False)
+        if method:
+            method.active = True
+        product = self.env[MODEL_PRODUCT].search([("name", "=", LEAD_IN_WATER)], limit=1)
+        tax = self._demo_tax(VAT_EIGHT, 8)
+        if not product:
+            product = self.env[MODEL_PRODUCT].create(
+                {"name": LEAD_IN_WATER, "type": "service", "list_price": 5_000_000, "invoice_policy": "order"}
+            )
+        order = self._demo_order(partner, product, tax)
+        invoice = order.create_advance_invoice(amount=1_000_000)
+        transaction = self.env[MODEL_TRANSACTION]._create_payos_transaction(invoice)
+        moment = fields.Datetime.to_datetime("2020-01-04 03:00:00")
+        transaction.with_context(payment_safe_write=True).write(
+            {"payos_transferred_at": moment, "payos_bank_reference": "DEMO-ADVANCE-1"}
+        )
+        transaction.with_context(payment_safe_write=True)._set_done()
+        payment = transaction._create_online_payment()
+        self._remember(
+            {
+                "demo_invoice_payos_advance": invoice,
+                "demo_transaction_payos_advance": transaction,
+                "demo_payment_payos_advance": payment,
+            }
+        )
+
+    def _seed_failed_push(self):
+        if self.env.ref("sol_demo.demo_push_failed", raise_if_not_found=False):
+            return
+        notification = self.env["mail.notification"].search([], limit=1)
+        device = self.env.ref("sol_demo.demo_mobile_device_failed", raise_if_not_found=False)
+        if not notification or not device:
+            return
+        delivery = (
+            self.env["medilab.push.delivery"]
+            .sudo()
+            .create(
+                {
+                    "notification_id": notification.id,
+                    "mobile_device_id": device.id,
+                    "status": "failed",
+                    "error": "The push service did not accept the message.",
+                }
+            )
+        )
+        self._remember({"demo_push_failed": delivery})
+
+    def _demo_tax(self, name, amount):
+        tax = self.env[MODEL_TAX].search(
+            [("name", "=", name), ("amount", "=", amount), ("type_tax_use", "=", "sale")], limit=1
+        )
+        if tax:
+            return tax
+        return self.env[MODEL_TAX].create(
+            {
+                "name": name,
+                "amount": amount,
+                "amount_type": "percent",
+                "type_tax_use": "sale",
+                "price_include_override": "tax_excluded",
+            }
+        )
 
     def _remember(self, records):
         self.env["ir.model.data"]._update_xmlids(

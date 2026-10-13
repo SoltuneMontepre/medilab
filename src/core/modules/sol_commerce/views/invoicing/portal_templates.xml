@@ -8,6 +8,8 @@
             </div>
             <form t-if="invoice.amount_residual" t-attf-action="/my/invoices/#{invoice.id}/pay" method="post" class="mb-3">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <label for="medilab_payment_amount">Amount</label>
+                <input id="medilab_payment_amount" type="number" name="amount" min="1" step="1" t-att-max="invoice.amount_residual" t-att-value="invoice.amount_residual" required="required" />
                 <button t-if="invoice._portal_payos_available()" class="btn btn-primary" name="method" value="payos" type="submit">PayOS</button>
                 <button class="btn btn-light" name="method" value="bank_transfer" type="submit">Bank transfer</button>
             </form>

@@ -21,6 +21,18 @@ Customers pay an invoice through PayOS. The provider is Odoo's payment provider,
 - A payment that PayOS reports as paid after the link was cancelled or expired is still confirmed.
 - `/payment/payos/return` only tells the customer that PayOS has not confirmed the payment yet. It does not post money.
 - Refunds are out of this feature. Recording the `account.payment` for a confirmed transaction is the payment feature.
+- The portal sends the amount the customer entered. The link uses that amount when it is greater than zero and not more than the residual. A second request reuses the open link and does not change its amount.
+
+## Sandbox
+
+CI does not call PayOS. A sandbox check needs `PAYOS_CLIENT_ID`, `PAYOS_API_KEY` and `PAYOS_CHECKSUM_KEY` from PayOS's sandbox, not production keys. With those set and the provider published:
+
+1. Start a link for part of an invoice and open the checkout URL.
+2. Pay it in the sandbox. The return page must not post a payment.
+3. The signed webhook posts one payment for the transferred amount. Sending it again does not post a second one.
+4. The reconciliation day for that Vietnam date lists the transfer, and its printed total matches the payment.
+
+Until that run is done, sandbox payment is unverified. Mocked webhook and client tests cover the same rules.
 
 ## Related documents
 

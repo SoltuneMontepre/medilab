@@ -16,7 +16,7 @@ A laboratory invoice is an Odoo customer invoice (`account.move`): an advance in
 - The amount owed on an advance or final invoice is its `amount_residual` (already reduced by a reconciled credit note), plus the residual of its posted raising adjustments. The original invoice total stays as it was posted. A payment of that invoice cannot exceed its own residual.
 - `button_draft` is refused on a posted laboratory invoice.
 - The number comes from the sales journal sequence when the invoice is posted. That sequence restarts each year.
-- The PDF is Odoo's invoice report, with the invoice kind and, for an advance or final invoice, the amount owed.
+- The PDF is Odoo's invoice report. For a laboratory invoice it also shows the laboratory name and address, the invoice number and date, the customer, the invoice kind, the untaxed subtotal, each tax, the total, the amount already paid, the amount owed, and the laboratory bank accounts. The same report is printed, downloaded on the portal, and attached to the invoice email.
 - Emailing a posted invoice queues one message, `invoice.sent`, with that PDF. A second send keeps the same message. The invoice's payment state does not change. The portal shows the amount owed on an advance or final invoice.
 - `is_overdue` is true for a posted advance or final invoice that is not fully paid and whose due date is before today in Asia/Ho_Chi_Minh.
 - The portal lists and opens only posted customer invoices of the signed-in customer's commercial partner. Opening another customer's invoice URL returns to the portal home.

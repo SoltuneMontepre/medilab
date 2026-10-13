@@ -32,15 +32,42 @@ class AccountPayment(models.Model):
     # The PayOS amount was more than the invoice still owed. The invoice keeps Odoo's payment status.
     exceeds_residual = fields.Boolean(readonly=True, copy=False)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        payments = super().create(vals_list)
+        payments._invalidate_order_pending()
+        return payments
+
     @api.model
     def create_pending_payment(self, invoice, amount, method):
         """Sales records a cash or transfer payment. It stays a draft until the accountant confirms it."""
         if method not in METHODS - {"online"}:
             raise UserError(self.env._("Sales records cash and bank transfers. Online payments come from PayOS."))
         self._lock_invoices(invoice)
-        if amount > invoice.amount_residual:
-            raise UserError(self.env._("A payment cannot be more than the amount still owed."))
+        amount = self._validated_collection_amount(invoice, amount)
         return self.create(self._payment_values(invoice, amount, method))
+
+    @api.model
+    def _validated_collection_amount(self, invoice, amount):
+        """The amount a new payment may collect. An empty amount means the whole residual."""
+        if self._amount_omitted(amount):
+            amount = invoice.amount_residual
+        else:
+            try:
+                amount = float(amount)
+            except (TypeError, ValueError) as error:
+                raise UserError(self.env._("Enter an amount greater than zero.")) from error
+        currency = invoice.currency_id
+        amount = currency.round(amount)
+        if currency.compare_amounts(amount, 0) <= 0:
+            raise UserError(self.env._("Enter an amount greater than zero."))
+        if currency.compare_amounts(amount, invoice.amount_residual) > 0:
+            raise UserError(self.env._("A payment cannot be more than the amount still owed."))
+        return amount
+
+    @api.model
+    def _amount_omitted(self, amount):
+        return amount is None or amount is False or (isinstance(amount, str) and not amount)
 
     def action_post(self):
         if self.filtered("method"):
@@ -88,7 +115,10 @@ class AccountPayment(models.Model):
         changed = {"amount", "partner_id", "journal_id", "method", "date"} & set(vals)
         if frozen and (changed or vals.get("state") in {"draft", "canceled", "rejected"}):
             raise UserError(self.env._("An online payment of a locked day cannot be changed."))
-        return super().write(vals)
+        orders = self._orders_for_pending()
+        result = super().write(vals)
+        (orders | self._orders_for_pending()).invalidate_recordset(["pending_amount"])
+        return result
 
     def _check_collection_amount(self):
         self.ensure_one()
@@ -186,8 +216,8 @@ class AccountPayment(models.Model):
         }
 
     @api.model
-    def portal_pay_invoice(self, invoice):
-        """The customer pays their own invoice. The amount is what is still owed, not a value from the request."""
+    def portal_pay_invoice(self, invoice, amount=None):
+        """The customer pays their own invoice. The amount is checked here, not trusted from the page."""
         self._check_portal_invoice(invoice)
         self._lock_invoices(invoice)
         existing = self.sudo().search(
@@ -198,7 +228,15 @@ class AccountPayment(models.Model):
             return existing
         if invoice.amount_residual <= 0:
             raise UserError(self.env._("This invoice is already paid."))
-        return self.sudo().create_pending_payment(invoice, invoice.amount_residual, "bank_transfer")
+        amount = self._validated_collection_amount(invoice, amount)
+        return self.sudo().create_pending_payment(invoice, amount, "bank_transfer")
+
+    def _orders_for_pending(self):
+        invoices = self.invoice_ids
+        return invoices.order_id | invoices.invoice_line_ids.sale_line_ids.order_id
+
+    def _invalidate_order_pending(self):
+        self._orders_for_pending().invalidate_recordset(["pending_amount"])
 
     @api.model
     def _check_portal_invoice(self, invoice):

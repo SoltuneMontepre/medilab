@@ -33,6 +33,7 @@ class ScheduledJob(models.Model):
         end = (now + timedelta(minutes=lead)).astimezone(UTC).replace(tzinfo=None)
         # A run that starts a few minutes late still sends the reminder once. The item key stops a second one.
         grace = start - timedelta(minutes=5)
+        # A machine booking is reminded the same way once its calendar event exists. That event is #22.
         events = (
             self.env["calendar.event"]
             .sudo()

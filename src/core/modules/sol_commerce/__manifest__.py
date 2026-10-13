@@ -25,6 +25,7 @@
         "views/invoicing/account_payment_views.xml",
         "views/invoicing/payment_report.xml",
         "views/invoicing/reconciliation_day_views.xml",
+        "views/invoicing/reconciliation_report.xml",
         "views/invoicing/invoice_report.xml",
         "views/invoicing/portal_templates.xml",
         "views/system/res_config_settings_views.xml",

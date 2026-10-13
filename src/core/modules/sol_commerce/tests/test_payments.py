@@ -27,6 +27,43 @@ class TestPayments(InvoicingCase):
     def pay(self, amount, method="bank_transfer"):
         return self.env["account.payment"].create_pending_payment(self.invoice, amount, method)
 
+    def test_pending_amount_follows_drafts_and_drops_confirmed_and_rejected_payments(self):
+        cash = self.pay(1_000_000, "cash")
+        transfer = self.pay(500_000)
+        order = self.invoice.order_id
+
+        self.assertEqual(order.pending_amount, 1_500_000)
+        self.assertEqual(order.payment_status, "not_paid")
+        cash.action_post()
+        self.assertEqual(order.pending_amount, 500_000)
+        self.assertEqual(order.payment_status, "partial")
+        transfer.rejection_reason = "Not received"
+        transfer.action_reject_payment()
+        self.assertEqual(order.pending_amount, 0)
+
+    def test_a_new_payment_cannot_exceed_the_residual_and_a_received_transfer_is_kept(self):
+        with self.assertRaises(UserError):
+            self.pay(self.invoice.amount_residual + 1)
+        self.env.ref("sol_commerce.payment_provider_payos").is_published = True
+        self.env.ref("sol_commerce.payment_method_payos_qr").active = True
+        with self.assertRaises(UserError):
+            self.env["payment.transaction"].portal_start_payos(self.invoice, self.invoice.amount_residual + 1)
+        link = self.env["payment.transaction"].portal_start_payos(self.invoice, 1_000_000)
+        self.assertEqual(link.amount, 1_000_000)
+        with self.assertRaises(UserError):
+            self.env["payment.transaction"].portal_start_payos(self.invoice, 2_000_000)
+        self.assertEqual(self.env["payment.transaction"].portal_start_payos(self.invoice, 1_000_000), link)
+
+    def test_an_empty_reconciliation_day_prints_zero_totals(self):
+        day = self.env["medilab.reconciliation.day"].create({"day": "2020-06-01"})
+
+        html = self.env["ir.actions.report"]._render_qweb_html("sol_commerce.report_reconciliation_day", day.ids)[0]
+
+        self.assertEqual((day.transfer_total, day.payment_total, day.difference_total), (0, 0, 0))
+        self.assertIn(b"medilab_reconciliation_day", html)
+        self.assertIn(b"2020", html)
+        self.assertIn(b"Open", html)
+
     def test_a_draft_payment_leaves_the_invoice_unpaid(self):
         payment = self.pay(1_000_000)
 
@@ -123,6 +160,12 @@ class TestPayments(InvoicingCase):
         self.assertEqual(day.missing_payment_count, 0)
 
         day.action_lock()
+        html = self.env["ir.actions.report"]._render_qweb_html("sol_commerce.report_reconciliation_day", day.ids)[0]
+        self.assertIn(b"medilab_transfer_total", html)
+        self.assertEqual(day.transfer_total, transaction.amount)
+        self.assertEqual(day.payment_total, transaction.payment_id.amount)
+        self.assertEqual(day.difference_total, 0)
+        self.assertIn(b"Locked", html)
         with self.assertRaises(UserError):
             transaction.payment_id.write({"amount": 1})
         with self.assertRaises(UserError):
@@ -223,7 +266,7 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
 
         response = self.url_open(
             f"/my/invoices/{self.invoice.id}/pay",
-            data={"csrf_token": token, "method": "bank_transfer", "amount": "1"},
+            data={"csrf_token": token, "method": "bank_transfer", "amount": "1000"},
             allow_redirects=False,
         )
         again = self.url_open(
@@ -238,8 +281,26 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
             [("invoice_ids", "in", self.invoice.id), ("method", "=", "bank_transfer")]
         )
         self.assertEqual(len(payment), 1)
-        self.assertEqual(payment.amount, self.invoice.amount_residual)
+        self.assertEqual(payment.amount, 1_000)
         self.assertEqual(payment.state, "draft")
+        self.assertEqual(self.invoice.order_id.pending_amount, 1_000)
+
+    def test_a_portal_amount_above_the_residual_is_refused(self):
+        self.authenticate(self.customer.login, self.customer.login)
+
+        response = self.url_open(
+            f"/my/invoices/{self.invoice.id}/pay",
+            data={
+                "csrf_token": self.csrf_token(),
+                "method": "bank_transfer",
+                "amount": str(self.invoice.amount_residual + 1),
+            },
+            allow_redirects=False,
+        )
+
+        self.assertIn(response.status_code, (301, 302, 303))
+        self.assertTrue(response.headers["Location"].endswith("/my"))
+        self.assertFalse(self.env["account.payment"].search([("invoice_ids", "in", self.invoice.id)]))
 
     def test_another_customer_cannot_pay_the_invoice(self):
         self.authenticate(self.other.login, self.other.login)
@@ -349,7 +410,11 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
 
         paid = self.url_open(
             f"/my/invoices/{self.invoice.id}/pay",
-            data={"csrf_token": self.csrf_token(), "method": "bank_transfer", "amount": "1"},
+            data={
+                "csrf_token": self.csrf_token(),
+                "method": "bank_transfer",
+                "amount": str(self.invoice.amount_residual),
+            },
             allow_redirects=False,
         )
         payment = self.env["account.payment"].search(
