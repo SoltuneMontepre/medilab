@@ -51,7 +51,14 @@ class InvoicingCase(TransactionCase):
     @classmethod
     def confirm_sale(cls, order):
         """Odoo's confirmation. These orders are invoices under test, not accepted quotations."""
-        return super(SaleOrderConfirmation, order).action_confirm()
+        # This class is not on the order, so super() cannot skip SaleOrderConfirmation.
+        parents = type(order).__mro__
+        following = parents[parents.index(SaleOrderConfirmation) + 1 :]
+        for parent in following:
+            confirm = parent.__dict__.get("action_confirm")
+            if confirm:
+                return confirm(order)
+        raise AttributeError("action_confirm")
 
     @classmethod
     def portal_user(cls, login, partner):

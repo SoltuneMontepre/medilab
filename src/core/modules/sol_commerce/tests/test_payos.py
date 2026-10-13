@@ -824,7 +824,7 @@ class TestPayosWebhook(InvoicingCase, HttpCase):
 
     def _fresh_invoice(self):
         order = self.order.copy()
-        order.action_confirm()
+        self.confirm_sale(order)
         return order.create_advance_invoice()
 
 
@@ -934,7 +934,7 @@ class TestPayosConcurrency(BaseCase):
                     ],
                 }
             )
-            order.action_confirm()
+            InvoicingCase.confirm_sale(order)
             invoice = order.create_advance_invoice()
             transaction = env["payment.transaction"]._create_payos_transaction(invoice)
             return transaction.reference
