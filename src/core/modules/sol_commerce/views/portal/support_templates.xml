@@ -88,7 +88,7 @@
                     This request is closed. <a href="/support/new">Open a new request</a> if you need more help.
                 </div>
                 <h2>Conversation</h2>
-                <t t-call="portal.message_thread"><t t-set="hide_header" t-value="True" /></t>
+                <t t-call="portal.message_thread" hide_header="True" />
             </div>
         </t>
     </template>

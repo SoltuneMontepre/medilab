@@ -141,3 +141,11 @@ class TestFeedbackAccess(SupportCase):
             model._feedback = no_feedback
 
         self.assertEqual(order.feedback_rating, 5)
+
+    def test_the_feedback_message_cannot_be_edited(self):
+        message = self.feedback.message_id
+
+        with self.assertRaises(UserError):
+            self.order.with_user(self.admin)._message_update_content(message, body="Changed", rating_value=1)
+
+        self.assertEqual(self.feedback.rating, 4)

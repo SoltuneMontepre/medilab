@@ -9,13 +9,13 @@ from odoo.addons.sol_commerce.constants.support import SUPPORT_CLOSED
 
 
 class CustomerSupport(http.Controller):
-    @http.route("/support", type="http", auth="user", website=False)
+    @http.route("/support", type="http", auth="user", website=True)
     def support(self, **kwargs):
         return request.render(
             "sol_commerce.support_list", {"requests": request.env[MODEL_SUPPORT_REQUEST].portal_requests()}
         )
 
-    @http.route("/support/new", type="http", auth="user", website=False)
+    @http.route("/support/new", type="http", auth="user", website=True)
     def new(self, order_id=None, **kwargs):
         return request.render(
             "sol_commerce.support_new",
@@ -27,7 +27,7 @@ class CustomerSupport(http.Controller):
             },
         )
 
-    @http.route("/support/open", type="http", auth="user", methods=["POST"], website=False)
+    @http.route("/support/open", type="http", auth="user", methods=["POST"], website=True)
     def open(self, subject=None, order_id=None, body=None, **kwargs):
         files = request.httprequest.files.getlist("attachments")
         attachments = [(file.filename, file.read()) for file in files if file.filename]
@@ -38,7 +38,7 @@ class CustomerSupport(http.Controller):
             return request.redirect(f"/support/new?{query}")
         return request.redirect(f"/support/{opened.id}")
 
-    @http.route("/support/<int:request_id>", type="http", auth="user", website=False)
+    @http.route("/support/<int:request_id>", type="http", auth="user", website=True)
     def page(self, request_id, **kwargs):
         support_request = request.env[MODEL_SUPPORT_REQUEST].portal_request(request_id)
         if not support_request:

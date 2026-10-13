@@ -362,6 +362,7 @@ msgstr "Xem danh mục"
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -464,6 +465,7 @@ msgstr "Nhận Lúc"
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__code
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__code
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__code
 msgid "Code"
 msgstr "Mã"
 
@@ -577,6 +579,7 @@ msgstr "Tạo thuế"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -587,6 +590,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -600,6 +604,7 @@ msgstr "Tiền tệ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__customer_id
 msgid "Customer"
 msgstr "Khách Hàng"
 
@@ -728,6 +733,8 @@ msgstr "Bỏ qua"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -884,6 +891,8 @@ msgstr "Gán mẫu cho các mục sau trước khi gửi báo giá:\n%s"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__id
+#: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__id
 msgid "ID"
 msgstr "ID"
 
@@ -918,6 +927,7 @@ msgstr "Bút toán"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -928,6 +938,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -1064,6 +1075,8 @@ msgstr "Chỉ khách hàng đã gửi yêu cầu mới có thể rút lại."
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_support_request__status__open
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
 msgid "Open"
 msgstr "Mở"
 
@@ -1072,6 +1085,10 @@ msgstr "Mở"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__order_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__order_id
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__order_id
+#: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__order_id
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
 msgid "Order"
 msgstr "Đơn Hàng"
 
@@ -1105,6 +1122,7 @@ msgstr "Đã gửi đơn hàng"
 #: model:ir.ui.menu,name:sol_commerce.menu_sale_order
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 msgid "Orders"
 msgstr "Đơn Hàng"
 
@@ -1204,6 +1222,7 @@ msgstr "Cổng thông tin"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__list_price
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__price_ids
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_parameter_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 msgid "Price"
 msgstr "Giá"
 
@@ -1229,6 +1248,7 @@ msgstr "Sản phẩm"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__quantity
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 msgid "Quantity"
 msgstr "Số lượng"
 
@@ -1581,12 +1601,16 @@ msgstr "Bắt đầu thu mẫu"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__status
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__status
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
 msgid "Status"
 msgstr "Trạng Thái"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
 msgid "Status:"
 msgstr "Trạng thái:"
 
@@ -2556,7 +2580,7 @@ msgid "Action Needed"
 msgstr "Tác vụ cần thiết"
 
 #. module: sol_commerce
-#: model:ir.model.constraint,message:sol_commerce.constraint_rating_rating_order_unique
+#: model:ir.model.constraint,message:sol_commerce.constraint_rating_rating_order_feedback_unique
 msgid "An order has at most one feedback."
 msgstr "Mỗi đơn hàng chỉ có tối đa một phản hồi."
 

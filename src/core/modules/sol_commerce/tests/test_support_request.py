@@ -158,6 +158,16 @@ class TestSupportRequest(SupportCase):
         apps = [loaded[app_id]["xmlid"] for app_id in loaded["root"]["children"]]
         self.assertEqual(apps.count("sale.sale_menu_root"), 1)
 
+    def test_support_labels_read_in_vietnamese(self):
+        requests = self.env[MODEL_SUPPORT_REQUEST].with_context(lang="vi_VN")
+        labels = requests.fields_get(["code", "customer_id", "order_id", "status"], ["string", "selection"])
+
+        self.assertEqual(
+            [labels[name]["string"] for name in ("code", "customer_id", "order_id", "status")],
+            ["Mã", "Khách Hàng", "Đơn Hàng", "Trạng Thái"],
+        )
+        self.assertEqual(dict(labels["status"]["selection"])["open"], "Mở")
+
     def test_customer_cannot_take_or_close(self):
         request = self.open_request()
 

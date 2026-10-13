@@ -68,6 +68,7 @@ class TestSupportPortal(HttpCase, SupportCase):
         self.assertIn('data-res_model="medilab.support.request"', page.text)
         self.assertIn(f'data-res_id="{request.id}"', page.text)
         self.assertIn('data-allow_composer="1"', page.text)
+        self.assertNotIn("Communication History", page.text)
 
     def test_opening_without_a_subject_redirects_with_the_error(self):
         response = self.post_request("  ")
@@ -136,3 +137,12 @@ class TestSupportPortal(HttpCase, SupportCase):
         self.assertEqual(page.status_code, 200)
         self.assertIn('href="/support"', page.text)
         self.assertIn(self.order.name, page.text)
+
+    def test_pages_follow_the_language_the_customer_picks(self):
+        request = self.open_request(subject="Export certificate")
+
+        listing = self.url_open("/vi/support")
+        page = self.url_open(f"/vi/support/{request.id}")
+
+        self.assertIn("Yêu cầu hỗ trợ", listing.text)
+        self.assertIn("Trao đổi", page.text)
