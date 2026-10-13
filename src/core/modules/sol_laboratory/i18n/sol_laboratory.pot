@@ -6338,3 +6338,255 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__work_permit_name
 msgid "work_permit_name"
 msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: chemical.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: chemical.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: chemical.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: chemical.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.service.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.service.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.service.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: measurement.unit.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: measurement.unit.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: measurement.unit.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: measurement.unit.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.group.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.group.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.group.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.group.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.archive.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.machine.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.machine.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.machine.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quality.registration.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quality.registration.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quality.registration.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quality.registration.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.limit.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.limit.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.limit.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: sample.type.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: sample.type.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: sample.type.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: sample.type.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontractor.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontractor.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontractor.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: test.parameter.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: test.parameter.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: test.parameter.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.field.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.field.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.field.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.field.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.method.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.method.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.method.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.method.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: unit.category.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: unit.category.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: unit.category.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: unit.category.edit.all"
+msgstr ""
