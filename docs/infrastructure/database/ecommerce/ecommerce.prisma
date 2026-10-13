@@ -374,6 +374,8 @@ model SaleOrder {
   cancellation_requests CancellationRequest[]
   /// Support requests about the order.
   support_requests  SupportRequest[]
+  /// The customer's feedback on the order.
+  ratings           Rating[]
 
   @@index([customer_id, order_status])
   @@index([order_status, submitted_at])
@@ -795,8 +797,8 @@ model SupportRequest {
   @@map("medilab_support_request")
 }
 
-/// Odoo's rating (rating.rating), shown with the columns this module uses: a customer's rating and comment on a completed order. Visible to sales and management, never to other customers.
-/// One rating per order: unique on (res_model, res_id) for sale.order.
+/// Odoo's rating (rating.rating), shown with the columns this module uses and the column it adds: a customer's rating and comment on a completed order. Read only by those who read the order, never changed once given.
+/// One feedback per order: unique on res_id for the consumed ratings of sale.order.
 model Rating {
   /// Row identifier.
   id         Int      @id @default(autoincrement())
@@ -804,6 +806,8 @@ model Rating {
   res_model  String   @db.VarChar
   /// The completed order rated.
   res_id     Int
+  /// The order rated, for ratings of orders; the access rules on feedback follow it.
+  order_id   Int?
   /// Rating from 1 to 5.
   rating     Decimal  @db.Decimal
   /// The customer's comment.
@@ -818,8 +822,10 @@ model Rating {
   partner    Contact  @relation("RatingCustomer", fields: [partner_id], references: [id], onDelete: Restrict)
   /// The salesperson of the order, whom the rating is about.
   rated_partner Contact? @relation("RatingSalesperson", fields: [rated_partner_id], references: [id], onDelete: SetNull)
+  /// The order rated.
+  order      SaleOrder? @relation(fields: [order_id], references: [id], onDelete: Cascade)
 
-  @@unique([res_model, res_id])
+  @@index([order_id])
   @@index([rating])
   @@map("rating_rating")
 }

@@ -2761,3 +2761,15 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
 msgid "if you need more help."
 msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/sale_order.py:0
+msgid "Feedback cannot be changed once it is given."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/sale_order.py:0
+msgid "Feedback is given from the order's page in the portal."
+msgstr ""

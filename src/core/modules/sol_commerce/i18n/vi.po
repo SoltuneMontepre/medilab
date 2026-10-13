@@ -2944,3 +2944,15 @@ msgstr "nếu bạn cần hỗ trợ thêm."
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__customer_partner_id
 msgid "Customer Contact"
 msgstr "Liên hệ khách hàng"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/sale_order.py:0
+msgid "Feedback cannot be changed once it is given."
+msgstr "Không thể thay đổi phản hồi sau khi đã gửi."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/sale_order.py:0
+msgid "Feedback is given from the order's page in the portal."
+msgstr "Phản hồi được gửi từ trang đơn hàng trên cổng thông tin."

@@ -1,5 +1,8 @@
+from psycopg2 import IntegrityError
+
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
+from odoo.tools import mute_logger
 
 from odoo.addons.sol_commerce.constants.models import MODEL_RATING, MODEL_SALE_ORDER, MODEL_SUPPORT_REQUEST
 from odoo.addons.sol_commerce.constants.orders import STATUS_COMPLETED
@@ -47,14 +50,15 @@ class SaleOrder(models.Model):
         if not FEEDBACK_MIN <= value <= FEEDBACK_MAX:
             raise UserError(self.env._("Give a rating from 1 to 5."))
         order = self.sudo()
-        rating = order.rating_ids.filtered(lambda item: not item.consumed)[:1]
+        partner = self.env.user.partner_id
+        rating = order.rating_ids.filtered(lambda item: not item.consumed and item.partner_id == partner)[:1]
         if not rating:
             rating = (
                 self.env[MODEL_RATING]
                 .sudo()
                 .create(
                     {
-                        "partner_id": self.env.user.partner_id.id,
+                        "partner_id": partner.id,
                         "rated_partner_id": order.user_id.partner_id.id,
                         "res_model_id": self.env["ir.model"]._get_id(MODEL_SALE_ORDER),
                         "res_id": order.id,
@@ -62,4 +66,24 @@ class SaleOrder(models.Model):
                     }
                 )
             )
-        return order.rating_apply(value, rating=rating, feedback=(comment or "").strip() or False)
+        try:
+            with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
+                return order.rating_apply(value, rating=rating, feedback=(comment or "").strip() or False)
+        except IntegrityError:
+            # Another feedback on the order was saved meanwhile.
+            self.env.invalidate_all()
+            raise UserError(self.env._("This order already has feedback.")) from None
+
+    def _get_allowed_message_params(self):
+        # Feedback is given only through action_give_feedback, never as a value of a chatter message.
+        return super()._get_allowed_message_params() - {"rating_value"}
+
+    def message_post(self, **kwargs):
+        if kwargs.get("rating_value") and not self.env.su:
+            raise AccessError(self.env._("Feedback is given from the order's page in the portal."))
+        return super().message_post(**kwargs)
+
+    def _message_update_content(self, message, /, *, body, **kwargs):
+        if message.sudo().rating_ids and not self.env.su:
+            raise UserError(self.env._("Feedback cannot be changed once it is given."))
+        return super()._message_update_content(message, body=body, **kwargs)

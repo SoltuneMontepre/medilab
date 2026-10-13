@@ -21,6 +21,8 @@ from odoo.addons.sol_laboratory.constants.models import (
 COMMENT = "comment"
 # Messages people write: on the portal or in the back office, and by e-mail reply.
 WRITTEN_TYPES = (COMMENT, "email")
+# Parameters with which Odoo opens a thread through a shared token or a signed link.
+LINK_ACCESS_PARAMS = frozenset({"hash", "pid", "token"})
 # A salesperson sees the requests they handle and those nobody has taken yet.
 HANDLER_DOMAIN = "['|', ('handled_by_id', '=', user.id), ('handled_by_id', '=', False)]"
 
@@ -74,6 +76,12 @@ class SupportRequest(models.Model):
         for request in self:
             request.access_url = f"/support/{request.id}"
         return result
+
+    @api.model
+    def _get_thread_with_access(self, thread_id, **kwargs):
+        # Only the customer's portal users and sales open a request; a shared token or signed link never does.
+        params = {key: value for key, value in kwargs.items() if key not in LINK_ACCESS_PARAMS}
+        return super()._get_thread_with_access(thread_id, **params)
 
     @api.constrains("order_id", "customer_id")
     def _check_order_customer(self):

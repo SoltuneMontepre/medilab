@@ -246,6 +246,7 @@ The customer receives one notification per event, through the channels chosen in
 | Status       | A request is open, answered once support has replied and the customer has not written since, or closed. Writing on an answered request opens it again. |
 | Closed       | A closed request cannot be written on from the portal; the customer opens a new request for a new question.                   |
 | One feedback | An order has at most one feedback: a rating from 1 to 5 and an optional comment, given once the order is completed.          |
+| Feedback kept | Feedback cannot be changed once given. Only those who can read the order see it, and only an administrator can delete it.  |
 
 Acceptance criteria:
 

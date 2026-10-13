@@ -151,8 +151,12 @@ class TestSupportRequest(SupportCase):
             loaded = self.env["ir.ui.menu"].with_user(user).load_menus(False)
             return {menu.get("xmlid") for menu in loaded.values() if isinstance(menu, dict)}
 
-        self.assertLessEqual({"sale.sale_menu_root", *support_menus}, menus(self.sales))
+        order_menus = {"sol_commerce.menu_sale_order", "sol_commerce.menu_cancellation_request"}
+        self.assertLessEqual({"sale.sale_menu_root", *support_menus, *order_menus}, menus(self.sales))
         self.assertFalse(support_menus & menus(staff))
+        loaded = self.env["ir.ui.menu"].with_user(self.sales).load_menus(False)
+        apps = [loaded[app_id]["xmlid"] for app_id in loaded["root"]["children"]]
+        self.assertEqual(apps.count("sale.sale_menu_root"), 1)
 
     def test_customer_cannot_take_or_close(self):
         request = self.open_request()
