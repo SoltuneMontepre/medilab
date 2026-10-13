@@ -1225,6 +1225,11 @@ msgid "Config Settings"
 msgstr "Cài đặt cấu hình"
 
 #. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_configuration
+msgid "Configuration"
+msgstr "Cấu hình"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Confirm"
 msgstr "Xác nhận"
@@ -7584,9 +7589,6 @@ msgstr "iOS"
 #: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
 msgid "{{ object.name }}"
 msgstr "{{ object.name }}"
-#. module: sol_laboratory
-msgid "This notification belongs to someone else."
-msgstr "Thông báo này thuộc về người khác."
 
 #. module: sol_laboratory
 #. odoo-python
