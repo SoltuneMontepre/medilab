@@ -26,7 +26,7 @@ days = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("safety_margin_days")
 
 ### Who changes settings
 
-The Settings menu opens the settings screen and is limited to Odoo's settings group. The administrator role implies that group. A setting that changes the behaviour of existing documents applies to documents created from then on; the safety margin is an example, because a sample test keeps the due date it already stored.
+Settings sits under the Configuration menu of the Laboratory app, as settings do in Odoo's own apps, and opens the settings screen on the Laboratory block; Odoo's Settings app shows the same blocks. The menu is limited to Odoo's settings group. The administrator role implies that group. A setting that changes the behaviour of existing documents applies to documents created from then on; the safety margin is an example, because a sample test keeps the due date it already stored.
 
 ### Installation and removal
 
