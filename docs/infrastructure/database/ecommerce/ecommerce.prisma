@@ -291,7 +291,7 @@ model SupplierInfo {
   /// The parameter product.
   product             Product          @relation(fields: [product_tmpl_id], references: [id], onDelete: Cascade)
   /// The subcontracted parameter and method pair.
-  parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+  parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
 
   @@map("product_supplierinfo")
 }

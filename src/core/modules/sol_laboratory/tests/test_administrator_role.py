@@ -20,6 +20,9 @@ class TestAdministratorRole(TransactionCase):
             self.env, login="administrator", groups="base.group_user,sol_laboratory.group_role_administrator"
         )
 
+        parameters = type(self.env[MODEL_TEST_PARAMETER])
+        # Test parameters are never signed, so no module ships the permission this test adds.
+        self.patch(parameters, "_permission_actions", (*parameters._permission_actions, "sign"))
         permission = self.env[MODEL_PERMISSION].create(
             {"name": "Sign parameters", "document_model": MODEL_TEST_PARAMETER, "action": "sign"}
         )

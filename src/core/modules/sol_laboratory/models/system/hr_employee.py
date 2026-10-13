@@ -1,4 +1,4 @@
-from odoo import models
+from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_EMPLOYEE, MODEL_PERSON
 
@@ -6,6 +6,11 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_EMPLOYEE, MODEL_PE
 # Nhân Viên
 class HrEmployee(models.Model):
     _inherit = MODEL_EMPLOYEE
+
+    # Employee name, searched with the person.
+    name = fields.Char(index="trigram")
+    # Work email, searched with the person.
+    work_email = fields.Char(index="trigram")
 
     def write(self, vals):
         # Odoo's Employees app changes employees too, so the person's rules and groups follow from here.

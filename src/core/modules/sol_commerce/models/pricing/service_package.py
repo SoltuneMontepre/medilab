@@ -19,7 +19,7 @@ class ServicePackage(models.Model):
     _rec_names_search = ("name", "code")
 
     # Short unique code of the package.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Package name in each language.
     name = fields.Char(required=True, translate=True, index="trigram")
     # Price of the whole package, excluding VAT.

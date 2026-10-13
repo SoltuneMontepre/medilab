@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 17:18+0000\n"
-"PO-Revision-Date: 2026-10-11 17:18+0000\n"
+"POT-Creation-Date: 2026-10-11 17:58+0000\n"
+"PO-Revision-Date: 2026-10-11 17:58+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -91,6 +91,10 @@ msgid "%s is finished and cannot be assigned again."
 msgstr ""
 
 #. module: sol_laboratory
+msgid "%s is not in the task's department."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is not open."
@@ -118,6 +122,12 @@ msgid "%s needs an assignee or a department whose queue holds it."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "%s needs the department that tests it, or a subcontractor."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
 msgid "%s open"
@@ -127,6 +137,10 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
 msgid "%s overdue"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "%s runs within a minute."
 msgstr ""
 
 #. module: sol_laboratory
@@ -172,6 +186,10 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_group.py:0
 msgid "A group that has parameters cannot have sub-groups: %s."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "A job with this key already exists."
 msgstr ""
 
 #. module: sol_laboratory
@@ -458,6 +476,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_all
 msgid "All Tasks"
 msgstr ""
 
@@ -552,6 +571,11 @@ msgid "Archive approval chains"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_archive_all
+msgid "Archive chemicals"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_archive_all
 msgid "Archive customers"
 msgstr ""
@@ -562,6 +586,21 @@ msgid "Archive departments"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_archive_all
+msgid "Archive machines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_archive_all
+msgid "Archive measurement units"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_archive_all
+msgid "Archive parameter groups"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_archive_all
 msgid "Archive people"
 msgstr ""
@@ -569,6 +608,56 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_archive_own_department
 msgid "Archive people of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_archive_all
+msgid "Archive quality registrations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_archive_all
+msgid "Archive regulations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_archive_all
+msgid "Archive sample types"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_archive_all
+msgid "Archive subcontractors"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_archive_all
+msgid "Archive test parameters"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_archive_all
+msgid "Archive testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_archive_all
+msgid "Archive testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_archive_all
+msgid "Archive unit categories"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_archive_all
+msgid "Archive ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_archive_own_department
+msgid "Archive ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -646,10 +735,18 @@ msgid "Assignee"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Attachment"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_attachment_count
 msgid "Attachment Count"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Attempts"
 msgstr ""
 
 #. module: sol_laboratory
@@ -759,6 +856,10 @@ msgid "Barcode"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Batch Size"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__bilingual
 msgid "Bilingual"
 msgstr ""
@@ -815,6 +916,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: code:addons/sol_laboratory/static/src/views/control_panel/control_panel.xml:0
 msgid "Calendar"
 msgstr ""
 
@@ -955,6 +1057,14 @@ msgid "Claim"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Claim Timeout Minutes"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Claimed At"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
 msgid "Closed By System"
 msgstr ""
@@ -984,8 +1094,20 @@ msgid "Code"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Code Formats"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Code formats"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_code_mixin
 msgid "Code from a Sequence"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Codes"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1155,6 +1277,11 @@ msgid "Create approval levels"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_create_all
+msgid "Create chemicals"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_create_all
 msgid "Create customers"
 msgstr ""
@@ -1162,6 +1289,31 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_department_create_all
 msgid "Create departments"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_create_all
+msgid "Create machine services"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_create_all
+msgid "Create machines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_create_all
+msgid "Create machines for ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_create_all
+msgid "Create measurement units"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_create_all
+msgid "Create parameter groups"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1175,6 +1327,21 @@ msgid "Create people of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_create_all
+msgid "Create quality registrations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_create_all
+msgid "Create regulation limits"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_create_all
+msgid "Create regulations"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_role_create_all
 msgid "Create roles"
 msgstr ""
@@ -1185,8 +1352,18 @@ msgid "Create sample tests"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_create_all
+msgid "Create sample types"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_sample_create_all
 msgid "Create samples"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_create_all
+msgid "Create subcontractors"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1200,8 +1377,38 @@ msgid "Create tasks of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_create_all
+msgid "Create test parameters"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_create_all
 msgid "Create test requests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_create_all
+msgid "Create testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_create_all
+msgid "Create testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_create_all
+msgid "Create unit categories"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_create_all
+msgid "Create ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_create_own_department
+msgid "Create ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1282,8 +1489,15 @@ msgid "Credit limit specific to this partner."
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Cron"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Cron Pass"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__currency_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__currency_id
 msgid "Currency"
 msgstr ""
 
@@ -1439,6 +1653,11 @@ msgid "Delete approval levels"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_delete_all
+msgid "Delete chemicals"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_delete_all
 msgid "Delete customers"
 msgstr ""
@@ -1446,6 +1665,31 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_department_delete_all
 msgid "Delete departments"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_delete_all
+msgid "Delete machine services"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_delete_all
+msgid "Delete machines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_delete_all
+msgid "Delete machines for ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_delete_all
+msgid "Delete measurement units"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_delete_all
+msgid "Delete parameter groups"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1459,8 +1703,28 @@ msgid "Delete people of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_delete_all
+msgid "Delete quality registrations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_delete_all
+msgid "Delete regulation limits"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_delete_all
+msgid "Delete regulations"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_role_delete_all
 msgid "Delete roles"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_delete_all
+msgid "Delete sample types"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1471,6 +1735,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_task_delete_own_department
 msgid "Delete tasks of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_delete_all
+msgid "Delete testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_delete_all
+msgid "Delete testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_delete_all
+msgid "Delete unit categories"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1635,6 +1914,10 @@ msgid "Document"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Document Model"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
@@ -1656,6 +1939,10 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
 msgid "Done At"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Done Count"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1708,8 +1995,20 @@ msgid "Duplicate Bank Partner"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Duration"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Duration (s)"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__routing_identifier
 msgid "EDI Routing Address"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Each job has its own cron."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1738,6 +2037,11 @@ msgid "Edit approval levels"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_edit_all
+msgid "Edit chemicals"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_edit_all
 msgid "Edit customers"
 msgstr ""
@@ -1745,6 +2049,35 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_department_edit_all
 msgid "Edit departments"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Edit job items"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_edit_all
+msgid "Edit machine services"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_edit_all
+msgid "Edit machines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_edit_all
+msgid "Edit machines for ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_edit_all
+msgid "Edit measurement units"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_edit_all
+msgid "Edit parameter groups"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1763,6 +2096,21 @@ msgid "Edit permissions"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_edit_all
+msgid "Edit quality registrations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_edit_all
+msgid "Edit regulation limits"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_edit_all
+msgid "Edit regulations"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_role_edit_all
 msgid "Edit roles"
 msgstr ""
@@ -1773,8 +2121,22 @@ msgid "Edit sample tests"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_edit_all
+msgid "Edit sample types"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_sample_edit_all
 msgid "Edit samples"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Edit scheduled jobs"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_edit_all
+msgid "Edit subcontractors"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1793,8 +2155,38 @@ msgid "Edit tasks of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_edit_all
+msgid "Edit test parameters"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_edit_all
 msgid "Edit test requests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_edit_all
+msgid "Edit testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_edit_all
+msgid "Edit testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_edit_all
+msgid "Edit unit categories"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_edit_all
+msgid "Edit ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_edit_own_department
+msgid "Edit ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1904,6 +2296,10 @@ msgid "End of Trial Period"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Ended At"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__country_enforce_cities
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__country_enforce_cities
 msgid "Enforce Cities"
@@ -1920,6 +2316,10 @@ msgid ""
 "Enter the employee's National Identification Number issued by the "
 "government (e.g., Aadhaar, SIN, NIN). This is used for official "
 "records and statutory compliance."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Every"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1957,6 +2357,14 @@ msgid "Factor"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Failed"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Failed Count"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__study_field
 msgid "Field of Study"
 msgstr ""
@@ -1983,6 +2391,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_finished
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_finished
 msgid "Finished Tasks"
 msgstr ""
 
@@ -2157,6 +2566,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__has_vat
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__has_vat
 msgid "Has Tax ID"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Has failed items"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2416,6 +2829,14 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Interval Number"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Interval Unit"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format_store
 msgid "Invoice Edi Format Store"
 msgstr ""
@@ -2517,8 +2938,24 @@ msgid "Issuing Authority"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Item Key"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Items"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_id
 msgid "Job"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Job Item"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Job Items"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2528,8 +2965,28 @@ msgid "Job Position"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Job Run"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Job Runs"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_title
 msgid "Job Title"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Job item failed: %s"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Jobs"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Key"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2587,6 +3044,14 @@ msgid "Last Activity Time"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Last Duration (s)"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Last Error"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_modified_uid
 msgid "Last Modified by"
 msgstr ""
@@ -2594,6 +3059,14 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_modified_date
 msgid "Last Modified on"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Last Run"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Last Scheduled Run"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2710,12 +3183,17 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: code:addons/sol_laboratory/static/src/views/control_panel/control_panel.xml:0
 msgid "List"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location
 msgid "Location"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Log"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2823,6 +3301,10 @@ msgid "Material Symbols icon e.g. checklist"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Max Attempts"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__max_value
 msgid "Maximum"
 msgstr ""
@@ -2858,6 +3340,10 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__member_of_department
 msgid "Member of department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Menu"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2935,6 +3421,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_mine
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_mine
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "My Tasks"
 msgstr ""
@@ -3029,6 +3516,10 @@ msgid "Next Activity Type"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Next Attempt At"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__next_calibration_date
 msgid "Next Calibration Date"
 msgstr ""
@@ -3047,6 +3538,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__meeting_next_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__meeting_next_date
 msgid "Next Meeting"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Next Run"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Next planned execution date for this job."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3156,6 +3655,14 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__on_hold
 msgid "On Hold"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Only a failed item can be retried."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Only a pending or failed item can be cancelled."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3300,6 +3807,10 @@ msgid "Parent name"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Partly Failed"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__partner_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__partner_id
 msgid "Partner"
@@ -3342,6 +3853,10 @@ msgid "Passport No"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Payload"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__qr_code_method
 msgid "Payment QR-code"
 msgstr ""
@@ -3354,6 +3869,14 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__payment_token_ids
 msgid "Payment Tokens"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Pending"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Pending Count"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3430,6 +3953,22 @@ msgid "Permission: approval.level.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: cancellation.request.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_archive_all
 msgid "Permission: customer.archive.all"
 msgstr ""
@@ -3455,6 +3994,22 @@ msgid "Permission: customer.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: customer.sales.terms.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: customer.sales.terms.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: customer.sales.terms.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: customer.sales.terms.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_department_archive_all
 msgid "Permission: department.archive.all"
 msgstr ""
@@ -3477,6 +4032,90 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_department_read_all
 msgid "Permission: department.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: job.item.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: job.item.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: job.run.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sign.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3540,6 +4179,34 @@ msgid "Permission: person.read.own_department"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: quotation.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quotation.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quotation.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quotation.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: reconciliation.day.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: reconciliation.day.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: reconciliation.day.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_role_create_all
 msgid "Permission: role.create.all"
 msgstr ""
@@ -3590,8 +4257,72 @@ msgid "Permission: sample.test.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: scheduled.job.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: scheduled.job.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_signature_read_all
 msgid "Permission: signature.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3637,6 +4368,42 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_task_type_edit_all
 msgid "Permission: task.type.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3719,9 +4486,17 @@ msgid "Post Test Requirements"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
 msgid "Previous"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Previous time the cron ran successfully, provided to the job through the context on the `lastcall` key"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3780,6 +4555,14 @@ msgid "Private Zip"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Progress Done"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Progress Remaining"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__properties
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__employee_properties
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__properties
@@ -3834,6 +4617,10 @@ msgid "Quantity"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Queue"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__rating_ids
 msgid "Ratings"
 msgstr ""
@@ -3864,6 +4651,14 @@ msgid "Read departments"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Read job items"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Read job runs"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_read_all
 msgid "Read people"
 msgstr ""
@@ -3891,6 +4686,10 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_sample_read_all
 msgid "Read samples"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Read scheduled jobs"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4002,6 +4801,10 @@ msgid "Repair"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Repeat every x."
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Report"
 msgstr ""
@@ -4080,6 +4883,14 @@ msgid "Retired"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Retry"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Retry Delay Minutes"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_role
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 msgid "Role"
@@ -4125,6 +4936,30 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__run_minutes
 msgid "Run Minutes"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Run Requested At"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Run Requested By"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Run by hand"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Run now"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Running"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Runs"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4232,6 +5067,18 @@ msgid "Scale"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Schedule"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Schedule off"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Scheduled Jobs"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__scope
 msgid "Scope"
 msgstr ""
@@ -4278,6 +5125,10 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__use_partner_credit_limit
 msgid "Set a value greater than 0.0 to activate a credit limit check"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Settings"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4402,6 +5253,10 @@ msgid "Start"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Started At"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__state_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__state_id
 msgid "State"
@@ -4486,6 +5341,10 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__subordinate_ids
 msgid "Subordinates"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Succeeded"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4687,6 +5546,10 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid "The administrator role holds every permission; none can be removed."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "The batch size and the attempts must be at least 1."
 msgstr ""
 
 #. module: sol_laboratory
@@ -5030,6 +5893,10 @@ msgid "This user already belongs to another person."
 msgstr ""
 
 #. module: sol_laboratory
+msgid "This work is already queued for the job."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__thursday_location_id
 msgid "Thursday"
 msgstr ""
@@ -5037,6 +5904,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: code:addons/sol_laboratory/static/src/views/control_panel/control_panel.xml:0
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_actions_act_window_view__view_mode__timeline
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_ui_view__type__timeline
 msgid "Timeline"
@@ -5097,8 +5965,16 @@ msgid "Trigger"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Triggered By"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__tuesday_location_id
 msgid "Tuesday"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Turn the schedule of %s on before running it."
 msgstr ""
 
 #. module: sol_laboratory
@@ -5464,561 +6340,253 @@ msgid "work_permit_name"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "%s is not in the task's department."
+msgid "Permission: chemical.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "%s runs within a minute."
+msgid "Permission: chemical.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "A job with this key already exists."
+msgid "Permission: chemical.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Attachment"
+msgid "Permission: chemical.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Attempts"
+msgid "Permission: machine.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Batch Size"
+msgid "Permission: machine.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Claim Timeout Minutes"
+msgid "Permission: machine.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Claimed At"
+msgid "Permission: machine.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Code Formats"
+msgid "Permission: machine.service.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Code formats"
+msgid "Permission: machine.service.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Codes"
+msgid "Permission: machine.service.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Cron"
+msgid "Permission: measurement.unit.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Cron Pass"
+msgid "Permission: measurement.unit.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Document Model"
+msgid "Permission: measurement.unit.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Done Count"
+msgid "Permission: measurement.unit.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Duration"
+msgid "Permission: parameter.group.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Duration (s)"
+msgid "Permission: parameter.group.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Each job has its own cron."
+msgid "Permission: parameter.group.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Edit job items"
+msgid "Permission: parameter.group.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Edit scheduled jobs"
+msgid "Permission: parameter.method.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Ended At"
+msgid "Permission: parameter.method.archive.own_department"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Every"
+msgid "Permission: parameter.method.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Failed"
+msgid "Permission: parameter.method.create.own_department"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Failed Count"
+msgid "Permission: parameter.method.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Has failed items"
+msgid "Permission: parameter.method.delete.own_department"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Interval Number"
+msgid "Permission: parameter.method.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Interval Unit"
+msgid "Permission: parameter.method.edit.own_department"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Item Key"
+msgid "Permission: parameter.method.machine.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Items"
+msgid "Permission: parameter.method.machine.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Job Item"
+msgid "Permission: parameter.method.machine.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Job Items"
+msgid "Permission: quality.registration.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Job Run"
+msgid "Permission: quality.registration.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Job Runs"
+msgid "Permission: quality.registration.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Job item failed: %s"
+msgid "Permission: quality.registration.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Jobs"
+msgid "Permission: regulation.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Key"
+msgid "Permission: regulation.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Last Duration (s)"
+msgid "Permission: regulation.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Last Error"
+msgid "Permission: regulation.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Last Run"
+msgid "Permission: regulation.limit.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Last Scheduled Run"
+msgid "Permission: regulation.limit.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Log"
+msgid "Permission: regulation.limit.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Max Attempts"
+msgid "Permission: sample.type.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Menu"
+msgid "Permission: sample.type.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Next Attempt At"
+msgid "Permission: sample.type.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Next Run"
+msgid "Permission: sample.type.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Next planned execution date for this job."
+msgid "Permission: subcontractor.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Only a failed item can be retried."
+msgid "Permission: subcontractor.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Only a pending or failed item can be cancelled."
+msgid "Permission: subcontractor.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Partly Failed"
+msgid "Permission: test.parameter.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Payload"
+msgid "Permission: test.parameter.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Pending"
+msgid "Permission: test.parameter.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Pending Count"
+msgid "Permission: testing.field.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: invoice.adjustment.create.all"
+msgid "Permission: testing.field.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: invoice.adjustment.delete.all"
+msgid "Permission: testing.field.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: invoice.adjustment.edit.all"
+msgid "Permission: testing.field.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: invoice.adjustment.read.all"
+msgid "Permission: testing.method.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: job.item.edit.all"
+msgid "Permission: testing.method.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: job.item.read.all"
+msgid "Permission: testing.method.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: job.run.read.all"
+msgid "Permission: testing.method.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: parameter.price.archive.all"
+msgid "Permission: unit.category.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: parameter.price.create.all"
+msgid "Permission: unit.category.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: parameter.price.delete.all"
+msgid "Permission: unit.category.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-msgid "Permission: parameter.price.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: parameter.price.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: reconciliation.day.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: reconciliation.day.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: reconciliation.day.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: scheduled.job.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: scheduled.job.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: service.package.archive.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: service.package.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: service.package.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: service.package.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: service.package.line.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: service.package.line.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: service.package.line.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: service.package.line.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: service.package.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.archive.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: tax.archive.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: tax.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: tax.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: tax.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: tax.rate.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: tax.rate.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: tax.rate.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: tax.rate.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: tax.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents."
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Previous time the cron ran successfully, provided to the job through the context on the `lastcall` key"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Progress Done"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Progress Remaining"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Queue"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Read job items"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Read job runs"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Read scheduled jobs"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Repeat every x."
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Retry"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Retry Delay Minutes"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Run Requested At"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Run Requested By"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Run by hand"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Run now"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Running"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Runs"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Schedule"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Schedule off"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Scheduled Jobs"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Settings"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Started At"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Succeeded"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "The batch size and the attempts must be at least 1."
-msgstr ""
-
-#. module: sol_laboratory
-msgid "This work is already queued for the job."
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Triggered By"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Turn the schedule of %s on before running it."
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: cancellation.request.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: cancellation.request.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: cancellation.request.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: cancellation.request.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: customer.sales.terms.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: customer.sales.terms.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: customer.sales.terms.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: customer.sales.terms.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: order.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: order.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: order.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: order.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: order.sample.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: order.sample.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: order.sample.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: order.sample.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: order.sign.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: quotation.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: quotation.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: quotation.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-msgid "Permission: quotation.read.all"
+msgid "Permission: unit.category.edit.all"
 msgstr ""

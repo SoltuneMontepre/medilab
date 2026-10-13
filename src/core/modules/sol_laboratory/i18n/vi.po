@@ -95,6 +95,10 @@ msgid "%s is finished and cannot be assigned again."
 msgstr "%s đã kết thúc và không thể giao lại."
 
 #. module: sol_laboratory
+msgid "%s is not in the task's department."
+msgstr "%s không thuộc phòng ban của nhiệm vụ."
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is not open."
@@ -124,6 +128,12 @@ msgid "%s needs an assignee or a department whose queue holds it."
 msgstr "%s cần có người thực hiện hoặc phòng ban giữ nhiệm vụ trong hàng đợi."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "%s needs the department that tests it, or a subcontractor."
+msgstr "%s cần phòng ban thử nó, hoặc một thầu phụ."
+
+#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
 msgid "%s open"
@@ -134,6 +144,10 @@ msgstr "%s đang mở"
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
 msgid "%s overdue"
 msgstr "%s quá hạn"
+
+#. module: sol_laboratory
+msgid "%s runs within a minute."
+msgstr "%s chạy trong vòng một phút."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -181,6 +195,10 @@ msgstr "Một loại chứng từ không thể có hai chuỗi cho cùng một m
 #: code:addons/sol_laboratory/models/master_data/parameter_group.py:0
 msgid "A group that has parameters cannot have sub-groups: %s."
 msgstr "Nhóm đã có chỉ tiêu không thể có nhóm con: %s."
+
+#. module: sol_laboratory
+msgid "A job with this key already exists."
+msgstr "Đã có tác vụ định kỳ với khóa này."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -562,6 +580,11 @@ msgid "Archive approval chains"
 msgstr "Lưu trữ chuỗi phê duyệt"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_archive_all
+msgid "Archive chemicals"
+msgstr "Lưu trữ hóa chất"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_archive_all
 msgid "Archive customers"
 msgstr "Lưu trữ khách hàng"
@@ -572,6 +595,21 @@ msgid "Archive departments"
 msgstr "Lưu trữ phòng ban"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_archive_all
+msgid "Archive machines"
+msgstr "Lưu trữ máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_archive_all
+msgid "Archive measurement units"
+msgstr "Lưu trữ đơn vị đo"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_archive_all
+msgid "Archive parameter groups"
+msgstr "Lưu trữ nhóm chỉ tiêu"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_archive_all
 msgid "Archive people"
 msgstr "Lưu trữ nhân sự"
@@ -580,6 +618,56 @@ msgstr "Lưu trữ nhân sự"
 #: model:medilab.permission,name:sol_laboratory.permission_person_archive_own_department
 msgid "Archive people of their department"
 msgstr "Lưu trữ nhân sự của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_archive_all
+msgid "Archive quality registrations"
+msgstr "Lưu trữ hồ sơ đăng ký chất lượng"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_archive_all
+msgid "Archive regulations"
+msgstr "Lưu trữ quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_archive_all
+msgid "Archive sample types"
+msgstr "Lưu trữ loại mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_archive_all
+msgid "Archive subcontractors"
+msgstr "Lưu trữ thầu phụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_archive_all
+msgid "Archive test parameters"
+msgstr "Lưu trữ chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_archive_all
+msgid "Archive testing fields"
+msgstr "Lưu trữ lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_archive_all
+msgid "Archive testing methods"
+msgstr "Lưu trữ phương pháp thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_archive_all
+msgid "Archive unit categories"
+msgstr "Lưu trữ nhóm đơn vị"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_archive_all
+msgid "Archive ways of testing"
+msgstr "Lưu trữ cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_archive_own_department
+msgid "Archive ways of testing of their department"
+msgstr "Lưu trữ cách thử của phòng ban mình"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
@@ -656,11 +744,19 @@ msgid "Assignee"
 msgstr "Người thực hiện"
 
 #. module: sol_laboratory
+msgid "Attachment"
+msgstr "Tệp Đính Kèm"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_attachment_count
 msgid "Attachment Count"
 msgstr "Số tệp đính kèm"
+
+#. module: sol_laboratory
+msgid "Attempts"
+msgstr "Số Lần Thử"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__autopost_bills
@@ -769,6 +865,10 @@ msgstr "Ngân hàng"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__barcode
 msgid "Barcode"
 msgstr "Mã vạch"
+
+#. module: sol_laboratory
+msgid "Batch Size"
+msgstr "Kích Thước Lô"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__bilingual
@@ -969,6 +1069,14 @@ msgid "Claim"
 msgstr "Nhận việc"
 
 #. module: sol_laboratory
+msgid "Claim Timeout Minutes"
+msgstr "Phút Hết Hạn Nhận"
+
+#. module: sol_laboratory
+msgid "Claimed At"
+msgstr "Nhận Lúc"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
 msgid "Closed By System"
 msgstr "Do hệ thống kết thúc"
@@ -998,9 +1106,21 @@ msgid "Code"
 msgstr "Mã"
 
 #. module: sol_laboratory
+msgid "Code Formats"
+msgstr "Định Dạng Mã"
+
+#. module: sol_laboratory
+msgid "Code formats"
+msgstr "Định dạng mã"
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_code_mixin
 msgid "Code from a Sequence"
 msgstr "Mã từ trình tự"
+
+#. module: sol_laboratory
+msgid "Codes"
+msgstr "Mã"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__color
@@ -1169,6 +1289,11 @@ msgid "Create approval levels"
 msgstr "Tạo cấp phê duyệt"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_create_all
+msgid "Create chemicals"
+msgstr "Tạo hóa chất"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_create_all
 msgid "Create customers"
 msgstr "Tạo khách hàng"
@@ -1177,6 +1302,31 @@ msgstr "Tạo khách hàng"
 #: model:medilab.permission,name:sol_laboratory.permission_department_create_all
 msgid "Create departments"
 msgstr "Tạo phòng ban"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_create_all
+msgid "Create machine services"
+msgstr "Tạo lịch sử bảo trì máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_create_all
+msgid "Create machines"
+msgstr "Tạo máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_create_all
+msgid "Create machines for ways of testing"
+msgstr "Tạo máy cho cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_create_all
+msgid "Create measurement units"
+msgstr "Tạo đơn vị đo"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_create_all
+msgid "Create parameter groups"
+msgstr "Tạo nhóm chỉ tiêu"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_create_all
@@ -1189,6 +1339,21 @@ msgid "Create people of their department"
 msgstr "Tạo nhân sự của phòng ban mình"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_create_all
+msgid "Create quality registrations"
+msgstr "Tạo hồ sơ đăng ký chất lượng"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_create_all
+msgid "Create regulation limits"
+msgstr "Tạo giới hạn quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_create_all
+msgid "Create regulations"
+msgstr "Tạo quy chuẩn"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_role_create_all
 msgid "Create roles"
 msgstr "Tạo vai trò"
@@ -1199,9 +1364,19 @@ msgid "Create sample tests"
 msgstr "Tạo chỉ tiêu của mẫu"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_create_all
+msgid "Create sample types"
+msgstr "Tạo loại mẫu"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_sample_create_all
 msgid "Create samples"
 msgstr "Tạo mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_create_all
+msgid "Create subcontractors"
+msgstr "Tạo thầu phụ"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_task_create_all
@@ -1214,9 +1389,39 @@ msgid "Create tasks of their department"
 msgstr "Tạo nhiệm vụ của phòng ban mình"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_create_all
+msgid "Create test parameters"
+msgstr "Tạo chỉ tiêu"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_create_all
 msgid "Create test requests"
 msgstr "Tạo yêu cầu thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_create_all
+msgid "Create testing fields"
+msgstr "Tạo lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_create_all
+msgid "Create testing methods"
+msgstr "Tạo phương pháp thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_create_all
+msgid "Create unit categories"
+msgstr "Tạo nhóm đơn vị"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_create_all
+msgid "Create ways of testing"
+msgstr "Tạo cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_create_own_department
+msgid "Create ways of testing of their department"
+msgstr "Tạo cách thử của phòng ban mình"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__create_uid
@@ -1296,8 +1501,15 @@ msgid "Credit limit specific to this partner."
 msgstr "Hạn mức tín dụng riêng cho đối tác này."
 
 #. module: sol_laboratory
+msgid "Cron"
+msgstr "Cron"
+
+#. module: sol_laboratory
+msgid "Cron Pass"
+msgstr "Lượt Cron"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__currency_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__currency_id
 msgid "Currency"
 msgstr "Tiền tệ"
 
@@ -1458,6 +1670,11 @@ msgid "Delete approval levels"
 msgstr "Xóa cấp phê duyệt"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_delete_all
+msgid "Delete chemicals"
+msgstr "Xóa hóa chất"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_delete_all
 msgid "Delete customers"
 msgstr "Xóa khách hàng"
@@ -1466,6 +1683,31 @@ msgstr "Xóa khách hàng"
 #: model:medilab.permission,name:sol_laboratory.permission_department_delete_all
 msgid "Delete departments"
 msgstr "Xóa phòng ban"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_delete_all
+msgid "Delete machine services"
+msgstr "Xóa lịch sử bảo trì máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_delete_all
+msgid "Delete machines"
+msgstr "Xóa máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_delete_all
+msgid "Delete machines for ways of testing"
+msgstr "Xóa máy cho cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_delete_all
+msgid "Delete measurement units"
+msgstr "Xóa đơn vị đo"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_delete_all
+msgid "Delete parameter groups"
+msgstr "Xóa nhóm chỉ tiêu"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_delete_all
@@ -1478,9 +1720,29 @@ msgid "Delete people of their department"
 msgstr "Xóa nhân sự của phòng ban mình"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_delete_all
+msgid "Delete quality registrations"
+msgstr "Xóa hồ sơ đăng ký chất lượng"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_delete_all
+msgid "Delete regulation limits"
+msgstr "Xóa giới hạn quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_delete_all
+msgid "Delete regulations"
+msgstr "Xóa quy chuẩn"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_role_delete_all
 msgid "Delete roles"
 msgstr "Xóa vai trò"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_delete_all
+msgid "Delete sample types"
+msgstr "Xóa loại mẫu"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_task_delete_all
@@ -1491,6 +1753,31 @@ msgstr "Xóa nhiệm vụ"
 #: model:medilab.permission,name:sol_laboratory.permission_task_delete_own_department
 msgid "Delete tasks of their department"
 msgstr "Xóa nhiệm vụ của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_delete_all
+msgid "Delete testing fields"
+msgstr "Xóa lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_delete_all
+msgid "Delete testing methods"
+msgstr "Xóa phương pháp thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_delete_all
+msgid "Delete unit categories"
+msgstr "Xóa nhóm đơn vị"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_delete_all
+msgid "Delete ways of testing"
+msgstr "Xóa cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_delete_own_department
+msgid "Delete ways of testing of their department"
+msgstr "Xóa cách thử của phòng ban mình"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__delivery_method
@@ -1654,6 +1941,10 @@ msgid "Document"
 msgstr "Chứng từ"
 
 #. module: sol_laboratory
+msgid "Document Model"
+msgstr "Model Chứng Từ"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
@@ -1676,6 +1967,10 @@ msgstr "Hoàn thành"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
 msgid "Done At"
 msgstr "Hoàn thành lúc"
+
+#. module: sol_laboratory
+msgid "Done Count"
+msgstr "Số Mục Xong"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__street_number2
@@ -1727,9 +2022,21 @@ msgid "Duplicate Bank Partner"
 msgstr "Sao chép đối tác ngân hàng"
 
 #. module: sol_laboratory
+msgid "Duration"
+msgstr "Thời Lượng"
+
+#. module: sol_laboratory
+msgid "Duration (s)"
+msgstr "Thời Lượng (giây)"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__routing_identifier
 msgid "EDI Routing Address"
 msgstr "Địa chỉ định tuyến EDI"
+
+#. module: sol_laboratory
+msgid "Each job has its own cron."
+msgstr "Mỗi tác vụ định kỳ có cron riêng."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_permission_group_unique
@@ -1757,6 +2064,11 @@ msgid "Edit approval levels"
 msgstr "Sửa cấp phê duyệt"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_edit_all
+msgid "Edit chemicals"
+msgstr "Sửa hóa chất"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_edit_all
 msgid "Edit customers"
 msgstr "Sửa khách hàng"
@@ -1765,6 +2077,35 @@ msgstr "Sửa khách hàng"
 #: model:medilab.permission,name:sol_laboratory.permission_department_edit_all
 msgid "Edit departments"
 msgstr "Sửa phòng ban"
+
+#. module: sol_laboratory
+msgid "Edit job items"
+msgstr "Sửa mục tác vụ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_edit_all
+msgid "Edit machine services"
+msgstr "Sửa lịch sử bảo trì máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_edit_all
+msgid "Edit machines"
+msgstr "Sửa máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_edit_all
+msgid "Edit machines for ways of testing"
+msgstr "Sửa máy cho cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_edit_all
+msgid "Edit measurement units"
+msgstr "Sửa đơn vị đo"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_edit_all
+msgid "Edit parameter groups"
+msgstr "Sửa nhóm chỉ tiêu"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_edit_all
@@ -1782,6 +2123,21 @@ msgid "Edit permissions"
 msgstr "Sửa quyền"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_edit_all
+msgid "Edit quality registrations"
+msgstr "Sửa hồ sơ đăng ký chất lượng"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_edit_all
+msgid "Edit regulation limits"
+msgstr "Sửa giới hạn quy chuẩn"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_edit_all
+msgid "Edit regulations"
+msgstr "Sửa quy chuẩn"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_role_edit_all
 msgid "Edit roles"
 msgstr "Sửa vai trò"
@@ -1792,9 +2148,23 @@ msgid "Edit sample tests"
 msgstr "Sửa chỉ tiêu của mẫu"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_edit_all
+msgid "Edit sample types"
+msgstr "Sửa loại mẫu"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_sample_edit_all
 msgid "Edit samples"
 msgstr "Sửa mẫu"
+
+#. module: sol_laboratory
+msgid "Edit scheduled jobs"
+msgstr "Sửa tác vụ định kỳ"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_edit_all
+msgid "Edit subcontractors"
+msgstr "Sửa thầu phụ"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_task_type_edit_all
@@ -1812,9 +2182,39 @@ msgid "Edit tasks of their department"
 msgstr "Sửa nhiệm vụ của phòng ban mình"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_edit_all
+msgid "Edit test parameters"
+msgstr "Sửa chỉ tiêu"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_edit_all
 msgid "Edit test requests"
 msgstr "Sửa yêu cầu thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_edit_all
+msgid "Edit testing fields"
+msgstr "Sửa lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_edit_all
+msgid "Edit testing methods"
+msgstr "Sửa phương pháp thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_edit_all
+msgid "Edit unit categories"
+msgstr "Sửa nhóm đơn vị"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_edit_all
+msgid "Edit ways of testing"
+msgstr "Sửa cách thử"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_edit_own_department
+msgid "Edit ways of testing of their department"
+msgstr "Sửa cách thử của phòng ban mình"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__date_version
@@ -1926,6 +2326,10 @@ msgid "End of Trial Period"
 msgstr "Kết thúc Thử việc"
 
 #. module: sol_laboratory
+msgid "Ended At"
+msgstr "Kết Thúc Lúc"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__country_enforce_cities
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__country_enforce_cities
 msgid "Enforce Cities"
@@ -1946,6 +2350,10 @@ msgstr ""
 "Nhập số Chứng minh nhân dâncủa nhân viên do chính phủ cấp (ví dụ: "
 "Aadhaar, SIN, NIN). Thông tin này được sử dụng cho hồ sơ chính thức "
 "và tuân thủ pháp lý."
+
+#. module: sol_laboratory
+msgid "Every"
+msgstr "Mỗi"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -1982,6 +2390,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__factor
 msgid "Factor"
 msgstr "Hệ số"
+
+#. module: sol_laboratory
+msgid "Failed"
+msgstr "Thất bại"
+
+#. module: sol_laboratory
+msgid "Failed Count"
+msgstr "Số Mục Thất Bại"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__study_field
@@ -2186,6 +2602,20 @@ msgstr "Có nhiều tài khoản ngân hàng"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__has_vat
 msgid "Has Tax ID"
 msgstr "Có mã số thuế"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__max_set
+msgid "Has a maximum"
+msgstr "Có giá trị tối đa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__min_set
+msgid "Has a minimum"
+msgstr "Có giá trị tối thiểu"
+
+#. module: sol_laboratory
+msgid "Has failed items"
+msgstr "Có mục thất bại"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__role
@@ -2456,6 +2886,14 @@ msgstr ""
 "được định nghĩa trước để sử dụng trong các giao dịch quốc tế."
 
 #. module: sol_laboratory
+msgid "Interval Number"
+msgstr "Số Khoảng"
+
+#. module: sol_laboratory
+msgid "Interval Unit"
+msgstr "Đơn Vị Khoảng"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format_store
 msgid "Invoice Edi Format Store"
 msgstr "Lưu trữ định dạng hóa đơn Edi"
@@ -2557,9 +2995,25 @@ msgid "Issuing Authority"
 msgstr "Cơ quan ban hành"
 
 #. module: sol_laboratory
+msgid "Item Key"
+msgstr "Khóa Mục"
+
+#. module: sol_laboratory
+msgid "Items"
+msgstr "Mục"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_id
 msgid "Job"
 msgstr "Chức vụ"
+
+#. module: sol_laboratory
+msgid "Job Item"
+msgstr "Mục Tác Vụ"
+
+#. module: sol_laboratory
+msgid "Job Items"
+msgstr "Mục Tác Vụ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__function
@@ -2568,9 +3022,29 @@ msgid "Job Position"
 msgstr "Chức vụ"
 
 #. module: sol_laboratory
+msgid "Job Run"
+msgstr "Lượt Chạy Tác Vụ"
+
+#. module: sol_laboratory
+msgid "Job Runs"
+msgstr "Lượt Chạy Tác Vụ"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_title
 msgid "Job Title"
 msgstr "Chức danh"
+
+#. module: sol_laboratory
+msgid "Job item failed: %s"
+msgstr "Mục tác vụ thất bại: %s"
+
+#. module: sol_laboratory
+msgid "Jobs"
+msgstr "Tác Vụ"
+
+#. module: sol_laboratory
+msgid "Key"
+msgstr "Khóa"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__kind
@@ -2599,6 +3073,7 @@ msgid "Laboratory"
 msgstr "Phòng Thí Nghiệm"
 
 #. module: sol_laboratory
+#: model:ir.module.module,summary:base.module_laboratory
 #: model:ir.module.module,summary:base.module_sol_laboratory
 msgid ""
 "Laboratory testing core: test catalog, parameters, samples, results "
@@ -2629,6 +3104,14 @@ msgid "Last Activity Time"
 msgstr "Thời gian hoạt động cuối cùng"
 
 #. module: sol_laboratory
+msgid "Last Duration (s)"
+msgstr "Thời Lượng Lần Cuối (giây)"
+
+#. module: sol_laboratory
+msgid "Last Error"
+msgstr "Lỗi Lần Cuối"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_modified_uid
 msgid "Last Modified by"
 msgstr "Chỉnh sửa lần cuối bởi"
@@ -2637,6 +3120,14 @@ msgstr "Chỉnh sửa lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_modified_date
 msgid "Last Modified on"
 msgstr "Chỉnh sửa lần cuối vào"
+
+#. module: sol_laboratory
+msgid "Last Run"
+msgstr "Lượt Chạy Cuối"
+
+#. module: sol_laboratory
+msgid "Last Scheduled Run"
+msgstr "Lượt Chạy Theo Lịch Cuối"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__write_uid
@@ -2761,6 +3252,10 @@ msgid "Location"
 msgstr "Vị trí"
 
 #. module: sol_laboratory
+msgid "Log"
+msgstr "Nhật Ký"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__login
 msgid "Login"
 msgstr "Tên đăng nhập"
@@ -2865,6 +3360,10 @@ msgid "Material Symbols icon e.g. checklist"
 msgstr "Biểu tượng Material Symbols, ví dụ checklist"
 
 #. module: sol_laboratory
+msgid "Max Attempts"
+msgstr "Số Lần Thử Tối Đa"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__max_value
 msgid "Maximum"
 msgstr "Tối đa"
@@ -2881,6 +3380,7 @@ msgid "Measurement Units"
 msgstr "Đơn Vị Đo"
 
 #. module: sol_laboratory
+#: model:ir.module.module,shortdesc:base.module_laboratory
 #: model:ir.module.module,shortdesc:base.module_sol_laboratory
 msgid "Medilab - Laboratory"
 msgstr "Medilab - Phòng thí nghiệm"
@@ -2901,6 +3401,10 @@ msgstr "Cuộc họp"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__member_of_department
 msgid "Member of department"
 msgstr "Thành viên của phòng ban"
+
+#. module: sol_laboratory
+msgid "Menu"
+msgstr "Trình đơn"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_error
@@ -3071,6 +3575,10 @@ msgid "Next Activity Type"
 msgstr "Loại hoạt động tiếp theo"
 
 #. module: sol_laboratory
+msgid "Next Attempt At"
+msgstr "Thử Lại Lúc"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__next_calibration_date
 msgid "Next Calibration Date"
 msgstr "Ngày hiệu chuẩn tiếp theo"
@@ -3090,6 +3598,14 @@ msgstr "Ngày bảo trì tiếp theo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__meeting_next_date
 msgid "Next Meeting"
 msgstr "Cuộc họp tiếp theo"
+
+#. module: sol_laboratory
+msgid "Next Run"
+msgstr "Lượt Chạy Tiếp Theo"
+
+#. module: sol_laboratory
+msgid "Next planned execution date for this job."
+msgstr "Ngày thực hiện dự kiến tiếp theo của tác vụ này."
 
 #. module: sol_laboratory
 #. odoo-javascript
@@ -3203,6 +3719,14 @@ msgstr "Số tin nhắn bị lỗi gửi"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__on_hold
 msgid "On Hold"
 msgstr "Tạm giữ"
+
+#. module: sol_laboratory
+msgid "Only a failed item can be retried."
+msgstr "Chỉ mục đã thất bại mới được thử lại."
+
+#. module: sol_laboratory
+msgid "Only a pending or failed item can be cancelled."
+msgstr "Chỉ mục đang chờ hoặc đã thất bại mới được hủy."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -3348,6 +3872,10 @@ msgid "Parent name"
 msgstr "Tên công ty cha"
 
 #. module: sol_laboratory
+msgid "Partly Failed"
+msgstr "Một phần thất bại"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__partner_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__partner_id
 msgid "Partner"
@@ -3390,6 +3918,10 @@ msgid "Passport No"
 msgstr "Số hộ chiếu"
 
 #. module: sol_laboratory
+msgid "Payload"
+msgstr "Dữ Liệu"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__qr_code_method
 msgid "Payment QR-code"
 msgstr "Thanh toán bằng mã QR"
@@ -3403,6 +3935,14 @@ msgstr "Số token thanh toán"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__payment_token_ids
 msgid "Payment Tokens"
 msgstr "Mã thanh toán"
+
+#. module: sol_laboratory
+msgid "Pending"
+msgstr "Đang chờ"
+
+#. module: sol_laboratory
+msgid "Pending Count"
+msgstr "Số Mục Đang Chờ"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_person
@@ -3478,6 +4018,22 @@ msgid "Permission: approval.level.read.all"
 msgstr "Quyền: approval.level.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: cancellation.request.create.all"
+msgstr "Quyền: cancellation.request.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.delete.all"
+msgstr "Quyền: cancellation.request.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.edit.all"
+msgstr "Quyền: cancellation.request.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.read.all"
+msgstr "Quyền: cancellation.request.read.all"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_archive_all
 msgid "Permission: customer.archive.all"
 msgstr "Quyền: customer.archive.all"
@@ -3503,6 +4059,22 @@ msgid "Permission: customer.read.all"
 msgstr "Quyền: customer.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: customer.sales.terms.create.all"
+msgstr "Quyền: customer.sales.terms.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: customer.sales.terms.delete.all"
+msgstr "Quyền: customer.sales.terms.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: customer.sales.terms.edit.all"
+msgstr "Quyền: customer.sales.terms.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: customer.sales.terms.read.all"
+msgstr "Quyền: customer.sales.terms.read.all"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_department_archive_all
 msgid "Permission: department.archive.all"
 msgstr "Quyền: department.archive.all"
@@ -3526,6 +4098,90 @@ msgstr "Quyền: department.edit.all"
 #: model:res.groups,name:sol_laboratory.group_permission_department_read_all
 msgid "Permission: department.read.all"
 msgstr "Quyền: department.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.create.all"
+msgstr "Quyền: invoice.adjustment.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.delete.all"
+msgstr "Quyền: invoice.adjustment.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.edit.all"
+msgstr "Quyền: invoice.adjustment.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.read.all"
+msgstr "Quyền: invoice.adjustment.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: job.item.edit.all"
+msgstr "Quyền: job.item.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: job.item.read.all"
+msgstr "Quyền: job.item.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: job.run.read.all"
+msgstr "Quyền: job.run.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.create.all"
+msgstr "Quyền: order.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.delete.all"
+msgstr "Quyền: order.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.edit.all"
+msgstr "Quyền: order.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.read.all"
+msgstr "Quyền: order.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.create.all"
+msgstr "Quyền: order.sample.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.delete.all"
+msgstr "Quyền: order.sample.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.edit.all"
+msgstr "Quyền: order.sample.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.read.all"
+msgstr "Quyền: order.sample.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: order.sign.all"
+msgstr "Quyền: order.sign.all"
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.archive.all"
+msgstr "Quyền: parameter.price.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.create.all"
+msgstr "Quyền: parameter.price.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.delete.all"
+msgstr "Quyền: parameter.price.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.edit.all"
+msgstr "Quyền: parameter.price.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.read.all"
+msgstr "Quyền: parameter.price.read.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_permission_edit_all
@@ -3588,6 +4244,34 @@ msgid "Permission: person.read.own_department"
 msgstr "Quyền: person.read.own_department"
 
 #. module: sol_laboratory
+msgid "Permission: quotation.create.all"
+msgstr "Quyền: quotation.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: quotation.delete.all"
+msgstr "Quyền: quotation.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: quotation.edit.all"
+msgstr "Quyền: quotation.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: quotation.read.all"
+msgstr "Quyền: quotation.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: reconciliation.day.create.all"
+msgstr "Quyền: reconciliation.day.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: reconciliation.day.edit.all"
+msgstr "Quyền: reconciliation.day.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: reconciliation.day.read.all"
+msgstr "Quyền: reconciliation.day.read.all"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_role_create_all
 msgid "Permission: role.create.all"
 msgstr "Quyền: role.create.all"
@@ -3638,9 +4322,73 @@ msgid "Permission: sample.test.read.all"
 msgstr "Quyền: sample.test.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: scheduled.job.edit.all"
+msgstr "Quyền: scheduled.job.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: scheduled.job.read.all"
+msgstr "Quyền: scheduled.job.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: service.package.archive.all"
+msgstr "Quyền: service.package.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: service.package.create.all"
+msgstr "Quyền: service.package.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: service.package.delete.all"
+msgstr "Quyền: service.package.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: service.package.edit.all"
+msgstr "Quyền: service.package.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.create.all"
+msgstr "Quyền: service.package.line.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.delete.all"
+msgstr "Quyền: service.package.line.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.edit.all"
+msgstr "Quyền: service.package.line.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.read.all"
+msgstr "Quyền: service.package.line.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: service.package.read.all"
+msgstr "Quyền: service.package.read.all"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_signature_read_all
 msgid "Permission: signature.read.all"
 msgstr "Quyền: signature.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.archive.all"
+msgstr "Quyền: subcontract.cost.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.create.all"
+msgstr "Quyền: subcontract.cost.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.delete.all"
+msgstr "Quyền: subcontract.cost.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.edit.all"
+msgstr "Quyền: subcontract.cost.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.read.all"
+msgstr "Quyền: subcontract.cost.read.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_task_create_all
@@ -3686,6 +4434,42 @@ msgstr "Quyền: task.read.own_department"
 #: model:res.groups,name:sol_laboratory.group_permission_task_type_edit_all
 msgid "Permission: task.type.edit.all"
 msgstr "Quyền: task.type.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: tax.archive.all"
+msgstr "Quyền: tax.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: tax.create.all"
+msgstr "Quyền: tax.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: tax.delete.all"
+msgstr "Quyền: tax.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: tax.edit.all"
+msgstr "Quyền: tax.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.create.all"
+msgstr "Quyền: tax.rate.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.delete.all"
+msgstr "Quyền: tax.rate.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.edit.all"
+msgstr "Quyền: tax.rate.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.read.all"
+msgstr "Quyền: tax.rate.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: tax.read.all"
+msgstr "Quyền: tax.read.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_test_request_create_all
@@ -3767,10 +4551,18 @@ msgid "Post Test Requirements"
 msgstr "Yêu cầu sau thử nghiệm"
 
 #. module: sol_laboratory
+msgid "Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents."
+msgstr "Tiền tố và độ dài của mã gán cho chỉ tiêu, nhóm, loại mẫu, hồ sơ, thầu phụ và chứng từ."
+
+#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
 msgid "Previous"
 msgstr "Trước"
+
+#. module: sol_laboratory
+msgid "Previous time the cron ran successfully, provided to the job through the context on the `lastcall` key"
+msgstr "Lần trước cron chạy thành công, đưa cho tác vụ qua ngữ cảnh với khóa `lastcall`."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_product_pricelist
@@ -3828,6 +4620,14 @@ msgid "Private Zip"
 msgstr "Zip cá nhân"
 
 #. module: sol_laboratory
+msgid "Progress Done"
+msgstr "Đã Xong"
+
+#. module: sol_laboratory
+msgid "Progress Remaining"
+msgstr "Còn Lại"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__properties
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__employee_properties
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__properties
@@ -3882,6 +4682,10 @@ msgid "Quantity"
 msgstr "Số lần thử"
 
 #. module: sol_laboratory
+msgid "Queue"
+msgstr "Hàng Đợi"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__rating_ids
 msgid "Ratings"
 msgstr "Đánh giá"
@@ -3912,6 +4716,14 @@ msgid "Read departments"
 msgstr "Xem phòng ban"
 
 #. module: sol_laboratory
+msgid "Read job items"
+msgstr "Xem mục tác vụ"
+
+#. module: sol_laboratory
+msgid "Read job runs"
+msgstr "Xem lượt chạy tác vụ"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_read_all
 msgid "Read people"
 msgstr "Xem nhân sự"
@@ -3940,6 +4752,10 @@ msgstr "Xem chỉ tiêu của mẫu"
 #: model:medilab.permission,name:sol_laboratory.permission_sample_read_all
 msgid "Read samples"
 msgstr "Xem mẫu"
+
+#. module: sol_laboratory
+msgid "Read scheduled jobs"
+msgstr "Xem tác vụ định kỳ"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_signature_read_all
@@ -4050,6 +4866,10 @@ msgid "Repair"
 msgstr "Sửa chữa"
 
 #. module: sol_laboratory
+msgid "Repeat every x."
+msgstr "Lặp lại mỗi x."
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Report"
 msgstr "Phiếu kết quả"
@@ -4128,6 +4948,14 @@ msgid "Retired"
 msgstr "Ngừng sử dụng"
 
 #. module: sol_laboratory
+msgid "Retry"
+msgstr "Thử lại"
+
+#. module: sol_laboratory
+msgid "Retry Delay Minutes"
+msgstr "Phút Chờ Thử Lại"
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_role
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 msgid "Role"
@@ -4174,6 +5002,30 @@ msgstr "Phiên gọi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__run_minutes
 msgid "Run Minutes"
 msgstr "Thời gian chạy (phút)"
+
+#. module: sol_laboratory
+msgid "Run Requested At"
+msgstr "Yêu Cầu Chạy Lúc"
+
+#. module: sol_laboratory
+msgid "Run Requested By"
+msgstr "Người Yêu Cầu Chạy"
+
+#. module: sol_laboratory
+msgid "Run by hand"
+msgstr "Chạy thủ công"
+
+#. module: sol_laboratory
+msgid "Run now"
+msgstr "Chạy ngay"
+
+#. module: sol_laboratory
+msgid "Running"
+msgstr "Đang chạy"
+
+#. module: sol_laboratory
+msgid "Runs"
+msgstr "Lượt chạy"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_sms_error
@@ -4280,6 +5132,18 @@ msgid "Scale"
 msgstr "Tỷ lệ"
 
 #. module: sol_laboratory
+msgid "Schedule"
+msgstr "Lịch"
+
+#. module: sol_laboratory
+msgid "Schedule off"
+msgstr "Tắt lịch"
+
+#. module: sol_laboratory
+msgid "Scheduled Jobs"
+msgstr "Tác Vụ Định Kỳ"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__scope
 msgid "Scope"
 msgstr "Phạm vi"
@@ -4329,6 +5193,10 @@ msgstr "Lịch sử bảo trì"
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__use_partner_credit_limit
 msgid "Set a value greater than 0.0 to activate a credit limit check"
 msgstr "Đặt giá trị lớn hơn 0,0 để kích hoạt kiểm tra hạn mức tín dụng"
+
+#. module: sol_laboratory
+msgid "Settings"
+msgstr "Cài Đặt"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__sex
@@ -4452,6 +5320,10 @@ msgid "Start"
 msgstr "Bắt đầu"
 
 #. module: sol_laboratory
+msgid "Started At"
+msgstr "Bắt Đầu Lúc"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__state_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__state_id
 msgid "State"
@@ -4539,6 +5411,10 @@ msgstr "Thầu Phụ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__subordinate_ids
 msgid "Subordinates"
 msgstr "Nhân viên cấp dưới"
+
+#. module: sol_laboratory
+msgid "Succeeded"
+msgstr "Thành công"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__sunday_location_id
@@ -4749,6 +5625,10 @@ msgstr "Không thể đổi tên vai trò quản trị viên."
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid "The administrator role holds every permission; none can be removed."
 msgstr "Vai trò quản trị viên nắm mọi quyền; không thể gỡ quyền nào."
+
+#. module: sol_laboratory
+msgid "The batch size and the attempts must be at least 1."
+msgstr "Kích thước lô và số lần thử phải ít nhất là 1."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_chemical_code_unique
@@ -5114,6 +5994,10 @@ msgid "This user already belongs to another person."
 msgstr "Tài khoản này đã thuộc về một nhân sự khác."
 
 #. module: sol_laboratory
+msgid "This work is already queued for the job."
+msgstr "Công việc này đã được xếp hàng cho tác vụ."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__thursday_location_id
 msgid "Thursday"
 msgstr "Thứ năm"
@@ -5181,9 +6065,17 @@ msgid "Trigger"
 msgstr "Sự kiện tạo"
 
 #. module: sol_laboratory
+msgid "Triggered By"
+msgstr "Người Kích Hoạt"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__tuesday_location_id
 msgid "Tuesday"
 msgstr "Thứ Ba"
+
+#. module: sol_laboratory
+msgid "Turn the schedule of %s on before running it."
+msgstr "Bật lịch của %s trước khi chạy."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__type_id
@@ -5557,561 +6449,253 @@ msgid "work_permit_name"
 msgstr "work_permit_name"
 
 #. module: sol_laboratory
-msgid "%s is not in the task's department."
-msgstr "%s không thuộc phòng ban của nhiệm vụ."
+msgid "Permission: chemical.archive.all"
+msgstr "Quyền: chemical.archive.all"
 
 #. module: sol_laboratory
-msgid "%s runs within a minute."
-msgstr "%s chạy trong vòng một phút."
+msgid "Permission: chemical.create.all"
+msgstr "Quyền: chemical.create.all"
 
 #. module: sol_laboratory
-msgid "A job with this key already exists."
-msgstr "Đã có tác vụ định kỳ với khóa này."
+msgid "Permission: chemical.delete.all"
+msgstr "Quyền: chemical.delete.all"
 
 #. module: sol_laboratory
-msgid "Attachment"
-msgstr "Tệp Đính Kèm"
+msgid "Permission: chemical.edit.all"
+msgstr "Quyền: chemical.edit.all"
 
 #. module: sol_laboratory
-msgid "Attempts"
-msgstr "Số Lần Thử"
+msgid "Permission: machine.archive.all"
+msgstr "Quyền: machine.archive.all"
 
 #. module: sol_laboratory
-msgid "Batch Size"
-msgstr "Kích Thước Lô"
+msgid "Permission: machine.create.all"
+msgstr "Quyền: machine.create.all"
 
 #. module: sol_laboratory
-msgid "Claim Timeout Minutes"
-msgstr "Phút Hết Hạn Nhận"
+msgid "Permission: machine.delete.all"
+msgstr "Quyền: machine.delete.all"
 
 #. module: sol_laboratory
-msgid "Claimed At"
-msgstr "Nhận Lúc"
+msgid "Permission: machine.edit.all"
+msgstr "Quyền: machine.edit.all"
 
 #. module: sol_laboratory
-msgid "Code Formats"
-msgstr "Định Dạng Mã"
+msgid "Permission: machine.service.create.all"
+msgstr "Quyền: machine.service.create.all"
 
 #. module: sol_laboratory
-msgid "Code formats"
-msgstr "Định dạng mã"
+msgid "Permission: machine.service.delete.all"
+msgstr "Quyền: machine.service.delete.all"
 
 #. module: sol_laboratory
-msgid "Codes"
-msgstr "Mã"
+msgid "Permission: machine.service.edit.all"
+msgstr "Quyền: machine.service.edit.all"
 
 #. module: sol_laboratory
-msgid "Cron"
-msgstr "Cron"
+msgid "Permission: measurement.unit.archive.all"
+msgstr "Quyền: measurement.unit.archive.all"
 
 #. module: sol_laboratory
-msgid "Cron Pass"
-msgstr "Lượt Cron"
+msgid "Permission: measurement.unit.create.all"
+msgstr "Quyền: measurement.unit.create.all"
 
 #. module: sol_laboratory
-msgid "Document Model"
-msgstr "Model Chứng Từ"
+msgid "Permission: measurement.unit.delete.all"
+msgstr "Quyền: measurement.unit.delete.all"
 
 #. module: sol_laboratory
-msgid "Done Count"
-msgstr "Số Mục Xong"
+msgid "Permission: measurement.unit.edit.all"
+msgstr "Quyền: measurement.unit.edit.all"
 
 #. module: sol_laboratory
-msgid "Duration"
-msgstr "Thời Lượng"
+msgid "Permission: parameter.group.archive.all"
+msgstr "Quyền: parameter.group.archive.all"
 
 #. module: sol_laboratory
-msgid "Duration (s)"
-msgstr "Thời Lượng (giây)"
+msgid "Permission: parameter.group.create.all"
+msgstr "Quyền: parameter.group.create.all"
 
 #. module: sol_laboratory
-msgid "Each job has its own cron."
-msgstr "Mỗi tác vụ định kỳ có cron riêng."
+msgid "Permission: parameter.group.delete.all"
+msgstr "Quyền: parameter.group.delete.all"
 
 #. module: sol_laboratory
-msgid "Edit job items"
-msgstr "Sửa mục tác vụ"
+msgid "Permission: parameter.group.edit.all"
+msgstr "Quyền: parameter.group.edit.all"
 
 #. module: sol_laboratory
-msgid "Edit scheduled jobs"
-msgstr "Sửa tác vụ định kỳ"
+msgid "Permission: parameter.method.archive.all"
+msgstr "Quyền: parameter.method.archive.all"
 
 #. module: sol_laboratory
-msgid "Ended At"
-msgstr "Kết Thúc Lúc"
+msgid "Permission: parameter.method.archive.own_department"
+msgstr "Quyền: parameter.method.archive.own_department"
 
 #. module: sol_laboratory
-msgid "Every"
-msgstr "Mỗi"
+msgid "Permission: parameter.method.create.all"
+msgstr "Quyền: parameter.method.create.all"
 
 #. module: sol_laboratory
-msgid "Failed"
-msgstr "Thất bại"
+msgid "Permission: parameter.method.create.own_department"
+msgstr "Quyền: parameter.method.create.own_department"
 
 #. module: sol_laboratory
-msgid "Failed Count"
-msgstr "Số Mục Thất Bại"
+msgid "Permission: parameter.method.delete.all"
+msgstr "Quyền: parameter.method.delete.all"
 
 #. module: sol_laboratory
-msgid "Has failed items"
-msgstr "Có mục thất bại"
+msgid "Permission: parameter.method.delete.own_department"
+msgstr "Quyền: parameter.method.delete.own_department"
 
 #. module: sol_laboratory
-msgid "Interval Number"
-msgstr "Số Khoảng"
+msgid "Permission: parameter.method.edit.all"
+msgstr "Quyền: parameter.method.edit.all"
 
 #. module: sol_laboratory
-msgid "Interval Unit"
-msgstr "Đơn Vị Khoảng"
+msgid "Permission: parameter.method.edit.own_department"
+msgstr "Quyền: parameter.method.edit.own_department"
 
 #. module: sol_laboratory
-msgid "Item Key"
-msgstr "Khóa Mục"
+msgid "Permission: parameter.method.machine.create.all"
+msgstr "Quyền: parameter.method.machine.create.all"
 
 #. module: sol_laboratory
-msgid "Items"
-msgstr "Mục"
+msgid "Permission: parameter.method.machine.delete.all"
+msgstr "Quyền: parameter.method.machine.delete.all"
 
 #. module: sol_laboratory
-msgid "Job Item"
-msgstr "Mục Tác Vụ"
+msgid "Permission: parameter.method.machine.edit.all"
+msgstr "Quyền: parameter.method.machine.edit.all"
 
 #. module: sol_laboratory
-msgid "Job Items"
-msgstr "Mục Tác Vụ"
+msgid "Permission: quality.registration.archive.all"
+msgstr "Quyền: quality.registration.archive.all"
 
 #. module: sol_laboratory
-msgid "Job Run"
-msgstr "Lượt Chạy Tác Vụ"
+msgid "Permission: quality.registration.create.all"
+msgstr "Quyền: quality.registration.create.all"
 
 #. module: sol_laboratory
-msgid "Job Runs"
-msgstr "Lượt Chạy Tác Vụ"
+msgid "Permission: quality.registration.delete.all"
+msgstr "Quyền: quality.registration.delete.all"
 
 #. module: sol_laboratory
-msgid "Job item failed: %s"
-msgstr "Mục tác vụ thất bại: %s"
+msgid "Permission: quality.registration.edit.all"
+msgstr "Quyền: quality.registration.edit.all"
 
 #. module: sol_laboratory
-msgid "Jobs"
-msgstr "Tác Vụ"
+msgid "Permission: regulation.archive.all"
+msgstr "Quyền: regulation.archive.all"
 
 #. module: sol_laboratory
-msgid "Key"
-msgstr "Khóa"
+msgid "Permission: regulation.create.all"
+msgstr "Quyền: regulation.create.all"
 
 #. module: sol_laboratory
-msgid "Last Duration (s)"
-msgstr "Thời Lượng Lần Cuối (giây)"
+msgid "Permission: regulation.delete.all"
+msgstr "Quyền: regulation.delete.all"
 
 #. module: sol_laboratory
-msgid "Last Error"
-msgstr "Lỗi Lần Cuối"
+msgid "Permission: regulation.edit.all"
+msgstr "Quyền: regulation.edit.all"
 
 #. module: sol_laboratory
-msgid "Last Run"
-msgstr "Lượt Chạy Cuối"
+msgid "Permission: regulation.limit.create.all"
+msgstr "Quyền: regulation.limit.create.all"
 
 #. module: sol_laboratory
-msgid "Last Scheduled Run"
-msgstr "Lượt Chạy Theo Lịch Cuối"
+msgid "Permission: regulation.limit.delete.all"
+msgstr "Quyền: regulation.limit.delete.all"
 
 #. module: sol_laboratory
-msgid "Log"
-msgstr "Nhật Ký"
+msgid "Permission: regulation.limit.edit.all"
+msgstr "Quyền: regulation.limit.edit.all"
 
 #. module: sol_laboratory
-msgid "Max Attempts"
-msgstr "Số Lần Thử Tối Đa"
+msgid "Permission: sample.type.archive.all"
+msgstr "Quyền: sample.type.archive.all"
 
 #. module: sol_laboratory
-msgid "Menu"
-msgstr "Trình đơn"
+msgid "Permission: sample.type.create.all"
+msgstr "Quyền: sample.type.create.all"
 
 #. module: sol_laboratory
-msgid "Next Attempt At"
-msgstr "Thử Lại Lúc"
+msgid "Permission: sample.type.delete.all"
+msgstr "Quyền: sample.type.delete.all"
 
 #. module: sol_laboratory
-msgid "Next Run"
-msgstr "Lượt Chạy Tiếp Theo"
+msgid "Permission: sample.type.edit.all"
+msgstr "Quyền: sample.type.edit.all"
 
 #. module: sol_laboratory
-msgid "Next planned execution date for this job."
-msgstr "Ngày thực hiện dự kiến tiếp theo của tác vụ này."
+msgid "Permission: subcontractor.archive.all"
+msgstr "Quyền: subcontractor.archive.all"
 
 #. module: sol_laboratory
-msgid "Only a failed item can be retried."
-msgstr "Chỉ mục đã thất bại mới được thử lại."
+msgid "Permission: subcontractor.create.all"
+msgstr "Quyền: subcontractor.create.all"
 
 #. module: sol_laboratory
-msgid "Only a pending or failed item can be cancelled."
-msgstr "Chỉ mục đang chờ hoặc đã thất bại mới được hủy."
+msgid "Permission: subcontractor.edit.all"
+msgstr "Quyền: subcontractor.edit.all"
 
 #. module: sol_laboratory
-msgid "Partly Failed"
-msgstr "Một phần thất bại"
+msgid "Permission: test.parameter.archive.all"
+msgstr "Quyền: test.parameter.archive.all"
 
 #. module: sol_laboratory
-msgid "Payload"
-msgstr "Dữ Liệu"
+msgid "Permission: test.parameter.create.all"
+msgstr "Quyền: test.parameter.create.all"
 
 #. module: sol_laboratory
-msgid "Pending"
-msgstr "Đang chờ"
+msgid "Permission: test.parameter.edit.all"
+msgstr "Quyền: test.parameter.edit.all"
 
 #. module: sol_laboratory
-msgid "Pending Count"
-msgstr "Số Mục Đang Chờ"
+msgid "Permission: testing.field.archive.all"
+msgstr "Quyền: testing.field.archive.all"
 
 #. module: sol_laboratory
-msgid "Permission: invoice.adjustment.create.all"
-msgstr "Quyền: invoice.adjustment.create.all"
+msgid "Permission: testing.field.create.all"
+msgstr "Quyền: testing.field.create.all"
 
 #. module: sol_laboratory
-msgid "Permission: invoice.adjustment.delete.all"
-msgstr "Quyền: invoice.adjustment.delete.all"
+msgid "Permission: testing.field.delete.all"
+msgstr "Quyền: testing.field.delete.all"
 
 #. module: sol_laboratory
-msgid "Permission: invoice.adjustment.edit.all"
-msgstr "Quyền: invoice.adjustment.edit.all"
+msgid "Permission: testing.field.edit.all"
+msgstr "Quyền: testing.field.edit.all"
 
 #. module: sol_laboratory
-msgid "Permission: invoice.adjustment.read.all"
-msgstr "Quyền: invoice.adjustment.read.all"
+msgid "Permission: testing.method.archive.all"
+msgstr "Quyền: testing.method.archive.all"
 
 #. module: sol_laboratory
-msgid "Permission: job.item.edit.all"
-msgstr "Quyền: job.item.edit.all"
+msgid "Permission: testing.method.create.all"
+msgstr "Quyền: testing.method.create.all"
 
 #. module: sol_laboratory
-msgid "Permission: job.item.read.all"
-msgstr "Quyền: job.item.read.all"
+msgid "Permission: testing.method.delete.all"
+msgstr "Quyền: testing.method.delete.all"
 
 #. module: sol_laboratory
-msgid "Permission: job.run.read.all"
-msgstr "Quyền: job.run.read.all"
+msgid "Permission: testing.method.edit.all"
+msgstr "Quyền: testing.method.edit.all"
 
 #. module: sol_laboratory
-msgid "Permission: parameter.price.archive.all"
-msgstr "Quyền: parameter.price.archive.all"
+msgid "Permission: unit.category.archive.all"
+msgstr "Quyền: unit.category.archive.all"
 
 #. module: sol_laboratory
-msgid "Permission: parameter.price.create.all"
-msgstr "Quyền: parameter.price.create.all"
+msgid "Permission: unit.category.create.all"
+msgstr "Quyền: unit.category.create.all"
 
 #. module: sol_laboratory
-msgid "Permission: parameter.price.delete.all"
-msgstr "Quyền: parameter.price.delete.all"
+msgid "Permission: unit.category.delete.all"
+msgstr "Quyền: unit.category.delete.all"
 
 #. module: sol_laboratory
-msgid "Permission: parameter.price.edit.all"
-msgstr "Quyền: parameter.price.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: parameter.price.read.all"
-msgstr "Quyền: parameter.price.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: reconciliation.day.create.all"
-msgstr "Quyền: reconciliation.day.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: reconciliation.day.edit.all"
-msgstr "Quyền: reconciliation.day.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: reconciliation.day.read.all"
-msgstr "Quyền: reconciliation.day.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: scheduled.job.edit.all"
-msgstr "Quyền: scheduled.job.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: scheduled.job.read.all"
-msgstr "Quyền: scheduled.job.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: service.package.archive.all"
-msgstr "Quyền: service.package.archive.all"
-
-#. module: sol_laboratory
-msgid "Permission: service.package.create.all"
-msgstr "Quyền: service.package.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: service.package.delete.all"
-msgstr "Quyền: service.package.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: service.package.edit.all"
-msgstr "Quyền: service.package.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: service.package.line.create.all"
-msgstr "Quyền: service.package.line.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: service.package.line.delete.all"
-msgstr "Quyền: service.package.line.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: service.package.line.edit.all"
-msgstr "Quyền: service.package.line.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: service.package.line.read.all"
-msgstr "Quyền: service.package.line.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: service.package.read.all"
-msgstr "Quyền: service.package.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.archive.all"
-msgstr "Quyền: subcontract.cost.archive.all"
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.create.all"
-msgstr "Quyền: subcontract.cost.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.delete.all"
-msgstr "Quyền: subcontract.cost.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.edit.all"
-msgstr "Quyền: subcontract.cost.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: subcontract.cost.read.all"
-msgstr "Quyền: subcontract.cost.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: tax.archive.all"
-msgstr "Quyền: tax.archive.all"
-
-#. module: sol_laboratory
-msgid "Permission: tax.create.all"
-msgstr "Quyền: tax.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: tax.delete.all"
-msgstr "Quyền: tax.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: tax.edit.all"
-msgstr "Quyền: tax.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: tax.rate.create.all"
-msgstr "Quyền: tax.rate.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: tax.rate.delete.all"
-msgstr "Quyền: tax.rate.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: tax.rate.edit.all"
-msgstr "Quyền: tax.rate.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: tax.rate.read.all"
-msgstr "Quyền: tax.rate.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: tax.read.all"
-msgstr "Quyền: tax.read.all"
-
-#. module: sol_laboratory
-msgid "Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents."
-msgstr "Tiền tố và độ dài của mã gán cho chỉ tiêu, nhóm, loại mẫu, hồ sơ, thầu phụ và chứng từ."
-
-#. module: sol_laboratory
-msgid "Previous time the cron ran successfully, provided to the job through the context on the `lastcall` key"
-msgstr "Lần trước cron chạy thành công, đưa cho tác vụ qua ngữ cảnh với khóa `lastcall`."
-
-#. module: sol_laboratory
-msgid "Progress Done"
-msgstr "Đã Xong"
-
-#. module: sol_laboratory
-msgid "Progress Remaining"
-msgstr "Còn Lại"
-
-#. module: sol_laboratory
-msgid "Queue"
-msgstr "Hàng Đợi"
-
-#. module: sol_laboratory
-msgid "Read job items"
-msgstr "Xem mục tác vụ"
-
-#. module: sol_laboratory
-msgid "Read job runs"
-msgstr "Xem lượt chạy tác vụ"
-
-#. module: sol_laboratory
-msgid "Read scheduled jobs"
-msgstr "Xem tác vụ định kỳ"
-
-#. module: sol_laboratory
-msgid "Repeat every x."
-msgstr "Lặp lại mỗi x."
-
-#. module: sol_laboratory
-msgid "Retry"
-msgstr "Thử lại"
-
-#. module: sol_laboratory
-msgid "Retry Delay Minutes"
-msgstr "Phút Chờ Thử Lại"
-
-#. module: sol_laboratory
-msgid "Run Requested At"
-msgstr "Yêu Cầu Chạy Lúc"
-
-#. module: sol_laboratory
-msgid "Run Requested By"
-msgstr "Người Yêu Cầu Chạy"
-
-#. module: sol_laboratory
-msgid "Run by hand"
-msgstr "Chạy thủ công"
-
-#. module: sol_laboratory
-msgid "Run now"
-msgstr "Chạy ngay"
-
-#. module: sol_laboratory
-msgid "Running"
-msgstr "Đang chạy"
-
-#. module: sol_laboratory
-msgid "Runs"
-msgstr "Lượt chạy"
-
-#. module: sol_laboratory
-msgid "Schedule"
-msgstr "Lịch"
-
-#. module: sol_laboratory
-msgid "Schedule off"
-msgstr "Tắt lịch"
-
-#. module: sol_laboratory
-msgid "Scheduled Jobs"
-msgstr "Tác Vụ Định Kỳ"
-
-#. module: sol_laboratory
-msgid "Settings"
-msgstr "Cài Đặt"
-
-#. module: sol_laboratory
-msgid "Started At"
-msgstr "Bắt Đầu Lúc"
-
-#. module: sol_laboratory
-msgid "Succeeded"
-msgstr "Thành công"
-
-#. module: sol_laboratory
-msgid "The batch size and the attempts must be at least 1."
-msgstr "Kích thước lô và số lần thử phải ít nhất là 1."
-
-#. module: sol_laboratory
-msgid "This work is already queued for the job."
-msgstr "Công việc này đã được xếp hàng cho tác vụ."
-
-#. module: sol_laboratory
-msgid "Triggered By"
-msgstr "Người Kích Hoạt"
-
-#. module: sol_laboratory
-msgid "Turn the schedule of %s on before running it."
-msgstr "Bật lịch của %s trước khi chạy."
-
-#. module: sol_laboratory
-msgid "Permission: cancellation.request.create.all"
-msgstr "Quyền: cancellation.request.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: cancellation.request.delete.all"
-msgstr "Quyền: cancellation.request.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: cancellation.request.edit.all"
-msgstr "Quyền: cancellation.request.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: cancellation.request.read.all"
-msgstr "Quyền: cancellation.request.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: customer.sales.terms.create.all"
-msgstr "Quyền: customer.sales.terms.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: customer.sales.terms.delete.all"
-msgstr "Quyền: customer.sales.terms.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: customer.sales.terms.edit.all"
-msgstr "Quyền: customer.sales.terms.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: customer.sales.terms.read.all"
-msgstr "Quyền: customer.sales.terms.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: order.create.all"
-msgstr "Quyền: order.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: order.delete.all"
-msgstr "Quyền: order.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: order.edit.all"
-msgstr "Quyền: order.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: order.read.all"
-msgstr "Quyền: order.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: order.sample.create.all"
-msgstr "Quyền: order.sample.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: order.sample.delete.all"
-msgstr "Quyền: order.sample.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: order.sample.edit.all"
-msgstr "Quyền: order.sample.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: order.sample.read.all"
-msgstr "Quyền: order.sample.read.all"
-
-#. module: sol_laboratory
-msgid "Permission: order.sign.all"
-msgstr "Quyền: order.sign.all"
-
-#. module: sol_laboratory
-msgid "Permission: quotation.create.all"
-msgstr "Quyền: quotation.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: quotation.delete.all"
-msgstr "Quyền: quotation.delete.all"
-
-#. module: sol_laboratory
-msgid "Permission: quotation.edit.all"
-msgstr "Quyền: quotation.edit.all"
-
-#. module: sol_laboratory
-msgid "Permission: quotation.read.all"
-msgstr "Quyền: quotation.read.all"
+msgid "Permission: unit.category.edit.all"
+msgstr "Quyền: unit.category.edit.all"

@@ -25,9 +25,9 @@ class Role(models.Model):
     _rec_names_search = ("name", "code")
 
     # Unique code of the role: lowercase letters, digits and underscores; cannot change once the role exists.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Role name in each language.
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # The Odoo group generated for the role, which implies the groups of its permissions.
     group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
     # Permissions the role contains.

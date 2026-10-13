@@ -10,6 +10,7 @@ from . import (
     job_run,
     permission,
     person,
+    res_partner,
     role,
     scheduled_job,
     signature,

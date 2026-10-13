@@ -70,8 +70,21 @@ class TestParameterConstraints(MasterDataCase):
             group_ids=groups.ids,
             sample_type_ids=sample_types.ids,
             method_ids=[
-                (0, 0, {"method_id": self.method.id, "unit_id": self.unit.id, "is_default": True}),
-                (0, 0, {"method_id": self.icp_ms.id, "unit_id": self.unit.id}),
+                (
+                    0,
+                    0,
+                    {
+                        "method_id": self.method.id,
+                        "unit_id": self.unit.id,
+                        "department_id": self.department.id,
+                        "is_default": True,
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {"method_id": self.icp_ms.id, "unit_id": self.unit.id, "department_id": self.department.id},
+                ),
             ],
         )
 
@@ -81,7 +94,12 @@ class TestParameterConstraints(MasterDataCase):
 
     def test_new_default_way_of_testing_replaces_the_previous_one(self):
         alternative = self.env[MODEL_PARAMETER_METHOD].create(
-            {"parameter_id": self.parameter.id, "method_id": self.icp_ms.id, "unit_id": self.unit.id}
+            {
+                "parameter_id": self.parameter.id,
+                "method_id": self.icp_ms.id,
+                "unit_id": self.unit.id,
+                "department_id": self.department.id,
+            }
         )
 
         alternative.is_default = True
@@ -95,7 +113,13 @@ class TestParameterConstraints(MasterDataCase):
         with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
             self.env[MODEL_PARAMETER_METHOD].create(
                 [
-                    {"parameter_id": parameter.id, "method_id": method.id, "unit_id": self.unit.id, "is_default": True}
+                    {
+                        "parameter_id": parameter.id,
+                        "method_id": method.id,
+                        "unit_id": self.unit.id,
+                        "department_id": self.department.id,
+                        "is_default": True,
+                    }
                     for method in self.method | self.icp_ms
                 ]
             )

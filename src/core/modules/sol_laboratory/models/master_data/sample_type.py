@@ -4,6 +4,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE_TYPE,
 )
 
@@ -11,16 +12,17 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Loại Mẫu
 class SampleType(models.Model):
     _name = MODEL_SAMPLE_TYPE
-    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
     _description = "Sample Type"
     _parent_store = True
     _order = "code"
     _rec_names_search = ("name", "code")
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique code of the sample type, such as LM.0001; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Sample type name in each language.
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # The broader sample type this one belongs to; empty for a top-level type.
     parent_id = fields.Many2one(MODEL_SAMPLE_TYPE, ondelete="restrict", index=True)
     # Ids of the sample type and all its ancestors, such as 2/7/, so filtering by a type finds its children in one query.
@@ -28,7 +30,7 @@ class SampleType(models.Model):
     # Smallest amount of sample to collect, in the minimum quantity unit.
     minimum_quantity = fields.Float(digits=0)
     # Unit of the minimum amount, such as g or mL.
-    minimum_quantity_unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, ondelete="restrict")
+    minimum_quantity_unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, ondelete="restrict", index=True)
     # How to collect the sample, in each language.
     sampling_requirements = fields.Text(translate=True)
     # How to store the sample before and after testing, such as "2-8 °C, away from light", in each language.
