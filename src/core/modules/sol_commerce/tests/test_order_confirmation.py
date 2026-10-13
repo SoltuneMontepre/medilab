@@ -49,8 +49,10 @@ class TestOrderConfirmation(OrderCase):
     def test_an_order_without_a_quotation_cannot_be_confirmed(self):
         order = self.make_quotable_order()
 
-        with self.assertRaises(UserError):
+        with self.assertRaises(UserError) as error:
             order.with_user(self.sales).action_confirm_order()
+
+        self.assertIn("accept the quotation", str(error.exception))
 
     def test_a_replaced_revision_cannot_be_confirmed(self):
         order = self.make_quotable_order()

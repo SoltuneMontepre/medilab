@@ -1,6 +1,8 @@
 from odoo.fields import Command
 from odoo.tests import TransactionCase
 
+from odoo.addons.sol_commerce.models.orders.sale_order_confirmation import SaleOrderConfirmation
+
 
 class InvoicingCase(TransactionCase):
     """A confirmed order for 5,000,000 VND with no tax, on the Vietnamese chart."""
@@ -36,13 +38,20 @@ class InvoicingCase(TransactionCase):
                 ],
             }
         )
-        cls.order.action_confirm()
+        # A portal draft drops the salesperson. The invoice still needs one, so a rejected payment can tell them.
+        cls.order.write({"user_id": cls.env.user.id})
+        cls.confirm_sale(cls.order)
         if not cls.env["account.journal"].search(
             [("type", "=", "cash"), ("company_id", "=", company.id)], limit=1
         ):
             cls.env["account.journal"].create(
                 {"name": "Cash", "type": "cash", "code": "CSH", "company_id": company.id}
             )
+
+    @classmethod
+    def confirm_sale(cls, order):
+        """Odoo's confirmation. These orders are invoices under test, not accepted quotations."""
+        return super(SaleOrderConfirmation, order).action_confirm()
 
     @classmethod
     def portal_user(cls, login, partner):

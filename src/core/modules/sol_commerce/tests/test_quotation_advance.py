@@ -197,8 +197,9 @@ class TestQuotationAdvance(OrderCase):
         with self.assertRaises(UserError):
             order.with_user(self.sales).action_confirm_order()
         quotation.write({"status": "accepted"})
-        with self.assertRaises(UserError):
+        with self.assertRaises(UserError) as error:
             order.with_user(self.sales).action_confirm_order()
+        self.assertIn("being revised", str(error.exception))
         self.assertFalse(order.test_request_id)
 
     def test_a_quotation_whose_advance_was_paid_cannot_be_revised(self):

@@ -64,11 +64,12 @@ class SaleOrderConfirmation(models.Model):
 
     def _check_can_be_confirmed(self):
         self.ensure_one()
-        if self.state == "draft":
+        latest = self._latest_quotation()
+        # A new order is also draft. Revision is the draft that follows a quotation already sent.
+        if self.state == "draft" and latest:
             raise UserError(self.env._("The quotation is being revised. Send the new revision first."))
         if self.order_status != STATUS_CLAIMED:
             raise UserError(self.env._("Only a claimed order can be confirmed."))
-        latest = self._latest_quotation()
         if latest.status == QUOTATION_REPLACED:
             raise UserError(self.env._("A replaced quotation cannot be confirmed."))
         if latest.status != QUOTATION_ACCEPTED:

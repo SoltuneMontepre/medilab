@@ -149,7 +149,7 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
         super().setUpClass()
         cls.invoice = cls.order.create_advance_invoice()
         private_order = cls.order.copy()
-        private_order.action_confirm()
+        cls.confirm_sale(private_order)
         cls.private_invoice = private_order.create_advance_invoice()
         cls.customer = cls.portal_user("payer.customer", cls.partner)
         cls.other = cls.portal_user("payer.other", cls.env["res.partner"].create({"name": "Other customer"}))
