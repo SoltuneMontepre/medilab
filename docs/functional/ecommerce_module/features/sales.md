@@ -149,6 +149,7 @@ Acceptance criteria:
 | Rule     | Description                                                                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------- |
 | Handling | Sales handles support requests. A request about an order goes to the order's salesperson; any other request waits until a salesperson takes it. |
+| Taking   | A salesperson takes a waiting request with **Take**, or by replying to it. From then on only that salesperson and the Head of Sales see it. |
 | Reply    | A reply sets the request to answered and notifies the customer. Sales closes a request once the customer's question is settled. |
 
 Acceptance criteria:

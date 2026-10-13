@@ -2526,3 +2526,421 @@ msgstr "<span>Tổng chuyển khoản</span>"
 #. module: sol_commerce
 msgid "<strong>Payment details</strong>"
 msgstr "<strong>Chi tiết thanh toán</strong>"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request.py:0
+msgid "%s is already closed."
+msgstr "%s đã được đóng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request.py:0
+msgid "%s is already taken."
+msgstr "%s đã có người nhận."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request.py:0
+msgid "%s is closed."
+msgstr "%s đã đóng."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__access_warning
+msgid "Access warning"
+msgstr "Cảnh báo truy cập"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_needaction
+msgid "Action Needed"
+msgstr "Tác vụ cần thiết"
+
+#. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_rating_rating_order_unique
+msgid "An order has at most one feedback."
+msgstr "Mỗi đơn hàng chỉ có tối đa một phản hồi."
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_support_request__status__answered
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
+msgid "Answered"
+msgstr "Đã trả lời"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Ask for help about this order"
+msgstr "Yêu cầu hỗ trợ về đơn hàng này"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_attachment_count
+msgid "Attachment Count"
+msgstr "Số lượng tệp đính kèm"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
+msgid "Back to the support requests"
+msgstr "Quay lại danh sách yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_form
+msgid "Close"
+msgstr "Đóng"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_support_request__status__closed
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
+msgid "Closed"
+msgstr "Đã đóng"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__closed_at
+msgid "Closed At"
+msgstr "Thời điểm đóng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Comment"
+msgstr "Nhận xét"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
+msgid "Conversation"
+msgstr "Trao đổi"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_support_request_create_all
+msgid "Create support requests"
+msgstr "Tạo yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_medilab_support_request__access_url
+msgid "Customer Portal URL"
+msgstr "URL cổng thông tin khách hàng"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_support_request_delete_all
+msgid "Delete support requests"
+msgstr "Xóa yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_support_request_edit_all
+msgid "Edit support requests"
+msgstr "Sửa yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_order_feedback
+#: model:ir.ui.menu,name:sol_commerce.menu_order_feedback
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_support
+msgid "Feedback"
+msgstr "Phản hồi"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__feedback_comment
+msgid "Feedback Comment"
+msgstr "Nhận xét phản hồi"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__feedback_rating
+msgid "Feedback Rating"
+msgstr "Điểm phản hồi"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/sale_order.py:0
+msgid "Feedback can be given once the order is completed."
+msgstr "Chỉ gửi được phản hồi khi đơn hàng đã hoàn thành."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+msgid "Files"
+msgstr "Tệp"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_form
+msgid "Filled from the sequence when left empty"
+msgstr "Tự điền theo số thứ tự khi để trống"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_follower_ids
+msgid "Followers"
+msgstr "Người theo dõi"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Người theo dõi (Đối tác)"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/sale_order.py:0
+msgid "Give a rating from 1 to 5."
+msgstr "Hãy chấm điểm từ 1 đến 5."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request.py:0
+msgid "Give the request a subject."
+msgstr "Hãy nhập tiêu đề cho yêu cầu."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__handled_by_id
+msgid "Handled By"
+msgstr "Người xử lý"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
+msgid "Handled by"
+msgstr "Người xử lý"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
+msgid "Handled by:"
+msgstr "Người xử lý:"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__has_message
+msgid "Has Message"
+msgstr "Có tin nhắn"
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_medilab_support_request__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Nếu chọn, bạn cần chú ý tới các tin nhắn mới."
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_medilab_support_request__message_has_error
+#: model:ir.model.fields,help:sol_commerce.field_medilab_support_request__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Nếu chọn, một số tin nhắn sẽ có lỗi gửi."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_is_follower
+msgid "Is Follower"
+msgstr "Là người theo dõi"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_has_error
+msgid "Message Delivery error"
+msgstr "Lỗi gửi tin nhắn"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_ids
+msgid "Messages"
+msgstr "Tin nhắn"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
+msgid "Mine"
+msgstr "Của tôi"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
+msgid "New request"
+msgstr "Yêu cầu mới"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+msgid "New support request"
+msgstr "Yêu cầu hỗ trợ mới"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+msgid "No order"
+msgstr "Không gắn đơn hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
+msgid "Not taken"
+msgstr "Chưa có người nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Số lượng tác vụ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_has_error_counter
+msgid "Number of errors"
+msgstr "Số lượng lỗi"
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_medilab_support_request__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Số tin nhắn cần xử lý"
+
+#. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_medilab_support_request__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Số tin nhắn bị gửi lỗi"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
+msgid "Open a new request"
+msgstr "Tạo yêu cầu mới"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_support
+msgid "Opened"
+msgstr "Ngày tạo"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__opened_by_id
+msgid "Opened By"
+msgstr "Người tạo"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
+msgid "Order:"
+msgstr "Đơn hàng:"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__access_url
+msgid "Portal Access URL"
+msgstr "URL truy cập cổng thông tin"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_rating_rating
+msgid "Rating"
+msgstr "Đánh giá"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__rating_ids
+msgid "Ratings"
+msgstr "Đánh giá"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_support_request_read_all
+msgid "Read support requests"
+msgstr "Xem yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
+msgid "Request"
+msgstr "Yêu cầu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Lỗi gửi SMS"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__access_token
+msgid "Security Token"
+msgstr "Token bảo mật"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+msgid "Send"
+msgstr "Gửi"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Send feedback"
+msgstr "Gửi phản hồi"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__subject
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_form
+msgid "Subject"
+msgstr "Tiêu đề"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_support
+msgid "Support"
+msgstr "Hỗ trợ"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_support_request
+msgid "Support Request"
+msgstr "Yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__support_request_ids
+msgid "Support Requests"
+msgstr "Yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model:medilab.task.type,name:sol_commerce.task_type_support_request
+msgid "Support request"
+msgstr "Yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_support_request
+#: model:ir.ui.menu,name:sol_commerce.menu_support_request
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
+msgid "Support requests"
+msgstr "Yêu cầu hỗ trợ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_list
+msgid "Take"
+msgstr "Nhận xử lý"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request.py:0
+msgid "The order does not belong to this customer."
+msgstr "Đơn hàng không thuộc về khách hàng này."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/sale_order.py:0
+msgid "This order already has feedback."
+msgstr "Đơn hàng này đã có phản hồi."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
+msgid "This request is closed."
+msgstr "Yêu cầu này đã đóng."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request.py:0
+msgid "This request is closed. Open a new request if you need more help."
+msgstr "Yêu cầu này đã đóng. Hãy tạo yêu cầu mới nếu bạn cần hỗ trợ thêm."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request.py:0
+msgid "Write your question."
+msgstr "Hãy nhập câu hỏi của bạn."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/support/support_request.py:0
+msgid "You are not registered as a customer yet. Contact the laboratory."
+msgstr "Bạn chưa được đăng ký là khách hàng. Hãy liên hệ phòng thí nghiệm."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
+msgid "You have not asked for help yet."
+msgstr "Bạn chưa gửi yêu cầu hỗ trợ nào."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_new
+msgid "Your question"
+msgstr "Câu hỏi của bạn"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+msgid "Your rating:"
+msgstr "Đánh giá của bạn:"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.support_page
+msgid "if you need more help."
+msgstr "nếu bạn cần hỗ trợ thêm."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__customer_partner_id
+msgid "Customer Contact"
+msgstr "Liên hệ khách hàng"

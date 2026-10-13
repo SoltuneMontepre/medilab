@@ -34,7 +34,12 @@ class CustomerOrder(http.Controller):
             return request.not_found()
         return request.render(
             "sol_commerce.order_page",
-            {"order": order, "lines": order._catalog_lines(), "requests": order.cancellation_request_ids},
+            {
+                "order": order,
+                "lines": order._catalog_lines(),
+                "requests": order.cancellation_request_ids,
+                "support_requests": order.support_request_ids,
+            },
         )
 
     @http.route("/orders/<int:order_id>/cancel", type="http", auth="user", methods=["POST"], website=False)
@@ -78,6 +83,17 @@ class CustomerOrder(http.Controller):
             return request.not_found()
         try:
             request_.action_withdraw()
+        except UserError as error:
+            return request.redirect(f"/orders/{order.id}?error={quote(str(error))}")
+        return request.redirect(f"/orders/{order.id}")
+
+    @http.route("/orders/<int:order_id>/feedback", type="http", auth="user", methods=["POST"], website=False)
+    def feedback(self, order_id, rating=None, comment=None, **kwargs):
+        order = self._order(order_id)
+        if not order:
+            return request.not_found()
+        try:
+            order.action_give_feedback(rating, comment)
         except UserError as error:
             return request.redirect(f"/orders/{order.id}?error={quote(str(error))}")
         return request.redirect(f"/orders/{order.id}")

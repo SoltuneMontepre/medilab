@@ -7076,3 +7076,19 @@ msgstr "{{ object.name }}"
 msgid "This notification belongs to someone else."
 msgstr "Thông báo này thuộc về người khác."
 
+
+#. module: sol_laboratory
+msgid "Permission: support.request.create.all"
+msgstr "Quyền: support.request.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.delete.all"
+msgstr "Quyền: support.request.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.edit.all"
+msgstr "Quyền: support.request.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.read.all"
+msgstr "Quyền: support.request.read.all"

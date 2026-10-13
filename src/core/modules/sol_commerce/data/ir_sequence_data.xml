@@ -7,4 +7,10 @@
         <field name="suffix"> %(y)s/BG-VTT</field>
         <field name="use_date_range" eval="True" />
     </record>
+    <record id="sequence_support_request" model="ir.sequence">
+        <field name="name">Support Request</field>
+        <field name="code">medilab.support.request</field>
+        <field name="prefix">HT.</field>
+        <field name="padding">4</field>
+    </record>
 </odoo>

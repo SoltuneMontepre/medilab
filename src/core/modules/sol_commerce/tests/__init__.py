@@ -1,5 +1,6 @@
 from . import (
     test_catalog_page,
+    test_feedback_portal,
     test_invoice_notices,
     test_invoices,
     test_order_access,
@@ -7,6 +8,7 @@ from . import (
     test_order_cancellation,
     test_order_cart,
     test_order_confirmation,
+    test_order_feedback,
     test_order_samples,
     test_payments,
     test_payos,
@@ -18,6 +20,8 @@ from . import (
     test_quotation_portal,
     test_quotation_send,
     test_service_package,
+    test_support_portal,
+    test_support_request,
     test_tax_archiving,
     test_tax_rates,
 )

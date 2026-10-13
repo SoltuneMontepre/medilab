@@ -27,6 +27,9 @@
                 ref('sol_commerce.permission_order_sample_edit_all'),
                 ref('sol_commerce.permission_order_sample_delete_all'),
                 ref('sol_commerce.permission_quotation_read_all'),
+                ref('sol_commerce.permission_support_request_read_all'),
+                ref('sol_commerce.permission_support_request_create_all'),
+                ref('sol_commerce.permission_support_request_edit_all'),
             ])]"
         />
     </record>
@@ -60,6 +63,10 @@
                 ref('sol_commerce.permission_customer_sales_terms_read_all'),
                 ref('sol_commerce.permission_customer_sales_terms_create_all'),
                 ref('sol_commerce.permission_customer_sales_terms_edit_all'),
+                ref('sol_commerce.permission_support_request_read_all'),
+                ref('sol_commerce.permission_support_request_create_all'),
+                ref('sol_commerce.permission_support_request_edit_all'),
+                ref('sol_commerce.permission_support_request_delete_all'),
             ])]"
         />
     </record>

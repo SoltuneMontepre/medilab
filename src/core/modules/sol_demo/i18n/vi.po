@@ -446,3 +446,8 @@ msgstr "Yêu cầu thay đổi đơn hàng"
 #. module: sol_demo
 msgid "Order signing"
 msgstr "Ký đơn hàng"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_account_move
+msgid "Journal Entry"
+msgstr "Bút toán"

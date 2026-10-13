@@ -19,6 +19,7 @@ How code inside an Odoo module is laid out.
 | `management`        | Features only managers use                                                                                                                                                       |
 | `pricing`           | Parameter prices, taxes and their rates, subcontract costs and service packages                                                                                                  |
 | `orders`            | Sale orders, the portal cart and cancellation requests                                                                                                                           |
+| `support`           | Support requests and the customers' feedback on orders                                                                                                                           |
 | `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices and menus                                                                                   |
 
 ## Files

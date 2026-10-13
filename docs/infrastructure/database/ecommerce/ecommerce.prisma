@@ -123,7 +123,9 @@ model Contact {
   /// Subcontract costs this contact charges as a subcontractor.
   supplier_infos     SupplierInfo[]
   /// Ratings this contact gave.
-  ratings            Rating[]
+  ratings            Rating[]       @relation("RatingCustomer")
+  /// Ratings of orders this contact sold as salesperson.
+  rated_ratings      Rating[]       @relation("RatingSalesperson")
 
   @@map("res_partner")
 }
@@ -777,6 +779,8 @@ model SupportRequest {
   handled_by_id Int?
   /// When the request was closed.
   closed_at     DateTime?
+  /// Odoo's portal token, which lets the e-mail link open the request on the portal.
+  access_token  String?    @db.VarChar
   /// The customer who asks for help.
   customer      Customer   @relation(fields: [customer_id], references: [id], onDelete: Restrict)
   /// The order the request is about.
@@ -806,10 +810,14 @@ model Rating {
   feedback   String?  @db.Text
   /// The customer's contact who gave the rating.
   partner_id Int
+  /// The salesperson of the order, whom the rating is about.
+  rated_partner_id Int?
   /// True once the customer has given the rating.
   consumed   Boolean  @default(false)
   /// The customer's contact who gave the rating.
-  partner    Contact  @relation(fields: [partner_id], references: [id], onDelete: Restrict)
+  partner    Contact  @relation("RatingCustomer", fields: [partner_id], references: [id], onDelete: Restrict)
+  /// The salesperson of the order, whom the rating is about.
+  rated_partner Contact? @relation("RatingSalesperson", fields: [rated_partner_id], references: [id], onDelete: SetNull)
 
   @@unique([res_model, res_id])
   @@index([rating])
