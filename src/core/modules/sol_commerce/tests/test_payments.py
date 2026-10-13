@@ -1,5 +1,7 @@
 import re
+from datetime import datetime, timedelta
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -177,13 +179,22 @@ class TestPayments(InvoicingCase):
         self.assertEqual(transaction.state, "done")
         self.assertTrue(transaction.payment_id)
 
-    def test_the_overdue_reminder_job_does_not_send(self):
-        before = self.env["mail.mail"].search_count([])
+    def test_an_overdue_reminder_is_queued_once(self):
+        state = self.invoice.payment_state
+        today = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).date()
+        self.invoice.invoice_date_due = today - timedelta(days=1)
         item = self.env[MODEL_SCHEDULED_JOB].queue("overdue.reminders", self.invoice.name, document=self.invoice)
 
         item.job_id._handle_overdue_reminders(item)
+        item.job_id._handle_overdue_reminders(item)
 
-        self.assertEqual(self.env["mail.mail"].search_count([]), before)
+        self.assertEqual(self.invoice.payment_state, state)
+        self.assertEqual(
+            self.env["mail.message"].search_count(
+                [("notification_key", "=", f"invoice:{self.invoice.id}:overdue:{today.isoformat()}")]
+            ),
+            1,
+        )
 
 
 @tagged("post_install", "-at_install")

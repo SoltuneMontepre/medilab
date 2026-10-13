@@ -418,6 +418,8 @@ model Contact {
   employee                   Employee?
   /// Odoo users whose details this contact holds.
   users                      User[]          @relation("UserPartner")
+  /// True when Brevo reported a hard bounce or an invalid address for this contact.
+  email_bounced              Boolean         @default(false)
 
   @@map("res_partner")
 }

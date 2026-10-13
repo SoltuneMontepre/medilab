@@ -1,13 +1,16 @@
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import requests
 
 from odoo import fields, models
 from odoo.tools import SQL
 
+from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_OVERDUE
 from odoo.addons.sol_commerce.services.payos_client import payos_client_from_env
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_JOB_RUN, MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 
 _logger = logging.getLogger(__name__)
@@ -25,6 +28,21 @@ class PayosLinkUnavailable(PermanentJobError):
 # Tác Vụ Định Kỳ
 class ScheduledJob(models.Model):
     _inherit = MODEL_SCHEDULED_JOB
+
+    def _run_batch(self):
+        if self.key == "overdue.reminders":
+            self._queue_overdue_invoices()
+        return super()._run_batch()
+
+    def _queue_overdue_invoices(self):
+        today = datetime.now(ZoneInfo(VIETNAM_ZONE)).date()
+        invoices = self.env["account.move"].sudo().search([("is_overdue", "=", True)])
+        for invoice in invoices:
+            self.env[MODEL_SCHEDULED_JOB].queue(
+                "overdue.reminders",
+                f"{invoice.id}:{today.isoformat()}",
+                document=invoice,
+            )
 
     def _handle_payos_calls(self, item):
         transaction = item._document()
@@ -157,5 +175,19 @@ class ScheduledJob(models.Model):
         return fields.Datetime.now() + POLL_AGAIN
 
     def _handle_overdue_reminders(self, item):
-        # The customer's channel and Brevo come later. The job keeps the invoice and does not send.
-        _logger.info("Overdue reminder waiting for a channel: %s", item.item_key)
+        invoice = item._document()
+        today = datetime.now(ZoneInfo(VIETNAM_ZONE)).date()
+        if not invoice or not invoice.is_overdue:
+            return
+        try:
+            with self.env.cr.savepoint():
+                self.env["mail.message"].raise_event(
+                    EVENT_INVOICE_OVERDUE,
+                    invoice,
+                    f"invoice:{invoice.id}:overdue:{today.isoformat()}",
+                    self.env._("Invoice %(name)s is overdue.", name=invoice.name or ""),
+                    partners=invoice.partner_id,
+                )
+        except Exception:
+            _logger.exception("Overdue reminder was not queued")
+            raise

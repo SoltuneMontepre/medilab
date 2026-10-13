@@ -1,5 +1,6 @@
 from . import (
     test_catalog_page,
+    test_invoice_notices,
     test_invoices,
     test_order_access,
     test_order_approval,

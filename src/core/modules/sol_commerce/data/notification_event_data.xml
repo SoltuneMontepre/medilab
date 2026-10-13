@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="event_invoice_sent" model="mail.message.subtype">
+        <field name="name">Invoice sent</field>
+        <field name="description">A posted invoice was emailed</field>
+        <field name="code">invoice.sent</field>
+        <field name="res_model">account.move</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+    <record id="event_invoice_overdue" model="mail.message.subtype">
+        <field name="name">Invoice overdue</field>
+        <field name="description">An invoice is past its due date</field>
+        <field name="code">invoice.overdue</field>
+        <field name="res_model">account.move</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+    <record id="event_payment_receipt" model="mail.message.subtype">
+        <field name="name">Payment receipt</field>
+        <field name="description">A payment was confirmed</field>
+        <field name="code">payment.receipt</field>
+        <field name="res_model">account.payment</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+    <record id="event_payment_rejected" model="mail.message.subtype">
+        <field name="name">Payment rejected</field>
+        <field name="description">A payment was rejected</field>
+        <field name="code">payment.rejected</field>
+        <field name="res_model">account.payment</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+</odoo>

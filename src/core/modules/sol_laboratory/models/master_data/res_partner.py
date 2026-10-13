@@ -9,6 +9,8 @@ class ResPartner(models.Model):
 
     # Subcontractors whose company contact this is.
     subcontractor_ids = fields.One2many(MODEL_SUBCONTRACTOR, "partner_id", string="Subcontractors")
+    # True when Brevo reported a hard bounce or an invalid address. That address is not used again.
+    email_bounced = fields.Boolean(copy=False)
 
     @api.depends("subcontractor_ids")
     def _compute_is_company(self):

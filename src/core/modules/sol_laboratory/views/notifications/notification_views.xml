@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_notification_event_list" model="ir.ui.view">
+        <field name="name">mail.message.subtype.list.medilab</field>
+        <field name="model">mail.message.subtype</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <field name="name" />
+                <field name="code" />
+                <field name="mandatory" />
+                <field name="enabled" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_notification_event_form" model="ir.ui.view">
+        <field name="name">mail.message.subtype.form.medilab</field>
+        <field name="model">mail.message.subtype</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="code" />
+                        <field name="mandatory" />
+                        <field name="enabled" readonly="mandatory" />
+                        <field name="res_model" />
+                    </group>
+                    <field name="recipient_ids">
+                        <list editable="bottom">
+                            <field name="role_id" />
+                            <field name="department_id" />
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_notification_event" model="ir.actions.act_window">
+        <field name="name">Notification events</field>
+        <field name="res_model">mail.message.subtype</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[("code", "!=", False)]</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_notification_event_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_medilab_notification_event_form')})]" />
+    </record>
+
+    <record id="view_medilab_mobile_device_list" model="ir.ui.view">
+        <field name="name">medilab.mobile.device.list</field>
+        <field name="model">medilab.mobile.device</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="user_id" />
+                <field name="platform" />
+                <field name="last_seen_at" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_medilab_mobile_device" model="ir.actions.act_window">
+        <field name="name">Mobile devices</field>
+        <field name="res_model">medilab.mobile.device</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_medilab_push_delivery_list" model="ir.ui.view">
+        <field name="name">medilab.push.delivery.list</field>
+        <field name="model">medilab.push.delivery</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="notification_id" />
+                <field name="mobile_device_id" />
+                <field name="status" />
+                <field name="sent_at" />
+                <field name="error" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_medilab_push_delivery" model="ir.actions.act_window">
+        <field name="name">Push deliveries</field>
+        <field name="res_model">medilab.push.delivery</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_medilab_notification_preference_list" model="ir.ui.view">
+        <field name="name">medilab.notification.preference.list</field>
+        <field name="model">medilab.notification.preference</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="event_id" />
+                <field name="channel" />
+                <field name="enabled" />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_medilab_notification_preference" model="ir.actions.act_window">
+        <field name="name">Notification preferences</field>
+        <field name="res_model">medilab.notification.preference</field>
+        <field name="view_mode">list</field>
+        <field name="domain">[("user_id", "=", uid)]</field>
+        <field name="context">{"default_user_id": uid}</field>
+    </record>
+</odoo>

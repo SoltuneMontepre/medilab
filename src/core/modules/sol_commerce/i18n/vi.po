@@ -2347,3 +2347,80 @@ msgstr "Thanh toán của bạn đã được xử lý."
 #. module: sol_commerce
 msgid "invoice"
 msgstr "hóa đơn"
+
+#. module: sol_commerce
+msgid "<span>Amount owed: </span>"
+msgstr "<span>Số còn nợ: </span>"
+
+#. module: sol_commerce
+msgid "A payment was confirmed"
+msgstr "Một khoản thanh toán đã được xác nhận"
+
+#. module: sol_commerce
+msgid "A payment was rejected"
+msgstr "Một khoản thanh toán đã bị từ chối"
+
+#. module: sol_commerce
+msgid "A posted invoice was emailed"
+msgstr "Hóa đơn đã phát hành được gửi qua email"
+
+#. module: sol_commerce
+msgid "An invoice is past its due date"
+msgstr "Hóa đơn đã quá hạn"
+
+#. module: sol_commerce
+msgid "Email"
+msgstr "Email"
+
+#. module: sol_commerce
+msgid "Invoice %(name)s is attached."
+msgstr "Hóa đơn %(name)s được đính kèm."
+
+#. module: sol_commerce
+msgid "Invoice %(name)s is overdue."
+msgstr "Hóa đơn %(name)s đã quá hạn."
+
+#. module: sol_commerce
+msgid "Invoice overdue"
+msgstr "Hóa đơn quá hạn"
+
+#. module: sol_commerce
+msgid "Invoice sent"
+msgstr "Hóa đơn đã gửi"
+
+#. module: sol_commerce
+msgid "Is Overdue"
+msgstr "Quá hạn"
+
+#. module: sol_commerce
+msgid "Not paid"
+msgstr "Chưa thanh toán"
+
+#. module: sol_commerce
+msgid "Only a posted invoice can be emailed."
+msgstr "Chỉ hóa đơn đã phát hành mới được gửi email."
+
+#. module: sol_commerce
+msgid "Partially paid"
+msgstr "Thanh toán một phần"
+
+#. module: sol_commerce
+msgid "Payment Status"
+msgstr "Trạng thái thanh toán"
+
+#. module: sol_commerce
+msgid "Payment of %(amount)s was recorded."
+msgstr "Đã ghi nhận khoản thanh toán %(amount)s."
+
+#. module: sol_commerce
+msgid "Payment receipt"
+msgstr "Biên lai thanh toán"
+
+#. module: sol_commerce
+msgid "Payment was rejected: %(reason)s"
+msgstr "Khoản thanh toán bị từ chối: %(reason)s"
+
+#. module: sol_commerce
+msgid "Scheduled Job"
+msgstr "Tác vụ định kỳ"
+

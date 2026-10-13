@@ -2,7 +2,12 @@ from odoo import api, fields, models
 from odoo.tools import clean_context
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS
-from odoo.addons.sol_laboratory.constants.settings import DEFAULT_SAFETY_MARGIN_DAYS, SAFETY_MARGIN_PARAMETER
+from odoo.addons.sol_laboratory.constants.settings import (
+    DEFAULT_REMINDER_LEAD_MINUTES,
+    DEFAULT_SAFETY_MARGIN_DAYS,
+    REMINDER_LEAD_PARAMETER,
+    SAFETY_MARGIN_PARAMETER,
+)
 
 
 # Cài Đặt
@@ -26,4 +31,10 @@ class ResConfigSettings(models.TransientModel):
         default=DEFAULT_SAFETY_MARGIN_DAYS,
         help="Days a sample test is due before the date promised to the customer, kept for handling incidents. "
         "Applies to sample tests whose due date is worked out from now on.",
+    )
+    # Minutes before a planned task starts that its reminder is sent.
+    reminder_lead_minutes = fields.Integer(
+        string="Reminder lead (minutes)",
+        config_parameter=REMINDER_LEAD_PARAMETER,
+        default=DEFAULT_REMINDER_LEAD_MINUTES,
     )

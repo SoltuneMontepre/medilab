@@ -1,11 +1,17 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
-from odoo.fields import Command
+from odoo.fields import Command, Domain
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_SENT
+from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 
 BILLING_GROUP = "account.group_account_invoice"
 ADMINISTRATOR_GROUP = "base.group_system"
+VIETNAM = ZoneInfo(VIETNAM_ZONE)
 
 
 # Hóa đơn
@@ -20,11 +26,15 @@ class AccountMove(models.Model):
     # The order this invoice bills. Empty until orders are installed; the sale lines still link the invoice.
     order_id = fields.Many2one(MODEL_SALE_ORDER, string="Order", index=True, ondelete="restrict")
     # The posted invoice a raising adjustment adds to.
-    adjusted_invoice_id = fields.Many2one(MODEL_ACCOUNT_MOVE, string="Adjusted Invoice", ondelete="restrict", index=True)
+    adjusted_invoice_id = fields.Many2one(
+        MODEL_ACCOUNT_MOVE, string="Adjusted Invoice", ondelete="restrict", index=True
+    )
     # Raising adjustments of this invoice.
     raising_adjustment_ids = fields.One2many(MODEL_ACCOUNT_MOVE, "adjusted_invoice_id", string="Raising Adjustments")
     # What is still owed: the residual, minus posted lowering adjustments, plus posted raising ones.
     amount_owed = fields.Monetary(compute="_compute_amount_owed", currency_field="currency_id")
+    # Posted advance or final invoice whose due date in Vietnam has passed and that is not fully paid.
+    is_overdue = fields.Boolean(compute="_compute_is_overdue", search="_search_is_overdue")
 
     @api.depends(
         "amount_residual",
@@ -42,9 +52,9 @@ class AccountMove(models.Model):
                 move.amount_owed = move.amount_residual
                 continue
             lowering = move.reversal_move_ids.filtered(
-                lambda refund: refund.state == "posted"
-                and refund.invoice_kind == "adjustment"
-                and refund.amount_residual
+                lambda refund: (
+                    refund.state == "posted" and refund.invoice_kind == "adjustment" and refund.amount_residual
+                )
             )
             raises = move.raising_adjustment_ids.filtered(lambda invoice: invoice.state == "posted")
             # A reconciled credit note is already in amount_residual. Only an open one is subtracted here.
@@ -52,8 +62,68 @@ class AccountMove(models.Model):
                 move.amount_residual - sum(lowering.mapped("amount_residual")) + sum(raises.mapped("amount_residual"))
             )
 
+    def _compute_is_overdue(self):
+        today = datetime.now(VIETNAM).date()
+        for move in self:
+            move.is_overdue = bool(
+                move.move_type == "out_invoice"
+                and move.state == "posted"
+                and move.invoice_kind in ("advance", "final")
+                and move.payment_state in ("not_paid", "partial")
+                and move.invoice_date_due
+                and move.invoice_date_due < today
+            )
+
+    def _search_is_overdue(self, operator, value):
+        today = datetime.now(VIETNAM).date()
+        overdue = Domain(
+            [
+                ("move_type", "=", "out_invoice"),
+                ("state", "=", "posted"),
+                ("invoice_kind", "in", ("advance", "final")),
+                ("payment_state", "in", ("not_paid", "partial")),
+                ("invoice_date_due", "<", today),
+            ]
+        )
+        wanted = bool(value) if operator == "=" else not bool(value)
+        if operator not in ("=", "!="):
+            return NotImplemented
+        return overdue if wanted else ~overdue
+
+    def action_send_invoice(self):
+        """Email the posted invoice PDF once. A second call keeps the same message."""
+        self.ensure_one()
+        self._check_billing()
+        if self.state != "posted" or not self.invoice_kind:
+            raise UserError(self.env._("Only a posted invoice can be emailed."))
+        key = f"invoice:{self.id}:sent"
+        existing = self.env["mail.message"].sudo().search([("notification_key", "=", key)], limit=1)
+        if existing:
+            return existing
+        pdf, _report_type = self.env["ir.actions.report"].sudo()._render_qweb_pdf("account.account_invoices", self.ids)
+        attachment = self.env["ir.attachment"].create(
+            {
+                "name": f"{self.name or 'invoice'}.pdf",
+                "raw": pdf,
+                "res_model": self._name,
+                "res_id": self.id,
+                "mimetype": "application/pdf",
+            }
+        )
+        return self.env["mail.message"].raise_event(
+            EVENT_INVOICE_SENT,
+            self,
+            key,
+            self.env._("Invoice %(name)s is attached.", name=self.name or ""),
+            subject=self.name,
+            partners=self.partner_id,
+            attachments=attachment,
+        )
+
     def button_draft(self):
         locked = self.filtered(lambda move: move.invoice_kind and move.state == "posted")
+        if self.env.context.get("medilab_cancel_unpaid_advance"):
+            locked = locked.filtered(lambda move: move.payment_state != "not_paid")
         if locked:
             raise UserError(self.env._("A posted invoice cannot be edited. Correct it with an adjustment invoice."))
         return super().button_draft()

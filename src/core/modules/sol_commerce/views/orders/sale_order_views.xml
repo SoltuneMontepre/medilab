@@ -145,6 +145,7 @@
                 <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
                 <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
                 <field name="quotation_follow_up" />
+                <field name="payment_status" />
                 <field name="submitted_at" readonly="1" />
                 <field name="claimed_at" readonly="1" />
                 <field name="reordered_from_id" readonly="1" />

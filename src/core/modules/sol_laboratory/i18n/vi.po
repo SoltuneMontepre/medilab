@@ -6449,6 +6449,31 @@ msgid "work_permit_name"
 msgstr "work_permit_name"
 
 #. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_notification_event
+msgid "Notification events"
+msgstr "Sự kiện thông báo"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_mobile_device
+msgid "Mobile devices"
+msgstr "Thiết bị di động"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_push_delivery
+msgid "Push deliveries"
+msgstr "Lần đẩy thông báo"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_notification_preference
+msgid "Notification preferences"
+msgstr "Tuỳ chọn thông báo"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__reminder_lead_minutes
+msgid "Reminder lead (minutes)"
+msgstr "Gửi trước (phút)"
+
+#. module: sol_laboratory
 msgid "Permission: chemical.archive.all"
 msgstr "Quyền: chemical.archive.all"
 
@@ -6699,3 +6724,352 @@ msgstr "Quyền: unit.category.delete.all"
 #. module: sol_laboratory
 msgid "Permission: unit.category.edit.all"
 msgstr "Quyền: unit.category.edit.all"
+
+#. module: sol_laboratory
+msgid "<p>Your task <t t-out=\"object.name\"/> is about to start.</p>\n        "
+msgstr "<p>Nhiệm vụ <t t-out=\"object.name\"/> sắp bắt đầu.</p>\n        "
+
+#. module: sol_laboratory
+msgid "A mandatory event cannot be turned off."
+msgstr "Không thể tắt một sự kiện bắt buộc."
+
+#. module: sol_laboratory
+msgid "A mobile device needs a token and a platform."
+msgstr "Thiết bị di động cần mã thông báo và nền tảng."
+
+#. module: sol_laboratory
+msgid "A planned task is about to start"
+msgstr "Một nhiệm vụ đã lên lịch sắp bắt đầu"
+
+#. module: sol_laboratory
+msgid "An event with this code already exists."
+msgstr "Đã có sự kiện với mã này."
+
+#. module: sol_laboratory
+msgid "Android"
+msgstr "Android"
+
+#. module: sol_laboratory
+msgid "Archive mobile devices"
+msgstr "Lưu trữ thiết bị di động"
+
+#. module: sol_laboratory
+msgid "BREVO_SMTP_PORT must be a port number."
+msgstr "BREVO_SMTP_PORT phải là số cổng."
+
+#. module: sol_laboratory
+msgid "Brevo Status"
+msgstr "Trạng thái Brevo"
+
+#. module: sol_laboratory
+msgid "Calendar Event"
+msgstr "Sự kiện lịch"
+
+#. module: sol_laboratory
+msgid "Channel"
+msgstr "Kênh"
+
+#. module: sol_laboratory
+msgid "Choose a channel the system sends."
+msgstr "Chọn một kênh mà hệ thống gửi."
+
+#. module: sol_laboratory
+msgid "Choose a role or a department, not both and not neither."
+msgstr "Chọn một vai trò hoặc một phòng ban, không chọn cả hai và cũng không bỏ trống."
+
+#. module: sol_laboratory
+msgid "Create mobile devices"
+msgstr "Tạo thiết bị di động"
+
+#. module: sol_laboratory
+msgid "Create notification preferences"
+msgstr "Tạo tuỳ chọn thông báo"
+
+#. module: sol_laboratory
+msgid "Create notification recipients"
+msgstr "Tạo người nhận thông báo"
+
+#. module: sol_laboratory
+msgid "Create push deliveries"
+msgstr "Tạo lần đẩy thông báo"
+
+#. module: sol_laboratory
+msgid "Delete mobile devices"
+msgstr "Xoá thiết bị di động"
+
+#. module: sol_laboratory
+msgid "Delete notification preferences"
+msgstr "Xoá tuỳ chọn thông báo"
+
+#. module: sol_laboratory
+msgid "Delete notification recipients"
+msgstr "Xoá người nhận thông báo"
+
+#. module: sol_laboratory
+msgid "Edit mobile devices"
+msgstr "Sửa thiết bị di động"
+
+#. module: sol_laboratory
+msgid "Edit notification preferences"
+msgstr "Sửa tuỳ chọn thông báo"
+
+#. module: sol_laboratory
+msgid "Edit notification recipients"
+msgstr "Sửa người nhận thông báo"
+
+#. module: sol_laboratory
+msgid "Edit push deliveries"
+msgstr "Sửa lần đẩy thông báo"
+
+#. module: sol_laboratory
+msgid "Email Bounced"
+msgstr "Email bị trả lại"
+
+#. module: sol_laboratory
+msgid "Enabled"
+msgstr "Đang bật"
+
+#. module: sol_laboratory
+msgid "Error"
+msgstr "Lỗi"
+
+#. module: sol_laboratory
+msgid "Event"
+msgstr "Sự kiện"
+
+#. module: sol_laboratory
+msgid "In the application"
+msgstr "Trong ứng dụng"
+
+#. module: sol_laboratory
+msgid "Last Seen At"
+msgstr "Lần thấy gần nhất"
+
+#. module: sol_laboratory
+msgid "Mail Server"
+msgstr "Máy chủ thư"
+
+#. module: sol_laboratory
+msgid "Mandatory"
+msgstr "Bắt buộc"
+
+#. module: sol_laboratory
+msgid "Medilab Task"
+msgstr "Nhiệm vụ MediLab"
+
+#. module: sol_laboratory
+msgid "Message"
+msgstr "Tin nhắn"
+
+#. module: sol_laboratory
+msgid "Message Notification"
+msgstr "Thông báo tin nhắn"
+
+#. module: sol_laboratory
+msgid "Message Subtype"
+msgstr "Loại tin nhắn"
+
+#. module: sol_laboratory
+msgid "Minutes before a planned task starts."
+msgstr "Số phút trước khi nhiệm vụ đã lên lịch bắt đầu."
+
+#. module: sol_laboratory
+msgid "Mobile Device"
+msgstr "Thiết bị di động"
+
+#. module: sol_laboratory
+msgid "Notification"
+msgstr "Thông báo"
+
+#. module: sol_laboratory
+msgid "Notification Event Recipient"
+msgstr "Người nhận sự kiện thông báo"
+
+#. module: sol_laboratory
+msgid "Notification Key"
+msgstr "Khoá thông báo"
+
+#. module: sol_laboratory
+msgid "Notification Preference"
+msgstr "Tuỳ chọn thông báo"
+
+#. module: sol_laboratory
+msgid "Notification email"
+msgstr "Email thông báo"
+
+#. module: sol_laboratory
+msgid "Notification push"
+msgstr "Đẩy thông báo"
+
+#. module: sol_laboratory
+msgid "Notification reminders"
+msgstr "Nhắc thông báo"
+
+#. module: sol_laboratory
+msgid "Permission: mobile.device.archive.all"
+msgstr "Quyền: mobile.device.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: mobile.device.create.all"
+msgstr "Quyền: mobile.device.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: mobile.device.delete.all"
+msgstr "Quyền: mobile.device.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: mobile.device.edit.all"
+msgstr "Quyền: mobile.device.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: mobile.device.read.all"
+msgstr "Quyền: mobile.device.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: notification.event.recipient.create.all"
+msgstr "Quyền: notification.event.recipient.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: notification.event.recipient.delete.all"
+msgstr "Quyền: notification.event.recipient.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: notification.event.recipient.edit.all"
+msgstr "Quyền: notification.event.recipient.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: notification.event.recipient.read.all"
+msgstr "Quyền: notification.event.recipient.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: notification.preference.create.all"
+msgstr "Quyền: notification.preference.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: notification.preference.delete.all"
+msgstr "Quyền: notification.preference.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: notification.preference.edit.all"
+msgstr "Quyền: notification.preference.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: notification.preference.read.all"
+msgstr "Quyền: notification.preference.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: push.delivery.create.all"
+msgstr "Quyền: push.delivery.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: push.delivery.edit.all"
+msgstr "Quyền: push.delivery.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: push.delivery.read.all"
+msgstr "Quyền: push.delivery.read.all"
+
+#. module: sol_laboratory
+msgid "Platform"
+msgstr "Nền tảng"
+
+#. module: sol_laboratory
+msgid "Push"
+msgstr "Đẩy"
+
+#. module: sol_laboratory
+msgid "Push Delivery"
+msgstr "Lần đẩy thông báo"
+
+#. module: sol_laboratory
+msgid "Read mobile devices"
+msgstr "Xem thiết bị di động"
+
+#. module: sol_laboratory
+msgid "Read notification preferences"
+msgstr "Xem tuỳ chọn thông báo"
+
+#. module: sol_laboratory
+msgid "Read notification recipients"
+msgstr "Xem người nhận thông báo"
+
+#. module: sol_laboratory
+msgid "Read push deliveries"
+msgstr "Xem lần đẩy thông báo"
+
+#. module: sol_laboratory
+msgid "Recipients"
+msgstr "Người nhận"
+
+#. module: sol_laboratory
+msgid "Reminder lead"
+msgstr "Gửi trước"
+
+#. module: sol_laboratory
+msgid "Sent"
+msgstr "Đã gửi"
+
+#. module: sol_laboratory
+msgid "Sent At"
+msgstr "Gửi lúc"
+
+#. module: sol_laboratory
+msgid "Skipped"
+msgstr "Đã bỏ qua"
+
+#. module: sol_laboratory
+msgid "Starts at %(start)s."
+msgstr "Bắt đầu lúc %(start)s."
+
+#. module: sol_laboratory
+msgid "Task reminder"
+msgstr "Nhắc nhiệm vụ"
+
+#. module: sol_laboratory
+msgid "The email cannot be sent."
+msgstr "Không gửi được email."
+
+#. module: sol_laboratory
+msgid "The email was cancelled."
+msgstr "Email đã bị huỷ."
+
+#. module: sol_laboratory
+msgid "The mail server did not accept the message."
+msgstr "Máy chủ thư không nhận tin nhắn."
+
+#. module: sol_laboratory
+msgid "This channel is already chosen for the event."
+msgstr "Kênh này đã được chọn cho sự kiện."
+
+#. module: sol_laboratory
+msgid "This device is not registered for you."
+msgstr "Thiết bị này không được đăng ký cho bạn."
+
+#. module: sol_laboratory
+msgid "This device token is already registered."
+msgstr "Mã thông báo của thiết bị này đã được đăng ký."
+
+#. module: sol_laboratory
+msgid "This notification already exists."
+msgstr "Thông báo này đã tồn tại."
+
+#. module: sol_laboratory
+msgid "This notification is already pushed to the device."
+msgstr "Thông báo này đã được đẩy tới thiết bị."
+
+#. module: sol_laboratory
+msgid "Token"
+msgstr "Mã thông báo"
+
+#. module: sol_laboratory
+msgid "You can change only your own channel choices."
+msgstr "Bạn chỉ có thể đổi lựa chọn kênh của chính mình."
+
+#. module: sol_laboratory
+msgid "iOS"
+msgstr "iOS"
+
+#. module: sol_laboratory
+msgid "{{ object.name }}"
+msgstr "{{ object.name }}"
+
