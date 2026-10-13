@@ -6,6 +6,8 @@ from . import (
     test_blind_testing,
     test_code_sequences,
     test_customer,
+    test_customer_profile,
+    test_customer_signup,
     test_handover_record,
     test_job_claim_timeout,
     test_job_queue,

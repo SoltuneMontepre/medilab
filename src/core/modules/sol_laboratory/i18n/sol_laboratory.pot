@@ -8382,3 +8382,140 @@ msgstr ""
 #: code:addons/sol_laboratory/models/testing/machine_booking.py:0
 msgid "Cancel the booking instead of clearing its start."
 msgstr ""
+
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Address"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__citizen_id
+msgid "Citizen ID"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Company name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Contacts and Addresses"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__default_contact_id
+msgid "Default Contact"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_contact_mixin
+msgid "Delegated Contact"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Enter the contact's name."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Enter your citizen ID."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Fill in: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Invite to Portal"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Merge into Matched Customer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Move every order, document and person of this customer to the customer it matched, and delete this customer?"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Not a Duplicate"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Only the customer's own people can be changed here."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Position"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__duplicate_of_id
+msgid "Possible Duplicate Of"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_customer_duplicate
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__possible_duplicate_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_customer_duplicate
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Possible Duplicates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Registered with the tax code or citizen ID of another customer. Merge it into that customer, or clear the flag."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Tax code"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "The logo must be a PNG or JPEG image of at most 2 MB."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "This customer is not flagged as a possible duplicate."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "This person is not one of your contacts."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Your citizen ID is already registered."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_access
+msgid "Access"
+msgstr ""

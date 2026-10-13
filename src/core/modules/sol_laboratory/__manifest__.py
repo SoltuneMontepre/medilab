@@ -15,6 +15,7 @@
         "data/ir_sequence_data.xml",
         "data/role_data.xml",
         "data/permission_data.xml",
+        "security/customer_access.xml",
         "data/person_data.xml",
         "data/task_type_data.xml",
         "data/notification_event_data.xml",

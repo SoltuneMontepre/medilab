@@ -20,6 +20,12 @@
         <menuitem id="menu_sample_handover" action="action_medilab_sample_handover" sequence="26" />
         <menuitem id="menu_sample_scan" action="action_medilab_sample_scan" sequence="27" />
         <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
+        <menuitem
+            id="menu_customer_duplicate"
+            action="action_medilab_customer_duplicate"
+            sequence="31"
+            groups="group_permission_customer_edit_all"
+        />
         <menuitem id="menu_machine_booking" action="action_medilab_machine_booking" sequence="40" />
         <menuitem
             id="menu_outsourcing_suggestion"

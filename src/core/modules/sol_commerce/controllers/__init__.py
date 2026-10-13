@@ -1,1 +1,1 @@
-from . import catalog, order, payos, portal
+from . import account, catalog, order, payos, portal, signup

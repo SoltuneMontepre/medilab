@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="signup_customer_fields" inherit_id="auth_signup.signup">
+        <xpath expr="//div[hasclass('field-login')]" position="after">
+            <t t-if="not token">
+                <div class="mb-3 field-customer_type">
+                    <label for="customer_type" class="form-label">I register as</label>
+                    <select name="customer_type" id="customer_type" class="form-select" required="required">
+                        <option value="business" t-att-selected="customer_type != 'individual'">A business</option>
+                        <option value="individual" t-att-selected="customer_type == 'individual'">An individual</option>
+                    </select>
+                </div>
+                <div class="mb-3 field-company_name">
+                    <label for="company_name" class="form-label">Company name</label>
+                    <input type="text" name="company_name" id="company_name" t-att-value="company_name" class="form-control" />
+                    <small class="form-text text-muted">Required for a business.</small>
+                </div>
+                <div class="mb-3 field-vat">
+                    <label for="vat" class="form-label">Tax code</label>
+                    <input type="text" name="vat" id="vat" t-att-value="vat" class="form-control" required="required" />
+                </div>
+                <div class="mb-3 field-citizen_id">
+                    <label for="citizen_id" class="form-label">Citizen ID</label>
+                    <input type="text" name="citizen_id" id="citizen_id" t-att-value="citizen_id" class="form-control" />
+                    <small class="form-text text-muted">Required for an individual.</small>
+                </div>
+                <div class="mb-3 field-phone">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="tel" name="phone" id="phone" t-att-value="phone" class="form-control" required="required" />
+                </div>
+                <div class="mb-3 field-street">
+                    <label for="street" class="form-label">Address</label>
+                    <input type="text" name="street" id="street" t-att-value="street" class="form-control" required="required" />
+                </div>
+                <div class="mb-3 field-city">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" name="city" id="city" t-att-value="city" class="form-control" required="required" />
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_my_details_customer" inherit_id="portal.portal_my_details">
+        <xpath expr="//t[@t-call='portal.profile_picture_card']" position="attributes">
+            <attribute name="t-if">not medilab_customer</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_customer_address_fill')]" position="after">
+            <t t-if="medilab_customer" t-call="sol_commerce.customer_account" />
+        </xpath>
+    </template>
+
+    <template id="customer_account" name="Customer account">
+        <p t-if="request.params.get('error')" class="alert alert-danger" t-out="request.params.get('error')" />
+        <div class="row mt-4">
+            <div class="col-md-9">
+                <h3>Customer</h3>
+                <dl class="row">
+                    <dt class="col-sm-4">Customer code</dt>
+                    <dd class="col-sm-8" t-out="medilab_customer.code" />
+                    <dt class="col-sm-4">Tax code</dt>
+                    <dd class="col-sm-8" t-out="medilab_customer.vat" />
+                    <t t-if="not medilab_customer.is_company">
+                        <dt class="col-sm-4">Citizen ID</dt>
+                        <dd class="col-sm-8">
+                            <t t-if="medilab_customer.citizen_id" t-out="medilab_customer.citizen_id" />
+                            <form t-else="" action="/my/identity" method="post" class="d-flex gap-2">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                <input type="text" name="citizen_id" class="form-control" required="required" />
+                                <button type="submit" class="btn btn-secondary">Save</button>
+                            </form>
+                        </dd>
+                    </t>
+                </dl>
+                <p>
+                    <a href="/my/addresses">Addresses</a>
+                    <t t-if="medilab_customer.is_company"> · <a href="/my/contacts">Contacts</a></t>
+                </p>
+            </div>
+            <div class="col-md-3">
+                <h3>Logo</h3>
+                <img
+                    t-if="medilab_customer.image_128"
+                    t-att-src="image_data_uri(medilab_customer.image_128)"
+                    class="img-fluid mb-2"
+                    alt="Logo"
+                />
+                <form action="/my/logo" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <input type="file" name="logo" accept="image/png,image/jpeg" class="form-control mb-1" required="required" />
+                    <small class="form-text text-muted d-block mb-2">PNG or JPEG, up to 2 MB.</small>
+                    <button type="submit" class="btn btn-secondary">Upload</button>
+                </form>
+                <form t-if="medilab_customer.image_128" action="/my/logo/remove" method="post" class="mt-2">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <button type="submit" class="btn btn-link text-danger p-0">Remove the logo</button>
+                </form>
+            </div>
+        </div>
+        <h3 class="mt-4">Order history</h3>
+        <t t-call="sol_commerce.order_table" orders="customer_orders" />
+    </template>
+
+    <template id="order_table" name="Order history">
+        <p t-if="not orders">No orders yet. <a href="/catalog">Browse the catalog</a>.</p>
+        <table t-else="" class="table">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Status</th>
+                    <th class="text-end">Total excluding VAT</th>
+                    <th />
+                </tr>
+            </thead>
+            <tbody>
+                <t t-foreach="orders" t-as="order">
+                    <tr>
+                        <td><a t-att-href="'/orders/%s' % order.id" t-out="order.name" /></td>
+                        <td><span t-field="order.customer_status" /></td>
+                        <td class="text-end" t-out="order.catalog_total" />
+                        <td class="text-end">
+                            <form t-att-action="'/orders/%s/reorder' % order.id" method="post">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                <button type="submit" class="btn btn-primary">Reorder</button>
+                            </form>
+                        </td>
+                    </tr>
+                </t>
+            </tbody>
+        </table>
+    </template>
+
+    <template id="contact_list" name="Contacts">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h1>Contacts</h1>
+                    <a class="btn btn-primary" href="/my/contacts/new">Add a contact</a>
+                </div>
+                <p t-if="error" class="alert alert-danger" t-out="error" />
+                <p class="text-muted">The laboratory reaches the default contact about your orders unless you choose another one.</p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="contacts" t-as="contact">
+                            <tr>
+                                <td>
+                                    <t t-out="contact.name" />
+                                    <span t-if="contact == customer.default_contact_id" class="badge text-bg-primary ms-1">Default</span>
+                                </td>
+                                <td t-out="contact.function" />
+                                <td t-out="contact.email" />
+                                <td t-out="contact.phone" />
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a class="btn btn-secondary" t-att-href="'/my/contacts/%s' % contact.id">Edit</a>
+                                        <form t-if="contact != customer.default_contact_id" t-att-action="'/my/contacts/%s/default' % contact.id" method="post">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                            <button type="submit" class="btn btn-secondary">Make default</button>
+                                        </form>
+                                        <form t-att-action="'/my/contacts/%s/remove' % contact.id" method="post">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                            <button type="submit" class="btn btn-danger">Remove</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <a href="/my/account">Back to my account</a>
+            </div>
+        </t>
+    </template>
+
+    <template id="contact_form" name="Contact">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <h1 t-if="contact">Edit a contact</h1>
+                <h1 t-else="">Add a contact</h1>
+                <p t-if="error" class="alert alert-danger" t-out="error" />
+                <form action="/my/contacts/save" method="post" class="row g-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <input t-if="contact" type="hidden" name="contact_id" t-att-value="contact.id" />
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" name="name" id="name" t-att-value="contact.name" class="form-control" required="required" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="function" class="form-label">Position</label>
+                        <input type="text" name="function" id="function" t-att-value="contact.function" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" id="email" t-att-value="contact.email" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="tel" name="phone" id="phone" t-att-value="contact.phone" class="form-control" />
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a class="btn btn-secondary" href="/my/contacts">Discard</a>
+                    </div>
+                </form>
+            </div>
+        </t>
+    </template>
+</odoo>

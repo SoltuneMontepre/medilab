@@ -7,6 +7,8 @@
             name="permission_ids"
             eval="[Command.set([
                 ref('sol_laboratory.permission_customer_read_all'),
+                ref('sol_laboratory.permission_customer_create_all'),
+                ref('sol_laboratory.permission_customer_edit_all'),
                 ref('sol_laboratory.permission_test_request_read_all'),
                 ref('sol_laboratory.permission_test_request_create_all'),
                 ref('sol_laboratory.permission_test_request_edit_all'),
@@ -37,6 +39,8 @@
             name="permission_ids"
             eval="[Command.set([
                 ref('sol_laboratory.permission_customer_read_all'),
+                ref('sol_laboratory.permission_customer_create_all'),
+                ref('sol_laboratory.permission_customer_edit_all'),
                 ref('sol_laboratory.permission_test_request_read_all'),
                 ref('sol_laboratory.permission_test_request_create_all'),
                 ref('sol_laboratory.permission_test_request_edit_all'),

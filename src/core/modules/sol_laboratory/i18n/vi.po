@@ -8475,3 +8475,140 @@ msgstr "Khẩn"
 #: code:addons/sol_laboratory/models/testing/machine_booking.py:0
 msgid "Cancel the booking instead of clearing its start."
 msgstr "Hãy hủy lịch đặt máy thay vì xóa thời gian bắt đầu."
+
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Address"
+msgstr "Địa chỉ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__citizen_id
+msgid "Citizen ID"
+msgstr "Số căn cước công dân"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Company name"
+msgstr "Tên công ty"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Contacts and Addresses"
+msgstr "Người liên hệ và địa chỉ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__default_contact_id
+msgid "Default Contact"
+msgstr "Người liên hệ mặc định"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_contact_mixin
+msgid "Delegated Contact"
+msgstr "Liên hệ được ủy quyền"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Enter the contact's name."
+msgstr "Nhập tên người liên hệ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Enter your citizen ID."
+msgstr "Nhập số căn cước công dân của bạn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Fill in: %s"
+msgstr "Vui lòng điền: %s"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Invite to Portal"
+msgstr "Mời vào cổng thông tin"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Merge into Matched Customer"
+msgstr "Gộp vào khách hàng trùng khớp"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Move every order, document and person of this customer to the customer it matched, and delete this customer?"
+msgstr "Chuyển mọi đơn hàng, chứng từ và người liên hệ của khách hàng này sang khách hàng trùng khớp, rồi xóa khách hàng này?"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Not a Duplicate"
+msgstr "Không trùng lặp"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Only the customer's own people can be changed here."
+msgstr "Tại đây chỉ thay đổi được người liên hệ của chính khách hàng này."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Position"
+msgstr "Chức vụ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__duplicate_of_id
+msgid "Possible Duplicate Of"
+msgstr "Có thể trùng với"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_customer_duplicate
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__possible_duplicate_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_customer_duplicate
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Possible Duplicates"
+msgstr "Có thể trùng lặp"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+msgid "Registered with the tax code or citizen ID of another customer. Merge it into that customer, or clear the flag."
+msgstr "Đã đăng ký bằng mã số thuế hoặc số căn cước công dân của một khách hàng khác. Hãy gộp vào khách hàng đó hoặc bỏ đánh dấu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Tax code"
+msgstr "Mã số thuế"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "The logo must be a PNG or JPEG image of at most 2 MB."
+msgstr "Logo phải là ảnh PNG hoặc JPEG, tối đa 2 MB."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "This customer is not flagged as a possible duplicate."
+msgstr "Khách hàng này không bị đánh dấu là có thể trùng lặp."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "This person is not one of your contacts."
+msgstr "Người này không phải là người liên hệ của bạn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Your citizen ID is already registered."
+msgstr "Số căn cước công dân của bạn đã được đăng ký."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_access
+msgid "Access"
+msgstr "Quyền truy cập"
