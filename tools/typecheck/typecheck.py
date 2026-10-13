@@ -5,6 +5,7 @@ pyrightconfig.json lowers to a warning for Odoo's dynamic models. This script re
 Files given as arguments are checked instead of the modules.
 """
 
+import argparse
 import ast
 import functools
 import json
@@ -42,8 +43,18 @@ def describe(diagnostic):
     return f"{diagnostic['file']}:{start['line'] + 1}:{start['character'] + 1} - error: {diagnostic['message']}{rule}"
 
 
+def checked_files():
+    """The files given as arguments, as absolute paths, so pyright never reads one as an option."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("files", nargs="*", type=Path, help="files to check instead of the modules")
+    files = [path.resolve() for path in parser.parse_args().files]
+    if missing := [str(path) for path in files if not path.is_file()]:
+        parser.error(f"not a file: {', '.join(missing)}")
+    return [str(path) for path in files]
+
+
 def main():
-    command = [sys.executable, "-m", "pyright", "--outputjson", "--project", str(CONFIG), *sys.argv[1:]]
+    command = [sys.executable, "-m", "pyright", "--outputjson", "--project", str(CONFIG), *checked_files()]
     result = subprocess.run(command, capture_output=True, text=True, cwd=ROOT)
     try:
         report = json.loads(result.stdout)
