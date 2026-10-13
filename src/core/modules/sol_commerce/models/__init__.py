@@ -1,1 +1,1 @@
-from . import invoicing, pricing
+from . import invoicing, orders, pricing

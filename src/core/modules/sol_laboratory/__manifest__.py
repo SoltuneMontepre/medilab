@@ -33,6 +33,7 @@
         "views/sample_collection/sample_label_report.xml",
         "views/sample_collection/sample_views.xml",
         "views/sample_collection/test_request_views.xml",
+        "views/system/approval_chain_views.xml",
         "views/system/job_item_views.xml",
         "views/system/job_run_views.xml",
         "views/system/permission_views.xml",

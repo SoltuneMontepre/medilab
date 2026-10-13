@@ -16,6 +16,17 @@
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_sample_test_create_all'),
                 ref('sol_laboratory.permission_sample_test_edit_all'),
+                ref('sol_commerce.permission_order_read_all'),
+                ref('sol_commerce.permission_order_create_all'),
+                ref('sol_commerce.permission_order_edit_all'),
+                ref('sol_commerce.permission_cancellation_request_read_all'),
+                ref('sol_commerce.permission_cancellation_request_edit_all'),
+                ref('sol_commerce.permission_order_sign_all'),
+                ref('sol_commerce.permission_order_sample_read_all'),
+                ref('sol_commerce.permission_order_sample_create_all'),
+                ref('sol_commerce.permission_order_sample_edit_all'),
+                ref('sol_commerce.permission_order_sample_delete_all'),
+                ref('sol_commerce.permission_quotation_read_all'),
             ])]"
         />
     </record>
@@ -35,6 +46,20 @@
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_sample_test_create_all'),
                 ref('sol_laboratory.permission_sample_test_edit_all'),
+                ref('sol_commerce.permission_order_read_all'),
+                ref('sol_commerce.permission_order_create_all'),
+                ref('sol_commerce.permission_order_edit_all'),
+                ref('sol_commerce.permission_cancellation_request_read_all'),
+                ref('sol_commerce.permission_cancellation_request_edit_all'),
+                ref('sol_commerce.permission_order_sign_all'),
+                ref('sol_commerce.permission_order_sample_read_all'),
+                ref('sol_commerce.permission_order_sample_create_all'),
+                ref('sol_commerce.permission_order_sample_edit_all'),
+                ref('sol_commerce.permission_order_sample_delete_all'),
+                ref('sol_commerce.permission_quotation_read_all'),
+                ref('sol_commerce.permission_customer_sales_terms_read_all'),
+                ref('sol_commerce.permission_customer_sales_terms_create_all'),
+                ref('sol_commerce.permission_customer_sales_terms_edit_all'),
             ])]"
         />
     </record>

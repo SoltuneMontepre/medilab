@@ -410,3 +410,39 @@ msgstr "pH"
 #: model:medilab.chemical,name:sol_demo.chemical_ph_buffer
 msgid "pH buffer solution 7.00"
 msgstr "Dung dịch đệm pH 7,00"
+
+#. module: sol_demo
+msgid "Demo echo"
+msgstr "Demo phản hồi"
+
+#. module: sol_demo
+msgid "Demo: echo"
+msgstr "Demo: phản hồi"
+
+#. module: sol_demo
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: sol_demo
+msgid "ID"
+msgstr "ID"
+
+#. module: sol_demo
+msgid "Scheduled Job"
+msgstr "Tác Vụ Định Kỳ"
+
+#. module: sol_demo
+msgid "Head of Sales"
+msgstr "Trưởng Phòng Kinh Doanh"
+
+#. module: sol_demo
+msgid "Head of Sales of the department"
+msgstr "Trưởng Phòng Kinh Doanh của phòng ban"
+
+#. module: sol_demo
+msgid "Order change request"
+msgstr "Yêu cầu thay đổi đơn hàng"
+
+#. module: sol_demo
+msgid "Order signing"
+msgstr "Ký đơn hàng"

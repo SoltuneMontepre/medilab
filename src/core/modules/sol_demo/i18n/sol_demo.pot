@@ -393,3 +393,39 @@ msgstr ""
 #: model:medilab.chemical,name:sol_demo.chemical_ph_buffer
 msgid "pH buffer solution 7.00"
 msgstr ""
+
+#. module: sol_demo
+msgid "Demo echo"
+msgstr ""
+
+#. module: sol_demo
+msgid "Demo: echo"
+msgstr ""
+
+#. module: sol_demo
+msgid "Display Name"
+msgstr ""
+
+#. module: sol_demo
+msgid "ID"
+msgstr ""
+
+#. module: sol_demo
+msgid "Scheduled Job"
+msgstr ""
+
+#. module: sol_demo
+msgid "Head of Sales"
+msgstr ""
+
+#. module: sol_demo
+msgid "Head of Sales of the department"
+msgstr ""
+
+#. module: sol_demo
+msgid "Order change request"
+msgstr ""
+
+#. module: sol_demo
+msgid "Order signing"
+msgstr ""

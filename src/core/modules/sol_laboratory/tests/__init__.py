@@ -1,6 +1,7 @@
 from . import (
     test_administrator_person,
     test_administrator_role,
+    test_approval_chain,
     test_archiving_and_deleting,
     test_blind_testing,
     test_code_sequences,
