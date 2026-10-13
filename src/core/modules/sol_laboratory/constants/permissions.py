@@ -9,4 +9,4 @@ SCOPE_DOMAINS = {
     "own_department": f"[('{DEPARTMENT_FIELD}', 'in', user.employee_id.department_id.ids)]",
 }
 # Document type names of the Odoo models permissions apply to, which carry no medilab. prefix.
-ODOO_DOCUMENT_TYPES = {MODEL_DEPARTMENT: "department"}
+ODOO_DOCUMENT_TYPES = {MODEL_DEPARTMENT: "department", "sale.order": "order"}

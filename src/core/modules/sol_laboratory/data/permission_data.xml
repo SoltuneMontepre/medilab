@@ -548,6 +548,56 @@
         <field name="document_model">medilab.unit.category</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_approval_chain_read_all" model="medilab.permission">
+        <field name="name">Read approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_approval_chain_create_all" model="medilab.permission">
+        <field name="name">Create approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_approval_chain_edit_all" model="medilab.permission">
+        <field name="name">Edit approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_approval_chain_archive_all" model="medilab.permission">
+        <field name="name">Archive approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_approval_chain_delete_all" model="medilab.permission">
+        <field name="name">Delete approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_approval_level_read_all" model="medilab.permission">
+        <field name="name">Read approval levels</field>
+        <field name="document_model">medilab.approval.level</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_approval_level_create_all" model="medilab.permission">
+        <field name="name">Create approval levels</field>
+        <field name="document_model">medilab.approval.level</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_approval_level_edit_all" model="medilab.permission">
+        <field name="name">Edit approval levels</field>
+        <field name="document_model">medilab.approval.level</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_approval_level_delete_all" model="medilab.permission">
+        <field name="name">Delete approval levels</field>
+        <field name="document_model">medilab.approval.level</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_signature_read_all" model="medilab.permission">
+        <field name="name">Read signatures</field>
+        <field name="document_model">medilab.signature</field>
+        <field name="action">read</field>
+    </record>
     <record id="permission_scheduled_job_read_all" model="medilab.permission">
         <field name="name">Read scheduled jobs</field>
         <field name="document_model">medilab.scheduled.job</field>

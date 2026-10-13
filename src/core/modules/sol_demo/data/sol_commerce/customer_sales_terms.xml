@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_customer_sales_terms_an_phu" model="medilab.customer.sales.terms">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="allow_credit" eval="True" />
+    </record>
+</odoo>

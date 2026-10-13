@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ROLE,
     MODEL_TEST_PARAMETER,
 )
+from odoo.addons.sol_laboratory.constants.permissions import ODOO_DOCUMENT_TYPES
 
 
 @tagged("post_install", "-at_install")
@@ -152,7 +153,7 @@ class TestPermissionGeneration(UnshippedPermissionCase):
 
         self.assertIn(MODEL_TEST_PARAMETER, document_types)
         self.assertIn(MODEL_DEPARTMENT, document_types)
-        self.assertTrue(all(name.startswith("medilab.") for name in set(document_types) - {MODEL_DEPARTMENT}))
+        self.assertTrue(all(name.startswith("medilab.") for name in set(document_types) - set(ODOO_DOCUMENT_TYPES)))
 
     def test_department_permissions_keep_the_department_document_type(self):
         permission = self.env.ref("sol_laboratory.permission_department_edit_all")

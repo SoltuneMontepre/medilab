@@ -1,6 +1,7 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
+from odoo.tools import format_list
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
@@ -9,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_ROLE,
+    MODEL_SIGNATURE,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_PERSON, ADMINISTRATOR_ROLE
 
@@ -116,6 +118,17 @@ class Person(models.Model):
     def _unlink_except_administrator(self):
         if self._administrator():
             raise UserError(self.env._("The person of Odoo's default administrator cannot be deleted."))
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_signed(self):
+        signatures = self.env[MODEL_SIGNATURE].sudo().search([("signer_id", "in", self.ids)])
+        if signatures:
+            raise UserError(
+                self.env._(
+                    "A person who signed cannot be deleted; archive them instead. Signatures: %s",
+                    format_list(self.env, signatures.mapped("display_name")),
+                )
+            )
 
     def unlink(self):
         users = self.sudo().user_id

@@ -1,4 +1,6 @@
 from . import (
+    approval_chain,
+    approval_level,
     hr_department,
     hr_employee,
     ir_actions_act_window_view,
@@ -11,4 +13,5 @@ from . import (
     res_partner,
     role,
     scheduled_job,
+    signature,
 )

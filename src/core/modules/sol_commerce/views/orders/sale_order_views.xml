@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_sale_order_list" model="ir.ui.view">
+        <field name="name">sale.order.list.medilab</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-danger="order_status == 'cancelled'"
+                decoration-success="order_status == 'completed'"
+                decoration-warning="order_status == 'submitted'"
+                decoration-info="order_status in ('claimed', 'confirmed')"
+            >
+                <field name="name" />
+                <field name="customer_id" />
+                <field name="partner_id" string="Contact" />
+                <field name="user_id" />
+                <field name="source" />
+                <field name="order_status" />
+                <field
+                    name="quotation_follow_up"
+                    widget="badge"
+                    decoration-success="quotation_follow_up == 'paid'"
+                    decoration-warning="quotation_follow_up == 'unpaid'"
+                    decoration-danger="quotation_follow_up in ('declined', 'expired')"
+                />
+                <field name="submitted_at" />
+                <field name="currency_id" column_invisible="1" />
+                <field name="catalog_total" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_sale_order_queue" model="ir.ui.view">
+        <field name="name">sale.order.list.queue</field>
+        <field name="model">sale.order</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list create="false" default_order="submitted_at asc, id" decoration-warning="order_status == 'submitted'">
+                <field name="name" />
+                <field name="customer_id" />
+                <field name="partner_id" string="Contact" />
+                <field name="submitted_at" />
+                <field name="currency_id" column_invisible="1" />
+                <field name="catalog_total" />
+                <button name="action_claim" type="object" string="Claim" class="btn-primary" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_order_form_medilab" model="ir.ui.view">
+        <field name="name">sale.order.form.medilab</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="order_status" widget="statusbar" statusbar_visible="draft,submitted,claimed,confirmed,completed" />
+                <button
+                    name="action_claim"
+                    type="object"
+                    string="Claim"
+                    class="btn-primary"
+                    invisible="order_status != 'submitted' or user_id"
+                />
+                <button
+                    name="action_send_quotation"
+                    type="object"
+                    string="Send quotation"
+                    class="btn-primary"
+                    invisible="order_status in ('draft', 'submitted', 'completed', 'cancelled') or quotation_follow_up in ('unpaid', 'paid') and state != 'draft'"
+                />
+                <button
+                    name="action_revise_quotation"
+                    type="object"
+                    string="Revise quotation"
+                    class="btn-secondary"
+                    invisible="quotation_follow_up != 'unpaid' or state != 'sent'"
+                />
+                <button
+                    name="action_confirm_order"
+                    type="object"
+                    string="Confirm order"
+                    class="btn-primary"
+                    invisible="order_status != 'claimed' or quotation_follow_up != 'paid'"
+                />
+                <button
+                    name="action_request_approval"
+                    type="object"
+                    string="Request approval"
+                    class="btn-primary"
+                    invisible="order_status != 'confirmed' or approval_status != 'none' or not approval_can_sign"
+                />
+                <button
+                    name="action_sign"
+                    type="object"
+                    string="Approve"
+                    class="btn-primary"
+                    invisible="order_status != 'confirmed' or approval_status != 'requested' or not approval_can_sign"
+                />
+                <button
+                    name="%(action_medilab_order_reject)d"
+                    type="action"
+                    string="Reject"
+                    class="btn-danger"
+                    context="{'default_order_id': id}"
+                    invisible="order_status != 'confirmed' or approval_status != 'requested' or not approval_can_reject"
+                />
+                <button
+                    name="action_withdraw"
+                    type="object"
+                    string="Withdraw signature"
+                    class="btn-secondary"
+                    invisible="not approval_can_withdraw"
+                />
+                <button
+                    name="action_start_sample_collection"
+                    type="object"
+                    string="Start sample collection"
+                    class="btn-primary"
+                    invisible="order_status != 'confirmed' or approval_status != 'approved'"
+                />
+                <button
+                    name="action_sales_cancel"
+                    type="object"
+                    string="Cancel"
+                    class="btn-danger"
+                    invisible="order_status in ('completed', 'cancelled')"
+                    confirm="Cancel this order?"
+                />
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <div
+                    class="alert alert-warning"
+                    role="alert"
+                    invisible="not show_unpaid_warning or order_status not in ('claimed', 'confirmed')"
+                >
+                    Nothing has been paid on this order. It can still be confirmed.
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="customer_id" />
+                <field name="source" readonly="1" />
+                <field name="expected_result_date" />
+                <field name="payment_deadline" />
+                <field name="advance_method" />
+                <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
+                <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
+                <field name="quotation_follow_up" />
+                <field name="submitted_at" readonly="1" />
+                <field name="claimed_at" readonly="1" />
+                <field name="reordered_from_id" readonly="1" />
+                <field name="approval_status" readonly="1" />
+                <field name="document_version" readonly="1" />
+                <field name="test_request_id" readonly="1" invisible="not test_request_id" />
+                <field name="show_unpaid_warning" invisible="1" />
+                <field name="approval_can_sign" invisible="1" />
+                <field name="approval_can_reject" invisible="1" />
+                <field name="approval_can_withdraw" invisible="1" />
+                <field name="currency_id" invisible="1" />
+                <field name="catalog_total" />
+            </xpath>
+            <xpath expr="//list[@name='sol_list']/field[@name='currency_id']" position="after">
+                <field name="sample_id" domain="[('order_id', '=', parent.id)]" />
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Samples" name="samples">
+                    <field name="sample_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle" />
+                            <field name="customer_sample_name" />
+                            <field name="sample_type_id" />
+                            <field name="physical_state" />
+                            <field name="regulation_id" />
+                            <button name="action_copy_sample" type="object" string="Copy" class="btn-secondary" />
+                        </list>
+                    </field>
+                </page>
+                <page string="Revisions" name="revisions">
+                    <field name="quotation_ids" readonly="1">
+                        <list decoration-muted="status == 'replaced'">
+                            <field name="revision" />
+                            <field name="code" />
+                            <field name="status" />
+                            <field name="sent_at" />
+                            <field name="currency_id" column_invisible="1" />
+                            <field name="amount_total" />
+                            <field name="decline_reason" />
+                            <field name="attachment_id" />
+                        </list>
+                    </field>
+                </page>
+                <page string="Cancellation" name="cancellation">
+                    <field name="reorder_note" invisible="not reorder_note" />
+                    <field name="cancellation_request_ids">
+                        <list>
+                            <field name="status" />
+                            <field name="reason" />
+                            <field name="reply" />
+                            <field name="decided_at" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_medilab_sale_order_search" model="ir.ui.view">
+        <field name="name">sale.order.search.medilab</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="customer_id" />
+                <field name="partner_id" />
+                <filter name="unclaimed" string="Unclaimed" domain="[('order_status', '=', 'submitted'), ('user_id', '=', False)]" />
+                <filter name="draft" string="Draft" domain="[('order_status', '=', 'draft')]" />
+                <filter name="confirmed" string="Confirmed" domain="[('order_status', '=', 'confirmed')]" />
+                <filter name="cancelled" string="Cancelled" domain="[('order_status', '=', 'cancelled')]" />
+                <separator />
+                <filter name="unpaid" string="Quotation unpaid" domain="[('quotation_follow_up', '=', 'unpaid')]" />
+                <filter name="paid" string="Quotation paid" domain="[('quotation_follow_up', '=', 'paid')]" />
+                <filter name="quotation_declined" string="Quotation declined" domain="[('quotation_follow_up', '=', 'declined')]" />
+                <filter name="quotation_expired" string="Quotation expired" domain="[('quotation_follow_up', '=', 'expired')]" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_sale_order" model="ir.actions.act_window">
+        <field name="name">Orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'medilab_sales_order': True}</field>
+        <field name="search_view_id" ref="view_medilab_sale_order_search" />
+    </record>
+    <record id="action_medilab_sale_order_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_medilab_sale_order_list" />
+        <field name="act_window_id" ref="action_medilab_sale_order" />
+    </record>
+
+    <record id="action_medilab_sale_order_queue" model="ir.actions.act_window">
+        <field name="name">Unclaimed queue</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('order_status', '=', 'submitted'), ('user_id', '=', False)]</field>
+        <field name="search_view_id" ref="view_medilab_sale_order_search" />
+    </record>
+    <record id="action_medilab_sale_order_queue_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1" />
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_medilab_sale_order_queue" />
+        <field name="act_window_id" ref="action_medilab_sale_order_queue" />
+    </record>
+</odoo>
