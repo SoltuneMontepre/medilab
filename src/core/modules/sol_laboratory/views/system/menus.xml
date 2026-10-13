@@ -16,6 +16,9 @@
         <menuitem id="menu_test_request" action="action_medilab_test_request" sequence="10" />
         <menuitem id="menu_sample" action="action_medilab_sample" sequence="20" />
         <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
+        <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
+            <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
+        </menuitem>
     </menuitem>
 
     <menuitem id="menu_master_data_root" name="Master Data" sequence="20">
@@ -76,7 +79,6 @@
             groups="group_permission_job_run_read_all"
         />
     </menuitem>
-    <menuitem id="menu_settings" name="Settings" action="action_medilab_settings" sequence="90" groups="base.group_system" />
     <menuitem
         id="menu_notification_event"
         action="action_medilab_notification_event"

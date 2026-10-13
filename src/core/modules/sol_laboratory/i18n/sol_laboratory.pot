@@ -1182,6 +1182,11 @@ msgid "Config Settings"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_configuration
+msgid "Configuration"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Confirm"
 msgstr ""
