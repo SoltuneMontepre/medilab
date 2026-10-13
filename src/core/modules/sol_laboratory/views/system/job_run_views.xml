@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_job_run_list" model="ir.ui.view">
+        <field name="name">medilab.job.run.list</field>
+        <field name="model">medilab.job.run</field>
+        <field name="arch" type="xml">
+            <list duplicate="0" create="0" edit="0" delete="0">
+                <field name="job_id" />
+                <field name="started_at" />
+                <field name="ended_at" />
+                <field name="status" />
+                <field name="duration" string="Duration (s)" />
+                <field name="done_count" />
+                <field name="failed_count" />
+                <field name="triggered_by_id" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_job_run_form" model="ir.ui.view">
+        <field name="name">medilab.job.run.form</field>
+        <field name="model">medilab.job.run</field>
+        <field name="arch" type="xml">
+            <form duplicate="0" create="0" edit="0" delete="0">
+                <header>
+                    <field name="status" widget="statusbar" />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="job_id" />
+                            <field name="started_at" />
+                            <field name="ended_at" />
+                            <field name="duration" string="Duration (s)" />
+                        </group>
+                        <group>
+                            <field name="done_count" />
+                            <field name="failed_count" />
+                            <field name="triggered_by_id" />
+                        </group>
+                    </group>
+                    <group string="Log" name="log">
+                        <field name="log" nolabel="1" colspan="2" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_job_run_search" model="ir.ui.view">
+        <field name="name">medilab.job.run.search</field>
+        <field name="model">medilab.job.run</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="job_id" />
+                <filter name="running" string="Running" domain="[('status', '=', 'running')]" />
+                <filter name="failed" string="Failed" domain="[('status', 'in', ('failed', 'partly_failed'))]" />
+                <filter name="by_hand" string="Run by hand" domain="[('triggered_by_id', '!=', False)]" />
+                <filter name="group_by_job" string="Job" context="{'group_by': 'job_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_job_run" model="ir.actions.act_window">
+        <field name="name">Job Runs</field>
+        <field name="res_model">medilab.job.run</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

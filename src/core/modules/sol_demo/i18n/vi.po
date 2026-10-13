@@ -67,11 +67,22 @@ msgid "Bottled water"
 msgstr "Nước đóng chai"
 
 #. module: sol_demo
+#: model:medilab.service.package,name:sol_demo.demo_service_package_bottled_water_basic
+msgid "Bottled water basic"
+msgstr "Nước đóng chai cơ bản"
+
+#. module: sol_demo
+#: model:medilab.service.package,name:sol_demo.demo_service_package_bottled_water_microbiology
+msgid "Bottled water microbiology"
+msgstr "Vi sinh nước đóng chai"
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.sample_type_cabbage
 msgid "Cabbage"
 msgstr "Bắp cải"
 
 #. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_chemistry
 #: model:medilab.testing.field,name:sol_demo.field_chemistry
 msgid "Chemistry"
 msgstr "Hóa học"
@@ -119,8 +130,8 @@ msgstr "Môi trường"
 #. module: sol_demo
 #: model:medilab.quality.registration,name:sol_demo.quality_registration_expired
 msgid ""
-"Environmental monitoring registration with the Ministry of Natural Resources "
-"and Environment"
+"Environmental monitoring registration with the Ministry of Natural Resources"
+" and Environment"
 msgstr "Đăng ký quan trắc môi trường với Bộ Tài nguyên và Môi trường"
 
 #. module: sol_demo
@@ -203,7 +214,7 @@ msgid "Mass fraction"
 msgstr "Phần khối lượng"
 
 #. module: sol_demo
-#: model:ir.module.module,shortdesc:base.module_demo
+#: model:ir.module.module,shortdesc:base.module_sol_demo
 msgid "Medilab - Testing Data"
 msgstr "Medilab - Dữ liệu thử nghiệm"
 
@@ -218,6 +229,7 @@ msgid "Microbial count per volume"
 msgstr "Mật độ vi sinh vật theo thể tích"
 
 #. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_microbiology
 #: model:medilab.parameter.group,name:sol_demo.group_microbiology
 #: model:medilab.testing.field,name:sol_demo.field_microbiology
 msgid "Microbiology"
@@ -235,9 +247,9 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.testing.method,name:sol_demo.method_iso_16649_2
 msgid ""
-"Microbiology of food and animal feeding stuffs — Enumeration of β-"
-"glucuronidase-positive Escherichia coli — Part 2: Colony-count technique at "
-"44 °C"
+"Microbiology of food and animal feeding stuffs — Enumeration of "
+"β-glucuronidase-positive Escherichia coli — Part 2: Colony-count technique "
+"at 44 °C"
 msgstr ""
 "Vi sinh vật trong thực phẩm và thức ăn chăn nuôi — Định lượng Escherichia "
 "coli dương tính β-glucuronidaza — Phần 2: Kỹ thuật đếm khuẩn lạc ở 44 °C"
@@ -245,8 +257,8 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.regulation,name:sol_demo.regulation_qcvn_6_1
 msgid ""
-"National technical regulation on natural mineral waters and bottled drinking "
-"waters"
+"National technical regulation on natural mineral waters and bottled drinking"
+" waters"
 msgstr ""
 "Quy chuẩn kỹ thuật quốc gia đối với nước khoáng thiên nhiên và nước uống "
 "đóng chai"
@@ -261,6 +273,11 @@ msgstr "Axit nitric 65%"
 #: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_e_coli
 msgid "Not detected"
 msgstr "Không phát hiện"
+
+#. module: sol_demo
+#: model:medilab.tax,name:sol_demo.demo_tax_kct
+msgid "Not subject to VAT"
+msgstr "Không chịu thuế GTGT"
 
 #. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.group_organophosphates
@@ -303,7 +320,12 @@ msgid "Sample delivery staff"
 msgstr "Nhân Viên Giao Nhận Mẫu"
 
 #. module: sol_demo
-#: model:ir.module.module,summary:base.module_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_sample_reception
+msgid "Sample reception"
+msgstr "Tiếp nhận mẫu"
+
+#. module: sol_demo
+#: model:ir.module.module,summary:base.module_sol_demo
 msgid "Seeds and configure data for demo purposes."
 msgstr "Tạo và cấu hình dữ liệu cho mục đích trình diễn."
 
@@ -331,6 +353,11 @@ msgstr "Nước mặt"
 #: model:medilab.role,name:sol_demo.demo_role_tester
 msgid "Tester"
 msgstr "Thử Nghiệm Viên"
+
+#. module: sol_demo
+#: model:medilab.tax,name:sol_demo.demo_tax_vat10
+msgid "VAT 10%"
+msgstr "Thuế GTGT 10%"
 
 #. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.sample_type_vegetables
@@ -368,8 +395,8 @@ msgstr "Chất lượng nước — Xác định pH"
 #. module: sol_demo
 #: model:medilab.testing.method,name:sol_demo.method_tcvn_6187_1
 msgid ""
-"Water quality — Enumeration of Escherichia coli and coliform bacteria — Part "
-"1: Membrane filtration method"
+"Water quality — Enumeration of Escherichia coli and coliform bacteria — Part"
+" 1: Membrane filtration method"
 msgstr ""
 "Chất lượng nước — Phát hiện và đếm Escherichia coli và vi khuẩn coliform — "
 "Phần 1: Phương pháp lọc màng"

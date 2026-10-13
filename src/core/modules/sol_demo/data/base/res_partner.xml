@@ -64,4 +64,38 @@
         <field name="email">quality@greenleaf-foods.example</field>
         <field name="lang">en_US</field>
     </record>
+    <record id="demo_res_partner_an_phu" model="res.partner">
+        <field name="name">Công ty TNHH Nước Giải Khát An Phú</field>
+        <field name="is_company" eval="True" />
+        <field name="vat">0312345678</field>
+        <field name="street">25 Đường số 7, KCN Tân Tạo</field>
+        <field name="city">Hồ Chí Minh</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">028 3750 1234</field>
+        <field name="email">contact@anphu-beverage.example</field>
+    </record>
+    <record id="demo_res_partner_an_phu_quality" model="res.partner">
+        <field name="name">Tran Thi Huong</field>
+        <field name="parent_id" ref="demo_res_partner_an_phu" />
+        <field name="function">Quality Assurance Manager</field>
+        <field name="email">huong.tran@anphu-beverage.example</field>
+    </record>
+    <record id="demo_res_partner_green_farm" model="res.partner">
+        <field name="name">Công ty CP Nông Sản Xanh Lâm Đồng</field>
+        <field name="is_company" eval="True" />
+        <field name="vat">5801234567</field>
+        <field name="street">12 Hùng Vương, Phường 10</field>
+        <field name="city">Đà Lạt</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">0263 382 5566</field>
+        <field name="email">info@nongsanxanh.example</field>
+    </record>
+    <record id="demo_res_partner_pham_van_long" model="res.partner">
+        <field name="name">Pham Van Long</field>
+        <field name="street">48 Lê Văn Sỹ, Phường 13, Quận 3</field>
+        <field name="city">Hồ Chí Minh</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">0903 456 789</field>
+        <field name="email">pham.van.long@mail.example</field>
+    </record>
 </odoo>

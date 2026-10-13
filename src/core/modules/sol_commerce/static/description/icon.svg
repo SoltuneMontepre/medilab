@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img">
+  <title>MediLab E-commerce — chữ M kết hợp bình thí nghiệm trên túi mua sắm</title>
+  <rect width="1024" height="1024" rx="224" fill="#0083EF"/>
+  <path d="M392 352V292C392 226 446 172 512 172C578 172 632 226 632 292V352" fill="none" stroke="#FFFFFF" stroke-width="40" stroke-linecap="round"/>
+  <path fill="#FFFFFF" d="M232 332H792L838 852C840 874 824 892 802 892H222C200 892 184 874 186 852Z"/>
+  <path fill="#0083EF" transform="translate(352 470) scale(1.25)" d="M0 0H64L128 56L192 0H256V224H211L149 126V91H152C160 91 160 79 152 79H104C96 79 96 91 104 91H107V126L45 224H0Z"/>
+</svg>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_laboratory" inherit_id="account.report_invoice_document">
+        <xpath expr="//t[@t-set='layout_document_title']" position="after">
+            <div t-if="o.invoice_kind" class="medilab_invoice_kind" name="medilab_invoice_kind">
+                <span t-field="o.invoice_kind" />
+            </div>
+            <div t-if="o.invoice_kind in ('advance', 'final')" class="medilab_amount_owed">
+                <strong>Amount owed</strong>
+                <span t-field="o.amount_owed" />
+            </div>
+        </xpath>
+    </template>
+</odoo>

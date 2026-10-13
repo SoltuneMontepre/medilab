@@ -1,13 +1,13 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* demo
+# 	* sol_demo
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:34+0000\n"
-"PO-Revision-Date: 2026-10-10 07:34+0000\n"
+"POT-Creation-Date: 2026-10-11 16:30+0000\n"
+"PO-Revision-Date: 2026-10-11 16:30+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -66,11 +66,22 @@ msgid "Bottled water"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.service.package,name:sol_demo.demo_service_package_bottled_water_basic
+msgid "Bottled water basic"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.service.package,name:sol_demo.demo_service_package_bottled_water_microbiology
+msgid "Bottled water microbiology"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.sample_type_cabbage
 msgid "Cabbage"
 msgstr ""
 
 #. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_chemistry
 #: model:medilab.testing.field,name:sol_demo.field_chemistry
 msgid "Chemistry"
 msgstr ""
@@ -198,7 +209,7 @@ msgid "Mass fraction"
 msgstr ""
 
 #. module: sol_demo
-#: model:ir.module.module,shortdesc:base.module_demo
+#: model:ir.module.module,shortdesc:base.module_sol_demo
 msgid "Medilab - Testing Data"
 msgstr ""
 
@@ -213,6 +224,7 @@ msgid "Microbial count per volume"
 msgstr ""
 
 #. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_microbiology
 #: model:medilab.parameter.group,name:sol_demo.group_microbiology
 #: model:medilab.testing.field,name:sol_demo.field_microbiology
 msgid "Microbiology"
@@ -249,6 +261,11 @@ msgstr ""
 #: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_coliforms
 #: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_e_coli
 msgid "Not detected"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.tax,name:sol_demo.demo_tax_kct
+msgid "Not subject to VAT"
 msgstr ""
 
 #. module: sol_demo
@@ -292,7 +309,12 @@ msgid "Sample delivery staff"
 msgstr ""
 
 #. module: sol_demo
-#: model:ir.module.module,summary:base.module_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_sample_reception
+msgid "Sample reception"
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.module.module,summary:base.module_sol_demo
 msgid "Seeds and configure data for demo purposes."
 msgstr ""
 
@@ -319,6 +341,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_tester
 msgid "Tester"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.tax,name:sol_demo.demo_tax_vat10
+msgid "VAT 10%"
 msgstr ""
 
 #. module: sol_demo

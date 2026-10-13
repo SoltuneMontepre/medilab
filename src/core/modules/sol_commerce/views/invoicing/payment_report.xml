@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_payment_receipt_method" inherit_id="account.report_payment_receipt_document">
+        <xpath expr="//div[@name='payment_method']" position="after">
+            <div t-if="o.method" class="medilab_payment_method">
+                <span t-field="o.method" />
+            </div>
+        </xpath>
+    </template>
+</odoo>

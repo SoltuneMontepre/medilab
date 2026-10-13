@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_customer_list" model="ir.ui.view">
+        <field name="name">medilab.customer.list</field>
+        <field name="model">medilab.customer</field>
+        <field name="arch" type="xml">
+            <list duplicate="0">
+                <field name="code" />
+                <field name="name" />
+                <field name="vat" optional="show" />
+                <field name="phone" optional="show" />
+                <field name="email" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_customer_form" model="ir.ui.view">
+        <field name="name">medilab.customer.form</field>
+        <field name="model">medilab.customer</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" required="0" placeholder="Filled from the sequence when left empty" />
+                            <field name="is_company" />
+                            <field name="vat" />
+                        </group>
+                        <group>
+                            <field name="street" />
+                            <field name="city" />
+                            <field name="country_id" />
+                            <field name="phone" />
+                            <field name="email" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Contacts" name="contacts" invisible="not is_company">
+                            <field name="child_ids" context="{'default_parent_id': partner_id}">
+                                <list editable="bottom">
+                                    <field name="name" />
+                                    <field name="function" />
+                                    <field name="email" />
+                                    <field name="phone" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_customer_search" model="ir.ui.view">
+        <field name="name">medilab.customer.search</field>
+        <field name="model">medilab.customer</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" string="Name" />
+                <field name="vat" />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_customer" model="ir.actions.act_window">
+        <field name="name">Customers</field>
+        <field name="res_model">medilab.customer</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

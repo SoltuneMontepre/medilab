@@ -2,27 +2,27 @@
 <odoo noupdate="1">
     <record id="permission_department_read_all" model="medilab.permission">
         <field name="name">Read departments</field>
-        <field name="document_model">medilab.department</field>
+        <field name="document_model">hr.department</field>
         <field name="action">read</field>
     </record>
     <record id="permission_department_create_all" model="medilab.permission">
         <field name="name">Create departments</field>
-        <field name="document_model">medilab.department</field>
+        <field name="document_model">hr.department</field>
         <field name="action">create</field>
     </record>
     <record id="permission_department_edit_all" model="medilab.permission">
         <field name="name">Edit departments</field>
-        <field name="document_model">medilab.department</field>
+        <field name="document_model">hr.department</field>
         <field name="action">edit</field>
     </record>
     <record id="permission_department_archive_all" model="medilab.permission">
         <field name="name">Archive departments</field>
-        <field name="document_model">medilab.department</field>
+        <field name="document_model">hr.department</field>
         <field name="action">archive</field>
     </record>
     <record id="permission_department_delete_all" model="medilab.permission">
         <field name="name">Delete departments</field>
-        <field name="document_model">medilab.department</field>
+        <field name="document_model">hr.department</field>
         <field name="action">delete</field>
     </record>
     <record id="permission_permission_read_all" model="medilab.permission">
@@ -109,5 +109,149 @@
         <field name="document_model">medilab.person</field>
         <field name="action">delete</field>
         <field name="scope">own_department</field>
+    </record>
+    <record id="permission_customer_read_all" model="medilab.permission">
+        <field name="name">Read customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_customer_create_all" model="medilab.permission">
+        <field name="name">Create customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_customer_edit_all" model="medilab.permission">
+        <field name="name">Edit customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_customer_archive_all" model="medilab.permission">
+        <field name="name">Archive customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_customer_delete_all" model="medilab.permission">
+        <field name="name">Delete customers</field>
+        <field name="document_model">medilab.customer</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_test_request_read_all" model="medilab.permission">
+        <field name="name">Read test requests</field>
+        <field name="document_model">medilab.test.request</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_test_request_create_all" model="medilab.permission">
+        <field name="name">Create test requests</field>
+        <field name="document_model">medilab.test.request</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_test_request_edit_all" model="medilab.permission">
+        <field name="name">Edit test requests</field>
+        <field name="document_model">medilab.test.request</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_sample_read_all" model="medilab.permission">
+        <field name="name">Read samples</field>
+        <field name="document_model">medilab.sample</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_sample_create_all" model="medilab.permission">
+        <field name="name">Create samples</field>
+        <field name="document_model">medilab.sample</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_sample_edit_all" model="medilab.permission">
+        <field name="name">Edit samples</field>
+        <field name="document_model">medilab.sample</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_sample_test_read_all" model="medilab.permission">
+        <field name="name">Read sample tests</field>
+        <field name="document_model">medilab.sample.test</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_sample_test_create_all" model="medilab.permission">
+        <field name="name">Create sample tests</field>
+        <field name="document_model">medilab.sample.test</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_sample_test_edit_all" model="medilab.permission">
+        <field name="name">Edit sample tests</field>
+        <field name="document_model">medilab.sample.test</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_task_type_edit_all" model="medilab.permission">
+        <field name="name">Edit task types</field>
+        <field name="document_model">medilab.task.type</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_task_read_all" model="medilab.permission">
+        <field name="name">Read tasks</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_task_create_all" model="medilab.permission">
+        <field name="name">Create tasks</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_task_edit_all" model="medilab.permission">
+        <field name="name">Edit tasks</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_task_delete_all" model="medilab.permission">
+        <field name="name">Delete tasks</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_task_read_own_department" model="medilab.permission">
+        <field name="name">Read tasks of their department</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_task_create_own_department" model="medilab.permission">
+        <field name="name">Create tasks of their department</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_task_edit_own_department" model="medilab.permission">
+        <field name="name">Edit tasks of their department</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_task_delete_own_department" model="medilab.permission">
+        <field name="name">Delete tasks of their department</field>
+        <field name="document_model">medilab.task</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_scheduled_job_read_all" model="medilab.permission">
+        <field name="name">Read scheduled jobs</field>
+        <field name="document_model">medilab.scheduled.job</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_scheduled_job_edit_all" model="medilab.permission">
+        <field name="name">Edit scheduled jobs</field>
+        <field name="document_model">medilab.scheduled.job</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_job_item_read_all" model="medilab.permission">
+        <field name="name">Read job items</field>
+        <field name="document_model">medilab.job.item</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_job_item_edit_all" model="medilab.permission">
+        <field name="name">Edit job items</field>
+        <field name="document_model">medilab.job.item</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_job_run_read_all" model="medilab.permission">
+        <field name="name">Read job runs</field>
+        <field name="document_model">medilab.job.run</field>
+        <field name="action">read</field>
     </record>
 </odoo>

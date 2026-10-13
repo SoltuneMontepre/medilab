@@ -10,7 +10,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERSON,
     MODEL_ROLE,
 )
-from odoo.addons.sol_laboratory.constants.permissions import DEPARTMENT_FIELD, OPERATIONS, SCOPE_DOMAINS
+from odoo.addons.sol_laboratory.constants.permissions import (
+    DEPARTMENT_FIELD,
+    ODOO_DOCUMENT_TYPES,
+    OPERATIONS,
+    SCOPE_DOMAINS,
+)
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_ROLE, MODULE
 
 DOCUMENT_MODEL_PREFIX = "medilab."
@@ -85,7 +90,9 @@ class Permission(models.Model):
         names = [
             name
             for name, model in self.env.registry.items()
-            if name.startswith(DOCUMENT_MODEL_PREFIX) and not model._abstract and not model._transient
+            if (name.startswith(DOCUMENT_MODEL_PREFIX) or name in ODOO_DOCUMENT_TYPES)
+            and not model._abstract
+            and not model._transient
         ]
         labels = {model.model: model.name for model in self.env[IR_MODEL].sudo().search([("model", "in", names)])}
         return sorted((name, labels.get(name, name)) for name in names)
@@ -99,7 +106,8 @@ class Permission(models.Model):
 
     @api.model
     def _make_code(self, document_model, action, scope):
-        return f"{document_model.removeprefix(DOCUMENT_MODEL_PREFIX)}.{action}.{scope}"
+        document_type = ODOO_DOCUMENT_TYPES.get(document_model) or document_model.removeprefix(DOCUMENT_MODEL_PREFIX)
+        return f"{document_type}.{action}.{scope}"
 
     @api.depends("document_model", "action", "scope")
     def _compute_code(self):
@@ -141,6 +149,9 @@ class Permission(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_shipped(self):
+        # Uninstalling another module deletes the permissions it shipped. The flag is set for that delete.
+        if self.env.context.get(MODULE_UNINSTALL_FLAG):
+            return
         external_ids = self._get_external_ids()
         shipped = self.filtered(lambda p: any(not xml_id.startswith("__") for xml_id in external_ids[p.id]))
         if shipped:
@@ -164,16 +175,22 @@ class Permission(models.Model):
             )
 
     def unlink(self):
-        # At uninstall the generated records go through their own external ids.
+        permissions = self
         if self.env.context.get(MODULE_UNINSTALL_FLAG):
-            return super().unlink()
-        accesses = self._generated_records()
-        groups = self.group_id.sudo()
+            # Uninstalling this module removes its generated records through their external ids. A permission
+            # shipped by another module takes its group and access along, because those ids belong here.
+            permissions = self.filtered(lambda permission: not permission._is_shipped_by(MODULE))
+        accesses = permissions._generated_records()
+        groups = permissions.group_id.sudo()
         result = super().unlink()
-        accesses.unlink()
-        groups.unlink()
+        accesses.exists().unlink()
+        groups.exists().unlink()
         self.env.transaction.invalidate_ormcache()
         return result
+
+    def _is_shipped_by(self, module):
+        self.ensure_one()
+        return any(xml_id.startswith(f"{module}.") for xml_id in self._get_external_ids()[self.id])
 
     def _generated_records(self):
         records = self.env[IR_ACCESS].sudo()
