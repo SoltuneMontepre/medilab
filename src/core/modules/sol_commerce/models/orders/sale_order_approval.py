@@ -18,6 +18,7 @@ APPROVAL_CONTENT_FIELDS = frozenset({"customer_id", "partner_id", "payment_deadl
 class SaleOrderApproval(models.Model):
     _name = MODEL_SALE_ORDER
     _inherit = [MODEL_SALE_ORDER, MODEL_APPROVAL_MIXIN]
+    _audit_children = ("quotation_ids", "sample_ids", "cancellation_request_ids")
 
     def action_request_approval(self):
         """Sign the first level, which asks the next levels to approve the confirmed order."""

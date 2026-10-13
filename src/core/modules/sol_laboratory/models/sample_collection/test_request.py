@@ -181,6 +181,7 @@ class TestRequest(models.Model):
 
     def action_print_labels(self):
         # Labels do not use the company's document layout, so printing never asks to configure it.
+        self.sample_ids._audit("download")
         return self.env.ref(SAMPLE_LABEL_REPORT).report_action(self.sample_ids, config=False)
 
     def _awaits_payment(self):

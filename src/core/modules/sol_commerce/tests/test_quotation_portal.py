@@ -3,12 +3,13 @@ import re
 from odoo.tests import HttpCase, tagged
 
 from .order_case import OrderCase
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 PASSWORD = "portal-quotation-pass-1"
 
 
 @tagged("post_install", "-at_install")
-class TestQuotationPortal(HttpCase, OrderCase):
+class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
     """The customer of an order opens its quotation, sees the revisions and declines with a reason."""
 
     def setUp(self):
@@ -59,6 +60,9 @@ class TestQuotationPortal(HttpCase, OrderCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("attachment", response.headers["Content-Disposition"])
         self.assertTrue(response.content)
+        entry = self.entries(self.quotation, "download")
+        self.assertEqual(entry.user_id, self.portal)
+        self.assertFalse(entry.change_ids)
 
     def test_customer_declines_with_a_reason(self):
         status = self.order.order_status

@@ -3,13 +3,13 @@ from odoo.exceptions import AccessError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_CUSTOMER_SALES_TERMS
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_CUSTOMER, MODEL_PERMISSION_MIXIN
 
 
 # Điều Khoản Bán Hàng
 class CustomerSalesTerms(models.Model):
     _name = MODEL_CUSTOMER_SALES_TERMS
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Customer Sales Terms"
     _rec_name = "customer_id"
     _permission_actions = ("read", "create", "edit", "delete")
