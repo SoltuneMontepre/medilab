@@ -95,6 +95,8 @@ msgid "%s is finished and cannot be assigned again."
 msgstr "%s đã kết thúc và không thể giao lại."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is not in the task's department."
 msgstr "%s không thuộc phòng ban của nhiệm vụ."
 
@@ -116,7 +118,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/master_data/archive_mixin.py:0
 #: code:addons/sol_laboratory/models/mixins/archive_mixin.py:0
 msgid "%s more"
 msgstr "và %s bản ghi khác"
@@ -146,6 +147,8 @@ msgid "%s overdue"
 msgstr "%s quá hạn"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "%s runs within a minute."
 msgstr "%s chạy trong vòng một phút."
 
@@ -197,6 +200,7 @@ msgid "A group that has parameters cannot have sub-groups: %s."
 msgstr "Nhóm đã có chỉ tiêu không thể có nhóm con: %s."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_key_unique
 msgid "A job with this key already exists."
 msgstr "Đã có tác vụ định kỳ với khóa này."
 
@@ -349,6 +353,7 @@ msgstr "Hành động"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction
 msgid "Action Needed"
 msgstr "Cần xử lý"
@@ -359,17 +364,19 @@ msgid "Action Window View"
 msgstr "Giao diện của hành động cửa sổ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__active
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__cron_active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__active
@@ -392,6 +399,7 @@ msgstr "Số ngôn ngữ đang hoạt động"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_ids
 msgid "Activities"
 msgstr "Hoạt động"
@@ -399,6 +407,7 @@ msgstr "Hoạt động"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_exception_decoration
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_exception_decoration
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_exception_decoration
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Đánh dấu hoạt động ngoại lệ"
@@ -406,6 +415,7 @@ msgstr "Đánh dấu hoạt động ngoại lệ"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_plans_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_plans_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_plans_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_plans_ids
 msgid "Activity Plans"
 msgstr "Kế hoạch hoạt động"
@@ -413,6 +423,7 @@ msgstr "Kế hoạch hoạt động"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_state
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_state
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_state
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_state
 msgid "Activity State"
 msgstr "Trạng thái hoạt động"
@@ -420,6 +431,7 @@ msgstr "Trạng thái hoạt động"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_type_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_type_icon
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_type_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Biểu tượng loại hoạt động"
@@ -486,6 +498,7 @@ msgstr "Tuổi"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_all
 msgid "All Tasks"
 msgstr "Tất cả nhiệm vụ"
 
@@ -501,6 +514,7 @@ msgid "All tasks"
 msgstr "Tất cả nhiệm vụ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__lang
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__lang
 msgid ""
 "All the emails and documents sent to this contact will be translated "
@@ -670,12 +684,12 @@ msgid "Archive ways of testing of their department"
 msgstr "Lưu trữ cách thử của phòng ban mình"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_search
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_department_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_department_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_measurement_unit_form
@@ -744,17 +758,20 @@ msgid "Assignee"
 msgstr "Người thực hiện"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_attachment
 msgid "Attachment"
 msgstr "Tệp Đính Kèm"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_attachment_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_attachment_count
 msgid "Attachment Count"
 msgstr "Số tệp đính kèm"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__attempts
 msgid "Attempts"
 msgstr "Số Lần Thử"
 
@@ -867,6 +884,7 @@ msgid "Barcode"
 msgstr "Mã vạch"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__batch_size
 msgid "Batch Size"
 msgstr "Kích Thước Lô"
 
@@ -927,6 +945,7 @@ msgstr "Số CAS"
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: code:addons/sol_laboratory/static/src/views/control_panel/control_panel.xml:0
 msgid "Calendar"
 msgstr "Lịch"
 
@@ -946,6 +965,10 @@ msgid "Can Reject"
 msgstr "Được Từ Chối"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Cancel"
 msgstr "Hủy"
@@ -961,6 +984,8 @@ msgid "Cancel this test request with its samples and sample tests?"
 msgstr "Hủy yêu cầu thử nghiệm này cùng các mẫu và chỉ tiêu của mẫu?"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__cancelled
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__cancelled
@@ -1069,10 +1094,12 @@ msgid "Claim"
 msgstr "Nhận việc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__claim_timeout_minutes
 msgid "Claim Timeout Minutes"
 msgstr "Phút Hết Hạn Nhận"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__claimed_at
 msgid "Claimed At"
 msgstr "Nhận Lúc"
 
@@ -1087,8 +1114,10 @@ msgid "Coach"
 msgstr "Người huấn luyện"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__code
@@ -1106,10 +1135,12 @@ msgid "Code"
 msgstr "Mã"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_code_formats
 msgid "Code Formats"
 msgstr "Định Dạng Mã"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Code formats"
 msgstr "Định dạng mã"
 
@@ -1119,6 +1150,7 @@ msgid "Code from a Sequence"
 msgstr "Mã từ trình tự"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Codes"
 msgstr "Mã"
 
@@ -1204,7 +1236,6 @@ msgstr "Đã xác nhận"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_res_partner
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__partner_id
 msgid "Contact"
 msgstr "Liên hệ"
 
@@ -1424,24 +1455,38 @@ msgid "Create ways of testing of their department"
 msgstr "Tạo cách thử của phòng ban mình"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_uid
@@ -1455,24 +1500,38 @@ msgid "Created by"
 msgstr "Người tạo"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_date
@@ -1501,10 +1560,12 @@ msgid "Credit limit specific to this partner."
 msgstr "Hạn mức tín dụng riêng cho đối tác này."
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__cron_id
 msgid "Cron"
 msgstr "Cron"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__cron_pass
 msgid "Cron Pass"
 msgstr "Lượt Cron"
 
@@ -1791,12 +1852,15 @@ msgstr "Ghi chú gửi phiếu"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_hr_department
-#: model:ir.model,name:sol_laboratory.model_medilab_department
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__department_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Department"
 msgstr "Phòng Ban"
@@ -1859,7 +1923,7 @@ msgid "Direct subordinates"
 msgstr "Cấp dưới trực tiếp"
 
 #. module: sol_laboratory
-#. odoo-javascript
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
 msgid "Discard"
 msgstr "Hủy"
@@ -1885,31 +1949,53 @@ msgid "Display Invoice Template Pdf Report"
 msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__display_name
@@ -1925,6 +2011,7 @@ msgid "Display Name"
 msgstr "Tên hiển thị"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__disposal_note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__disposal_method
 msgid "Disposal Method"
 msgstr "Cách hủy mẫu"
@@ -1935,17 +2022,22 @@ msgid "Disposed"
 msgstr "Đã hủy mẫu"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__document_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 msgid "Document"
 msgstr "Chứng từ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__document_model
 msgid "Document Model"
 msgstr "Model Chứng Từ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
@@ -1959,16 +2051,23 @@ msgid "Document Version"
 msgstr "Phiên Bản Chứng Từ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__done
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__done
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__done
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Done"
 msgstr "Hoàn thành"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__done_at
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
 msgid "Done At"
 msgstr "Hoàn thành lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__done_count
 msgid "Done Count"
 msgstr "Số Mục Xong"
 
@@ -1979,7 +2078,9 @@ msgid "Door"
 msgstr "Số nhà"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record__status__draft
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__draft
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_search
 msgid "Draft"
 msgstr "Nháp"
 
@@ -2000,6 +2101,7 @@ msgid "Due %s"
 msgstr "Đến hạn %s"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date
 msgid "Due Date"
 msgstr "Hạn hoàn thành"
@@ -2022,10 +2124,15 @@ msgid "Duplicate Bank Partner"
 msgstr "Sao chép đối tác ngân hàng"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__duration
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_duration
 msgid "Duration"
 msgstr "Thời Lượng"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Duration (s)"
 msgstr "Thời Lượng (giây)"
 
@@ -2035,6 +2142,7 @@ msgid "EDI Routing Address"
 msgstr "Địa chỉ định tuyến EDI"
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_cron_unique
 msgid "Each job has its own cron."
 msgstr "Mỗi tác vụ định kỳ có cron riêng."
 
@@ -2079,6 +2187,7 @@ msgid "Edit departments"
 msgstr "Sửa phòng ban"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_job_item_edit_all
 msgid "Edit job items"
 msgstr "Sửa mục tác vụ"
 
@@ -2158,6 +2267,7 @@ msgid "Edit samples"
 msgstr "Sửa mẫu"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_scheduled_job_edit_all
 msgid "Edit scheduled jobs"
 msgstr "Sửa tác vụ định kỳ"
 
@@ -2237,6 +2347,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__email
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__email
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__email
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_notification_preference__channel__email
 msgid "Email"
 msgstr "Email"
 
@@ -2259,6 +2370,7 @@ msgid "Employee"
 msgstr "Nhân viên"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__name
 msgid "Employee Name"
 msgstr "Tên nhân viên"
@@ -2326,6 +2438,7 @@ msgid "End of Trial Period"
 msgstr "Kết thúc Thử việc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__ended_at
 msgid "Ended At"
 msgstr "Kết Thúc Lúc"
 
@@ -2352,6 +2465,8 @@ msgstr ""
 "và tuân thủ pháp lý."
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_list
 msgid "Every"
 msgstr "Mỗi"
 
@@ -2392,10 +2507,17 @@ msgid "Factor"
 msgstr "Hệ số"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__failed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_run__status__failed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_push_delivery__status__failed
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Failed"
 msgstr "Thất bại"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__failed_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__failed_count
 msgid "Failed Count"
 msgstr "Số Mục Thất Bại"
 
@@ -2416,6 +2538,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_type_form
@@ -2427,6 +2550,7 @@ msgstr "Tự sinh khi để trống"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_finished
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_finished
 msgid "Finished Tasks"
 msgstr "Nhiệm vụ đã hoàn thành"
 
@@ -2464,6 +2588,7 @@ msgstr "Có thời hạn"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_follower_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_follower_ids
 msgid "Followers"
 msgstr "Người theo dõi"
@@ -2471,6 +2596,7 @@ msgstr "Người theo dõi"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Người theo dõi (liên hệ)"
@@ -2588,6 +2714,7 @@ msgstr "Chịu trách nhiệm"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__has_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__has_message
 msgid "Has Message"
 msgstr "Có tin nhắn"
@@ -2614,6 +2741,7 @@ msgid "Has a minimum"
 msgstr "Có giá trị tối thiểu"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_search
 msgid "Has failed items"
 msgstr "Có mục thất bại"
 
@@ -2659,31 +2787,53 @@ msgid "Hr Presence State"
 msgstr "Hr trạng thái hiện diện"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__id
@@ -2711,6 +2861,7 @@ msgstr "ID được sử dụng để xác định nhân viên."
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_exception_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_exception_icon
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_exception_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_exception_icon
 msgid "Icon"
 msgstr "Biểu tượng"
@@ -2718,6 +2869,7 @@ msgstr "Biểu tượng"
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__activity_exception_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_exception_icon
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__activity_exception_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Biểu tượng cho biết hoạt động ngoại lệ."
@@ -2735,6 +2887,7 @@ msgstr "Số CMND"
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Nếu chọn, tin nhắn mới cần bạn chú ý."
@@ -2744,6 +2897,8 @@ msgstr "Nếu chọn, tin nhắn mới cần bạn chú ý."
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_has_sms_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_sms_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
@@ -2835,6 +2990,7 @@ msgid "In Person"
 msgstr "Trực tiếp"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__in_progress
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
 msgid "In progress"
 msgstr "Đang thực hiện"
@@ -2886,10 +3042,12 @@ msgstr ""
 "được định nghĩa trước để sử dụng trong các giao dịch quốc tế."
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__interval_number
 msgid "Interval Number"
 msgstr "Số Khoảng"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__interval_type
 msgid "Interval Unit"
 msgstr "Đơn Vị Khoảng"
 
@@ -2926,6 +3084,7 @@ msgstr "Là chức danh tùy chỉnh"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_is_follower
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_is_follower
 msgid "Is Follower"
 msgstr "Đang theo dõi"
@@ -2995,23 +3154,33 @@ msgid "Issuing Authority"
 msgstr "Cơ quan ban hành"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__item_key
 msgid "Item Key"
 msgstr "Khóa Mục"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__item_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Items"
 msgstr "Mục"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__job_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__job_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Job"
 msgstr "Chức vụ"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_job_item
 msgid "Job Item"
 msgstr "Mục Tác Vụ"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_job_item
+#: model:ir.ui.menu,name:sol_laboratory.menu_job_item
 msgid "Job Items"
 msgstr "Mục Tác Vụ"
 
@@ -3022,10 +3191,13 @@ msgid "Job Position"
 msgstr "Chức vụ"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_job_run
 msgid "Job Run"
 msgstr "Lượt Chạy Tác Vụ"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_job_run
+#: model:ir.ui.menu,name:sol_laboratory.menu_job_run
 msgid "Job Runs"
 msgstr "Lượt Chạy Tác Vụ"
 
@@ -3035,14 +3207,18 @@ msgid "Job Title"
 msgstr "Chức danh"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Job item failed: %s"
 msgstr "Mục tác vụ thất bại: %s"
 
 #. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_jobs
 msgid "Jobs"
 msgstr "Tác Vụ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__key
 msgid "Key"
 msgstr "Khóa"
 
@@ -3063,6 +3239,7 @@ msgstr "LOQ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__code
 msgid "Lab Code"
 msgstr "Mã PTN"
 
@@ -3073,7 +3250,6 @@ msgid "Laboratory"
 msgstr "Phòng Thí Nghiệm"
 
 #. module: sol_laboratory
-#: model:ir.module.module,summary:base.module_laboratory
 #: model:ir.module.module,summary:base.module_sol_laboratory
 msgid ""
 "Laboratory testing core: test catalog, parameters, samples, results "
@@ -3104,10 +3280,13 @@ msgid "Last Activity Time"
 msgstr "Thời gian hoạt động cuối cùng"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_list
 msgid "Last Duration (s)"
 msgstr "Thời Lượng Lần Cuối (giây)"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__last_error
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_form
 msgid "Last Error"
 msgstr "Lỗi Lần Cuối"
 
@@ -3122,32 +3301,49 @@ msgid "Last Modified on"
 msgstr "Chỉnh sửa lần cuối vào"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Last Run"
 msgstr "Lượt Chạy Cuối"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lastcall
 msgid "Last Scheduled Run"
 msgstr "Lượt Chạy Theo Lịch Cuối"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_uid
@@ -3161,24 +3357,38 @@ msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_date
@@ -3232,6 +3442,7 @@ msgstr "Giới hạn dạng chữ"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__limit_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_regulation_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Limits"
 msgstr "Giới hạn"
 
@@ -3243,6 +3454,7 @@ msgstr "Lỏng"
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: code:addons/sol_laboratory/static/src/views/control_panel/control_panel.xml:0
 msgid "List"
 msgstr "Danh sách"
 
@@ -3252,6 +3464,8 @@ msgid "Location"
 msgstr "Vị trí"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__log
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_form
 msgid "Log"
 msgstr "Nhật Ký"
 
@@ -3268,8 +3482,11 @@ msgstr "Kinh độ"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_machine
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__machine_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Machine"
 msgstr "Máy"
 
@@ -3355,11 +3572,13 @@ msgstr "Danh Mục"
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__activity_type_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_type_icon
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__activity_type_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_type_icon
 msgid "Material Symbols icon e.g. checklist"
 msgstr "Biểu tượng Material Symbols, ví dụ checklist"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__max_attempts
 msgid "Max Attempts"
 msgstr "Số Lần Thử Tối Đa"
 
@@ -3380,7 +3599,6 @@ msgid "Measurement Units"
 msgstr "Đơn Vị Đo"
 
 #. module: sol_laboratory
-#: model:ir.module.module,shortdesc:base.module_laboratory
 #: model:ir.module.module,shortdesc:base.module_sol_laboratory
 msgid "Medilab - Laboratory"
 msgstr "Medilab - Phòng thí nghiệm"
@@ -3403,12 +3621,14 @@ msgid "Member of department"
 msgstr "Thành viên của phòng ban"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_ui_menu
 msgid "Menu"
 msgstr "Trình đơn"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error
 msgid "Message Delivery error"
 msgstr "Lỗi gửi tin nhắn"
@@ -3426,6 +3646,7 @@ msgstr "Thông báo về lấy hàng"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_ids
 msgid "Messages"
 msgstr "Tin nhắn"
@@ -3470,6 +3691,7 @@ msgstr "Di chuyển"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__my_activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__my_activity_date_deadline
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__my_activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Hạn hoạt động của tôi"
@@ -3481,6 +3703,7 @@ msgstr "Hàng đợi của tôi"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_mine
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_mine
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "My Tasks"
 msgstr "Nhiệm vụ của tôi"
@@ -3492,18 +3715,19 @@ msgid "My tasks"
 msgstr "Nhiệm vụ của tôi"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__name
@@ -3511,6 +3735,8 @@ msgstr "Nhiệm vụ của tôi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__name
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
@@ -3549,6 +3775,7 @@ msgstr "Tiếp"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_calendar_event_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_calendar_event_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_calendar_event_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "Sự kiện lịch của hoạt động tiếp theo"
@@ -3556,6 +3783,7 @@ msgstr "Sự kiện lịch của hoạt động tiếp theo"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_date_deadline
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Hạn hoạt động tiếp theo"
@@ -3563,6 +3791,7 @@ msgstr "Hạn hoạt động tiếp theo"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_summary
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_summary
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_summary
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_summary
 msgid "Next Activity Summary"
 msgstr "Tóm tắt hoạt động tiếp theo"
@@ -3570,11 +3799,13 @@ msgstr "Tóm tắt hoạt động tiếp theo"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_type_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_type_id
 msgid "Next Activity Type"
 msgstr "Loại hoạt động tiếp theo"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__next_attempt_at
 msgid "Next Attempt At"
 msgstr "Thử Lại Lúc"
 
@@ -3600,10 +3831,12 @@ msgid "Next Meeting"
 msgstr "Cuộc họp tiếp theo"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__nextcall
 msgid "Next Run"
 msgstr "Lượt Chạy Tiếp Theo"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__nextcall
 msgid "Next planned execution date for this job."
 msgstr "Ngày thực hiện dự kiến tiếp theo của tác vụ này."
 
@@ -3639,6 +3872,7 @@ msgid "Normalized Email"
 msgstr "Email đã chuẩn hóa"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Not Finished"
 msgstr "Chưa kết thúc"
@@ -3649,6 +3883,7 @@ msgstr "Chưa kết thúc"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__note
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Note"
@@ -3685,6 +3920,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Số việc cần xử lý"
@@ -3697,6 +3933,7 @@ msgstr "Số ngày gửi email nhắc nhở trước ngày nhận hàng đã th�
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
 msgid "Number of errors"
 msgstr "Số lỗi"
@@ -3704,6 +3941,7 @@ msgstr "Số lỗi"
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Số tin nhắn cần xử lý"
@@ -3711,20 +3949,26 @@ msgstr "Số tin nhắn cần xử lý"
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_error_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Số tin nhắn bị lỗi gửi"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__on_hold
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 msgid "On Hold"
 msgstr "Tạm giữ"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/job_item.py:0
 msgid "Only a failed item can be retried."
 msgstr "Chỉ mục đã thất bại mới được thử lại."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/job_item.py:0
 msgid "Only a pending or failed item can be cancelled."
 msgstr "Chỉ mục đang chờ hoặc đã thất bại mới được hủy."
 
@@ -3872,6 +4116,7 @@ msgid "Parent name"
 msgstr "Tên công ty cha"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_run__status__partly_failed
 msgid "Partly Failed"
 msgstr "Một phần thất bại"
 
@@ -3918,6 +4163,8 @@ msgid "Passport No"
 msgstr "Số hộ chiếu"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__payload
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_form
 msgid "Payload"
 msgstr "Dữ Liệu"
 
@@ -3937,21 +4184,22 @@ msgid "Payment Tokens"
 msgstr "Mã thanh toán"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__pending
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_push_delivery__status__pending
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
 msgid "Pending"
 msgstr "Đang chờ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__pending_count
 msgid "Pending Count"
 msgstr "Số Mục Đang Chờ"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_person
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__person_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__person_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__person_ids
-#: model:ir.ui.menu,name:sol_laboratory.menu_people_root
 #: model:ir.ui.menu,name:sol_laboratory.menu_person
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_department_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_role_form
 msgid "People"
@@ -4116,14 +4364,17 @@ msgid "Permission: invoice.adjustment.read.all"
 msgstr "Quyền: invoice.adjustment.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_job_item_edit_all
 msgid "Permission: job.item.edit.all"
 msgstr "Quyền: job.item.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_job_item_read_all
 msgid "Permission: job.item.read.all"
 msgstr "Quyền: job.item.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_job_run_read_all
 msgid "Permission: job.run.read.all"
 msgstr "Quyền: job.run.read.all"
 
@@ -4322,10 +4573,12 @@ msgid "Permission: sample.test.read.all"
 msgstr "Quyền: sample.test.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_scheduled_job_edit_all
 msgid "Permission: scheduled.job.edit.all"
 msgstr "Quyền: scheduled.job.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_scheduled_job_read_all
 msgid "Permission: scheduled.job.read.all"
 msgstr "Quyền: scheduled.job.read.all"
 
@@ -4496,6 +4749,8 @@ msgstr "Quyền"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_person
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__person_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 msgid "Person"
 msgstr "Nhân Sự"
 
@@ -4551,6 +4806,7 @@ msgid "Post Test Requirements"
 msgstr "Yêu cầu sau thử nghiệm"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents."
 msgstr "Tiền tố và độ dài của mã gán cho chỉ tiêu, nhóm, loại mẫu, hồ sơ, thầu phụ và chứng từ."
 
@@ -4561,6 +4817,7 @@ msgid "Previous"
 msgstr "Trước"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__lastcall
 msgid "Previous time the cron ran successfully, provided to the job through the context on the `lastcall` key"
 msgstr "Lần trước cron chạy thành công, đưa cho tác vụ qua ngữ cảnh với khóa `lastcall`."
 
@@ -4620,10 +4877,12 @@ msgid "Private Zip"
 msgstr "Zip cá nhân"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__progress_done
 msgid "Progress Done"
 msgstr "Đã Xong"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__progress_remaining
 msgid "Progress Remaining"
 msgstr "Còn Lại"
 
@@ -4682,6 +4941,7 @@ msgid "Quantity"
 msgstr "Số lần thử"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Queue"
 msgstr "Hàng Đợi"
 
@@ -4716,10 +4976,12 @@ msgid "Read departments"
 msgstr "Xem phòng ban"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_job_item_read_all
 msgid "Read job items"
 msgstr "Xem mục tác vụ"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_job_run_read_all
 msgid "Read job runs"
 msgstr "Xem lượt chạy tác vụ"
 
@@ -4754,6 +5016,7 @@ msgid "Read samples"
 msgstr "Xem mẫu"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_scheduled_job_read_all
 msgid "Read scheduled jobs"
 msgstr "Xem tác vụ định kỳ"
 
@@ -4778,6 +5041,7 @@ msgid "Read test requests"
 msgstr "Xem yêu cầu thử nghiệm"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
 msgid "Reason"
 msgstr "Lý do"
@@ -4799,6 +5063,7 @@ msgstr "Nhắc nhở nhận hàng"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__received
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 msgid "Received"
 msgstr "Đã nhận"
 
@@ -4829,6 +5094,8 @@ msgstr "Quy Chuẩn"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__rejected
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__rejected
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 msgid "Rejected"
 msgstr "Từ chối"
 
@@ -4866,6 +5133,7 @@ msgid "Repair"
 msgstr "Sửa chữa"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__interval_number
 msgid "Repeat every x."
 msgstr "Lặp lại mỗi x."
 
@@ -4908,6 +5176,7 @@ msgstr "Tài nguyên"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_user_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_user_id
 msgid "Responsible User"
 msgstr "Người phụ trách"
@@ -4929,6 +5198,7 @@ msgstr "Dòng CV"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__retained
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 msgid "Retained"
 msgstr "Lưu mẫu"
 
@@ -4948,15 +5218,21 @@ msgid "Retired"
 msgstr "Ngừng sử dụng"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Retry"
 msgstr "Thử lại"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__retry_delay_minutes
 msgid "Retry Delay Minutes"
 msgstr "Phút Chờ Thử Lại"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_role
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__role_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__role_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 msgid "Role"
 msgstr "Vai Trò"
@@ -5004,32 +5280,43 @@ msgid "Run Minutes"
 msgstr "Thời gian chạy (phút)"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__run_requested_at
 msgid "Run Requested At"
 msgstr "Yêu Cầu Chạy Lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__run_requested_by_id
 msgid "Run Requested By"
 msgstr "Người Yêu Cầu Chạy"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Run by hand"
 msgstr "Chạy thủ công"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Run now"
 msgstr "Chạy ngay"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__running
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_run__status__running
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Running"
 msgstr "Đang chạy"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__run_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Runs"
 msgstr "Lượt chạy"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_sms_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Lỗi gửi SMS"
@@ -5062,7 +5349,10 @@ msgstr "Cùng Phòng Ban"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__sample_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__sample_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__sample_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 msgid "Sample"
 msgstr "Mẫu"
 
@@ -5083,6 +5373,8 @@ msgstr "Đã nhận mẫu"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_test
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__sample_test_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_list
 msgid "Sample Test"
 msgstr "Chỉ Tiêu Của Mẫu"
 
@@ -5102,8 +5394,11 @@ msgstr "Loại Mẫu"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__sample_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__sample_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Samples"
 msgstr "Mẫu"
@@ -5132,14 +5427,20 @@ msgid "Scale"
 msgstr "Tỷ lệ"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Schedule"
 msgstr "Lịch"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_search
 msgid "Schedule off"
 msgstr "Tắt lịch"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_scheduled_job
+#: model:ir.ui.menu,name:sol_laboratory.menu_scheduled_job
 msgid "Scheduled Jobs"
 msgstr "Tác Vụ Định Kỳ"
 
@@ -5195,6 +5496,8 @@ msgid "Set a value greater than 0.0 to activate a credit limit check"
 msgstr "Đặt giá trị lớn hơn 0,0 để kích hoạt kiểm tra hạn mức tín dụng"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_settings
+#: model:ir.ui.menu,name:sol_laboratory.menu_settings
 msgid "Settings"
 msgstr "Cài Đặt"
 
@@ -5248,11 +5551,15 @@ msgstr "Ký"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_signature
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__signature_attachment_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 msgid "Signature"
 msgstr "Chữ Ký"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record__status__signed
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__signed
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_search
 msgid "Signed"
 msgstr "Đã ký"
 
@@ -5315,11 +5622,15 @@ msgstr "Tên pháp lý của vợ/chồng"
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__starts_at
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 msgid "Start"
 msgstr "Bắt đầu"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__started_at
 msgid "Started At"
 msgstr "Bắt Đầu Lúc"
 
@@ -5336,11 +5647,19 @@ msgid "Stats"
 msgstr "Thống kê"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
@@ -5351,6 +5670,7 @@ msgstr "Trạng thái"
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__activity_state
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_state
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__activity_state
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_state
 msgid ""
 "Status based on activities\n"
@@ -5413,6 +5733,7 @@ msgid "Subordinates"
 msgstr "Nhân viên cấp dưới"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_run__status__succeeded
 msgid "Succeeded"
 msgstr "Thành công"
 
@@ -5440,6 +5761,7 @@ msgstr "Thẻ"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_task
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__task_id
 msgid "Task"
 msgstr "Nhiệm Vụ"
 
@@ -5515,6 +5837,7 @@ msgstr "Chỉ Tiêu"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_test_request
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__request_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__request_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 msgid "Test Request"
@@ -5627,6 +5950,7 @@ msgid "The administrator role holds every permission; none can be removed."
 msgstr "Vai trò quản trị viên nắm mọi quyền; không thể gỡ quyền nào."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_limits_positive
 msgid "The batch size and the attempts must be at least 1."
 msgstr "Kích thước lô và số lần thử phải ít nhất là 1."
 
@@ -5893,7 +6217,6 @@ msgstr "Các quyền này đi kèm một phân hệ và không thể xóa: %s"
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/master_data/archive_mixin.py:0
 #: code:addons/sol_laboratory/models/mixins/archive_mixin.py:0
 msgid ""
 "This cannot be archived while these records use it:\n"
@@ -5904,7 +6227,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/master_data/archive_mixin.py:0
 #: code:addons/sol_laboratory/models/mixins/archive_mixin.py:0
 msgid ""
 "This cannot be deleted while these records refer to it:\n"
@@ -5994,6 +6316,7 @@ msgid "This user already belongs to another person."
 msgstr "Tài khoản này đã thuộc về một nhân sự khác."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_job_item_key_unique
 msgid "This work is already queued for the job."
 msgstr "Công việc này đã được xếp hàng cho tác vụ."
 
@@ -6005,6 +6328,7 @@ msgstr "Thứ năm"
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: code:addons/sol_laboratory/static/src/views/control_panel/control_panel.xml:0
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_actions_act_window_view__view_mode__timeline
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_ui_view__type__timeline
 msgid "Timeline"
@@ -6065,6 +6389,7 @@ msgid "Trigger"
 msgstr "Sự kiện tạo"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__triggered_by_id
 msgid "Triggered By"
 msgstr "Người Kích Hoạt"
 
@@ -6074,6 +6399,8 @@ msgid "Tuesday"
 msgstr "Thứ Ba"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Turn the schedule of %s on before running it."
 msgstr "Bật lịch của %s trước khi chạy."
 
@@ -6086,6 +6413,7 @@ msgstr "Loại"
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__activity_exception_decoration
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_exception_decoration
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__activity_exception_decoration
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Loại hoạt động ngoại lệ trên bản ghi."
@@ -6144,6 +6472,8 @@ msgid "Used to log into the system"
 msgstr "Dùng để đăng nhập vào hệ thống"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__user_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "User"
@@ -6239,6 +6569,8 @@ msgstr "Đang chờ"
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_parameter_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__parameter_method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_method_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Way of Testing"
 msgstr "Cách Thử"
 
@@ -6268,6 +6600,7 @@ msgid "Week"
 msgstr "Tuần"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__tz
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__tz
 msgid ""
 "When printing documents and exporting/importing data, time values are "
@@ -6318,6 +6651,7 @@ msgid "Work Contact"
 msgstr "Liên hệ làm việc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__work_email
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__work_email
 msgid "Work Email"
 msgstr "Email công việc"
@@ -6375,7 +6709,6 @@ msgstr "Giờ làm việc"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/mixins/permission_mixin.py:0
-#: code:addons/sol_laboratory/models/system/permission_mixin.py:0
 msgid "You are not allowed to %(action)s these records: %(records)s"
 msgstr ""
 "Bạn không được phép thực hiện hành động %(action)s trên các bản ghi "
@@ -6449,21 +6782,25 @@ msgid "work_permit_name"
 msgstr "work_permit_name"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_notification_event
 #: model:ir.ui.menu,name:sol_laboratory.menu_notification_event
 msgid "Notification events"
 msgstr "Sự kiện thông báo"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_mobile_device
 #: model:ir.ui.menu,name:sol_laboratory.menu_mobile_device
 msgid "Mobile devices"
 msgstr "Thiết bị di động"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_push_delivery
 #: model:ir.ui.menu,name:sol_laboratory.menu_push_delivery
 msgid "Push deliveries"
 msgstr "Lần đẩy thông báo"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_notification_preference
 #: model:ir.ui.menu,name:sol_laboratory.menu_notification_preference
 msgid "Notification preferences"
 msgstr "Tuỳ chọn thông báo"
@@ -6474,602 +6811,777 @@ msgid "Reminder lead (minutes)"
 msgstr "Gửi trước (phút)"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_chemical_archive_all
 msgid "Permission: chemical.archive.all"
 msgstr "Quyền: chemical.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_chemical_create_all
 msgid "Permission: chemical.create.all"
 msgstr "Quyền: chemical.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_chemical_delete_all
 msgid "Permission: chemical.delete.all"
 msgstr "Quyền: chemical.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_chemical_edit_all
 msgid "Permission: chemical.edit.all"
 msgstr "Quyền: chemical.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_archive_all
 msgid "Permission: machine.archive.all"
 msgstr "Quyền: machine.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_create_all
 msgid "Permission: machine.create.all"
 msgstr "Quyền: machine.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_delete_all
 msgid "Permission: machine.delete.all"
 msgstr "Quyền: machine.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_edit_all
 msgid "Permission: machine.edit.all"
 msgstr "Quyền: machine.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_service_create_all
 msgid "Permission: machine.service.create.all"
 msgstr "Quyền: machine.service.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_service_delete_all
 msgid "Permission: machine.service.delete.all"
 msgstr "Quyền: machine.service.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_service_edit_all
 msgid "Permission: machine.service.edit.all"
 msgstr "Quyền: machine.service.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_measurement_unit_archive_all
 msgid "Permission: measurement.unit.archive.all"
 msgstr "Quyền: measurement.unit.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_measurement_unit_create_all
 msgid "Permission: measurement.unit.create.all"
 msgstr "Quyền: measurement.unit.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_measurement_unit_delete_all
 msgid "Permission: measurement.unit.delete.all"
 msgstr "Quyền: measurement.unit.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_measurement_unit_edit_all
 msgid "Permission: measurement.unit.edit.all"
 msgstr "Quyền: measurement.unit.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_group_archive_all
 msgid "Permission: parameter.group.archive.all"
 msgstr "Quyền: parameter.group.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_group_create_all
 msgid "Permission: parameter.group.create.all"
 msgstr "Quyền: parameter.group.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_group_delete_all
 msgid "Permission: parameter.group.delete.all"
 msgstr "Quyền: parameter.group.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_group_edit_all
 msgid "Permission: parameter.group.edit.all"
 msgstr "Quyền: parameter.group.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_archive_all
 msgid "Permission: parameter.method.archive.all"
 msgstr "Quyền: parameter.method.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_archive_own_department
 msgid "Permission: parameter.method.archive.own_department"
 msgstr "Quyền: parameter.method.archive.own_department"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_create_all
 msgid "Permission: parameter.method.create.all"
 msgstr "Quyền: parameter.method.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_create_own_department
 msgid "Permission: parameter.method.create.own_department"
 msgstr "Quyền: parameter.method.create.own_department"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_delete_all
 msgid "Permission: parameter.method.delete.all"
 msgstr "Quyền: parameter.method.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_delete_own_department
 msgid "Permission: parameter.method.delete.own_department"
 msgstr "Quyền: parameter.method.delete.own_department"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_edit_all
 msgid "Permission: parameter.method.edit.all"
 msgstr "Quyền: parameter.method.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_edit_own_department
 msgid "Permission: parameter.method.edit.own_department"
 msgstr "Quyền: parameter.method.edit.own_department"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_create_all
 msgid "Permission: parameter.method.machine.create.all"
 msgstr "Quyền: parameter.method.machine.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_delete_all
 msgid "Permission: parameter.method.machine.delete.all"
 msgstr "Quyền: parameter.method.machine.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_edit_all
 msgid "Permission: parameter.method.machine.edit.all"
 msgstr "Quyền: parameter.method.machine.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quality_registration_archive_all
 msgid "Permission: quality.registration.archive.all"
 msgstr "Quyền: quality.registration.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quality_registration_create_all
 msgid "Permission: quality.registration.create.all"
 msgstr "Quyền: quality.registration.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quality_registration_delete_all
 msgid "Permission: quality.registration.delete.all"
 msgstr "Quyền: quality.registration.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quality_registration_edit_all
 msgid "Permission: quality.registration.edit.all"
 msgstr "Quyền: quality.registration.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_archive_all
 msgid "Permission: regulation.archive.all"
 msgstr "Quyền: regulation.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_create_all
 msgid "Permission: regulation.create.all"
 msgstr "Quyền: regulation.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_delete_all
 msgid "Permission: regulation.delete.all"
 msgstr "Quyền: regulation.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_edit_all
 msgid "Permission: regulation.edit.all"
 msgstr "Quyền: regulation.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_limit_create_all
 msgid "Permission: regulation.limit.create.all"
 msgstr "Quyền: regulation.limit.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_limit_delete_all
 msgid "Permission: regulation.limit.delete.all"
 msgstr "Quyền: regulation.limit.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_limit_edit_all
 msgid "Permission: regulation.limit.edit.all"
 msgstr "Quyền: regulation.limit.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_type_archive_all
 msgid "Permission: sample.type.archive.all"
 msgstr "Quyền: sample.type.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_type_create_all
 msgid "Permission: sample.type.create.all"
 msgstr "Quyền: sample.type.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_type_delete_all
 msgid "Permission: sample.type.delete.all"
 msgstr "Quyền: sample.type.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_type_edit_all
 msgid "Permission: sample.type.edit.all"
 msgstr "Quyền: sample.type.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontractor_archive_all
 msgid "Permission: subcontractor.archive.all"
 msgstr "Quyền: subcontractor.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontractor_create_all
 msgid "Permission: subcontractor.create.all"
 msgstr "Quyền: subcontractor.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontractor_edit_all
 msgid "Permission: subcontractor.edit.all"
 msgstr "Quyền: subcontractor.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_parameter_archive_all
 msgid "Permission: test.parameter.archive.all"
 msgstr "Quyền: test.parameter.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_parameter_create_all
 msgid "Permission: test.parameter.create.all"
 msgstr "Quyền: test.parameter.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_parameter_edit_all
 msgid "Permission: test.parameter.edit.all"
 msgstr "Quyền: test.parameter.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_field_archive_all
 msgid "Permission: testing.field.archive.all"
 msgstr "Quyền: testing.field.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_field_create_all
 msgid "Permission: testing.field.create.all"
 msgstr "Quyền: testing.field.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_field_delete_all
 msgid "Permission: testing.field.delete.all"
 msgstr "Quyền: testing.field.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_field_edit_all
 msgid "Permission: testing.field.edit.all"
 msgstr "Quyền: testing.field.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_archive_all
 msgid "Permission: testing.method.archive.all"
 msgstr "Quyền: testing.method.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_create_all
 msgid "Permission: testing.method.create.all"
 msgstr "Quyền: testing.method.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_delete_all
 msgid "Permission: testing.method.delete.all"
 msgstr "Quyền: testing.method.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_edit_all
 msgid "Permission: testing.method.edit.all"
 msgstr "Quyền: testing.method.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_unit_category_archive_all
 msgid "Permission: unit.category.archive.all"
 msgstr "Quyền: unit.category.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_unit_category_create_all
 msgid "Permission: unit.category.create.all"
 msgstr "Quyền: unit.category.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_unit_category_delete_all
 msgid "Permission: unit.category.delete.all"
 msgstr "Quyền: unit.category.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_unit_category_edit_all
 msgid "Permission: unit.category.edit.all"
 msgstr "Quyền: unit.category.edit.all"
 
 #. module: sol_laboratory
+#: model:mail.template,body_html:sol_laboratory.mail_template_task_reminder
 msgid "<p>Your task <t t-out=\"object.name\"/> is about to start.</p>\n        "
 msgstr "<p>Nhiệm vụ <t t-out=\"object.name\"/> sắp bắt đầu.</p>\n        "
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_message_subtype.py:0
+#: code:addons/sol_laboratory/models/notifications/notification_preference.py:0
 msgid "A mandatory event cannot be turned off."
 msgstr "Không thể tắt một sự kiện bắt buộc."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_device.py:0
 msgid "A mobile device needs a token and a platform."
 msgstr "Thiết bị di động cần mã thông báo và nền tảng."
 
 #. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_task_reminder
 msgid "A planned task is about to start"
 msgstr "Một nhiệm vụ đã lên lịch sắp bắt đầu"
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_mail_message_subtype_code_unique
 msgid "An event with this code already exists."
 msgstr "Đã có sự kiện với mã này."
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__android
 msgid "Android"
 msgstr "Android"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_archive_all
 msgid "Archive mobile devices"
 msgstr "Lưu trữ thiết bị di động"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/ir_mail_server.py:0
 msgid "BREVO_SMTP_PORT must be a port number."
 msgstr "BREVO_SMTP_PORT phải là số cổng."
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__brevo_status
 msgid "Brevo Status"
 msgstr "Trạng thái Brevo"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_calendar_event
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__calendar_event_id
 msgid "Calendar Event"
 msgstr "Sự kiện lịch"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__channel
 msgid "Channel"
 msgstr "Kênh"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/notification_preference.py:0
 msgid "Choose a channel the system sends."
 msgstr "Chọn một kênh mà hệ thống gửi."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/notification_event_recipient.py:0
 msgid "Choose a role or a department, not both and not neither."
 msgstr "Chọn một vai trò hoặc một phòng ban, không chọn cả hai và cũng không bỏ trống."
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_create_all
 msgid "Create mobile devices"
 msgstr "Tạo thiết bị di động"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_preference_create_all
 msgid "Create notification preferences"
 msgstr "Tạo tuỳ chọn thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_event_recipient_create_all
 msgid "Create notification recipients"
 msgstr "Tạo người nhận thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_push_delivery_create_all
 msgid "Create push deliveries"
 msgstr "Tạo lần đẩy thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_delete_all
 msgid "Delete mobile devices"
 msgstr "Xoá thiết bị di động"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_preference_delete_all
 msgid "Delete notification preferences"
 msgstr "Xoá tuỳ chọn thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_event_recipient_delete_all
 msgid "Delete notification recipients"
 msgstr "Xoá người nhận thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_edit_all
 msgid "Edit mobile devices"
 msgstr "Sửa thiết bị di động"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_preference_edit_all
 msgid "Edit notification preferences"
 msgstr "Sửa tuỳ chọn thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_event_recipient_edit_all
 msgid "Edit notification recipients"
 msgstr "Sửa người nhận thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_push_delivery_edit_all
 msgid "Edit push deliveries"
 msgstr "Sửa lần đẩy thông báo"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__email_bounced
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__email_bounced
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__email_bounced
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__email_bounced
 msgid "Email Bounced"
 msgstr "Email bị trả lại"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__enabled
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__enabled
 msgid "Enabled"
 msgstr "Đang bật"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__error
 msgid "Error"
 msgstr "Lỗi"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__event_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__event_id
 msgid "Event"
 msgstr "Sự kiện"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_notification_preference__channel__popup
 msgid "In the application"
 msgstr "Trong ứng dụng"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__last_seen_at
 msgid "Last Seen At"
 msgstr "Lần thấy gần nhất"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_mail_server
 msgid "Mail Server"
 msgstr "Máy chủ thư"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__mandatory
 msgid "Mandatory"
 msgstr "Bắt buộc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__medilab_task_id
 msgid "Medilab Task"
 msgstr "Nhiệm vụ MediLab"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_message
 msgid "Message"
 msgstr "Tin nhắn"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_notification
 msgid "Message Notification"
 msgstr "Thông báo tin nhắn"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_message_subtype
 msgid "Message Subtype"
 msgstr "Loại tin nhắn"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Minutes before a planned task starts."
 msgstr "Số phút trước khi nhiệm vụ đã lên lịch bắt đầu."
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_mobile_device
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__mobile_device_id
 msgid "Mobile Device"
 msgstr "Thiết bị di động"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__notification_id
 msgid "Notification"
 msgstr "Thông báo"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_notification_event_recipient
 msgid "Notification Event Recipient"
 msgstr "Người nhận sự kiện thông báo"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__notification_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__notification_key
 msgid "Notification Key"
 msgstr "Khoá thông báo"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_notification_preference
 msgid "Notification Preference"
 msgstr "Tuỳ chọn thông báo"
 
 #. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_notifications_email_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_notifications_email
 msgid "Notification email"
 msgstr "Email thông báo"
 
 #. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_notifications_push_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_notifications_push
 msgid "Notification push"
 msgstr "Đẩy thông báo"
 
 #. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_notifications_remind_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_notifications_remind
 msgid "Notification reminders"
 msgstr "Nhắc thông báo"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_archive_all
 msgid "Permission: mobile.device.archive.all"
 msgstr "Quyền: mobile.device.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_create_all
 msgid "Permission: mobile.device.create.all"
 msgstr "Quyền: mobile.device.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_delete_all
 msgid "Permission: mobile.device.delete.all"
 msgstr "Quyền: mobile.device.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_edit_all
 msgid "Permission: mobile.device.edit.all"
 msgstr "Quyền: mobile.device.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_read_all
 msgid "Permission: mobile.device.read.all"
 msgstr "Quyền: mobile.device.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_event_recipient_create_all
 msgid "Permission: notification.event.recipient.create.all"
 msgstr "Quyền: notification.event.recipient.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_event_recipient_delete_all
 msgid "Permission: notification.event.recipient.delete.all"
 msgstr "Quyền: notification.event.recipient.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_event_recipient_edit_all
 msgid "Permission: notification.event.recipient.edit.all"
 msgstr "Quyền: notification.event.recipient.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_event_recipient_read_all
 msgid "Permission: notification.event.recipient.read.all"
 msgstr "Quyền: notification.event.recipient.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_preference_create_all
 msgid "Permission: notification.preference.create.all"
 msgstr "Quyền: notification.preference.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_preference_delete_all
 msgid "Permission: notification.preference.delete.all"
 msgstr "Quyền: notification.preference.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_preference_edit_all
 msgid "Permission: notification.preference.edit.all"
 msgstr "Quyền: notification.preference.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_preference_read_all
 msgid "Permission: notification.preference.read.all"
 msgstr "Quyền: notification.preference.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_push_delivery_create_all
 msgid "Permission: push.delivery.create.all"
 msgstr "Quyền: push.delivery.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_push_delivery_edit_all
 msgid "Permission: push.delivery.edit.all"
 msgstr "Quyền: push.delivery.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_push_delivery_read_all
 msgid "Permission: push.delivery.read.all"
 msgstr "Quyền: push.delivery.read.all"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__platform
 msgid "Platform"
 msgstr "Nền tảng"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_notification_preference__channel__push
 msgid "Push"
 msgstr "Đẩy"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_push_delivery
 msgid "Push Delivery"
 msgstr "Lần đẩy thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_read_all
 msgid "Read mobile devices"
 msgstr "Xem thiết bị di động"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_preference_read_all
 msgid "Read notification preferences"
 msgstr "Xem tuỳ chọn thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_event_recipient_read_all
 msgid "Read notification recipients"
 msgstr "Xem người nhận thông báo"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_push_delivery_read_all
 msgid "Read push deliveries"
 msgstr "Xem lần đẩy thông báo"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__recipient_ids
 msgid "Recipients"
 msgstr "Người nhận"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Reminder lead"
 msgstr "Gửi trước"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_push_delivery__status__sent
 msgid "Sent"
 msgstr "Đã gửi"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__sent_at
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__sent_at
 msgid "Sent At"
 msgstr "Gửi lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_push_delivery__status__skipped
 msgid "Skipped"
 msgstr "Đã bỏ qua"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
 msgid "Starts at %(start)s."
 msgstr "Bắt đầu lúc %(start)s."
 
 #. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_task_reminder
+#: model:mail.template,name:sol_laboratory.mail_template_task_reminder
 msgid "Task reminder"
 msgstr "Nhắc nhiệm vụ"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
 msgid "The email cannot be sent."
 msgstr "Không gửi được email."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
 msgid "The email was cancelled."
 msgstr "Email đã bị huỷ."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
 msgid "The mail server did not accept the message."
 msgstr "Máy chủ thư không nhận tin nhắn."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_notification_preference_user_event_channel_unique
 msgid "This channel is already chosen for the event."
 msgstr "Kênh này đã được chọn cho sự kiện."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_device.py:0
 msgid "This device is not registered for you."
 msgstr "Thiết bị này không được đăng ký cho bạn."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_mobile_device_token_unique
 msgid "This device token is already registered."
 msgstr "Mã thông báo của thiết bị này đã được đăng ký."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_mail_message_notification_key_unique
 msgid "This notification already exists."
 msgstr "Thông báo này đã tồn tại."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_push_delivery_notification_device_unique
 msgid "This notification is already pushed to the device."
 msgstr "Thông báo này đã được đẩy tới thiết bị."
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__token
 msgid "Token"
 msgstr "Mã thông báo"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/notification_preference.py:0
 msgid "You can change only your own channel choices."
 msgstr "Bạn chỉ có thể đổi lựa chọn kênh của chính mình."
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__ios
 msgid "iOS"
 msgstr "iOS"
 
 #. module: sol_laboratory
+#: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
 msgid "{{ object.name }}"
 msgstr "{{ object.name }}"
 #. module: sol_laboratory
@@ -7689,3 +8201,275 @@ msgstr "Chờ nhận"
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
 msgid "You are not in a department that receives samples."
 msgstr "Bạn không thuộc phòng ban nhận mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "%(machine)s is not free for %(booking)s at that time."
+msgstr "%(machine)s không trống cho %(booking)s vào lúc đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "%s is already waiting for or holding a machine."
+msgstr "%s đã đang chờ hoặc đang giữ một máy."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "<span class=\"badge text-bg-danger\" invisible=\"not is_urgent\">Urgent</span>"
+msgstr "<span class=\"badge text-bg-danger\" invisible=\"not is_urgent\">Khẩn</span>"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_slot_period
+msgid "A booking ends after it starts."
+msgstr "Lịch đặt máy phải kết thúc sau khi bắt đầu."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_calendar_event_unique
+msgid "A calendar event shows one booking."
+msgstr "Một sự kiện lịch chỉ hiển thị một lịch đặt máy."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__urgency_hours
+msgid "A sample test due within this many hours is urgent: it gets the next free slot on a machine first."
+msgstr "Chỉ tiêu của mẫu đến hạn trong số giờ này là khẩn: được xếp khung giờ trống tiếp theo của máy trước."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Assign %s to a person before scheduling it."
+msgstr "Hãy giao %s cho một người trước khi xếp lịch."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
+msgid "Assign Sample"
+msgstr "Giao cả mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__booking_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__booking_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__booking_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Bookings"
+msgstr "Lịch đặt máy"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "Cancel Booking"
+msgstr "Hủy lịch đặt máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_create_all
+msgid "Create machine bookings"
+msgstr "Tạo lịch đặt máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_create_own_department
+msgid "Create machine bookings of their department"
+msgstr "Tạo lịch đặt máy của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_queue
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_queue
+msgid "Department Queue"
+msgstr "Hàng đợi phòng ban"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_edit_all
+msgid "Edit machine bookings"
+msgstr "Sửa lịch đặt máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_edit_own_department
+msgid "Edit machine bookings of their department"
+msgstr "Sửa lịch đặt máy của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__ends_at
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "End"
+msgstr "Kết thúc"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_machine_booking
+msgid "Machine Booking"
+msgstr "Lịch Đặt Máy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__medilab_booking_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_calendar
+msgid "Machine Bookings"
+msgstr "Lịch Đặt Máy"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_machine_booking
+#: model:ir.ui.menu,name:sol_laboratory.menu_machine_booking
+msgid "Machine Schedule"
+msgstr "Lịch Máy"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "No machine can finish %s before its due date."
+msgstr "Không máy nào hoàn thành %s kịp trước hạn."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "No machine can finish this test before its due date. Outsource it through a subcontracted way of testing."
+msgstr "Không máy nào hoàn thành chỉ tiêu này kịp trước hạn. Hãy gửi thầu phụ theo một cách thử thuê ngoài."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a booking in progress can be done."
+msgstr "Chỉ lịch đặt máy đang thực hiện mới có thể hoàn thành."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a queued or scheduled booking can be cancelled."
+msgstr "Chỉ lịch đặt máy đang chờ hoặc đã xếp lịch mới có thể hủy."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a scheduled booking can be moved."
+msgstr "Chỉ lịch đặt máy đã xếp lịch mới có thể dời."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a scheduled booking can be started."
+msgstr "Chỉ lịch đặt máy đã xếp lịch mới có thể bắt đầu."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Outsourcing"
+msgstr "Gửi thầu phụ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__outsourcing_suggested
+msgid "Outsourcing Suggested"
+msgstr "Đề xuất gửi thầu phụ"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_outsourcing
+#: model:ir.ui.menu,name:sol_laboratory.menu_outsourcing_suggestion
+msgid "Outsourcing Suggestions"
+msgstr "Đề Xuất Gửi Thầu Phụ"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_create_all
+msgid "Permission: machine.booking.create.all"
+msgstr "Quyền: machine.booking.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_create_own_department
+msgid "Permission: machine.booking.create.own_department"
+msgstr "Quyền: machine.booking.create.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_edit_all
+msgid "Permission: machine.booking.edit.all"
+msgstr "Quyền: machine.booking.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_edit_own_department
+msgid "Permission: machine.booking.edit.own_department"
+msgstr "Quyền: machine.booking.edit.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_read_all
+msgid "Permission: machine.booking.read.all"
+msgstr "Quyền: machine.booking.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_read_own_department
+msgid "Permission: machine.booking.read.own_department"
+msgstr "Quyền: machine.booking.read.own_department"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__queued
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Queued"
+msgstr "Đang chờ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__queued_at
+msgid "Queued At"
+msgstr "Thời điểm vào hàng đợi"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_read_all
+msgid "Read machine bookings"
+msgstr "Xem lịch đặt máy"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_read_own_department
+msgid "Read machine bookings of their department"
+msgstr "Xem lịch đặt máy của phòng ban mình"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Recommendation"
+msgstr "Đề xuất"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__recommended_end
+msgid "Recommended End"
+msgstr "Kết thúc đề xuất"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__recommended_machine_id
+msgid "Recommended Machine"
+msgstr "Máy đề xuất"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__recommended_method_id
+msgid "Recommended Method"
+msgstr "Cách thử đề xuất"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__recommended_start
+msgid "Recommended Start"
+msgstr "Bắt đầu đề xuất"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__scheduled
+msgid "Scheduled"
+msgstr "Đã xếp lịch"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__subcontracted_method_ids
+msgid "Subcontracted Ways"
+msgstr "Cách thử thuê ngoài"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_no_overlap
+msgid "The machine already has a booking at that time."
+msgstr "Máy đã có lịch đặt vào thời gian đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
+msgid "This notification belongs to someone else."
+msgstr "Thông báo này thuộc về người khác."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__urgency_hours
+msgid "Urgency (hours)"
+msgstr "Ngưỡng khẩn (giờ)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__is_urgent
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_urgent
+msgid "Urgent"
+msgstr "Khẩn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Cancel the booking instead of clearing its start."
+msgstr "Hãy hủy lịch đặt máy thay vì xóa thời gian bắt đầu."

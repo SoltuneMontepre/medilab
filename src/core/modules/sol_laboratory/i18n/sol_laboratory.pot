@@ -91,6 +91,8 @@ msgid "%s is finished and cannot be assigned again."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is not in the task's department."
 msgstr ""
 
@@ -110,7 +112,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/master_data/archive_mixin.py:0
 #: code:addons/sol_laboratory/models/mixins/archive_mixin.py:0
 msgid "%s more"
 msgstr ""
@@ -140,6 +141,8 @@ msgid "%s overdue"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "%s runs within a minute."
 msgstr ""
 
@@ -189,6 +192,7 @@ msgid "A group that has parameters cannot have sub-groups: %s."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_key_unique
 msgid "A job with this key already exists."
 msgstr ""
 
@@ -341,6 +345,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction
 msgid "Action Needed"
 msgstr ""
@@ -351,17 +356,19 @@ msgid "Action Window View"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__active
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__cron_active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__active
@@ -384,6 +391,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_ids
 msgid "Activities"
 msgstr ""
@@ -391,6 +399,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_exception_decoration
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_exception_decoration
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_exception_decoration
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr ""
@@ -398,6 +407,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_plans_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_plans_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_plans_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_plans_ids
 msgid "Activity Plans"
 msgstr ""
@@ -405,6 +415,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_state
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_state
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_state
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_state
 msgid "Activity State"
 msgstr ""
@@ -412,6 +423,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_type_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_type_icon
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_type_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_type_icon
 msgid "Activity Type Icon"
 msgstr ""
@@ -661,12 +673,12 @@ msgid "Archive ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_search
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_department_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_department_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_measurement_unit_form
@@ -735,17 +747,20 @@ msgid "Assignee"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_attachment
 msgid "Attachment"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_attachment_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_attachment_count
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_attachment_count
 msgid "Attachment Count"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__attempts
 msgid "Attempts"
 msgstr ""
 
@@ -856,6 +871,7 @@ msgid "Barcode"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__batch_size
 msgid "Batch Size"
 msgstr ""
 
@@ -936,6 +952,10 @@ msgid "Can Reject"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Cancel"
 msgstr ""
@@ -951,6 +971,8 @@ msgid "Cancel this test request with its samples and sample tests?"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__cancelled
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__cancelled
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__cancelled
@@ -1057,10 +1079,12 @@ msgid "Claim"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__claim_timeout_minutes
 msgid "Claim Timeout Minutes"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__claimed_at
 msgid "Claimed At"
 msgstr ""
 
@@ -1075,8 +1099,10 @@ msgid "Coach"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__code
@@ -1094,10 +1120,12 @@ msgid "Code"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_code_formats
 msgid "Code Formats"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Code formats"
 msgstr ""
 
@@ -1107,6 +1135,7 @@ msgid "Code from a Sequence"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Codes"
 msgstr ""
 
@@ -1192,7 +1221,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_res_partner
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__partner_id
 msgid "Contact"
 msgstr ""
 
@@ -1412,24 +1440,38 @@ msgid "Create ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__create_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_uid
@@ -1443,24 +1485,38 @@ msgid "Created by"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__create_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__create_date
@@ -1489,10 +1545,12 @@ msgid "Credit limit specific to this partner."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__cron_id
 msgid "Cron"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__cron_pass
 msgid "Cron Pass"
 msgstr ""
 
@@ -1764,12 +1822,15 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_hr_department
-#: model:ir.model,name:sol_laboratory.model_medilab_department
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__department_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__department_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Department"
 msgstr ""
@@ -1832,7 +1893,7 @@ msgid "Direct subordinates"
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-javascript
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
 msgid "Discard"
 msgstr ""
@@ -1858,31 +1919,53 @@ msgid "Display Invoice Template Pdf Report"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__display_name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__display_name
@@ -1898,6 +1981,7 @@ msgid "Display Name"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__disposal_note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__disposal_method
 msgid "Disposal Method"
 msgstr ""
@@ -1908,17 +1992,22 @@ msgid "Disposed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__document_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 msgid "Document"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__document_model
 msgid "Document Model"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
@@ -1932,16 +2021,23 @@ msgid "Document Version"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__done
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__done
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__done
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Done"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__done_at
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
 msgid "Done At"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__done_count
 msgid "Done Count"
 msgstr ""
 
@@ -1952,7 +2048,9 @@ msgid "Door"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record__status__draft
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__draft
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_search
 msgid "Draft"
 msgstr ""
 
@@ -1973,6 +2071,7 @@ msgid "Due %s"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__due_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date
 msgid "Due Date"
 msgstr ""
@@ -1995,10 +2094,15 @@ msgid "Duplicate Bank Partner"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__duration
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_duration
 msgid "Duration"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Duration (s)"
 msgstr ""
 
@@ -2008,6 +2112,7 @@ msgid "EDI Routing Address"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_cron_unique
 msgid "Each job has its own cron."
 msgstr ""
 
@@ -2052,6 +2157,7 @@ msgid "Edit departments"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_job_item_edit_all
 msgid "Edit job items"
 msgstr ""
 
@@ -2131,6 +2237,7 @@ msgid "Edit samples"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_scheduled_job_edit_all
 msgid "Edit scheduled jobs"
 msgstr ""
 
@@ -2207,6 +2314,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__email
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__email
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__email
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_notification_preference__channel__email
 msgid "Email"
 msgstr ""
 
@@ -2229,6 +2337,7 @@ msgid "Employee"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__name
 msgid "Employee Name"
 msgstr ""
@@ -2296,6 +2405,7 @@ msgid "End of Trial Period"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__ended_at
 msgid "Ended At"
 msgstr ""
 
@@ -2319,6 +2429,8 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_list
 msgid "Every"
 msgstr ""
 
@@ -2357,10 +2469,17 @@ msgid "Factor"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__failed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_run__status__failed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_push_delivery__status__failed
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Failed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__failed_count
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__failed_count
 msgid "Failed Count"
 msgstr ""
 
@@ -2380,6 +2499,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_type_form
@@ -2429,6 +2549,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_follower_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_follower_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_follower_ids
 msgid "Followers"
 msgstr ""
@@ -2436,6 +2557,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_partner_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_partner_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_partner_ids
 msgid "Followers (Partners)"
 msgstr ""
@@ -2553,6 +2675,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__has_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__has_message
 msgid "Has Message"
 msgstr ""
@@ -2569,6 +2692,7 @@ msgid "Has Tax ID"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_search
 msgid "Has failed items"
 msgstr ""
 
@@ -2614,31 +2738,53 @@ msgid "Hr Presence State"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__id
@@ -2666,6 +2812,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_exception_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_exception_icon
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_exception_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_exception_icon
 msgid "Icon"
 msgstr ""
@@ -2673,6 +2820,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__activity_exception_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_exception_icon
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__activity_exception_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr ""
@@ -2690,6 +2838,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr ""
@@ -2699,6 +2848,8 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_has_sms_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_sms_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_error
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
@@ -2784,6 +2935,7 @@ msgid "In Person"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__in_progress
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
 msgid "In progress"
 msgstr ""
@@ -2829,10 +2981,12 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__interval_number
 msgid "Interval Number"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__interval_type
 msgid "Interval Unit"
 msgstr ""
 
@@ -2869,6 +3023,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_is_follower
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_is_follower
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_is_follower
 msgid "Is Follower"
 msgstr ""
@@ -2938,23 +3093,33 @@ msgid "Issuing Authority"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__item_key
 msgid "Item Key"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__item_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Items"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__job_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__job_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Job"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_job_item
 msgid "Job Item"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_job_item
+#: model:ir.ui.menu,name:sol_laboratory.menu_job_item
 msgid "Job Items"
 msgstr ""
 
@@ -2965,10 +3130,13 @@ msgid "Job Position"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_job_run
 msgid "Job Run"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_job_run
+#: model:ir.ui.menu,name:sol_laboratory.menu_job_run
 msgid "Job Runs"
 msgstr ""
 
@@ -2978,14 +3146,18 @@ msgid "Job Title"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Job item failed: %s"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_jobs
 msgid "Jobs"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__key
 msgid "Key"
 msgstr ""
 
@@ -3006,6 +3178,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__code
 msgid "Lab Code"
 msgstr ""
 
@@ -3044,10 +3217,13 @@ msgid "Last Activity Time"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_list
 msgid "Last Duration (s)"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__last_error
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_form
 msgid "Last Error"
 msgstr ""
 
@@ -3062,32 +3238,49 @@ msgid "Last Modified on"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Last Run"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lastcall
 msgid "Last Scheduled Run"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__write_uid
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_uid
@@ -3101,24 +3294,38 @@ msgid "Last Updated by"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__write_date
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__write_date
@@ -3172,6 +3379,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__limit_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_regulation_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Limits"
 msgstr ""
 
@@ -3193,6 +3401,8 @@ msgid "Location"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__log
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_form
 msgid "Log"
 msgstr ""
 
@@ -3209,8 +3419,11 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_machine
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__machine_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Machine"
 msgstr ""
 
@@ -3296,11 +3509,13 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__activity_type_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_type_icon
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__activity_type_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_type_icon
 msgid "Material Symbols icon e.g. checklist"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__max_attempts
 msgid "Max Attempts"
 msgstr ""
 
@@ -3343,12 +3558,14 @@ msgid "Member of department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_ui_menu
 msgid "Menu"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error
 msgid "Message Delivery error"
 msgstr ""
@@ -3366,6 +3583,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_ids
 msgid "Messages"
 msgstr ""
@@ -3410,6 +3628,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__my_activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__my_activity_date_deadline
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__my_activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr ""
@@ -3433,18 +3652,19 @@ msgid "My tasks"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__name
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__name
@@ -3452,6 +3672,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__name
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
@@ -3490,6 +3712,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_calendar_event_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_calendar_event_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_calendar_event_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr ""
@@ -3497,6 +3720,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_date_deadline
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr ""
@@ -3504,6 +3728,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_summary
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_summary
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_summary
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_summary
 msgid "Next Activity Summary"
 msgstr ""
@@ -3511,11 +3736,13 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_type_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_type_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_type_id
 msgid "Next Activity Type"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__next_attempt_at
 msgid "Next Attempt At"
 msgstr ""
 
@@ -3541,10 +3768,12 @@ msgid "Next Meeting"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__nextcall
 msgid "Next Run"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__nextcall
 msgid "Next planned execution date for this job."
 msgstr ""
 
@@ -3579,6 +3808,7 @@ msgid "Normalized Email"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Not Finished"
 msgstr ""
@@ -3589,6 +3819,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__note
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__note
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Note"
@@ -3622,6 +3853,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
 msgid "Number of Actions"
 msgstr ""
@@ -3634,6 +3866,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error_counter
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
 msgid "Number of errors"
 msgstr ""
@@ -3641,6 +3874,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_needaction_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_needaction_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr ""
@@ -3648,20 +3882,26 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__message_has_error_counter
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__message_has_error_counter
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__on_hold
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 msgid "On Hold"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/job_item.py:0
 msgid "Only a failed item can be retried."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/job_item.py:0
 msgid "Only a pending or failed item can be cancelled."
 msgstr ""
 
@@ -3807,6 +4047,7 @@ msgid "Parent name"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_run__status__partly_failed
 msgid "Partly Failed"
 msgstr ""
 
@@ -3853,6 +4094,8 @@ msgid "Passport No"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__payload
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_form
 msgid "Payload"
 msgstr ""
 
@@ -3872,21 +4115,22 @@ msgid "Payment Tokens"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__pending
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_push_delivery__status__pending
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
 msgid "Pending"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__pending_count
 msgid "Pending Count"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_person
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__person_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__person_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__person_ids
-#: model:ir.ui.menu,name:sol_laboratory.menu_people_root
 #: model:ir.ui.menu,name:sol_laboratory.menu_person
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_department_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_role_form
 msgid "People"
@@ -4051,14 +4295,17 @@ msgid "Permission: invoice.adjustment.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_job_item_edit_all
 msgid "Permission: job.item.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_job_item_read_all
 msgid "Permission: job.item.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_job_run_read_all
 msgid "Permission: job.run.read.all"
 msgstr ""
 
@@ -4257,10 +4504,12 @@ msgid "Permission: sample.test.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_scheduled_job_edit_all
 msgid "Permission: scheduled.job.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_scheduled_job_read_all
 msgid "Permission: scheduled.job.read.all"
 msgstr ""
 
@@ -4431,6 +4680,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_person
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__person_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 msgid "Person"
 msgstr ""
 
@@ -4486,6 +4737,7 @@ msgid "Post Test Requirements"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents."
 msgstr ""
 
@@ -4496,6 +4748,7 @@ msgid "Previous"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__lastcall
 msgid "Previous time the cron ran successfully, provided to the job through the context on the `lastcall` key"
 msgstr ""
 
@@ -4555,10 +4808,12 @@ msgid "Private Zip"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__progress_done
 msgid "Progress Done"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__progress_remaining
 msgid "Progress Remaining"
 msgstr ""
 
@@ -4617,6 +4872,7 @@ msgid "Quantity"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Queue"
 msgstr ""
 
@@ -4651,10 +4907,12 @@ msgid "Read departments"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_job_item_read_all
 msgid "Read job items"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_job_run_read_all
 msgid "Read job runs"
 msgstr ""
 
@@ -4689,6 +4947,7 @@ msgid "Read samples"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_scheduled_job_read_all
 msgid "Read scheduled jobs"
 msgstr ""
 
@@ -4713,6 +4972,7 @@ msgid "Read test requests"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
 msgid "Reason"
 msgstr ""
@@ -4734,6 +4994,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__received
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 msgid "Received"
 msgstr ""
 
@@ -4764,6 +5025,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__rejected
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__rejected
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 msgid "Rejected"
 msgstr ""
 
@@ -4801,6 +5064,7 @@ msgid "Repair"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__interval_number
 msgid "Repeat every x."
 msgstr ""
 
@@ -4843,6 +5107,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_user_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_user_id
 msgid "Responsible User"
 msgstr ""
@@ -4864,6 +5129,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__retained
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 msgid "Retained"
 msgstr ""
 
@@ -4883,15 +5149,21 @@ msgid "Retired"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Retry"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__retry_delay_minutes
 msgid "Retry Delay Minutes"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_role
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__role_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__role_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 msgid "Role"
 msgstr ""
@@ -4939,32 +5211,43 @@ msgid "Run Minutes"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__run_requested_at
 msgid "Run Requested At"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__run_requested_by_id
 msgid "Run Requested By"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Run by hand"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Run now"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__running
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_run__status__running
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Running"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__run_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Runs"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_sms_error
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__message_has_sms_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr ""
@@ -4997,7 +5280,10 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__sample_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__sample_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__sample_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 msgid "Sample"
 msgstr ""
 
@@ -5018,6 +5304,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_test
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__sample_test_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_list
 msgid "Sample Test"
 msgstr ""
 
@@ -5037,8 +5325,11 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__sample_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__sample_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Samples"
 msgstr ""
@@ -5067,14 +5358,20 @@ msgid "Scale"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Schedule"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_search
 msgid "Schedule off"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_scheduled_job
+#: model:ir.ui.menu,name:sol_laboratory.menu_scheduled_job
 msgid "Scheduled Jobs"
 msgstr ""
 
@@ -5128,6 +5425,8 @@ msgid "Set a value greater than 0.0 to activate a credit limit check"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_settings
+#: model:ir.ui.menu,name:sol_laboratory.menu_settings
 msgid "Settings"
 msgstr ""
 
@@ -5181,11 +5480,15 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_signature
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__signature_attachment_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 msgid "Signature"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record__status__signed
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__signed
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_search
 msgid "Signed"
 msgstr ""
 
@@ -5248,11 +5551,15 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__starts_at
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 msgid "Start"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__started_at
 msgid "Started At"
 msgstr ""
 
@@ -5269,11 +5576,19 @@ msgid "Stats"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
@@ -5284,6 +5599,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__activity_state
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_state
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__activity_state
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_state
 msgid ""
 "Status based on activities\n"
@@ -5344,6 +5660,7 @@ msgid "Subordinates"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_run__status__succeeded
 msgid "Succeeded"
 msgstr ""
 
@@ -5371,6 +5688,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_task
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__task_id
 msgid "Task"
 msgstr ""
 
@@ -5442,6 +5760,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_test_request
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__request_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__request_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 msgid "Test Request"
@@ -5549,6 +5868,7 @@ msgid "The administrator role holds every permission; none can be removed."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_limits_positive
 msgid "The batch size and the attempts must be at least 1."
 msgstr ""
 
@@ -5801,7 +6121,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/master_data/archive_mixin.py:0
 #: code:addons/sol_laboratory/models/mixins/archive_mixin.py:0
 msgid ""
 "This cannot be archived while these records use it:\n"
@@ -5810,7 +6129,6 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/master_data/archive_mixin.py:0
 #: code:addons/sol_laboratory/models/mixins/archive_mixin.py:0
 msgid ""
 "This cannot be deleted while these records refer to it:\n"
@@ -5893,6 +6211,7 @@ msgid "This user already belongs to another person."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_job_item_key_unique
 msgid "This work is already queued for the job."
 msgstr ""
 
@@ -5965,6 +6284,7 @@ msgid "Trigger"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__triggered_by_id
 msgid "Triggered By"
 msgstr ""
 
@@ -5974,6 +6294,8 @@ msgid "Tuesday"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Turn the schedule of %s on before running it."
 msgstr ""
 
@@ -5986,6 +6308,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__activity_exception_decoration
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_exception_decoration
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_scheduled_job__activity_exception_decoration
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr ""
@@ -6044,6 +6367,8 @@ msgid "Used to log into the system"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__user_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "User"
@@ -6139,6 +6464,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_parameter_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__parameter_method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_method_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Way of Testing"
 msgstr ""
 
@@ -6213,6 +6540,7 @@ msgid "Work Contact"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__work_email
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__work_email
 msgid "Work Email"
 msgstr ""
@@ -6270,7 +6598,6 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/mixins/permission_mixin.py:0
-#: code:addons/sol_laboratory/models/system/permission_mixin.py:0
 msgid "You are not allowed to %(action)s these records: %(records)s"
 msgstr ""
 
@@ -6340,254 +6667,317 @@ msgid "work_permit_name"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_chemical_archive_all
 msgid "Permission: chemical.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_chemical_create_all
 msgid "Permission: chemical.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_chemical_delete_all
 msgid "Permission: chemical.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_chemical_edit_all
 msgid "Permission: chemical.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_archive_all
 msgid "Permission: machine.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_create_all
 msgid "Permission: machine.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_delete_all
 msgid "Permission: machine.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_edit_all
 msgid "Permission: machine.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_service_create_all
 msgid "Permission: machine.service.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_service_delete_all
 msgid "Permission: machine.service.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_service_edit_all
 msgid "Permission: machine.service.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_measurement_unit_archive_all
 msgid "Permission: measurement.unit.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_measurement_unit_create_all
 msgid "Permission: measurement.unit.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_measurement_unit_delete_all
 msgid "Permission: measurement.unit.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_measurement_unit_edit_all
 msgid "Permission: measurement.unit.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_group_archive_all
 msgid "Permission: parameter.group.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_group_create_all
 msgid "Permission: parameter.group.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_group_delete_all
 msgid "Permission: parameter.group.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_group_edit_all
 msgid "Permission: parameter.group.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_archive_all
 msgid "Permission: parameter.method.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_archive_own_department
 msgid "Permission: parameter.method.archive.own_department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_create_all
 msgid "Permission: parameter.method.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_create_own_department
 msgid "Permission: parameter.method.create.own_department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_delete_all
 msgid "Permission: parameter.method.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_delete_own_department
 msgid "Permission: parameter.method.delete.own_department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_edit_all
 msgid "Permission: parameter.method.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_edit_own_department
 msgid "Permission: parameter.method.edit.own_department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_create_all
 msgid "Permission: parameter.method.machine.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_delete_all
 msgid "Permission: parameter.method.machine.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_machine_edit_all
 msgid "Permission: parameter.method.machine.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quality_registration_archive_all
 msgid "Permission: quality.registration.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quality_registration_create_all
 msgid "Permission: quality.registration.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quality_registration_delete_all
 msgid "Permission: quality.registration.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_quality_registration_edit_all
 msgid "Permission: quality.registration.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_archive_all
 msgid "Permission: regulation.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_create_all
 msgid "Permission: regulation.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_delete_all
 msgid "Permission: regulation.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_edit_all
 msgid "Permission: regulation.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_limit_create_all
 msgid "Permission: regulation.limit.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_limit_delete_all
 msgid "Permission: regulation.limit.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_regulation_limit_edit_all
 msgid "Permission: regulation.limit.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_type_archive_all
 msgid "Permission: sample.type.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_type_create_all
 msgid "Permission: sample.type.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_type_delete_all
 msgid "Permission: sample.type.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_type_edit_all
 msgid "Permission: sample.type.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontractor_archive_all
 msgid "Permission: subcontractor.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontractor_create_all
 msgid "Permission: subcontractor.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_subcontractor_edit_all
 msgid "Permission: subcontractor.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_parameter_archive_all
 msgid "Permission: test.parameter.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_parameter_create_all
 msgid "Permission: test.parameter.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_parameter_edit_all
 msgid "Permission: test.parameter.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_field_archive_all
 msgid "Permission: testing.field.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_field_create_all
 msgid "Permission: testing.field.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_field_delete_all
 msgid "Permission: testing.field.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_field_edit_all
 msgid "Permission: testing.field.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_archive_all
 msgid "Permission: testing.method.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_create_all
 msgid "Permission: testing.method.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_delete_all
 msgid "Permission: testing.method.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_edit_all
 msgid "Permission: testing.method.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_unit_category_archive_all
 msgid "Permission: unit.category.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_unit_category_create_all
 msgid "Permission: unit.category.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_unit_category_delete_all
 msgid "Permission: unit.category.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_unit_category_edit_all
 msgid "Permission: unit.category.edit.all"
 msgstr ""
 
@@ -6727,6 +7117,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_calendar_event
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__calendar_event_id
 msgid "Calendar Event"
 msgstr ""
 
@@ -7713,4 +8104,276 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
 msgid "{{ object.name }}"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "%(machine)s is not free for %(booking)s at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "%s is already waiting for or holding a machine."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "<span class=\"badge text-bg-danger\" invisible=\"not is_urgent\">Urgent</span>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_slot_period
+msgid "A booking ends after it starts."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_calendar_event_unique
+msgid "A calendar event shows one booking."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__urgency_hours
+msgid "A sample test due within this many hours is urgent: it gets the next free slot on a machine first."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Assign %s to a person before scheduling it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
+msgid "Assign Sample"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__booking_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__booking_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__booking_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "Cancel Booking"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_create_all
+msgid "Create machine bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_create_own_department
+msgid "Create machine bookings of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_queue
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_queue
+msgid "Department Queue"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_edit_all
+msgid "Edit machine bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_edit_own_department
+msgid "Edit machine bookings of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__ends_at
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_machine_booking
+msgid "Machine Booking"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__medilab_booking_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_calendar
+msgid "Machine Bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_machine_booking
+#: model:ir.ui.menu,name:sol_laboratory.menu_machine_booking
+msgid "Machine Schedule"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "No machine can finish %s before its due date."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "No machine can finish this test before its due date. Outsource it through a subcontracted way of testing."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a booking in progress can be done."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a queued or scheduled booking can be cancelled."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a scheduled booking can be moved."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Only a scheduled booking can be started."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Outsourcing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__outsourcing_suggested
+msgid "Outsourcing Suggested"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_outsourcing
+#: model:ir.ui.menu,name:sol_laboratory.menu_outsourcing_suggestion
+msgid "Outsourcing Suggestions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_create_all
+msgid "Permission: machine.booking.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_create_own_department
+msgid "Permission: machine.booking.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_edit_all
+msgid "Permission: machine.booking.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_edit_own_department
+msgid "Permission: machine.booking.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_read_all
+msgid "Permission: machine.booking.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_machine_booking_read_own_department
+msgid "Permission: machine.booking.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__queued
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
+msgid "Queued"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__queued_at
+msgid "Queued At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_read_all
+msgid "Read machine bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_booking_read_own_department
+msgid "Read machine bookings of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Recommendation"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__recommended_end
+msgid "Recommended End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__recommended_machine_id
+msgid "Recommended Machine"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__recommended_method_id
+msgid "Recommended Method"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__recommended_start
+msgid "Recommended Start"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__scheduled
+msgid "Scheduled"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__subcontracted_method_ids
+msgid "Subcontracted Ways"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_booking_no_overlap
+msgid "The machine already has a booking at that time."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_notification.py:0
+msgid "This notification belongs to someone else."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__urgency_hours
+msgid "Urgency (hours)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__is_urgent
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__is_urgent
+msgid "Urgent"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/machine_booking.py:0
+msgid "Cancel the booking instead of clearing its start."
 msgstr ""

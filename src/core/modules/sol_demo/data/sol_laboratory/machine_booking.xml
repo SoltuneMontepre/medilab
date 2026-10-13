@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Times are UTC: 01:00 is 08:00 in Vietnam. -->
+    <record id="demo_machine_booking_lead_done" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_aas_2" />
+        <field name="sample_test_id" ref="demo_sample_test_lead_done" />
+        <field name="task_id" ref="demo_task_sample_test_lead_done" />
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(hour=1, minute=45, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">done</field>
+    </record>
+    <record id="demo_machine_booking_lead_running" model="medilab.machine.booking">
+        <field name="machine_id" ref="machine_aas" />
+        <field name="sample_test_id" ref="demo_sample_test_lead_running" />
+        <field name="task_id" ref="demo_task_sample_test_lead_running" />
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(hour=2, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(hour=2, minute=30, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">in_progress</field>
+    </record>
+    <record id="demo_machine_booking_lead_today" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_aas_2" />
+        <field name="sample_test_id" ref="demo_sample_test_lead_today" />
+        <field name="task_id" ref="demo_task_sample_test_lead_today" />
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(hour=7, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(hour=7, minute=45, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">scheduled</field>
+    </record>
+    <record id="demo_machine_booking_lead_tomorrow" model="medilab.machine.booking">
+        <field name="machine_id" ref="machine_aas" />
+        <field name="sample_test_id" ref="demo_sample_test_lead_tomorrow" />
+        <field name="task_id" ref="demo_task_sample_test_lead_tomorrow" />
+        <field name="person_id" ref="demo_person_chemistry_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=1, hour=2, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=1, hour=2, minute=30, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">scheduled</field>
+    </record>
+    <record id="demo_machine_booking_lead_queued" model="medilab.machine.booking">
+        <field name="machine_id" ref="demo_machine_aas_2" />
+        <field name="sample_test_id" ref="demo_sample_test_lead_queued" />
+        <field name="task_id" ref="demo_task_sample_test_lead_queued" />
+        <field name="person_id" ref="demo_person_tester" />
+        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">queued</field>
+    </record>
+</odoo>

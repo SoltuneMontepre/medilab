@@ -2,6 +2,7 @@
 <odoo>
     <menuitem id="menu_tasks_root" name="Tasks" action="action_medilab_task_dashboard" sequence="5">
         <menuitem id="menu_task_mine" action="action_medilab_task_mine" sequence="10" />
+        <menuitem id="menu_task_queue" action="action_medilab_task_queue" sequence="15" />
         <menuitem id="menu_task_finished" action="action_medilab_task_finished" sequence="20" />
         <menuitem id="menu_task_all" action="action_medilab_task" sequence="30" />
         <menuitem
@@ -19,6 +20,13 @@
         <menuitem id="menu_sample_handover" action="action_medilab_sample_handover" sequence="26" />
         <menuitem id="menu_sample_scan" action="action_medilab_sample_scan" sequence="27" />
         <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
+        <menuitem id="menu_machine_booking" action="action_medilab_machine_booking" sequence="40" />
+        <menuitem
+            id="menu_outsourcing_suggestion"
+            action="action_medilab_sample_test_outsourcing"
+            sequence="45"
+            groups="group_permission_machine_booking_read_all,group_permission_machine_booking_read_own_department"
+        />
     </menuitem>
 
     <menuitem id="menu_master_data_root" name="Master Data" sequence="20">

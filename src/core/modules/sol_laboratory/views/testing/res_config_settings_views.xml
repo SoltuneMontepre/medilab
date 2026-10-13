@@ -43,6 +43,9 @@
                         <setting id="reminder_lead_setting" string="Reminder lead" help="Minutes before a planned task starts.">
                             <field name="reminder_lead_minutes" class="o_light_label" />
                         </setting>
+                        <setting id="urgency_setting">
+                            <field name="urgency_hours" class="o_light_label" />
+                        </setting>
                     </block>
                     <block title="Samples" name="sample_retention_setting_container">
                         <setting id="sample_retention_reminder_setting">

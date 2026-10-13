@@ -297,6 +297,39 @@
         <field name="action">delete</field>
         <field name="scope">own_department</field>
     </record>
+    <record id="permission_machine_booking_read_all" model="medilab.permission">
+        <field name="name">Read machine bookings</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_machine_booking_create_all" model="medilab.permission">
+        <field name="name">Create machine bookings</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_machine_booking_edit_all" model="medilab.permission">
+        <field name="name">Edit machine bookings</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_machine_booking_read_own_department" model="medilab.permission">
+        <field name="name">Read machine bookings of their department</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_machine_booking_create_own_department" model="medilab.permission">
+        <field name="name">Create machine bookings of their department</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_machine_booking_edit_own_department" model="medilab.permission">
+        <field name="name">Edit machine bookings of their department</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
     <record id="permission_chemical_create_all" model="medilab.permission">
         <field name="name">Create chemicals</field>
         <field name="document_model">medilab.chemical</field>

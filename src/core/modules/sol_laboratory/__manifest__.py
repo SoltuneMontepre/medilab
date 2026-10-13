@@ -51,7 +51,9 @@
         "views/tasks/task_reassign_views.xml",
         "views/tasks/task_views.xml",
         "views/notifications/notification_views.xml",
+        "views/testing/machine_booking_views.xml",
         "views/testing/res_config_settings_views.xml",
+        "views/testing/sample_test_views.xml",
         "views/system/menus.xml",
     ],
     "assets": {
