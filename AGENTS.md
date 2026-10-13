@@ -10,10 +10,11 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 
 ## MCP servers
 
-`.mcp.json` configures these servers; `task ai:setup` installs what they need. Use them whenever the task calls for them, before falling back to the shell:
+`.mcp.json`, `.codex/config.toml` and `.cursor/mcp.json` configure the clients; `task ai:setup` installs worktree-local AI tooling. [Odoo intelligence](docs/workflows/odoo-intelligence.md) covers installation and verification. Use them whenever the task calls for them, before falling back to the shell:
 
 | Server      | Use it to                                                                                              |
 | ----------- | ------------------------------------------------------------------------------------------------------ |
+| `odoo`      | Resolve Odoo model names, fields, inheritance and Python/XML references through official OdooLS.          |
 | `serena`    | Find symbols, references and definitions in the modules, and edit code by symbol, instead of grepping. |
 | `postgres`  | Query the local database to check records, schema and constraints after an install or upgrade.        |
 | `context7`  | Read current documentation of Odoo and other libraries before relying on an API.                       |

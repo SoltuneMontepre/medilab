@@ -8,6 +8,7 @@ How tests are written, where they live and how they run.
 | ------------ | ------------------------------------------------ | ------------------------------------- | ---------------- |
 | Odoo modules | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`    | `task test:core` |
 | Browser      | Cypress                                          | `src/tests/cypress/e2e/`         | `task test:e2e`  |
+| AI tooling   | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`     | `task ai:test`   |
 | Applications | `bun test` and `cargo test`                      | next to the code, in each application | `task test:apps` |
 
 `task test` runs the module and application tests. Browser tests run against the running app, so start it first with `task up`.
@@ -37,6 +38,10 @@ How tests are written, where they live and how they run.
 
 - Frontend tests are `*.test.ts` and `*.test.tsx` files next to the code they test, run by `bun test`.
 - Rust tests run with `cargo test` when `cargo` is installed; `task test:apps` skips them with a message otherwise.
+
+## AI tooling
+
+`task ai:test` runs the tooling suite and lint checks. Live OdooLS tests run when `task ai:setup` has installed the binary and source; otherwise they report skips. `task ai:verify` checks six real Python/XML model and field definitions through MCP, plus completion, hover, references and symbols. [Odoo intelligence](../workflows/odoo-intelligence.md) explains the independent client and Cursor extension-host checks. These checks do not install application modules or alter a database.
 
 ## Related documents
 
