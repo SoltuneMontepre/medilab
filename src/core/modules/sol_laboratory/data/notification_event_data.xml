@@ -11,6 +11,28 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_sample_insufficient" model="mail.message.subtype">
+        <field name="name">Sample insufficient</field>
+        <field name="description">A sample arrived insufficient and is on hold</field>
+        <field name="code">sample.insufficient</field>
+        <field name="res_model">medilab.sample</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_handover_record_signed" model="mail.message.subtype">
+        <field name="name">Handover record signed</field>
+        <field name="description">The customer signed a handover record</field>
+        <field name="code">handover_record.signed</field>
+        <field name="res_model">medilab.handover.record</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="mail_template_task_reminder" model="mail.template">
         <field name="name">Task reminder</field>
         <field name="model_id" ref="model_medilab_task" />

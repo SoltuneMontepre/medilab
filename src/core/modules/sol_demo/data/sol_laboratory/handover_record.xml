@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_mobile_device_sample_delivery_staff" model="medilab.mobile.device">
+        <field name="user_id" ref="demo_res_users_sample_delivery_staff" />
+        <field name="token">demo-device-sample-delivery-staff</field>
+        <field name="platform">android</field>
+    </record>
+    <record id="demo_handover_record_signed" model="medilab.handover.record">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="handed_over_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="handed_over_by_name">Nguyễn Thị Lan</field>
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field
+            name="sample_ids"
+            eval="[
+                Command.create({'sample_id': ref('demo_sample_reception_good'), 'quantity': '2 bottles of 2 L', 'condition': 'good'}),
+                Command.create({'sample_id': ref('demo_sample_reception_damaged'), 'quantity': '1 bottle of 500 mL', 'condition': 'damaged', 'condition_note': 'The bottle cracked and the sample leaked.'}),
+            ]"
+        />
+    </record>
+    <record id="demo_attachment_handover_signature" model="ir.attachment">
+        <field name="name">BBGN-signature.png</field>
+        <field name="raw">iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAD0lEQVR4nGMQwQEYhpYEAN0TDwGnz5/SAAAAAElFTkSuQmCC</field>
+        <field name="mimetype">image/png</field>
+        <field name="res_model">medilab.handover.record</field>
+        <field name="res_id" eval="ref('demo_handover_record_signed')" />
+    </record>
+    <record id="demo_attachment_handover_signed" model="ir.attachment">
+        <field name="name">BBGN-signed.pdf</field>
+        <field name="raw">JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA1OTUgODQyXSAvQ29udGVudHMgNCAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNSAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL0xlbmd0aCA3MyA+PgpzdHJlYW0KQlQgL0YxIDE0IFRmIDcyIDc2MCBUZCAoSGFuZG92ZXIgcmVjb3JkIC0gc2lnbmVkIGJ5IE5ndXllbiBUaGkgTGFuKSBUaiBFVAplbmRzdHJlYW0KZW5kb2JqCjUgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCjAwMDAwMDAyNDEgMDAwMDAgbiAKMDAwMDAwMDM2NCAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjQzNAolJUVPRgo=</field>
+        <field name="mimetype">application/pdf</field>
+        <field name="res_model">medilab.handover.record</field>
+        <field name="res_id" eval="ref('demo_handover_record_signed')" />
+    </record>
+    <record id="demo_handover_record_signed" model="medilab.handover.record">
+        <field name="status">signed</field>
+        <field name="signed_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="signed_device_id" ref="demo_mobile_device_sample_delivery_staff" />
+        <field name="signature_attachment_id" ref="demo_attachment_handover_signature" />
+        <field name="attachment_id" ref="demo_attachment_handover_signed" />
+        <field name="sent_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_handover_record_draft" model="medilab.handover.record">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="handed_over_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="handed_over_by_name">Trần Văn Bình</field>
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field
+            name="sample_ids"
+            eval="[Command.create({'sample_id': ref('demo_sample_reception_insufficient'), 'quantity': '1 small head', 'condition': 'insufficient', 'condition_note': 'Below the minimum amount for the sample type.'})]"
+        />
+    </record>
+</odoo>

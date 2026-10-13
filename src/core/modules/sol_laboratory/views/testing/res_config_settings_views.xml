@@ -44,6 +44,11 @@
                             <field name="reminder_lead_minutes" class="o_light_label" />
                         </setting>
                     </block>
+                    <block title="Samples" name="sample_retention_setting_container">
+                        <setting id="sample_retention_reminder_setting">
+                            <field name="sample_retention_reminder_days" class="o_light_label" />
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

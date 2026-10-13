@@ -7076,3 +7076,616 @@ msgstr "{{ object.name }}"
 msgid "This notification belongs to someone else."
 msgstr "Thông báo này thuộc về người khác."
 
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "%s has no handover to %s."
+msgstr "%s không được bàn giao cho %s."
+
+#. module: sol_laboratory
+#: model:ir.actions.report,print_report_name:sol_laboratory.action_report_handover_record
+msgid "'Handover record %s' % object.code"
+msgstr "'Biên bản giao nhận mẫu %s' % object.code"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Code</strong>"
+msgstr "<strong>Mã</strong>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Handed Over At</strong>"
+msgstr "<strong>Thời điểm giao</strong>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Handed Over By</strong>"
+msgstr "<strong>Người giao</strong>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Received By</strong>"
+msgstr "<strong>Người nhận</strong>"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Test Request</strong>"
+msgstr "<strong>Yêu cầu thử nghiệm</strong>"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "A disposed sample cannot be changed back: %s"
+msgstr "Mẫu đã hủy không thể đổi lại trạng thái: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "A disposed sample cannot be disposed of again."
+msgstr "Mẫu đã hủy không thể hủy lại."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_sample_insufficient
+msgid "A sample arrived insufficient and is on hold"
+msgstr "Một mẫu đến không đủ lượng và đang tạm giữ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid ""
+"A signed handover record cannot be changed. Create a new record instead."
+msgstr "Biên bản giao nhận mẫu đã ký không thể sửa. Hãy tạo biên bản mới."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid "A signed handover record cannot be deleted."
+msgstr "Biên bản giao nhận mẫu đã ký không thể xóa."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid "Add the samples to handover record %s before signing it."
+msgstr "Thêm mẫu vào biên bản giao nhận mẫu %s trước khi ký."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__quantity
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Amount"
+msgstr "Lượng mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__received_quantity
+msgid "Amount Received"
+msgstr "Lượng mẫu nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Collect %s again"
+msgstr "Lấy lại mẫu %s"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Collect Again"
+msgstr "Lấy lại mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Collecting %s again is already asked for."
+msgstr "Đã yêu cầu lấy lại mẫu %s."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__condition
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__condition
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Condition"
+msgstr "Tình trạng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__condition_note
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__condition_note
+msgid "Condition Note"
+msgstr "Ghi chú tình trạng"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Condition must be good, damaged or insufficient."
+msgstr "Tình trạng phải là tốt, hư hỏng hoặc không đủ lượng."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_sample_create_all
+msgid "Create handover record samples"
+msgstr "Tạo dòng mẫu của biên bản giao nhận mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_create_all
+msgid "Create handover records"
+msgstr "Tạo biên bản giao nhận mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_create_all
+msgid "Create sample handovers"
+msgstr "Tạo bàn giao mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_create_own_department
+msgid "Create sample handovers of their department"
+msgstr "Tạo bàn giao mẫu của phòng ban mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__damaged
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__damaged
+msgid "Damaged"
+msgstr "Hư hỏng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__sample_retention_reminder_days
+msgid ""
+"Days before a sample's retention ends when testers are reminded to dispose "
+"of it."
+msgstr "Số ngày trước khi hết hạn lưu mẫu để nhắc thử nghiệm viên hủy mẫu."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_sample_delete_all
+msgid "Delete handover record samples"
+msgstr "Xóa dòng mẫu của biên bản giao nhận mẫu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Dispose"
+msgstr "Hủy mẫu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Dispose of this sample? This cannot be undone."
+msgstr "Hủy mẫu này? Thao tác không thể hoàn tác."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__disposed_at
+msgid "Disposed At"
+msgstr "Thời điểm hủy mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__disposed_by_id
+msgid "Disposed By"
+msgstr "Người hủy mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_sample_edit_all
+msgid "Edit handover record samples"
+msgstr "Sửa dòng mẫu của biên bản giao nhận mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_edit_all
+msgid "Edit handover records"
+msgstr "Sửa biên bản giao nhận mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_edit_all
+msgid "Edit sample handovers"
+msgstr "Sửa bàn giao mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_edit_own_department
+msgid "Edit sample handovers of their department"
+msgstr "Sửa bàn giao mẫu của phòng ban mình"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Enter the amount received and the condition of %s."
+msgstr "Nhập lượng mẫu nhận và tình trạng của %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Enter the amount received for %s."
+msgstr "Nhập lượng mẫu nhận của %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Enter the amount received."
+msgstr "Nhập lượng mẫu nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Enter why the sample cannot be tested."
+msgstr "Nhập lý do mẫu không thể thử nghiệm."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__good
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__good
+msgid "Good"
+msgstr "Tốt"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__handed_over_at
+msgid "Handed Over At"
+msgstr "Thời điểm giao"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__handed_over_by_name
+msgid "Handed Over By"
+msgstr "Người giao"
+
+#. module: sol_laboratory
+#: model:ir.actions.report,name:sol_laboratory.action_report_handover_record
+#: model:ir.model,name:sol_laboratory.model_medilab_handover_record
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__record_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Handover Record"
+msgstr "Biên Bản Giao Nhận Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_handover_record_sample
+msgid "Handover Record Sample"
+msgstr "Dòng Mẫu Của Biên Bản Giao Nhận"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_handover_record
+#: model:ir.ui.menu,name:sol_laboratory.menu_handover_record
+msgid "Handover Records"
+msgstr "Biên Bản Giao Nhận Mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid "Handover record %s is attached."
+msgstr "Biên bản giao nhận mẫu %s được đính kèm."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_handover_record_signed
+msgid "Handover record signed"
+msgstr "Biên bản giao nhận mẫu đã ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__handover_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Handovers"
+msgstr "Bàn giao"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__insufficient
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__insufficient
+msgid "Insufficient"
+msgstr "Không đủ lượng"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "No sample has the lab code %s."
+msgstr "Không có mẫu nào có mã PTN %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only a person can do this."
+msgstr "Chỉ nhân sự mới có thể làm việc này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid ""
+"Only a received sample can be handed over to a department. Not received: %s"
+msgstr "Chỉ mẫu đã tiếp nhận mới có thể bàn giao cho phòng ban. Chưa tiếp nhận: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only a reported sample whose sample type is kept can be retained."
+msgstr "Chỉ mẫu đã có phiếu kết quả và thuộc loại mẫu cần lưu mới có thể lưu mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only a sample on hold can be collected again."
+msgstr "Chỉ mẫu đang tạm giữ mới có thể lấy lại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only a sample on hold can receive more sample."
+msgstr "Chỉ mẫu đang tạm giữ mới có thể nhận thêm mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"Only a sample that is not kept, whose retention is over or whose test "
+"request was cancelled can be disposed of: %s"
+msgstr "Chỉ mẫu không cần lưu, đã hết hạn lưu hoặc có yêu cầu thử nghiệm đã hủy mới có thể hủy: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only an expected sample can be received."
+msgstr "Chỉ mẫu đang chờ mới có thể tiếp nhận."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__attachment_id
+msgid "PDF"
+msgstr "PDF"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
+msgid "PTN.2026.0001"
+msgstr "PTN.2026.0001"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_create_all
+msgid "Permission: handover.record.create.all"
+msgstr "Quyền: handover.record.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_edit_all
+msgid "Permission: handover.record.edit.all"
+msgstr "Quyền: handover.record.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_read_all
+msgid "Permission: handover.record.read.all"
+msgstr "Quyền: handover.record.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_sample_create_all
+msgid "Permission: handover.record.sample.create.all"
+msgstr "Quyền: handover.record.sample.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_sample_delete_all
+msgid "Permission: handover.record.sample.delete.all"
+msgstr "Quyền: handover.record.sample.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_sample_edit_all
+msgid "Permission: handover.record.sample.edit.all"
+msgstr "Quyền: handover.record.sample.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_sample_read_all
+msgid "Permission: handover.record.sample.read.all"
+msgstr "Quyền: handover.record.sample.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_create_all
+msgid "Permission: sample.handover.create.all"
+msgstr "Quyền: sample.handover.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_create_own_department
+msgid "Permission: sample.handover.create.own_department"
+msgstr "Quyền: sample.handover.create.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_edit_all
+msgid "Permission: sample.handover.edit.all"
+msgstr "Quyền: sample.handover.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_edit_own_department
+msgid "Permission: sample.handover.edit.own_department"
+msgstr "Quyền: sample.handover.edit.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_read_all
+msgid "Permission: sample.handover.read.all"
+msgstr "Quyền: sample.handover.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_read_own_department
+msgid "Permission: sample.handover.read.own_department"
+msgstr "Quyền: sample.handover.read.own_department"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__photo_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Photos"
+msgstr "Ảnh"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_sample_read_all
+msgid "Read handover record samples"
+msgstr "Xem dòng mẫu của biên bản giao nhận mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_read_all
+msgid "Read handover records"
+msgstr "Xem biên bản giao nhận mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_read_all
+msgid "Read sample handovers"
+msgstr "Xem bàn giao mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_read_own_department
+msgid "Read sample handovers of their department"
+msgstr "Xem bàn giao mẫu của phòng ban mình"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Receipt"
+msgstr "Tiếp nhận"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
+msgid "Receive"
+msgstr "Tiếp nhận"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Receive More"
+msgstr "Nhận thêm mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__received_at
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__received_at
+msgid "Received At"
+msgstr "Thời điểm nhận"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__received_by_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__received_by_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__received_by_id
+msgid "Received By"
+msgstr "Người nhận"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__recollection_requested_at
+msgid "Recollection Requested At"
+msgstr "Thời điểm yêu cầu lấy lại mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__recollection_requested_by_id
+msgid "Recollection Requested By"
+msgstr "Người yêu cầu lấy lại mẫu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Retain"
+msgstr "Lưu mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__retained_until
+msgid "Retained Until"
+msgstr "Lưu đến ngày"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Retention"
+msgstr "Lưu mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__sample_retention_reminder_days
+msgid "Retention Reminder Days"
+msgstr "Số ngày nhắc hết hạn lưu mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Sample %s arrived insufficient and is on hold."
+msgstr "Mẫu %s đến không đủ lượng và đang tạm giữ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Sample %s has no one to collect it again."
+msgstr "Mẫu %s không có ai để lấy lại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"Sample %s needs a disposal method, on the sample or on its sample type."
+msgstr "Mẫu %s cần có cách hủy mẫu, trên mẫu hoặc trên loại mẫu."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_handover
+msgid "Sample Handover"
+msgstr "Bàn Giao Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_handover
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_handover
+msgid "Sample Handovers"
+msgstr "Bàn Giao Mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.task.type,name:sol_laboratory.task_type_sample_collection
+msgid "Sample collection"
+msgstr "Lấy mẫu"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_sample_insufficient
+msgid "Sample insufficient"
+msgstr "Mẫu không đủ lượng"
+
+#. module: sol_laboratory
+#: model:medilab.task.type,name:sol_laboratory.task_type_sample_retention
+msgid "Sample retention"
+msgstr "Lưu mẫu"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_sample_retention_reminders_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_retention_reminders
+msgid "Sample retention reminders"
+msgstr "Nhắc hết hạn lưu mẫu"
+
+#. module: sol_laboratory
+#: model:medilab.task.type,name:sol_laboratory.task_type_sample_test
+msgid "Sample test"
+msgstr "Thử nghiệm chỉ tiêu của mẫu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_sample.py:0
+msgid "Samples on a signed handover record cannot be changed."
+msgstr "Không thể sửa mẫu trên biên bản giao nhận mẫu đã ký."
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_scan
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_scan
+msgid "Scan Label"
+msgstr "Quét Tem Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_scan
+msgid "Scan Sample"
+msgstr "Quét Tem Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr "Tác Vụ Định Kỳ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__signed_at
+msgid "Signed At"
+msgstr "Thời điểm ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__signed_device_id
+msgid "Signed on Device"
+msgstr "Thiết bị ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__storage_location
+msgid "Storage Location"
+msgstr "Vị trí lưu mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_handover_record_code_unique
+msgid "The code of a handover record must be unique."
+msgstr "Mã biên bản giao nhận mẫu phải là duy nhất."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_handover_record_signed
+msgid "The customer signed a handover record"
+msgstr "Khách hàng đã ký một biên bản giao nhận mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_sample_handover_sample_department_unique
+msgid "This sample is already handed over to this department."
+msgstr "Mẫu này đã được bàn giao cho phòng ban này."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_handover_record_sample_record_sample_unique
+msgid "This sample is already on the handover record."
+msgstr "Mẫu này đã có trên biên bản giao nhận mẫu."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
+msgid "To Receive"
+msgstr "Chờ nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "You are not in a department that receives samples."
+msgstr "Bạn không thuộc phòng ban nhận mẫu."

@@ -165,6 +165,74 @@
         <field name="document_model">medilab.sample</field>
         <field name="action">edit</field>
     </record>
+    <record id="permission_sample_handover_read_all" model="medilab.permission">
+        <field name="name">Read sample handovers</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_sample_handover_create_all" model="medilab.permission">
+        <field name="name">Create sample handovers</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_sample_handover_edit_all" model="medilab.permission">
+        <field name="name">Edit sample handovers</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_sample_handover_read_own_department" model="medilab.permission">
+        <field name="name">Read sample handovers of their department</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_sample_handover_create_own_department" model="medilab.permission">
+        <field name="name">Create sample handovers of their department</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_sample_handover_edit_own_department" model="medilab.permission">
+        <field name="name">Edit sample handovers of their department</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_handover_record_read_all" model="medilab.permission">
+        <field name="name">Read handover records</field>
+        <field name="document_model">medilab.handover.record</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_handover_record_create_all" model="medilab.permission">
+        <field name="name">Create handover records</field>
+        <field name="document_model">medilab.handover.record</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_handover_record_edit_all" model="medilab.permission">
+        <field name="name">Edit handover records</field>
+        <field name="document_model">medilab.handover.record</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_handover_record_sample_read_all" model="medilab.permission">
+        <field name="name">Read handover record samples</field>
+        <field name="document_model">medilab.handover.record.sample</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_handover_record_sample_create_all" model="medilab.permission">
+        <field name="name">Create handover record samples</field>
+        <field name="document_model">medilab.handover.record.sample</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_handover_record_sample_edit_all" model="medilab.permission">
+        <field name="name">Edit handover record samples</field>
+        <field name="document_model">medilab.handover.record.sample</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_handover_record_sample_delete_all" model="medilab.permission">
+        <field name="name">Delete handover record samples</field>
+        <field name="document_model">medilab.handover.record.sample</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_sample_test_read_all" model="medilab.permission">
         <field name="name">Read sample tests</field>
         <field name="document_model">medilab.sample.test</field>

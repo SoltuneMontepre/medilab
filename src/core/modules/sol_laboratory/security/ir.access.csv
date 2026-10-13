@@ -27,3 +27,4 @@ access_medilab_mobile_device_user,medilab.mobile.device user,medilab.mobile.devi
 access_medilab_mobile_device_system,medilab.mobile.device system,medilab.mobile.device,base.group_system,crud,
 access_medilab_push_delivery_user,medilab.push.delivery user,medilab.push.delivery,base.group_user,r,
 access_medilab_push_delivery_system,medilab.push.delivery system,medilab.push.delivery,base.group_system,crud,
+access_medilab_sample_scan_user,medilab.sample.scan user,medilab.sample.scan,base.group_user,crud,

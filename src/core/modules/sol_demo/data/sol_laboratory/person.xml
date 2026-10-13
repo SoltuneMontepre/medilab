@@ -52,4 +52,11 @@
         <field name="department_id" ref="demo_hr_department_chemistry" />
         <field name="role_ids" eval="[Command.set([ref('demo_role_tester')])]" />
     </record>
+    <record id="demo_hr_department_chemistry" model="hr.department">
+        <field
+            name="manager_id"
+            model="hr.employee"
+            search="[('user_id', '=', ref('demo_res_users_head_of_department'))]"
+        />
+    </record>
 </odoo>

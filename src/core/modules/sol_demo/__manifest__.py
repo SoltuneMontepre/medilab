@@ -23,6 +23,8 @@
         "data/sol_commerce/customer_sales_terms.xml",
         "data/sol_laboratory/test_request.xml",
         "data/sol_laboratory/sample.xml",
+        "data/sol_laboratory/sample_handover.xml",
+        "data/sol_laboratory/handover_record.xml",
         "data/sol_commerce/tax.xml",
         "data/sol_commerce/parameter_price.xml",
         "data/sol_commerce/subcontract_cost.xml",

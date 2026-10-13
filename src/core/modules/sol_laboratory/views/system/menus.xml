@@ -15,6 +15,9 @@
     <menuitem id="menu_laboratory_root" name="Laboratory" sequence="10">
         <menuitem id="menu_test_request" action="action_medilab_test_request" sequence="10" />
         <menuitem id="menu_sample" action="action_medilab_sample" sequence="20" />
+        <menuitem id="menu_handover_record" action="action_medilab_handover_record" sequence="25" />
+        <menuitem id="menu_sample_handover" action="action_medilab_sample_handover" sequence="26" />
+        <menuitem id="menu_sample_scan" action="action_medilab_sample_scan" sequence="27" />
         <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
     </menuitem>
 

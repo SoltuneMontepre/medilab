@@ -760,6 +760,8 @@ model Sample {
   handovers            SampleHandover[]
   /// Handover records that list the sample.
   handover_lines       HandoverRecordSample[]
+  /// Photos of the sample taken when it was collected or received.
+  photos               SamplePhoto[]
 
   @@index([request_id])
   @@index([sample_type_id])
@@ -1438,6 +1440,20 @@ model SampleHandover {
   @@unique([sample_id, department_id])
   @@index([department_id, received_at])
   @@map("medilab_sample_handover")
+}
+
+/// Links samples to their photos, Odoo attachments on the sample that only people who can read test requests see.
+model SamplePhoto {
+  /// The sample.
+  sample_id     Int
+  /// The photo's attachment.
+  attachment_id Int
+  /// The sample.
+  sample        Sample @relation(fields: [sample_id], references: [id], onDelete: Cascade)
+
+  @@id([sample_id, attachment_id])
+  @@index([attachment_id])
+  @@map("medilab_sample_photo_rel")
 }
 
 /// Handover record (biên bản giao nhận mẫu): the samples a customer hands to the laboratory, signed by the customer by hand on the mobile app. A signed record is never edited; a correction is a new record.

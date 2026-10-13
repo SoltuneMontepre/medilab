@@ -6590,3 +6590,1127 @@ msgstr ""
 #. module: sol_laboratory
 msgid "Permission: unit.category.edit.all"
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "%s has no handover to %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.report,print_report_name:sol_laboratory.action_report_handover_record
+msgid "'Handover record %s' % object.code"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.template,body_html:sol_laboratory.mail_template_task_reminder
+msgid ""
+"<p>Your task <t t-out=\"object.name\"/> is about to start.</p>\n"
+"        "
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Code</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Handed Over At</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Handed Over By</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Received By</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "<strong>Test Request</strong>"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "A disposed sample cannot be changed back: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "A disposed sample cannot be disposed of again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_message_subtype.py:0
+#: code:addons/sol_laboratory/models/notifications/notification_preference.py:0
+msgid "A mandatory event cannot be turned off."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_device.py:0
+msgid "A mobile device needs a token and a platform."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_task_reminder
+msgid "A planned task is about to start"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_sample_insufficient
+msgid "A sample arrived insufficient and is on hold"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid ""
+"A signed handover record cannot be changed. Create a new record instead."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid "A signed handover record cannot be deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid "Add the samples to handover record %s before signing it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__quantity
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Amount"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__received_quantity
+msgid "Amount Received"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_mail_message_subtype_code_unique
+msgid "An event with this code already exists."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__android
+msgid "Android"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_archive_all
+msgid "Archive mobile devices"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/ir_mail_server.py:0
+msgid "BREVO_SMTP_PORT must be a port number."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__brevo_status
+msgid "Brevo Status"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_calendar_event
+msgid "Calendar Event"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__channel
+msgid "Channel"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/notification_preference.py:0
+msgid "Choose a channel the system sends."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/notification_event_recipient.py:0
+msgid "Choose a role or a department, not both and not neither."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Collect %s again"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Collect Again"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Collecting %s again is already asked for."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__condition
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__condition
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Condition"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__condition_note
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__condition_note
+msgid "Condition Note"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Condition must be good, damaged or insufficient."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_sample_create_all
+msgid "Create handover record samples"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_create_all
+msgid "Create handover records"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_create_all
+msgid "Create mobile devices"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_preference_create_all
+msgid "Create notification preferences"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_event_recipient_create_all
+msgid "Create notification recipients"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_push_delivery_create_all
+msgid "Create push deliveries"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_create_all
+msgid "Create sample handovers"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_create_own_department
+msgid "Create sample handovers of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__damaged
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__damaged
+msgid "Damaged"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__sample_retention_reminder_days
+msgid ""
+"Days before a sample's retention ends when testers are reminded to dispose "
+"of it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_sample_delete_all
+msgid "Delete handover record samples"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_delete_all
+msgid "Delete mobile devices"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_preference_delete_all
+msgid "Delete notification preferences"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_event_recipient_delete_all
+msgid "Delete notification recipients"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_delete_all
+msgid "Delete ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_delete_own_department
+msgid "Delete ways of testing of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Dispose"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Dispose of this sample? This cannot be undone."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__disposed_at
+msgid "Disposed At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__disposed_by_id
+msgid "Disposed By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_sample_edit_all
+msgid "Edit handover record samples"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_edit_all
+msgid "Edit handover records"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_edit_all
+msgid "Edit mobile devices"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_preference_edit_all
+msgid "Edit notification preferences"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_event_recipient_edit_all
+msgid "Edit notification recipients"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_push_delivery_edit_all
+msgid "Edit push deliveries"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_edit_all
+msgid "Edit sample handovers"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_edit_own_department
+msgid "Edit sample handovers of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__email_bounced
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__email_bounced
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__email_bounced
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__email_bounced
+msgid "Email Bounced"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__enabled
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__enabled
+msgid "Enabled"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Enter the amount received and the condition of %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Enter the amount received for %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Enter the amount received."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Enter why the sample cannot be tested."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__error
+msgid "Error"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__event_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__event_id
+msgid "Event"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__good
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__good
+msgid "Good"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__handed_over_at
+msgid "Handed Over At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__handed_over_by_name
+msgid "Handed Over By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.report,name:sol_laboratory.action_report_handover_record
+#: model:ir.model,name:sol_laboratory.model_medilab_handover_record
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__record_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
+msgid "Handover Record"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_handover_record_sample
+msgid "Handover Record Sample"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_handover_record
+#: model:ir.ui.menu,name:sol_laboratory.menu_handover_record
+msgid "Handover Records"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid "Handover record %s is attached."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_handover_record_signed
+msgid "Handover record signed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__handover_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Handovers"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__max_set
+msgid "Has a maximum"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__min_set
+msgid "Has a minimum"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_notification_preference__channel__popup
+msgid "In the application"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record_sample__condition__insufficient
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__condition__insufficient
+msgid "Insufficient"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__last_seen_at
+msgid "Last Seen At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_mail_server
+msgid "Mail Server"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__mandatory
+msgid "Mandatory"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__medilab_task_id
+msgid "Medilab Task"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_message
+msgid "Message"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_notification
+msgid "Message Notification"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_message_subtype
+msgid "Message Subtype"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
+msgid "Minutes before a planned task starts."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_mobile_device
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__mobile_device_id
+msgid "Mobile Device"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_mobile_device
+#: model:ir.ui.menu,name:sol_laboratory.menu_mobile_device
+msgid "Mobile devices"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "No sample has the lab code %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__notification_id
+msgid "Notification"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_notification_event_recipient
+msgid "Notification Event Recipient"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__notification_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__notification_key
+msgid "Notification Key"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_notification_preference
+msgid "Notification Preference"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_notifications_email_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_notifications_email
+msgid "Notification email"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_notification_event
+#: model:ir.ui.menu,name:sol_laboratory.menu_notification_event
+msgid "Notification events"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_notification_preference
+#: model:ir.ui.menu,name:sol_laboratory.menu_notification_preference
+msgid "Notification preferences"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_notifications_push_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_notifications_push
+msgid "Notification push"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_notifications_remind_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_notifications_remind
+msgid "Notification reminders"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only a person can do this."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid ""
+"Only a received sample can be handed over to a department. Not received: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only a reported sample whose sample type is kept can be retained."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only a sample on hold can be collected again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only a sample on hold can receive more sample."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"Only a sample that is not kept, whose retention is over or whose test "
+"request was cancelled can be disposed of: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only an expected sample can be received."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__attachment_id
+msgid "PDF"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
+msgid "PTN.2026.0001"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_create_all
+msgid "Permission: handover.record.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_edit_all
+msgid "Permission: handover.record.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_read_all
+msgid "Permission: handover.record.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_sample_create_all
+msgid "Permission: handover.record.sample.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_sample_delete_all
+msgid "Permission: handover.record.sample.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_sample_edit_all
+msgid "Permission: handover.record.sample.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_handover_record_sample_read_all
+msgid "Permission: handover.record.sample.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_archive_all
+msgid "Permission: mobile.device.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_create_all
+msgid "Permission: mobile.device.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_delete_all
+msgid "Permission: mobile.device.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_edit_all
+msgid "Permission: mobile.device.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_mobile_device_read_all
+msgid "Permission: mobile.device.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_event_recipient_create_all
+msgid "Permission: notification.event.recipient.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_event_recipient_delete_all
+msgid "Permission: notification.event.recipient.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_event_recipient_edit_all
+msgid "Permission: notification.event.recipient.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_event_recipient_read_all
+msgid "Permission: notification.event.recipient.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_preference_create_all
+msgid "Permission: notification.preference.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_preference_delete_all
+msgid "Permission: notification.preference.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_preference_edit_all
+msgid "Permission: notification.preference.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_preference_read_all
+msgid "Permission: notification.preference.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_push_delivery_create_all
+msgid "Permission: push.delivery.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_push_delivery_edit_all
+msgid "Permission: push.delivery.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_push_delivery_read_all
+msgid "Permission: push.delivery.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_create_all
+msgid "Permission: sample.handover.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_create_own_department
+msgid "Permission: sample.handover.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_edit_all
+msgid "Permission: sample.handover.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_edit_own_department
+msgid "Permission: sample.handover.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_read_all
+msgid "Permission: sample.handover.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_sample_handover_read_own_department
+msgid "Permission: sample.handover.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__photo_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Photos"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__platform
+msgid "Platform"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_notification_preference__channel__push
+msgid "Push"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_push_delivery
+msgid "Push Delivery"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_push_delivery
+#: model:ir.ui.menu,name:sol_laboratory.menu_push_delivery
+msgid "Push deliveries"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_sample_read_all
+msgid "Read handover record samples"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_handover_record_read_all
+msgid "Read handover records"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_mobile_device_read_all
+msgid "Read mobile devices"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_preference_read_all
+msgid "Read notification preferences"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_notification_event_recipient_read_all
+msgid "Read notification recipients"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_push_delivery_read_all
+msgid "Read push deliveries"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_read_all
+msgid "Read sample handovers"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_handover_read_own_department
+msgid "Read sample handovers of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Receipt"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
+msgid "Receive"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Receive More"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__received_at
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__received_at
+msgid "Received At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__received_by_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__received_by_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__received_by_id
+msgid "Received By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__recipient_ids
+msgid "Recipients"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__recollection_requested_at
+msgid "Recollection Requested At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__recollection_requested_by_id
+msgid "Recollection Requested By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
+msgid "Reminder lead"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__reminder_lead_minutes
+msgid "Reminder lead (minutes)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Retain"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__retained_until
+msgid "Retained Until"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
+msgid "Retention"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__sample_retention_reminder_days
+msgid "Retention Reminder Days"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Sample %s arrived insufficient and is on hold."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Sample %s has no one to collect it again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid ""
+"Sample %s needs a disposal method, on the sample or on its sample type."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_handover
+msgid "Sample Handover"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_handover
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_handover
+msgid "Sample Handovers"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.task.type,name:sol_laboratory.task_type_sample_collection
+msgid "Sample collection"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_sample_insufficient
+msgid "Sample insufficient"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.task.type,name:sol_laboratory.task_type_sample_retention
+msgid "Sample retention"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_sample_retention_reminders_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_sample_retention_reminders
+msgid "Sample retention reminders"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.task.type,name:sol_laboratory.task_type_sample_test
+msgid "Sample test"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record_sample.py:0
+msgid "Samples on a signed handover record cannot be changed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_scan
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_scan
+msgid "Scan Label"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_scan
+msgid "Scan Sample"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_push_delivery__status__sent
+msgid "Sent"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__sent_at
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__sent_at
+msgid "Sent At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__signed_at
+msgid "Signed At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__signed_device_id
+msgid "Signed on Device"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_push_delivery__status__skipped
+msgid "Skipped"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Starts at %(start)s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__storage_location
+msgid "Storage Location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_task_reminder
+#: model:mail.template,name:sol_laboratory.mail_template_task_reminder
+msgid "Task reminder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_handover_record_code_unique
+msgid "The code of a handover record must be unique."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_handover_record_signed
+msgid "The customer signed a handover record"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "The email cannot be sent."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "The email was cancelled."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "The mail server did not accept the message."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_notification_preference_user_event_channel_unique
+msgid "This channel is already chosen for the event."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/mobile_device.py:0
+msgid "This device is not registered for you."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_mobile_device_token_unique
+msgid "This device token is already registered."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_mail_message_notification_key_unique
+msgid "This notification already exists."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_push_delivery_notification_device_unique
+msgid "This notification is already pushed to the device."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_sample_handover_sample_department_unique
+msgid "This sample is already handed over to this department."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_handover_record_sample_record_sample_unique
+msgid "This sample is already on the handover record."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
+msgid "To Receive"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__token
+msgid "Token"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "You are not in a department that receives samples."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/notification_preference.py:0
+msgid "You can change only your own channel choices."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_mobile_device__platform__ios
+msgid "iOS"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.template,subject:sol_laboratory.mail_template_task_reminder
+msgid "{{ object.name }}"
+msgstr ""

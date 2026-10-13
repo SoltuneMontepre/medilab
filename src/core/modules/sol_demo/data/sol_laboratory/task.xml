@@ -73,6 +73,53 @@
         <field name="deadline" eval="(DateTime.now() - relativedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="done_at" eval="(DateTime.now() - relativedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')" />
     </record>
+    <!-- Times are UTC: 02:00 is 09:00 in Vietnam. -->
+    <record id="demo_task_sample_collection_planned" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_collection" />
+        <field name="name">Collect pond water at Pham Van Long's farm</field>
+        <field name="assignee_id" ref="demo_person_sample_delivery_staff" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=1, hour=3, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="planned_start" eval="(DateTime.now() + relativedelta(days=1, hour=2, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="planned_end" eval="(DateTime.now() + relativedelta(days=1, hour=3, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample</field>
+        <field name="document_id" eval="ref('demo_sample_pond_water_confirmed')" />
+    </record>
+    <record id="demo_task_sample_recollection" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_collection" />
+        <field name="name">Collect the Da Lat cabbage sample again</field>
+        <field name="assignee_id" ref="demo_person_sample_delivery_staff" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=1, hour=8, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="planned_start" eval="(DateTime.now() + relativedelta(days=1, hour=7, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="planned_end" eval="(DateTime.now() + relativedelta(days=1, hour=8, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample</field>
+        <field name="document_id" eval="ref('demo_sample_reception_insufficient')" />
+    </record>
+    <record id="demo_task_sample_collection_done" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_collection" />
+        <field name="name">Collected cabbage lot 15</field>
+        <field name="assignee_id" ref="demo_person_sample_delivery_staff" />
+        <field name="status">done</field>
+        <field name="deadline" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="done_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample</field>
+        <field name="document_id" eval="ref('demo_sample_cabbage_received')" />
+    </record>
+    <record id="demo_task_sample_test_lead" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name">Lead (Pb) on the An Phu bottled water</field>
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_reception_lead')" />
+    </record>
+    <record id="demo_task_sample_test_coliforms" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name">Coliforms on the An Phu bottled water</field>
+        <field name="department_id" ref="demo_hr_department_microbiology" />
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_reception_coliforms')" />
+    </record>
     <record id="demo_task_old_reagents" model="medilab.task">
         <field name="type_id" ref="sol_laboratory.task_type_general" />
         <field name="name">Return expired reagents to the supplier</field>

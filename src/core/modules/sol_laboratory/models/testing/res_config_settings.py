@@ -5,8 +5,10 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTING
 from odoo.addons.sol_laboratory.constants.settings import (
     DEFAULT_REMINDER_LEAD_MINUTES,
     DEFAULT_SAFETY_MARGIN_DAYS,
+    DEFAULT_SAMPLE_RETENTION_REMINDER_DAYS,
     REMINDER_LEAD_PARAMETER,
     SAFETY_MARGIN_PARAMETER,
+    SAMPLE_RETENTION_REMINDER_PARAMETER,
 )
 
 
@@ -37,4 +39,11 @@ class ResConfigSettings(models.TransientModel):
         string="Reminder lead (minutes)",
         config_parameter=REMINDER_LEAD_PARAMETER,
         default=DEFAULT_REMINDER_LEAD_MINUTES,
+    )
+    # Days before a sample's retention ends when testers are reminded to dispose of it.
+    sample_retention_reminder_days = fields.Integer(
+        string="Retention Reminder Days",
+        config_parameter=SAMPLE_RETENTION_REMINDER_PARAMETER,
+        default=DEFAULT_SAMPLE_RETENTION_REMINDER_DAYS,
+        help="Days before a sample's retention ends when testers are reminded to dispose of it.",
     )
