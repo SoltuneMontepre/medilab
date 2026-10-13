@@ -115,6 +115,36 @@
         <field name="action">delete</field>
         <field name="scope">own_department</field>
     </record>
+    <record id="permission_person_read_own_team" model="medilab.permission">
+        <field name="name">Read people of their team</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">read</field>
+        <field name="scope">own_team</field>
+    </record>
+    <record id="permission_person_create_own_team" model="medilab.permission">
+        <field name="name">Create people of their team</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">create</field>
+        <field name="scope">own_team</field>
+    </record>
+    <record id="permission_person_edit_own_team" model="medilab.permission">
+        <field name="name">Edit people of their team</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">edit</field>
+        <field name="scope">own_team</field>
+    </record>
+    <record id="permission_person_archive_own_team" model="medilab.permission">
+        <field name="name">Archive people of their team</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">archive</field>
+        <field name="scope">own_team</field>
+    </record>
+    <record id="permission_person_delete_own_team" model="medilab.permission">
+        <field name="name">Delete people of their team</field>
+        <field name="document_model">medilab.person</field>
+        <field name="action">delete</field>
+        <field name="scope">own_team</field>
+    </record>
     <record id="permission_customer_read_all" model="medilab.permission">
         <field name="name">Read customers</field>
         <field name="document_model">medilab.customer</field>

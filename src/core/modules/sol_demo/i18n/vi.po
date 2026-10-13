@@ -217,6 +217,7 @@ msgstr "Trưởng Phòng Kinh Doanh"
 
 #. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.group_heavy_metals
+#: model:hr.department,name:sol_demo.demo_hr_department_heavy_metals
 msgid "Heavy metals"
 msgstr "Kim loại nặng"
 
@@ -474,3 +475,13 @@ msgstr "pH"
 #: model:medilab.chemical,name:sol_demo.chemical_ph_buffer
 msgid "pH buffer solution 7.00"
 msgstr "Dung dịch đệm pH 7,00"
+
+#. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_pathogens
+msgid "Pathogens"
+msgstr "Vi sinh vật gây bệnh"
+
+#. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
+msgid "Pesticide residues"
+msgstr "Dư lượng thuốc bảo vệ thực vật"

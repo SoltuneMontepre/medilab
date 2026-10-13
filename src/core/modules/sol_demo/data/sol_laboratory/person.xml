@@ -24,8 +24,15 @@
     <record id="demo_person_tester" model="medilab.person">
         <field name="user_id" ref="demo_res_users_tester" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="team_id" ref="demo_hr_department_pesticide_residues" />
         <field name="role_ids" eval="[Command.set([ref('demo_role_tester')])]" />
-        <field name="permission_ids" eval="[Command.set([ref('sol_laboratory.permission_department_read_all')])]" />
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('sol_laboratory.permission_department_read_all'),
+                ref('sol_laboratory.permission_person_read_own_team'),
+            ])]"
+        />
     </record>
     <record id="demo_person_head_of_department" model="medilab.person">
         <field name="user_id" ref="demo_res_users_head_of_department" />
@@ -48,12 +55,25 @@
         <field name="name">Ngo Thi Mai</field>
         <field name="work_contact_id" ref="demo_res_partner_microbiology_tester" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
+        <field name="team_id" ref="demo_hr_department_pathogens" />
         <field name="role_ids" eval="[Command.set([ref('demo_role_tester')])]" />
     </record>
     <record id="demo_person_chemistry_tester" model="medilab.person">
         <field name="name">Ly Van Hung</field>
         <field name="work_contact_id" ref="demo_res_partner_chemistry_tester" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="team_id" ref="demo_hr_department_pesticide_residues" />
         <field name="role_ids" eval="[Command.set([ref('demo_role_tester')])]" />
+    </record>
+    <!-- Team leads are employees, so they are set once the people exist. -->
+    <record id="demo_hr_department_pesticide_residues" model="hr.department">
+        <field name="manager_id" model="hr.employee" search="[('user_id', '=', ref('demo_res_users_tester'))]" />
+    </record>
+    <record id="demo_hr_department_pathogens" model="hr.department">
+        <field
+            name="manager_id"
+            model="hr.employee"
+            search="[('work_contact_id', '=', ref('demo_res_partner_microbiology_tester'))]"
+        />
     </record>
 </odoo>

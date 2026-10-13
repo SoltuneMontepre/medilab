@@ -32,7 +32,7 @@ How code inside an Odoo module is laid out.
 
 ## Permissions
 
-- Each new document model inherits `medilab.permission.mixin` and ships its permissions in its module's `data/permission_data.xml`: one per action in its `_permission_actions`, with scope `all`, and the same actions with scope `own_department` only when the model has `department_id`. A test fails when one is missing.
+- Each new document model inherits `medilab.permission.mixin` and ships its permissions in its module's `data/permission_data.xml`: one per action in its `_permission_actions`, with scope `all`, the same actions with scope `own_department` only when the model has `department_id`, and with scope `own_team` only when it has `team_id`. A test fails when one is missing.
 - Each new document model also inherits `medilab.audit.mixin` and names the documents under it in `_audit_children`, such as `sample_ids` on a test request. An Odoo model a module extends gets the mixin with `_name` set and the mixin first in `_inherit`, so it wraps Odoo's `write`: `_name = MODEL_EMPLOYEE` and `_inherit = [MODEL_AUDIT_MIXIN, MODEL_EMPLOYEE]`. A test fails when a model is left out; [Audit trail](../specs/audit-trail.md) lists the models that are.
 - Permissions, the administrator role and the administrator person are shipped data. Departments, people and other roles are user data. Demo data lives only in the `sol_demo` module, which assigns shipped permissions and never creates one.
 - [Permissions](../specs/permissions.md) describes the mechanism.
@@ -45,6 +45,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | -------------------------- | ------------------------------------------------------------------------------------------- |
 | `constants/models.py`      | Database model names, such as `MODEL_TEST_PARAMETER`                                        |
 | `constants/permissions.py` | Actions, scopes and access domains of permissions, such as `SCOPE_DOMAINS`                  |
+| `constants/departments.py` | Domains that tell departments from teams, such as `DEPARTMENT_DOMAIN`                       |
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`                            |
 | `constants/settings.py`    | System parameter keys and their defaults, such as `SAFETY_MARGIN_PARAMETER`                 |
 | `constants/tasks.py`       | Task triggers and statuses, such as `MANUAL_TRIGGER`                                        |
