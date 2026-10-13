@@ -9,3 +9,4 @@ Step-by-step procedures for recurring tasks.
 - [Creating a pull request](creating-pr.md): open a pull request, wait for the pipelines and fix what SonarQube reports
 - [Syncing the database diagram](syncing-database-diagram.md): bring a module's Prisma diagram in line with the tables Odoo creates
 - [Reviewing a pull request](reviewing-pr.md): check a pull request against the conventions, business rules and database, and post the review
+- [Setting up](setting-up.md): install the modules and configure the company, languages, settings and code formats

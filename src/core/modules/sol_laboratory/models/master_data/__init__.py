@@ -1,5 +1,6 @@
 from . import (
     chemical,
+    customer,
     machine,
     machine_service,
     measurement_unit,

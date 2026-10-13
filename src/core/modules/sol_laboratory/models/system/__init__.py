@@ -4,8 +4,11 @@ from . import (
     ir_actions_act_window_view,
     ir_ui_menu,
     ir_ui_view,
+    job_item,
+    job_run,
     permission,
     person,
     res_partner,
     role,
+    scheduled_job,
 )

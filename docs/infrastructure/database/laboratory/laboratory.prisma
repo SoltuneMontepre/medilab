@@ -654,7 +654,7 @@ model Customer {
 model TestRequest {
   /// Row identifier.
   id           Int      @id @default(autoincrement())
-  /// Unique code of the request; filled from a sequence when left empty.
+  /// Unique code of the request, such as YC.2026.0001, numbered again each year; filled from a sequence when left empty.
   code         String   @unique @db.VarChar
   /// The customer who asks for the tests.
   customer_id  Int
@@ -686,6 +686,9 @@ model TestRequest {
   handover_records HandoverRecord[]
 
   @@index([customer_id])
+  @@index([request_date])
+  @@index([status])
+  @@index([report_recipient_id])
   @@map("medilab_test_request")
 }
 
@@ -693,11 +696,11 @@ model TestRequest {
 model Sample {
   /// Row identifier.
   id                   Int          @id @default(autoincrement())
-  /// Unique laboratory code (mã PTN) from a sequence; the only name testers see.
+  /// Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001, numbered again each year; the only name testers see.
   code                 String       @unique @db.VarChar
   /// The test request the sample belongs to.
   request_id           Int
-  /// Name the customer gives the sample, such as "Lavie bottled water 1 L"; hidden from testers.
+  /// Name the customer gives the sample, such as "Lavie bottled water 1 L"; only people who can read test requests see it. A trigram index serves search.
   customer_sample_name String       @db.VarChar
   /// The sample type (nền mẫu), such as bottled drinking water.
   sample_type_id       Int
@@ -758,6 +761,8 @@ model Sample {
 
   @@index([request_id])
   @@index([sample_type_id])
+  @@index([regulation_id])
+  @@index([status])
   @@map("medilab_sample")
 }
 
@@ -775,7 +780,7 @@ model SampleTest {
   quantity            Int              @default(1)
   /// waiting, assigned, testing, outsourced, result_entered, approved or cancelled.
   status              String           @db.VarChar
-  /// When the laboratory plans to finish the test: the request's expected date minus the safety margin. A test whose due date is close is scheduled first.
+  /// When the laboratory plans to finish the test: the end of the day, in the company's time zone, the safety margin before the request's expected date, worked out when the sample test is created or that date changes and changeable afterwards. Changing the safety margin does not change due dates already worked out. A test whose due date is close is scheduled first.
   due_date            DateTime?
   /// Why the test was cancelled, such as the parameter cannot be tested on this sample.
   cancel_reason       String?          @db.Text
@@ -801,6 +806,7 @@ model SampleTest {
   @@index([sample_id])
   @@index([parameter_id])
   @@index([parameter_method_id])
+  @@index([status])
   @@map("medilab_sample_test")
 }
 

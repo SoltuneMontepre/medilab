@@ -7,6 +7,7 @@ How code inside an Odoo module is laid out.
 - A model and its views live in folders of the same name, for example `models/master_data/test_parameter.py` and `views/master_data/test_parameter_views.xml`.
 - Folder names are snake_case, because model folders are Python packages.
 - A new concern adds a folder in both `models/` and `views/` and a row to this table.
+- Mixins that models of several concerns inherit, such as the permission mixin, live in `models/mixins/`, which has no views. `models/__init__.py` imports it before the concerns, because Odoo registers models in the order their classes are defined.
 
 | Concern             | Contains                                                                                                                                                                         |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -42,6 +43,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/models.py`      | Database model names, such as `MODEL_TEST_PARAMETER`                       |
 | `constants/permissions.py` | Actions, scopes and access domains of permissions, such as `SCOPE_DOMAINS` |
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`           |
+| `constants/settings.py`    | System parameter keys and their defaults, such as `SAFETY_MARGIN_PARAMETER` |
 | `constants/tasks.py`       | Task triggers and statuses, such as `MANUAL_TRIGGER`                       |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.

@@ -140,4 +140,39 @@
         <field name="document_model">medilab.service.package.line</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_invoice_adjustment_read_all" model="medilab.permission">
+        <field name="name">Read invoice adjustments</field>
+        <field name="document_model">medilab.invoice.adjustment</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_invoice_adjustment_create_all" model="medilab.permission">
+        <field name="name">Create invoice adjustments</field>
+        <field name="document_model">medilab.invoice.adjustment</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_invoice_adjustment_edit_all" model="medilab.permission">
+        <field name="name">Edit invoice adjustments</field>
+        <field name="document_model">medilab.invoice.adjustment</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_invoice_adjustment_delete_all" model="medilab.permission">
+        <field name="name">Delete invoice adjustments</field>
+        <field name="document_model">medilab.invoice.adjustment</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_reconciliation_day_read_all" model="medilab.permission">
+        <field name="name">Read reconciliation days</field>
+        <field name="document_model">medilab.reconciliation.day</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_reconciliation_day_create_all" model="medilab.permission">
+        <field name="name">Create reconciliation days</field>
+        <field name="document_model">medilab.reconciliation.day</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_reconciliation_day_edit_all" model="medilab.permission">
+        <field name="name">Edit reconciliation days</field>
+        <field name="document_model">medilab.reconciliation.day</field>
+        <field name="action">edit</field>
+    </record>
 </odoo>
