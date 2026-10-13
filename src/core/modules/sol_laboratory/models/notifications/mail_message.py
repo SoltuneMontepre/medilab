@@ -22,6 +22,29 @@ from odoo.addons.sol_laboratory.constants.notifications import CHANNEL_EMAIL, CH
 _logger = logging.getLogger(__name__)
 
 
+def _apply_preference(preference, event, user, popup, email, push):
+    if event.mandatory and preference.channel in (CHANNEL_POPUP, CHANNEL_EMAIL) and not preference.enabled:
+        return popup, email, push
+    if preference.channel == CHANNEL_POPUP:
+        return preference.enabled and bool(user), email, push
+    if preference.channel == CHANNEL_EMAIL:
+        return popup, preference.enabled, push
+    if preference.channel == CHANNEL_PUSH:
+        return popup, email, preference.enabled
+    return popup, email, push
+
+
+def _selected_channels(popup, email, push):
+    channels = set()
+    if popup:
+        channels.add(CHANNEL_POPUP)
+    if email:
+        channels.add(CHANNEL_EMAIL)
+    if push:
+        channels.add(CHANNEL_PUSH)
+    return channels
+
+
 # Thông Báo
 class MailMessage(models.Model):
     _inherit = MODEL_MAIL_MESSAGE
@@ -100,24 +123,7 @@ class MailMessage(models.Model):
 
     def _channels_for(self, partner, event):
         user = partner.user_ids[:1]
-        popup = bool(user) and user.notification_type == "inbox"
-        email = (not user) or user.notification_type == "email"
-        push = False
-        if user:
-            preferences = (
-                self.env[MODEL_NOTIFICATION_PREFERENCE]
-                .sudo()
-                .search([("user_id", "=", user.id), ("event_id", "=", event.id)])
-            )
-            for preference in preferences:
-                if event.mandatory and preference.channel in (CHANNEL_POPUP, CHANNEL_EMAIL) and not preference.enabled:
-                    continue
-                if preference.channel == CHANNEL_POPUP:
-                    popup = preference.enabled and bool(user)
-                elif preference.channel == CHANNEL_EMAIL:
-                    email = preference.enabled
-                elif preference.channel == CHANNEL_PUSH:
-                    push = preference.enabled
+        popup, email, push = self._preferred_channels(user, event)
         if event.mandatory:
             popup = bool(user) and (popup or user.notification_type == "inbox")
             email = True
@@ -125,14 +131,22 @@ class MailMessage(models.Model):
             if email and not partner.email:
                 _logger.warning("Notification %s has no email address for partner %s", event.code, partner.id)
             email = False
-        channels = set()
-        if popup:
-            channels.add(CHANNEL_POPUP)
-        if email:
-            channels.add(CHANNEL_EMAIL)
-        if push:
-            channels.add(CHANNEL_PUSH)
-        return channels
+        return _selected_channels(popup, email, push)
+
+    def _preferred_channels(self, user, event):
+        popup = bool(user) and user.notification_type == "inbox"
+        email = (not user) or user.notification_type == "email"
+        push = False
+        if not user:
+            return popup, email, push
+        preferences = (
+            self.env[MODEL_NOTIFICATION_PREFERENCE]
+            .sudo()
+            .search([("user_id", "=", user.id), ("event_id", "=", event.id)])
+        )
+        for preference in preferences:
+            popup, email, push = _apply_preference(preference, event, user, popup, email, push)
+        return popup, email, push
 
     def _notification_for(self, partner, popup):
         self.ensure_one()

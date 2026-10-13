@@ -191,4 +191,3 @@ class ScheduledJob(models.Model):
         except Exception:
             _logger.exception("Overdue reminder was not queued")
             raise
-        return

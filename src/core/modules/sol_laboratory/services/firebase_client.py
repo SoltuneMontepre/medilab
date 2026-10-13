@@ -56,27 +56,39 @@ class FirebaseClient:
         self._raise_for_response(response)
 
     def _raise_for_response(self, response):
-        payload = {}
-        try:
-            payload = response.json()
-        except ValueError:
-            payload = {}
-        error = payload.get("error") if isinstance(payload, dict) else {}
-        error = error if isinstance(error, dict) else {}
-        code = ""
-        for detail in error.get("details") or []:
-            if isinstance(detail, dict) and detail.get("errorCode"):
-                code = str(detail["errorCode"])
-                break
+        error = _error_body(response)
+        code = _error_code(error)
         status = str(error.get("status") or "")
-        if code in PERMANENT_TOKEN_CODES or status in PERMANENT_TOKEN_CODES:
-            raise PermanentTokenError(code or status)
-        message = str(error.get("message") or "")
-        if (code == "INVALID_ARGUMENT" or status == "INVALID_ARGUMENT") and "token" in message.lower():
+        if _permanent_token_failure(code, status, str(error.get("message") or "")):
             raise PermanentTokenError(code or status)
         if response.status_code in {408, 429} or response.status_code >= 500:
             raise TemporaryFirebaseError(status or str(response.status_code))
         raise TemporaryFirebaseError(code or status or str(response.status_code))
+
+
+def _error_body(response):
+    try:
+        payload = response.json()
+    except ValueError:
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    error = payload.get("error")
+    return error if isinstance(error, dict) else {}
+
+
+def _error_code(error):
+    for detail in error.get("details") or []:
+        if isinstance(detail, dict) and detail.get("errorCode"):
+            return str(detail["errorCode"])
+    return ""
+
+
+def _permanent_token_failure(code, status, message):
+    if code in PERMANENT_TOKEN_CODES or status in PERMANENT_TOKEN_CODES:
+        return True
+    invalid = code == "INVALID_ARGUMENT" or status == "INVALID_ARGUMENT"
+    return invalid and "token" in message.lower()
 
 
 def firebase_client_from_env():

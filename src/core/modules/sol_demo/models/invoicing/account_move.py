@@ -7,6 +7,7 @@ from odoo.fields import Command
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 
 MARKER = "sol_demo.demo_invoice_advance"
+MODEL_ACCOUNT_PAYMENT = "account.payment"
 
 
 class AccountMove(models.Model):
@@ -63,11 +64,12 @@ class AccountMove(models.Model):
         lowering = final.action_adjust(-100_000)
         draft = self._demo_invoice(green, product, vat10, "draft")
         cancelled = self._demo_invoice(green, product, vat10, "cancel")
-        cash = self.env["account.payment"].create_pending_payment(advance, 1_000_000, "cash")
+        payments = self.env[MODEL_ACCOUNT_PAYMENT]
+        cash = payments.create_pending_payment(advance, 1_000_000, "cash")
         cash.action_post()
-        transfer = self.env["account.payment"].create_pending_payment(advance, 500_000, "bank_transfer")
-        pending = self.env["account.payment"].create_pending_payment(final, 200_000, "bank_transfer")
-        rejected = self.env["account.payment"].create_pending_payment(final, 100_000, "cash")
+        transfer = payments.create_pending_payment(advance, 500_000, "bank_transfer")
+        pending = payments.create_pending_payment(final, 200_000, "bank_transfer")
+        rejected = payments.create_pending_payment(final, 100_000, "cash")
         rejected.rejection_reason = "The cash was not received"
         rejected.action_reject_payment()
         yesterday = datetime.now(ZoneInfo(VIETNAM_ZONE)).date() - timedelta(days=2)
@@ -145,7 +147,7 @@ class AccountMove(models.Model):
         method = self.env.ref("sol_commerce.payment_method_payos_qr", raise_if_not_found=False)
         if method:
             method.active = True
-        Day = self.env["medilab.reconciliation.day"]
+        reconciliation_days = self.env["medilab.reconciliation.day"]
         now = fields.Datetime.to_datetime("2020-01-03 03:00:00")
         product = invoice.invoice_line_ids.product_id[:1]
         tax = invoice.invoice_line_ids.tax_ids[:1]
@@ -155,13 +157,13 @@ class AccountMove(models.Model):
         locked_moment = fields.Datetime.to_datetime("2020-01-02 03:00:00")
         locked_tx.with_context(payment_safe_write=True).write({"payos_transferred_at": locked_moment})
         locked_tx.with_context(payment_safe_write=True)._set_done()
-        locked = Day.create({"day": Day._vietnam_day(locked_moment)})
+        locked = reconciliation_days.create({"day": reconciliation_days._vietnam_day(locked_moment)})
         locked.action_post_missing_payments()
         locked.action_lock()
         open_tx = self.env["payment.transaction"]._create_payos_transaction(open_invoice)
         open_tx.with_context(payment_safe_write=True).write({"payos_transferred_at": now})
         open_tx.with_context(payment_safe_write=True)._set_done()
-        opened = Day.create({"day": Day._vietnam_day(now)})
+        opened = reconciliation_days.create({"day": reconciliation_days._vietnam_day(now)})
         self._remember(
             {
                 "demo_reconciliation_locked": locked,

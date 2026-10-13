@@ -14,13 +14,15 @@ class CalendarEvent(models.Model):
 
     def write(self, vals):
         result = super().write(vals)
-        if self.env.context.get(SKIP_SYNC) or not {"start", "stop"} & set(vals):
-            return result
+        if not self.env.context.get(SKIP_SYNC) and {"start", "stop"} & set(vals):
+            self._copy_times_to_tasks()
+        return result
+
+    def _copy_times_to_tasks(self):
         for event in self.filtered("medilab_task_id"):
             event.medilab_task_id.with_context(**{SKIP_SYNC: True}).write(
                 {"planned_start": event.start, "planned_end": event.stop}
             )
-        return result
 
     def unlink(self):
         tasks = self.medilab_task_id.with_context(**{SKIP_SYNC: True})

@@ -2,11 +2,21 @@ import os
 from datetime import timedelta
 from unittest.mock import patch
 
+import requests
+
 from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import HttpCase, TransactionCase, tagged
 
-from odoo.addons.sol_laboratory.constants.notifications import BREVO_WEBHOOK_TOKEN, CHANNEL_EMAIL, EVENT_TASK_REMINDER
+from odoo.addons.sol_laboratory.constants.notifications import (
+    BREVO_WEBHOOK_TOKEN,
+    CHANNEL_EMAIL,
+    EVENT_TASK_REMINDER,
+    FIREBASE_CREDENTIALS,
+    FIREBASE_PROJECT_ID,
+)
+from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
+from odoo.addons.sol_laboratory.services import firebase_client
 from odoo.addons.sol_laboratory.services.firebase_client import (
     FirebaseClient,
     PermanentTokenError,
@@ -21,6 +31,22 @@ class _Response:
 
     def json(self):
         return self._payload
+
+
+class _JsonError(_Response):
+    def json(self):
+        raise ValueError("not json")
+
+
+class _Credentials:
+    def __init__(self, valid=True):
+        self.valid = valid
+        self.token = "access-token"
+        self.refreshed = False
+
+    def refresh(self, request):
+        self.refreshed = True
+        self.valid = True
 
 
 @tagged("post_install", "-at_install")
@@ -175,6 +201,145 @@ class TestNotifications(TransactionCase):
             client._raise_for_response(temporary)
         with self.assertRaises(PermanentTokenError):
             client._raise_for_response(invalid)
+        with self.assertRaises(PermanentTokenError):
+            client._raise_for_response(_Response(400, {"error": {"details": [{"errorCode": "SENDER_ID_MISMATCH"}]}}))
+        with self.assertRaises(TemporaryFirebaseError):
+            client._raise_for_response(_JsonError(500, None))
+        with self.assertRaises(TemporaryFirebaseError):
+            client._raise_for_response(_Response(400, ["not-an-object"]))
+        with self.assertRaises(TemporaryFirebaseError):
+            client._raise_for_response(_Response(400, {"error": "unavailable"}))
+        with self.assertRaises(TemporaryFirebaseError):
+            client._raise_for_response(_Response(429, {"error": {"status": "RESOURCE_EXHAUSTED"}}))
+        with self.assertRaises(TemporaryFirebaseError):
+            client._raise_for_response(
+                _Response(400, {"error": {"status": "INVALID_ARGUMENT", "message": "A field is missing"}})
+            )
+
+    def test_send_refreshes_a_token_and_a_dropped_connection_can_be_retried(self):
+        credentials = _Credentials(valid=False)
+        client = FirebaseClient(credentials, "project")
+        with patch(
+            "odoo.addons.sol_laboratory.services.firebase_client.requests.post",
+            return_value=_Response(200, {}),
+        ):
+            client.send("token", "Title", "Body")
+        self.assertTrue(credentials.refreshed)
+        ready = FirebaseClient(_Credentials(), "project")
+        with (
+            patch(
+                "odoo.addons.sol_laboratory.services.firebase_client.requests.post",
+                side_effect=requests.RequestException("down"),
+            ),
+            self.assertRaises(TemporaryFirebaseError),
+        ):
+            ready.send("token", "Title", "Body")
+
+    def test_a_client_is_built_from_credentials_or_left_unset(self):
+        credentials = _Credentials()
+        with patch.dict(os.environ, {FIREBASE_PROJECT_ID: "project", FIREBASE_CREDENTIALS: "not-json"}):
+            self.assertIsNone(firebase_client.firebase_client_from_env())
+        with (
+            patch.dict(os.environ, {FIREBASE_PROJECT_ID: "project", FIREBASE_CREDENTIALS: "{}"}),
+            patch.object(
+                firebase_client.service_account.Credentials,
+                "from_service_account_info",
+                return_value=credentials,
+            ),
+        ):
+            client = firebase_client.firebase_client_from_env()
+        self.assertEqual(client.project_id, "project")
+        absent = {FIREBASE_PROJECT_ID: "", FIREBASE_CREDENTIALS: ""}
+        with (
+            patch.dict(os.environ, absent),
+            patch("google.auth.default", side_effect=Exception("missing")),
+        ):
+            self.assertIsNone(firebase_client.firebase_client_from_env())
+        with (
+            patch.dict(os.environ, absent),
+            patch("google.auth.default", return_value=(credentials, "detected")),
+        ):
+            detected = firebase_client.firebase_client_from_env()
+        self.assertEqual(detected.project_id, "detected")
+        with (
+            patch.dict(os.environ, {FIREBASE_PROJECT_ID: "from-env", FIREBASE_CREDENTIALS: ""}),
+            patch("google.auth.default", return_value=(credentials, None)),
+        ):
+            from_env = firebase_client.firebase_client_from_env()
+        self.assertEqual(from_env.project_id, "from-env")
+        with (
+            patch.dict(os.environ, absent),
+            patch("google.auth.default", return_value=(None, None)),
+        ):
+            self.assertIsNone(firebase_client.firebase_client_from_env())
+
+    def test_moving_or_deleting_the_event_updates_the_task(self):
+        person = self.env["medilab.person"].create({"name": "Planner", "login": "planner.reminder"})
+        start = fields.Datetime.now() + timedelta(minutes=20)
+        task = self.env["medilab.task"].create(
+            {
+                "type_id": self.task_type.id,
+                "name": "Move",
+                "assignee_id": person.id,
+                "planned_start": start,
+            }
+        )
+        event = self.env["calendar.event"].search([("medilab_task_id", "=", task.id)])
+        moved = start + timedelta(minutes=15)
+        event.write({"start": moved, "stop": moved + timedelta(hours=1)})
+        self.assertEqual(task.planned_start, event.start)
+        self.assertEqual(task.planned_end, event.stop)
+        event.unlink()
+        self.assertFalse(task.planned_start)
+        self.assertFalse(task.planned_end)
+
+    def test_a_cancelled_email_is_not_retried(self):
+        self.user.notification_type = "email"
+        task = self._task()
+        self.env["mail.message"].raise_event(
+            EVENT_TASK_REMINDER, task, "cancelled-mail", "Body", partners=self.user.partner_id
+        )
+        mail = self.env["mail.mail"].search([("email_to", "=", self.user.email)], order="id desc", limit=1)
+        item = self.env["medilab.job.item"].search([("item_key", "=", f"mail:{mail.id}")], limit=1)
+        mail.sudo().write({"state": "cancel"})
+        with self.assertRaises(PermanentJobError):
+            item.job_id._handle_notifications_email(item)
+
+    def test_a_push_is_sent_and_waits_when_firebase_is_not_configured(self):
+        device = self.env["medilab.mobile.device"].with_user(self.user).register_token("token-sent", "android")
+        self.env["medilab.notification.preference"].with_user(self.user).set_own(self.event, "push", True)
+        task = self._task()
+        self.env["mail.message"].raise_event(
+            EVENT_TASK_REMINDER, task, "push-sent", "Body", partners=self.user.partner_id
+        )
+        delivery = self.env["medilab.push.delivery"].search([("mobile_device_id", "=", device.id)])
+        item = self.env["medilab.job.item"].search([("item_key", "=", f"delivery:{delivery.id}")], limit=1)
+        client = FirebaseClient(_Credentials(), "project")
+        with (
+            patch(
+                "odoo.addons.sol_laboratory.models.notifications.scheduled_job.firebase_client_from_env",
+                return_value=client,
+            ),
+            patch.object(client, "send"),
+        ):
+            self.assertIsNone(item.job_id._handle_notifications_push(item))
+        self.assertEqual(delivery.status, "sent")
+
+        waiting = self.env["medilab.mobile.device"].with_user(self.user).register_token("token-wait", "ios")
+        self.env["mail.message"].raise_event(
+            EVENT_TASK_REMINDER, task, "push-wait", "Body", partners=self.user.partner_id
+        )
+        delivery = self.env["medilab.push.delivery"].search([("mobile_device_id", "=", waiting.id)])
+        item = self.env["medilab.job.item"].search([("item_key", "=", f"delivery:{delivery.id}")], limit=1)
+        with patch(
+            "odoo.addons.sol_laboratory.models.notifications.scheduled_job.firebase_client_from_env",
+            return_value=None,
+        ):
+            self.assertTrue(item.job_id._handle_notifications_push(item))
+        self.assertEqual(delivery.status, "pending")
+        waiting.active = False
+        self.assertIsNone(item.job_id._handle_notifications_push(item))
+        self.assertEqual(delivery.status, "skipped")
 
     def _task(self):
         department = self.env["hr.department"].create({"name": "Notify"})
@@ -186,16 +351,28 @@ class TestNotifications(TransactionCase):
 @tagged("post_install", "-at_install")
 class TestBrevoWebhook(HttpCase):
     def test_a_missing_token_rejects_the_webhook(self):
-        os.environ.pop(BREVO_WEBHOOK_TOKEN, None)
-        response = self.url_open(
-            "/medilab/brevo/webhook",
-            data=b"{}",
-            headers={"Content-Type": "application/json", "Authorization": "Bearer secret"},
-        )
+        with patch.dict(os.environ, {BREVO_WEBHOOK_TOKEN: ""}):
+            response = self.url_open(
+                "/medilab/brevo/webhook",
+                data=b"{}",
+                headers={"Content-Type": "application/json", "Authorization": "Bearer secret"},
+            )
         self.assertEqual(response.status_code, 401)
 
+    def test_a_body_that_is_not_json_is_rejected(self):
+        with patch.dict(os.environ, {BREVO_WEBHOOK_TOKEN: "secret"}):
+            response = self.url_open(
+                "/medilab/brevo/webhook",
+                data=b"not-json",
+                headers={"Content-Type": "application/json", "Authorization": "Bearer secret"},
+            )
+        self.assertEqual(response.status_code, 400)
+
     def test_a_bounce_flags_only_the_matched_partner(self):
-        os.environ[BREVO_WEBHOOK_TOKEN] = "secret"
+        with patch.dict(os.environ, {BREVO_WEBHOOK_TOKEN: "secret"}):
+            self._bounce_only_the_matched_partner()
+
+    def _bounce_only_the_matched_partner(self):
         partner = self.env["res.partner"].create({"name": "Bounced", "email": "bounced@example.com"})
         other = self.env["res.partner"].create({"name": "Other", "email": "other@example.com"})
         task_type = self.env["medilab.task.type"].search([], limit=1)

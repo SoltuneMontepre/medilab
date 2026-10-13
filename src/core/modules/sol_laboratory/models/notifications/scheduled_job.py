@@ -61,7 +61,6 @@ class ScheduledJob(models.Model):
             subject=task.name,
             partners=partner,
         )
-        return
 
     def _handle_notifications_email(self, item):
         mail = item._document()
@@ -76,7 +75,6 @@ class ScheduledJob(models.Model):
         mail.invalidate_recordset()
         if mail.state == "exception":
             raise UserError(mail.failure_reason or self.env._("The mail server did not accept the message."))
-        return
 
     def _handle_notifications_push(self, item):
         delivery = item._document()
