@@ -1,10 +1,12 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
 from odoo.tools import format_list
 
+from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_DEPARTMENT,
     MODEL_EMPLOYEE,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
@@ -35,7 +37,16 @@ class Person(models.Model):
     )
     # Department of the person. Odoo keeps it, like every field of the employee's version, where only employee
     # officers read; re-declared, it is read with full rights.
-    department_id = fields.Many2one(related="employee_id.department_id", inherited=True, readonly=False)
+    department_id = fields.Many2one(
+        related="employee_id.department_id", inherited=True, readonly=False, domain=DEPARTMENT_DOMAIN
+    )
+    # Team of the person, one of the teams of their department; empty when they belong to no team.
+    team_id = fields.Many2one(
+        MODEL_DEPARTMENT,
+        domain="[('parent_id', '!=', False), ('parent_id', '=', department_id)]",
+        ondelete="restrict",
+        index=True,
+    )
     # False when the person is archived.
     active = fields.Boolean(default=True)
     # Roles the person holds.
@@ -76,6 +87,9 @@ class Person(models.Model):
         # Odoo would also require reading the employee, which only its own groups give; the person's access decides.
         people = super(Person, self.sudo()).create(vals_list).with_env(self.env)
         people.check_access("create")
+        people._check_team()
+        if any(vals.get("team_id") for vals in vals_list):
+            people._invalidate_team_access()
         for person, login in zip(people, logins, strict=True):
             if login:
                 person._set_login(login)
@@ -90,7 +104,12 @@ class Person(models.Model):
         previous_users = self.sudo().user_id if "employee_id" in vals else None
         result = super().write(vals) if vals else True
         if employee_vals:
-            self.sudo().employee_id.write(employee_vals)
+            # A team given with the new department is checked below rather than left behind with the old one.
+            self.sudo().employee_id.with_context(keep_person_team="team_id" in vals).write(employee_vals)
+        if {"team_id", "department_id"} & (set(vals) | set(employee_vals)):
+            self._check_team()
+        if "team_id" in vals:
+            self._invalidate_team_access()
         if login is not None:
             for person in self:
                 person._set_login(login)
@@ -108,6 +127,30 @@ class Person(models.Model):
         if {"role_ids", "permission_ids", "employee_id"} & set(vals):
             self._sync_user_groups()
         return result
+
+    @api.onchange("department_id")
+    def _onchange_department_id(self):
+        self._outside_their_department().team_id = False
+
+    def _outside_their_department(self):
+        # People whose team is not one of the teams of their department.
+        return self.filtered(lambda person: person.team_id and person.team_id.parent_id != person.department_id)
+
+    def _check_team(self):
+        for person in self.sudo()._outside_their_department():
+            raise ValidationError(
+                self.env._(
+                    "%(team)s is not a team of the department of %(person)s.",
+                    team=person.team_id.name,
+                    person=person.name,
+                )
+            )
+
+    def _invalidate_team_access(self):
+        self.env[MODEL_EMPLOYEE].invalidate_model(["person_team_id"])
+        if self.sudo().user_id:
+            # Own-team accesses are evaluated from the user's employee and cached per user.
+            self.env.transaction.invalidate_ormcache()
 
     def action_open_user(self):
         # The user form is where Odoo administrators set the password.
