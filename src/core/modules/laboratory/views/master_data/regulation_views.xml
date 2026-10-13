@@ -67,6 +67,7 @@
     <record id="action_medilab_regulation" model="ir.actions.act_window">
         <field name="name">Regulations</field>
         <field name="res_model">medilab.regulation</field>
+        <field name="path">regulations</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

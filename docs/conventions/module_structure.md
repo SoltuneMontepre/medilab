@@ -21,6 +21,7 @@ How code inside an Odoo module is laid out.
 
 - One model per file, named after the model: `test_parameter.py`.
 - Views of a model go in `<model>_views.xml`.
+- Every window action has a `path`: the plural of the model in lowercase with hyphens, such as `test-parameters`, so addresses read `/odoo/test-parameters/1`. A path another module already uses takes the prefix `lab-`.
 - Menus are defined only in `views/system/menus.xml` and loaded last in `__manifest__.py`, after the actions they open.
 - Theme assets live in `static/src/theme/`, split into `scss/`, `js/`, `xml/` and `img/`.
 

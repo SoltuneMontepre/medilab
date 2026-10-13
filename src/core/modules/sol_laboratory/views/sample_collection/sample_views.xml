@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_sample_list" model="ir.ui.view">
+        <field name="name">medilab.sample.list</field>
+        <field name="model">medilab.sample</field>
+        <field name="arch" type="xml">
+            <list duplicate="0" decoration-muted="status in ('cancelled', 'disposed')">
+                <field name="code" />
+                <field name="request_id" />
+                <field name="customer_sample_name" />
+                <field name="sample_type_id" />
+                <field name="physical_state" optional="show" />
+                <field name="regulation_id" optional="show" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-info="status in ('received', 'testing')"
+                    decoration-warning="status in ('expected', 'on_hold', 'awaiting_approval')"
+                    decoration-success="status in ('completed', 'reported', 'retained')"
+                    decoration-danger="status in ('rejected', 'cancelled')"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_sample_form" model="ir.ui.view">
+        <field name="name">medilab.sample.form</field>
+        <field name="model">medilab.sample</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <header>
+                    <field
+                        name="status"
+                        widget="statusbar"
+                        statusbar_visible="expected,received,testing,awaiting_approval,completed,reported"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="code" />
+                        <h1><field name="code" placeholder="Given when the sample is saved" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="request_id" />
+                            <field name="customer_sample_name" />
+                            <field name="sample_type_id" />
+                            <field name="physical_state" />
+                        </group>
+                        <group>
+                            <field name="sample_form" />
+                            <field name="container_type" />
+                            <field name="regulation_id" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tests" name="tests">
+                            <field name="test_ids">
+                                <list editable="bottom">
+                                    <field name="parameter_id" />
+                                    <field name="quantity" />
+                                    <field name="due_date" />
+                                    <field name="status" widget="badge" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Note" name="note">
+                            <field name="note" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_sample_search" model="ir.ui.view">
+        <field name="name">medilab.sample.search</field>
+        <field name="model">medilab.sample</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code" />
+                <field name="request_id" />
+                <field name="customer_sample_name" />
+                <field name="sample_type_id" />
+                <filter name="expected" string="Expected" domain="[('status', '=', 'expected')]" />
+                <filter
+                    name="open"
+                    string="Open"
+                    domain="[('status', 'not in', ('rejected', 'reported', 'retained', 'disposed', 'cancelled'))]"
+                />
+                <group>
+                    <filter name="group_by_request" string="Test Request" context="{'group_by': 'request_id'}" />
+                    <filter name="group_by_status" string="Status" context="{'group_by': 'status'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_sample" model="ir.actions.act_window">
+        <field name="name">Samples</field>
+        <field name="res_model">medilab.sample</field>
+        <field name="path">samples</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

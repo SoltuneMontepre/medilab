@@ -74,7 +74,7 @@
 
         .o_notification_content {
             color: $ml-text;
-            font-size: 0.875rem;
+            font-size: $ml-font-size-base;
             font-weight: 500;
             line-height: 1.4;
         }
