@@ -27,6 +27,7 @@ from . import (
     test_machines_and_chemicals,
     test_master_data_access,
     test_module_boundaries,
+    test_notifications,
     test_own_department_scope,
     test_parameter_constraints,
     test_parameter_method_department,

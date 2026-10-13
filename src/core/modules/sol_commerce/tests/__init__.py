@@ -2,6 +2,7 @@ from . import (
     test_audit_pricing,
     test_audit_signatures,
     test_catalog_page,
+    test_invoice_notices,
     test_invoices,
     test_order_access,
     test_order_approval,

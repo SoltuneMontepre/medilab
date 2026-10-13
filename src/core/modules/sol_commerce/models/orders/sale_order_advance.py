@@ -58,6 +58,7 @@ class SaleOrderAdvance(models.Model):
         )
         wizard._check_amount_is_positive()
         invoice = wizard._create_invoices(order)
+        invoice.write({"invoice_kind": "advance", "order_id": order.id})
         invoice.action_post()
         return invoice
 

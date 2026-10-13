@@ -15,6 +15,7 @@ How code inside an Odoo module is laid out.
 | `sample_collection` | Test requests and samples: reception, handover, recollection, subcontract dispatches                                                                                             |
 | `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
 | `tasks`             | Task types and tasks                                                                                                                                                             |
+| `notifications`     | Notification events, preferences, recipients and push deliveries                                                                                                                 |
 | `management`        | Features only managers use                                                                                                                                                       |
 | `pricing`           | Parameter prices, taxes and their rates, subcontract costs and service packages                                                                                                  |
 | `orders`            | Sale orders, the portal cart and cancellation requests                                                                                                                           |

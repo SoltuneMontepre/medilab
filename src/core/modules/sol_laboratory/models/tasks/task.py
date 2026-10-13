@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.fields import Domain
+from odoo.fields import Command, Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
@@ -146,12 +146,23 @@ class Task(models.Model):
                 vals.setdefault("status", "assigned")
                 if not self.env.su:
                     vals.setdefault("assigned_by_id", person.id)
-        return super().create(vals_list)
+        tasks = super().create(vals_list)
+        tasks._sync_calendar_event()
+        return tasks
 
     def write(self, vals):
         if {"assignee_id", "department_id"} & set(vals):
             self._check_reassign(vals)
-        return super().write(vals)
+        result = super().write(vals)
+        if not self.env.context.get("medilab_skip_calendar_sync") and {
+            "planned_start",
+            "planned_end",
+            "assignee_id",
+            "name",
+            "status",
+        } & set(vals):
+            self._sync_calendar_event()
+        return result
 
     def _check_created_by_hand(self, task_type, vals):
         if task_type.trigger != MANUAL_TRIGGER:
@@ -212,6 +223,32 @@ class Task(models.Model):
             if task.status in FINAL_STATUSES:
                 raise UserError(self.env._("%s is already finished.", task.name))
         self.write({"status": "cancelled"})
+
+    def _sync_calendar_event(self):
+        """Keep one calendar event on a planned task. The event has no alarm, so Odoo does not also remind."""
+        if self.env.context.get("medilab_skip_calendar_sync"):
+            return
+        events = self.env["calendar.event"].sudo()
+        for task in self:
+            event = events.search([("medilab_task_id", "=", task.id)], limit=1)
+            user = task.assignee_id.sudo().user_id
+            if task.status in FINAL_STATUSES or not task.planned_start or not user:
+                if event:
+                    event.with_context(medilab_skip_calendar_sync=True).unlink()
+                continue
+            stop = task.planned_end or task.planned_start + timedelta(hours=1)
+            values = {
+                "name": task.name,
+                "start": task.planned_start,
+                "stop": stop,
+                "user_id": user.id,
+                "partner_ids": [Command.set([user.partner_id.id])],
+                "alarm_ids": [Command.clear()],
+            }
+            if event:
+                event.with_context(medilab_skip_calendar_sync=True).write(values)
+            else:
+                events.with_context(medilab_skip_calendar_sync=True).create({**values, "medilab_task_id": task.id})
 
     def action_open_document(self):
         self.ensure_one()

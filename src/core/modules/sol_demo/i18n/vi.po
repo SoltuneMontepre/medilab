@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 17:32+0000\n"
-"PO-Revision-Date: 2026-10-13 17:32+0000\n"
+"POT-Creation-Date: 2026-10-13 17:56+0000\n"
+"PO-Revision-Date: 2026-10-13 17:56+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -127,6 +127,7 @@ msgid "Demo: echo"
 msgstr "Demo: phản hồi"
 
 #. module: sol_demo
+#: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
@@ -219,9 +220,15 @@ msgid "Heavy metals"
 msgstr "Kim loại nặng"
 
 #. module: sol_demo
+#: model:ir.model.fields,field_description:sol_demo.field_account_move__id
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
 msgid "ID"
 msgstr "ID"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_account_move
+msgid "Journal Entry"
+msgstr "Bút toán"
 
 #. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_lab_head

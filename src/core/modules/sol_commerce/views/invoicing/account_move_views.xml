@@ -9,6 +9,7 @@
                 <field name="invoice_kind" optional="show" />
                 <field name="order_id" optional="hide" />
                 <field name="amount_owed" optional="show" />
+                <field name="is_overdue" optional="hide" />
             </xpath>
         </field>
     </record>
@@ -19,6 +20,13 @@
         <field name="inherit_id" ref="account.view_move_form" />
         <field name="arch" type="xml">
             <button name="action_reverse" position="after">
+                <button
+                    name="action_send_invoice"
+                    type="object"
+                    string="Email"
+                    invisible="state != 'posted' or not invoice_kind"
+                    groups="account.group_account_invoice"
+                />
                 <button
                     name="%(action_medilab_invoice_adjustment)d"
                     type="action"

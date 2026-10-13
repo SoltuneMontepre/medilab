@@ -2,4 +2,4 @@
 from . import mixins
 
 # isort: split
-from . import management, master_data, sample_collection, system, tasks, testing
+from . import management, master_data, notifications, sample_collection, system, tasks, testing

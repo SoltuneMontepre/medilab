@@ -628,4 +628,84 @@
         <field name="document_model">medilab.job.run</field>
         <field name="action">read</field>
     </record>
+    <record id="permission_notification_event_recipient_read_all" model="medilab.permission">
+        <field name="name">Read notification recipients</field>
+        <field name="document_model">medilab.notification.event.recipient</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_notification_event_recipient_create_all" model="medilab.permission">
+        <field name="name">Create notification recipients</field>
+        <field name="document_model">medilab.notification.event.recipient</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_notification_event_recipient_edit_all" model="medilab.permission">
+        <field name="name">Edit notification recipients</field>
+        <field name="document_model">medilab.notification.event.recipient</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_notification_event_recipient_delete_all" model="medilab.permission">
+        <field name="name">Delete notification recipients</field>
+        <field name="document_model">medilab.notification.event.recipient</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_notification_preference_read_all" model="medilab.permission">
+        <field name="name">Read notification preferences</field>
+        <field name="document_model">medilab.notification.preference</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_notification_preference_create_all" model="medilab.permission">
+        <field name="name">Create notification preferences</field>
+        <field name="document_model">medilab.notification.preference</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_notification_preference_edit_all" model="medilab.permission">
+        <field name="name">Edit notification preferences</field>
+        <field name="document_model">medilab.notification.preference</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_notification_preference_delete_all" model="medilab.permission">
+        <field name="name">Delete notification preferences</field>
+        <field name="document_model">medilab.notification.preference</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_mobile_device_read_all" model="medilab.permission">
+        <field name="name">Read mobile devices</field>
+        <field name="document_model">medilab.mobile.device</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_mobile_device_create_all" model="medilab.permission">
+        <field name="name">Create mobile devices</field>
+        <field name="document_model">medilab.mobile.device</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_mobile_device_edit_all" model="medilab.permission">
+        <field name="name">Edit mobile devices</field>
+        <field name="document_model">medilab.mobile.device</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_mobile_device_archive_all" model="medilab.permission">
+        <field name="name">Archive mobile devices</field>
+        <field name="document_model">medilab.mobile.device</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_mobile_device_delete_all" model="medilab.permission">
+        <field name="name">Delete mobile devices</field>
+        <field name="document_model">medilab.mobile.device</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_push_delivery_read_all" model="medilab.permission">
+        <field name="name">Read push deliveries</field>
+        <field name="document_model">medilab.push.delivery</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_push_delivery_create_all" model="medilab.permission">
+        <field name="name">Create push deliveries</field>
+        <field name="document_model">medilab.push.delivery</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_push_delivery_edit_all" model="medilab.permission">
+        <field name="name">Edit push deliveries</field>
+        <field name="document_model">medilab.push.delivery</field>
+        <field name="action">edit</field>
+    </record>
 </odoo>

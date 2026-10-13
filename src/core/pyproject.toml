@@ -6,8 +6,10 @@ requires-python = ">=3.12"
 dependencies = [
     "a2wsgi==1.10.10",
     "boto3==1.43.94",
+    "cryptography==41.0.7",
     "docxtpl==0.20.2",
     "fastapi==0.141.1",
+    "google-auth>=2.40,<3",
     "html2text==2025.4.15",
     "httpx2==2.13.0",
     "ipython==9.17.1",

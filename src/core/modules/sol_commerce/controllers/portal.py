@@ -32,23 +32,23 @@ class InvoicePortal(PortalAccount):
 
     @http.route("/my/invoices/<int:invoice_id>/pay", type="http", auth="user", methods=["POST"], website=True)
     def portal_pay_invoice(self, invoice_id, method="bank_transfer", **kwargs):
-        # The amount is computed on the server. kwargs may contain a forged amount and it is ignored.
+        # The posted amount is checked on the server. A forged value cannot change a payment already stored.
         try:
             invoice = self._document_check_access(MODEL_ACCOUNT_MOVE, invoice_id)
         except (AccessError, MissingError):
             return request.redirect("/my")
         if method == "payos":
-            return self._portal_payos(invoice)
+            return self._portal_payos(invoice, kwargs.get("amount"))
         try:
-            request.env[MODEL_ACCOUNT_PAYMENT].portal_pay_invoice(invoice)
+            request.env[MODEL_ACCOUNT_PAYMENT].portal_pay_invoice(invoice, kwargs.get("amount"))
         except (AccessError, UserError):
             return request.redirect("/my")
         return request.redirect(f"/my/invoices/{invoice_id}")
 
-    def _portal_payos(self, invoice):
+    def _portal_payos(self, invoice, amount=None):
         """Start or reuse the PayOS link. The network call happens after the invoice lock is released."""
         try:
-            transaction = request.env[MODEL_PAYMENT_TRANSACTION].portal_start_payos(invoice)
+            transaction = request.env[MODEL_PAYMENT_TRANSACTION].portal_start_payos(invoice, amount)
         except (AccessError, UserError) as error:
             return self._payos_page(invoice, failed=True, message=str(error))
         if self._payos_url_is_safe(transaction.payos_checkout_url):

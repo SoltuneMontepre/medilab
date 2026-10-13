@@ -221,7 +221,7 @@ Tasks with a planned time and machine bookings appear on schedules, and people a
 | Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
 
 - **Built on Odoo Calendar.** A planned task and a machine booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a machine booking's event can only be moved where the scheduler finds the slot free. Working hours come from the person's working time (`resource.calendar`).
-- A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator. It is the alarm of the calendar event.
+- A reminder is sent a number of minutes before a task starts, 15 by default, set by an administrator. It is raised once from the task's calendar event, and that event has no second Odoo alarm. A machine booking will use the same reminder when its calendar event exists. That event is part of machine scheduling, which is not built yet.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
 - **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.
 - **Recipients.** For each event, the administrator chooses who is notified: the holders of one or more roles, the people of one or more departments, or both, on top of the person the event concerns directly, such as the assignee of a task.
@@ -246,6 +246,7 @@ The system sends all e-mail through Brevo's SMTP relay, set as Odoo's outgoing m
 - Used for: notifications, alerts, quotations and invoices with attachments, reminders and reports.
 - Administrators configure the sender and the templates. Templates are Odoo e-mail templates (`mail.template`), translatable (SH-08), and use the customer's contact (Sales documents) and notification preferences.
 - Delivery status (sent, delivered, opened, bounced, failed) is recorded against the message from Brevo's webhooks, on Odoo's notification of each recipient, so staff can see whether a customer received a quotation.
+- The webhook is accepted only when `Authorization: Bearer` matches `BREVO_WEBHOOK_TOKEN`. Brevo's create-webhook call can set that bearer token. A missing or wrong token is rejected before any event is stored. The event is matched by the `X-Mailin-custom` header `notification:<id>` or by the message id together with the recipient address. A later weaker event does not replace a bounce or a failure. A hard bounce flags `email_bounced` only on the partner of that notification whose address is the event address.
 - Bounced or invalid addresses are flagged on the customer's contact so that they are not used again.
 - If Brevo is unavailable the message stays queued and is retried; the business action that triggered it is not rolled back.
 
@@ -275,8 +276,9 @@ The system digitally signs printed documents through Viettel Sign (SH-04). It do
 The system pushes reminders and notifications to the Medilab Mobile app through Firebase Cloud Messaging (SH-11).
 
 - When a person signs in on the app, the app registers the device's token for their user; signing out turns the token off. Odoo's own push devices serve web browsers only, so mobile devices are MediLab's own records.
-- A push sent to a token Firebase rejects turns that token off.
-- The Firebase credentials are configuration, not data (SH-03).
+- A push sent to a token Firebase reports as permanently invalid (`UNREGISTERED`, `SENDER_ID_MISMATCH`, or `INVALID_ARGUMENT` about the token) turns that token off. A timeout or a temporary error leaves the token on and the delivery is retried.
+- The access token is an OAuth token from Google Application Default Credentials or a service-account JSON in the environment, refreshed by `google-auth`. The credential value is not stored on a record and is not written to the log.
+- The Firebase credentials are configuration, not data (SH-03). SMTP and FCM do not provide exactly-once delivery. The records and the jobs are created once; a retry sends again only while the earlier attempt did not succeed.
 
 ## III. Related documents
 
