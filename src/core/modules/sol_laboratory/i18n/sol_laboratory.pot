@@ -1,13 +1,13 @@
-# Translation of Odoo Server.
-# This file contains the translation of the following modules:
-# 	* sol_laboratory
 #
+# 	* sol_laboratory
+# This file contains the translation of the following modules:
+# Translation of Odoo Server.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 16:18+0000\n"
-"PO-Revision-Date: 2026-10-11 16:18+0000\n"
+"POT-Creation-Date: 2026-10-11 17:58+0000\n"
+"PO-Revision-Date: 2026-10-11 17:58+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -22,6 +22,11 @@ msgid "# Meetings"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__supplier_invoice_count
+msgid "# Vendor Bills"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid "%(document_type)s has no %(action)s permission."
@@ -29,20 +34,78 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/system/permission.py:0
-msgid "%s does not tell editing from archiving yet, so it has no edit or archive permission."
+#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
+msgid "%(person)s is not in %(department)s."
 msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
-msgid "%s has no department, so a permission on it cannot be limited to the person's department."
+msgid ""
+"%s does not tell editing from archiving yet, so it has no edit or "
+"archive permission."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s due today"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/permission.py:0
+msgid ""
+"%s has no department, so a permission on it cannot be limited to the "
+"person's department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is already claimed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is already finished."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is cancelled by the system when its work is cancelled."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is done by the system once its work is done."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is finished and cannot be assigned again."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "%s is not in the task's department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s is not open."
 msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
-msgid "%s is tested either in-house by a department or by a subcontractor, not both."
+msgid ""
+"%s is tested either in-house by a department or by a subcontractor, "
+"not both."
 msgstr ""
 
 #. module: sol_laboratory
@@ -54,8 +117,43 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s needs an assignee or a department whose queue holds it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "%s needs the department that tests it, or a subcontractor."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s open"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "%s overdue"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "%s runs within a minute."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
-msgid "%s signs in, so their login cannot be emptied; archive the person instead."
+msgid ""
+"%s signs in, so their login cannot be emptied; archive the person instead."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "%s waits in a queue you do not belong to."
 msgstr ""
 
 #. module: sol_laboratory
@@ -69,9 +167,35 @@ msgid "<span>Due</span>"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_level_sequence_unique
+msgid "A chain cannot have two levels in the same position."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/approval_chain.py:0
+msgid "A chain with signatures cannot be deleted; archive it instead. Signatures: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_chain_purpose_unique
+msgid "A document type cannot have two chains for the same purpose."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_group.py:0
 msgid "A group that has parameters cannot have sub-groups: %s."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "A job with this key already exists."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/approval_level.py:0
+msgid "A level with signatures cannot be deleted. Signatures: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -92,7 +216,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_permission_identity_unique
-msgid "A permission for this action on this document type and scope already exists."
+msgid ""
+"A permission for this action on this document type and scope already exists."
 msgstr ""
 
 #. module: sol_laboratory
@@ -101,8 +226,26 @@ msgid "A permission with this code already exists."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__person
+msgid "A person"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/person.py:0
+msgid "A person who signed cannot be deleted; archive them instead. Signatures: %s"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_unique
 msgid "A regulation sets at most one limit per parameter."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A rejection needs a reason."
 msgstr ""
 
 #. module: sol_laboratory
@@ -116,8 +259,55 @@ msgid "A run takes at least one minute."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature is withdrawn, not deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_planned_period
+msgid "A task cannot end before it starts."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "A task created by hand needs an assignee and a deadline."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_code_unique
+msgid "A task type with this code already exists."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_one_default
 msgid "A test parameter has only one default way of testing."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__account_move_count
+msgid "Account Move Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_payable_id
+msgid "Account Payable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_payable_active
+msgid "Account Payable Active"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_receivable_id
+msgid "Account Receivable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_receivable_active
+msgid "Account Receivable Active"
 msgstr ""
 
 #. module: sol_laboratory
@@ -156,6 +346,11 @@ msgid "Action Needed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_actions_act_window_view
+msgid "Action Window View"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_department__active
@@ -173,6 +368,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__active
 msgid "Active"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__active_employee
+msgid "Active Employee"
 msgstr ""
 
 #. module: sol_laboratory
@@ -217,9 +417,27 @@ msgid "Activity Type Icon"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
+msgid ""
+"Add at least one parameter to %(samples)s before confirming test "
+"request %(code)s."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__additional_identifiers
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__additional_identifiers
 msgid "Additional Identifiers"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_description
+msgid "Additional Information"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__additional_note
+msgid "Additional Note"
 msgstr ""
 
 #. module: sol_laboratory
@@ -252,14 +470,84 @@ msgid "Administrator"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__age
+msgid "Age"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_all
+msgid "All Tasks"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__all
 msgid "All records"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "All tasks"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__lang
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__lang
-msgid "All the emails and documents sent to this contact will be translated in this language."
+msgid ""
+"All the emails and documents sent to this contact will be translated "
+"in this language."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__allowed_country_state_ids
+msgid "Allowed Country State"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_apply_date
+msgid "Apply Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_apply_immediately
+msgid "Apply Immediately"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_reject
+msgid "Approval Can Reject"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_sign
+msgid "Approval Can Sign"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_withdraw
+msgid "Approval Can Withdraw"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_approval_chain
+msgid "Approval Chain"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_approval_chain
+#: model:ir.ui.menu,name:sol_laboratory.menu_approval_chain
+msgid "Approval Chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_approval_level
+msgid "Approval Level"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_approval_mixin
+msgid "Approval by Signatures"
 msgstr ""
 
 #. module: sol_laboratory
@@ -273,6 +561,21 @@ msgid "Archive"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_action_date
+msgid "Archive Employee On"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_archive_all
+msgid "Archive approval chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_archive_all
+msgid "Archive chemicals"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_archive_all
 msgid "Archive customers"
 msgstr ""
@@ -283,6 +586,21 @@ msgid "Archive departments"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_archive_all
+msgid "Archive machines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_archive_all
+msgid "Archive measurement units"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_archive_all
+msgid "Archive parameter groups"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_archive_all
 msgid "Archive people"
 msgstr ""
@@ -290,6 +608,56 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_archive_own_department
 msgid "Archive people of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_archive_all
+msgid "Archive quality registrations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_archive_all
+msgid "Archive regulations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_archive_all
+msgid "Archive sample types"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_archive_all
+msgid "Archive subcontractors"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_archive_all
+msgid "Archive test parameters"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_archive_all
+msgid "Archive testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_archive_all
+msgid "Archive testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_archive_all
+msgid "Archive unit categories"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_archive_all
+msgid "Archive ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_archive_own_department
+msgid "Archive ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -332,9 +700,42 @@ msgid "Archiving and Deleting Rules"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_reassign
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
+msgid "Assign"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_task_reassign
+msgid "Assign Tasks"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__assigned
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__assigned
 msgid "Assigned"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assigned_by_id
+msgid "Assigned By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__specific_property_product_pricelist
+msgid "Assigned Pricelist"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Assignee"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Attachment"
 msgstr ""
 
 #. module: sol_laboratory
@@ -345,9 +746,40 @@ msgid "Attachment Count"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Attempts"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__autopost_bills
+msgid "Auto-post bills"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__autopost_bills
+msgid "Automatically post bills for this trusted partner"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__receipt_reminder_email
+msgid ""
+"Automatically send a confirmation email to the vendor X days before "
+"the expected receipt date, asking him to confirm the exact date."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__available_additional_identifiers_metadata
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__available_additional_identifiers_metadata
 msgid "Available Additional Identifiers Metadata"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__available_invoice_template_pdf_report_ids
+msgid "Available Invoice Template Pdf Report"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__available_routing_schemes
+msgid "Available Routing Schemes"
 msgstr ""
 
 #. module: sol_laboratory
@@ -392,6 +824,26 @@ msgid "Awaiting Approval"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_awaiting
+msgid "Awaiting Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__barcode
+msgid "Badge ID"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__bank_account_count
+msgid "Bank"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__bank_account_ids
+msgid "Bank Accounts"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__bank_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__bank_ids
 msgid "Banks"
@@ -404,8 +856,22 @@ msgid "Barcode"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Batch Size"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__bilingual
 msgid "Bilingual"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday
+msgid "Birthday"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_month
+msgid "Birthday Month"
 msgstr ""
 
 #. module: sol_laboratory
@@ -428,6 +894,11 @@ msgid "Bounce"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__buyer_id
+msgid "Buyer"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__delivery_method__email
 msgid "By Email"
 msgstr ""
@@ -443,6 +914,13 @@ msgid "CAS Number"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: code:addons/sol_laboratory/static/src/views/control_panel/control_panel.xml:0
+msgid "Calendar"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__calibration
 msgid "Calibration"
 msgstr ""
@@ -453,8 +931,18 @@ msgid "Calibration Overdue"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__can_reject
+msgid "Can Reject"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Cancel"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Cancel Task"
 msgstr ""
 
 #. module: sol_laboratory
@@ -483,6 +971,26 @@ msgid "Category"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__certificate
+msgid "Certificate Level"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__certification_ids
+msgid "Certification"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__chain_id
+msgid "Chain"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_approval_chain__purpose__change_request
+msgid "Change request"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__channel_member_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__channel_member_ids
 msgid "Channel Member"
@@ -503,7 +1011,9 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__country_enforce_cities
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__country_enforce_cities
-msgid "Check this box to ensure every address created in that country has a 'City' chosen in the list of the country's cities."
+msgid ""
+"Check this box to ensure every address created in that country has a "
+"'City' chosen in the list of the country's cities."
 msgstr ""
 
 #. module: sol_laboratory
@@ -520,6 +1030,12 @@ msgid "Chemicals"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_type.py:0
+msgid "Choose the role whose holders receive tasks of %s."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__city
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__city
 msgid "City"
@@ -529,6 +1045,33 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__city_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__city_id
 msgid "City ID"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_awaiting_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
+msgid "Claim"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Claim Timeout Minutes"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Claimed At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
+msgid "Closed By System"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__coach_id
+msgid "Coach"
 msgstr ""
 
 #. module: sol_laboratory
@@ -551,8 +1094,20 @@ msgid "Code"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Code Formats"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Code formats"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_code_mixin
 msgid "Code from a Sequence"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Codes"
 msgstr ""
 
 #. module: sol_laboratory
@@ -569,10 +1124,25 @@ msgid "Commercial Entity"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ref_company_ids
+msgid "Companies that refers to partner"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__company_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__company_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__company_id
 msgid "Company"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__company_country_id
+msgid "Company Country"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__company_country_code
+msgid "Company Country Code"
 msgstr ""
 
 #. module: sol_laboratory
@@ -642,8 +1212,23 @@ msgid "Container"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__contract_date_end
+msgid "Contract End Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__contract_reference
 msgid "Contract Reference"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__contract_date_start
+msgid "Contract Start Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__contract_template_id
+msgid "Contract Template"
 msgstr ""
 
 #. module: sol_laboratory
@@ -666,6 +1251,11 @@ msgid "Country Code"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__country_of_birth
+msgid "Country of Birth"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__parameter_method_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_form
 msgid "Covered Ways of Testing"
@@ -674,6 +1264,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__create
 msgid "Create"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_create_all
+msgid "Create approval chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_create_all
+msgid "Create approval levels"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_create_all
+msgid "Create chemicals"
 msgstr ""
 
 #. module: sol_laboratory
@@ -687,6 +1292,31 @@ msgid "Create departments"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_create_all
+msgid "Create machine services"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_create_all
+msgid "Create machines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_create_all
+msgid "Create machines for ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_create_all
+msgid "Create measurement units"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_create_all
+msgid "Create parameter groups"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_create_all
 msgid "Create people"
 msgstr ""
@@ -694,6 +1324,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_create_own_department
 msgid "Create people of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_create_all
+msgid "Create quality registrations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_create_all
+msgid "Create regulation limits"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_create_all
+msgid "Create regulations"
 msgstr ""
 
 #. module: sol_laboratory
@@ -707,13 +1352,63 @@ msgid "Create sample tests"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_create_all
+msgid "Create sample types"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_sample_create_all
 msgid "Create samples"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_create_all
+msgid "Create subcontractors"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_create_all
+msgid "Create tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_create_own_department
+msgid "Create tasks of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_create_all
+msgid "Create test parameters"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_create_all
 msgid "Create test requests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_create_all
+msgid "Create testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_create_all
+msgid "Create testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_create_all
+msgid "Create unit categories"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_create_all
+msgid "Create ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_create_own_department
+msgid "Create ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -779,10 +1474,73 @@ msgid "Created on"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__credit_limit
+msgid "Credit Limit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__credit_to_invoice
+msgid "Credit To Invoice"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__credit_limit
+msgid "Credit limit specific to this partner."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Cron"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Cron Pass"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__currency_id
+msgid "Currency"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__exceptional_location_id
+msgid "Current"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_date_version
+msgid "Current Date Employee Record"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_version_id
+msgid "Current Employee Record"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_employee_skill_ids
+msgid "Current Employee Skill"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_customer
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__customer_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 msgid "Customer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_stock_customer
+msgid "Customer Location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_payment_term_id
+msgid "Customer Payment Terms"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__customer_rank
+msgid "Customer Rank"
 msgstr ""
 
 #. module: sol_laboratory
@@ -797,8 +1555,61 @@ msgid "Customers"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__date_end
+msgid "Date End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__date_start
+msgid "Date Start"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__departure_action_date
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__departure_date
+msgid "Date at which the departure actually takes place."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__dismissal_date
+msgid ""
+"Date at which the departure process starts. Differs from the actual "
+"departure date in case of a notice period."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Day"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__reminder_date_before_receipt
+msgid "Days Before Receipt"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__days_sales_outstanding
+msgid "Days Sales Outstanding (DSO)"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__safety_margin_days
-msgid "Days a sample test is due before the date promised to the customer, kept for handling incidents. Applies to sample tests whose due date is worked out from now on."
+msgid ""
+"Days a sample test is due before the date promised to the customer, "
+"kept for handling incidents. Applies to sample tests whose due date "
+"is worked out from now on."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__deadline
+msgid "Deadline"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Deadline: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -807,13 +1618,43 @@ msgid "Decimals"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__decision
+msgid "Decision"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_default
 msgid "Default"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__deadline_hours
+msgid "Default Deadline (Hours)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__trust
+msgid "Degree of trust you have in this debtor"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__delete
 msgid "Delete"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_delete_all
+msgid "Delete approval chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_delete_all
+msgid "Delete approval levels"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_delete_all
+msgid "Delete chemicals"
 msgstr ""
 
 #. module: sol_laboratory
@@ -827,6 +1668,31 @@ msgid "Delete departments"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_delete_all
+msgid "Delete machine services"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_delete_all
+msgid "Delete machines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_delete_all
+msgid "Delete machines for ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_delete_all
+msgid "Delete measurement units"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_delete_all
+msgid "Delete parameter groups"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_person_delete_all
 msgid "Delete people"
 msgstr ""
@@ -837,8 +1703,53 @@ msgid "Delete people of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_delete_all
+msgid "Delete quality registrations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_delete_all
+msgid "Delete regulation limits"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_delete_all
+msgid "Delete regulations"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_role_delete_all
 msgid "Delete roles"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_delete_all
+msgid "Delete sample types"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_delete_all
+msgid "Delete tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_delete_own_department
+msgid "Delete tasks of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_delete_all
+msgid "Delete testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_delete_all
+msgid "Delete testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_delete_all
+msgid "Delete unit categories"
 msgstr ""
 
 #. module: sol_laboratory
@@ -864,15 +1775,86 @@ msgid "Department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__department_color
+msgid "Department Color"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__department
+msgid "Department queue"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_department
 #: model:ir.ui.menu,name:sol_laboratory.menu_department
 msgid "Departments"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_id
+msgid "Departure"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_date
+msgid "Departure Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__children
+msgid "Dependent Children"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Details of the work"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__permission_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "Direct Permissions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__child_count
+msgid "Direct Subordinates Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__subordinate_ids
+msgid "Direct and indirect subordinates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__child_ids
+msgid "Direct subordinates"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
+msgid "Discard"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__dismissal_date
+msgid "Dismissal Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__display_certification_page
+msgid "Display Certification Page"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__display_invoice_edi_format
+msgid "Display Invoice Edi Format"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__display_invoice_template_pdf_report_id
+msgid "Display Invoice Template Pdf Report"
 msgstr ""
 
 #. module: sol_laboratory
@@ -926,11 +1908,41 @@ msgid "Disposed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Document"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Document Model"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 msgid "Document Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_version
+msgid "Document Version"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__done
+msgid "Done"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
+msgid "Done At"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Done Count"
 msgstr ""
 
 #. module: sol_laboratory
@@ -945,8 +1957,58 @@ msgid "Draft"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__driving_license
+msgid "Driving License"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__driving_license_name
+msgid "Driving License Name"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Due %s"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__due_date
 msgid "Due Date"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Due today at %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Due tomorrow at %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__duplicate_bank_partner_ids
+msgid "Duplicate Bank Partner"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Duration"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Duration (s)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__routing_identifier
+msgid "EDI Routing Address"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Each job has its own cron."
 msgstr ""
 
 #. module: sol_laboratory
@@ -965,6 +2027,21 @@ msgid "Edit"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_edit_all
+msgid "Edit approval chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_edit_all
+msgid "Edit approval levels"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_chemical_edit_all
+msgid "Edit chemicals"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_edit_all
 msgid "Edit customers"
 msgstr ""
@@ -972,6 +2049,35 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_department_edit_all
 msgid "Edit departments"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Edit job items"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_service_edit_all
+msgid "Edit machine services"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_machine_edit_all
+msgid "Edit machines"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_machine_edit_all
+msgid "Edit machines for ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_measurement_unit_edit_all
+msgid "Edit measurement units"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_group_edit_all
+msgid "Edit parameter groups"
 msgstr ""
 
 #. module: sol_laboratory
@@ -990,6 +2096,21 @@ msgid "Edit permissions"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_quality_registration_edit_all
+msgid "Edit quality registrations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_limit_edit_all
+msgid "Edit regulation limits"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_regulation_edit_all
+msgid "Edit regulations"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_role_edit_all
 msgid "Edit roles"
 msgstr ""
@@ -1000,8 +2121,42 @@ msgid "Edit sample tests"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_sample_type_edit_all
+msgid "Edit sample types"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_sample_edit_all
 msgid "Edit samples"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Edit scheduled jobs"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_subcontractor_edit_all
+msgid "Edit subcontractors"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_type_edit_all
+msgid "Edit task types"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_edit_all
+msgid "Edit tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_edit_own_department
+msgid "Edit tasks of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_parameter_edit_all
+msgid "Edit test parameters"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1010,9 +2165,42 @@ msgid "Edit test requests"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_field_edit_all
+msgid "Edit testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_edit_all
+msgid "Edit testing methods"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_unit_category_edit_all
+msgid "Edit unit categories"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_edit_all
+msgid "Edit ways of testing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_edit_own_department
+msgid "Edit ways of testing of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__date_version
+msgid "Effective Date"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__partner_share
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__partner_share
-msgid "Either customer (not a user), either shared user. Indicated the current partner is a customer without access or with a limited access created for sharing data."
+msgid ""
+"Either customer (not a user), either shared user. Indicated the "
+"current partner is a customer without access or with a limited access "
+"created for sharing data."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1023,11 +2211,56 @@ msgid "Email"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__emergency_contact
+msgid "Emergency Contact"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__emergency_phone
+msgid "Emergency Phone"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_hr_employee
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__employee
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__employee_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__employee
 msgid "Employee"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__name
+msgid "Employee Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__version_id
+msgid "Employee Record"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__version_ids
+msgid "Employee Records"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__versions_count
+msgid "Employee Records Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__employee_type_id
+msgid "Employee Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__bank_account_ids
+msgid "Employee bank accounts to pay salaries"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__wage
+msgid "Employee's monthly gross wage."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1043,6 +2276,30 @@ msgid "Employees Count"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_reason_id
+msgid "End Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__contract_date_end
+msgid "End date of the contract (if it's a fixed-term contract)."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__trial_date_end
+msgid "End date of the trial period (if there is one)."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__trial_date_end
+msgid "End of Trial Period"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Ended At"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__country_enforce_cities
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__country_enforce_cities
 msgid "Enforce Cities"
@@ -1051,6 +2308,24 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__en
 msgid "English"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__identification_id
+msgid ""
+"Enter the employee's National Identification Number issued by the "
+"government (e.g., Aadhaar, SIN, NIN). This is used for official "
+"records and statutory compliance."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Every"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Every level has already signed."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1070,15 +2345,37 @@ msgid "Expired"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__share
+msgid ""
+"External user with limited access, created only for the purpose of "
+"sharing data."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__factor
 msgid "Factor"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Failed"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Failed Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__study_field
+msgid "Field of Study"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__phone_sanitized
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__phone_sanitized
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__phone_sanitized
-msgid "Field used to store sanitized phone number. Helps speeding up searches and comparisons."
+msgid ""
+"Field used to store sanitized phone number. Helps speeding up "
+"searches and comparisons."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1090,6 +2387,43 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Filled from the sequence when left empty"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_finished
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_finished
+msgid "Finished Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Finished tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__first_contract_date
+msgid "First Contract Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__fiscal_country_codes
+msgid "Fiscal Country Codes"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__fiscal_country_group_codes
+msgid "Fiscal Country Group Codes"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_account_position_id
+msgid "Fiscal Position"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__fixed_term
+msgid "Fixed Term"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1129,14 +2463,36 @@ msgid "Formula"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__friday_location_id
+msgid "Friday"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__global_location_number
+msgid "GLN"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__physical_state__gas
 msgid "Gas"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.task.type,name:sol_laboratory.task_type_general
+msgid "General task"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
-msgid "Give a permission to roles from the role, and to people from the person."
+msgid ""
+"Give a permission to roles from the role, and to people from the person."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Give a reason for moving %s to another person or department."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1148,6 +2504,29 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 msgid "Given when the sample is saved"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__global_location_number
+msgid "Global Location Number"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Good afternoon, %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Good evening, %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Good morning, %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1167,10 +2546,20 @@ msgid "Groups"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__hr_responsible_id
+msgid "HR Responsible"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__has_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__has_message
 msgid "Has Message"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__has_multiple_bank_accounts
+msgid "Has Multiple Bank Accounts"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1180,9 +2569,48 @@ msgid "Has Tax ID"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Has failed items"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__role
+msgid "Holders of a role"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__distance_home_work
+msgid "Home-Work Distance"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__km_home_work
+msgid "Home-Work Distance in Km"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__distance_home_work_unit
+msgid "Home-Work Distance unit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__hourly_cost
+msgid "Hourly Cost"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__street_number
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__street_number
 msgid "House"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__hr_icon_display
+msgid "Hr Icon Display"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__hr_presence_state
+msgid "Hr Presence State"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1226,6 +2654,16 @@ msgid "ID"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__id_card
+msgid "ID Card Copy"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__barcode
+msgid "ID used for employee identification."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_exception_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_exception_icon
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_exception_icon
@@ -1237,6 +2675,16 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_exception_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_exception_icon
 msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__id_card_name
+msgid "Id Card Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__identification_id
+msgid "Identification No"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1257,16 +2705,37 @@ msgid "If checked, some messages have a delivery error."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__active_employee
+msgid ""
+"If the active field is set to False, it will allow you to hide the "
+"resource record without removing it."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__is_blacklisted
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__is_blacklisted
-msgid "If the email address is on the blacklist, the contact won't receive mass mailing anymore, from any list"
+msgid ""
+"If the email address is on the blacklist, the contact won't receive "
+"mass mailing anymore, from any list"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__phone_sanitized_blacklisted
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__phone_sanitized_blacklisted
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__phone_sanitized_blacklisted
-msgid "If the sanitized phone number is on the blacklist, the contact won't receive mass mailing sms anymore, from any list"
+msgid ""
+"If the sanitized phone number is on the blacklist, the contact won't "
+"receive mass mailing sms anymore, from any list"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ignore_abnormal_invoice_amount
+msgid "Ignore Abnormal Invoice Amount"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ignore_abnormal_invoice_date
+msgid "Ignore Abnormal Invoice Date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1305,8 +2774,18 @@ msgid "Image 512"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__in_my_queue
+msgid "In My Queue"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__delivery_method__in_person
 msgid "In Person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
+msgid "In progress"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1318,13 +2797,73 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__phone_blacklisted
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__phone_blacklisted
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__phone_blacklisted
-msgid "Indicates if a blacklisted sanitized phone number is a phone number. Helps distinguish which number is blacklisted             when there is both a mobile and phone field in a model."
+msgid ""
+"Indicates if a blacklisted sanitized phone number is a phone number. "
+"Helps distinguish which number is blacklisted             when there "
+"is both a mobile and phone field in a model."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__split_legal_name
+msgid ""
+"Indicates whether the legal name is split into first and last name "
+"fields based on the employee's country."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__child_all_count
+msgid "Indirect Subordinates Count"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__industry_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__industry_id
 msgid "Industry"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_id
+msgid ""
+"International Commercial Terms are a series of predefined commercial "
+"terms used in international transactions."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Interval Number"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Interval Unit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format_store
+msgid "Invoice Edi Format Store"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_template_pdf_report_id
+msgid "Invoice report"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_sending_method
+msgid "Invoice sending"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_ids
+msgid "Invoices"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_current
+msgid "Is Current"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_custom_job_title
+msgid "Is Custom Job Title"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1335,15 +2874,55 @@ msgid "Is Follower"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_future
+msgid "Is Future"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__is_in_call
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__is_in_call
 msgid "Is In Call"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_in_contract
+msgid "Is In Contract"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__is_mine
+msgid "Is Mine"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_past
+msgid "Is Past"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__is_pricelist_manually_set
+msgid "Is Pricelist Manually Set"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__is_public
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__is_public
 msgid "Is Public"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_subordinate
+msgid "Is Subordinate"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_trusted_bank_account
+msgid "Is Trusted Bank Account"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__is_ubl_format
+msgid "Is Ubl Format"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1359,9 +2938,55 @@ msgid "Issuing Authority"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Item Key"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Items"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_id
+msgid "Job"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Job Item"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Job Items"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__function
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__function
 msgid "Job Position"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Job Run"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Job Runs"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_title
+msgid "Job Title"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Job item failed: %s"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Jobs"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Key"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1392,13 +3017,56 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.module.module,summary:base.module_sol_laboratory
-msgid "Laboratory testing core: test catalog, parameters, samples, results and machines."
+msgid ""
+"Laboratory testing core: test catalog, parameters, samples, results "
+"and machines."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lang
+msgid "Lang"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__lang
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__lang
 msgid "Language"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_activity
+msgid "Last Activity"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_activity_time
+msgid "Last Activity Time"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Last Duration (s)"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Last Error"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_modified_uid
+msgid "Last Modified by"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_modified_date
+msgid "Last Modified on"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Last Run"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Last Scheduled Run"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1476,6 +3144,27 @@ msgid "Latitude"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__legal_name
+msgid "Legal Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__level_id
+msgid "Level"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__level_name
+msgid "Level Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__level_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
+msgid "Levels"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__limit_text
 msgid "Limit Text"
 msgstr ""
@@ -1492,8 +3181,19 @@ msgid "Liquid"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: code:addons/sol_laboratory/static/src/views/control_panel/control_panel.xml:0
+msgid "List"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location
 msgid "Location"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Log"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1536,6 +3236,11 @@ msgid "Machines and Chemicals"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__main_group_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
 msgid "Main Group"
@@ -1558,8 +3263,29 @@ msgid "Maintenance Interval Days"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__parent_id
+msgid "Manager"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__manufacturer
 msgid "Manufacturer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__marital
+msgid "Marital Status"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Mark Done"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Mark done"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1572,6 +3298,10 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_type_icon
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_type_icon
 msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Max Attempts"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1608,10 +3338,29 @@ msgid "Meetings"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__member_of_department
+msgid "Member of department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Menu"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_has_error
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_has_error
 msgid "Message Delivery error"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_warn_msg
+msgid "Message for Purchase Order"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__picking_warn_msg
+msgid "Message for Stock Picking"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1642,10 +3391,45 @@ msgid "Model"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__monday_location_id
+msgid "Monday"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Month"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Move"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__my_activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__my_activity_date_deadline
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__my_activity_date_deadline
 msgid "My Activity Deadline"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "My Queue"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_mine
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_mine
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "My Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "My tasks"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1683,6 +3467,27 @@ msgid "Name"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__nationality_country_code
+msgid "Nationality"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__country_id
+msgid "Nationality (Country)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__newly_hired
+msgid "Newly Hired"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Next"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_calendar_event_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_calendar_event_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_calendar_event_id
@@ -1711,6 +3516,10 @@ msgid "Next Activity Type"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Next Attempt At"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__next_calibration_date
 msgid "Next Calibration Date"
 msgstr ""
@@ -1732,9 +3541,46 @@ msgid "Next Meeting"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Next Run"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Next planned execution date for this job."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Next up"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "No deadline"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "No open tasks. Tasks you are given or claim appear here."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_model.js:0
+msgid "None"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__email_normalized
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__email_normalized
 msgid "Normalized Email"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Not Finished"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1756,10 +3602,33 @@ msgid "Notes"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Nothing is planned or due in this period."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Nothing open on your list."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Nothing planned today. Give a task a planned start to see it here."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_needaction_counter
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_needaction_counter
 msgid "Number of Actions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__reminder_date_before_receipt
+msgid "Number of days to send reminder email before the promised receipt date"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1789,6 +3658,50 @@ msgid "On Hold"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Only a failed item can be retried."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Only a pending or failed item can be cancelled."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_type.py:0
+msgid "Only a task type routed to a role names a role."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Only an assigned task can be started."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Only people of the department that did the work can act at this level."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Only people with the role %s can act at this level."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Only the assignee of %s can do this."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "Only the person who signed can withdraw a signature."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__open
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
@@ -1806,6 +3719,12 @@ msgid "Outsourced"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+msgid "Overdue since %s"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 msgid "Own Department"
 msgstr ""
@@ -1813,6 +3732,19 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__own_department
 msgid "Own department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__pin
+msgid "PIN"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__pin
+msgid ""
+"PIN used to Check In/Out in the Kiosk Mode of the Attendance "
+"application (if enabled in Configuration) and to change the cashier "
+"in the Point of Sale application."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1858,6 +3790,11 @@ msgid "Parent"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__parent_company_id
+msgid "Parent Company"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__parent_path
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__parent_path
 msgid "Parent Path"
@@ -1870,15 +3807,76 @@ msgid "Parent name"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Partly Failed"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__partner_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__partner_id
 msgid "Partner"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__contract_ids
+msgid "Partner Contracts"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__use_partner_credit_limit
+msgid "Partner Limit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__partner_vat_placeholder
+msgid "Partner Vat Placeholder"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__same_vat_partner_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__same_vat_partner_id
 msgid "Partner with same Tax ID"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__user_partner_id
+msgid "Partner-related data of the user"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__passport_expiration_date
+msgid "Passport Expiration Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__passport_id
+msgid "Passport No"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Payload"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__qr_code_method
+msgid "Payment QR-code"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__payment_token_count
+msgid "Payment Token Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__payment_token_ids
+msgid "Payment Tokens"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Pending"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Pending Count"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1910,6 +3908,67 @@ msgid "Permission Checks"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_archive_all
+msgid "Permission: approval.chain.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_create_all
+msgid "Permission: approval.chain.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_delete_all
+msgid "Permission: approval.chain.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_edit_all
+msgid "Permission: approval.chain.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_read_all
+msgid "Permission: approval.chain.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_create_all
+msgid "Permission: approval.level.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_delete_all
+msgid "Permission: approval.level.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_edit_all
+msgid "Permission: approval.level.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_read_all
+msgid "Permission: approval.level.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: cancellation.request.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_archive_all
 msgid "Permission: customer.archive.all"
 msgstr ""
@@ -1935,6 +3994,22 @@ msgid "Permission: customer.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: customer.sales.terms.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: customer.sales.terms.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: customer.sales.terms.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: customer.sales.terms.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_department_archive_all
 msgid "Permission: department.archive.all"
 msgstr ""
@@ -1957,6 +4032,90 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_department_read_all
 msgid "Permission: department.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: invoice.adjustment.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: job.item.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: job.item.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: job.run.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sample.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: order.sign.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.price.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2020,6 +4179,34 @@ msgid "Permission: person.read.own_department"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: quotation.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quotation.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quotation.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quotation.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: reconciliation.day.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: reconciliation.day.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: reconciliation.day.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_role_create_all
 msgid "Permission: role.create.all"
 msgstr ""
@@ -2070,6 +4257,156 @@ msgid "Permission: sample.test.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: scheduled.job.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: scheduled.job.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.line.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: service.package.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_signature_read_all
+msgid "Permission: signature.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontract.cost.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_create_all
+msgid "Permission: task.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_create_own_department
+msgid "Permission: task.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_delete_all
+msgid "Permission: task.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_delete_own_department
+msgid "Permission: task.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_edit_all
+msgid "Permission: task.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_edit_own_department
+msgid "Permission: task.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_read_all
+msgid "Permission: task.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_read_own_department
+msgid "Permission: task.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_task_type_edit_all
+msgid "Permission: task.type.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.rate.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: tax.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_test_request_create_all
 msgid "Permission: test.request.create.all"
 msgstr ""
@@ -2095,6 +4432,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_person
 msgid "Person"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__hr_responsible_id
+msgid "Person responsible for validating the employee's contracts."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2124,13 +4466,100 @@ msgid "Physical State"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__place_of_birth
+msgid "Place of Birth"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_end
+msgid "Planned End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_start
+msgid "Planned Start"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__post_test_requirements
 msgid "Post Test Requirements"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Prefix and length of the codes given to parameters, groups, sample types, dossiers, subcontractors and documents."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Previous"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Previous time the cron ran successfully, provided to the job through the context on the `lastcall` key"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_product_pricelist
+msgid "Pricelist"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__primary_bank_account_id
+msgid "Primary Bank Account"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Print Labels"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_city
+msgid "Private City"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_country_id
+msgid "Private Country"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_email
+msgid "Private Email"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_phone
+msgid "Private Phone"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_state_id
+msgid "Private State"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_street
+msgid "Private Street"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_street2
+msgid "Private Street2"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_zip
+msgid "Private Zip"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Progress Done"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Progress Remaining"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2144,6 +4573,31 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__properties_base_definition_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__properties_base_definition_id
 msgid "Properties Base Definition"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_inbound_payment_method_line_id
+msgid "Property Inbound Payment Method Line"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_outbound_payment_method_line_id
+msgid "Property Outbound Payment Method Line"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_public_display_string
+msgid "Public Date of Birth"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_order_count
+msgid "Purchase Order Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__purpose
+msgid "Purpose"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2163,8 +4617,27 @@ msgid "Quantity"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Queue"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__rating_ids
+msgid "Ratings"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__read
 msgid "Read"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_read_all
+msgid "Read approval chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_read_all
+msgid "Read approval levels"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2175,6 +4648,14 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_department_read_all
 msgid "Read departments"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Read job items"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Read job runs"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2208,8 +4689,47 @@ msgid "Read samples"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Read scheduled jobs"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_signature_read_all
+msgid "Read signatures"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_read_all
+msgid "Read tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_task_read_own_department
+msgid "Read tasks of their department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_read_all
 msgid "Read test requests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
+msgid "Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason_required
+msgid "Reason Required"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__reassign_reason
+msgid "Reassign Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__receipt_reminder_email
+msgid "Receipt Reminder"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2260,14 +4780,28 @@ msgid "Related Contacts"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__related_partners_count
+msgid "Related Partners Count"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__employee_ids
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__employee_ids
 msgid "Related employees based on their private address"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__user_id
+msgid "Related user name for the resource to manage its access."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__repair
 msgid "Repair"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Repeat every x."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2302,6 +4836,11 @@ msgid "Request Date"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__resource_id
+msgid "Resource"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__activity_user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__activity_user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_user_id
@@ -2316,6 +4855,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__result_entered
 msgid "Result Entered"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__resume_line_ids
+msgid "Resume lines"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2336,6 +4880,14 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine__status__retired
 msgid "Retired"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Retry"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Retry Delay Minutes"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2360,6 +4912,22 @@ msgid "Roles"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__route
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_type_search
+msgid "Route"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__routing_endpoint
+msgid "Routing Endpoint"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__routing_scheme
+msgid "Routing ID"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__rtc_session_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__rtc_session_ids
 msgid "Rtc Session"
@@ -2368,6 +4936,30 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__run_minutes
 msgid "Run Minutes"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Run Requested At"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Run Requested By"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Run by hand"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Run now"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Running"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Runs"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2383,15 +4975,35 @@ msgid "Safety Margin Days"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__salary_distribution
+msgid "Salary Distribution"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__structure_type_id
+msgid "Salary Structure Type"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__user_id
 msgid "Salesperson"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__same_department
+msgid "Same Department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__sample_id
 msgid "Sample"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_sample_collection_root
+msgid "Sample Collection"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2444,8 +5056,38 @@ msgid "Sanitized Number"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__saturday_location_id
+msgid "Saturday"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Scale"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Schedule"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Schedule off"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Scheduled Jobs"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__scope
 msgid "Scope"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__coach_id
+msgid ""
+"Select the \"Employee\" who is the coach of this employee.\n"
+"The \"Coach\" has no specific rights or responsibilities by default."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2457,6 +5099,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__physical_state__semi_solid
 msgid "Semi-solid"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__sequence
+msgid "Sequence"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2476,14 +5123,90 @@ msgid "Service History"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__use_partner_credit_limit
+msgid "Set a value greater than 0.0 to activate a credit limit check"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Settings"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__sex
+msgid "Sex"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__partner_share
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__partner_share
 msgid "Share Partner"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__share
+msgid "Share User"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_public_display
+msgid "Show Birthday To Employees"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__show_credit_limit
+msgid "Show Credit Limit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__show_hr_icon_display
+msgid "Show Hr Icon Display"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Show as"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "Show awaiting tasks"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__sign
 msgid "Sign"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_signature
+msgid "Signature"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__signed
+msgid "Signed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_id
+msgid "Signer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_name
+msgid "Signer Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_role
+msgid "Signer Role"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_approval_chain__purpose__signing
+msgid "Signing"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2493,8 +5216,44 @@ msgid "Signup Token Type"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__skill_ids
+msgid "Skill"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__employee_skill_ids
+msgid "Skills"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__physical_state__solid
 msgid "Solid"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__split_legal_name
+msgid "Split Legal Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__spouse_birthdate
+msgid "Spouse Birthdate"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__spouse_complete_name
+msgid "Spouse Legal Name"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Start"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Started At"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2580,10 +5339,73 @@ msgid "Subcontractors"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__subordinate_ids
+msgid "Subordinates"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Succeeded"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__sunday_location_id
+msgid "Sunday"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_purchase_currency_id
+msgid "Supplier Currency"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__supplier_rank
+msgid "Supplier Rank"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__category_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__category_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__category_id
 msgid "Tags"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_task
+msgid "Task"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_task_type
+msgid "Task Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_type
+#: model:ir.ui.menu,name:sol_laboratory.menu_task_type
+msgid "Task Types"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task_type.py:0
+msgid ""
+"Task types come with the modules; only their route, role and default "
+"deadline can change."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.client,name:sol_laboratory.action_medilab_task_dashboard
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__task_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__task_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_tasks_root
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_calendar
+msgid "Tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "Tasks of %s are created by the system."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2601,7 +5423,10 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__has_vat
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__has_vat
-msgid "Technical field indicating whether the Tax ID is not a placeholder.Returns False for placeholder values such as '/', 'NA', 'na', or an empty string."
+msgid ""
+"Technical field indicating whether the Tax ID is not a "
+"placeholder.Returns False for placeholder values such as '/', 'NA', "
+"'na', or an empty string."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2631,13 +5456,9 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
-msgid "Add at least one parameter to %(samples)s before confirming test request %(code)s."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
-msgid "Test request %(code)s cannot be confirmed until its order is paid or the customer is allowed credit."
+msgid ""
+"Test request %(code)s cannot be confirmed until its order is paid or "
+"the customer is allowed credit."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2649,7 +5470,8 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/test_request.py:0
-msgid "Test request %(code)s needs at least one sample before it can be confirmed."
+msgid ""
+"Test request %(code)s needs at least one sample before it can be confirmed."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2727,6 +5549,10 @@ msgid "The administrator role holds every permission; none can be removed."
 msgstr ""
 
 #. module: sol_laboratory
+msgid "The batch size and the attempts must be at least 1."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_chemical_code_unique
 msgid "The code of a chemical must be unique."
 msgstr ""
@@ -2793,14 +5619,56 @@ msgid "The customer's contact"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__first_contract_date
+msgid "The date of the first contract of the employee in the company."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_deadline_hours_positive
+msgid "The default deadline cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "The document has signatures; withdraw them before changing it."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
-msgid "The document type, action and scope of %s cannot change; create another permission."
+msgid ""
+"The document type, action and scope of %s cannot change; create "
+"another permission."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "The document was rejected: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "The document was rejected; withdraw the rejection first."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__legal_name
+msgid ""
+"The employee's official name as per government-issued or legal documents."
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_measurement_unit_factor_positive
 msgid "The factor of a unit must be greater than zero."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_account_position_id
+msgid ""
+"The fiscal position determines the taxes/accounts used for this contact."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2851,7 +5719,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_parameter_method_unique
-msgid "The parameter is already tested with this method by the same laboratory."
+msgid ""
+"The parameter is already tested with this method by the same laboratory."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2869,13 +5738,20 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
-msgid "The person of Odoo's default administrator keeps the administrator role."
+msgid ""
+"The person of Odoo's default administrator keeps the administrator role."
 msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid "The person of Odoo's default administrator keeps their user."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "The process of the document is completed, so a signature cannot be withdrawn."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2886,13 +5762,29 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
-msgid "The role code %s may contain only lowercase letters, digits and underscores, and starts with a letter."
+msgid ""
+"The role code %s may contain only lowercase letters, digits and "
+"underscores, and starts with a letter."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_stock_customer
+msgid ""
+"The stock location used as destination when sending goods to this contact."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_stock_supplier
+msgid ""
+"The stock location used as source when receiving goods from this contact."
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__main_user_id
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__main_user_id
-msgid "There can be several users related to the same partner. When a single user is needed, this field attempts to find the most appropriate one."
+msgid ""
+"There can be several users related to the same partner. When a single "
+"user is needed, this field attempts to find the most appropriate one."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2941,14 +5833,81 @@ msgid "This contact is already a person."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_purchase_currency_id
+msgid "This currency will be used for purchases from the current partner"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "This document type has no approval chain."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_person_employee_unique
+msgid "This employee is already a person."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__tz
+msgid ""
+"This field is used in order to define in which timezone the resources "
+"will work."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__email_normalized
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__email_normalized
-msgid "This field is used to search on email address as the primary email field can contain more than strictly an email address."
+msgid ""
+"This field is used to search on email address as the primary email "
+"field can contain more than strictly an email address."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__exceptional_location_id
+msgid "This is the exceptional, non-weekly, location set for today."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__sex
+msgid ""
+"This is the legal sex as recognized by the state, used for official "
+"and statutory purposes."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "This level cannot reject."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "This signature is already withdrawn."
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_person_user_unique
 msgid "This user already belongs to another person."
+msgstr ""
+
+#. module: sol_laboratory
+msgid "This work is already queued for the job."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__thursday_location_id
+msgid "Thursday"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
+#: code:addons/sol_laboratory/static/src/views/control_panel/control_panel.xml:0
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_actions_act_window_view__view_mode__timeline
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_ui_view__type__timeline
+msgid "Timeline"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2965,10 +5924,75 @@ msgid "Timezone offset"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
+msgid "Today"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__today_location_name
+msgid "Today Location Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__total_invoiced
+msgid "Total Invoiced"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__debit
+msgid "Total Payable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__credit
+msgid "Total Receivable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__credit
+msgid "Total amount this customer owes you."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__debit
+msgid "Total amount you have to pay to this vendor."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__trigger
+msgid "Trigger"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Triggered By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__tuesday_location_id
+msgid "Tuesday"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Turn the schedule of %s on before running it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__type_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Type"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__activity_exception_decoration
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__activity_exception_decoration
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__activity_exception_decoration
 msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+msgid "Unassigned"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3010,6 +6034,11 @@ msgid "Use a barcode to identify this contact."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_product_pricelist
+msgid "Used for sales to the current partner"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__login
 msgid "Used to log into the system"
 msgstr ""
@@ -3018,6 +6047,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "User"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_state
+msgid "User Status"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_partner_id
+msgid "User's partner"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3037,8 +6076,59 @@ msgid "Valid Until"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_id
+msgid "Vendor Incoterm"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_location
+msgid "Vendor Incoterm Location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_stock_supplier
+msgid "Vendor Location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__property_supplier_payment_term_id
+msgid "Vendor Payment Terms"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__version_revision
+msgid "Version Revision"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__vi
 msgid "Vietnamese"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_ui_view
+msgid "View"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__view_mode
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__type
+msgid "View Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__visa_expire
+msgid "Visa Expiration Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__visa_no
+msgid "Visa No"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__wage
+msgid "Wage"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3067,12 +6157,32 @@ msgid "Website Link"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__wednesday_location_id
+msgid "Wednesday"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
+msgid "Week"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__tz
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__tz
 msgid ""
-"When printing documents and exporting/importing data, time values are computed according to this timezone.\n"
+"When printing documents and exporting/importing data, time values are "
+"computed according to this timezone.\n"
 "If the timezone is not set, UTC (Coordinated Universal Time) is used.\n"
-"Anywhere else, time values are computed according to the time offset of your web client."
+"Anywhere else, time values are computed according to the time offset "
+"of your web client."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__member_of_department
+msgid ""
+"Whether the employee is a member of the active user's department or "
+"one of it's child department."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3083,1483 +6193,13 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/mixins/permission_mixin.py:0
-#: code:addons/sol_laboratory/models/system/permission_mixin.py:0
-msgid "You are not allowed to %(action)s these records: %(records)s"
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "Withdraw the signatures of the higher levels first."
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__vat
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__vat
-msgid "You can use '/' to indicate that the customer has no Tax ID."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__zip
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__zip
-msgid "Zip"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
-msgid "%(person)s is not in %(department)s."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s due today"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is already claimed."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is already finished."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is cancelled by the system when its work is cancelled."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is done by the system once its work is done."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is finished and cannot be assigned again."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s is not open."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s needs an assignee or a department whose queue holds it."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s open"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "%s overdue"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "%s waits in a queue you do not belong to."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__person
-msgid "A person"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_planned_period
-msgid "A task cannot end before it starts."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "A task created by hand needs an assignee and a deadline."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_code_unique
-msgid "A task type with this code already exists."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_ir_actions_act_window_view
-msgid "Action Window View"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task
-msgid "All Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "All tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_reassign
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
-msgid "Assign"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_task_reassign
-msgid "Assign Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assigned_by_id
-msgid "Assigned By"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__assignee_id
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__assignee_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Assignee"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_awaiting
-msgid "Awaiting Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Calendar"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Cancel Task"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_type.py:0
-msgid "Choose the role whose holders receive tasks of %s."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_awaiting_list
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_list
-msgid "Claim"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
-msgid "Closed By System"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_create_all
-msgid "Create tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_create_own_department
-msgid "Create tasks of their department"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Day"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__deadline
-msgid "Deadline"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Deadline: %s"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__deadline_hours
-msgid "Default Deadline (Hours)"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_delete_all
-msgid "Delete tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_delete_own_department
-msgid "Delete tasks of their department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__department
-msgid "Department queue"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Details of the work"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
-msgid "Discard"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Document"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__done
-msgid "Done"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__done_at
-msgid "Done At"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Due %s"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Due today at %s"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Due tomorrow at %s"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_type_edit_all
-msgid "Edit task types"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_edit_all
-msgid "Edit tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_edit_own_department
-msgid "Edit tasks of their department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_finished
-msgid "Finished Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Finished tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.task.type,name:sol_laboratory.task_type_general
-msgid "General task"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Give a reason for moving %s to another person or department."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Good afternoon, %s"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Good evening, %s"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Good morning, %s"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task_type__route__role
-msgid "Holders of a role"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__in_my_queue
-msgid "In My Queue"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
-msgid "In progress"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__is_mine
-msgid "Is Mine"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "List"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Mark Done"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Mark done"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Month"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Move"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "My Queue"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_mine
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "My Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "My tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Next"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Next up"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "No deadline"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "No open tasks. Tasks you are given or claim appear here."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_model.js:0
-msgid "None"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Not Finished"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Nothing is planned or due in this period."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Nothing open on your list."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Nothing planned today. Give a task a planned start to see it here."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_type.py:0
-msgid "Only a task type routed to a role names a role."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Only an assigned task can be started."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Only the assignee of %s can do this."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-msgid "Overdue since %s"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_create_all
-msgid "Permission: task.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_create_own_department
-msgid "Permission: task.create.own_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_delete_all
-msgid "Permission: task.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_delete_own_department
-msgid "Permission: task.delete.own_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_edit_all
-msgid "Permission: task.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_edit_own_department
-msgid "Permission: task.edit.own_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_read_all
-msgid "Permission: task.read.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_read_own_department
-msgid "Permission: task.read.own_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_task_type_edit_all
-msgid "Permission: task.type.edit.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_end
-msgid "Planned End"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__planned_start
-msgid "Planned Start"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Previous"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_read_all
-msgid "Read tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_task_read_own_department
-msgid "Read tasks of their department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
-msgid "Reason"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason_required
-msgid "Reason Required"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__reassign_reason
-msgid "Reassign Reason"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__route
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_type_search
-msgid "Route"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Scale"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Show as"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "Show awaiting tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
-msgid "Start"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_task
-msgid "Task"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_medilab_task_type
-msgid "Task Type"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_task_type
-#: model:ir.ui.menu,name:sol_laboratory.menu_task_type
-msgid "Task Types"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task_type.py:0
-msgid "Task types come with the modules; only their route, role and default deadline can change."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.actions.client,name:sol_laboratory.action_medilab_task_dashboard
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__task_ids
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__task_ids
-#: model:ir.ui.menu,name:sol_laboratory.menu_tasks_root
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_calendar
-msgid "Tasks"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/tasks/task.py:0
-msgid "Tasks of %s are created by the system."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_deadline_hours_positive
-msgid "The default deadline cannot be negative."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.js:0
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_actions_act_window_view__view_mode__timeline
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__ir_ui_view__type__timeline
-msgid "Timeline"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
-msgid "Today"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__trigger
-msgid "Trigger"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__type_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Type"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
-msgid "Unassigned"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model,name:sol_laboratory.model_ir_ui_view
-msgid "View"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__view_mode
-#: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__type
-msgid "View Type"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/views/timeline/timeline_renderer.js:0
-msgid "Week"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "finished in all."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "finished in the last 7 days"
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "unfinished tasks you can see."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-javascript
-#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
-msgid "waiting in your queues"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__active_employee
-msgid "Active Employee"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_description
-msgid "Additional Information"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__additional_note
-msgid "Additional Note"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__age
-msgid "Age"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__allowed_country_state_ids
-msgid "Allowed Country State"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_apply_date
-msgid "Apply Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_apply_immediately
-msgid "Apply Immediately"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_action_date
-msgid "Archive Employee On"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__barcode
-msgid "Badge ID"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__bank_account_ids
-msgid "Bank Accounts"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday
-msgid "Birthday"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_month
-msgid "Birthday Month"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__certificate
-msgid "Certificate Level"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__certification_ids
-msgid "Certification"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__coach_id
-msgid "Coach"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__company_country_id
-msgid "Company Country"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__company_country_code
-msgid "Company Country Code"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__contract_date_end
-msgid "Contract End Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__contract_date_start
-msgid "Contract Start Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__contract_template_id
-msgid "Contract Template"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__country_of_birth
-msgid "Country of Birth"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__currency_id
-msgid "Currency"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__exceptional_location_id
-msgid "Current"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_date_version
-msgid "Current Date Employee Record"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_version_id
-msgid "Current Employee Record"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_employee_skill_ids
-msgid "Current Employee Skill"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__date_end
-msgid "Date End"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__date_start
-msgid "Date Start"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__departure_action_date
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__departure_date
-msgid "Date at which the departure actually takes place."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__dismissal_date
-msgid "Date at which the departure process starts. Differs from the actual departure date in case of a notice period."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__department_color
-msgid "Department Color"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_id
-msgid "Departure"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_date
-msgid "Departure Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__children
-msgid "Dependent Children"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__child_count
-msgid "Direct Subordinates Count"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__subordinate_ids
-msgid "Direct and indirect subordinates"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__child_ids
-msgid "Direct subordinates"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__dismissal_date
-msgid "Dismissal Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__display_certification_page
-msgid "Display Certification Page"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__driving_license
-msgid "Driving License"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__driving_license_name
-msgid "Driving License Name"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__date_version
-msgid "Effective Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__emergency_contact
-msgid "Emergency Contact"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__emergency_phone
-msgid "Emergency Phone"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__name
-msgid "Employee Name"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__version_id
-msgid "Employee Record"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__version_ids
-msgid "Employee Records"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__versions_count
-msgid "Employee Records Count"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__employee_type_id
-msgid "Employee Type"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__bank_account_ids
-msgid "Employee bank accounts to pay salaries"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__wage
-msgid "Employee's monthly gross wage."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_reason_id
-msgid "End Reason"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__contract_date_end
-msgid "End date of the contract (if it's a fixed-term contract)."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__trial_date_end
-msgid "End date of the trial period (if there is one)."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__trial_date_end
-msgid "End of Trial Period"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__identification_id
-msgid "Enter the employee's National Identification Number issued by the government (e.g., Aadhaar, SIN, NIN). This is used for official records and statutory compliance."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__share
-msgid "External user with limited access, created only for the purpose of sharing data."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__study_field
-msgid "Field of Study"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__first_contract_date
-msgid "First Contract Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__fixed_term
-msgid "Fixed Term"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__friday_location_id
-msgid "Friday"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__hr_responsible_id
-msgid "HR Responsible"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__has_multiple_bank_accounts
-msgid "Has Multiple Bank Accounts"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__distance_home_work
-msgid "Home-Work Distance"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__km_home_work
-msgid "Home-Work Distance in Km"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__distance_home_work_unit
-msgid "Home-Work Distance unit"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__hourly_cost
-msgid "Hourly Cost"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__hr_icon_display
-msgid "Hr Icon Display"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__hr_presence_state
-msgid "Hr Presence State"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__id_card
-msgid "ID Card Copy"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__barcode
-msgid "ID used for employee identification."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__id_card_name
-msgid "Id Card Name"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__identification_id
-msgid "Identification No"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__active_employee
-msgid "If the active field is set to False, it will allow you to hide the resource record without removing it."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__split_legal_name
-msgid "Indicates whether the legal name is split into first and last name fields based on the employee's country."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__child_all_count
-msgid "Indirect Subordinates Count"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_current
-msgid "Is Current"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_custom_job_title
-msgid "Is Custom Job Title"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_future
-msgid "Is Future"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_in_contract
-msgid "Is In Contract"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_past
-msgid "Is Past"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_subordinate
-msgid "Is Subordinate"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__is_trusted_bank_account
-msgid "Is Trusted Bank Account"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_id
-msgid "Job"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__job_title
-msgid "Job Title"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lang
-msgid "Lang"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_activity
-msgid "Last Activity"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_activity_time
-msgid "Last Activity Time"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_modified_uid
-msgid "Last Modified by"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_modified_date
-msgid "Last Modified on"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__legal_name
-msgid "Legal Name"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__message_main_attachment_id
-msgid "Main Attachment"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__parent_id
-msgid "Manager"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__marital
-msgid "Marital Status"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__member_of_department
-msgid "Member of department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__monday_location_id
-msgid "Monday"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__nationality_country_code
-msgid "Nationality"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__country_id
-msgid "Nationality (Country)"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__newly_hired
-msgid "Newly Hired"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__pin
-msgid "PIN"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__pin
-msgid "PIN used to Check In/Out in the Kiosk Mode of the Attendance application (if enabled in Configuration) and to change the cashier in the Point of Sale application."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__parent_company_id
-msgid "Parent Company"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__user_partner_id
-msgid "Partner-related data of the user"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__passport_expiration_date
-msgid "Passport Expiration Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__passport_id
-msgid "Passport No"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__hr_responsible_id
-msgid "Person responsible for validating the employee's contracts."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__place_of_birth
-msgid "Place of Birth"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__primary_bank_account_id
-msgid "Primary Bank Account"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_city
-msgid "Private City"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_country_id
-msgid "Private Country"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_email
-msgid "Private Email"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_phone
-msgid "Private Phone"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_state_id
-msgid "Private State"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_street
-msgid "Private Street"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_street2
-msgid "Private Street2"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__private_zip
-msgid "Private Zip"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_public_display_string
-msgid "Public Date of Birth"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__related_partners_count
-msgid "Related Partners Count"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__user_id
-msgid "Related user name for the resource to manage its access."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__resource_id
-msgid "Resource"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__resume_line_ids
-msgid "Resume lines"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__salary_distribution
-msgid "Salary Distribution"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__structure_type_id
-msgid "Salary Structure Type"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.ui.menu,name:sol_laboratory.menu_sample_collection_root
-msgid "Sample Collection"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__saturday_location_id
-msgid "Saturday"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__coach_id
-msgid ""
-"Select the \"Employee\" who is the coach of this employee.\n"
-"The \"Coach\" has no specific rights or responsibilities by default."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__sex
-msgid "Sex"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__share
-msgid "Share User"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_public_display
-msgid "Show Birthday To Employees"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__show_hr_icon_display
-msgid "Show Hr Icon Display"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__skill_ids
-msgid "Skill"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__employee_skill_ids
-msgid "Skills"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__split_legal_name
-msgid "Split Legal Name"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__spouse_birthdate
-msgid "Spouse Birthdate"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__spouse_complete_name
-msgid "Spouse Legal Name"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__subordinate_ids
-msgid "Subordinates"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__sunday_location_id
-msgid "Sunday"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__first_contract_date
-msgid "The date of the first contract of the employee in the company."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__legal_name
-msgid "The employee's official name as per government-issued or legal documents."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_person_employee_unique
-msgid "This employee is already a person."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__tz
-msgid "This field is used in order to define in which timezone the resources will work."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__exceptional_location_id
-msgid "This is the exceptional, non-weekly, location set for today."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__sex
-msgid "This is the legal sex as recognized by the state, used for official and statutory purposes."
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__thursday_location_id
-msgid "Thursday"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__today_location_name
-msgid "Today Location Name"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__tuesday_location_id
-msgid "Tuesday"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_state
-msgid "User Status"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_partner_id
-msgid "User's partner"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__version_revision
-msgid "Version Revision"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__visa_expire
-msgid "Visa Expiration Date"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__visa_no
-msgid "Visa No"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__wage
-msgid "Wage"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__wednesday_location_id
-msgid "Wednesday"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,help:sol_laboratory.field_medilab_person__member_of_department
-msgid "Whether the employee is a member of the active user's department or one of it's child department."
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__withdrawn_at
+msgid "Withdrawn At"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4628,6 +6268,325 @@ msgid "Working Hours"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/permission_mixin.py:0
+#: code:addons/sol_laboratory/models/system/permission_mixin.py:0
+msgid "You are not allowed to %(action)s these records: %(records)s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__vat
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__vat
+msgid "You can use '/' to indicate that the customer has no Tax ID."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "You have already signed this document."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "You have no signature on this document to withdraw."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__zip
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__zip
+msgid "Zip"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__days_sales_outstanding
+msgid ""
+"[(Total Receivable/Total Revenue) * number of days since the first "
+"invoice] for this customer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__invoice_edi_format
+msgid "eInvoice format"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "finished in all."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "finished in the last 7 days"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "unfinished tasks you can see."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
+msgid "waiting in your queues"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__work_permit_name
 msgid "work_permit_name"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: chemical.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: chemical.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: chemical.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: chemical.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.service.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.service.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: machine.service.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: measurement.unit.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: measurement.unit.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: measurement.unit.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: measurement.unit.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.group.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.group.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.group.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.group.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.archive.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.machine.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.machine.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: parameter.method.machine.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quality.registration.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quality.registration.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quality.registration.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: quality.registration.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.limit.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.limit.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: regulation.limit.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: sample.type.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: sample.type.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: sample.type.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: sample.type.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontractor.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontractor.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: subcontractor.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: test.parameter.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: test.parameter.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: test.parameter.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.field.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.field.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.field.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.field.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.method.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.method.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.method.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: testing.method.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: unit.category.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: unit.category.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: unit.category.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: unit.category.edit.all"
 msgstr ""

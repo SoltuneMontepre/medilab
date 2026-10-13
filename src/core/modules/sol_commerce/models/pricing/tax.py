@@ -16,9 +16,9 @@ class Tax(models.Model):
     _rec_names_search = ("name", "code")
 
     # Unique code of the tax, such as VAT10 or KCT.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Tax name as printed on quotations and invoices, in each language.
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # False when the tax is archived.
     active = fields.Boolean(default=True)
     # The tax's rate over time.

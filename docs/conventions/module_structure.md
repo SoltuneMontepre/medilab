@@ -18,12 +18,14 @@ How code inside an Odoo module is laid out.
 | `notifications`     | Notification events, preferences, recipients and push deliveries                                                                                                                 |
 | `management`        | Features only managers use                                                                                                                                                       |
 | `pricing`           | Parameter prices, taxes and their rates, subcontract costs and service packages                                                                                                  |
+| `orders`            | Sale orders, the portal cart and cancellation requests                                                                                                                           |
 | `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices and menus                                                                                   |
 
 ## Files
 
 - One model per file, named after the model: `test_parameter.py`. An extension of an Odoo model is named after the Odoo model and lives in the folder of its MediLab concern, such as `models/system/hr_department.py` for departments and `models/tasks/calendar_event.py` for schedules.
 - Views of a model go in `<model>_views.xml`.
+- Abstract models that models of several concerns inherit, such as `medilab.permission.mixin`, live in `models/mixins/`, which is imported before the concerns.
 - Menus are defined only in `views/system/menus.xml` and loaded last in `__manifest__.py`, after the actions they open.
 - The look of the system lives in its own module, `sol_theme`, under `static/src/`, split into `scss/`, `js/`, `xml/` and `img/`. No other module refers to its assets, so every module works with Odoo's own look.
 - A view type the module adds lives in `static/src/views/<view>/`, such as the timeline in `static/src/views/timeline/`; a screen of a concern lives in `static/src/<concern>/<screen>/`, such as `static/src/tasks/dashboard/`.
@@ -45,6 +47,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`           |
 | `constants/settings.py`    | System parameter keys and their defaults, such as `SAFETY_MARGIN_PARAMETER` |
 | `constants/tasks.py`       | Task triggers and statuses, such as `MANUAL_TRIGGER`                       |
+| `constants/approvals.py`   | Approval chain purposes, signature decisions and approval states, such as `DECISION_SIGNED` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
 - Python code refers to a model by its constant, never by repeating the string: `_name = MODEL_TEST_PARAMETER`, `self.env[MODEL_TEST_PARAMETER]`.

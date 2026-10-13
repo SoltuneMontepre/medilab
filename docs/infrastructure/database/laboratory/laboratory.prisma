@@ -34,7 +34,7 @@ model TestParameter {
   @@map("medilab_test_parameter")
 }
 
-/// A kind of analysis that organises the catalog, such as Pesticides with the sub-group Organophosphates. Sets no price.
+/// A kind of analysis that organises the catalog, such as Pesticides with the sub-group Organophosphates. Sets no price. Trigram indexes on code and name serve search.
 model ParameterGroup {
   /// Row identifier.
   id          Int                  @id @default(autoincrement())
@@ -62,7 +62,7 @@ model ParameterGroup {
   @@map("medilab_parameter_group")
 }
 
-/// The kind of material a sample is, such as Vegetables with the child Cabbage; filters the catalog.
+/// The kind of material a sample is, such as Vegetables with the child Cabbage; filters the catalog. Trigram indexes on code and name serve search.
 model SampleType {
   /// Row identifier.
   id          Int                       @id @default(autoincrement())
@@ -107,10 +107,11 @@ model SampleType {
 
   @@index([parent_id])
   @@index([parent_path])
+  @@index([minimum_quantity_unit_id])
   @@map("medilab_sample_type")
 }
 
-/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter.
+/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter. Trigram indexes on code and name serve search.
 model Regulation {
   /// Row identifier.
   id                Int                    @id @default(autoincrement())
@@ -133,7 +134,8 @@ model Regulation {
 }
 
 /// The limit a regulation sets for one parameter. Unique on (regulation_id, parameter_id).
-/// At least one of min_value, max_value and limit_text is set; unit_id is set when min_value or max_value is.
+/// A minimum or maximum may be empty or any number, including 0. min_set and max_set say which are set.
+/// At least one of those and limit_text is set; unit_id is set when a minimum or maximum is set.
 model RegulationLimit {
   /// Row identifier.
   id            Int             @id @default(autoincrement())
@@ -143,9 +145,13 @@ model RegulationLimit {
   parameter_id  Int
   /// The unit of min_value and max_value; empty for a text-only limit.
   unit_id       Int?
-  /// Lowest allowed value; 0 when there is no lower limit, since Odoo stores an empty number as 0.
+  /// True when a minimum is set. The minimum may be 0.
+  min_set       Boolean         @default(false)
+  /// Lowest allowed value, including 0. Meaningful when min_set is set.
   min_value     Decimal? @db.Decimal
-  /// Highest allowed value; 0 when there is no upper limit, since Odoo stores an empty number as 0.
+  /// True when a maximum is set. The maximum may be 0.
+  max_set       Boolean         @default(false)
+  /// Highest allowed value, including 0. Meaningful when max_set is set.
   max_value     Decimal? @db.Decimal
   /// Decimals the limit shows on the report, such as 2 for 0.50.
   decimals      Int?
@@ -160,6 +166,7 @@ model RegulationLimit {
 
   @@unique([regulation_id, parameter_id])
   @@index([parameter_id])
+  @@index([unit_id])
   @@map("medilab_regulation_limit")
 }
 
@@ -179,7 +186,7 @@ model RegulationSampleType {
   @@map("medilab_regulation_sample_type_rel")
 }
 
-/// The procedure the laboratory follows to test a parameter.
+/// The procedure the laboratory follows to test a parameter. Trigram indexes on code and name serve search.
 model TestingMethod {
   /// Row identifier.
   id         Int               @id @default(autoincrement())
@@ -202,7 +209,7 @@ model TestingMethod {
   @@map("medilab_testing_method")
 }
 
-/// A field of testing that classifies methods, such as Chemistry or Microbiology.
+/// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
 model TestingField {
   /// Row identifier.
   id      Int             @id @default(autoincrement())
@@ -240,12 +247,12 @@ model Department {
   parameter_methods ParameterMethod[]
   /// Employees in the department.
   employees         Employee[]        @relation("EmployeeDepartment")
-  /// People in the team.
-  team_people       Person[]          @relation("PersonTeam")
   /// Notification events whose notifications go to the department.
   notification_recipients NotificationEventRecipient[]
   /// Tasks in the department's queue.
   tasks             Task[]
+  /// Wizards that move tasks into this department's queue.
+  task_reassigns    TaskReassign[]
   /// Samples handed over to the department.
   handovers         SampleHandover[]
 
@@ -297,7 +304,7 @@ model UnitCategory {
 }
 
 /// How one parameter is tested with one method, by the laboratory or by a subcontractor, and the unit of its result.
-/// Unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)).
+/// Active rows are unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active.
 /// At most one row per parameter is the default (partial unique index on parameter_id where is_default).
 model ParameterMethod {
   /// Row identifier.
@@ -325,7 +332,7 @@ model ParameterMethod {
   /// False when this way of testing is archived.
   active           Boolean         @default(true)
   /// The parameter being tested.
-  parameter        TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  parameter        TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The method used to test it.
   method           TestingMethod   @relation(fields: [method_id], references: [id], onDelete: Restrict)
   /// The unit the result is expressed in.
@@ -342,12 +349,13 @@ model ParameterMethod {
   sample_tests     SampleTest[]
 
   @@index([method_id])
+  @@index([unit_id])
   @@index([subcontractor_id])
   @@index([department_id])
   @@map("medilab_parameter_method")
 }
 
-/// An outside laboratory that tests parameters for the laboratory. Its name, address and people are its contact.
+/// An outside laboratory that tests parameters for the laboratory. Its name, address and people are its contact. A trigram index on code serves search; the name is the contact's.
 model Subcontractor {
   /// Row identifier.
   id                    Int               @id @default(autoincrement())
@@ -380,7 +388,7 @@ model Subcontractor {
   @@map("medilab_subcontractor")
 }
 
-/// Odoo's contact table for companies and people, shown with the columns this schema uses.
+/// Odoo's contact table for companies and people, shown with the columns this schema uses. A trigram index on name serves search.
 model Contact {
   /// Row identifier.
   id                         Int             @id @default(autoincrement())
@@ -448,7 +456,7 @@ model TestParameterSampleType {
   @@map("medilab_test_parameter_sample_type_rel")
 }
 
-/// Laboratory equipment used to run tests.
+/// Laboratory equipment used to run tests. Trigram indexes on code, name and serial number serve search.
 model Machine {
   /// Row identifier.
   id                    Int                    @id @default(autoincrement())
@@ -532,7 +540,7 @@ model ParameterMethodMachine {
   @@map("medilab_parameter_method_machine")
 }
 
-/// A chemical substance the laboratory keeps and uses for testing. Stock, expiry and suppliers are kept by Inventory.
+/// A chemical substance the laboratory keeps and uses for testing. Stock, expiry and suppliers are kept by Inventory. Trigram indexes on code, name and CAS number serve search.
 model Chemical {
   /// Row identifier.
   id                 Int              @id @default(autoincrement())
@@ -566,14 +574,14 @@ model ChemicalMethod {
   /// The chemical.
   chemical    Chemical      @relation(fields: [chemical_id], references: [id], onDelete: Restrict)
   /// The testing method.
-  method      TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
+  method      TestingMethod @relation(fields: [method_id], references: [id], onDelete: Restrict)
 
   @@id([chemical_id, method_id])
   @@index([method_id])
   @@map("medilab_chemical_method_rel")
 }
 
-/// A quality registration dossier with an authority that covers some ways of testing; its mark is printed after the parameter name on the report.
+/// A quality registration dossier with an authority that covers some ways of testing; its mark is printed after the parameter name on the report. Trigram indexes on code and name serve search.
 model QualityRegistration {
   /// Row identifier.
   id                Int                                  @id @default(autoincrement())
@@ -607,7 +615,7 @@ model QualityRegistrationParameterMethod {
   /// The dossier.
   registration        QualityRegistration @relation(fields: [registration_id], references: [id], onDelete: Cascade)
   /// The parameter and method pair.
-  parameter_method    ParameterMethod     @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+  parameter_method    ParameterMethod     @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
 
   @@id([registration_id, parameter_method_id])
   @@index([parameter_method_id])
@@ -867,20 +875,16 @@ model TestResult {
   @@map("medilab_test_result")
 }
 
-/// Someone who works for the laboratory (medilab.person). It delegates to their Odoo employee with _inherits: this table holds the team, roles and direct permissions, and the employee their name, user, work contact and department.
+/// Someone who works for the laboratory (medilab.person). It delegates to their Odoo employee with _inherits: this table holds the employee link, and the employee their name, user, work contact and department.
 model Person {
   /// Row identifier.
   id            Int          @id @default(autoincrement())
   /// The Odoo employee the person delegates to.
   employee_id   Int          @unique
-  /// Team of the person: a department whose parent is the person's department.
-  team_id       Int?
   /// False when the person is archived.
   active        Boolean      @default(true)
   /// The Odoo employee the person delegates to.
   employee      Employee     @relation(fields: [employee_id], references: [id], onDelete: Cascade)
-  /// Team of the person.
-  team          Department?  @relation("PersonTeam", fields: [team_id], references: [id], onDelete: Restrict)
   /// Roles the person holds.
   roles         PersonRole[]
   /// Tasks assigned to the person.
@@ -911,12 +915,13 @@ model Person {
   change_requests ChangeRequest[] @relation("ChangeRequester")
   /// Signatures the person gave.
   signatures    Signature[]
+  /// Wizards that assign tasks to the person.
+  task_reassigns TaskReassign[]
 
-  @@index([team_id])
   @@map("medilab_person")
 }
 
-/// Odoo's employee (hr.employee), shown with the columns this schema uses: the Odoo record a person delegates to.
+/// Odoo's employee (hr.employee), shown with the columns this schema uses: the Odoo record a person delegates to. Trigram indexes on name and work email serve search.
 model Employee {
   /// Row identifier.
   id              Int          @id @default(autoincrement())
@@ -989,7 +994,7 @@ model Group {
   @@map("res_groups")
 }
 
-/// A role the administrator defines, such as Tester or Head of department: a set of permissions. Signing levels are given to roles.
+/// A role the administrator defines, such as Tester or Head of department: a set of permissions. Signing levels are given to roles. Trigram indexes on code and name serve search.
 model Role {
   /// Row identifier.
   id              Int              @id @default(autoincrement())
@@ -1175,7 +1180,7 @@ model Signature {
   @@map("medilab_signature")
 }
 
-/// A kind of task, such as sample collection or testing a parameter, and how its tasks are created and routed. Task types come with the modules; on the screen only their route, role and default deadline change.
+/// A kind of task, such as sample collection or testing a parameter, and how its tasks are created and routed. Task types come with the modules; on the screen only their route, role and default deadline change. Trigram indexes on code and name serve search.
 model TaskType {
   /// Row identifier.
   id             Int      @id @default(autoincrement())
@@ -1252,12 +1257,50 @@ model Task {
   calendar_event CalendarEvent? @relation("TaskEvent", fields: [calendar_event_id], references: [id], onDelete: SetNull)
   /// Machine bookings made for the task.
   bookings       MachineBooking[]
+  /// Assign-task wizards that include this task.
+  reassign_wizards TaskReassignTask[]
 
   @@index([assignee_id, status])
   @@index([department_id, status])
   @@index([document_model, document_id])
   @@index([deadline])
   @@map("medilab_task")
+}
+
+/// Assigns tasks to a person or moves them to another department's queue. Odoo keeps the wizard only while it is open.
+model TaskReassign {
+  /// Row identifier.
+  id            Int      @id @default(autoincrement())
+  /// Department whose queue holds the tasks.
+  department_id Int?
+  /// Person who does the tasks; empty to leave them in the department's queue.
+  assignee_id   Int?
+  /// Why the tasks move to another person or department.
+  reason        String?  @db.Text
+  /// Department whose queue holds the tasks.
+  department    Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  /// Person who does the tasks.
+  assignee      Person?     @relation(fields: [assignee_id], references: [id], onDelete: SetNull)
+  /// The tasks to assign or move.
+  tasks         TaskReassignTask[]
+
+  @@map("medilab_task_reassign")
+}
+
+/// Links an assign-task wizard to the tasks it assigns.
+model TaskReassignTask {
+  /// The wizard.
+  medilab_task_reassign_id Int
+  /// A task the wizard assigns.
+  medilab_task_id          Int
+  /// The wizard.
+  wizard                   TaskReassign @relation(fields: [medilab_task_reassign_id], references: [id], onDelete: Cascade)
+  /// The task.
+  task                     Task         @relation(fields: [medilab_task_id], references: [id], onDelete: Cascade)
+
+  @@id([medilab_task_reassign_id, medilab_task_id])
+  @@index([medilab_task_id])
+  @@map("medilab_task_medilab_task_reassign_rel")
 }
 
 /// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task or a machine booking on the attendees' calendars. Its alarm sends the reminder before it starts.

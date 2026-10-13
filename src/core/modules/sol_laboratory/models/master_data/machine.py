@@ -7,27 +7,29 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MACHINE_SERVICE,
     MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_PERMISSION_MIXIN,
 )
 
 
 # Máy
 class Machine(models.Model):
     _name = MODEL_MACHINE
-    _inherit = [MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
     _description = "Machine"
     _order = "code"
     _rec_names_search = ("name", "code", "serial_number")
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique code of the machine.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Name of the machine, such as "HPLC 1".
-    name = fields.Char(required=True)
+    name = fields.Char(required=True, index="trigram")
     # Model of the machine, as named by the manufacturer.
     model = fields.Char()
     # Company that made the machine.
     manufacturer = fields.Char()
     # Serial number given by the manufacturer.
-    serial_number = fields.Char()
+    serial_number = fields.Char(index="trigram")
     # Where the machine is, such as "Room 203, bench 2".
     location = fields.Char()
     # Whether the machine is in use, under repair or retired.

@@ -17,9 +17,9 @@ class TaskType(models.Model):
     _permission_actions = ("edit",)
 
     # Unique code of the task type.
-    code = fields.Char(required=True, readonly=True, copy=False)
+    code = fields.Char(required=True, readonly=True, copy=False, index="trigram")
     # Task type name in each language.
-    name = fields.Char(required=True, readonly=True, translate=True)
+    name = fields.Char(required=True, readonly=True, translate=True, index="trigram")
     # Event that creates its tasks, such as sample_received; manual for tasks people create.
     trigger = fields.Char(required=True, readonly=True, default=MANUAL_TRIGGER)
     # Technical name of the document its tasks open, such as medilab.sample.test.

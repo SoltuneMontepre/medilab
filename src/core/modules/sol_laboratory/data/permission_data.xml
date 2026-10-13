@@ -229,6 +229,375 @@
         <field name="action">delete</field>
         <field name="scope">own_department</field>
     </record>
+    <record id="permission_chemical_create_all" model="medilab.permission">
+        <field name="name">Create chemicals</field>
+        <field name="document_model">medilab.chemical</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_chemical_edit_all" model="medilab.permission">
+        <field name="name">Edit chemicals</field>
+        <field name="document_model">medilab.chemical</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_chemical_archive_all" model="medilab.permission">
+        <field name="name">Archive chemicals</field>
+        <field name="document_model">medilab.chemical</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_chemical_delete_all" model="medilab.permission">
+        <field name="name">Delete chemicals</field>
+        <field name="document_model">medilab.chemical</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_machine_create_all" model="medilab.permission">
+        <field name="name">Create machines</field>
+        <field name="document_model">medilab.machine</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_machine_edit_all" model="medilab.permission">
+        <field name="name">Edit machines</field>
+        <field name="document_model">medilab.machine</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_machine_archive_all" model="medilab.permission">
+        <field name="name">Archive machines</field>
+        <field name="document_model">medilab.machine</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_machine_delete_all" model="medilab.permission">
+        <field name="name">Delete machines</field>
+        <field name="document_model">medilab.machine</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_machine_service_create_all" model="medilab.permission">
+        <field name="name">Create machine services</field>
+        <field name="document_model">medilab.machine.service</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_machine_service_edit_all" model="medilab.permission">
+        <field name="name">Edit machine services</field>
+        <field name="document_model">medilab.machine.service</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_machine_service_delete_all" model="medilab.permission">
+        <field name="name">Delete machine services</field>
+        <field name="document_model">medilab.machine.service</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_measurement_unit_create_all" model="medilab.permission">
+        <field name="name">Create measurement units</field>
+        <field name="document_model">medilab.measurement.unit</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_measurement_unit_edit_all" model="medilab.permission">
+        <field name="name">Edit measurement units</field>
+        <field name="document_model">medilab.measurement.unit</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_measurement_unit_archive_all" model="medilab.permission">
+        <field name="name">Archive measurement units</field>
+        <field name="document_model">medilab.measurement.unit</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_measurement_unit_delete_all" model="medilab.permission">
+        <field name="name">Delete measurement units</field>
+        <field name="document_model">medilab.measurement.unit</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_parameter_group_create_all" model="medilab.permission">
+        <field name="name">Create parameter groups</field>
+        <field name="document_model">medilab.parameter.group</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_parameter_group_edit_all" model="medilab.permission">
+        <field name="name">Edit parameter groups</field>
+        <field name="document_model">medilab.parameter.group</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_parameter_group_archive_all" model="medilab.permission">
+        <field name="name">Archive parameter groups</field>
+        <field name="document_model">medilab.parameter.group</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_parameter_group_delete_all" model="medilab.permission">
+        <field name="name">Delete parameter groups</field>
+        <field name="document_model">medilab.parameter.group</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_parameter_method_create_all" model="medilab.permission">
+        <field name="name">Create ways of testing</field>
+        <field name="document_model">medilab.parameter.method</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_parameter_method_edit_all" model="medilab.permission">
+        <field name="name">Edit ways of testing</field>
+        <field name="document_model">medilab.parameter.method</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_parameter_method_archive_all" model="medilab.permission">
+        <field name="name">Archive ways of testing</field>
+        <field name="document_model">medilab.parameter.method</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_parameter_method_delete_all" model="medilab.permission">
+        <field name="name">Delete ways of testing</field>
+        <field name="document_model">medilab.parameter.method</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_parameter_method_create_own_department" model="medilab.permission">
+        <field name="name">Create ways of testing of their department</field>
+        <field name="document_model">medilab.parameter.method</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_parameter_method_edit_own_department" model="medilab.permission">
+        <field name="name">Edit ways of testing of their department</field>
+        <field name="document_model">medilab.parameter.method</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_parameter_method_archive_own_department" model="medilab.permission">
+        <field name="name">Archive ways of testing of their department</field>
+        <field name="document_model">medilab.parameter.method</field>
+        <field name="action">archive</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_parameter_method_delete_own_department" model="medilab.permission">
+        <field name="name">Delete ways of testing of their department</field>
+        <field name="document_model">medilab.parameter.method</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_parameter_method_machine_create_all" model="medilab.permission">
+        <field name="name">Create machines for ways of testing</field>
+        <field name="document_model">medilab.parameter.method.machine</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_parameter_method_machine_edit_all" model="medilab.permission">
+        <field name="name">Edit machines for ways of testing</field>
+        <field name="document_model">medilab.parameter.method.machine</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_parameter_method_machine_delete_all" model="medilab.permission">
+        <field name="name">Delete machines for ways of testing</field>
+        <field name="document_model">medilab.parameter.method.machine</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_quality_registration_create_all" model="medilab.permission">
+        <field name="name">Create quality registrations</field>
+        <field name="document_model">medilab.quality.registration</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_quality_registration_edit_all" model="medilab.permission">
+        <field name="name">Edit quality registrations</field>
+        <field name="document_model">medilab.quality.registration</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_quality_registration_archive_all" model="medilab.permission">
+        <field name="name">Archive quality registrations</field>
+        <field name="document_model">medilab.quality.registration</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_quality_registration_delete_all" model="medilab.permission">
+        <field name="name">Delete quality registrations</field>
+        <field name="document_model">medilab.quality.registration</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_regulation_create_all" model="medilab.permission">
+        <field name="name">Create regulations</field>
+        <field name="document_model">medilab.regulation</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_regulation_edit_all" model="medilab.permission">
+        <field name="name">Edit regulations</field>
+        <field name="document_model">medilab.regulation</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_regulation_archive_all" model="medilab.permission">
+        <field name="name">Archive regulations</field>
+        <field name="document_model">medilab.regulation</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_regulation_delete_all" model="medilab.permission">
+        <field name="name">Delete regulations</field>
+        <field name="document_model">medilab.regulation</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_regulation_limit_create_all" model="medilab.permission">
+        <field name="name">Create regulation limits</field>
+        <field name="document_model">medilab.regulation.limit</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_regulation_limit_edit_all" model="medilab.permission">
+        <field name="name">Edit regulation limits</field>
+        <field name="document_model">medilab.regulation.limit</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_regulation_limit_delete_all" model="medilab.permission">
+        <field name="name">Delete regulation limits</field>
+        <field name="document_model">medilab.regulation.limit</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_sample_type_create_all" model="medilab.permission">
+        <field name="name">Create sample types</field>
+        <field name="document_model">medilab.sample.type</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_sample_type_edit_all" model="medilab.permission">
+        <field name="name">Edit sample types</field>
+        <field name="document_model">medilab.sample.type</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_sample_type_archive_all" model="medilab.permission">
+        <field name="name">Archive sample types</field>
+        <field name="document_model">medilab.sample.type</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_sample_type_delete_all" model="medilab.permission">
+        <field name="name">Delete sample types</field>
+        <field name="document_model">medilab.sample.type</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_subcontractor_create_all" model="medilab.permission">
+        <field name="name">Create subcontractors</field>
+        <field name="document_model">medilab.subcontractor</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_subcontractor_edit_all" model="medilab.permission">
+        <field name="name">Edit subcontractors</field>
+        <field name="document_model">medilab.subcontractor</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_subcontractor_archive_all" model="medilab.permission">
+        <field name="name">Archive subcontractors</field>
+        <field name="document_model">medilab.subcontractor</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_test_parameter_create_all" model="medilab.permission">
+        <field name="name">Create test parameters</field>
+        <field name="document_model">medilab.test.parameter</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_test_parameter_edit_all" model="medilab.permission">
+        <field name="name">Edit test parameters</field>
+        <field name="document_model">medilab.test.parameter</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_test_parameter_archive_all" model="medilab.permission">
+        <field name="name">Archive test parameters</field>
+        <field name="document_model">medilab.test.parameter</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_testing_field_create_all" model="medilab.permission">
+        <field name="name">Create testing fields</field>
+        <field name="document_model">medilab.testing.field</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_testing_field_edit_all" model="medilab.permission">
+        <field name="name">Edit testing fields</field>
+        <field name="document_model">medilab.testing.field</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_testing_field_archive_all" model="medilab.permission">
+        <field name="name">Archive testing fields</field>
+        <field name="document_model">medilab.testing.field</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_testing_field_delete_all" model="medilab.permission">
+        <field name="name">Delete testing fields</field>
+        <field name="document_model">medilab.testing.field</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_testing_method_create_all" model="medilab.permission">
+        <field name="name">Create testing methods</field>
+        <field name="document_model">medilab.testing.method</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_testing_method_edit_all" model="medilab.permission">
+        <field name="name">Edit testing methods</field>
+        <field name="document_model">medilab.testing.method</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_testing_method_archive_all" model="medilab.permission">
+        <field name="name">Archive testing methods</field>
+        <field name="document_model">medilab.testing.method</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_testing_method_delete_all" model="medilab.permission">
+        <field name="name">Delete testing methods</field>
+        <field name="document_model">medilab.testing.method</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_unit_category_create_all" model="medilab.permission">
+        <field name="name">Create unit categories</field>
+        <field name="document_model">medilab.unit.category</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_unit_category_edit_all" model="medilab.permission">
+        <field name="name">Edit unit categories</field>
+        <field name="document_model">medilab.unit.category</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_unit_category_archive_all" model="medilab.permission">
+        <field name="name">Archive unit categories</field>
+        <field name="document_model">medilab.unit.category</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_unit_category_delete_all" model="medilab.permission">
+        <field name="name">Delete unit categories</field>
+        <field name="document_model">medilab.unit.category</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_approval_chain_read_all" model="medilab.permission">
+        <field name="name">Read approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_approval_chain_create_all" model="medilab.permission">
+        <field name="name">Create approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_approval_chain_edit_all" model="medilab.permission">
+        <field name="name">Edit approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_approval_chain_archive_all" model="medilab.permission">
+        <field name="name">Archive approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_approval_chain_delete_all" model="medilab.permission">
+        <field name="name">Delete approval chains</field>
+        <field name="document_model">medilab.approval.chain</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_approval_level_read_all" model="medilab.permission">
+        <field name="name">Read approval levels</field>
+        <field name="document_model">medilab.approval.level</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_approval_level_create_all" model="medilab.permission">
+        <field name="name">Create approval levels</field>
+        <field name="document_model">medilab.approval.level</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_approval_level_edit_all" model="medilab.permission">
+        <field name="name">Edit approval levels</field>
+        <field name="document_model">medilab.approval.level</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_approval_level_delete_all" model="medilab.permission">
+        <field name="name">Delete approval levels</field>
+        <field name="document_model">medilab.approval.level</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_signature_read_all" model="medilab.permission">
+        <field name="name">Read signatures</field>
+        <field name="document_model">medilab.signature</field>
+        <field name="action">read</field>
+    </record>
     <record id="permission_scheduled_job_read_all" model="medilab.permission">
         <field name="name">Read scheduled jobs</field>
         <field name="document_model">medilab.scheduled.job</field>

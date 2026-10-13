@@ -12,12 +12,6 @@ class ArchiveMixin(models.AbstractModel):
     _name = MODEL_ARCHIVE_MIXIN
     _description = "Archiving and Deleting Rules"
 
-    def _has_field_access(self, field, operation):
-        # The interface offers Archive whenever the active field is writable.
-        if field.name == "active" and operation == "write" and not self.browse().has_access("write"):
-            return False
-        return super()._has_field_access(field, operation)
-
     def write(self, vals):
         if vals.get("active") is False:
             self.filtered("active")._check_unused(archiving=True)
@@ -41,6 +35,7 @@ class ArchiveMixin(models.AbstractModel):
             raise UserError(self.env._("This cannot be archived while these records use it:\n%s", "\n".join(lines)))
         raise UserError(self.env._("This cannot be deleted while these records refer to it:\n%s", "\n".join(lines)))
 
+    @api.ormcache()
     def _referring_fields(self):
         # Relations deleted along with the record (ondelete cascade) are parts of it and never block it.
         # Models without their own table, such as Odoo's public employees, only show other tables.

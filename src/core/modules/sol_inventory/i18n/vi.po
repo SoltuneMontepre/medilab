@@ -1,0 +1,29 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sol_inventory
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-10 07:39+0000\n"
+"PO-Revision-Date: 2026-10-05 01:14+0000\n"
+"Last-Translator: \n"
+"Language-Team: Vietnamese\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sol_inventory
+#: model:ir.module.module,summary:base.module_sol_inventory
+msgid ""
+"Manage stock, expiry, material movement and suppliers for testing centers"
+msgstr ""
+"Quản lý tồn kho, hạn sử dụng, luân chuyển vật tư và nhà cung cấp cho trung "
+"tâm thử nghiệm"
+
+#. module: sol_inventory
+#: model:ir.module.module,shortdesc:base.module_sol_inventory
+msgid "Medilab - Inventory"
+msgstr "Medilab - Kho"

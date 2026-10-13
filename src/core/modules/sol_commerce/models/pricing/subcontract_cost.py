@@ -17,7 +17,8 @@ class SubcontractCost(models.Model):
     parameter_method_id = fields.Many2one(
         MODEL_PARAMETER_METHOD,
         required=True,
-        ondelete="cascade",
+        ondelete="restrict",
+        index=True,
         domain=[("subcontractor_id", "!=", False)],
         string="Way of Testing",
     )

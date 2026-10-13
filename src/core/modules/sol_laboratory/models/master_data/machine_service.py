@@ -2,14 +2,16 @@ from odoo import api, fields, models
 from odoo.fields import Domain
 from odoo.tools import format_date
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE, MODEL_MACHINE_SERVICE
+from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE, MODEL_MACHINE_SERVICE, MODEL_PERMISSION_MIXIN
 
 
 # Lịch Sử Bảo Trì Máy
 class MachineService(models.Model):
     _name = MODEL_MACHINE_SERVICE
+    _inherit = [MODEL_PERMISSION_MIXIN]
     _description = "Machine Service"
     _order = "service_date desc, id desc"
+    _permission_actions = ("create", "edit", "delete")
 
     # The machine serviced.
     machine_id = fields.Many2one(MODEL_MACHINE, required=True, ondelete="restrict")

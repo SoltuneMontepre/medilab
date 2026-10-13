@@ -291,7 +291,7 @@ model SupplierInfo {
   /// The parameter product.
   product             Product          @relation(fields: [product_tmpl_id], references: [id], onDelete: Cascade)
   /// The subcontracted parameter and method pair.
-  parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+  parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
 
   @@map("product_supplierinfo")
 }
@@ -318,6 +318,10 @@ model SaleOrder {
   payment_status    String                @default("not_paid") @db.VarChar
   /// none, requested, approved or rejected: where the order stands in its approval chain, kept in step with its signatures.
   approval_status   String                @default("none") @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn.
+  document_version  Int                   @default(1)
+  /// unpaid, paid, declined or expired: where the latest quotation stands, kept on the order for filtering; empty when none was sent.
+  quotation_follow_up String?            @db.VarChar
   /// When the customer submitted the order.
   submitted_at      DateTime?
   /// When a salesperson claimed the order.
@@ -372,6 +376,7 @@ model SaleOrder {
   @@index([customer_id, order_status])
   @@index([order_status, submitted_at])
   @@index([user_id, order_status])
+  @@index([quotation_follow_up])
   @@map("sale_order")
 }
 
@@ -487,10 +492,14 @@ model Quotation {
   amount_total   Decimal    @db.Decimal
   /// The customer's reason for declining.
   decline_reason String?    @db.Text
+  /// The advance invoice sent with the quotation; empty when it was sent without an advance.
+  advance_invoice_id Int?
   /// The PDF sent to the customer.
   attachment_id  Int
   /// The order quoted.
   order          SaleOrder  @relation(fields: [order_id], references: [id], onDelete: Restrict)
+  /// The advance invoice sent with the quotation.
+  advance_invoice Invoice? @relation(fields: [advance_invoice_id], references: [id], onDelete: Restrict)
   /// The revision this one replaces.
   replaces       Quotation? @relation("QuotationRevisions", fields: [replaces_id], references: [id], onDelete: Restrict)
   /// The revision that replaces this one.
@@ -498,6 +507,7 @@ model Quotation {
 
   @@unique([order_id, revision])
   @@index([status])
+  @@index([advance_invoice_id])
   @@map("medilab_quotation")
 }
 
@@ -582,6 +592,8 @@ model Invoice {
   reversed_entry  Invoice?      @relation("CreditNotes", fields: [reversed_entry_id], references: [id], onDelete: Restrict)
   /// Credit notes of this invoice.
   credit_notes    Invoice[]     @relation("CreditNotes")
+  /// Quotations this invoice is the advance of.
+  quotations      Quotation[]
   /// The invoice a raising adjustment adds to.
   adjusted_invoice Invoice?     @relation("RaisingAdjustments", fields: [adjusted_invoice_id], references: [id], onDelete: Restrict)
   /// Raising adjustments of this invoice.

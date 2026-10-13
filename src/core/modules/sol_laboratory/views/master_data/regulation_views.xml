@@ -38,8 +38,10 @@
                             <field name="limit_ids">
                                 <list editable="bottom">
                                     <field name="parameter_id" />
-                                    <field name="min_value" />
-                                    <field name="max_value" />
+                                    <field name="min_set" />
+                                    <field name="min_value" invisible="not min_set" />
+                                    <field name="max_set" />
+                                    <field name="max_value" invisible="not max_set" />
                                     <field name="unit_id" />
                                     <field name="decimals" />
                                     <field name="limit_text" />
