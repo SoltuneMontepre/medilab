@@ -2495,3 +2495,34 @@ msgstr "Số tiền đang chờ"
 msgid "Print"
 msgstr "In"
 
+#. module: sol_commerce
+msgid "'Reconciliation %s' % object.day"
+msgstr "'Đối soát %s' % object.day"
+
+#. module: sol_commerce
+msgid "<span>Difference</span>"
+msgstr "<span>Chênh lệch</span>"
+
+#. module: sol_commerce
+msgid "<span>Paid</span>"
+msgstr "<span>Đã thanh toán</span>"
+
+#. module: sol_commerce
+msgid "<span>Payment total</span>"
+msgstr "<span>Tổng thanh toán</span>"
+
+#. module: sol_commerce
+msgid "<span>Subtotal</span>"
+msgstr "<span>Thành tiền trước thuế</span>"
+
+#. module: sol_commerce
+msgid "<span>Total</span>"
+msgstr "<span>Tổng cộng</span>"
+
+#. module: sol_commerce
+msgid "<span>Transfer total</span>"
+msgstr "<span>Tổng chuyển khoản</span>"
+
+#. module: sol_commerce
+msgid "<strong>Payment details</strong>"
+msgstr "<strong>Chi tiết thanh toán</strong>"
