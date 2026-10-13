@@ -10,7 +10,7 @@ Every action on a document is recorded once, with who did it, when, from where, 
 
 ### The audit mixin
 
-`medilab.audit.mixin` is inherited by every document model of every MediLab module, in the same way as the permission mixin, including the Odoo models MediLab extends, such as `hr.employee` and `sale.order`. Records the trail already describes are left out: signatures, which write their own entries on the document, and the items and runs of scheduled jobs, which the job's entries describe. The audit trail is kept apart from Odoo's field tracking, which shows changes in a document's chatter. It writes one `AuditEntry` per record for each call that changes it, in the same transaction, so an action that is rolled back leaves no entry:
+`medilab.audit.mixin` is inherited by every document model of every MediLab module, in the same way as the permission mixin, including the Odoo models MediLab extends, such as `hr.employee` and `sale.order`. Records the trail already describes are left out: signatures, which write their own entries on the document, and the items and runs of scheduled jobs and the pushes of a notification, which the job's entries describe. The audit trail is kept apart from Odoo's field tracking, which shows changes in a document's chatter. It writes one `AuditEntry` per record for each call that changes it, in the same transaction, so an action that is rolled back leaves no entry:
 
 | Call     | Action                                          | Changes                                                           |
 | -------- | ----------------------------------------------- | ----------------------------------------------------------------- |
@@ -18,11 +18,11 @@ Every action on a document is recorded once, with who did it, when, from where, 
 | `write`  | `edit`, or `archive` when only `active` changes | One `AuditChange` per stored field whose value changed            |
 | `unlink` | `delete`                                        | None; the entry's note keeps the record's display name            |
 
-- Only stored fields are recorded; computed fields that are not stored, binary fields and Odoo's bookkeeping fields (`create_uid`, `create_date`, `write_uid`, `write_date`, `__last_update`) are left out. A model can leave out more fields with `_audit_exclude`.
+- Only stored fields are recorded; computed fields that are not stored, binary fields and Odoo's bookkeeping fields (`create_uid`, `create_date`, `write_uid`, `write_date`, `__last_update`) are left out. A model can leave out more fields with `_audit_exclude`, such as the time a mobile device last refreshed its token.
 - The fields a document delegates to another record with `_inherits`, such as a subcontractor's contact details, and its writable related fields, such as a job's schedule kept on its cron, are recorded as the document's own. When that record is audited itself, it records them: a person's employee details are recorded on the employee, and the person's history includes them.
 - A call that changes no recorded field writes no entry. A document edited together with the documents under it, such as a regulation and its limits, writes no entry for the list itself: each document under it writes its own.
 - Values are written as text: a relation as the display name and id of the record, a selection as its value, a date in ISO format. A relation changes when it points to other records, not when a record it points to is renamed.
-- A field marked `audit_mask=True`, such as a customer's citizen ID, records that it changed, with both values written as `***`. So do the tokens that open a document without signing in, such as an order's portal link, and the employee details Odoo shows only to HR, such as a private phone.
+- A field marked `audit_mask=True`, such as a customer's citizen ID, records that it changed, with both values written as `***`. So do the tokens that open a document without signing in, such as an order's portal link, a mobile device's push token, and the employee details Odoo shows only to HR, such as a private phone.
 - Entries are written with full rights, so a person who cannot read the audit trail still produces entries.
 
 Other actions are written by the feature that owns them through `_audit(action, note=None)` on the mixin, `download` by the controller that serves a printed document and `integration` by the integrations. The signing mixin and the scheduled jobs write theirs on the document they act on:

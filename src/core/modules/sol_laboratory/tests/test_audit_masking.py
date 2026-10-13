@@ -1,7 +1,7 @@
 from odoo.tests import tagged
 
 from .audit_case import AuditCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_CHEMICAL
+from odoo.addons.sol_laboratory.constants.models import MODEL_CHEMICAL, MODEL_MOBILE_DEVICE
 
 
 @tagged("post_install", "-at_install")
@@ -23,3 +23,14 @@ class TestAuditMasking(AuditCase):
 
         parameter = parameters.search([("key", "=", "database.secret")])
         self.assertEqual(self.changes(self.entries(parameter, "edit"))["value"][1], "***")
+
+    def test_a_device_token_is_masked_and_refreshing_it_is_not_a_change(self):
+        devices = self.env[MODEL_MOBILE_DEVICE].with_user(self.editor)
+        device = devices.register_token("fcm-token-1", "android")
+
+        devices.register_token("fcm-token-1", "android")
+
+        changes = self.changes(self.entries(device, "create"))
+        self.assertEqual(changes["token"], (False, "***"))
+        self.assertNotIn("last_seen_at", changes)
+        self.assertFalse(self.entries(device, "edit"))

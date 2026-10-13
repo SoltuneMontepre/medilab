@@ -2,6 +2,7 @@ from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_NOTIFICATION_EVENT_RECIPIENT,
     MODEL_PERMISSION_MIXIN,
@@ -12,7 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Người nhận của một loại thông báo: một vai trò hoặc một phòng.
 class NotificationEventRecipient(models.Model):
     _name = MODEL_NOTIFICATION_EVENT_RECIPIENT
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Notification Event Recipient"
     _permission_actions = ("read", "create", "edit", "delete")
 

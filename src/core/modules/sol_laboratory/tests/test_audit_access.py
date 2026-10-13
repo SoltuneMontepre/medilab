@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_EMPLOYEE,
     MODEL_JOB_ITEM,
     MODEL_JOB_RUN,
+    MODEL_PUSH_DELIVERY,
     MODEL_REGULATION,
     MODEL_SIGNATURE,
 )
@@ -49,8 +50,16 @@ class TestAuditAccess(AuditCase):
         self.assertNotIn(HISTORY_BUTTON, regulations.with_user(self.editor).get_view(view_type="form")["arch"])
 
     def test_every_document_model_of_the_laboratory_is_audited(self):
-        # The trail itself, and the records the trail already describes: signatures and the work of jobs.
-        unaudited = {MODEL_AUDIT_ENTRY, MODEL_AUDIT_CHANGE, MODEL_SIGNATURE, MODEL_JOB_ITEM, MODEL_JOB_RUN}
+        # The trail itself, and the records the trail already describes: signatures and the work of jobs, such as
+        # the pushes of a notification.
+        unaudited = {
+            MODEL_AUDIT_ENTRY,
+            MODEL_AUDIT_CHANGE,
+            MODEL_SIGNATURE,
+            MODEL_JOB_ITEM,
+            MODEL_JOB_RUN,
+            MODEL_PUSH_DELIVERY,
+        }
         documents = {MODEL_EMPLOYEE, MODEL_DEPARTMENT} | {
             name
             for name, model in self.env.registry.items()
