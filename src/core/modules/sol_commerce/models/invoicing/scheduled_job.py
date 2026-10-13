@@ -7,6 +7,7 @@ from odoo import fields, models
 from odoo.tools import SQL
 
 from odoo.addons.sol_commerce.services.payos_client import payos_client_from_env
+from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_JOB_RUN, MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 
@@ -119,11 +120,12 @@ class ScheduledJob(models.Model):
         self.ensure_one()
         now = fields.Datetime.now()
         run = self.env[MODEL_JOB_RUN].sudo().create({"job_id": self.id, "started_at": now})
-        handler = getattr(self, self._handler_name(), None)
+        job = self.with_context(**{JOB_RUN_CONTEXT: run.id})
+        handler = getattr(job, job._handler_name(), None)
         if handler is None:
-            run._finish("failed", f"No handler {self._handler_name()} is defined")
+            run._finish("failed", f"No handler {job._handler_name()} is defined")
             return
-        self._process_item(item, handler, run)
+        job._process_item(item.with_context(**{JOB_RUN_CONTEXT: run.id}), handler, run)
         run._close()
 
     def _payos_link_matches(self, data, amount, order_code):

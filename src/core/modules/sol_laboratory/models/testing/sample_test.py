@@ -5,6 +5,7 @@ from odoo import api, fields, models
 from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SAMPLE,
@@ -20,7 +21,7 @@ END_OF_DAY = time(23, 59, 59)
 # Chỉ Tiêu Của Mẫu
 class SampleTest(models.Model):
     _name = MODEL_SAMPLE_TEST
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Sample Test"
     _order = "sample_id, id"
     _rec_name = "parameter_id"

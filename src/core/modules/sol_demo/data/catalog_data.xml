@@ -124,6 +124,12 @@
             eval="[Command.set([ref('sample_type_bottled_water'), ref('sample_type_cabbage'), ref('sample_type_surface_water')])]"
         />
     </record>
+    <!-- No longer offered: the demo archives it. -->
+    <record id="demo_test_parameter_cadmium" model="medilab.test.parameter">
+        <field name="name">Cadmium (Cd)</field>
+        <field name="group_ids" eval="[Command.set([ref('group_heavy_metals')])]" />
+        <field name="main_group_id" ref="group_heavy_metals" />
+    </record>
     <record id="parameter_coliforms" model="medilab.test.parameter">
         <field name="name">Coliforms</field>
         <field name="group_ids" eval="[Command.set([ref('group_microbiology')])]" />

@@ -6,16 +6,18 @@ from odoo.exceptions import UserError
 from odoo.fields import Domain
 from odoo.http import request
 
+from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_CHANGE,
     MODEL_AUDIT_ENTRY,
     MODEL_AUDIT_MIXIN,
+    MODEL_JOB_RUN,
     MODEL_PERMISSION_MIXIN,
 )
 
 # Odoo's external APIs, and the session route external applications sign in with.
 API_PATH_PREFIXES = ("/xmlrpc", "/jsonrpc", "/json/", "/web/session/authenticate")
-# Odoo runs a scheduled action with its cron in the context.
+# Odoo runs a scheduled action with its cron in the context, including crons that are not MediLab jobs.
 CRON_CONTEXT_KEY = "cron_id"
 # Logins and logouts are entries on the user who signs in or out.
 SESSION_MODEL = "res.users"
@@ -34,7 +36,9 @@ class AuditEntry(models.Model):
     # The Odoo user who acted; empty when the system acted.
     user_id = fields.Many2one("res.users", readonly=True, ondelete="restrict")
     # Where the action came from: a screen, the API or a scheduled job.
-    source = fields.Selection([("screen", "Screen"), ("api", "API"), ("job", "Job")], required=True, readonly=True)
+    source = fields.Selection(
+        [("screen", "Screen"), ("api", "API"), ("job", "Scheduled Job")], required=True, readonly=True
+    )
     # The action recorded.
     action = fields.Selection(
         [
@@ -49,7 +53,7 @@ class AuditEntry(models.Model):
             ("sign", "Sign"),
             ("withdraw", "Withdraw"),
             ("download", "Download"),
-            ("job", "Job"),
+            ("job", "Job Run"),
             ("integration", "Integration"),
             ("error", "Error"),
         ],
@@ -60,6 +64,8 @@ class AuditEntry(models.Model):
     document_model = fields.Selection(selection="_selection_document_model", string="Document Type", readonly=True)
     # Id of the document acted on.
     document_id = fields.Integer(string="Document ID", readonly=True)
+    # The job run that acted, when the source is a job.
+    job_run_id = fields.Many2one(MODEL_JOB_RUN, readonly=True, ondelete="restrict")
     # What happened, for actions without field changes, such as the name of a deleted document.
     note = fields.Text(readonly=True)
     # Field changes of the entry.
@@ -74,7 +80,10 @@ class AuditEntry(models.Model):
 
     @api.model
     def _selection_document_model(self):
-        names = {*self.env.registry[MODEL_AUDIT_MIXIN]._inherit_children, SESSION_MODEL}
+        # A model inherits the mixin directly or through another mixin, such as the approval mixin.
+        mixin = self.env.registry[MODEL_AUDIT_MIXIN]
+        names = {name for name, model in self.env.registry.items() if issubclass(model, mixin) and not model._abstract}
+        names.add(SESSION_MODEL)
         models_ = self.env["ir.model"].sudo().search([("model", "in", list(names))])
         return sorted(((model.model, model.name) for model in models_), key=lambda item: item[1])
 
@@ -142,7 +151,11 @@ class AuditEntry(models.Model):
 
     @api.model
     def _origin_values(self):
-        """The source and user of an entry written now."""
+        """The source, user and job run of an entry written now."""
+        if run_id := self.env.context.get(JOB_RUN_CONTEXT):
+            # The user who ran the job by hand, or none for a scheduled run.
+            run = self.env[MODEL_JOB_RUN].sudo().browse(run_id)
+            return {"source": "job", "user_id": run.triggered_by_id.id, "job_run_id": run.id}
         if CRON_CONTEXT_KEY in self.env.context:
             return {"source": "job", "user_id": False}
         uid = self.env.uid

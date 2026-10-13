@@ -1,7 +1,7 @@
 from odoo.tests import tagged
 
 from .audit_case import AuditCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_REGULATION, MODEL_REGULATION_LIMIT
+from odoo.addons.sol_laboratory.constants.models import MODEL_REGULATION, MODEL_REGULATION_LIMIT
 
 
 @tagged("post_install", "-at_install")
@@ -12,8 +12,7 @@ class TestAuditHistory(AuditCase):
         self.limit.max_value = 0.02
         other.name = "Clean water for domestic use"
 
-        action = self.regulation.with_user(self.auditor).action_open_audit_history()
-        history = self.env[MODEL_AUDIT_ENTRY].with_user(self.auditor).search(action["domain"])
+        history = self.history(self.regulation, self.auditor)
 
         self.assertEqual(history, self.entries(self.regulation) | self.entries(self.limit))
         self.assertIn(self.entries(self.limit, "edit"), history)
@@ -24,6 +23,4 @@ class TestAuditHistory(AuditCase):
         self.patch(type(self.env[MODEL_REGULATION_LIMIT]), "_audit_children", ("parameter_id",))
         self.parameter.name = "Lead (Pb), total"
 
-        action = self.regulation.action_open_audit_history()
-
-        self.assertIn(self.entries(self.parameter, "edit"), self.env[MODEL_AUDIT_ENTRY].search(action["domain"]))
+        self.assertIn(self.entries(self.parameter, "edit"), self.history(self.regulation, self.auditor))

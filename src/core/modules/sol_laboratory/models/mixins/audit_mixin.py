@@ -17,6 +17,8 @@ NUMERIC_TYPES = frozenset({"integer", "float", "monetary"})
 # What a field holds before it is given a value.
 EMPTY_VALUES = {"integer": 0, "float": 0.0, "monetary": 0.0}
 MASK = "***"
+# Tokens that open a document without signing in, such as the link a portal customer gets.
+MASKED_FIELDS = frozenset({"access_token"})
 
 
 def _record_text(record):
@@ -44,6 +46,15 @@ def _as_text(field, value):
     return str(value)
 
 
+def _audit_value(field, value):
+    # A value is compared by what it is and kept as its text: a relation is its records, so renaming a record it points
+    # to does not change it.
+    text = _as_text(field, value)
+    if field.type in ("many2one", "many2many"):
+        return (tuple(value.ids) if value else ()), text
+    return text, text
+
+
 # Writes an audit entry for every create, edit, archive and delete of a document.
 class AuditMixin(models.AbstractModel):
     _name = MODEL_AUDIT_MIXIN
@@ -60,7 +71,7 @@ class AuditMixin(models.AbstractModel):
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        empty = {field.name: _as_text(field, EMPTY_VALUES.get(field.type, False)) for field in self._audit_fields()}
+        empty = {field.name: _audit_value(field, EMPTY_VALUES.get(field.type, False)) for field in self._audit_fields()}
         changes = records._audit_changes(dict.fromkeys(records.ids, empty), records._audit_values())
         for record_changes in changes.values():
             for change in record_changes:
@@ -112,41 +123,58 @@ class AuditMixin(models.AbstractModel):
 
     @api.model
     def _audit_fields(self):
-        return [
-            field
-            for field in self._fields.values()
-            if field.name not in UNAUDITED_FIELDS
-            and field.name not in self._audit_exclude
-            and field.type not in UNAUDITED_TYPES
-            and field.base_field.store
-            and (field.store or field.inherited)
-        ]
+        return [field for field in self._fields.values() if self._audit_records_field(field)]
+
+    @api.model
+    def _audit_records_field(self, field):
+        if field.name in UNAUDITED_FIELDS or field.name in self._audit_exclude or field.type in UNAUDITED_TYPES:
+            return False
+        if field.store:
+            return True
+        # A field kept on another record and written through the document, delegated with _inherits or related and
+        # writable, is the document's own, unless that record is audited and records it itself.
+        if not (field.inherited or (field.related and not field.readonly)) or not field.related_field.base_field.store:
+            return False
+        return not self._audit_is_audited(self._fields[field.related.split(".")[0]].comodel_name)
+
+    @api.model
+    def _audit_is_audited(self, model_name):
+        return isinstance(self.env[model_name], self.env.registry[MODEL_AUDIT_MIXIN])
+
+    @api.model
+    def _audit_relations(self):
+        # The documents under this one, and the audited records it delegates fields to, which its history includes.
+        delegates = [field_name for model, field_name in self._inherits.items() if self._audit_is_audited(model)]
+        return (*delegates, *self._audit_children)
 
     def _audit_values(self):
         # Read with full rights and archived records included, so access rules never change what is recorded.
         audited = self._audit_fields()
         return {
-            record.id: {field.name: _as_text(field, record[field.name]) for field in audited}
+            record.id: {field.name: _audit_value(field, record[field.name]) for field in audited}
             for record in self.sudo().with_context(active_test=False)
         }
 
     def _audit_changes(self, before, after):
         changes = {}
         for record in self:
-            old_values = before[record.id]
-            changes[record.id] = [
-                {
-                    "field_name": name,
-                    "old_value": MASK if old is not None and record._audit_masked(name) else old,
-                    "new_value": MASK if new is not None and record._audit_masked(name) else new,
-                }
-                for name, new in after[record.id].items()
-                if (old := old_values[name]) != new
-            ]
+            changes[record.id] = []
+            for name, (new_key, new) in after[record.id].items():
+                old_key, old = before[record.id][name]
+                if old_key == new_key:
+                    continue
+                masked = record._audit_masked(name)
+                changes[record.id].append(
+                    {
+                        "field_name": name,
+                        "old_value": MASK if old is not None and masked else old,
+                        "new_value": MASK if new is not None and masked else new,
+                    }
+                )
         return changes
 
     def _audit_masked(self, field_name):
-        return getattr(self._fields[field_name], "audit_mask", False)
+        return field_name in MASKED_FIELDS or getattr(self._fields[field_name], "audit_mask", False)
 
     def action_open_audit_history(self):
         self.ensure_one()
@@ -159,7 +187,7 @@ class AuditMixin(models.AbstractModel):
         }
 
     def _audit_history_domain(self):
-        # The entries of the documents and, through _audit_children, of every document under them.
+        # The entries of the documents and, through _audit_relations, of every record under them.
         documents = defaultdict(set)
         pending = [self.sudo().with_context(active_test=False)]
         while pending:
@@ -168,7 +196,8 @@ class AuditMixin(models.AbstractModel):
             if not records:
                 continue
             documents[records._name].update(records.ids)
-            pending.extend(records.mapped(relation) for relation in getattr(records, "_audit_children", ()))
+            if self._audit_is_audited(records._name):
+                pending.extend(records.mapped(relation) for relation in records._audit_relations())
         return Domain.OR(
             Domain("document_model", "=", model) & Domain("document_id", "in", sorted(ids))
             for model, ids in documents.items()

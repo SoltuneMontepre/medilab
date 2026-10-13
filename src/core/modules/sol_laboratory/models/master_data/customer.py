@@ -2,6 +2,7 @@ from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_CUSTOMER,
     MODEL_PERMISSION_MIXIN,
@@ -11,7 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Khách Hàng
 class Customer(models.Model):
     _name = MODEL_CUSTOMER
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _inherits = {"res.partner": "partner_id"}
     _description = "Customer"
     _order = "code"

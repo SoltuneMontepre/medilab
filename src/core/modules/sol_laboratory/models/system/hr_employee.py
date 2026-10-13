@@ -1,11 +1,16 @@
 from odoo import fields, models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_EMPLOYEE, MODEL_PERSON
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_EMPLOYEE, MODEL_PERSON
 
 
 # Nhân Viên
 class HrEmployee(models.Model):
-    _inherit = MODEL_EMPLOYEE
+    # _name is required to add mixins to an Odoo model. The audit mixin comes first so that it wraps Odoo's write,
+    # which writes the fields of the employee's version after its own.
+    _name = MODEL_EMPLOYEE
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_EMPLOYEE]
+    # Odoo's links between the employee, its versions and its resource, and the bookkeeping of its versions.
+    _audit_exclude = ("current_version_id", "employee_id", "last_modified_date", "last_modified_uid", "resource_id")
 
     # Employee name, searched with the person.
     name = fields.Char(index="trigram")
@@ -38,6 +43,10 @@ class HrEmployee(models.Model):
         # Deleting an employee deletes its person, whose permission and rules apply first.
         self._people().with_env(self.env).unlink()
         return super().unlink()
+
+    def _audit_masked(self, field_name):
+        # Odoo limits an employee's private details, such as their ID, address and pay, to some groups.
+        return bool(self._fields[field_name].groups) or super()._audit_masked(field_name)
 
     def _people(self):
         return self.env[MODEL_PERSON].sudo().with_context(active_test=False).search([("employee_id", "in", self.ids)])

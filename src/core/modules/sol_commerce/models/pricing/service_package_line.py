@@ -2,13 +2,13 @@ from odoo import api, fields, models
 from odoo.fields import Domain
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SERVICE_PACKAGE, MODEL_SERVICE_PACKAGE_LINE
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
 
 
 # Links a service package to a parameter it includes, with how many times.
 class ServicePackageLine(models.Model):
     _name = MODEL_SERVICE_PACKAGE_LINE
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Service Package Line"
     _order = "package_id, id"
 

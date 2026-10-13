@@ -2,6 +2,7 @@ from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
@@ -12,7 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Hồ Sơ Đăng Ký Chất Lượng
 class QualityRegistration(models.Model):
     _name = MODEL_QUALITY_REGISTRATION
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Quality Registration"
     _order = "code"
     _rec_names_search = ("name", "code")

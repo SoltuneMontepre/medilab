@@ -1,4 +1,6 @@
 from . import (
+    test_audit_pricing,
+    test_audit_signatures,
     test_catalog_page,
     test_invoices,
     test_order_access,

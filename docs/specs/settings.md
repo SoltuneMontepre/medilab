@@ -12,7 +12,7 @@ Every value a laboratory may change is a system parameter with a default, declar
 
 A parameter is a field on `res.config.settings`, declared by the module that reads it. `config_parameter` is the key `sol_<module>.<name>` in Odoo's system parameter table. `default` is the value a fresh installation uses, and the value an installation falls back to when the parameter is missing. `help` is the explanation shown on the settings screen.
 
-The Laboratory block holds the safety margin and opens Code formats, the `medilab.*` sequences. Each later module adds its own `<app>` block, shown only while that module is installed.
+The Laboratory block holds the safety margin and the [audit](audit-trail.md) retention period, and opens Code formats, the `medilab.*` sequences. Each later module adds its own `<app>` block, shown only while that module is installed.
 
 ### Reading a parameter
 

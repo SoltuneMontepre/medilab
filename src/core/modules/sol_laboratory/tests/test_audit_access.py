@@ -6,7 +6,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_CHANGE,
     MODEL_AUDIT_ENTRY,
     MODEL_AUDIT_MIXIN,
+    MODEL_DEPARTMENT,
+    MODEL_EMPLOYEE,
+    MODEL_JOB_ITEM,
+    MODEL_JOB_RUN,
     MODEL_REGULATION,
+    MODEL_SIGNATURE,
 )
 
 HISTORY_BUTTON = 'name="action_open_audit_history"'
@@ -44,11 +49,17 @@ class TestAuditAccess(AuditCase):
         self.assertNotIn(HISTORY_BUTTON, regulations.with_user(self.editor).get_view(view_type="form")["arch"])
 
     def test_every_document_model_of_the_laboratory_is_audited(self):
-        audit_models = {MODEL_AUDIT_ENTRY, MODEL_AUDIT_CHANGE}
-        documents = {
+        # The trail itself, and the records the trail already describes: signatures and the work of jobs.
+        unaudited = {MODEL_AUDIT_ENTRY, MODEL_AUDIT_CHANGE, MODEL_SIGNATURE, MODEL_JOB_ITEM, MODEL_JOB_RUN}
+        documents = {MODEL_EMPLOYEE, MODEL_DEPARTMENT} | {
             name
             for name, model in self.env.registry.items()
-            if name.startswith("medilab.") and not model._abstract and not model._transient and name not in audit_models
+            if model._original_module == "sol_laboratory" and not model._abstract and not model._transient
+        }
+        mixin = self.env.registry[MODEL_AUDIT_MIXIN]
+        audited = {
+            name for name, model in self.env.registry.items() if issubclass(model, mixin) and not model._abstract
         }
 
-        self.assertFalse(documents - set(self.env.registry[MODEL_AUDIT_MIXIN]._inherit_children))
+        self.assertFalse(documents - unaudited - audited)
+        self.assertFalse(unaudited & audited)

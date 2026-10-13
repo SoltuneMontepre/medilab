@@ -41,7 +41,7 @@ class TestAuditReport(AuditCase):
         self.assertFalse(self.report(date_from=yesterday, date_to=yesterday)._rows())
 
     def test_a_report_is_filtered_like_the_trail(self):
-        rows = self.report(action="sign")._rows()
+        rows = self.report(document_model=self.limit._name, action="sign")._rows()
 
         self.assertEqual({(row["action"], row["document"]) for row in rows}, {("Sign", self.limit.display_name)})
 
@@ -54,7 +54,7 @@ class TestAuditReport(AuditCase):
             sorted((row["field"], row["old_value"], row["new_value"]) for row in rows),
             [("Decimals", "3", "2"), ("Maximum", "0.01", "0.02")],
         )
-        self.assertEqual(len(self.report(action="sign")._rows()), 1)
+        self.assertEqual(len(self.report(document_model=self.limit._name, action="sign")._rows()), 1)
 
     def test_the_report_prints_and_exports(self):
         report = self.report()

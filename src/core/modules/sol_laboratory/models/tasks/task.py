@@ -6,6 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -24,7 +25,7 @@ CLAIMABLE_LIMIT = 3
 # Nhiệm Vụ
 class Task(models.Model):
     _name = MODEL_TASK
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Task"
     _order = "deadline, id"
     _permission_actions = ("read", "create", "edit", "delete")

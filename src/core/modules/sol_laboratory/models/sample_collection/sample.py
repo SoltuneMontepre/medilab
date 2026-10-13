@@ -2,6 +2,7 @@ from odoo import fields, models
 from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_REGULATION,
@@ -19,12 +20,13 @@ FINISHED_STATUSES = ("rejected", "reported", "retained", "disposed", "cancelled"
 # Mẫu
 class Sample(models.Model):
     _name = MODEL_SAMPLE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Sample"
     _order = "id desc"
     _rec_name = "code"
     # A sample is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
+    _audit_children = ("test_ids",)
 
     # Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001; the only name testers see.
     code = fields.Char(string="Lab Code", required=True, copy=False, readonly=True)

@@ -2,6 +2,7 @@ from odoo import api, fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_SUBCONTRACTOR,
@@ -14,7 +15,7 @@ RES_PARTNER = "res.partner"
 # Thầu Phụ
 class Subcontractor(models.Model):
     _name = MODEL_SUBCONTRACTOR
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _inherits = {RES_PARTNER: "partner_id"}
     _description = "Subcontractor"
     _order = "code"
@@ -68,11 +69,12 @@ class Subcontractor(models.Model):
     def write(self, vals):
         if "partner_id" in vals:
             self.env[RES_PARTNER].browse(vals["partner_id"]).check_access("write")
-        contact = {field_name: vals[field_name] for field_name in CONTACT_FIELDS if field_name in vals}
-        vals = {field_name: value for field_name, value in vals.items() if field_name not in contact}
-        if contact:
-            self._check_permission("edit")
-        result = super().write(vals) if vals else True
-        if contact:
-            self.sudo().partner_id.write(contact)
-        return result
+        if not set(CONTACT_FIELDS) & set(vals):
+            return super().write(vals)
+        # Odoo lets only contact managers write the company contact, so once the user's rights are checked the write
+        # runs with full rights. It stays one write so that one audit entry, which keeps the user, holds every change.
+        self.check_access("write")
+        self._check_permission("edit")
+        if "active" in vals:
+            self._check_permission("archive")
+        return super(Subcontractor, self.sudo()).write(vals)

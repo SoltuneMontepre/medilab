@@ -14,7 +14,10 @@ class TestAuditSessions(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.editor = new_test_user(
-            cls.env, login="editor", password=PASSWORD, groups="base.group_user,base.group_system"
+            cls.env,
+            login="editor",
+            password=PASSWORD,
+            groups="base.group_user,sol_laboratory.group_permission_chemical_edit_all",
         )
         cls.administrator = new_test_user(
             cls.env, login="administrator", password=PASSWORD, groups="sol_laboratory.group_role_administrator"

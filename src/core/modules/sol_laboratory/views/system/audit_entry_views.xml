@@ -13,6 +13,7 @@
                 <field name="document_name" />
                 <field name="change_ids" widget="many2many_tags" optional="show" />
                 <field name="note" optional="show" />
+                <field name="job_run_id" optional="hide" />
             </list>
         </field>
     </record>
@@ -28,6 +29,7 @@
                             <field name="create_date" string="Date" />
                             <field name="user_id" />
                             <field name="source" />
+                            <field name="job_run_id" invisible="not job_run_id" />
                             <field name="action" />
                         </group>
                         <group>
