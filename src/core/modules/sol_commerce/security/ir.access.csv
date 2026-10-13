@@ -6,7 +6,3 @@ access_medilab_subcontract_cost_user,medilab.subcontract.cost user,medilab.subco
 access_medilab_tax_user,medilab.tax user,medilab.tax,base.group_user,r,
 access_medilab_tax_rate_user,medilab.tax.rate user,medilab.tax.rate,base.group_user,r,
 access_medilab_order_reject_user,medilab.order.reject user,medilab.order.reject,base.group_user,crud,
-access_payment_provider_user,payment.provider user,payment.provider,base.group_user,r,
-access_payment_provider_portal,payment.provider portal,payment.provider,base.group_portal,r,
-access_payment_method_user,payment.method user,payment.method,base.group_user,r,
-access_payment_method_portal,payment.method portal,payment.method,base.group_portal,r,

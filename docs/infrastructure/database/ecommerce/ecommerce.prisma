@@ -682,10 +682,16 @@ model PaymentTransaction {
   invoice_id         Int
   /// The contact who pays.
   partner_id         Int
-  /// Amount the link asks for.
+  /// Amount of this transfer. The link transaction starts as the amount asked and becomes the first transfer.
   amount             Decimal   @db.Decimal
   /// Checkout page PayOS returned.
   checkout_url       String?   @db.VarChar
+  /// Bank reference of one PayOS transfer. Empty until PayOS reports one, and then unique.
+  payos_bank_reference String? @unique @db.VarChar
+  /// When the bank transfer happened, from PayOS, stored in UTC.
+  payos_transferred_at DateTime?
+  /// The transfer's Vietnam day was already locked when it was recorded.
+  recorded_after_lock Boolean @default(false)
   /// draft, pending, done, cancel or error, from what PayOS reports.
   state              String    @db.VarChar
   /// When the link expires.
@@ -713,6 +719,8 @@ model ReconciliationDay {
   locked_by_id Int?
   /// When the day was locked.
   locked_at    DateTime?
+  /// The accountant has accepted overpayments or amount differences on this day.
+  discrepancies_acknowledged Boolean @default(false)
   /// The accountant who locked the day.
   locked_by    User?     @relation("ReconciliationLocker", fields: [locked_by_id], references: [id], onDelete: Restrict)
 

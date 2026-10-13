@@ -12,8 +12,8 @@ A laboratory invoice is an Odoo customer invoice (`account.move`): an advance in
 - `order_id` points at the sale order. It may be empty, because the order screens are not part of this change; the invoice lines still link the order through Odoo's sale lines.
 - An advance invoice is Odoo's down payment invoice. `sale.order.create_advance_invoice` creates it and posts it. Sending a quotation does not live here: that flow calls `sale.order._on_quotation_sent`, which posts the same advance invoice.
 - `sale.order.create_final_invoice` drafts the remaining invoice with Odoo's down-payment deduction. The accountant posts it. On an order created for this purpose, the final total is the order total minus the advance.
-- A lowering adjustment is a credit note (`out_refund`) linked by `reversed_entry_id`. A raising adjustment is a new customer invoice linked by `adjusted_invoice_id`. Each holds only the difference, with no tax of its own, because the difference is the change in the amount owed.
-- The amount owed on an advance or final invoice is its `amount_residual`, minus the residual of its posted lowering adjustments, plus the residual of its posted raising adjustments. The original invoice total stays as it was posted.
+- A lowering adjustment is a credit note (`out_refund`) linked by `reversed_entry_id` and reconciled with the invoice, so `amount_residual` falls by the credit note. A raising adjustment is a new customer invoice linked by `adjusted_invoice_id`. The adjustment line uses the taxes of the invoice lines it corrects. The difference is the untaxed amount.
+- The amount owed on an advance or final invoice is its `amount_residual` (already reduced by a reconciled credit note), plus the residual of its posted raising adjustments. The original invoice total stays as it was posted. A payment of that invoice cannot exceed its own residual.
 - `button_draft` is refused on a posted laboratory invoice.
 - The number comes from the sales journal sequence when the invoice is posted. That sequence restarts each year.
 - The PDF is Odoo's invoice report, with the invoice kind and, for an advance or final invoice, the amount owed.
