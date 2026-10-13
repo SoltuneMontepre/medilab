@@ -7072,4 +7072,7 @@ msgstr "iOS"
 #. module: sol_laboratory
 msgid "{{ object.name }}"
 msgstr "{{ object.name }}"
+#. module: sol_laboratory
+msgid "This notification belongs to someone else."
+msgstr "Thông báo này thuộc về người khác."
 

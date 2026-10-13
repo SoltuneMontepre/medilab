@@ -166,6 +166,18 @@ class AccountMove(models.Model):
         self._check_billing()
         return self.env.ref("account.account_invoices").report_action(self)
 
+    def _report_paid_amount(self):
+        self.ensure_one()
+        return self.currency_id.round(self.amount_total - self.amount_residual)
+
+    def _report_tax_amounts(self):
+        """Tax collected on this invoice, one positive amount per tax line."""
+        self.ensure_one()
+        amounts = []
+        for line in self.line_ids.filtered(lambda item: item.display_type == "tax"):
+            amounts.append((line.name, abs(line.amount_currency or line.balance)))
+        return amounts
+
     def _check_billing(self):
         if self.env.su or self.env.user.has_group(BILLING_GROUP) or self.env.user.has_group(ADMINISTRATOR_GROUP):
             return

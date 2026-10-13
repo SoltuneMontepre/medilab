@@ -18,6 +18,9 @@ class AccountMove(models.Model):
     def _seed_notification_demo(self):
         """Posted invoices, payments and notification rows for a walkthrough. Safe to run again."""
         if self.env.ref(MARKER, raise_if_not_found=False):
+            self._seed_two_rate_invoice()
+            self._seed_payos_advance()
+            self._seed_failed_push()
             return
         company = self.env.company
         if not company.chart_template:
@@ -96,6 +99,9 @@ class AccountMove(models.Model):
             }
         )
         self._demo_notification_rows()
+        self._seed_two_rate_invoice()
+        self._seed_payos_advance()
+        self._seed_failed_push()
 
     def _demo_order(self, partner, product, tax):
         order = self.env["sale.order"].create(
@@ -214,6 +220,121 @@ class AccountMove(models.Model):
                     },
                 ]
             )
+
+    def _seed_two_rate_invoice(self):
+        if self.env.ref("sol_demo.demo_invoice_two_rates", raise_if_not_found=False):
+            return
+        partner = self.env.ref("sol_demo.demo_res_partner_an_phu", raise_if_not_found=False)
+        if not partner:
+            return
+        product = self.env["product.product"].create(
+            {"name": "Two-rate sample", "type": "service", "list_price": 1_000_000, "invoice_policy": "order"}
+        )
+        vat8 = self._demo_tax("VAT 8%", 8)
+        vat10 = self._demo_tax("VAT 10%", 10)
+        invoice = self.create(
+            {
+                "move_type": "out_invoice",
+                "invoice_kind": "final",
+                "partner_id": partner.id,
+                "invoice_line_ids": [
+                    Command.create(
+                        {
+                            "product_id": product.id,
+                            "quantity": 1,
+                            "price_unit": 1_000_000,
+                            "tax_ids": [Command.set(vat8.ids)],
+                        }
+                    ),
+                    Command.create(
+                        {
+                            "product_id": product.id,
+                            "quantity": 1,
+                            "price_unit": 2_000_000,
+                            "tax_ids": [Command.set(vat10.ids)],
+                        }
+                    ),
+                ],
+            }
+        )
+        invoice.action_post()
+        self._remember({"demo_invoice_two_rates": invoice})
+
+    def _seed_payos_advance(self):
+        if self.env.ref("sol_demo.demo_invoice_payos_advance", raise_if_not_found=False):
+            return
+        provider = self.env.ref("sol_commerce.payment_provider_payos", raise_if_not_found=False)
+        partner = self.env.ref("sol_demo.demo_res_partner_an_phu", raise_if_not_found=False)
+        if not provider or not partner:
+            return
+        provider.is_published = True
+        method = self.env.ref("sol_commerce.payment_method_payos_qr", raise_if_not_found=False)
+        if method:
+            method.active = True
+        product = self.env["product.product"].search([("name", "=", "Lead in water")], limit=1)
+        tax = self._demo_tax("VAT 8%", 8)
+        if not product:
+            product = self.env["product.product"].create(
+                {"name": "Lead in water", "type": "service", "list_price": 5_000_000, "invoice_policy": "order"}
+            )
+        order = self._demo_order(partner, product, tax)
+        invoice = order.create_advance_invoice(amount=1_000_000)
+        transaction = self.env["payment.transaction"]._create_payos_transaction(invoice)
+        moment = fields.Datetime.to_datetime("2020-01-04 03:00:00")
+        transaction.with_context(payment_safe_write=True).write(
+            {"payos_transferred_at": moment, "payos_bank_reference": "DEMO-ADVANCE-1"}
+        )
+        transaction.with_context(payment_safe_write=True)._set_done()
+        payment = transaction._create_online_payment()
+        self._remember(
+            {
+                "demo_invoice_payos_advance": invoice,
+                "demo_transaction_payos_advance": transaction,
+                "demo_payment_payos_advance": payment,
+            }
+        )
+
+    def _seed_failed_push(self):
+        if self.env.ref("sol_demo.demo_push_failed", raise_if_not_found=False):
+            return
+        notification = self.env["mail.notification"].search([], limit=1)
+        user = self.env.ref("sol_demo.demo_res_users_sales", raise_if_not_found=False)
+        if not notification or not user:
+            return
+        device = (
+            self.env["medilab.mobile.device"]
+            .sudo()
+            .create({"user_id": user.id, "token": "demo-device-failed", "platform": "android", "active": True})
+        )
+        delivery = (
+            self.env["medilab.push.delivery"]
+            .sudo()
+            .create(
+                {
+                    "notification_id": notification.id,
+                    "mobile_device_id": device.id,
+                    "status": "failed",
+                    "error": "The push service did not accept the message.",
+                }
+            )
+        )
+        self._remember({"demo_mobile_device_failed": device, "demo_push_failed": delivery})
+
+    def _demo_tax(self, name, amount):
+        tax = self.env["account.tax"].search(
+            [("name", "=", name), ("amount", "=", amount), ("type_tax_use", "=", "sale")], limit=1
+        )
+        if tax:
+            return tax
+        return self.env["account.tax"].create(
+            {
+                "name": name,
+                "amount": amount,
+                "amount_type": "percent",
+                "type_tax_use": "sale",
+                "price_include_override": "tax_excluded",
+            }
+        )
 
     def _remember(self, records):
         self.env["ir.model.data"]._update_xmlids(

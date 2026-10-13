@@ -188,7 +188,7 @@ class PaymentTransaction(models.Model):
         return self
 
     @api.model
-    def _create_payos_transaction(self, invoice):
+    def _create_payos_transaction(self, invoice, amount=None):
         provider = self.env.ref("sol_commerce.payment_provider_payos")
         method = self.env.ref("sol_commerce.payment_method_payos_qr")
         order_code = self.env["ir.sequence"].next_by_code("medilab.payos.order")
@@ -198,7 +198,7 @@ class PaymentTransaction(models.Model):
                 "payment_method_id": method.id,
                 "reference": order_code,
                 "provider_reference": order_code,
-                "amount": invoice.amount_residual,
+                "amount": invoice.amount_residual if amount is None else amount,
                 "currency_id": invoice.currency_id.id,
                 "partner_id": invoice.partner_id.id,
                 "operation": "online_redirect",
@@ -208,9 +208,10 @@ class PaymentTransaction(models.Model):
         return transaction.action_payos_checkout()
 
     @api.model
-    def portal_start_payos(self, invoice):
+    def portal_start_payos(self, invoice, amount=None):
         """Start PayOS for the customer's invoice. A second click reuses the open link."""
-        self.env[MODEL_ACCOUNT_PAYMENT]._lock_invoices(invoice)
+        payments = self.env[MODEL_ACCOUNT_PAYMENT]
+        payments._lock_invoices(invoice)
         if not invoice._portal_payos_available():
             raise UserError(self.env._("PayOS is turned off."))
         existing = self.sudo().search(
@@ -223,10 +224,15 @@ class PaymentTransaction(models.Model):
             limit=1,
         )
         if existing:
+            if not payments._amount_omitted(amount):
+                requested = payments._validated_collection_amount(invoice, amount)
+                if invoice.currency_id.compare_amounts(requested, existing.amount) != 0:
+                    raise UserError(self.env._("A payment for this invoice is already pending."))
             return existing
         if invoice.amount_residual <= 0:
             raise UserError(self.env._("This invoice is already paid."))
-        return self.sudo()._create_payos_transaction(invoice)
+        amount = payments._validated_collection_amount(invoice, amount)
+        return self.sudo()._create_payos_transaction(invoice, amount)
 
     def _create_online_payment(self):
         """Post the payment PayOS confirmed. The amount is PayOS's amount, even when it is more than the invoice."""

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_reconciliation_day" model="ir.actions.report">
+        <field name="name">Reconciliation day</field>
+        <field name="model">medilab.reconciliation.day</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sol_commerce.report_reconciliation_day</field>
+        <field name="print_report_name">'Reconciliation %s' % object.day</field>
+    </record>
+
+    <template id="report_reconciliation_day">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="day">
+                <t t-call="web.external_layout">
+                    <div class="page medilab_reconciliation_day">
+                        <h2>Reconciliation <span t-field="day.day" /></h2>
+                        <div class="medilab_reconciliation_status">
+                            <span t-field="day.status" />
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Bank reference</th>
+                                    <th>Transfer</th>
+                                    <th>Payment</th>
+                                    <th>Invoice</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="day.transaction_ids" t-as="tx">
+                                    <td class="medilab_bank_reference"><span t-out="tx.payos_bank_reference or ''" /></td>
+                                    <td class="medilab_transfer_amount"><span t-field="tx.amount" /></td>
+                                    <td class="medilab_payment_amount"><span t-out="tx.payment_id.amount or 0" /></td>
+                                    <td class="medilab_invoice_names"><span t-out="', '.join(tx.invoice_ids.mapped('name'))" /></td>
+                                    <td>
+                                        <span t-if="tx.state == 'done' and not tx.payment_id">Missing payment</span>
+                                        <span t-if="tx.payos_settlement == 'over'">Overpayment</span>
+                                        <span t-if="tx.recorded_after_lock">Recorded after lock</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="medilab_transfer_total">
+                            <span>Transfer total</span>
+                            <span t-field="day.transfer_total" />
+                        </div>
+                        <div class="medilab_payment_total">
+                            <span>Payment total</span>
+                            <span t-field="day.payment_total" />
+                        </div>
+                        <div class="medilab_difference_total">
+                            <span>Difference</span>
+                            <span t-field="day.difference_total" />
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

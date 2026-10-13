@@ -408,8 +408,9 @@ class TestNotifications(TransactionCase):
         self.assertEqual(config.get("smtp_password"), previous)
 
         present[BREVO_SMTP_PORT] = "465"
-        with patch.dict(os.environ, present), patch(
-            "odoo.addons.base.models.ir_mail_server.IrMail_Server._connect__", capture
+        with (
+            patch.dict(os.environ, present),
+            patch("odoo.addons.base.models.ir_mail_server.IrMail_Server._connect__", capture),
         ):
             self.env["ir.mail_server"]._connect__()
         self.assertEqual(captured["encryption"], "ssl")
@@ -418,6 +419,61 @@ class TestNotifications(TransactionCase):
         with patch.dict(os.environ, {BREVO_SMTP_PORT: "nope", BREVO_SMTP_HOST: "smtp-relay.brevo.com"}):
             with self.assertRaises(UserError):
                 self.env["ir.mail_server"]._connect__()
+
+    def test_role_and_department_holders_receive_one_notification(self):
+        department = self.env["hr.department"].create({"name": "Notify chemistry"})
+        role = self.env["medilab.role"].create({"name": "Notify holders", "code": "notify_holders"})
+        both = self._person("notify.both", department)
+        role_only = self._person("notify.role")
+        department_only = self._person("notify.dept", department)
+        self.env["medilab.person"].create({"name": "No login", "department_id": department.id})
+        both.role_ids = role
+        role_only.role_ids = role
+        self.env["medilab.notification.event.recipient"].create(
+            [
+                {"event_id": self.event.id, "role_id": role.id},
+                {"event_id": self.event.id, "department_id": department.id},
+            ]
+        )
+        self.env["medilab.notification.preference"].create(
+            {"user_id": role_only.user_id.id, "event_id": self.event.id, "channel": "email", "enabled": False}
+        )
+        role_only.user_id.notification_type = "email"
+
+        message = self.env["mail.message"].raise_event(EVENT_TASK_REMINDER, self._task(), "roles", "Body")
+        partners = message.notification_ids.mapped("res_partner_id")
+
+        self.assertEqual(
+            len(message.notification_ids.filtered(lambda item: item.res_partner_id == both.user_id.partner_id)), 1
+        )
+        self.assertIn(department_only.user_id.partner_id, partners)
+        self.assertNotIn(role_only.user_id.partner_id, partners)
+
+    def test_opening_the_popup_marks_it_read_and_opens_the_document(self):
+        task = self._task()
+        with patch.object(type(self.user), "_bus_send") as sent:
+            message = self.env["mail.message"].raise_event(
+                EVENT_TASK_REMINDER, task, "popup", "Body", partners=self.user.partner_id
+            )
+        notification = message.notification_ids.filtered(lambda item: item.res_partner_id == self.user.partner_id)
+        self.assertTrue(sent.called)
+        action = notification.with_user(self.user).action_open_document()
+        self.assertTrue(notification.is_read)
+        self.assertEqual((action["res_model"], action["res_id"]), (task._name, task.id))
+        stranger = self.env["res.users"].create(
+            {"name": "Stranger", "login": "stranger.popup", "group_ids": [(6, 0, self.env.ref("base.group_user").ids)]}
+        )
+        with self.assertRaises(AccessError):
+            notification.with_user(stranger).action_open_document()
+
+    def _person(self, login, department=None):
+        values = {"name": login, "login": login}
+        if department:
+            values["department_id"] = department.id
+        person = self.env["medilab.person"].create(values)
+        person.user_id.partner_id.email = f"{login}@example.com"
+        person.user_id.notification_type = "inbox"
+        return person
 
     def _task(self):
         department = self.env["hr.department"].create({"name": "Notify"})

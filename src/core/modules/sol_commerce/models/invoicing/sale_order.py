@@ -16,6 +16,10 @@ class SaleOrder(models.Model):
         [("not_paid", "Not paid"), ("partial", "Partially paid"), ("paid", "Paid")],
         compute="_compute_payment_status",
     )
+    # Draft cash and bank transfers on this order's invoices. A confirmed or rejected payment is not included.
+    pending_amount = fields.Monetary(
+        string="Pending amount", compute="_compute_pending_amount", currency_field="currency_id"
+    )
 
     @api.depends("invoice_ids.payment_state", "invoice_ids.state", "invoice_ids.move_type")
     def _compute_payment_status(self):
@@ -29,6 +33,22 @@ class SaleOrder(models.Model):
                 order.payment_status = "paid"
             else:
                 order.payment_status = "partial"
+
+    @api.depends("invoice_ids", "invoice_ids.payment_state", "invoice_ids.amount_residual")
+    def _compute_pending_amount(self):
+        payments = self.env["account.payment"]
+        for order in self:
+            invoices = order.invoice_ids
+            pending = payments.browse()
+            if invoices:
+                pending = payments.search(
+                    [
+                        ("invoice_ids", "in", invoices.ids),
+                        ("state", "=", "draft"),
+                        ("method", "in", ("cash", "bank_transfer")),
+                    ]
+                )
+            order.pending_amount = sum(pending.mapped("amount"))
 
     def create_advance_invoice(self, amount=None, percentage=None):
         """Post one down-payment invoice for this order. Sending a quotation calls this through _on_quotation_sent."""

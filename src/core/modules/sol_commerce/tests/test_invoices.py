@@ -134,13 +134,76 @@ class TestInvoices(InvoicingCase):
         with self.assertRaises(AccessError):
             invoice.with_user(clerk).action_print_invoice()
 
+    def test_two_tax_rates_are_added_on_the_invoice_and_its_pdf(self):
+        vat8 = self.env["account.tax"].create(
+            {
+                "name": "VAT 8%",
+                "amount": 8,
+                "amount_type": "percent",
+                "type_tax_use": "sale",
+                "price_include_override": "tax_excluded",
+            }
+        )
+        vat10 = self.env["account.tax"].create(
+            {
+                "name": "VAT 10%",
+                "amount": 10,
+                "amount_type": "percent",
+                "type_tax_use": "sale",
+                "price_include_override": "tax_excluded",
+            }
+        )
+        invoice = self.env["account.move"].create(
+            {
+                "move_type": "out_invoice",
+                "invoice_kind": "final",
+                "partner_id": self.partner.id,
+                "invoice_line_ids": [
+                    Command.create(
+                        {
+                            "product_id": self.product.id,
+                            "quantity": 1,
+                            "price_unit": 1_000_000,
+                            "tax_ids": [Command.set(vat8.ids)],
+                        }
+                    ),
+                    Command.create(
+                        {
+                            "product_id": self.product.id,
+                            "quantity": 1,
+                            "price_unit": 2_000_000,
+                            "tax_ids": [Command.set(vat10.ids)],
+                        }
+                    ),
+                ],
+            }
+        )
+        invoice.action_post()
+        html = self.env["ir.actions.report"]._render_qweb_html("account.account_invoices", invoice.ids)[0]
+
+        self.assertEqual(invoice.amount_untaxed, 3_000_000)
+        self.assertEqual(invoice.amount_tax, 280_000)
+        self.assertEqual(invoice.amount_total, 3_280_000)
+        self.assertEqual(invoice.amount_residual, 3_280_000)
+        self.assertIn(b"VAT 8%", html)
+        self.assertIn(b"VAT 10%", html)
+
     def test_the_pdf_names_the_invoice_kind(self):
         invoice = self.order.create_advance_invoice()
 
         html = self.env["ir.actions.report"]._render_qweb_html("account.account_invoices", invoice.ids)[0]
 
+        self.assertIn(b"medilab_laboratory_header", html)
+        self.assertIn(self.env.company.name.encode(), html)
+        self.assertIn(invoice.name.encode(), html)
+        self.assertIn(self.partner.name.encode(), html)
         self.assertIn(b"medilab_invoice_kind", html)
         self.assertIn(b"Advance", html)
+        self.assertIn(b"medilab_subtotal", html)
+        self.assertIn(b"medilab_grand_total", html)
+        self.assertIn(b"medilab_paid_amount", html)
+        self.assertIn(b"medilab_amount_owed", html)
+        self.assertIn(b"medilab_payment_details", html)
 
     def test_a_customer_reads_only_their_posted_invoices(self):
         invoice = self.order.create_advance_invoice()

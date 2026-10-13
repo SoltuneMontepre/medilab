@@ -21,6 +21,7 @@
                 <header>
                     <button name="action_post_missing_payments" type="object" string="Post missing payments" invisible="status == 'locked'" />
                     <button name="action_lock" type="object" string="Lock" invisible="status == 'locked'" />
+                    <button name="action_print" type="object" string="Print" />
                     <field name="status" widget="statusbar" />
                 </header>
                 <group>
