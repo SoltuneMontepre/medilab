@@ -1,13 +1,34 @@
-from odoo import models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ADVANCE_PAYMENT_INV, MODEL_SALE_ORDER
 
+PAID_STATES = ("paid", "in_payment", "reversed")
+
 
 # Đơn bán
 class SaleOrder(models.Model):
     _inherit = MODEL_SALE_ORDER
+
+    # not_paid, partial or paid, from the posted customer invoices. A draft payment does not count.
+    payment_status = fields.Selection(
+        [("not_paid", "Not paid"), ("partial", "Partially paid"), ("paid", "Paid")],
+        compute="_compute_payment_status",
+    )
+
+    @api.depends("invoice_ids.payment_state", "invoice_ids.state", "invoice_ids.move_type")
+    def _compute_payment_status(self):
+        for order in self:
+            invoices = order.invoice_ids.filtered(
+                lambda move: move.state == "posted" and move.move_type == "out_invoice"
+            )
+            if not invoices or all(move.payment_state == "not_paid" for move in invoices):
+                order.payment_status = "not_paid"
+            elif all(move.payment_state in PAID_STATES for move in invoices):
+                order.payment_status = "paid"
+            else:
+                order.payment_status = "partial"
 
     def create_advance_invoice(self, amount=None, percentage=None):
         """Post one down-payment invoice for this order. Sending a quotation calls this through _on_quotation_sent."""

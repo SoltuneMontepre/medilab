@@ -5,10 +5,14 @@ from unittest.mock import patch
 import requests
 
 from odoo import fields
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import HttpCase, TransactionCase, tagged
 
 from odoo.addons.sol_laboratory.constants.notifications import (
+    BREVO_SMTP_HOST,
+    BREVO_SMTP_PASSWORD,
+    BREVO_SMTP_PORT,
+    BREVO_SMTP_USER,
     BREVO_WEBHOOK_TOKEN,
     CHANNEL_EMAIL,
     EVENT_TASK_REMINDER,
@@ -340,6 +344,80 @@ class TestNotifications(TransactionCase):
         waiting.active = False
         self.assertIsNone(item.job_id._handle_notifications_push(item))
         self.assertEqual(delivery.status, "skipped")
+
+    def test_a_user_changes_only_their_own_enabled_channel(self):
+        preferences = self.env["medilab.notification.preference"]
+        own = preferences.with_user(self.user).set_own(self.event, CHANNEL_EMAIL, True)
+        own.with_user(self.user).write({"enabled": False})
+        self.assertFalse(own.enabled)
+
+        other = self.env["res.users"].create(
+            {
+                "name": "Other notifier",
+                "login": "other.notifier",
+                "email": "other.notifier@example.com",
+                "group_ids": [(6, 0, self.env.ref("base.group_user").ids)],
+            }
+        )
+        theirs = preferences.with_user(other).set_own(self.event, CHANNEL_EMAIL, True)
+        with self.assertRaises(AccessError):
+            theirs.with_user(self.user).write({"enabled": False})
+        with self.assertRaises(AccessError):
+            (own | theirs).with_user(self.user).write({"enabled": True})
+        with self.assertRaises(AccessError):
+            own.with_user(self.user).write({"channel": "push"})
+
+        mandatory = self.env["mail.message.subtype"].search([("code", "=", "invoice.sent")], limit=1)
+        required = preferences.with_user(self.user).set_own(mandatory, CHANNEL_EMAIL, True)
+        with self.assertRaises(UserError):
+            required.with_user(self.user).write({"enabled": False})
+        with self.assertRaises(UserError):
+            preferences.with_user(self.user).set_own(mandatory, CHANNEL_EMAIL, False)
+        self.assertTrue(required.enabled)
+
+    def test_brevo_uses_starttls_and_does_not_store_the_password(self):
+        from odoo.tools import config
+
+        password = "brevo-secret"
+        captured = {}
+
+        def capture(self, host=None, port=None, user=None, password=None, encryption=None, **kwargs):
+            captured.update(host=host, port=port, user=user, password=password, encryption=encryption)
+            return
+
+        present = {
+            BREVO_SMTP_HOST: "smtp-relay.brevo.com",
+            BREVO_SMTP_PORT: "587",
+            BREVO_SMTP_USER: "sender@example.com",
+            BREVO_SMTP_PASSWORD: password,
+        }
+        servers = self.env["ir.mail_server"].sudo().search([])
+        servers.write({"active": False})
+        previous = config.get("smtp_password")
+        with (
+            patch.dict(os.environ, present),
+            patch("odoo.addons.base.models.ir_mail_server.IrMail_Server._connect__", capture),
+            self.assertLogs("odoo.addons.sol_laboratory.models.system.ir_mail_server", level="INFO") as logged,
+        ):
+            self.env["ir.mail_server"]._connect__()
+        self.assertEqual(captured["host"], "smtp-relay.brevo.com")
+        self.assertEqual(captured["port"], 587)
+        self.assertEqual(captured["encryption"], "starttls")
+        self.assertEqual(captured["password"], password)
+        self.assertNotIn(password, "\n".join(logged.output))
+        self.assertEqual(config.get("smtp_password"), previous)
+
+        present[BREVO_SMTP_PORT] = "465"
+        with patch.dict(os.environ, present), patch(
+            "odoo.addons.base.models.ir_mail_server.IrMail_Server._connect__", capture
+        ):
+            self.env["ir.mail_server"]._connect__()
+        self.assertEqual(captured["encryption"], "ssl")
+        self.assertEqual(captured["port"], 465)
+
+        with patch.dict(os.environ, {BREVO_SMTP_PORT: "nope", BREVO_SMTP_HOST: "smtp-relay.brevo.com"}):
+            with self.assertRaises(UserError):
+                self.env["ir.mail_server"]._connect__()
 
     def _task(self):
         department = self.env["hr.department"].create({"name": "Notify"})

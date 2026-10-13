@@ -107,7 +107,7 @@ class Quotation(models.Model):
             if invoice.state == "cancel" or invoice.payment_state in ADVANCE_TOUCHED_STATES:
                 continue
             if invoice.state == "posted":
-                invoice.button_draft()
+                invoice.with_context(medilab_cancel_unpaid_advance=True).button_draft()
             invoice.button_cancel()
 
     def action_decline(self, reason):

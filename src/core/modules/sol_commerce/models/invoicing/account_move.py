@@ -122,6 +122,8 @@ class AccountMove(models.Model):
 
     def button_draft(self):
         locked = self.filtered(lambda move: move.invoice_kind and move.state == "posted")
+        if self.env.context.get("medilab_cancel_unpaid_advance"):
+            locked = locked.filtered(lambda move: move.payment_state != "not_paid")
         if locked:
             raise UserError(self.env._("A posted invoice cannot be edited. Correct it with an adjustment invoice."))
         return super().button_draft()

@@ -48,7 +48,7 @@ class NotificationPreference(models.Model):
         )
 
     def write(self, vals):
-        if not self.env.su and (set(self.user_id) - self.env.user or set(vals) - {"enabled"}):
+        if not self.env.su and (self.user_id != self.env.user or set(vals) - {"enabled"}):
             raise AccessError(self.env._("You can change only your own channel choices."))
         for preference in self:
             turning_off = vals.get("enabled") is False or (preference.enabled and vals.get("enabled") is False)

@@ -91,10 +91,15 @@ class TestQuotationAdvance(OrderCase):
         order = self.make_quotable_order()
         order.with_user(self.sales).action_send_quotation()
         self.assertEqual(order.quotation_follow_up, "unpaid")
+        invoice = order._latest_quotation().advance_invoice_id
+        self.assertEqual(invoice.invoice_kind, "advance")
+        self.assertEqual(invoice.order_id, order)
+        self.assertEqual(order.payment_status, "not_paid")
 
         self.pay_advance(order)
 
         self.assertEqual(order._latest_quotation().status, "accepted")
+        self.assertEqual(order.payment_status, "paid")
         self.assertEqual(order.quotation_follow_up, "paid")
         self.assertFalse(order.show_unpaid_warning)
 

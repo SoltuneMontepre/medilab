@@ -21,7 +21,7 @@ Money received against an invoice is an Odoo payment. Sales can record cash and 
 - `overdue.reminders` queues one `invoice.overdue` message per overdue invoice per Vietnam date. Running it again the same day does not send a second one.
 - Confirming and rejecting need the accountant billing group or an administrator. `account.payment` does not use the permission mixin, because Odoo writes it while posting and reconciling. The reconciliation day is a new model, so it uses the mixin and ships read, create and edit permissions.
 
-Paying an advance does not accept a quotation, and credit customers are not modelled. Those stay open.
+Paying the advance invoice of a quotation accepts that quotation. `sale.order.payment_status` is not paid, partially paid or paid from the posted customer invoices; a draft payment does not change it. A customer allowed to order on credit is `medilab.customer.sales.terms.allow_credit`, and confirming their unpaid test request is allowed. A customer without that flag cannot confirm the request until the order is paid.
 
 ## Related documents
 

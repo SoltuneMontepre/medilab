@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 from odoo import api, fields, models
 from odoo.fields import Command
 
+from odoo.addons.sol_commerce.models.orders.sale_order_confirmation import CONFIRMING_ORDER_IDS
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 
 MARKER = "sol_demo.demo_invoice_advance"
@@ -112,7 +113,12 @@ class AccountMove(models.Model):
                 ],
             }
         )
-        order.action_confirm()
+        # This walkthrough needs an accounting order. Customer confirmation stays on the order demo.
+        token = CONFIRMING_ORDER_IDS.set(frozenset(order.ids))
+        try:
+            order.action_confirm()
+        finally:
+            CONFIRMING_ORDER_IDS.reset(token)
         return order
 
     def _demo_invoice(self, partner, product, tax, state):
