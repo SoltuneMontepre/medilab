@@ -2,6 +2,10 @@
 <odoo>
     <template id="portal_invoice_pay" inherit_id="account.portal_invoice_page">
         <xpath expr="//div[@id='invoice_content']" position="before">
+            <div class="alert alert-info" t-if="invoice.invoice_kind in ('advance', 'final')">
+                <span>Amount owed: </span>
+                <span t-field="invoice.amount_owed" t-options='{"widget": "monetary", "display_currency": invoice.currency_id}' />
+            </div>
             <form t-if="invoice.amount_residual" t-attf-action="/my/invoices/#{invoice.id}/pay" method="post" class="mb-3">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                 <button t-if="invoice._portal_payos_available()" class="btn btn-primary" name="method" value="payos" type="submit">PayOS</button>

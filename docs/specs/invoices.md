@@ -17,10 +17,12 @@ A laboratory invoice is an Odoo customer invoice (`account.move`): an advance in
 - `button_draft` is refused on a posted laboratory invoice.
 - The number comes from the sales journal sequence when the invoice is posted. That sequence restarts each year.
 - The PDF is Odoo's invoice report, with the invoice kind and, for an advance or final invoice, the amount owed.
+- Emailing a posted invoice queues one message, `invoice.sent`, with that PDF. A second send keeps the same message. The invoice's payment state does not change. The portal shows the amount owed on an advance or final invoice.
+- `is_overdue` is true for a posted advance or final invoice that is not fully paid and whose due date is before today in Asia/Ho_Chi_Minh.
 - The portal lists and opens only posted customer invoices of the signed-in customer's commercial partner. Opening another customer's invoice URL returns to the portal home.
 - `account.move` does not use the permission mixin: Odoo writes the invoice when it posts and reconciles it. Posting, adjusting and printing are limited to the accountant billing group and to administrators. The adjustment wizard is a new model, so it uses the mixin and ships its permissions.
 
-Sending the quotation, emailing the invoice, and tying the final invoice to a real customer order are later features.
+Sending the quotation and tying the final invoice to a real customer order are later features. Emailing the posted invoice is `invoice.sent`.
 
 ## Related documents
 

@@ -1,9 +1,14 @@
+import logging
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT
+from odoo.addons.sol_commerce.constants.notifications import EVENT_PAYMENT_RECEIPT, EVENT_PAYMENT_REJECTED
 from odoo.addons.sol_commerce.models.invoicing.account_move import ADMINISTRATOR_GROUP, BILLING_GROUP
+
+_logger = logging.getLogger(__name__)
 
 METHODS = {"online", "bank_transfer", "cash"}
 JOURNAL_TYPE = {"online": "bank", "bank_transfer": "bank", "cash": "cash"}
@@ -47,6 +52,7 @@ class AccountPayment(models.Model):
         posted = super().action_post()
         for payment in self.filtered("method"):
             payment._reconcile_with_invoices()
+            payment._queue_customer_notice(EVENT_PAYMENT_RECEIPT, "receipt")
         return posted
 
     def action_reject_payment(self):
@@ -72,6 +78,7 @@ class AccountPayment(models.Model):
             if invoice.payment_state != previous[invoice.id]:
                 raise UserError(self.env._("Rejecting a payment must leave the invoice as it was."))
         self._notify_salesperson(reason)
+        self._queue_customer_notice(EVENT_PAYMENT_REJECTED, "rejected")
         return True
 
     def write(self, vals):
@@ -119,6 +126,27 @@ class AccountPayment(models.Model):
                 "activity_type_id": self.env.ref("mail.mail_activity_data_todo").id,
             }
         )
+
+    def _queue_customer_notice(self, code, kind):
+        """Queue the customer notice after the payment is saved. A provider outage does not undo it."""
+        self.ensure_one()
+        partner = self.partner_id
+        if not partner:
+            return
+        body = self.env._("Payment of %(amount)s was recorded.", amount=self.amount)
+        if kind == "rejected":
+            body = self.env._("Payment was rejected: %(reason)s", reason=self.rejection_reason or "")
+        try:
+            with self.env.cr.savepoint():
+                self.env["mail.message"].raise_event(
+                    code,
+                    self,
+                    f"payment:{self.id}:{kind}",
+                    body,
+                    partners=partner,
+                )
+        except Exception:
+            _logger.exception("Payment notice was not queued")
 
     def _online_day_locked(self):
         self.ensure_one()

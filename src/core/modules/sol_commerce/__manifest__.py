@@ -14,6 +14,7 @@
         "data/payment_provider_data.xml",
         "data/ir_cron_data.xml",
         "data/scheduled_job_data.xml",
+        "data/notification_event_data.xml",
         "views/invoicing/invoice_adjustment_views.xml",
         "views/invoicing/account_move_views.xml",
         "views/invoicing/account_payment_views.xml",
