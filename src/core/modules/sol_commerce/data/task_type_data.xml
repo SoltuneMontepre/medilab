@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="task_type_order_cancellation" model="medilab.task.type">
+        <field name="code">order_cancellation</field>
+        <field name="name">Order cancellation</field>
+        <field name="trigger">order_cancellation_requested</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">decide</field>
+        <field name="route">person</field>
+    </record>
+</odoo>

@@ -69,9 +69,31 @@ msgid "<span>Due</span>"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_level_sequence_unique
+msgid "A chain cannot have two levels in the same position."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/approval_chain.py:0
+msgid "A chain with signatures cannot be deleted; archive it instead. Signatures: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_chain_purpose_unique
+msgid "A document type cannot have two chains for the same purpose."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_group.py:0
 msgid "A group that has parameters cannot have sub-groups: %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/approval_level.py:0
+msgid "A level with signatures cannot be deleted. Signatures: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -101,8 +123,21 @@ msgid "A permission with this code already exists."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/person.py:0
+msgid "A person who signed cannot be deleted; archive them instead. Signatures: %s"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_unique
 msgid "A regulation sets at most one limit per parameter."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A rejection needs a reason."
 msgstr ""
 
 #. module: sol_laboratory
@@ -113,6 +148,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_run_minutes_positive
 msgid "A run takes at least one minute."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature is withdrawn, not deleted."
 msgstr ""
 
 #. module: sol_laboratory
@@ -172,6 +213,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__active
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__active
 msgid "Active"
 msgstr ""
 
@@ -263,6 +305,42 @@ msgid "All the emails and documents sent to this contact will be translated in t
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_reject
+msgid "Approval Can Reject"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_sign
+msgid "Approval Can Sign"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_withdraw
+msgid "Approval Can Withdraw"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_approval_chain
+msgid "Approval Chain"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_approval_chain
+#: model:ir.ui.menu,name:sol_laboratory.menu_approval_chain
+msgid "Approval Chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_approval_level
+msgid "Approval Level"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_approval_mixin
+msgid "Approval by Signatures"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__approved
 msgid "Approved"
 msgstr ""
@@ -270,6 +348,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
 msgid "Archive"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_archive_all
+msgid "Archive approval chains"
 msgstr ""
 
 #. module: sol_laboratory
@@ -323,6 +406,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_search
 msgid "Archived"
 msgstr ""
 
@@ -453,6 +538,11 @@ msgid "Calibration Overdue"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__can_reject
+msgid "Can Reject"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Cancel"
 msgstr ""
@@ -480,6 +570,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__category_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_measurement_unit_search
 msgid "Category"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__chain_id
+msgid "Chain"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_approval_chain__purpose__change_request
+msgid "Change request"
 msgstr ""
 
 #. module: sol_laboratory
@@ -677,6 +777,16 @@ msgid "Create"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_create_all
+msgid "Create approval chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_create_all
+msgid "Create approval levels"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_create_all
 msgid "Create customers"
 msgstr ""
@@ -744,6 +854,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -775,6 +888,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_date
 msgid "Created on"
 msgstr ""
 
@@ -807,6 +923,11 @@ msgid "Decimals"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__decision
+msgid "Decision"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__is_default
 msgid "Default"
 msgstr ""
@@ -814,6 +935,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__delete
 msgid "Delete"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_delete_all
+msgid "Delete approval chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_delete_all
+msgid "Delete approval levels"
 msgstr ""
 
 #. module: sol_laboratory
@@ -912,6 +1043,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -930,7 +1065,15 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_model
 msgid "Document Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_version
+msgid "Document Version"
 msgstr ""
 
 #. module: sol_laboratory
@@ -962,6 +1105,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__edit
 msgid "Edit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_edit_all
+msgid "Edit approval chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_edit_all
+msgid "Edit approval levels"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1051,6 +1204,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__report_language__en
 msgid "English"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Every level has already signed."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1222,6 +1381,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__id
 msgid "ID"
 msgstr ""
 
@@ -1429,6 +1592,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -1460,6 +1626,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -1473,6 +1642,22 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__partner_latitude
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__partner_latitude
 msgid "Latitude"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__level_id
+msgid "Level"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__level_name
+msgid "Level Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__level_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
+msgid "Levels"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1679,6 +1864,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__name
 msgid "Name"
 msgstr ""
 
@@ -1786,6 +1973,24 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__on_hold
 msgid "On Hold"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Only people of the department that did the work can act at this level."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "Only people with the role %s can act at this level."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "Only the person who signed can withdraw a signature."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1907,6 +2112,51 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_permission_mixin
 msgid "Permission Checks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_archive_all
+msgid "Permission: approval.chain.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_create_all
+msgid "Permission: approval.chain.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_delete_all
+msgid "Permission: approval.chain.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_edit_all
+msgid "Permission: approval.chain.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_chain_read_all
+msgid "Permission: approval.chain.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_create_all
+msgid "Permission: approval.level.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_delete_all
+msgid "Permission: approval.level.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_edit_all
+msgid "Permission: approval.level.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_approval_level_read_all
+msgid "Permission: approval.level.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2070,6 +2320,11 @@ msgid "Permission: sample.test.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_signature_read_all
+msgid "Permission: signature.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_test_request_create_all
 msgid "Permission: test.request.create.all"
 msgstr ""
@@ -2147,6 +2402,11 @@ msgid "Properties Base Definition"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__purpose
+msgid "Purpose"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_quality_registration
 msgid "Quality Registration"
 msgstr ""
@@ -2165,6 +2425,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__read
 msgid "Read"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_chain_read_all
+msgid "Read approval chains"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_approval_level_read_all
+msgid "Read approval levels"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2208,6 +2478,11 @@ msgid "Read samples"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_signature_read_all
+msgid "Read signatures"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_read_all
 msgid "Read test requests"
 msgstr ""
@@ -2244,6 +2519,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__rejected
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__rejected
 msgid "Rejected"
 msgstr ""
 
@@ -2341,6 +2617,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_role
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__role_id
 msgid "Role"
 msgstr ""
 
@@ -2386,6 +2663,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__user_id
 msgid "Salesperson"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__same_department
+msgid "Same Department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2460,6 +2742,11 @@ msgid "Semi-solid"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__serial_number
 msgid "Serial Number"
 msgstr ""
@@ -2484,6 +2771,36 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__sign
 msgid "Sign"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_signature
+msgid "Signature"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__signed
+msgid "Signed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_id
+msgid "Signer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_name
+msgid "Signer Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_role
+msgid "Signer Role"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_approval_chain__purpose__signing
+msgid "Signing"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2794,8 +3111,26 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "The document has signatures; withdraw them before changing it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid "The document type, action and scope of %s cannot change; create another permission."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "The document was rejected: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "The document was rejected; withdraw the rejection first."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2879,6 +3214,12 @@ msgid "The person of Odoo's default administrator keeps their user."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "The process of the document is completed, so a signature cannot be withdrawn."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_code_unique
 msgid "The reference of a regulation must be unique."
 msgstr ""
@@ -2941,9 +3282,27 @@ msgid "This contact is already a person."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "This document type has no approval chain."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__email_normalized
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__email_normalized
 msgid "This field is used to search on email address as the primary email field can contain more than strictly an email address."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "This level cannot reject."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "This signature is already withdrawn."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3083,6 +3442,17 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "Withdraw the signatures of the higher levels first."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__withdrawn_at
+msgid "Withdrawn At"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/permission_mixin.py:0
 #: code:addons/sol_laboratory/models/system/permission_mixin.py:0
 msgid "You are not allowed to %(action)s these records: %(records)s"
@@ -3092,6 +3462,18 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__vat
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__vat
 msgid "You can use '/' to indicate that the customer has no Tax ID."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "You have already signed this document."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
+msgid "You have no signature on this document to withdraw."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3330,6 +3712,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_id
 msgid "Document"
 msgstr ""
 
@@ -3632,6 +4015,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__reason
 msgid "Reason"
 msgstr ""
 

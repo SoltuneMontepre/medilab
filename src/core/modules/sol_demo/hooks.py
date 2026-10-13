@@ -9,3 +9,8 @@ def post_init_hook(env):
     user_ids = env["ir.model.data"].search([("module", "=", "sol_demo"), ("model", "=", "res.users")]).mapped("res_id")
     for user in env["res.users"].browse(user_ids):
         user.password = password
+    from .demo_orders import seed_orders
+    from .demo_quotations import seed_quotations
+
+    seed_orders(env)
+    seed_quotations(env)

@@ -41,6 +41,13 @@
     <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
     <menuitem id="menu_role" action="action_medilab_role" parent="hr.menu_hr_root" sequence="20" />
     <menuitem id="menu_permission" action="action_medilab_permission" parent="hr.menu_hr_root" sequence="30" />
+    <menuitem
+        id="menu_approval_chain"
+        action="action_medilab_approval_chain"
+        parent="hr.menu_human_resources_configuration"
+        sequence="30"
+        groups="group_permission_approval_chain_read_all"
+    />
 
     <menuitem id="menu_jobs" name="Jobs" sequence="80">
         <menuitem

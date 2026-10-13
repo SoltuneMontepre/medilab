@@ -140,6 +140,111 @@
         <field name="document_model">medilab.service.package.line</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_order_read_all" model="medilab.permission">
+        <field name="name">Read orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_order_create_all" model="medilab.permission">
+        <field name="name">Create orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_order_edit_all" model="medilab.permission">
+        <field name="name">Edit orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_order_delete_all" model="medilab.permission">
+        <field name="name">Delete orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_cancellation_request_read_all" model="medilab.permission">
+        <field name="name">Read cancellation requests</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_cancellation_request_create_all" model="medilab.permission">
+        <field name="name">Create cancellation requests</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_cancellation_request_edit_all" model="medilab.permission">
+        <field name="name">Edit cancellation requests</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_cancellation_request_delete_all" model="medilab.permission">
+        <field name="name">Delete cancellation requests</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_order_sample_read_all" model="medilab.permission">
+        <field name="name">Read order samples</field>
+        <field name="document_model">medilab.order.sample</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_order_sample_create_all" model="medilab.permission">
+        <field name="name">Create order samples</field>
+        <field name="document_model">medilab.order.sample</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_order_sample_edit_all" model="medilab.permission">
+        <field name="name">Edit order samples</field>
+        <field name="document_model">medilab.order.sample</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_order_sample_delete_all" model="medilab.permission">
+        <field name="name">Delete order samples</field>
+        <field name="document_model">medilab.order.sample</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_quotation_read_all" model="medilab.permission">
+        <field name="name">Read quotations</field>
+        <field name="document_model">medilab.quotation</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_quotation_create_all" model="medilab.permission">
+        <field name="name">Create quotations</field>
+        <field name="document_model">medilab.quotation</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_quotation_edit_all" model="medilab.permission">
+        <field name="name">Edit quotations</field>
+        <field name="document_model">medilab.quotation</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_quotation_delete_all" model="medilab.permission">
+        <field name="name">Delete quotations</field>
+        <field name="document_model">medilab.quotation</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_order_sign_all" model="medilab.permission">
+        <field name="name">Sign orders</field>
+        <field name="document_model">sale.order</field>
+        <field name="action">sign</field>
+    </record>
+    <record id="permission_customer_sales_terms_read_all" model="medilab.permission">
+        <field name="name">Read customer sales terms</field>
+        <field name="document_model">medilab.customer.sales.terms</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_customer_sales_terms_create_all" model="medilab.permission">
+        <field name="name">Create customer sales terms</field>
+        <field name="document_model">medilab.customer.sales.terms</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_customer_sales_terms_edit_all" model="medilab.permission">
+        <field name="name">Edit customer sales terms</field>
+        <field name="document_model">medilab.customer.sales.terms</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_customer_sales_terms_delete_all" model="medilab.permission">
+        <field name="name">Delete customer sales terms</field>
+        <field name="document_model">medilab.customer.sales.terms</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_invoice_adjustment_read_all" model="medilab.permission">
         <field name="name">Read invoice adjustments</field>
         <field name="document_model">medilab.invoice.adjustment</field>

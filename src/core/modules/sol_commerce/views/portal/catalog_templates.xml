@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="catalog_page" name="Catalog">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1>Catalog</h1>
+                    <div>
+                        <a t-if="not request.env.user._is_public()" class="btn btn-secondary me-2" href="/orders">Orders</a>
+                        <a class="btn btn-primary" href="/cart">Cart (<t t-out="cart_quantity" />)</a>
+                    </div>
+                </div>
+                <form method="get" action="/catalog" class="row g-2 mb-4">
+                    <div class="col-md-3">
+                        <select name="sample_type" class="form-select">
+                            <option value="">Sample type</option>
+                            <t t-foreach="sample_types" t-as="sample">
+                                <option t-att-value="sample.id" t-att-selected="str(sample.id) == str(sample_type)" t-out="sample.name" />
+                            </t>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="group" class="form-select">
+                            <option value="">Parameter group</option>
+                            <t t-foreach="parameter_groups" t-as="parameter_group">
+                                <option t-att-value="parameter_group.id" t-att-selected="str(parameter_group.id) == str(group)" t-out="parameter_group.name" />
+                            </t>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" name="name" class="form-control" placeholder="Name" t-att-value="name" />
+                    </div>
+                    <div class="col-md-1">
+                        <input type="number" name="price_min" class="form-control" placeholder="Min" min="0" t-att-value="price_min" />
+                    </div>
+                    <div class="col-md-1">
+                        <input type="number" name="price_max" class="form-control" placeholder="Max" min="0" t-att-value="price_max" />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-secondary">Filter</button>
+                    </div>
+                </form>
+                <t t-foreach="groups" t-as="entry">
+                    <h2 t-out="entry[0].name" />
+                    <t t-call="sol_commerce.catalog_products"><t t-set="products" t-value="entry[1]" /></t>
+                </t>
+                <h2 t-if="packages">Service packages</h2>
+                <t t-if="packages" t-call="sol_commerce.catalog_products"><t t-set="products" t-value="packages" /></t>
+            </div>
+        </t>
+    </template>
+
+    <template id="catalog_products">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th class="text-end">Price</th>
+                    <th />
+                </tr>
+            </thead>
+            <tbody>
+                <t t-foreach="products" t-as="product">
+                    <tr>
+                        <td t-out="product.name" />
+                        <td class="text-end" t-out="product.list_price" />
+                        <td class="text-end">
+                            <form action="/catalog/add" method="post" class="d-flex justify-content-end gap-2">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                <input type="hidden" name="product_tmpl_id" t-att-value="product.id" />
+                                <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 5rem" />
+                                <button type="submit" class="btn btn-primary">Add</button>
+                            </form>
+                        </td>
+                    </tr>
+                </t>
+            </tbody>
+        </table>
+    </template>
+
+    <template id="cart_page" name="Cart">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <h1>Cart</h1>
+                <p t-if="error" class="text-danger" t-out="error" />
+                <p t-if="message" t-out="message" />
+                <t t-if="not lines">
+                    <p>The cart is empty. <a href="/catalog">Browse the catalog</a>.</p>
+                </t>
+                <table t-if="lines" class="table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">Quantity</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="lines" t-as="line">
+                            <tr>
+                                <td t-out="line.product_id.display_name" />
+                                <td class="text-end" t-out="line.price_unit" />
+                                <td class="text-end">
+                                    <form action="/cart/line" method="post" class="d-flex justify-content-end gap-2">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                        <input type="hidden" name="line_id" t-att-value="line.id" />
+                                        <input type="number" name="quantity" t-att-value="line.product_uom_qty" min="0" class="form-control" style="width: 5rem" />
+                                        <button type="submit" class="btn btn-secondary">Update</button>
+                                    </form>
+                                </td>
+                                <td class="text-end" t-out="line.price_unit * line.product_uom_qty" />
+                            </tr>
+                        </t>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3">Total excluding VAT</th>
+                            <th class="text-end" t-out="order.catalog_total" />
+                        </tr>
+                    </tfoot>
+                </table>
+                <form t-if="lines" action="/cart/submit" method="post" class="mt-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <div t-if="public" class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <input type="text" name="name" class="form-control" placeholder="Name" required="required" />
+                        </div>
+                        <div class="col-md-4">
+                            <input type="email" name="email" class="form-control" placeholder="E-mail address" required="required" />
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="phone" class="form-control" placeholder="Phone" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-secondary" formaction="/cart/save">Save as draft</button>
+                    <a class="btn btn-secondary" href="/catalog">Continue</a>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="order_submitted" name="Order submitted">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <h1>Order submitted</h1>
+                <p>Your order <t t-out="order.name" /> is in the sales queue.</p>
+                <a class="btn btn-secondary" href="/catalog">Back to the catalog</a>
+            </div>
+        </t>
+    </template>
+
+    <template id="order_list" name="Orders">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h1>Orders</h1>
+                    <a class="btn btn-secondary" href="/catalog">Catalog</a>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Status</th>
+                            <th class="text-end">Total excluding VAT</th>
+                            <th />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="orders" t-as="order">
+                            <tr>
+                                <td><a t-att-href="'/orders/%s' % order.id" t-out="order.name" /></td>
+                                <td t-out="order.order_status" />
+                                <td class="text-end" t-out="order.catalog_total" />
+                                <td class="text-end">
+                                    <form t-att-action="'/orders/%s/reorder' % order.id" method="post">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                        <button type="submit" class="btn btn-primary">Reorder</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <template id="order_page" name="Order">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <p t-if="request.params.get('error')" class="text-danger" t-out="request.params.get('error')" />
+                <h1 t-out="order.name" />
+                <p>Status: <t t-out="dict(order._fields['order_status']._description_selection(order.env))[order.order_status]" /></p>
+                <p t-if="order._latest_quotation()"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
+                <p t-if="order.reorder_note" t-out="order.reorder_note" />
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">Quantity</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="lines" t-as="line">
+                            <tr>
+                                <td t-out="line.product_id.display_name" />
+                                <td class="text-end" t-out="line.price_unit" />
+                                <td class="text-end" t-out="line.product_uom_qty" />
+                                <td class="text-end" t-out="line.price_unit * line.product_uom_qty" />
+                            </tr>
+                        </t>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3">Total excluding VAT</th>
+                            <th class="text-end" t-out="order.catalog_total" />
+                        </tr>
+                    </tfoot>
+                </table>
+                <t t-foreach="requests" t-as="cancellation">
+                    <div class="border rounded p-3 mb-3">
+                        <p>Cancellation: <t t-out="cancellation.status" /></p>
+                        <p t-out="cancellation.reason" />
+                        <p t-if="cancellation.reply">Reply: <t t-out="cancellation.reply" /></p>
+                    </div>
+                </t>
+                <form t-if="order.customer_cancel_mode() == 'cancel'" t-att-action="'/orders/%s/cancel' % order.id" method="post">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <button type="submit" class="btn btn-danger">Cancel</button>
+                </form>
+                <form t-if="order.customer_cancel_mode() == 'request' and not order.open_cancellation_request()" t-att-action="'/orders/%s/cancellation' % order.id" method="post" class="mt-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <p class="text-muted">If an advance was paid, it stays on the invoice and is settled outside the system.</p>
+                    <textarea name="reason" class="form-control mb-2" placeholder="Reason" required="required" />
+                    <button type="submit" class="btn btn-danger">Request cancellation</button>
+                </form>
+                <form t-if="order.open_cancellation_request()" t-att-action="'/orders/%s/cancellation/withdraw' % order.id" method="post">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <button type="submit" class="btn btn-secondary">Withdraw request</button>
+                </form>
+                <form t-att-action="'/orders/%s/reorder' % order.id" method="post" class="mt-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <button type="submit" class="btn btn-primary">Reorder</button>
+                </form>
+            </div>
+        </t>
+    </template>
+</odoo>
