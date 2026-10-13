@@ -1,6 +1,7 @@
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
+from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_NOTIFICATION_EVENT_RECIPIENT,
@@ -21,7 +22,7 @@ class NotificationEventRecipient(models.Model):
     # A role whose holders are notified.
     role_id = fields.Many2one(MODEL_ROLE, ondelete="cascade")
     # A department whose people are notified.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="cascade")
+    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="cascade", domain=DEPARTMENT_DOMAIN)
 
     @api.constrains("role_id", "department_id")
     def _check_one_target(self):
