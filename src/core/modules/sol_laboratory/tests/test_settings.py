@@ -8,6 +8,9 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTING
 from odoo.addons.sol_laboratory.constants.settings import DEFAULT_SAFETY_MARGIN_DAYS, SAFETY_MARGIN_PARAMETER
 
 SETTINGS_MENU = "sol_laboratory.menu_settings"
+CONFIGURATION_MENU = "sol_laboratory.menu_laboratory_configuration"
+LABORATORY_APP = "sol_laboratory.menu_laboratory_root"
+ODOO_SETTINGS_APP = "base.menu_administration"
 
 
 @tagged("post_install", "-at_install")
@@ -46,12 +49,23 @@ class TestSettings(TransactionCase):
         self.assertTrue(self.settings(self.administrator).create({}))
 
     def test_settings_menu_is_for_administrators(self):
-        menu = self.env.ref(SETTINGS_MENU)
+        menus = set((self.env.ref(CONFIGURATION_MENU) | self.env.ref(SETTINGS_MENU)).ids)
         visible = self.env["ir.ui.menu"].with_user(self.administrator)._visible_menu_ids()
         hidden = self.env["ir.ui.menu"].with_user(self.clerk)._visible_menu_ids()
 
-        self.assertIn(menu.id, visible)
-        self.assertNotIn(menu.id, hidden)
+        self.assertTrue(menus <= visible)
+        self.assertTrue(menus.isdisjoint(hidden))
+
+    def test_settings_menu_is_in_the_laboratory_app(self):
+        menu = self.env.ref(SETTINGS_MENU)
+
+        self.assertEqual(menu.parent_id, self.env.ref(CONFIGURATION_MENU))
+        self.assertEqual(menu.parent_id.parent_id, self.env.ref(LABORATORY_APP))
+
+    def test_odoos_settings_app_is_the_only_settings_app(self):
+        apps = self.env["ir.ui.menu"].search([("parent_id", "=", False), ("name", "=", "Settings")])
+
+        self.assertEqual(apps, self.env.ref(ODOO_SETTINGS_APP))
 
     def test_settings_screen_shows_the_laboratory_app(self):
         arch = self.settings(self.administrator).get_views([(False, "form")])["views"]["form"]["arch"]
