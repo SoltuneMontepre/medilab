@@ -75,8 +75,8 @@ class ReconciliationDay(models.Model):
             record.transaction_ids = found
             record.missing_payment_count = len(confirmed.filtered(lambda tx: not tx.payment_id))
             record.mismatch_count = len(found.filtered(record._amount_mismatch))
-            record.transfer_total = sum(confirmed.mapped("amount"))
-            record.payment_total = sum(confirmed.mapped("payment_id.amount"))
+            record.transfer_total = sum(transaction.amount for transaction in confirmed)
+            record.payment_total = sum(payment.amount for payment in confirmed.payment_id)
             record.difference_total = record.transfer_total - record.payment_total
 
     def action_post_missing_payments(self):

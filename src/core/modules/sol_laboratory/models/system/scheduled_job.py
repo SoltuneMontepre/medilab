@@ -150,7 +150,7 @@ class ScheduledJob(models.Model):
         return HANDLER_PREFIX + self.key.replace(".", "_")
 
     def _in_cron(self):
-        return CRON_PROGRESS_KEY in self.env.context
+        return self.env.context.get(CRON_PROGRESS_KEY) is not None
 
     @api.model
     def queue(self, key, item_key, document=None, payload=None):
@@ -223,7 +223,8 @@ class ScheduledJob(models.Model):
 
     def _current_run(self, now):
         # The batches of one cron pass share one run; a run left running by another pass is closed first.
-        cron_pass = str(self.env.context[CRON_PASS_KEY]) if CRON_PASS_KEY in self.env.context else False
+        cron_end = self.env.context.get(CRON_PASS_KEY)
+        cron_pass = False if cron_end is None else str(cron_end)
         running = self.env[MODEL_JOB_RUN].search([("job_id", "=", self.id), ("status", "=", "running")])
         current = running.filtered(lambda run: bool(cron_pass) and run.cron_pass == cron_pass)[:1]
         (running - current)._close("Continued in a later pass")

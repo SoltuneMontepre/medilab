@@ -1,4 +1,5 @@
-from odoo import SUPERUSER_ID, models
+from odoo import models
+from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tools import format_datetime

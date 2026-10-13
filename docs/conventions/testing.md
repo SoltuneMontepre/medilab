@@ -4,11 +4,12 @@ How tests are written, where they live and how they run.
 
 ## Layers
 
-| Layer        | Tool                                             | Location                              | Command          |
-| ------------ | ------------------------------------------------ | ------------------------------------- | ---------------- |
-| Odoo modules | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`    | `task test:core` |
-| Browser      | Cypress                                          | `src/tests/cypress/e2e/`         | `task test:e2e`  |
-| Applications | `bun test` and `cargo test`                      | next to the code, in each application | `task test:apps` |
+| Layer         | Tool                                             | Location                              | Command               |
+| ------------- | ------------------------------------------------ | ------------------------------------- | --------------------- |
+| Odoo modules  | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`    | `task test:core`      |
+| Browser       | Cypress                                          | `src/tests/cypress/e2e/`              | `task test:e2e`       |
+| Applications  | `bun test` and `cargo test`                      | next to the code, in each application | `task test:apps`      |
+| Type checking | `unittest` and pyright                           | `tools/typecheck/`                    | `task test:typecheck` |
 
 `task test` runs the module and application tests. Browser tests run against the running app, so start it first with `task up`.
 
@@ -21,6 +22,12 @@ How tests are written, where they live and how they run.
 - `task test:core` installs the modules in a throwaway database, runs only their tests with `--test-tags /<module>`, and drops the database afterwards. `task test:core MODULES=a,b` limits it to those modules; by default it runs every module in `src/core/modules.txt`.
 - `task test:uninstall` installs Laboratory, E-commerce and Inventory in a throwaway database, uninstalls E-commerce and Inventory, and checks that the Laboratory data is intact.
 - `task test:core` also writes the coverage report `src/core/modules/coverage.xml`, which is not committed.
+
+## Type checking tests
+
+- `task test:typecheck` checks that every module is linked into the Odoo source and that an import of a module's constant resolves.
+- It checks that a missing name, a missing module, a type error and a wrong call fail, and that the Odoo patterns behind the [relaxed rules](python.md#relaxed-rules) pass.
+- Each case is a file the test writes to a temporary folder, so no failing code is committed.
 
 ## Pipeline
 

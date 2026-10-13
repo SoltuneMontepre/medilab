@@ -24,6 +24,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "lxml-stubs>=0.5.1",
     "pylint-odoo>=10.0.12",
     "pyright>=1.1.400",
     "ruff>=0.15.0",

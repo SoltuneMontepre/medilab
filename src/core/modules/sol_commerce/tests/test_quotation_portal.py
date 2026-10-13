@@ -22,11 +22,16 @@ class TestQuotationPortal(HttpCase, OrderCase):
     def page(self):
         return self.url_open(f"/orders/{self.order.id}/quotation")
 
+    def csrf_token(self):
+        match = re.search(r'name="csrf_token" value="([^"]+)"', self.page().text)
+        if match is None:
+            self.fail("The quotation page has no CSRF token.")
+        return match.group(1)
+
     def post_decline(self, reason):
-        token = re.search(r'name="csrf_token" value="([^"]+)"', self.page().text).group(1)
         return self.url_open(
             f"/orders/{self.order.id}/quotation/decline",
-            data={"csrf_token": token, "reason": reason},
+            data={"csrf_token": self.csrf_token(), "reason": reason},
             allow_redirects=False,
         )
 
@@ -82,10 +87,10 @@ class TestQuotationPortal(HttpCase, OrderCase):
 
     def test_customer_accepts_a_quotation_sent_without_an_advance(self):
         self.send_without_an_advance()
-        token = re.search(r'name="csrf_token" value="([^"]+)"', self.page().text).group(1)
-
         response = self.url_open(
-            f"/orders/{self.order.id}/quotation/accept", data={"csrf_token": token}, allow_redirects=False
+            f"/orders/{self.order.id}/quotation/accept",
+            data={"csrf_token": self.csrf_token()},
+            allow_redirects=False,
         )
 
         self.assertEqual(response.status_code, 303)

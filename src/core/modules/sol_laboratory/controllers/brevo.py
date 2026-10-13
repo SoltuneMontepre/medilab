@@ -6,6 +6,7 @@ from odoo import http
 from odoo.http import request
 
 from odoo.addons.sol_laboratory.constants.notifications import BREVO_WEBHOOK_TOKEN
+from odoo.addons.sol_laboratory.services.request_env import request_env
 
 
 class BrevoWebhook(http.Controller):
@@ -25,5 +26,5 @@ class BrevoWebhook(http.Controller):
         events = payload if isinstance(payload, list) else [payload]
         for event in events:
             if isinstance(event, dict):
-                request.env["mail.notification"].sudo()._apply_brevo_event(event)
+                request_env()["mail.notification"].sudo()._apply_brevo_event(event)
         return request.make_response("OK", status=200)

@@ -22,7 +22,7 @@ class ResConfigSettings(models.TransientModel):
         if stored in (False, None, ""):
             default = field.default
             return default(self) if callable(default) else default
-        settings = self.with_context(clean_context(dict(self.env.context))).sudo()
+        settings = self.with_context(clean_context(self.env.context)).sudo()
         return settings.default_get([field_name])[field_name]
 
     # Days a sample test is due before the date promised to the customer, kept for handling incidents.

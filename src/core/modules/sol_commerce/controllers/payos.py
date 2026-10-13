@@ -4,6 +4,7 @@ from odoo import http
 from odoo.http import request
 
 from odoo.addons.sol_commerce.services.payos_client import payos_client_from_env
+from odoo.addons.sol_laboratory.services.request_env import request_env
 
 
 class PayosController(http.Controller):
@@ -17,7 +18,7 @@ class PayosController(http.Controller):
         data = body.get("data")
         if client is None or not client.matches(data, body.get("signature")):
             return request.make_response("invalid signature", status=400)
-        request.env["payment.transaction"].sudo()._payos_apply_webhook(data)
+        request_env()["payment.transaction"].sudo()._payos_apply_webhook(data)
         return request.make_response("ok", status=200)
 
     @http.route("/payment/payos/return", type="http", auth="public", csrf=False)

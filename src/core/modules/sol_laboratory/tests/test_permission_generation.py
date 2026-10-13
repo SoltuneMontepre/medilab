@@ -24,8 +24,11 @@ class TestPermissionGeneration(UnshippedPermissionCase):
             {"name": f"{action} records", "document_model": document_model, "action": action, "scope": scope}
         )
 
+    def generated_xml_id(self, kind, code):
+        return f"sol_laboratory.{kind}_permission_{code.replace('.', '_')}"
+
     def generated(self, kind, code):
-        return self.env.ref(f"sol_laboratory.{kind}_permission_{code.replace('.', '_')}", raise_if_not_found=False)
+        return self.env.ref(self.generated_xml_id(kind, code))
 
     def test_permission_generates_its_group_and_access(self):
         permission = self.create_permission("delete")
@@ -54,7 +57,7 @@ class TestPermissionGeneration(UnshippedPermissionCase):
         permission = self.create_permission("sign")
 
         self.assertEqual(self.generated("group", permission.code), permission.group_id)
-        self.assertIsNone(self.generated("access", permission.code))
+        self.assertIsNone(self.env.ref(self.generated_xml_id("access", permission.code), raise_if_not_found=False))
 
     def test_permissions_are_neither_created_nor_deleted_from_the_screen(self):
         administrator = self.env.ref("base.user_admin")

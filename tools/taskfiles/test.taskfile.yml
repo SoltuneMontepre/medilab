@@ -11,6 +11,8 @@ vars:
   COVERAGE_REPORT: src/core/modules/coverage.xml
   E2E_DIR: src/tests
   SYNC_APP_DIR: src/applications/medilab-sync
+  TYPECHECK_DIR: tools/typecheck
+  UV: uv --project src/core
   LOG: tools/scripts/log.sh
 
 tasks:
@@ -62,6 +64,12 @@ tasks:
           python3 -m odoo.tests.test_module_operations -d {{.TEST_DB}} standalone {{.STANDALONE_TAG}} 2>&1 | tee /tmp/standalone.log
           ! grep -q "Standalone script .* failed" /tmp/standalone.log'
       - . {{.LOG}} && log_ok "Uninstall test passed."
+
+  test:typecheck:
+    desc: "Check that task typecheck resolves the module imports and still fails on missing names and type errors"
+    cmds:
+      - task: dev:odoo-links
+      - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
 
   test:e2e:
     desc: "Run the browser tests against the running Odoo; task test:e2e needs task up first"

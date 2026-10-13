@@ -57,13 +57,13 @@ Open http://localhost:8069. The `medilab` database is created by the first `task
 | `task upgrade`             | Upgrade all installed modules                                                                            |
 | `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                   |
 | `task reset`               | Delete the database and volumes, then start again                                                        |
-| `task dev:setup`           | Sync `src/core/.venv` from `uv.lock` and fetch the Odoo source for type checks                           |
+| `task dev:setup`           | Sync `src/core/.venv` from `uv.lock`, fetch the Odoo source and link the modules into it for type checks |
 | `task ai:setup`            | Check `npx` for the MCP servers, install Serena with the OdooLS adapter and run `ai:odoo-ls`             |
 | `task ai:odoo-ls`          | Download the pinned Odoo Language Server that Serena uses for Python and XML in the modules              |
 | `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                      |
 | `task lint`                | Run ruff and pylint-odoo on `src/core/modules`                                                           |
 | `task format`              | Format `src/core/modules` with ruff                                                                      |
-| `task typecheck`           | Type check the addons with pyright                                                                       |
+| `task typecheck`           | Type check the modules with pyright                                                                      |
 
 Every task loads `src/core/.env.local`. To run a tool outside Task: `uv run --project src/core --env-file src/core/.env.local <command>`.
 
@@ -88,5 +88,6 @@ medilab/
     dockerfiles/                # prod.dockerfile
     infrastructure/             # docker-compose.yml and CloudBeaver config
     taskfiles/                  # app.taskfile.yml, dev.taskfile.yml
+    typecheck/                  # pyright runner and the links into the Odoo source
   .github/                      # CI workflow and odoo-lint action
 ```
