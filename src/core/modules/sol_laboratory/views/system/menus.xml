@@ -63,4 +63,31 @@
         />
     </menuitem>
     <menuitem id="menu_settings" name="Settings" action="action_medilab_settings" sequence="90" groups="base.group_system" />
+    <menuitem
+        id="menu_notification_event"
+        action="action_medilab_notification_event"
+        parent="menu_jobs"
+        sequence="40"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="menu_mobile_device"
+        action="action_medilab_mobile_device"
+        parent="menu_jobs"
+        sequence="50"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="menu_push_delivery"
+        action="action_medilab_push_delivery"
+        parent="menu_jobs"
+        sequence="60"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="menu_notification_preference"
+        action="action_medilab_notification_preference"
+        parent="menu_jobs"
+        sequence="70"
+    />
 </odoo>

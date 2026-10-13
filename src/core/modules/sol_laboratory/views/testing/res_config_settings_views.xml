@@ -40,6 +40,9 @@
                         <setting id="safety_margin_setting">
                             <field name="safety_margin_days" class="o_light_label" />
                         </setting>
+                        <setting id="reminder_lead_setting" string="Reminder lead" help="Minutes before a planned task starts.">
+                            <field name="reminder_lead_minutes" class="o_light_label" />
+                        </setting>
                     </block>
                 </app>
             </xpath>

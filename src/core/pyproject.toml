@@ -8,6 +8,7 @@ dependencies = [
     "boto3==1.43.94",
     "docxtpl==0.20.2",
     "fastapi==0.141.1",
+    "google-auth>=2.40,<3",
     "html2text==2025.4.15",
     "httpx2==2.13.0",
     "ipython==9.17.1",

@@ -244,6 +244,7 @@ The system sends all e-mail through Brevo's SMTP relay, set as Odoo's outgoing m
 - Used for: notifications, alerts, quotations and invoices with attachments, reminders and reports.
 - Administrators configure the sender and the templates. Templates are Odoo e-mail templates (`mail.template`), translatable (SH-08), and use the customer's contact (Sales documents) and notification preferences.
 - Delivery status (sent, delivered, opened, bounced, failed) is recorded against the message from Brevo's webhooks, on Odoo's notification of each recipient, so staff can see whether a customer received a quotation.
+- The webhook is accepted only when `Authorization: Bearer` matches `BREVO_WEBHOOK_TOKEN`. Brevo's create-webhook call can set that bearer token. A missing or wrong token is rejected before any event is stored. The event is matched by the `X-Mailin-custom` header `notification:<id>` or by the message id together with the recipient address. A later weaker event does not replace a bounce or a failure. A hard bounce flags `email_bounced` only on the partner of that notification whose address is the event address.
 - Bounced or invalid addresses are flagged on the customer's contact so that they are not used again.
 - If Brevo is unavailable the message stays queued and is retried; the business action that triggered it is not rolled back.
 
@@ -273,8 +274,9 @@ The system digitally signs printed documents through Viettel Sign (SH-04). It do
 The system pushes reminders and notifications to the Medilab Mobile app through Firebase Cloud Messaging (SH-11).
 
 - When a person signs in on the app, the app registers the device's token for their user; signing out turns the token off. Odoo's own push devices serve web browsers only, so mobile devices are MediLab's own records.
-- A push sent to a token Firebase rejects turns that token off.
-- The Firebase credentials are configuration, not data (SH-03).
+- A push sent to a token Firebase reports as permanently invalid (`UNREGISTERED`, `SENDER_ID_MISMATCH`, or `INVALID_ARGUMENT` about the token) turns that token off. A timeout or a temporary error leaves the token on and the delivery is retried.
+- The access token is an OAuth token from Google Application Default Credentials or a service-account JSON in the environment, refreshed by `google-auth`. The credential value is not stored on a record and is not written to the log.
+- The Firebase credentials are configuration, not data (SH-03). SMTP and FCM do not provide exactly-once delivery. The records and the jobs are created once; a retry sends again only while the earlier attempt did not succeed.
 
 ## III. Related documents
 

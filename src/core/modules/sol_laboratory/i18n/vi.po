@@ -4641,3 +4641,29 @@ msgstr "Giờ làm việc"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__work_permit_name
 msgid "work_permit_name"
 msgstr "work_permit_name"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_notification_event
+msgid "Notification events"
+msgstr "Sự kiện thông báo"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_mobile_device
+msgid "Mobile devices"
+msgstr "Thiết bị di động"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_push_delivery
+msgid "Push deliveries"
+msgstr "Lần đẩy thông báo"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_notification_preference
+msgid "Notification preferences"
+msgstr "Tuỳ chọn thông báo"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__reminder_lead_minutes
+msgid "Reminder lead (minutes)"
+msgstr "Gửi trước (phút)"
+

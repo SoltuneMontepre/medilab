@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="event_task_reminder" model="mail.message.subtype">
+        <field name="name">Task reminder</field>
+        <field name="description">A planned task is about to start</field>
+        <field name="code">task.reminder</field>
+        <field name="res_model">medilab.task</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="mail_template_task_reminder" model="mail.template">
+        <field name="name">Task reminder</field>
+        <field name="model_id" ref="model_medilab_task" />
+        <field name="subject">{{ object.name }}</field>
+        <field name="body_html" type="html">
+            <p>Your task <t t-out="object.name"/> is about to start.</p>
+        </field>
+    </record>
+</odoo>
