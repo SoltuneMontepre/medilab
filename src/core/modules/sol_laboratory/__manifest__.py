@@ -10,6 +10,7 @@
     "data": [
         "security/res_groups_data.xml",
         "security/ir.access.csv",
+        "data/res_lang_data.xml",
         "data/res_company_data.xml",
         "data/ir_sequence_data.xml",
         "data/role_data.xml",

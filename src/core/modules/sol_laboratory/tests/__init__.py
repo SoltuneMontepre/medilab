@@ -12,6 +12,7 @@ from . import (
     test_job_run,
     test_job_screens,
     test_lab_codes,
+    test_languages,
     test_machines_and_chemicals,
     test_master_data_access,
     test_module_boundaries,
@@ -41,6 +42,7 @@ from . import (
     test_test_request_deletion,
     test_test_request_from_order,
     test_test_request_lifecycle,
+    test_translations,
     test_tree_filters,
     test_uninstall,
 )
