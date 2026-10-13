@@ -6,7 +6,7 @@ from lxml import etree
 from odoo import api, fields, models
 from odoo.fields import Command, Domain
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_MIXIN, MODEL_IR_ATTACHMENT
 from odoo.addons.sol_laboratory.constants.xml_ids import AUDIT_READ_GROUP
 
 # Odoo's bookkeeping fields and the technical path of trees say nothing about the document.
@@ -71,34 +71,51 @@ class AuditMixin(models.AbstractModel):
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        empty = {field.name: _audit_value(field, EMPTY_VALUES.get(field.type, False)) for field in self._audit_fields()}
-        changes = records._audit_changes(dict.fromkeys(records.ids, empty), records._audit_values())
-        for record_changes in changes.values():
-            for change in record_changes:
-                change["old_value"] = None
-        records._audit_log("create", changes)
+        records._audit_scope()._audit_log_creation()
         return records
 
     def write(self, vals):
-        before = self._audit_values()
+        audited = self._audit_scope()
+        before = audited._audit_values()
         result = super().write(vals)
-        changes = self._audit_changes(before, self._audit_values())
-        archived = self.filtered(lambda record: [change["field_name"] for change in changes[record.id]] == ["active"])
+        # A record the write brings into the trail, such as a file attached to a document, is recorded as created.
+        (self._audit_scope() - audited)._audit_log_creation()
+        changes = audited._audit_changes(before, audited._audit_values())
+        archived = audited.filtered(
+            lambda record: [change["field_name"] for change in changes[record.id]] == ["active"]
+        )
         archived._audit_log("archive", changes)
-        (self - archived).filtered(lambda record: changes[record.id])._audit_log("edit", changes)
+        (audited - archived).filtered(lambda record: changes[record.id])._audit_log("edit", changes)
         return result
 
     def unlink(self):
-        names = {record.id: record.display_name for record in self.sudo().with_context(active_test=False)}
+        audited = self._audit_scope()
+        names = {record.id: record.display_name for record in audited.sudo().with_context(active_test=False)}
         result = super().unlink()
-        self._audit_log("delete", notes=names)
+        audited._audit_log("delete", notes=names)
         return result
+
+    def _audit_scope(self):
+        """The records whose actions are recorded. A model records only some of its records here."""
+        return self
+
+    def _audit_log_creation(self):
+        if not self:
+            return
+        empty = {field.name: _audit_value(field, EMPTY_VALUES.get(field.type, False)) for field in self._audit_fields()}
+        changes = self._audit_changes(dict.fromkeys(self.ids, empty), self._audit_values())
+        for record_changes in changes.values():
+            for change in record_changes:
+                change["old_value"] = None
+        self._audit_log("create", changes)
 
     def _audit(self, action, note=None):
         """Record an action a feature owns, such as sign, reject or download, on each record."""
         self._audit_log(action, notes=dict.fromkeys(self.ids, note))
 
     def _audit_log(self, action, changes=None, notes=None):
+        if not self:
+            return
         # Written with full rights, so people who cannot read the trail still produce entries.
         notes = notes if notes is not None else self._audit_notes()
         entries = self.env[MODEL_AUDIT_ENTRY].sudo()
@@ -198,6 +215,11 @@ class AuditMixin(models.AbstractModel):
             documents[records._name].update(records.ids)
             if self._audit_is_audited(records._name):
                 pending.extend(records.mapped(relation) for relation in records._audit_relations())
+        # The files attached to them, including files deleted since.
+        attachments = self.env[MODEL_IR_ATTACHMENT]
+        files = set().union(*(attachments._audit_files_of(model, ids) for model, ids in documents.items()))
+        if files:
+            documents[MODEL_IR_ATTACHMENT].update(files)
         return Domain.OR(
             Domain("document_model", "=", model) & Domain("document_id", "in", sorted(ids))
             for model, ids in documents.items()
@@ -212,13 +234,15 @@ class AuditMixin(models.AbstractModel):
 
     @api.model
     def _add_history_button(self, arch):
-        sheet = arch.find(".//sheet")
-        if sheet is None:
-            return
-        button_box = sheet.find(".//div[@name='button_box']")
+        # A form without a sheet gets the button box at its top, below its header.
+        container = arch.find(".//sheet")
+        if container is None:
+            container = arch
+        button_box = container.find(".//div[@name='button_box']")
         if button_box is None:
             button_box = etree.Element("div", {"class": "oe_button_box", "name": "button_box"})
-            sheet.insert(0, button_box)
+            header = container.find("header")
+            container.insert(0 if header is None else container.index(header) + 1, button_box)
         button_box.append(
             etree.Element(
                 "button",

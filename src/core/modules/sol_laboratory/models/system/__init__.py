@@ -7,6 +7,8 @@ from . import (
     hr_department,
     hr_employee,
     ir_actions_act_window_view,
+    ir_actions_report,
+    ir_binary,
     ir_config_parameter,
     ir_mail_server,
     ir_ui_menu,

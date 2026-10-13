@@ -33,6 +33,7 @@ How code inside an Odoo module is laid out.
 ## Permissions
 
 - Each new document model inherits `medilab.permission.mixin` and ships its permissions in its module's `data/permission_data.xml`: one per action in its `_permission_actions`, with scope `all`, and the same actions with scope `own_department` only when the model has `department_id`. A test fails when one is missing.
+- Each new document model also inherits `medilab.audit.mixin` and names the documents under it in `_audit_children`, such as `sample_ids` on a test request. An Odoo model a module extends gets the mixin with `_name` set and the mixin first in `_inherit`, so it wraps Odoo's `write`: `_name = MODEL_EMPLOYEE` and `_inherit = [MODEL_AUDIT_MIXIN, MODEL_EMPLOYEE]`. A test fails when a model is left out; [Audit trail](../specs/audit-trail.md) lists the models that are.
 - Permissions, the administrator role and the administrator person are shipped data. Departments, people and other roles are user data. Demo data lives only in the `sol_demo` module, which assigns shipped permissions and never creates one.
 - [Permissions](../specs/permissions.md) describes the mechanism.
 

@@ -2,13 +2,34 @@ from odoo.fields import Command
 from odoo.tests import new_test_user
 
 from .common import MasterDataCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_REGULATION
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_MIXIN, MODEL_REGULATION
+from odoo.addons.sol_laboratory.constants.xml_ids import AUDIT_READ_GROUP
 
-AUDITOR_GROUPS = "base.group_user,sol_laboratory.group_permission_audit_entry_read_all"
+AUDITOR_GROUPS = f"base.group_user,{AUDIT_READ_GROUP}"
 
 
 class AuditLookup:
     """Finds the audit entries of records and the changes of an entry, for any test case."""
+
+    @classmethod
+    def new_auditor(cls):
+        return new_test_user(cls.env, login="auditor", groups=AUDITOR_GROUPS)
+
+    @classmethod
+    def unaudited_documents(cls, module):
+        """The stored models the module defines or extends that do not inherit the audit mixin."""
+        mixin = cls.env.registry[MODEL_AUDIT_MIXIN]
+        return {
+            name
+            for name, model in cls.env.registry.items()
+            if not model._abstract
+            and not model._transient
+            and not issubclass(model, mixin)
+            and any(
+                getattr(base, "_name", None) == name and getattr(base, "_module", None) == module
+                for base in model.__mro__
+            )
+        }
 
     @classmethod
     def entries(cls, records, action=None):
@@ -38,7 +59,7 @@ class AuditCase(AuditLookup, MasterDataCase):
             login="editor",
             groups="base.group_user,base.group_system,sol_laboratory.group_permission_regulation_limit_edit_all",
         )
-        cls.auditor = new_test_user(cls.env, login="auditor", groups=AUDITOR_GROUPS)
+        cls.auditor = cls.new_auditor()
         cls.regulation = cls.env[MODEL_REGULATION].create(
             {
                 "code": "QCVN 8-2:2011/BYT",

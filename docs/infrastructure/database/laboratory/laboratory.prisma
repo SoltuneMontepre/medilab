@@ -1608,17 +1608,17 @@ model AuditEntry {
   id             Int           @id @default(autoincrement())
   /// When it happened: Odoo's creation time of the entry.
   create_date    DateTime
-  /// The Odoo user who acted; empty when the system acted.
+  /// The Odoo user who acted; empty when the system or someone not signed in acted.
   user_id        Int?
   /// screen, api or job.
   source         String        @db.VarChar
   /// login, logout, create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
   action         String        @db.VarChar
-  /// Technical name of the document acted on.
+  /// Technical name of the document acted on; empty for an event without one, such as a refused webhook.
   document_model String?       @db.VarChar
   /// Id of the document acted on.
   document_id    Int?
-  /// The job run that acted, when the source is a job.
+  /// The job run that acted, when a MediLab job acted; empty for another Odoo cron.
   job_run_id     Int?
   /// What happened, for actions without field changes, such as an integration error.
   note           String?       @db.Text

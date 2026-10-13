@@ -8,12 +8,17 @@ from odoo.fields import Command
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT, MODEL_PAYMENT_TRANSACTION
 from odoo.addons.sol_commerce.models.invoicing.res_config_settings import DEFAULT_PAYOS_EXPIRY_HOURS
-from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS, MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_RES_CONFIG_SETTINGS,
+    MODEL_SCHEDULED_JOB,
+)
 
 
 # Giao dịch thanh toán
 class PaymentTransaction(models.Model):
-    _inherit = MODEL_PAYMENT_TRANSACTION
+    _name = MODEL_PAYMENT_TRANSACTION
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_PAYMENT_TRANSACTION]
 
     # The bank reference of this transfer. Empty until PayOS reports one.
     payos_bank_reference = fields.Char(copy=False, index=True)

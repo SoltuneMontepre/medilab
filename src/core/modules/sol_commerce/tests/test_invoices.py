@@ -3,6 +3,7 @@ from odoo.fields import Command
 from odoo.tests import HttpCase, tagged
 
 from .invoicing_case import InvoicingCase
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 
 @tagged("post_install", "-at_install")
@@ -220,7 +221,7 @@ class TestInvoices(InvoicingCase):
 
 
 @tagged("post_install", "-at_install")
-class TestInvoicePortalUrl(InvoicingCase, HttpCase):
+class TestInvoicePortalUrl(AuditLookup, InvoicingCase, HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -260,6 +261,24 @@ class TestInvoicePortalUrl(InvoicingCase, HttpCase):
         self.assertIn("pdf", pdf.headers.get("Content-Type", "").lower())
         self.assertIn(hidden.status_code, (301, 302, 303))
         self.assertTrue(hidden.headers["Location"].endswith("/my"))
+        self.assertEqual(self.entries(self.invoice, "download").user_id, self.customer)
+
+    def test_downloading_an_invoices_documents_in_the_back_office_is_a_download(self):
+        self.authenticate("admin", "admin")
+
+        self.url_open(f"/account/download_invoice_documents/{self.invoice.id}/pdf")
+
+        self.assertEqual(self.entries(self.invoice, "download").user_id.login, "admin")
+
+    def test_printing_an_invoice_in_the_back_office_is_a_download(self):
+        report = self.env.ref("account.account_invoices")
+        self.authenticate("admin", "admin")
+
+        self.url_open(f"/report/pdf/{report.report_name}/{self.invoice.id}")
+
+        entry = self.entries(self.invoice, "download")
+        self.assertEqual((entry.note, entry.user_id.login), (report.name, "admin"))
+        self.assertFalse(entry.change_ids)
 
     def test_a_token_opens_only_that_posted_invoice(self):
         self.opener.cookies.clear()

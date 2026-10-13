@@ -1,6 +1,6 @@
-from odoo.tests import new_test_user, tagged
+from odoo.tests import tagged
 
-from .audit_case import AUDITOR_GROUPS, AuditLookup
+from .audit_case import AuditLookup
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT
 
@@ -29,7 +29,7 @@ class TestAuditPeople(AuditLookup, PeopleCase):
         self.assertFalse(self.entries(self.chemist) - earlier)
 
     def test_the_history_of_a_person_includes_their_employee(self):
-        auditor = new_test_user(self.env, login="auditor", groups=AUDITOR_GROUPS)
+        auditor = self.new_auditor()
         self.chemist.employee_id.job_title = "Senior chemist"
 
         history = self.history(self.chemist, auditor)

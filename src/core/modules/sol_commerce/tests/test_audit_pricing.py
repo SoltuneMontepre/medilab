@@ -1,7 +1,7 @@
-from odoo.tests import new_test_user, tagged
+from odoo.tests import tagged
 
 from .common import PricingCase
-from odoo.addons.sol_laboratory.tests.audit_case import AUDITOR_GROUPS, AuditLookup
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 
 @tagged("post_install", "-at_install")
@@ -20,13 +20,13 @@ class TestAuditPricing(AuditLookup, PricingCase):
         self.assertEqual(self.changes(entry), {"list_price": ("150000.0", "180000.0")})
 
     def test_the_history_of_a_parameter_shows_the_changes_to_its_price(self):
-        auditor = new_test_user(self.env, login="auditor", groups=AUDITOR_GROUPS)
+        auditor = self.new_auditor()
         self.lead_price.with_user(self.administrator).list_price = 180000
 
         self.assertIn(self.entries(self.lead_price, "edit"), self.history(self.parameter, auditor))
 
     def test_the_history_of_a_tax_shows_the_changes_to_its_rates(self):
-        auditor = new_test_user(self.env, login="auditor", groups=AUDITOR_GROUPS)
+        auditor = self.new_auditor()
         rate = self.vat.rate_ids.filtered(lambda rate: rate.rate == 8)
 
         rate.with_user(self.administrator).rate = 5

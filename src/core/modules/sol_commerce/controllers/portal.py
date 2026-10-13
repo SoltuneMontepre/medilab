@@ -11,6 +11,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_ACCOUNT_PAYMENT,
     MODEL_PAYMENT_TRANSACTION,
 )
+from odoo.addons.sol_commerce.constants.xml_ids import PAYMENT_RECEIPT_REPORT
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM
 
 _logger = logging.getLogger(__name__)
@@ -122,9 +123,7 @@ class InvoicePortal(PortalAccount):
         same_customer = payment and payment.partner_id.commercial_partner_id == invoice.partner_id.commercial_partner_id
         if not same_invoice or not same_customer:
             return request.redirect("/my")
-        html = (
-            request.env["ir.actions.report"]
-            .sudo()
-            ._render_qweb_html("account.action_report_payment_receipt", payment.ids)[0]
-        )
+        reports = request.env["ir.actions.report"].sudo()
+        html = reports._render_qweb_html(PAYMENT_RECEIPT_REPORT, payment.ids)[0]
+        reports._get_report(PAYMENT_RECEIPT_REPORT)._audit_download(payment.ids)
         return request.make_response(html, headers=[("Content-Type", "text/html; charset=utf-8")])

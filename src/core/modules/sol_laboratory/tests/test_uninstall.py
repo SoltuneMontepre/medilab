@@ -7,11 +7,19 @@ Module operations cannot run inside a test case, so this is a standalone functio
 from odoo import SUPERUSER_ID, api
 from odoo.tests.common import standalone
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERMISSION, MODEL_PERSON
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_CHANGE,
+    MODEL_AUDIT_ENTRY,
+    MODEL_DEPARTMENT,
+    MODEL_PERMISSION,
+    MODEL_PERSON,
+)
 from odoo.addons.sol_laboratory.constants.xml_ids import MODULE
 
 PREFIX = "medilab."
 OTHER_MODULES = ("sol_commerce", "sol_inventory")
+# The audit trail records the records an uninstall deletes, so it only grows.
+TRAIL = (MODEL_AUDIT_ENTRY, MODEL_AUDIT_CHANGE)
 
 
 def _owned_ids(env, module):
@@ -28,6 +36,8 @@ def _laboratory_counts(env, owned=None):
     counts = {}
     for name, model in env.registry.items():
         if not name.startswith(PREFIX) or model._original_module != MODULE or model._abstract or model._transient:
+            continue
+        if name in TRAIL:
             continue
         domain = [("id", "not in", owned.get(name, []))] if owned.get(name) else []
         counts[name] = env[name].with_context(active_test=False).search_count(domain)
@@ -49,10 +59,13 @@ def test_uninstalling_other_modules_keeps_laboratory_data(env):
         if module.state != "installed":
             continue
         before = _laboratory_counts(env, _owned_ids(env, name))
+        trail = {model: env[model].search_count([]) for model in TRAIL}
         codes = _permission_codes(env, name)
         module.button_immediate_uninstall()
         env = api.Environment(env.cr, SUPERUSER_ID, {})
         assert env["ir.module.module"].browse(module.id).state == "uninstalled", f"{name} is still installed"
+        for model, count in trail.items():
+            assert env[model].search_count([]) >= count, f"uninstalling {name} removed records of {model}"
         after = _laboratory_counts(env)
         changed = {
             key: (before.get(key), after.get(key))

@@ -167,8 +167,23 @@ class AccountMove(models.Model):
 
     def action_print_invoice(self):
         self._check_billing()
-        self._audit("download")
         return self.env.ref("account.account_invoices").report_action(self)
+
+    def _get_invoice_legal_documents(self, filetype, allow_fallback=False):
+        documents = super()._get_invoice_legal_documents(filetype, allow_fallback=allow_fallback)
+        self._audit_legal_documents(documents)
+        return documents
+
+    def _get_invoice_legal_documents_all(self, allow_fallback=False):
+        documents = super()._get_invoice_legal_documents_all(allow_fallback=allow_fallback)
+        self._audit_legal_documents(documents)
+        return documents
+
+    def _audit_legal_documents(self, documents):
+        # Odoo reads an invoice's legal documents only to serve them: from the portal, the Download action and the
+        # export of journal entries.
+        if documents:
+            self._audit("download", ", ".join(document["filename"] for document in documents))
 
     def _report_paid_amount(self):
         self.ensure_one()

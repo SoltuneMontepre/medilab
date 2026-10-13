@@ -1,13 +1,13 @@
-from odoo.tests import new_test_user, tagged
+from odoo.tests import tagged
 
-from .audit_case import AUDITOR_GROUPS, AuditLookup
+from .audit_case import AuditLookup
 from .request_case import RequestCase
 
 
 @tagged("post_install", "-at_install")
 class TestAuditTestRequest(AuditLookup, RequestCase):
     def test_the_history_of_a_test_request_shows_the_changes_to_its_samples_and_sample_tests(self):
-        auditor = new_test_user(self.env, login="auditor", groups=AUDITOR_GROUPS)
+        auditor = self.new_auditor()
         sample_test = self.sample.test_ids
         other = self.create_request()
         self.sample.note = "Kept at 4 °C"

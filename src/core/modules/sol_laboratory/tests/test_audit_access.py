@@ -1,3 +1,5 @@
+from lxml import etree
+
 from odoo.exceptions import AccessError
 from odoo.tests import tagged
 
@@ -5,13 +7,19 @@ from .audit_case import AuditCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_CHANGE,
     MODEL_AUDIT_ENTRY,
-    MODEL_AUDIT_MIXIN,
-    MODEL_DEPARTMENT,
-    MODEL_EMPLOYEE,
+    MODEL_IR_ACTIONS_ACT_WINDOW_VIEW,
+    MODEL_IR_ACTIONS_REPORT,
+    MODEL_IR_MAIL_SERVER,
+    MODEL_IR_UI_MENU,
+    MODEL_IR_UI_VIEW,
     MODEL_JOB_ITEM,
     MODEL_JOB_RUN,
+    MODEL_MAIL_MAIL,
+    MODEL_MAIL_MESSAGE,
+    MODEL_MAIL_NOTIFICATION,
     MODEL_PUSH_DELIVERY,
     MODEL_REGULATION,
+    MODEL_RES_USERS,
     MODEL_SIGNATURE,
 )
 
@@ -49,9 +57,19 @@ class TestAuditAccess(AuditCase):
         self.assertIn(HISTORY_BUTTON, regulations.with_user(self.auditor).get_view(view_type="form")["arch"])
         self.assertNotIn(HISTORY_BUTTON, regulations.with_user(self.editor).get_view(view_type="form")["arch"])
 
+    def test_a_form_without_a_sheet_gets_the_history_button_below_its_header(self):
+        arch = etree.fromstring("<form><header/><group/></form>")
+
+        self.env[MODEL_REGULATION]._add_history_button(arch)
+
+        self.assertEqual([child.tag for child in arch], ["header", "div", "group"])
+        self.assertEqual(arch[1].find("button").get("name"), "action_open_audit_history")
+
     def test_every_document_model_of_the_laboratory_is_audited(self):
-        # The trail itself, and the records the trail already describes: signatures and the work of jobs, such as
-        # the pushes of a notification.
+        # The trail itself, and the records the trail already describes: signatures, the work of jobs, such as the
+        # pushes of a notification, and the emails and notifications of messages, which integration entries describe.
+        # Users keep their personal data on their contact and get their access from their person's roles. Views,
+        # menus and reports change when modules are installed, and the mail server comes from the environment.
         unaudited = {
             MODEL_AUDIT_ENTRY,
             MODEL_AUDIT_CHANGE,
@@ -59,16 +77,15 @@ class TestAuditAccess(AuditCase):
             MODEL_JOB_ITEM,
             MODEL_JOB_RUN,
             MODEL_PUSH_DELIVERY,
-        }
-        documents = {MODEL_EMPLOYEE, MODEL_DEPARTMENT} | {
-            name
-            for name, model in self.env.registry.items()
-            if model._original_module == "sol_laboratory" and not model._abstract and not model._transient
-        }
-        mixin = self.env.registry[MODEL_AUDIT_MIXIN]
-        audited = {
-            name for name, model in self.env.registry.items() if issubclass(model, mixin) and not model._abstract
+            MODEL_MAIL_MESSAGE,
+            MODEL_MAIL_NOTIFICATION,
+            MODEL_MAIL_MAIL,
+            MODEL_RES_USERS,
+            MODEL_IR_UI_VIEW,
+            MODEL_IR_UI_MENU,
+            MODEL_IR_ACTIONS_ACT_WINDOW_VIEW,
+            MODEL_IR_ACTIONS_REPORT,
+            MODEL_IR_MAIL_SERVER,
         }
 
-        self.assertFalse(documents - unaudited - audited)
-        self.assertFalse(unaudited & audited)
+        self.assertEqual(self.unaudited_documents("sol_laboratory"), unaudited)

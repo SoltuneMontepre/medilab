@@ -229,3 +229,10 @@ class MailMessage(models.Model):
                     )
             if delivery and delivery.status == "pending":
                 self.env[MODEL_SCHEDULED_JOB].queue("notifications.push", f"delivery:{delivery.id}", document=delivery)
+
+    def _audit_document(self):
+        """The document the message is posted on, which the entries of its emails and pushes are written on."""
+        self.ensure_one()
+        if not self.res_id or self.model not in self.env:
+            return None
+        return self.env[self.model].sudo().browse(self.res_id).exists() or None

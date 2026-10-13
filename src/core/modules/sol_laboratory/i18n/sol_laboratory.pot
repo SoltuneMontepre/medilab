@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 17:56+0000\n"
-"PO-Revision-Date: 2026-10-13 17:56+0000\n"
+"POT-Creation-Date: 2026-10-13 22:35+0000\n"
+"PO-Revision-Date: 2026-10-13 22:35+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -1060,6 +1060,24 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__brevo_status
 msgid "Brevo Status"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/brevo.py:0
+msgid "Brevo reported %(event)s for %(recipient)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/brevo.py:0
+msgid "Brevo webhook refused: the body is not JSON"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/brevo.py:0
+msgid "Brevo webhook refused: the token does not match"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2175,11 +2193,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_report__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_binary__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__display_name
@@ -2615,6 +2636,18 @@ msgid "Email Bounced"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "Email not sent: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "Email sent: %s"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__emergency_contact
 msgid "Emergency Contact"
 msgstr ""
@@ -2844,6 +2877,11 @@ msgid "File Name"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_binary
+msgid "File streaming helper model for controllers"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_form
@@ -2869,6 +2907,12 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
 msgid "Finished tasks"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Firebase rejected the token: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3130,11 +3174,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_report__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_binary__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_menu__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_ui_view__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_notification__id
@@ -4473,6 +4520,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__delivery_method__other
 msgid "Other"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_mail
+msgid "Outgoing Mail"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5877,6 +5929,12 @@ msgid "Push deliveries"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Push sent to %(user)s on %(platform)s"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_quality_registration
 msgid "Quality Registration"
 msgstr ""
@@ -6139,6 +6197,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "Report"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_actions_report
+msgid "Report Action"
 msgstr ""
 
 #. module: sol_laboratory

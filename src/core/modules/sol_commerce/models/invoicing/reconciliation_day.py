@@ -104,7 +104,6 @@ class ReconciliationDay(models.Model):
         """Print this day's PayOS totals. The report action is read for the accountant."""
         self.ensure_one()
         self.check_access("read")
-        self._audit("download")
         return self.env.ref("sol_commerce.action_report_reconciliation_day").sudo().report_action(self)
 
     def _amount_mismatch(self, transaction):

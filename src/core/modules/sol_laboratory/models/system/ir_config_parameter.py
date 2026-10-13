@@ -1,6 +1,6 @@
 from odoo import models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_IR_CONFIG_PARAMETER
 
 # Odoo's own secret, kept in the system parameters; MediLab's secrets never reach them.
 SECRET_PARAMETERS = frozenset({"database.secret"})
@@ -8,9 +8,8 @@ SECRET_PARAMETERS = frozenset({"database.secret"})
 
 # Tham Số Hệ Thống
 class IrConfigParameter(models.Model):
-    # Odoo needs the name of a model it adds a parent to.
-    _name = "ir.config_parameter"
-    _inherit = ["ir.config_parameter", MODEL_AUDIT_MIXIN]
+    _name = MODEL_IR_CONFIG_PARAMETER
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_IR_CONFIG_PARAMETER]
 
     def _audit_notes(self):
         # The key names the setting even once the parameter is deleted.

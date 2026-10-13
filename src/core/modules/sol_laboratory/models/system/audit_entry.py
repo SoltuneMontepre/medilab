@@ -13,14 +13,21 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_JOB_RUN,
     MODEL_PERMISSION_MIXIN,
+    MODEL_RES_USERS,
 )
 
-# Odoo's external APIs, and the session route external applications sign in with.
-API_PATH_PREFIXES = ("/xmlrpc", "/jsonrpc", "/json/", "/web/session/authenticate")
+# Odoo's external APIs, the session route external applications sign in with, and the routes MediLab serves to other
+# systems: the mobile app and the webhooks of Brevo and PayOS.
+API_PATH_PREFIXES = (
+    "/xmlrpc",
+    "/jsonrpc",
+    "/json/",
+    "/web/session/authenticate",
+    "/medilab/",
+    "/payment/payos/webhook",
+)
 # Odoo runs a scheduled action with its cron in the context, including crons that are not MediLab jobs.
 CRON_CONTEXT_KEY = "cron_id"
-# Logins and logouts are entries on the user who signs in or out.
-SESSION_MODEL = "res.users"
 POSITIVE_SEARCH_OPERATORS = ("in", "like", "ilike", "=like", "=ilike")
 
 
@@ -33,8 +40,8 @@ class AuditEntry(models.Model):
     # Entries are only read: nobody edits or deletes them.
     _permission_actions = ("read",)
 
-    # The Odoo user who acted; empty when the system acted.
-    user_id = fields.Many2one("res.users", readonly=True, ondelete="restrict")
+    # The Odoo user who acted; empty when the system or someone not signed in acted.
+    user_id = fields.Many2one(MODEL_RES_USERS, readonly=True, ondelete="restrict")
     # Where the action came from: a screen, the API or a scheduled job.
     source = fields.Selection(
         [("screen", "Screen"), ("api", "API"), ("job", "Scheduled Job")], required=True, readonly=True
@@ -83,7 +90,8 @@ class AuditEntry(models.Model):
         # A model inherits the mixin directly or through another mixin, such as the approval mixin.
         mixin = self.env.registry[MODEL_AUDIT_MIXIN]
         names = {name for name, model in self.env.registry.items() if issubclass(model, mixin) and not model._abstract}
-        names.add(SESSION_MODEL)
+        # Logins and logouts are entries on the user who signs in or out.
+        names.add(MODEL_RES_USERS)
         models_ = self.env["ir.model"].sudo().search([("model", "in", list(names))])
         return sorted(((model.model, model.name) for model in models_), key=lambda item: item[1])
 
@@ -158,10 +166,13 @@ class AuditEntry(models.Model):
             return {"source": "job", "user_id": run.triggered_by_id.id, "job_run_id": run.id}
         if CRON_CONTEXT_KEY in self.env.context:
             return {"source": "job", "user_id": False}
-        uid = self.env.uid
+        user = self.env.user
+        if user.id == SUPERUSER_ID and request and request.session.uid:
+            # Odoo's portal reads a customer's documents as the superuser; the person signed in is who acted.
+            user = user.browse(request.session.uid)
         return {
             "source": "api" if self._request_path().startswith(API_PATH_PREFIXES) else "screen",
-            "user_id": uid if uid != SUPERUSER_ID else False,
+            "user_id": user.id if user.id != SUPERUSER_ID and not user._is_public() else False,
         }
 
     @api.model
@@ -175,5 +186,16 @@ class AuditEntry(models.Model):
     def _log_session(self, action):
         """Record that the current user signed in or out."""
         self.sudo().create(
-            {**self._origin_values(), "action": action, "document_model": SESSION_MODEL, "document_id": self.env.uid}
+            {**self._origin_values(), "action": action, "document_model": MODEL_RES_USERS, "document_id": self.env.uid}
         )
+
+    @api.model
+    def _log_event(self, action, note, document=None):
+        """Record an action that changes no field, such as a call to another system, on its document when it is
+        audited. Otherwise the note names the document."""
+        if document and self.env[MODEL_AUDIT_MIXIN]._audit_is_audited(document._name):
+            document._audit(action, note)
+            return
+        if document:
+            note = f"{', '.join(document.sudo().mapped('display_name'))}: {note}"
+        self.sudo().create({**self._origin_values(), "action": action, "note": note})

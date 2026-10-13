@@ -2526,3 +2526,33 @@ msgstr "<span>Tổng chuyển khoản</span>"
 #. module: sol_commerce
 msgid "<strong>Payment details</strong>"
 msgstr "<strong>Chi tiết thanh toán</strong>"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/scheduled_job.py:0
+msgid "PayOS created the payment link %s"
+msgstr "PayOS đã tạo liên kết thanh toán %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/scheduled_job.py:0
+msgid "PayOS read the payment link %s"
+msgstr "Đã đọc liên kết thanh toán %s từ PayOS"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS reported a transfer for the payment link %s"
+msgstr "PayOS báo có chuyển khoản cho liên kết thanh toán %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS webhook refused: the body is not JSON"
+msgstr "Từ chối webhook PayOS: nội dung không phải JSON"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS webhook refused: the signature does not match"
+msgstr "Từ chối webhook PayOS: chữ ký không khớp"

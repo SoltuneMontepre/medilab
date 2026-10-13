@@ -1,11 +1,11 @@
 from odoo import fields
-from odoo.tests import new_test_user, tagged
+from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_TAX
 from odoo.addons.sol_laboratory.constants.approvals import PURPOSE_SIGNING
 from odoo.addons.sol_laboratory.constants.models import MODEL_APPROVAL_CHAIN, MODEL_AUDIT_REPORT
-from odoo.addons.sol_laboratory.tests.audit_case import AUDITOR_GROUPS, AuditLookup
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 
 @tagged("post_install", "-at_install")
@@ -54,7 +54,7 @@ class TestAuditSignatures(AuditLookup, OrderCase):
         self.assertEqual((entry.note, entry.user_id), (self.head_level.name, self.head))
 
     def test_a_report_for_the_period_lists_every_signature_approval_and_deletion(self):
-        auditor = new_test_user(self.env, login="auditor", groups=AUDITOR_GROUPS)
+        auditor = self.new_auditor()
         today = fields.Date.context_today(auditor)
         order = self.requested_order()
         order.with_user(self.head).action_sign()

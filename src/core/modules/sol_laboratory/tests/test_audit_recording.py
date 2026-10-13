@@ -1,7 +1,16 @@
 from odoo.tests import tagged
 
 from .audit_case import AuditCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_CHEMICAL, MODEL_SUBCONTRACTOR
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
+    MODEL_CALENDAR_EVENT,
+    MODEL_CHEMICAL,
+    MODEL_DEPARTMENT,
+    MODEL_MAIL_MESSAGE_SUBTYPE,
+    MODEL_NOTIFICATION_EVENT_RECIPIENT,
+    MODEL_SUBCONTRACTOR,
+)
+from odoo.addons.sol_laboratory.constants.notifications import EVENT_TASK_REMINDER
 
 
 @tagged("post_install", "-at_install")
@@ -74,12 +83,38 @@ class TestAuditRecording(AuditCase):
 
         self.assertEqual(set(self.changes(self.entries(chemical, "edit"))), {"name"})
 
-    def test_details_of_a_delegated_contact_are_recorded(self):
+    def test_details_of_a_delegated_contact_are_recorded_on_the_contact_and_in_the_history(self):
         subcontractor = self.env[MODEL_SUBCONTRACTOR].create({"name": "Northern Testing Laboratory"})
 
         subcontractor.email = "lab@northern.example"
 
-        self.assertEqual(self.changes(self.entries(subcontractor, "edit"))["email"], (False, "lab@northern.example"))
+        edit = self.entries(subcontractor.partner_id, "edit")
+        self.assertEqual(self.changes(edit)["email"], (False, "lab@northern.example"))
+        self.assertFalse(self.entries(subcontractor, "edit"))
+        self.assertIn(edit, self.history(subcontractor, self.auditor))
+
+    def test_turning_a_notification_event_off_is_recorded_with_its_recipients_in_its_history(self):
+        event = self.env[MODEL_MAIL_MESSAGE_SUBTYPE].search([("code", "=", EVENT_TASK_REMINDER)])
+        recipient = self.env[MODEL_NOTIFICATION_EVENT_RECIPIENT].create(
+            {"event_id": event.id, "department_id": self.env[MODEL_DEPARTMENT].create({"name": "Microbiology"}).id}
+        )
+
+        event.enabled = False
+
+        self.assertEqual(self.changes(self.entries(event, "edit")), {"enabled": ("True", "False")})
+        self.assertIn(self.entries(recipient, "create"), self.history(event, self.auditor))
+
+    def test_a_calendar_event_is_recorded(self):
+        meeting = self.env[MODEL_CALENDAR_EVENT].create(
+            {"name": "Method validation review", "start": "2026-10-20 08:00:00", "stop": "2026-10-20 09:00:00"}
+        )
+
+        meeting.name = "Method validation review, ICP-MS"
+
+        self.assertEqual(
+            self.changes(self.entries(meeting, "edit"))["name"],
+            ("Method validation review", "Method validation review, ICP-MS"),
+        )
 
     def test_an_action_rolled_back_leaves_no_entry(self):
         with self.assertRaises(RuntimeError), self.env.cr.savepoint():

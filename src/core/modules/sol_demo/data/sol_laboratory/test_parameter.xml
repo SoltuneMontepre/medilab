@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- No longer offered: the demo archives it. -->
+    <record id="demo_test_parameter_cadmium" model="medilab.test.parameter">
+        <field name="name">Cadmium (Cd)</field>
+        <field name="group_ids" eval="[Command.set([ref('group_heavy_metals')])]" />
+        <field name="main_group_id" ref="group_heavy_metals" />
+    </record>
+</odoo>
