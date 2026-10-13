@@ -1,13 +1,13 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* laboratory
+# 	* sol_theme
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:39+0000\n"
-"PO-Revision-Date: 2026-10-10 07:39+0000\n"
+"POT-Creation-Date: 2026-10-11 17:18+0000\n"
+"PO-Revision-Date: 2026-10-11 17:18+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -61,6 +61,11 @@ msgid "Manage samples, testing processes and results on a unified platform."
 msgstr ""
 
 #. module: sol_theme
+#: model:ir.module.module,shortdesc:base.module_sol_theme
+msgid "Medilab Theme"
+msgstr ""
+
+#. module: sol_theme
 #. odoo-javascript
 #: code:addons/sol_theme/static/src/js/boolean_button_group_field.js:0
 msgid "No"
@@ -98,6 +103,13 @@ msgstr ""
 #. module: sol_theme
 #: model_terms:ir.ui.view,arch_db:sol_theme.login_layout
 msgid "System introduction"
+msgstr ""
+
+#. module: sol_theme
+#: model:ir.module.module,summary:base.module_sol_theme
+msgid ""
+"The MediLab look for Odoo: colours, navigation, icons, login page and app "
+"icons."
 msgstr ""
 
 #. module: sol_theme

@@ -1,13 +1,13 @@
-# Translation of Odoo Server.
-# This file contains the translation of the following modules:
-# 	* sol_commerce
 #
+# 	* sol_commerce
+# This file contains the translation of the following modules:
+# Translation of Odoo Server.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 17:06+0000\n"
-"PO-Revision-Date: 2026-10-12 17:06+0000\n"
+"POT-Creation-Date: 2026-10-11 17:18+0000\n"
+"PO-Revision-Date: 2026-10-11 17:18+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -204,6 +204,7 @@ msgid "Add at least one parameter or service package."
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.module.module,summary:base.module_commerce
 #: model:ir.module.module,summary:base.module_sol_commerce
 msgid "Adds e-commerce features into the exising core laboratory module."
 msgstr ""
@@ -457,7 +458,6 @@ msgid "Claimed At"
 msgstr ""
 
 #. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__code
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__code
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__code
 msgid "Code"
@@ -567,12 +567,7 @@ msgid "Create taxes"
 msgstr ""
 
 #. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__create_uid
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__create_uid
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__create_uid
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__create_uid
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__create_uid
@@ -582,12 +577,7 @@ msgid "Created by"
 msgstr ""
 
 #. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__create_date
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__create_date
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__create_date
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__create_date
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__create_date
@@ -598,7 +588,6 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__currency_id
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__currency_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__currency_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__currency_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__currency_id
@@ -728,26 +717,14 @@ msgid "Discard"
 msgstr ""
 
 #. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_account_move__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_request__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_product_template__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_res_company__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__display_name
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -764,7 +741,6 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.ui.menu,name:sol_commerce.menu_commerce_root
-#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "E-commerce"
 msgstr ""
 
@@ -897,26 +873,14 @@ msgid ""
 msgstr ""
 
 #. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_account_move__id
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__id
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__id
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__id
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__id
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__id
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_request__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__id
-#: model:ir.model.fields,field_description:sol_commerce.field_product_template__id
-#: model:ir.model.fields,field_description:sol_commerce.field_res_company__id
-#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__id
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__id
-#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__id
 msgid "ID"
 msgstr ""
 
@@ -945,12 +909,7 @@ msgid "Journal Entry"
 msgstr ""
 
 #. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__write_uid
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__write_uid
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__write_uid
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__write_uid
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__write_uid
@@ -960,12 +919,7 @@ msgid "Last Updated by"
 msgstr ""
 
 #. module: sol_commerce
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__write_date
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__write_date
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__write_date
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__write_date
-#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__write_date
@@ -990,6 +944,7 @@ msgid "Max"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.module.module,shortdesc:base.module_commerce
 #: model:ir.module.module,shortdesc:base.module_sol_commerce
 msgid "Medilab - E-commerce"
 msgstr ""
@@ -1002,9 +957,6 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__name
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_search
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_tax_search
 msgid "Name"
@@ -1178,9 +1130,6 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__parameter_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__parameter_id
-#: model:ir.model.fields,field_description:sol_commerce.field_product_product__parameter_id
-#: model:ir.model.fields,field_description:sol_commerce.field_product_template__parameter_id
-#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_search
 msgid "Parameter"
 msgstr ""
@@ -1252,10 +1201,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__list_price
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__list_price
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__price_ids
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_parameter_form
 msgid "Price"
 msgstr ""
@@ -1282,9 +1227,6 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__quantity
-#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
-#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Quantity"
 msgstr ""
 
@@ -1594,8 +1536,6 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_service_package
-#: model:ir.model.fields,field_description:sol_commerce.field_product_product__service_package_id
-#: model:ir.model.fields,field_description:sol_commerce.field_product_template__service_package_id
 msgid "Service Package"
 msgstr ""
 
@@ -1775,6 +1715,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "The customer has paid the advance, so this quotation cannot be revised."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
 msgid "The customer must accept the quotation before the order is confirmed."
 msgstr ""
@@ -1797,14 +1743,20 @@ msgid "The order must be approved before the samples are collected."
 msgstr ""
 
 #. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
-msgid "The quotation was sent; revise it before changing its lines or samples."
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_form
+msgid "The package costs more than its parameters bought one by one."
 msgstr ""
 
 #. module: sol_commerce
-#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_form
-msgid "The package costs more than its parameters bought one by one."
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
+msgid "The quotation is being revised. Send the new revision first."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_freeze.py:0
+msgid "The quotation was sent; revise it before changing its lines or samples."
 msgstr ""
 
 #. module: sol_commerce
@@ -1949,8 +1901,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_commerce/models/pricing/parameter_price.py:0
 msgid ""
-"With this price, these packages cost more than their parameters bought one "
-"by one: %s"
+"With this price, these packages cost more than their parameters "
+"bought one by one: %s"
 msgstr ""
 
 #. module: sol_commerce
@@ -2009,13 +1961,385 @@ msgid "is in the sales queue."
 msgstr ""
 
 #. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order.py:0
-msgid "The customer has paid the advance, so this quotation cannot be revised."
+msgid "<strong>Amount owed</strong>"
 msgstr ""
 
 #. module: sol_commerce
-#. odoo-python
-#: code:addons/sol_commerce/models/orders/sale_order_confirmation.py:0
-msgid "The quotation is being revised. Send the new revision first."
+msgid "A PayOS bank transfer is recorded once."
+msgstr ""
+
+#. module: sol_commerce
+msgid "A day is reconciled once."
+msgstr ""
+
+#. module: sol_commerce
+msgid "A locked day stays locked."
+msgstr ""
+
+#. module: sol_commerce
+msgid "A payment cannot be more than the amount still owed."
+msgstr ""
+
+#. module: sol_commerce
+msgid "A posted invoice cannot be edited. Correct it with an adjustment invoice."
+msgstr ""
+
+#. module: sol_commerce
+msgid "A rejected payment needs a reason."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Acknowledge the amount differences before locking this day."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Adjust"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Adjust invoice"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Adjusted Invoice"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Adjustment"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Adjustment of %s"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Advance"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Advance, final and adjustment invoices take their number from the sales journal sequence, which restarts each year."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Amount Owed"
+msgstr ""
+
+#. module: sol_commerce
+msgid "An adjustment needs a difference."
+msgstr ""
+
+#. module: sol_commerce
+msgid "An advance is a fixed amount or a percentage, not both."
+msgstr ""
+
+#. module: sol_commerce
+msgid "An online payment of a locked day cannot be changed."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Back to the invoice"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Collection Method"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Create invoice adjustments"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Create reconciliation days"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Customer invoices"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Customers can pay with PayOS only while this is on. The keys stay in the environment."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Day"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Delete invoice adjustments"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Difference"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Discrepancies Acknowledged"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Edit invoice adjustments"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Edit reconciliation days"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Exact"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Exceeds Residual"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Final"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Invoice Adjustment"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Invoice Kind"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Invoices"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Lock"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Locked"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Locked At"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Locked By"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Mismatch Count"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Missing Payment Count"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Move"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Only a draft payment can be rejected."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Only a posted advance or final invoice can be adjusted."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Only a posted invoice can be paid."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Only the accountant can confirm or reject a payment."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Only the accountant can post, adjust or print an invoice."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Over"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Overdue reminders"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Partial"
+msgstr ""
+
+#. module: sol_commerce
+msgid "PayOS"
+msgstr ""
+
+#. module: sol_commerce
+msgid "PayOS QR"
+msgstr ""
+
+#. module: sol_commerce
+msgid "PayOS calls"
+msgstr ""
+
+#. module: sol_commerce
+msgid "PayOS is preparing the payment link. Opening this page does not confirm the payment."
+msgstr ""
+
+#. module: sol_commerce
+msgid "PayOS is turned off."
+msgstr ""
+
+#. module: sol_commerce
+msgid "PayOS link expiry (hours)"
+msgstr ""
+
+#. module: sol_commerce
+msgid "PayOS poll"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Payment"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Payment Provider"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Payment Transaction"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Payment rejected"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Payments"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Payos Bank Reference"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Payos Checkout Url"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Payos Settlement"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Payos Transferred At"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Post adjustment"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Post missing payments"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Post the missing payments before locking this day."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Raising Adjustments"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Read invoice adjustments"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Read reconciliation days"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Reconciliation"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Reconciliation Day"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Recorded After Lock"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Rejecting a payment must leave the invoice as it was."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Rejection Reason"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Reviewed At"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Reviewed By"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Sales records cash and bank transfers. Online payments come from PayOS."
+msgstr ""
+
+#. module: sol_commerce
+msgid "The QR method shown on the portal."
+msgstr ""
+
+#. module: sol_commerce
+msgid "The company has no journal for this payment."
+msgstr ""
+
+#. module: sol_commerce
+msgid "The payment link is not valid."
+msgstr ""
+
+#. module: sol_commerce
+msgid "The technical code of this payment provider."
+msgstr ""
+
+#. module: sol_commerce
+msgid "This day is already locked."
+msgstr ""
+
+#. module: sol_commerce
+msgid "This invoice belongs to another customer."
+msgstr ""
+
+#. module: sol_commerce
+msgid "This invoice is already paid."
+msgstr ""
+
+#. module: sol_commerce
+msgid "This order has nothing left to invoice."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Transaction"
+msgstr ""
+
+#. module: sol_commerce
+msgid "Your payment has been authorized."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Your payment has been cancelled."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Your payment has been processed but is waiting for approval."
+msgstr ""
+
+#. module: sol_commerce
+msgid "Your payment has been processed."
+msgstr ""
+
+#. module: sol_commerce
+msgid "invoice"
 msgstr ""
