@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 16:27+0000\n"
-"PO-Revision-Date: 2026-10-13 16:27+0000\n"
+"POT-Creation-Date: 2026-10-11 16:30+0000\n"
+"PO-Revision-Date: 2026-10-11 16:30+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -107,22 +107,6 @@ msgid "Collect whole heads in clean paper bags."
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.scheduled.job,name:sol_demo.demo_scheduled_job_echo
-msgid "Demo echo"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.actions.server,name:sol_demo.demo_ir_cron_echo_ir_actions_server
-msgid "Demo: echo"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
-#: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
-msgid "Display Name"
-msgstr ""
-
-#. module: sol_demo
 #: model:medilab.sample.type,disposal_method:sol_demo.sample_type_cabbage
 msgid "Dispose of as organic waste."
 msgstr ""
@@ -180,17 +164,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_change_request_final
-#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_head_of_sales
-msgid "Head of Sales"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_change_request_department
-msgid "Head of Sales of the department"
-msgstr ""
-
-#. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_head_of_department
 msgid "Head of department"
 msgstr ""
@@ -203,17 +176,6 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.group_heavy_metals
 msgid "Heavy metals"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model.fields,field_description:sol_demo.field_account_move__id
-#: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
-msgid "ID"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model,name:sol_demo.model_account_move
-msgid "Journal Entry"
 msgstr ""
 
 #. module: sol_demo
@@ -307,16 +269,6 @@ msgid "Not subject to VAT"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_order_change_request
-msgid "Order change request"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_order_signing
-msgid "Order signing"
-msgstr ""
-
-#. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.group_organophosphates
 msgid "Organophosphates"
 msgstr ""
@@ -347,7 +299,6 @@ msgid "Room temperature, tightly closed"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_sales
 #: model:medilab.role,name:sol_demo.demo_role_sales
 msgid "Sales"
 msgstr ""
@@ -360,11 +311,6 @@ msgstr ""
 #. module: sol_demo
 #: model:hr.department,name:sol_demo.demo_hr_department_sample_reception
 msgid "Sample reception"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model,name:sol_demo.model_medilab_scheduled_job
-msgid "Scheduled Job"
 msgstr ""
 
 #. module: sol_demo
@@ -446,4 +392,45 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.chemical_ph_buffer
 msgid "pH buffer solution 7.00"
+msgstr ""
+
+#. module: sol_demo
+msgid "Demo echo"
+msgstr ""
+
+#. module: sol_demo
+msgid "Demo: echo"
+msgstr ""
+
+#. module: sol_demo
+msgid "Display Name"
+msgstr ""
+
+#. module: sol_demo
+msgid "ID"
+msgstr ""
+
+#. module: sol_demo
+msgid "Scheduled Job"
+msgstr ""
+
+#. module: sol_demo
+msgid "Head of Sales"
+msgstr ""
+
+#. module: sol_demo
+msgid "Head of Sales of the department"
+msgstr ""
+
+#. module: sol_demo
+msgid "Order change request"
+msgstr ""
+
+#. module: sol_demo
+msgid "Order signing"
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_account_move
+msgid "Journal Entry"
 msgstr ""
