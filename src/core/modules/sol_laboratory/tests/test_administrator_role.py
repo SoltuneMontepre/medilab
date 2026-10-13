@@ -20,6 +20,9 @@ class TestAdministratorRole(TransactionCase):
             self.env, login="administrator", groups="base.group_user,sol_laboratory.group_role_administrator"
         )
 
+        parameters = type(self.env[MODEL_TEST_PARAMETER])
+        # Test parameters are never signed, so no module ships the permission this test adds.
+        self.patch(parameters, "_permission_actions", (*parameters._permission_actions, "sign"))
         permission = self.env[MODEL_PERMISSION].create(
             {"name": "Sign parameters", "document_model": MODEL_TEST_PARAMETER, "action": "sign"}
         )
@@ -27,8 +30,10 @@ class TestAdministratorRole(TransactionCase):
         self.assertIn(permission, self.administrator.permission_ids)
         self.assertIn(permission.group_id, user.all_group_ids)
 
-    def test_administrator_also_configures_odoo(self):
-        self.assertIn(self.env.ref("base.group_system"), self.administrator.group_id.implied_ids)
+    def test_administrator_also_configures_odoo_and_manages_its_employees(self):
+        implied = self.administrator.group_id.implied_ids
+
+        self.assertTrue(self.env.ref("base.group_system") | self.env.ref("hr.group_hr_manager") <= implied)
 
     def test_administrator_role_cannot_be_deleted_renamed_or_stripped(self):
         refused = (

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_job_run_echo_succeeded" model="medilab.job.run">
+        <field name="job_id" ref="demo_scheduled_job_echo" />
+        <field name="started_at" eval="(DateTime.now() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ended_at" eval="(DateTime.now() - timedelta(days=1, seconds=-3)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">succeeded</field>
+        <field name="done_count">1</field>
+        <field name="log">greeting:2: done</field>
+    </record>
+    <record id="demo_job_run_echo_partly_failed" model="medilab.job.run">
+        <field name="job_id" ref="demo_scheduled_job_echo" />
+        <field name="started_at" eval="(DateTime.now() - timedelta(hours=3)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ended_at" eval="(DateTime.now() - timedelta(hours=3, seconds=-5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">partly_failed</field>
+        <field name="done_count">1</field>
+        <field name="failed_count">2</field>
+        <field name="log">greeting:2: done
+greeting:3: failed after 3 attempts
+greeting:4: attempt 2 failed, retry in 10 minutes</field>
+    </record>
+    <record id="demo_job_run_echo_by_hand" model="medilab.job.run">
+        <field name="job_id" ref="demo_scheduled_job_echo" />
+        <field name="started_at" eval="(DateTime.now() - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="ended_at" eval="(DateTime.now() - timedelta(hours=1, seconds=-1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="status">succeeded</field>
+        <field name="triggered_by_id" ref="demo_res_users_administrator" />
+        <field name="log">No due items</field>
+    </record>
+</odoo>

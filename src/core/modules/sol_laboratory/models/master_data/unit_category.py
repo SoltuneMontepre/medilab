@@ -2,8 +2,8 @@ from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
-    MODEL_AUDIT_MIXIN,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PERMISSION_MIXIN,
     MODEL_UNIT_CATEGORY,
 )
 
@@ -11,9 +11,10 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Nhóm Đơn Vị
 class UnitCategory(models.Model):
     _name = MODEL_UNIT_CATEGORY
-    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
     _description = "Unit Category"
     _order = "name"
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # Category name in each language, such as mass concentration in liquid.
     name = fields.Char(required=True, translate=True)

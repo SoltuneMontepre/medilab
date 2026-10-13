@@ -17,6 +17,18 @@ class TestParameterMethodDepartment(MasterDataCase):
 
         self.assertEqual(self.pair.department_id, self.chemistry)
 
+    def test_in_house_way_of_testing_names_a_department(self):
+        with self.assertRaises(ValidationError):
+            self.pair.department_id = False
+
+    def test_subcontracted_way_of_testing_needs_no_department(self):
+        subcontractor = self.env[MODEL_SUBCONTRACTOR].create({"name": "Northern Testing Laboratory"})
+
+        self.pair.write({"department_id": False, "subcontractor_id": subcontractor.id})
+
+        self.assertFalse(self.pair.department_id)
+        self.assertEqual(self.pair.subcontractor_id, subcontractor)
+
     def test_way_of_testing_is_not_both_in_house_and_subcontracted(self):
         subcontractor = self.env[MODEL_SUBCONTRACTOR].create({"name": "Northern Testing Laboratory"})
 

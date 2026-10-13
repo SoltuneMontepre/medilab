@@ -3,9 +3,10 @@ from psycopg2 import IntegrityError
 
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.fields import Command
-from odoo.tests import TransactionCase, tagged
+from odoo.tests import tagged
 from odoo.tools import mute_logger
 
+from .common import UnshippedPermissionCase
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_PERMISSION,
@@ -13,10 +14,11 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ROLE,
     MODEL_TEST_PARAMETER,
 )
+from odoo.addons.sol_laboratory.constants.permissions import ODOO_DOCUMENT_TYPES
 
 
 @tagged("post_install", "-at_install")
-class TestPermissionGeneration(TransactionCase):
+class TestPermissionGeneration(UnshippedPermissionCase):
     def create_permission(self, action, scope="all", document_model=MODEL_TEST_PARAMETER):
         return self.env[MODEL_PERMISSION].create(
             {"name": f"{action} records", "document_model": document_model, "action": action, "scope": scope}
@@ -92,11 +94,6 @@ class TestPermissionGeneration(TransactionCase):
         with self.assertRaises(ValidationError):
             self.create_permission("read", scope="own_department")
 
-    def test_edit_and_archive_need_a_document_type_that_tells_them_apart(self):
-        for action in ("edit", "archive"):
-            with self.subTest(action=action), self.assertRaises(ValidationError):
-                self.create_permission(action)
-
     def test_archive_needs_a_document_type_that_can_be_archived(self):
         with self.assertRaises(ValidationError):
             self.create_permission("archive", document_model=MODEL_ROLE)
@@ -108,7 +105,7 @@ class TestPermissionGeneration(TransactionCase):
 
         self.assertEqual(
             permission._access_values()["domain"],
-            "[('department_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]",
+            "[('department_id', 'in', user.employee_id.department_id.ids)]",
         )
 
     def test_deleting_a_permission_deletes_what_it_generated(self):
@@ -151,8 +148,15 @@ class TestPermissionGeneration(TransactionCase):
         with self.assertRaises(UserError):
             self.env.ref("sol_laboratory.permission_permission_read_all").unlink()
 
-    def test_document_types_are_medilab_models(self):
+    def test_document_types_are_medilab_models_and_departments(self):
         document_types = [name for name, _label in self.env[MODEL_PERMISSION]._selection_document_model()]
 
         self.assertIn(MODEL_TEST_PARAMETER, document_types)
-        self.assertTrue(all(name.startswith("medilab.") for name in document_types))
+        self.assertIn(MODEL_DEPARTMENT, document_types)
+        self.assertTrue(all(name.startswith("medilab.") for name in set(document_types) - set(ODOO_DOCUMENT_TYPES)))
+
+    def test_department_permissions_keep_the_department_document_type(self):
+        permission = self.env.ref("sol_laboratory.permission_department_edit_all")
+
+        self.assertEqual((permission.document_model, permission.code), (MODEL_DEPARTMENT, "department.edit.all"))
+        self.assertEqual(self.generated("access", permission.code).model_id.model, MODEL_DEPARTMENT)

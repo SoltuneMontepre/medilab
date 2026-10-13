@@ -1,15 +1,23 @@
-# The mixins are loaded first, because the other models inherit them.
-from . import archive_mixin, audit_mixin, permission_mixin
-
-# isort: split
 from . import (
+    approval_chain,
+    approval_level,
     audit_change,
     audit_entry,
     audit_report,
-    department,
+    hr_department,
+    hr_employee,
+    ir_actions_act_window_view,
     ir_config_parameter,
+    ir_ui_menu,
+    ir_ui_view,
+    job_item,
+    job_run,
     permission,
     person,
+    res_config_settings,
+    res_partner,
     res_users,
     role,
+    scheduled_job,
+    signature,
 )

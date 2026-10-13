@@ -48,15 +48,15 @@ The administrator maintains the master data of the Laboratory module: test param
 | Department           | An in-house pair of parameter and method names the department that tests it. Departments are maintained by the administrator (US-AD13). |
 | Accreditation        | Each pair of parameter and method is marked as within an ISO 17025 accreditation scope or not.                                                  |
 | Detection limits     | LOD and LOQ are recorded per parameter and method pair, in that pair's unit.                                                                     |
-| Codes                | Parameters, groups, sample types, dossiers, subcontractors, customers and subcontract dispatches get a code from a sequence when none is typed, such as `CT.0001` for parameters, `NCT.0001` for groups, `LM.0001` for sample types, `HS.0001` for dossiers, `TP.0001` for subcontractors and `KH.0001` for customers. The administrator can change the prefix and length; existing codes keep their value. A typed code must still be unique. |
+| Codes                | Parameters, groups, sample types, dossiers, subcontractors, customers, test requests and subcontract dispatches get a code from a sequence when none is typed, such as `CT.0001` for parameters, `NCT.0001` for groups, `LM.0001` for sample types, `HS.0001` for dossiers, `TP.0001` for subcontractors, `KH.0001` for customers and `YC.2026.0001` for test requests, numbered again each year. Samples get their lab code from a sequence, such as `PTN.2026.0001`. The administrator can change the prefix and length; existing codes keep their value. A typed code must still be unique. |
 | Sampling and storage | A sample type carries how to collect it, its minimum amount, storage conditions, whether and for how many days it is kept after testing, and how it is disposed of. A sample type without instructions has none; it does not use its parent's. |
 | Unit conversion      | Each unit belongs to a category, such as mass concentration in liquid, and has a factor to the category's reference unit. Units convert only within their category. The system ships with common units and conversions, and suggests the category and factor of a new unit; the administrator confirms or edits them. |
 | Converted values     | When a value is compared in another unit, such as a result against a regulation limit, the converted value is a suggestion that the user can edit before it is used. |
-| Regulations          | A regulation, such as QCVN 6-1:2010/BYT, applies to sample types and sets at most one limit per parameter: a minimum, a maximum, or both, in a unit, or a text such as "Not detected" without a unit. A limit has at least one of them. |
+| Regulations          | A regulation, such as QCVN 6-1:2010/BYT, applies to sample types and sets at most one limit per parameter: a minimum, a maximum, or both, in a unit, or a text such as "Not detected" without a unit. A minimum or a maximum may be empty or any number, including 0. A limit has at least one of them set. |
 | Quality registration | A dossier is registered with an authority, has validity dates and covers parameter and method pairs. Its mark is printed after the name of each covered parameter on the report. A dossier counts as expired after its last valid day, and its mark is no longer printed. |
 | Expiry warning       | Administrators are warned a number of days before a dossier expires and on the day it expires. The number of days is a system setting the administrator configures. |
-| Permissions          | Only administrators create, edit, archive and delete master data. Everyone else reads it.                                                        |
-| Archiving            | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Test parameters, their parameter and method pairs and subcontractors are archived, never deleted. |
+| Permissions          | Creating, editing, archiving and deleting master data are permissions the administrator holds and can give to other roles and people. Everyone who works for the laboratory reads it. |
+| Archiving            | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Test parameters and subcontractors are archived, never deleted. A parameter and method pair can be deleted when nothing refers to it; an archived pair that a past result refers to is kept. Once a pair is archived, a new pair for the same parameter, method and subcontractor is allowed. |
 | Deleting             | Units, unit categories, testing fields, testing methods, parameter groups, sample types, regulations, quality registration dossiers, machines and chemicals can also be deleted when nothing refers to them, such as a sample type no parameter, sample or regulation names. |
 
 Acceptance criteria:
@@ -73,14 +73,17 @@ Acceptance criteria:
 - An archived record no longer appears when choosing records on a quotation or a parameter.
 - A unit used by an active parameter and method pair cannot be archived or deleted; the message lists the pairs.
 - A sample type that only finished samples use can be archived but not deleted.
-- A test parameter, a parameter and method pair or a subcontractor cannot be deleted, only archived.
+- Saving an in-house pair without a department is refused.
+- Saving the same parameter, method and subcontractor as a pair that is still active is refused. Once that pair is archived, the same combination can be saved again.
+- A test parameter or a subcontractor cannot be deleted, only archived.
+- A parameter and method pair that nothing refers to can be deleted. One that a dossier or a past result refers to is kept.
 
 ### 2. Machines and chemicals (US-AD09 to US-AD11)
 
 | Rule            | Description                                                                                                                                   |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Machine         | A machine has a code, name, model, manufacturer, serial number, location and status: in use, under repair or retired.                       |
-| Service history | Each calibration, maintenance or repair is recorded with its date, who did it, its certificate or report number and when the next one is due. Records are kept, not overwritten. |
+| Service history | Each calibration, maintenance or repair is recorded with its date, who did it, its certificate or report number and when the next one is due. A record can be edited, and the changes are kept in the audit trail. |
 | Calibration     | A machine whose next calibration date has passed cannot be used until a new calibration is recorded.                                          |
 | Maintenance     | A machine can have a maintenance interval in days; its next maintenance date follows from the latest maintenance record.                      |
 | Machine use     | A machine is linked to the parameter and method pairs it can run, with the minutes one run takes.                                                                             |

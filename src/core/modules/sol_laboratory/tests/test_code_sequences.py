@@ -5,6 +5,7 @@ from odoo.tools import mute_logger
 
 from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_CUSTOMER,
     MODEL_PARAMETER_GROUP,
     MODEL_QUALITY_REGISTRATION,
     MODEL_SAMPLE_TYPE,
@@ -21,6 +22,7 @@ class TestCodeSequences(MasterDataCase):
             "CT.": self.create_parameter("Cadmium (Cd)", self.group),
             "HS.": self.env[MODEL_QUALITY_REGISTRATION].create({"name": "Food testing registration"}),
             "TP.": self.env[MODEL_SUBCONTRACTOR].create({"name": "Northern Testing Laboratory"}),
+            "KH.": self.env[MODEL_CUSTOMER].create({"name": "An Phu Beverage Co., Ltd."}),
         }
 
         for prefix, record in records.items():
@@ -38,6 +40,7 @@ class TestCodeSequences(MasterDataCase):
             (MODEL_SAMPLE_TYPE, {"name": "Duplicate"}),
             (MODEL_QUALITY_REGISTRATION, {"name": "Duplicate"}),
             (MODEL_SUBCONTRACTOR, {"name": "Duplicate"}),
+            (MODEL_CUSTOMER, {"name": "Duplicate"}),
         ]:
             with self.subTest(model=model):
                 existing = self.env[model].create(dict(vals))

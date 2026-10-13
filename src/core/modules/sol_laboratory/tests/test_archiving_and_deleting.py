@@ -1,5 +1,9 @@
+from psycopg2 import IntegrityError
+
 from odoo.exceptions import AccessError, UserError
+from odoo.fields import Command
 from odoo.tests import tagged
+from odoo.tools import mute_logger
 
 from .common import MasterDataCase
 from odoo.addons.sol_laboratory.constants.models import (
@@ -7,11 +11,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
     MODEL_MACHINE_SERVICE,
     MODEL_MEASUREMENT_UNIT,
+    MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_QUALITY_REGISTRATION,
     MODEL_REGULATION,
     MODEL_REGULATION_LIMIT,
     MODEL_SAMPLE_TYPE,
     MODEL_SUBCONTRACTOR,
+    MODEL_TESTING_METHOD,
 )
 
 
@@ -68,12 +75,55 @@ class TestArchivingAndDeleting(MasterDataCase):
 
         self.assertFalse(limit.exists())
 
-    def test_parameter_way_of_testing_and_subcontractor_are_never_deleted(self):
+    def test_parameter_and_subcontractor_are_never_deleted(self):
         administrator = self.env.ref("base.user_admin")
 
-        for record in (self.parameter, self.pair, self.subcontractor):
+        for record in (self.parameter, self.subcontractor):
             with self.subTest(model=record._name), self.assertRaises(AccessError):
                 record.with_user(administrator).unlink()
+
+    def test_parameter_with_a_way_of_testing_cannot_be_deleted(self):
+        with self.assertRaises(UserError) as refusal:
+            self.parameter.unlink()
+
+        self.assertIn(self.pair.display_name, str(refusal.exception))
+
+    def test_way_of_testing_nothing_refers_to_can_be_deleted(self):
+        administrator = self.env.ref("base.user_admin")
+
+        self.pair.with_user(administrator).unlink()
+
+        self.assertFalse(self.pair.exists())
+
+    def test_way_of_testing_a_dossier_covers_cannot_be_deleted(self):
+        self.env[MODEL_QUALITY_REGISTRATION].create(
+            {
+                "code": "HS.9001",
+                "name": "VILAS",
+                "parameter_method_ids": [Command.set([self.pair.id])],
+            }
+        )
+
+        with self.assertRaises(UserError) as refusal:
+            self.pair.unlink()
+
+        self.assertIn("VILAS", str(refusal.exception))
+
+    def test_active_way_of_testing_is_unique_and_an_archived_one_can_be_replaced(self):
+        values = {
+            "parameter_id": self.parameter.id,
+            "method_id": self.method.id,
+            "unit_id": self.unit.id,
+            "department_id": self.department.id,
+        }
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.env.cr.savepoint():
+            self.env[MODEL_PARAMETER_METHOD].create(values)
+
+        self.pair.action_archive()
+        replacement = self.env[MODEL_PARAMETER_METHOD].create({**values, "is_default": True})
+
+        self.assertFalse(self.pair.is_default)
+        self.assertTrue(replacement.is_default)
 
     def test_parameter_way_of_testing_and_subcontractor_can_be_archived(self):
         for record in (self.pair, self.subcontractor, self.parameter):
@@ -111,3 +161,15 @@ class TestArchivingAndDeleting(MasterDataCase):
             chemical.unlink()
 
         self.assertIn(self.method.display_name, str(refusal.exception))
+
+    def test_method_used_by_a_chemical_cannot_be_deleted(self):
+        chemical = self.env[MODEL_CHEMICAL].create({"code": "HC-902", "name": "Hydrochloric acid"})
+        spare = self.env[MODEL_TESTING_METHOD].create(
+            {"code": "TCVN 9998:2026", "name": "Spare method", "field_id": self.testing_field.id}
+        )
+        spare.chemical_ids = chemical
+
+        with self.assertRaises(UserError) as refusal:
+            spare.unlink()
+
+        self.assertIn(chemical.display_name, str(refusal.exception))

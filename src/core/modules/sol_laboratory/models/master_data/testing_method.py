@@ -2,8 +2,8 @@ from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
-    MODEL_AUDIT_MIXIN,
     MODEL_CHEMICAL,
+    MODEL_PERMISSION_MIXIN,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
 )
@@ -12,16 +12,17 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Phương Pháp Thử
 class TestingMethod(models.Model):
     _name = MODEL_TESTING_METHOD
-    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
     _description = "Testing Method"
     _rec_name = "code"
     _order = "code"
     _rec_names_search = ("code", "name")
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique standard reference of the method, such as TCVN 6187-1:2009.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Title of the standard in each language, such as "Water quality — Detection of coliforms".
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # The testing field the method belongs to.
     field_id = fields.Many2one(
         MODEL_TESTING_FIELD, required=True, ondelete="restrict", index=True, string="Testing Field"

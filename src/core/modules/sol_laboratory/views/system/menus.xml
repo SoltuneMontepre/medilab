@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_sample_collection_root" name="Sample Collection" sequence="10" />
+    <menuitem id="menu_tasks_root" name="Tasks" action="action_medilab_task_dashboard" sequence="5">
+        <menuitem id="menu_task_mine" action="action_medilab_task_mine" sequence="10" />
+        <menuitem id="menu_task_finished" action="action_medilab_task_finished" sequence="20" />
+        <menuitem id="menu_task_all" action="action_medilab_task" sequence="30" />
+        <menuitem
+            id="menu_task_type"
+            action="action_medilab_task_type"
+            sequence="40"
+            groups="group_permission_task_type_edit_all"
+        />
+    </menuitem>
+
+    <menuitem id="menu_laboratory_root" name="Laboratory" sequence="10">
+        <menuitem id="menu_test_request" action="action_medilab_test_request" sequence="10" />
+        <menuitem id="menu_sample" action="action_medilab_sample" sequence="20" />
+        <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
+    </menuitem>
 
     <menuitem id="menu_master_data_root" name="Master Data" sequence="20">
         <menuitem id="menu_master_data_catalog" name="Catalog" sequence="10">
@@ -21,15 +37,42 @@
         <menuitem id="menu_subcontractor" action="action_medilab_subcontractor" sequence="30" />
     </menuitem>
 
-    <menuitem id="menu_people_root" name="People" sequence="30">
-        <menuitem id="menu_department" action="action_medilab_department" sequence="10" />
-        <menuitem id="menu_person" action="action_medilab_person" sequence="20" />
-        <menuitem id="menu_role" action="action_medilab_role" sequence="30" />
-        <menuitem id="menu_permission" action="action_medilab_permission" sequence="40" />
+    <!-- Departments are Odoo's own menu in the Employees app. -->
+    <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
+    <menuitem id="menu_role" action="action_medilab_role" parent="hr.menu_hr_root" sequence="20" />
+    <menuitem id="menu_permission" action="action_medilab_permission" parent="hr.menu_hr_root" sequence="30" />
+    <menuitem
+        id="menu_approval_chain"
+        action="action_medilab_approval_chain"
+        parent="hr.menu_human_resources_configuration"
+        sequence="30"
+        groups="group_permission_approval_chain_read_all"
+    />
+
+    <menuitem id="menu_jobs" name="Jobs" sequence="80">
+        <menuitem
+            id="menu_scheduled_job"
+            action="action_medilab_scheduled_job"
+            sequence="10"
+            groups="group_permission_scheduled_job_read_all"
+        />
+        <menuitem
+            id="menu_job_item"
+            action="action_medilab_job_item"
+            sequence="20"
+            groups="group_permission_job_item_read_all"
+        />
+        <menuitem
+            id="menu_job_run"
+            action="action_medilab_job_run"
+            sequence="30"
+            groups="group_permission_job_run_read_all"
+        />
     </menuitem>
 
     <menuitem id="menu_audit_root" name="Audit Trail" sequence="40">
         <menuitem id="menu_audit_entry" action="action_medilab_audit_entry" sequence="10" />
         <menuitem id="menu_audit_report" action="action_medilab_audit_report" sequence="20" />
     </menuitem>
+    <menuitem id="menu_settings" name="Settings" action="action_medilab_settings" sequence="90" groups="base.group_system" />
 </odoo>

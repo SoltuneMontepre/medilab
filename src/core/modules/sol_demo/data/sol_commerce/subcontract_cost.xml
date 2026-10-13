@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_subcontract_cost_lead" model="medilab.subcontract.cost">
+        <field name="parameter_method_id" ref="parameter_method_lead_subcontracted" />
+        <field name="cost">180000</field>
+    </record>
+    <record id="demo_subcontract_cost_chlorpyrifos" model="medilab.subcontract.cost">
+        <field name="parameter_method_id" ref="parameter_method_chlorpyrifos_ug" />
+        <field name="cost">450000</field>
+    </record>
+</odoo>

@@ -153,7 +153,9 @@ All user-facing text can be translated, and users choose their language.
 - A new language is added by installing it and translating the texts; no code change is needed.
 - Fall back to the default language when a text is not translated yet.
 - Dates, numbers and currency follow the language's format.
-- Languages and translations are Odoo's own: a language is installed from the settings, and every text is translated through Odoo's translation files.
+- Languages and translations are Odoo's own: a language is installed from the settings, and every text is translated through Odoo's translation files. English and Vietnamese are installed with the Laboratory module.
+- E-mails, document templates and reports render in the recipient's language: the customer's contact language for customers, the user's language for staff.
+- A check in CI fails, listing them, when a user-facing string of a MediLab module has no Vietnamese translation.
 
 Acceptance criteria:
 

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+    <record id="sequence_customer" model="ir.sequence">
+        <field name="name">Customer</field>
+        <field name="code">medilab.customer</field>
+        <field name="prefix">KH.</field>
+        <field name="padding">4</field>
+    </record>
+
     <record id="sequence_parameter_group" model="ir.sequence">
         <field name="name">Parameter Group</field>
         <field name="code">medilab.parameter.group</field>
@@ -12,6 +19,14 @@
         <field name="code">medilab.quality.registration</field>
         <field name="prefix">HS.</field>
         <field name="padding">4</field>
+    </record>
+
+    <record id="sequence_sample" model="ir.sequence">
+        <field name="name">Sample Lab Code</field>
+        <field name="code">medilab.sample</field>
+        <field name="prefix">PTN.%(range_year)s.</field>
+        <field name="padding">4</field>
+        <field name="use_date_range" eval="True" />
     </record>
 
     <record id="sequence_sample_type" model="ir.sequence">
@@ -33,5 +48,13 @@
         <field name="code">medilab.test.parameter</field>
         <field name="prefix">CT.</field>
         <field name="padding">4</field>
+    </record>
+
+    <record id="sequence_test_request" model="ir.sequence">
+        <field name="name">Test Request</field>
+        <field name="code">medilab.test.request</field>
+        <field name="prefix">YC.%(range_year)s.</field>
+        <field name="padding">4</field>
+        <field name="use_date_range" eval="True" />
     </record>
 </odoo>

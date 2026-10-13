@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 09:52+0000\n"
-"PO-Revision-Date: 2026-10-11 09:52+0000\n"
+"POT-Creation-Date: 2026-10-11 16:30+0000\n"
+"PO-Revision-Date: 2026-10-11 16:30+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -47,7 +47,7 @@ msgstr ""
 
 #. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.chemical_nitric_acid
-msgid "Acid cabinet, below 30 °C, away from organic substances and metals"
+msgid "Acid cabinet, away from organic substances"
 msgstr ""
 
 #. module: sol_demo
@@ -61,13 +61,18 @@ msgid "Animal feed"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.role,name:sol_demo.demo_role_auditor
-msgid "Auditor"
+#: model:medilab.sample.type,name:sol_demo.sample_type_bottled_water
+msgid "Bottled water"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_bottled_water
-msgid "Bottled water"
+#: model:medilab.service.package,name:sol_demo.demo_service_package_bottled_water_basic
+msgid "Bottled water basic"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.service.package,name:sol_demo.demo_service_package_bottled_water_microbiology
+msgid "Bottled water microbiology"
 msgstr ""
 
 #. module: sol_demo
@@ -76,11 +81,7 @@ msgid "Cabbage"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_cadmium
-msgid "Cadmium (Cd)"
-msgstr ""
-
-#. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_chemistry
 #: model:medilab.testing.field,name:sol_demo.field_chemistry
 msgid "Chemistry"
 msgstr ""
@@ -223,6 +224,7 @@ msgid "Microbial count per volume"
 msgstr ""
 
 #. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_microbiology
 #: model:medilab.parameter.group,name:sol_demo.group_microbiology
 #: model:medilab.testing.field,name:sol_demo.field_microbiology
 msgid "Microbiology"
@@ -259,6 +261,11 @@ msgstr ""
 #: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_coliforms
 #: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_e_coli
 msgid "Not detected"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.tax,name:sol_demo.demo_tax_kct
+msgid "Not subject to VAT"
 msgstr ""
 
 #. module: sol_demo
@@ -302,6 +309,11 @@ msgid "Sample delivery staff"
 msgstr ""
 
 #. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_sample_reception
+msgid "Sample reception"
+msgstr ""
+
+#. module: sol_demo
 #: model:ir.module.module,summary:base.module_sol_demo
 msgid "Seeds and configure data for demo purposes."
 msgstr ""
@@ -329,6 +341,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_tester
 msgid "Tester"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.tax,name:sol_demo.demo_tax_vat10
+msgid "VAT 10%"
 msgstr ""
 
 #. module: sol_demo
@@ -375,4 +392,40 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.chemical_ph_buffer
 msgid "pH buffer solution 7.00"
+msgstr ""
+
+#. module: sol_demo
+msgid "Demo echo"
+msgstr ""
+
+#. module: sol_demo
+msgid "Demo: echo"
+msgstr ""
+
+#. module: sol_demo
+msgid "Display Name"
+msgstr ""
+
+#. module: sol_demo
+msgid "ID"
+msgstr ""
+
+#. module: sol_demo
+msgid "Scheduled Job"
+msgstr ""
+
+#. module: sol_demo
+msgid "Head of Sales"
+msgstr ""
+
+#. module: sol_demo
+msgid "Head of Sales of the department"
+msgstr ""
+
+#. module: sol_demo
+msgid "Order change request"
+msgstr ""
+
+#. module: sol_demo
+msgid "Order signing"
 msgstr ""

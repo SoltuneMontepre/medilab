@@ -63,6 +63,11 @@ msgstr ""
 "Quản lý mẫu, quy trình thử nghiệm và kết quả trên một nền tảng thống nhất."
 
 #. module: sol_theme
+#: model:ir.module.module,shortdesc:base.module_sol_theme
+msgid "Medilab Theme"
+msgstr "Giao diện Medilab"
+
+#. module: sol_theme
 #. odoo-javascript
 #: code:addons/sol_theme/static/src/js/boolean_button_group_field.js:0
 msgid "No"
@@ -101,6 +106,15 @@ msgstr "Quản trị hệ thống"
 #: model_terms:ir.ui.view,arch_db:sol_theme.login_layout
 msgid "System introduction"
 msgstr "Giới thiệu hệ thống"
+
+#. module: sol_theme
+#: model:ir.module.module,summary:base.module_sol_theme
+msgid ""
+"The MediLab look for Odoo: colours, navigation, icons, login page and app "
+"icons."
+msgstr ""
+"Giao diện MediLab cho Odoo: màu sắc, điều hướng, biểu tượng, trang đăng nhập"
+" và biểu tượng ứng dụng."
 
 #. module: sol_theme
 #. odoo-javascript

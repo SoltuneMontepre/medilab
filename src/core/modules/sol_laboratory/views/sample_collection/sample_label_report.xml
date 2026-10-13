@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_sample_label" model="report.paperformat">
+        <field name="name">Sample Label 50 × 30 mm</field>
+        <field name="format">custom</field>
+        <field name="page_width">50</field>
+        <field name="page_height">30</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">2</field>
+        <field name="margin_bottom">2</field>
+        <field name="margin_left">2</field>
+        <field name="margin_right">2</field>
+        <field name="header_spacing">0</field>
+        <field name="disable_shrinking" eval="True" />
+        <field name="dpi">96</field>
+    </record>
+
+    <record id="action_report_sample_label" model="ir.actions.report">
+        <field name="name">Sample Label</field>
+        <field name="model">medilab.sample</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sol_laboratory.report_sample_label</field>
+        <field name="print_report_name">'Label %s' % object.code</field>
+        <field name="paperformat_id" ref="paperformat_sample_label" />
+        <field name="group_ids" eval="[Command.set([ref('group_permission_test_request_read_all')])]" />
+        <field name="binding_model_id" ref="model_medilab_sample" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- The label never shows the customer or the customer's name for the sample. -->
+    <template id="report_sample_label">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="sample">
+                <div
+                    class="page"
+                    t-attf-style="font-family: sans-serif; font-size: 9pt; {{ '' if sample_first else 'page-break-before: always' }}"
+                >
+                    <table style="width: 100%; border-collapse: collapse">
+                        <tr>
+                            <td style="width: 24mm; vertical-align: top">
+                                <span
+                                    t-field="sample.code"
+                                    t-options="{'widget': 'barcode', 'symbology': 'QR', 'width': 200, 'height': 200, 'img_style': 'width: 22mm; height: 22mm'}"
+                                />
+                            </td>
+                            <td style="vertical-align: top; padding-left: 1mm">
+                                <div style="font-size: 10pt; font-weight: bold" t-field="sample.code" />
+                                <div t-field="sample.request_id.code" />
+                                <div>
+                                    <span>Due</span>
+                                    <span
+                                        t-field="sample.test_ids.sorted('due_date')[:1].due_date"
+                                        t-options="{'date_only': True}"
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

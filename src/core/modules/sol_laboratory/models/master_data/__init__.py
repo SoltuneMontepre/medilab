@@ -1,6 +1,6 @@
 from . import (
     chemical,
-    code_mixin,
+    customer,
     machine,
     machine_service,
     measurement_unit,

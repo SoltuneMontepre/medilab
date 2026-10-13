@@ -1,5 +1,5 @@
-# System is loaded first, because the models of every concern inherit its mixins.
-from . import system
+# The mixins are loaded first, because models of every concern inherit them.
+from . import mixins
 
 # isort: split
-from . import management, master_data, sample_collection, tasks, testing
+from . import management, master_data, sample_collection, system, tasks, testing

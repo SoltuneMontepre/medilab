@@ -40,6 +40,7 @@ services:
       retries: 15
     volumes:
       - medilab-db:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:z
     ports:
       - "15432:5432"
 
