@@ -129,4 +129,79 @@
         <field name="status">cancelled</field>
         <field name="deadline" eval="(DateTime.now() - relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
     </record>
+    <record id="demo_task_sample_test_lead_done" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_lead_done')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">in_progress</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_lead_done')" />
+    </record>
+    <record id="demo_task_sample_test_lead_running" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_lead_running')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_chemistry_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">in_progress</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_lead_running')" />
+    </record>
+    <record id="demo_task_sample_test_lead_today" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_lead_today')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_lead_today')" />
+    </record>
+    <record id="demo_task_sample_test_lead_tomorrow" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_lead_tomorrow')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_chemistry_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_lead_tomorrow')" />
+    </record>
+    <record id="demo_task_sample_test_lead_queued" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_lead_queued')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_lead_queued')" />
+    </record>
+    <record id="demo_task_sample_test_lead_outsourcing" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_lead_outsourcing')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="assignee_id" ref="demo_person_tester" />
+        <field name="assigned_by_id" ref="demo_person_head_of_department" />
+        <field name="status">assigned</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_lead_outsourcing')" />
+    </record>
+    <record id="demo_task_sample_test_lead_urgent" model="medilab.task">
+        <field name="type_id" ref="sol_laboratory.task_type_sample_test" />
+        <field name="name" model="medilab.sample" eval="obj(ref('demo_sample_lead_urgent')).code + ': Lead (Pb)'" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="status">open</field>
+        <field name="deadline" eval="(DateTime.now() + relativedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="document_model">medilab.sample.test</field>
+        <field name="document_id" eval="ref('demo_sample_test_lead_urgent')" />
+    </record>
 </odoo>

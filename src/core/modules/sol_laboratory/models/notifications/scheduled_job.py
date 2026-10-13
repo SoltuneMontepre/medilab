@@ -33,11 +33,18 @@ class ScheduledJob(models.Model):
         end = (now + timedelta(minutes=lead)).astimezone(UTC).replace(tzinfo=None)
         # A run that starts a few minutes late still sends the reminder once. The item key stops a second one.
         grace = start - timedelta(minutes=5)
-        # A machine booking is reminded the same way once its calendar event exists. That event is #22.
         events = (
             self.env["calendar.event"]
             .sudo()
-            .search([("medilab_task_id", "!=", False), ("start", ">", grace), ("start", "<=", end)])
+            .search(
+                [
+                    "|",
+                    ("medilab_task_id", "!=", False),
+                    ("medilab_booking_ids", "!=", False),
+                    ("start", ">", grace),
+                    ("start", "<=", end),
+                ]
+            )
         )
         for event in events:
             stamp = fields.Datetime.to_string(event.start)
@@ -45,13 +52,15 @@ class ScheduledJob(models.Model):
 
     def _handle_notifications_remind(self, item):
         event = item._document()
-        if not event or not event.exists() or not event.medilab_task_id or not event.start:
+        if not event or not event.exists() or not event.start:
+            return
+        task = event.medilab_task_id or event.medilab_booking_ids.task_id[:1]
+        if not task:
             return
         stamp = fields.Datetime.to_string(event.start)
         if item.item_key != f"{event.id}:{stamp}":
             return
-        task = event.medilab_task_id
-        partner = task.assignee_id.user_id.partner_id
+        partner = event.user_id.partner_id
         if not partner:
             return
         self.env["mail.message"].raise_event(

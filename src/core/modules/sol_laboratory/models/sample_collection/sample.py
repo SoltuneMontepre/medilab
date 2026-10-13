@@ -327,6 +327,7 @@ class Sample(models.Model):
                     SAMPLE_RECEIVED_TRIGGER,
                     document=test,
                     department=department,
+                    deadline=test.due_date,
                     name=f"{sample.code}: {test.parameter_id.display_name}",
                 )
             for department in departments:

@@ -1,1 +1,1 @@
-from . import res_config_settings, sample_test
+from . import machine_booking, res_config_settings, sample_test

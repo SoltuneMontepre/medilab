@@ -30,6 +30,7 @@
         "data/sol_commerce/subcontract_cost.xml",
         "data/sol_commerce/service_package.xml",
         "data/sol_laboratory/task.xml",
+        "data/sol_laboratory/machine_booking.xml",
         "data/base/ir_cron.xml",
         "data/sol_laboratory/scheduled_job.xml",
         "data/sol_laboratory/job_item.xml",

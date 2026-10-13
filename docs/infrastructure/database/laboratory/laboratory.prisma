@@ -255,6 +255,8 @@ model Department {
   task_reassigns    TaskReassign[]
   /// Samples handed over to the department.
   handovers         SampleHandover[]
+  /// Machine bookings of the department's testing tasks.
+  bookings          MachineBooking[]
 
   @@index([parent_id])
   @@map("hr_department")
@@ -792,6 +794,8 @@ model SampleTest {
   cancelled_by_id     Int?
   /// When the test was cancelled.
   cancelled_at        DateTime?
+  /// True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
+  outsourcing_suggested Boolean        @default(false)
   /// The sample tested.
   sample              Sample           @relation(fields: [sample_id], references: [id], onDelete: Cascade)
   /// The parameter tested.
@@ -811,6 +815,7 @@ model SampleTest {
   @@index([parameter_id])
   @@index([parameter_method_id])
   @@index([status])
+  @@index([outsourcing_suggested])
   @@map("medilab_sample_test")
 }
 
@@ -1337,6 +1342,8 @@ model MachineBooking {
   sample_test_id   Int
   /// The testing task the booking belongs to.
   task_id          Int?
+  /// The department of the testing task, whose head sees and adjusts the booking.
+  department_id    Int?
   /// Person who runs the test.
   person_id        Int?
   /// Due date of the sample test, copied so the queue is ordered without a join.
@@ -1359,12 +1366,15 @@ model MachineBooking {
   sample_test      SampleTest @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
   /// The testing task the booking belongs to.
   task             Task?      @relation(fields: [task_id], references: [id], onDelete: Restrict)
+  /// The department of the testing task.
+  department       Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
   /// Person who runs the test.
   person           Person?    @relation(fields: [person_id], references: [id], onDelete: Restrict)
 
   @@index([machine_id, starts_at])
   @@index([person_id, starts_at])
   @@index([machine_id, status, due_date, queued_at])
+  @@index([department_id])
   @@map("medilab_machine_booking")
 }
 
