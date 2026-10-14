@@ -6,5 +6,6 @@ from . import (
     sample_handover,
     sample_scan,
     scheduled_job,
+    subcontract_dispatch,
     test_request,
 )

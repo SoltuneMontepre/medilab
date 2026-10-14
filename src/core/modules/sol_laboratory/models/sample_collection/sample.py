@@ -43,7 +43,7 @@ def _progress(statuses, sent, done):
         return "completed"
     if statuses and all(status in (sent, done) for status in statuses):
         return "awaiting_approval"
-    if any(status in ("testing", sent, done) for status in statuses):
+    if any(status in ("testing", "outsourced", sent, done) for status in statuses):
         return "testing"
     return None
 

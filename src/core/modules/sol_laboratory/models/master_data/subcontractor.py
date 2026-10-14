@@ -45,3 +45,9 @@ class Subcontractor(models.Model):
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a subcontractor must be unique.")
     _partner_unique = models.Constraint("UNIQUE(partner_id)", "This company is already a subcontractor.")
+
+    def _can_be_chosen(self):
+        """True for a subcontractor in use whose accreditation has not expired; False for none."""
+        subcontractor = self.sudo()
+        expiry = subcontractor.accreditation_expiry
+        return bool(subcontractor.active) and not (expiry and expiry < fields.Date.context_today(self))

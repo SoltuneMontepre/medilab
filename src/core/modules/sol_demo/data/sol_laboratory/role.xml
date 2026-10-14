@@ -126,7 +126,7 @@
         <field
             name="permission_ids"
             eval="[Command.set([
-                ref('sol_laboratory.permission_person_read_own_department'),
+                ref('sol_laboratory.permission_person_read_all'),
                 ref('sol_laboratory.permission_department_read_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
                 ref('sol_laboratory.permission_sample_edit_all'),
@@ -144,6 +144,9 @@
                 ref('sol_laboratory.permission_machine_booking_read_own_department'),
                 ref('sol_laboratory.permission_machine_booking_create_own_department'),
                 ref('sol_laboratory.permission_machine_booking_edit_own_department'),
+                ref('sol_laboratory.permission_subcontract_dispatch_read_all'),
+                ref('sol_laboratory.permission_subcontract_dispatch_create_all'),
+                ref('sol_laboratory.permission_subcontract_dispatch_edit_all'),
             ])]"
         />
     </record>

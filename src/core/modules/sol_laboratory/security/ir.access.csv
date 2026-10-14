@@ -22,6 +22,8 @@ access_medilab_task_reassign_user,medilab.task.reassign user,medilab.task.reassi
 access_medilab_test_result_reject_user,medilab.test.result.reject user,medilab.test.result.reject,base.group_user,crud,
 access_medilab_test_report_reject_user,medilab.test.report.reject user,medilab.test.report.reject,base.group_user,crud,
 access_medilab_sample_test_cancel_user,medilab.sample.test.cancel user,medilab.sample.test.cancel,base.group_user,crud,
+access_medilab_sample_test_outsource_user,medilab.sample.test.outsource user,medilab.sample.test.outsource,base.group_user,crud,
+access_medilab_subcontract_dispatch_courier,medilab.subcontract.dispatch courier,medilab.subcontract.dispatch,base.group_user,r,"[('courier_id.user_id', '=', user.id)]"
 access_medilab_notification_event_recipient_user,medilab.notification.event.recipient user,medilab.notification.event.recipient,base.group_user,r,
 access_medilab_notification_event_recipient_system,medilab.notification.event.recipient system,medilab.notification.event.recipient,base.group_system,crud,
 access_medilab_notification_preference_user,medilab.notification.preference user,medilab.notification.preference,base.group_user,ru,"[('user_id', '=', user.id)]"

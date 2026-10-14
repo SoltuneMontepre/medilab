@@ -15,10 +15,10 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 
 | Rule         | Description                                                                                                                       |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| Access       | A subcontractor's people sign in with Odoo users linked to their contacts. They see only the dispatches sent to their subcontractor and those dispatches' sample tests. |
+| Access       | A subcontractor's people sign in to the portal with Odoo users linked to their contacts. They see only the sent and received dispatches of their subcontractor and those dispatches' sample tests. |
 | Anonymity    | They see samples by lab code, sample type and parameters only, never the customer or the customer's name for the sample.         |
 | Entering     | The results of an outsourced sample test are entered either by the subcontractor or by a lab QA of the laboratory; each result records who entered it. |
-| Approval     | Results entered by a subcontractor go through the same approval as the laboratory's own results.                                  |
+| Approval     | Results entered by a subcontractor go through the same approval as the laboratory's own results: a lab QA of the department sends them, and the head of department approves them. |
 
 Acceptance criteria:
 
