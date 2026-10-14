@@ -1,11 +1,15 @@
 from odoo import fields, models
 
+from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_EMPLOYEE,
     MODEL_PERSON,
 )
+
+# How to reach the employee at work, which the trail keeps only in part, as it does their private details.
+PERSONAL_FIELDS = frozenset({"work_email", "work_phone", "mobile_phone"})
 
 
 # Nhân Viên
@@ -59,9 +63,11 @@ class HrEmployee(models.Model):
         self._people().with_env(self.env).unlink()
         return super().unlink()
 
-    def _audit_masked(self, field_name):
+    def _audit_mask(self, field_name):
         # Odoo limits an employee's private details, such as their ID, address and pay, to some groups.
-        return bool(self._fields[field_name].groups) or super()._audit_masked(field_name)
+        if field_name in PERSONAL_FIELDS or self._fields[field_name].groups:
+            return MASK_PERSONAL
+        return super()._audit_mask(field_name)
 
     def _people(self):
         return self.env[MODEL_PERSON].sudo().with_context(active_test=False).search([("employee_id", "in", self.ids)])

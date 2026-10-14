@@ -35,15 +35,15 @@ class AuditEntry(models.Model):
 
     # The Odoo user who acted; empty when the system or someone not signed in acted.
     user_id = fields.Many2one(MODEL_RES_USERS, readonly=True, ondelete="restrict")
-    # Where the action came from: a screen, the API or a scheduled job.
+    # Where the action came from: a screen, the API, a scheduled job or the system installing or upgrading a module.
     source = fields.Selection(
-        [("screen", "Screen"), ("api", "API"), ("job", "Scheduled Job")], required=True, readonly=True
+        [("screen", "Screen"), ("api", "API"), ("job", "Scheduled Job"), ("system", "System")],
+        required=True,
+        readonly=True,
     )
     # The action recorded.
     action = fields.Selection(
         [
-            ("login", "Sign In"),
-            ("logout", "Sign Out"),
             ("create", "Create"),
             ("edit", "Edit"),
             ("archive", "Archive"),
@@ -64,6 +64,10 @@ class AuditEntry(models.Model):
     document_model = fields.Selection(selection="_selection_document_model", string="Document Type", readonly=True)
     # Id of the document acted on.
     document_id = fields.Integer(string="Document ID", readonly=True)
+    # Technical name of the document the one acted on is a part of, such as the test request of a sample.
+    parent_model = fields.Selection(selection="_selection_document_model", string="Parent Document Type", readonly=True)
+    # Id of the document the one acted on is a part of.
+    parent_id = fields.Integer(string="Parent Document ID", readonly=True)
     # The job run that acted, when the source is a job.
     job_run_id = fields.Many2one(MODEL_JOB_RUN, readonly=True, ondelete="restrict")
     # What happened, for actions without field changes, such as the name of a deleted document.
@@ -74,6 +78,7 @@ class AuditEntry(models.Model):
     document_name = fields.Char(string="Document", compute="_compute_document_name", search="_search_document_name")
 
     _document_index = models.Index("(document_model, document_id)")
+    _parent_index = models.Index("(parent_model, parent_id) WHERE parent_id IS NOT NULL")
     _user_date_index = models.Index("(user_id, create_date)")
     _action_date_index = models.Index("(action, create_date)")
     _create_date_index = models.Index("USING brin (create_date)")
@@ -82,10 +87,8 @@ class AuditEntry(models.Model):
     def _selection_document_model(self):
         # A model inherits the mixin directly or through another mixin, such as the approval mixin.
         mixin = self.env.registry[MODEL_AUDIT_MIXIN]
-        names = {name for name, model in self.env.registry.items() if issubclass(model, mixin) and not model._abstract}
-        # Logins and logouts are entries on the user who signs in or out.
-        names.add(MODEL_RES_USERS)
-        models_ = self.env["ir.model"].sudo().search([("model", "in", list(names))])
+        names = [name for name, model in self.env.registry.items() if issubclass(model, mixin) and not model._abstract]
+        models_ = self.env["ir.model"].sudo().search([("model", "in", names)])
         return sorted(((model.model, model.name) for model in models_), key=lambda item: item[1])
 
     @api.depends("document_model", "document_id")
@@ -163,10 +166,14 @@ class AuditEntry(models.Model):
         if user.id == SUPERUSER_ID and request and request.session.uid:
             # Odoo's portal reads a customer's documents as the superuser; the person signed in is who acted.
             user = user.browse(request.session.uid)
-        return {
-            "source": "api" if self._request_path().startswith(self._api_path_prefixes()) else "screen",
-            "user_id": user.id if user.id != SUPERUSER_ID and not user._is_public() else False,
-        }
+        if not self.env.registry.ready:
+            # Installing or upgrading a module writes its data, such as shipped permissions, before the registry is ready.
+            source = "system"
+        elif self._request_path().startswith(self._api_path_prefixes()):
+            source = "api"
+        else:
+            source = "screen"
+        return {"source": source, "user_id": user.id if user.id != SUPERUSER_ID and not user._is_public() else False}
 
     @api.model
     def _api_path_prefixes(self):
@@ -179,13 +186,6 @@ class AuditEntry(models.Model):
             return request.httprequest.path
         # Odoo runs XML-RPC and JSON-RPC calls without the request, but the thread serving them keeps its URL.
         return urlsplit(getattr(threading.current_thread(), "url", "")).path
-
-    @api.model
-    def _log_session(self, action):
-        """Record that the current user signed in or out."""
-        self.sudo().create(
-            {**self._origin_values(), "action": action, "document_model": MODEL_RES_USERS, "document_id": self.env.uid}
-        )
 
     @api.model
     def _log_event(self, action, note, document=None):

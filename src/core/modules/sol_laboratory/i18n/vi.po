@@ -10126,11 +10126,6 @@ msgid "Integration"
 msgstr "Tích Hợp"
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
-msgid "Logins and logouts"
-msgstr "Đăng nhập và đăng xuất"
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__new_value
 msgid "New Value"
@@ -10166,16 +10161,6 @@ msgstr "Xem nhật ký hoạt động"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__screen
 msgid "Screen"
 msgstr "Màn Hình"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__login
-msgid "Sign In"
-msgstr "Đăng Nhập"
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__logout
-msgid "Sign Out"
-msgstr "Đăng Xuất"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
@@ -10269,3 +10254,18 @@ msgstr "Đã đẩy thông báo tới %(user)s trên %(platform)s"
 #: model:ir.model,name:sol_laboratory.model_ir_actions_report
 msgid "Report Action"
 msgstr "Tác vụ báo cáo"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__system
+msgid "System"
+msgstr "Hệ Thống"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_model
+msgid "Parent Document Type"
+msgstr "Loại Chứng Từ Cha"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_id
+msgid "Parent Document ID"
+msgstr "ID Chứng Từ Cha"

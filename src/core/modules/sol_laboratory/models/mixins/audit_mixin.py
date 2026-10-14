@@ -3,10 +3,11 @@ from collections import defaultdict
 
 from lxml import etree
 
-from odoo import api, fields, models
+from odoo import api, fields, models, tools
 from odoo.fields import Command, Domain
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_MIXIN, MODEL_IR_ATTACHMENT
+from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL, MASK_SECRET
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_MIXIN
 from odoo.addons.sol_laboratory.constants.xml_ids import AUDIT_READ_GROUP
 
 # Odoo's bookkeeping fields and the technical path of trees say nothing about the document.
@@ -17,8 +18,11 @@ NUMERIC_TYPES = frozenset({"integer", "float", "monetary"})
 # What a field holds before it is given a value.
 EMPTY_VALUES = {"integer": 0, "float": 0.0, "monetary": 0.0}
 MASK = "***"
+# Characters a masked personal value keeps, as a receipt keeps the last digits of a card.
+VISIBLE_CHARACTERS = 3
+TEXT_TYPES = frozenset({"char", "text"})
 # Tokens that open a document without signing in, such as the link a portal customer gets.
-MASKED_FIELDS = frozenset({"access_token"})
+SECRET_FIELDS = frozenset({"access_token"})
 
 
 def _record_text(record):
@@ -46,6 +50,22 @@ def _as_text(field, value):
     return str(value)
 
 
+def mask_text(kind, field_type, text):
+    """The text the trail keeps of a masked value: *** for a secret, and for personal data only enough to tell values
+    apart: the first letter and the domain of an email, the last characters of other text. A value already masked stays
+    as it is."""
+    if text is None or text.startswith(MASK):
+        return text
+    if kind != MASK_PERSONAL or field_type not in TEXT_TYPES:
+        return MASK
+    local, at, domain = text.partition("@")
+    if at:
+        return f"{local[:1]}{MASK}@{domain}"
+    if len(text) <= 2 * VISIBLE_CHARACTERS:
+        return MASK
+    return MASK + text[-VISIBLE_CHARACTERS:]
+
+
 def _audit_value(field, value):
     # A value is compared by what it is and kept as its text: a relation is its records, so renaming a record it points
     # to does not change it.
@@ -65,7 +85,7 @@ class AuditMixin(models.AbstractModel):
     _audit_children = ()
 
     def _valid_field_parameter(self, field, name):
-        # audit_mask=True records that a field changed without its values, for personal data.
+        # audit_mask=MASK_SECRET or MASK_PERSONAL masks the values the trail keeps of the field.
         return name == "audit_mask" or super()._valid_field_parameter(field, name)
 
     @api.model_create_multi
@@ -91,8 +111,9 @@ class AuditMixin(models.AbstractModel):
     def unlink(self):
         audited = self._audit_scope()
         names = {record.id: record.display_name for record in audited.sudo().with_context(active_test=False)}
+        parents = audited._audit_parents()
         result = super().unlink()
-        audited._audit_log("delete", notes=names)
+        audited._audit_log("delete", notes=names, parents=parents)
         return result
 
     def _audit_scope(self):
@@ -113,11 +134,12 @@ class AuditMixin(models.AbstractModel):
         """Record an action a feature owns, such as sign, reject or download, on each record."""
         self._audit_log(action, notes=dict.fromkeys(self.ids, note))
 
-    def _audit_log(self, action, changes=None, notes=None):
+    def _audit_log(self, action, changes=None, notes=None, parents=None):
         if not self:
             return
         # Written with full rights, so people who cannot read the trail still produce entries.
         notes = notes if notes is not None else self._audit_notes()
+        parents = parents if parents is not None else self._audit_parents()
         entries = self.env[MODEL_AUDIT_ENTRY].sudo()
         origin = entries._origin_values()
         entries.create(
@@ -128,6 +150,8 @@ class AuditMixin(models.AbstractModel):
                     "document_model": self._name,
                     "document_id": document_id,
                     "note": notes.get(document_id),
+                    "parent_model": parents.get(document_id, (False, False))[0],
+                    "parent_id": parents.get(document_id, (False, False))[1],
                     "change_ids": [Command.create(change) for change in (changes or {}).get(document_id, [])],
                 }
                 for document_id in self.ids
@@ -137,6 +161,34 @@ class AuditMixin(models.AbstractModel):
     def _audit_notes(self):
         # A model whose records are not named by their fields, such as a system parameter, says what they are here.
         return {}
+
+    def _audit_parents(self):
+        """The document each record is a part of, as (model, id). Its entries name that document, so they stay in the
+        document's history once the part is deleted."""
+        field_name = self.env[MODEL_AUDIT_MIXIN]._audit_part_fields().get(self._name)
+        if not field_name:
+            return {}
+        return {
+            record.id: (record[field_name]._name, record[field_name].id)
+            for record in self.sudo().with_context(active_test=False)
+            if record[field_name]
+        }
+
+    @api.model
+    @tools.ormcache()
+    def _audit_part_fields(self):
+        """For each model whose records are parts of a document through the _audit_children of the document's model,
+        the field on the part that names the document."""
+        mixin = self.env.registry[MODEL_AUDIT_MIXIN]
+        parts = {}
+        for model in self.env.registry.values():
+            if model._abstract or not issubclass(model, mixin):
+                continue
+            for relation in model._audit_children:
+                field = model._fields[relation]
+                if field.type == "one2many":
+                    parts.setdefault(field.comodel_name, field.inverse_name)
+        return parts
 
     @api.model
     def _audit_fields(self):
@@ -180,18 +232,22 @@ class AuditMixin(models.AbstractModel):
                 old_key, old = before[record.id][name]
                 if old_key == new_key:
                     continue
-                masked = record._audit_masked(name)
+                kind = record._audit_mask(name)
+                field_type = self._fields[name].type
                 changes[record.id].append(
                     {
                         "field_name": name,
-                        "old_value": MASK if old is not None and masked else old,
-                        "new_value": MASK if new is not None and masked else new,
+                        "old_value": mask_text(kind, field_type, old) if kind else old,
+                        "new_value": mask_text(kind, field_type, new) if kind else new,
                     }
                 )
         return changes
 
-    def _audit_masked(self, field_name):
-        return field_name in MASKED_FIELDS or getattr(self._fields[field_name], "audit_mask", False)
+    def _audit_mask(self, field_name):
+        """How the trail masks the values of a field: MASK_SECRET, MASK_PERSONAL or None."""
+        if field_name in SECRET_FIELDS:
+            return MASK_SECRET
+        return getattr(self._fields[field_name], "audit_mask", None)
 
     def action_open_audit_history(self):
         self.ensure_one()
@@ -215,11 +271,23 @@ class AuditMixin(models.AbstractModel):
             documents[records._name].update(records.ids)
             if self._audit_is_audited(records._name):
                 pending.extend(records.mapped(relation) for relation in records._audit_relations())
-        # The files attached to them, including files deleted since.
-        attachments = self.env[MODEL_IR_ATTACHMENT]
-        files = set().union(*(attachments._audit_files_of(model, ids) for model, ids in documents.items()))
-        if files:
-            documents[MODEL_IR_ATTACHMENT].update(files)
+        # The parts whose entries name these documents, such as their files and parts deleted since, and their own parts.
+        entries = self.env[MODEL_AUDIT_ENTRY].sudo()
+        found = documents
+        while found:
+            parts = entries._read_group(
+                Domain.OR(
+                    Domain("parent_model", "=", model) & Domain("parent_id", "in", sorted(ids))
+                    for model, ids in found.items()
+                ),
+                ["document_model", "document_id"],
+            )
+            found = defaultdict(set)
+            for model, document_id in parts:
+                if document_id not in documents[model]:
+                    found[model].add(document_id)
+            for model, ids in found.items():
+                documents[model].update(ids)
         return Domain.OR(
             Domain("document_model", "=", model) & Domain("document_id", "in", sorted(ids))
             for model, ids in documents.items()

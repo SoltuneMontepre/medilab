@@ -5,6 +5,7 @@ from odoo.exceptions import AccessError, UserError
 
 _logger = logging.getLogger(__name__)
 
+from odoo.addons.sol_laboratory.constants.audit import MASK_SECRET
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_MOBILE_DEVICE, MODEL_PERMISSION_MIXIN
 
 PLATFORMS = {"android", "ios"}
@@ -22,7 +23,7 @@ class MobileDevice(models.Model):
     # The Odoo user signed in on the device.
     user_id = fields.Many2one("res.users", required=True, ondelete="cascade", index=True)
     # Registration token Firebase Cloud Messaging gives the app.
-    token = fields.Char(required=True, copy=False, audit_mask=True)
+    token = fields.Char(required=True, copy=False, audit_mask=MASK_SECRET)
     # android or ios.
     platform = fields.Selection([("android", "Android"), ("ios", "iOS")], required=True)
     # When the app last refreshed the token.

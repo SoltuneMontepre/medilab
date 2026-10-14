@@ -7,6 +7,7 @@ from odoo.exceptions import UserError
 from odoo.fields import Command, Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
     MODEL_PARAMETER_METHOD_MACHINE,
@@ -42,7 +43,7 @@ def _slot_length(run_minutes):
 # Lịch Đặt Máy
 class MachineBooking(models.Model):
     _name = MODEL_MACHINE_BOOKING
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Machine Booking"
     _order = "starts_at, queued_at, id"
     # A booking is cancelled, never deleted.

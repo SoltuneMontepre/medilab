@@ -10,7 +10,7 @@ Every action on a document is recorded once, with who did it, when, from where, 
 
 ### The audit mixin
 
-`medilab.audit.mixin` is inherited by every document model of every MediLab module, in the same way as the permission mixin, including the Odoo models MediLab extends, such as `hr.employee`, `res.partner`, `sale.order` and its lines, `payment.transaction` and `ir.attachment`. Records the trail already describes are left out: signatures, which write their own entries on the document; the items and runs of scheduled jobs and the pushes of a notification, which the job's entries describe; and messages, their notifications and their emails, which the integration entries describe. So are the Odoo models MediLab only adds behavior to: users, whose personal data their contact records and whose access comes from their person's roles; views, menus, window actions and reports, which installing a module sets; and the outgoing mail server, which comes from the environment. A test fails when any other model a MediLab module defines or extends does not inherit the mixin. The audit trail is kept apart from Odoo's field tracking, which shows changes in a document's chatter. It writes one `AuditEntry` per record for each call that changes it, in the same transaction, so an action that is rolled back leaves no entry:
+`medilab.audit.mixin` is inherited by every document model of every MediLab module, in the same way as the permission mixin, including the Odoo models MediLab extends, such as `hr.employee`, `res.partner`, `sale.order` and its lines, `payment.transaction` and `ir.attachment`. Records the trail already describes are left out: signatures, which write their own entries on the document; the items and runs of scheduled jobs and the pushes of a notification, which the job's entries describe; and messages, their notifications and their emails, which the integration entries describe. So are the Odoo models MediLab only adds behavior to: users, whose personal data their contact records and whose access comes from their person's roles; views, menus, window actions and reports, which installing a module sets; the accesses permissions generate, which the permissions' entries describe; and the outgoing mail server, which comes from the environment. A test fails when any other model a MediLab module defines or extends does not inherit the mixin. The audit trail is kept apart from Odoo's field tracking, which shows changes in a document's chatter. It writes one `AuditEntry` per record for each call that changes it, in the same transaction, so an action that is rolled back leaves no entry:
 
 | Call     | Action                                          | Changes                                                           |
 | -------- | ----------------------------------------------- | ----------------------------------------------------------------- |
@@ -20,10 +20,11 @@ Every action on a document is recorded once, with who did it, when, from where, 
 
 - Only stored fields are recorded; computed fields that are not stored, binary fields and Odoo's bookkeeping fields (`create_uid`, `create_date`, `write_uid`, `write_date`, `__last_update`) are left out. A model can leave out more fields with `_audit_exclude`, such as the time a mobile device last refreshed its token.
 - The fields a document keeps on another record, delegated with `_inherits` or as writable related fields, such as a job's schedule kept on its cron, are recorded as the document's own. When that record is audited itself, it records them: a person's employee details are recorded on the employee and a subcontractor's contact details on its contact, and the person's and the subcontractor's histories include them.
+- An entry on a part of a document, a record under it through `_audit_children` or a file attached to it, names that document in `parent_model` and `parent_id`, so the document's history keeps the part once it is deleted.
 - A model records only some of its records when it overrides `_audit_scope`. Files are recorded only when they are attached to an audited document, such as a sample's photo; Odoo's own files, such as web assets and the stored values of image fields, are not. A file attached to a document after it was uploaded is recorded as created then. Its content is not recorded; its checksum and size show that it changed.
 - A call that changes no recorded field writes no entry. A document edited together with the documents under it, such as a regulation and its limits, writes no entry for the list itself: each document under it writes its own.
 - Values are written as text: a relation as the display name and id of the record, a selection as its value, a date in ISO format. A relation changes when it points to other records, not when a record it points to is renamed.
-- A field marked `audit_mask=True`, such as a customer's citizen ID, records that it changed, with both values written as `***`. So do the tokens that open a document without signing in, such as an order's portal link, a mobile device's push token, the employee details Odoo shows only to HR, such as a private phone, and the credentials of a payment provider, which Odoo shows only to administrators.
+- Masked values are never written in full, in the entries written from now on and, when a module is upgraded, in those written before. A secret is written as `***`: the token that opens a document without signing in, such as an order's portal link, a mobile device's push token, Odoo's database secret and the credentials of a payment provider. Personal data keeps only enough to tell values apart: the first letter and the domain of an email, such as `a***@example.com`, and the last three characters of other text, such as `***567` for a phone; a value that is not text, or text of six characters or fewer, is written as `***`. Personal data is a contact's email, phone, address and tax ID, a customer's citizen ID, an employee's work email and phones and the details Odoo shows only to HR, such as a private phone, and the payer's email, phone and address on a payment transaction. A field is masked with `audit_mask=MASK_SECRET` or `audit_mask=MASK_PERSONAL`, or by its model's `_audit_mask`.
 - Entries are written with full rights, so a person who cannot read the audit trail still produces entries.
 
 Other actions are written by the feature that owns them through `_audit(action, note=None)` on the mixin, on the document they act on. An action without a document, such as a webhook refused before it names one, is an entry without a document; an action on a document that is not audited names the document in its note.
@@ -50,13 +51,14 @@ Other actions are written by the feature that owns them through `_audit(action, 
 | -------- | ------------------------------------------------------------------------------------- |
 | `job`    | The call runs inside a job run, and the entry links the run, or in another Odoo cron. |
 | `api`    | The call comes through Odoo's external API, a route of the mobile app or a webhook.   |
+| `system` | A module is installed or upgraded, such as the permissions it ships.                  |
 | `screen` | Any other call from a signed-in user.                                                 |
 
 The user is the signed-in Odoo user, also when Odoo acts as the superuser for them, as the portal does to read a customer's invoice; none for a webhook or a visitor who is not signed in; for a job, the user who ran it by hand, or none for a scheduled run.
 
-### Logins and settings
+### Settings
 
-Logins and logouts write an entry on the user, when Odoo writes its own login log and when the person signs out. Settings are audited by auditing writes to Odoo's system parameter table, so each changed setting records its key and its old and new value; secrets never reach that table.
+Signing in and out is not recorded: the trail holds what is done to documents. Settings are audited by auditing writes to Odoo's system parameter table, so each changed setting records its key and its old and new value; secrets never reach that table.
 
 ### Protection
 
@@ -64,7 +66,7 @@ Nobody edits or deletes an audit entry or change, administrators included: the m
 
 ### History of a document
 
-Every audited form has a **History** button in its button box, shown to those who can read the trail, that opens the entries of the document, of the documents under it and of the files attached to them, newest first; a form without a sheet gets the button box below its header. A model names the relations of the documents under it in `_audit_children`, such as `sample_ids` on a test request, `test_ids` on a sample and `order_line` on an order, and the history follows them recursively. A deleted file still shows, found by its create entry.
+Every audited form has a **History** button in its button box, shown to those who can read the trail, that opens the entries of the document, of the documents under it and of the files attached to them, newest first; a form without a sheet gets the button box below its header. A model names the relations of the documents under it in `_audit_children`, such as `sample_ids` on a test request, `test_ids` on a sample and `order_line` on an order, and the history follows them recursively. Parts and files deleted since still show, found by the document their entries name.
 
 ### Search and reports
 

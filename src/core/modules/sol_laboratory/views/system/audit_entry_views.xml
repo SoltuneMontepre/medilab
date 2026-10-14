@@ -36,6 +36,8 @@
                             <field name="document_model" />
                             <field name="document_id" />
                             <field name="document_name" />
+                            <field name="parent_model" invisible="not parent_model" />
+                            <field name="parent_id" invisible="not parent_id" />
                             <field name="note" />
                         </group>
                     </group>
@@ -66,7 +68,6 @@
                 <separator />
                 <filter name="data_changes" string="Data changes" domain="[('action', 'in', ['create', 'edit', 'archive', 'delete'])]" />
                 <filter name="signatures" string="Signatures and approvals" domain="[('action', 'in', ['approve', 'reject', 'sign', 'withdraw'])]" />
-                <filter name="sessions" string="Logins and logouts" domain="[('action', 'in', ['login', 'logout'])]" />
                 <filter name="system_events" string="System events" domain="[('action', 'in', ['job', 'integration', 'error'])]" />
                 <group>
                     <filter name="group_by_user" string="User" context="{'group_by': 'user_id'}" />

@@ -2,6 +2,8 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .order_case import OrderCase
+from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_TRANSACTION
+from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
@@ -11,6 +13,13 @@ class TestAuditDocuments(AuditLookup, OrderCase):
     def test_every_commerce_document_is_audited(self):
         # The trail itself, which E-commerce extends with the route PayOS calls.
         self.assertEqual(self.unaudited_documents("sol_commerce"), {MODEL_AUDIT_ENTRY})
+
+    def test_the_payers_details_are_masked_in_part(self):
+        transactions = self.env[MODEL_PAYMENT_TRANSACTION]
+
+        for field_name in ("partner_email", "partner_phone", "partner_address", "partner_zip", "partner_city"):
+            self.assertEqual(transactions._audit_mask(field_name), MASK_PERSONAL)
+        self.assertIsNone(transactions._audit_mask("amount"))
 
     def test_the_history_of_an_order_includes_its_quotation_sample_and_cancellation(self):
         auditor = self.new_auditor()

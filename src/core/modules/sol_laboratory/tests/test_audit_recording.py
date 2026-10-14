@@ -89,7 +89,7 @@ class TestAuditRecording(AuditCase):
         subcontractor.email = "lab@northern.example"
 
         edit = self.entries(subcontractor.partner_id, "edit")
-        self.assertEqual(self.changes(edit)["email"], (False, "lab@northern.example"))
+        self.assertEqual(self.changes(edit)["email"], (False, "l***@northern.example"))
         self.assertFalse(self.entries(subcontractor, "edit"))
         self.assertIn(edit, self.history(subcontractor, self.auditor))
 

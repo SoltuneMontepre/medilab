@@ -2758,3 +2758,8 @@ msgstr "Từ chối webhook PayOS: nội dung không phải JSON"
 #: code:addons/sol_commerce/controllers/payos.py:0
 msgid "PayOS webhook refused: the signature does not match"
 msgstr "Từ chối webhook PayOS: chữ ký không khớp"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_audit_entry
+msgid "Audit Entry"
+msgstr "Mục Nhật Ký Hoạt Động"

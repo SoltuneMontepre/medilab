@@ -34,6 +34,7 @@ END_OF_DAY = time(23, 59, 59)
 class SampleTest(models.Model):
     _name = MODEL_SAMPLE_TEST
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _audit_children = ("booking_ids",)
     _description = "Sample Test"
     _order = "sample_id, id"
     _rec_name = "parameter_id"

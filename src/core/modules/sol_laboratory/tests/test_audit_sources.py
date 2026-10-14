@@ -10,7 +10,7 @@ PASSWORD = "Lab-Password-2026"
 
 
 @tagged("post_install", "-at_install")
-class TestAuditSessions(AuditLookup, HttpCase):
+class TestAuditSources(AuditLookup, HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -25,19 +25,24 @@ class TestAuditSessions(AuditLookup, HttpCase):
         )
         cls.chemical = cls.env[MODEL_CHEMICAL].create({"code": "HC-103", "name": "Methanol"})
 
-    def test_signing_in_and_out_writes_entries(self):
+    def test_signing_in_and_out_writes_no_entry(self):
+        entries = self.env[MODEL_AUDIT_ENTRY].sudo()
+        before = entries.search_count([])
+
         self.authenticate(None, None)
         self.url_open("/web/login", data={"login": "editor", "password": PASSWORD, "csrf_token": self.csrf_token()})
-        self.assertEqual(self.entries(self.editor, "login").source, "screen")
-
         self.authenticate("editor", PASSWORD)
         self.url_open("/web/session/logout", data={"csrf_token": self.csrf_token()})
-        self.authenticate("editor", PASSWORD)
-        self.make_jsonrpc_request("/web/session/destroy")
 
-        logouts = self.entries(self.editor, "logout")
-        self.assertEqual(len(logouts), 2)
-        self.assertEqual(logouts.user_id, self.editor)
+        self.assertEqual(entries.search_count([]), before)
+
+    def test_installing_or_upgrading_a_module_is_the_system(self):
+        # Odoo writes a module's data before its registry is ready.
+        self.patch(self.env.registry, "ready", False)
+
+        self.chemical.name = "Methanol, HPLC grade"
+
+        self.assertEqual(self.entries(self.chemical, "edit").source, "system")
 
     @mute_logger("odoo.addons.rpc.controllers.xmlrpc")
     def test_the_external_api_is_its_own_source(self):
@@ -48,7 +53,6 @@ class TestAuditSessions(AuditLookup, HttpCase):
             db, uid, PASSWORD, MODEL_CHEMICAL, "write", [[self.chemical.id], {"grade": "HPLC"}]
         )
 
-        self.assertEqual(self.entries(self.editor, "login").source, "api")
         edit = self.entries(self.chemical, "edit")
         self.assertEqual((edit.source, edit.user_id), ("api", self.editor))
 

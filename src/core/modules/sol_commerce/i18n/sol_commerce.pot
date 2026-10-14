@@ -2591,3 +2591,8 @@ msgstr ""
 #: code:addons/sol_commerce/controllers/payos.py:0
 msgid "PayOS webhook refused: the signature does not match"
 msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_audit_entry
+msgid "Audit Entry"
+msgstr ""

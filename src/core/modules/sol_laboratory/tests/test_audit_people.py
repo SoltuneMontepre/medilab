@@ -43,4 +43,4 @@ class TestAuditPeople(AuditLookup, PeopleCase):
 
         employee.private_phone = "0901 234 567"
 
-        self.assertEqual(self.changes(self.entries(employee) - earlier), {"private_phone": (False, "***")})
+        self.assertEqual(self.changes(self.entries(employee) - earlier), {"private_phone": (False, "***567")})

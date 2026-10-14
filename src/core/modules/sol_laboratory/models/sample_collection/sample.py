@@ -58,7 +58,7 @@ class Sample(models.Model):
     _rec_name = "code"
     # A sample is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
-    _audit_children = ("test_ids",)
+    _audit_children = ("test_ids", "handover_ids")
 
     # Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001; the only name testers see.
     code = fields.Char(string="Lab Code", required=True, copy=False, readonly=True)

@@ -8,11 +8,15 @@ from odoo.fields import Command
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT, MODEL_PAYMENT_TRANSACTION
 from odoo.addons.sol_commerce.models.invoicing.res_config_settings import DEFAULT_PAYOS_EXPIRY_HOURS
+from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
 )
+
+# How to reach the payer, which the trail keeps only in part.
+PERSONAL_FIELDS = frozenset({"partner_email", "partner_phone", "partner_address", "partner_zip", "partner_city"})
 
 
 # Giao dịch thanh toán
@@ -38,6 +42,11 @@ class PaymentTransaction(models.Model):
         "UNIQUE(payos_bank_reference)",
         "A PayOS bank transfer is recorded once.",
     )
+
+    def _audit_mask(self, field_name):
+        if field_name in PERSONAL_FIELDS:
+            return MASK_PERSONAL
+        return super()._audit_mask(field_name)
 
     @api.depends(
         "provider_code", "state", "payment_id.exceeds_residual", "payment_id.amount", "invoice_ids.amount_total"

@@ -6,6 +6,7 @@ from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.approvals import STATE_NONE
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -24,7 +25,7 @@ SENT_STATUSES = ("sent", "received")
 # Phiếu Gửi Thầu Phụ
 class SubcontractDispatch(models.Model):
     _name = MODEL_SUBCONTRACT_DISPATCH
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Subcontract Dispatch"
     _order = "id desc"
     _rec_name = "code"

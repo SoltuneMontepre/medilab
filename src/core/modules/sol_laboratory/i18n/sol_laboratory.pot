@@ -10063,11 +10063,6 @@ msgid "Integration"
 msgstr ""
 
 #. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
-msgid "Logins and logouts"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__new_value
 msgid "New Value"
@@ -10121,16 +10116,6 @@ msgid "Screen"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__login
-msgid "Sign In"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__logout
-msgid "Sign Out"
-msgstr ""
-
-#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 msgid "Signatures and approvals"
 msgstr ""
@@ -10164,4 +10149,19 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__withdraw
 msgid "Withdraw"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__system
+msgid "System"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_model
+msgid "Parent Document Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_id
+msgid "Parent Document ID"
 msgstr ""

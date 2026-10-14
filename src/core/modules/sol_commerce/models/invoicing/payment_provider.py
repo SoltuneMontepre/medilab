@@ -1,6 +1,7 @@
 from odoo import api, fields, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_PROVIDER
+from odoo.addons.sol_laboratory.constants.audit import MASK_SECRET
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 
 
@@ -25,9 +26,11 @@ class PaymentProvider(models.Model):
             return super()._get_default_payment_method_codes()
         return {"qr"}
 
-    def _audit_masked(self, field_name):
+    def _audit_mask(self, field_name):
         # The credentials of a provider are shown only to administrators.
-        return bool(self._fields[field_name].groups) or super()._audit_masked(field_name)
+        if self._fields[field_name].groups:
+            return MASK_SECRET
+        return super()._audit_mask(field_name)
 
     def unlink(self):
         # Odoo refuses to delete a provider that still has an external id. Drop it before the check.

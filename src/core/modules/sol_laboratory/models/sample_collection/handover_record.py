@@ -2,6 +2,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_HANDOVER_RECORD,
     MODEL_HANDOVER_RECORD_SAMPLE,
@@ -22,7 +23,8 @@ SIGNING_FIELDS = frozenset(
 # Biên Bản Giao Nhận Mẫu
 class HandoverRecord(models.Model):
     _name = MODEL_HANDOVER_RECORD
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
+    _audit_children = ("sample_ids",)
     _description = "Handover Record"
     _order = "handed_over_at desc, id desc"
     _rec_name = "code"

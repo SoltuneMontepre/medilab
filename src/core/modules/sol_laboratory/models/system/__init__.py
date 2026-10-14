@@ -21,7 +21,6 @@ from . import (
     person,
     res_config_settings,
     res_partner,
-    res_users,
     role,
     scheduled_job,
     signature,
