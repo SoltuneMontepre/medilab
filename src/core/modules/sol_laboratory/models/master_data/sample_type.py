@@ -2,6 +2,7 @@ from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PERMISSION_MIXIN,
@@ -12,7 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Loại Mẫu
 class SampleType(models.Model):
     _name = MODEL_SAMPLE_TYPE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Sample Type"
     _parent_store = True
     _order = "code"

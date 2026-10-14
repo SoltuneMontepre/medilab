@@ -1,13 +1,13 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* demo
+# 	* sol_demo
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:34+0000\n"
-"PO-Revision-Date: 2026-10-10 03:45+0000\n"
+"POT-Creation-Date: 2026-10-13 17:56+0000\n"
+"PO-Revision-Date: 2026-10-13 17:56+0000\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Language: vi\n"
@@ -62,6 +62,11 @@ msgid "Animal feed"
 msgstr "Thức ăn chăn nuôi"
 
 #. module: sol_demo
+#: model:medilab.role,name:sol_demo.demo_role_auditor
+msgid "Auditor"
+msgstr "Kiểm Toán Viên"
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.sample_type_bottled_water
 msgid "Bottled water"
 msgstr "Nước đóng chai"
@@ -80,6 +85,11 @@ msgstr "Vi sinh nước đóng chai"
 #: model:medilab.sample.type,name:sol_demo.sample_type_cabbage
 msgid "Cabbage"
 msgstr "Bắp cải"
+
+#. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_cadmium
+msgid "Cadmium (Cd)"
+msgstr "Cadimi (Cd)"
 
 #. module: sol_demo
 #: model:hr.department,name:sol_demo.demo_hr_department_chemistry
@@ -106,6 +116,22 @@ msgstr "Lấy các chai còn niêm phong cùng một lô."
 #: model:medilab.sample.type,sampling_requirements:sol_demo.sample_type_cabbage
 msgid "Collect whole heads in clean paper bags."
 msgstr "Lấy nguyên cây, đựng trong túi giấy sạch."
+
+#. module: sol_demo
+#: model:medilab.scheduled.job,name:sol_demo.demo_scheduled_job_echo
+msgid "Demo echo"
+msgstr "Demo phản hồi"
+
+#. module: sol_demo
+#: model:ir.actions.server,name:sol_demo.demo_ir_cron_echo_ir_actions_server
+msgid "Demo: echo"
+msgstr "Demo: phản hồi"
+
+#. module: sol_demo
+#: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
 
 #. module: sol_demo
 #: model:medilab.sample.type,disposal_method:sol_demo.sample_type_cabbage
@@ -169,6 +195,17 @@ msgstr ""
 "tử"
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_change_request_final
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_head_of_sales
+msgid "Head of Sales"
+msgstr "Trưởng Phòng Kinh Doanh"
+
+#. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_change_request_department
+msgid "Head of Sales of the department"
+msgstr "Trưởng Phòng Kinh Doanh của phòng ban"
+
+#. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_head_of_department
 msgid "Head of department"
 msgstr "Trưởng Phòng"
@@ -183,6 +220,17 @@ msgstr "Trưởng Phòng Kinh Doanh"
 #: model:hr.department,name:sol_demo.demo_hr_department_heavy_metals
 msgid "Heavy metals"
 msgstr "Kim loại nặng"
+
+#. module: sol_demo
+#: model:ir.model.fields,field_description:sol_demo.field_account_move__id
+#: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_account_move
+msgid "Journal Entry"
+msgstr "Bút toán"
 
 #. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_lab_head
@@ -282,6 +330,16 @@ msgid "Not subject to VAT"
 msgstr "Không chịu thuế GTGT"
 
 #. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_order_change_request
+msgid "Order change request"
+msgstr "Yêu cầu thay đổi đơn hàng"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_order_signing
+msgid "Order signing"
+msgstr "Ký đơn hàng"
+
+#. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.group_organophosphates
 msgid "Organophosphates"
 msgstr "Lân hữu cơ"
@@ -312,6 +370,7 @@ msgid "Room temperature, tightly closed"
 msgstr "Nhiệt độ phòng, đậy kín"
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_sales
 #: model:medilab.role,name:sol_demo.demo_role_sales
 msgid "Sales"
 msgstr "Nhân Viên Kinh Doanh"
@@ -325,6 +384,11 @@ msgstr "Nhân Viên Giao Nhận Mẫu"
 #: model:hr.department,name:sol_demo.demo_hr_department_sample_reception
 msgid "Sample reception"
 msgstr "Tiếp nhận mẫu"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr "Tác Vụ Định Kỳ"
 
 #. module: sol_demo
 #: model:ir.module.module,summary:base.module_sol_demo
@@ -416,42 +480,6 @@ msgstr "pH"
 #: model:medilab.chemical,name:sol_demo.chemical_ph_buffer
 msgid "pH buffer solution 7.00"
 msgstr "Dung dịch đệm pH 7,00"
-
-#. module: sol_demo
-msgid "Demo echo"
-msgstr "Demo phản hồi"
-
-#. module: sol_demo
-msgid "Demo: echo"
-msgstr "Demo: phản hồi"
-
-#. module: sol_demo
-msgid "Display Name"
-msgstr "Tên hiển thị"
-
-#. module: sol_demo
-msgid "ID"
-msgstr "ID"
-
-#. module: sol_demo
-msgid "Scheduled Job"
-msgstr "Tác Vụ Định Kỳ"
-
-#. module: sol_demo
-msgid "Head of Sales"
-msgstr "Trưởng Phòng Kinh Doanh"
-
-#. module: sol_demo
-msgid "Head of Sales of the department"
-msgstr "Trưởng Phòng Kinh Doanh của phòng ban"
-
-#. module: sol_demo
-msgid "Order change request"
-msgstr "Yêu cầu thay đổi đơn hàng"
-
-#. module: sol_demo
-msgid "Order signing"
-msgstr "Ký đơn hàng"
 
 #. module: sol_demo
 #: model:hr.department,name:sol_demo.demo_hr_department_pathogens

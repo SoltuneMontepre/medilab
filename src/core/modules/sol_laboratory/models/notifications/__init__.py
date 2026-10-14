@@ -1,4 +1,5 @@
 from . import (
+    mail_mail,
     mail_message,
     mail_message_subtype,
     mail_notification,

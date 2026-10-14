@@ -4,6 +4,7 @@ from odoo.fields import Command, Domain
 from odoo.tools import format_list
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_CUSTOMER,
     MODEL_PERMISSION_MIXIN,
@@ -32,12 +33,13 @@ FINISHED_STATUSES = ("reported", "cancelled")
 # Yêu Cầu Thử Nghiệm
 class TestRequest(models.Model):
     _name = MODEL_TEST_REQUEST
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Test Request"
     _order = "request_date desc, id desc"
     _rec_name = "code"
     # A test request is cancelled, never archived or deleted.
     _permission_actions = ("read", "create", "edit")
+    _audit_children = ("sample_ids",)
 
     # Unique code of the request, such as YC.2026.0001; filled from a sequence when left empty.
     code = fields.Char(required=True, copy=False)

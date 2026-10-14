@@ -116,6 +116,7 @@ class CustomerOrder(http.Controller):
         sent = order.quotation_ids.filtered(lambda item: item.id == quotation_id) if order else None
         if not sent:
             return request.not_found()
+        sent._audit("download")
         stream = request.env["ir.binary"]._get_stream_from(sent.attachment_id, "raw", filename_field="name")
         return stream.get_response(as_attachment=True)
 

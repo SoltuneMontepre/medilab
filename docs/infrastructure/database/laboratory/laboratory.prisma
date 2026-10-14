@@ -1650,23 +1650,27 @@ model MobileDevice {
 
 /// One recorded action or event (SH-05). Entries are never edited; only the cleanup job removes them after the audit retention period, once they are in an archive file.
 /// Points to its document by document_model and document_id, indexed together. A BRIN index on create_date serves period reports.
-/// Logins are read from Odoo's login log (res.users.log), not written here.
+/// An entry on a part of a document, such as a sample of a test request or a file attached to it, names that document in parent_model and parent_id, indexed together.
 model AuditEntry {
   /// Row identifier.
   id             Int           @id @default(autoincrement())
   /// When it happened: Odoo's creation time of the entry.
   create_date    DateTime
-  /// The Odoo user who acted; empty when the system acted.
+  /// The Odoo user who acted; empty when the system or someone not signed in acted.
   user_id        Int?
-  /// screen, api or job.
+  /// screen, api, job or system.
   source         String        @db.VarChar
-  /// login, logout, create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
+  /// create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
   action         String        @db.VarChar
-  /// Technical name of the document acted on.
+  /// Technical name of the document acted on; empty for an event without one, such as a refused webhook.
   document_model String?       @db.VarChar
   /// Id of the document acted on.
   document_id    Int?
-  /// The job run that acted, when the source is a job.
+  /// Technical name of the document the one acted on is a part of.
+  parent_model   String?       @db.VarChar
+  /// Id of the document the one acted on is a part of.
+  parent_id      Int?
+  /// The job run that acted, when a MediLab job acted; empty for another Odoo cron.
   job_run_id     Int?
   /// What happened, for actions without field changes, such as an integration error.
   note           String?       @db.Text
@@ -1678,6 +1682,7 @@ model AuditEntry {
   changes        AuditChange[]
 
   @@index([document_model, document_id])
+  @@index([parent_model, parent_id])
   @@index([user_id, create_date])
   @@index([action, create_date])
   @@map("medilab_audit_entry")

@@ -172,4 +172,9 @@
         <field name="code">storekeeper</field>
         <field name="name">Storekeeper</field>
     </record>
+    <record id="demo_role_auditor" model="medilab.role">
+        <field name="code">auditor</field>
+        <field name="name">Auditor</field>
+        <field name="permission_ids" eval="[Command.set([ref('sol_laboratory.permission_audit_entry_read_all')])]" />
+    </record>
 </odoo>

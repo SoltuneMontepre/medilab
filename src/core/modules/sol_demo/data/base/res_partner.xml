@@ -46,6 +46,10 @@
         <field name="name">Ly Van Hung</field>
         <field name="email">ly.van.hung@medilab.example</field>
     </record>
+    <record id="demo_res_partner_auditor" model="res.partner">
+        <field name="name">Vo Thi Hanh</field>
+        <field name="email">vo.thi.hanh@medilab.example</field>
+    </record>
     <record id="demo_res_partner_an_phat" model="res.partner">
         <field name="name">Công ty TNHH Thực phẩm An Phát</field>
         <field name="vat">0316289451</field>

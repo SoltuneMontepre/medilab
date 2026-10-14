@@ -11,6 +11,7 @@
         "data/subcontractor_data.xml",
         "data/hr/hr_department.xml",
         "data/catalog_data.xml",
+        "data/sol_laboratory/test_parameter.xml",
         "data/machine_data.xml",
         "data/base/res_company.xml",
         "data/base/res_partner.xml",

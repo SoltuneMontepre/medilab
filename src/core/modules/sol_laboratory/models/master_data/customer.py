@@ -6,9 +6,11 @@ from odoo.fields import Command, Domain
 from odoo.tools import format_list
 from odoo.tools.mimetypes import guess_mimetype
 
+from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL
 from odoo.addons.sol_laboratory.constants.customers import CUSTOMER_TYPE_BUSINESS
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_CONTACT_MIXIN,
     MODEL_CUSTOMER,
@@ -29,7 +31,7 @@ CHILD_KEYS = frozenset({"type", "name", "function", "email", "phone", "street", 
 # Khách Hàng
 class Customer(models.Model):
     _name = MODEL_CUSTOMER
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_CONTACT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_CONTACT_MIXIN, MODEL_AUDIT_MIXIN]
     _inherits = {RES_PARTNER: "partner_id"}
     _description = "Customer"
     _order = "code"
@@ -56,7 +58,7 @@ class Customer(models.Model):
     # The contact holding the customer's details: name, address, email, phone, and for a company its people.
     partner_id = fields.Many2one(RES_PARTNER, required=True, ondelete="restrict")
     # Citizen ID of an individual: personal data, read only by those who maintain customers.
-    citizen_id = fields.Char(string="Citizen ID", copy=False, groups=CUSTOMER_EDITOR_GROUP)
+    citizen_id = fields.Char(string="Citizen ID", copy=False, groups=CUSTOMER_EDITOR_GROUP, audit_mask=MASK_PERSONAL)
     # The person of a business the laboratory contacts by default; empty for an individual, who is their own contact.
     default_contact_id = fields.Many2one(
         RES_PARTNER,

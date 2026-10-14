@@ -17,8 +17,9 @@ from odoo.tests import BaseCase, HttpCase, get_db_name, tagged
 from .invoicing_case import InvoicingCase
 from odoo.addons.sol_commerce.models.invoicing.scheduled_job import PAYOS_LINK_EXISTS
 from odoo.addons.sol_commerce.services.payos_client import PayosClient
-from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 CHECKSUM = "checksum-key"
 
@@ -35,7 +36,7 @@ def signed_body(data):
 
 
 @tagged("post_install", "-at_install")
-class TestPayos(InvoicingCase):
+class TestPayos(AuditLookup, InvoicingCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -156,6 +157,11 @@ class TestPayos(InvoicingCase):
 
         self.assertEqual(transaction.payos_checkout_url, "https://pay.example/1")
         self.assertEqual(transaction.state, "pending")
+        # PayOS already had the link, so it was only read.
+        self.assertEqual(
+            self.entries(transaction, "integration").mapped("note"),
+            [f"PayOS read the payment link {transaction.reference}"],
+        )
         poll = self.env["medilab.job.item"].search(
             [("item_key", "=", transaction.reference), ("job_id.key", "=", "payos.poll")]
         )
@@ -288,6 +294,14 @@ class TestPayos(InvoicingCase):
 
         self.assertEqual(transaction.payos_checkout_url, "https://pay.example/created")
         self.assertEqual(transaction.state, "pending")
+        entries = self.entries(transaction, "integration")
+        self.assertEqual(
+            set(entries.mapped("note")),
+            {
+                f"PayOS read the payment link {transaction.reference}",
+                f"PayOS created the payment link {transaction.reference}",
+            },
+        )
 
     def test_a_link_without_a_checkout_url_stays_queued(self):
         transaction = self.transaction()
@@ -682,7 +696,7 @@ class TestPayos(InvoicingCase):
 
 
 @tagged("post_install", "-at_install")
-class TestPayosWebhook(InvoicingCase, HttpCase):
+class TestPayosWebhook(AuditLookup, InvoicingCase, HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -711,6 +725,9 @@ class TestPayosWebhook(InvoicingCase, HttpCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.transaction.state, "draft")
+        error = self.env[MODEL_AUDIT_ENTRY].sudo().search([("action", "=", "error"), ("document_model", "=", False)])
+        self.assertEqual(error.note, "PayOS webhook refused: the signature does not match")
+        self.assertEqual((error.source, error.user_id.id), ("api", False))
 
     def test_a_repeated_webhook_does_not_create_a_second_transaction(self):
         data = {"orderCode": int(self.transaction.reference), "amount": 1000000, "code": "00", "reference": "FT1"}
@@ -723,6 +740,10 @@ class TestPayosWebhook(InvoicingCase, HttpCase):
         transactions = self.env["payment.transaction"].search([("provider_reference", "=", self.transaction.reference)])
         self.assertEqual(transactions, self.transaction)
         self.assertEqual(self.transaction.state, "done")
+        self.assertEqual(
+            self.entries(self.transaction, "integration").mapped("note"),
+            [f"PayOS reported a transfer for the payment link {self.transaction.reference}"] * 2,
+        )
 
     def test_a_second_bank_reference_is_another_transaction_for_the_same_invoice(self):
         order_code = int(self.transaction.reference)

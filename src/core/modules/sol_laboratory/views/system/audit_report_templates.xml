@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_audit_report" model="report.paperformat">
+        <field name="name">Audit report</field>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">20</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_audit" model="ir.actions.report">
+        <field name="name">Audit Report</field>
+        <field name="model">medilab.audit.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sol_laboratory.report_audit</field>
+        <field name="print_report_name">'Audit report %s - %s' % (object.date_from, object.date_to)</field>
+        <field name="paperformat_id" ref="paperformat_audit_report" />
+    </record>
+
+    <template id="report_audit">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.internal_layout">
+                    <t t-set="columns" t-value="doc._columns()" />
+                    <div class="page">
+                        <h2>Audit report</h2>
+                        <p t-out="doc._period_label()" />
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th t-foreach="columns" t-as="column"><span t-out="column[1]" /></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc._rows()" t-as="row">
+                                    <td t-foreach="columns" t-as="column"><span t-out="row[column[0]]" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

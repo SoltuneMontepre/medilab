@@ -4,6 +4,7 @@ from odoo import api, fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
     MODEL_MACHINE_SERVICE,
@@ -16,11 +17,12 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Máy
 class Machine(models.Model):
     _name = MODEL_MACHINE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Machine"
     _order = "code"
     _rec_names_search = ("name", "code", "serial_number")
     _permission_actions = ("create", "edit", "archive", "delete")
+    _audit_children = ("service_ids", "parameter_method_ids")
 
     # Unique code of the machine.
     code = fields.Char(required=True, copy=False, index="trigram")
