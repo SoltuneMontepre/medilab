@@ -1,0 +1,366 @@
+import math
+from datetime import UTC, timedelta
+from zoneinfo import ZoneInfo
+
+from odoo import api, fields, models
+from odoo.exceptions import UserError
+from odoo.fields import Command, Domain
+
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_MACHINE,
+    MODEL_MACHINE_BOOKING,
+    MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_PERSON,
+    MODEL_RES_CONFIG_SETTINGS,
+    MODEL_SAMPLE_TEST,
+    MODEL_TASK,
+)
+from odoo.addons.sol_laboratory.models.testing.sample_test import OPEN_STATUSES as OPEN_TEST_STATUSES
+
+SLOT_MINUTES = 15
+ACTIVE_STATUSES = ("scheduled", "in_progress")
+OPEN_STATUSES = ("queued", *ACTIVE_STATUSES)
+# Writes of the scheduler, which has already checked the slot.
+SCHEDULING = "medilab_scheduling"
+SKIP_SYNC = "medilab_skip_calendar_sync"
+# ponytail: a test without a due date is fitted within this many days; give it a due date to plan further ahead.
+HORIZON_DAYS = 30
+
+
+def _round_up(moment):
+    """The first slot boundary at or after the moment."""
+    hour = moment.replace(minute=0, second=0, microsecond=0)
+    return hour + timedelta(minutes=math.ceil((moment - hour).total_seconds() / 60 / SLOT_MINUTES) * SLOT_MINUTES)
+
+
+def _slot_length(run_minutes):
+    """The run time rounded up to whole slots."""
+    return timedelta(minutes=math.ceil(run_minutes / SLOT_MINUTES) * SLOT_MINUTES)
+
+
+# Lịch Đặt Máy
+class MachineBooking(models.Model):
+    _name = MODEL_MACHINE_BOOKING
+    _inherit = [MODEL_PERMISSION_MIXIN]
+    _description = "Machine Booking"
+    _order = "starts_at, queued_at, id"
+    # A booking is cancelled, never deleted.
+    _permission_actions = ("read", "create", "edit")
+
+    # The machine booked.
+    machine_id = fields.Many2one(MODEL_MACHINE, required=True, ondelete="restrict", readonly=True)
+    # The sample test run on the machine.
+    sample_test_id = fields.Many2one(MODEL_SAMPLE_TEST, required=True, ondelete="restrict", readonly=True, index=True)
+    # The testing task the booking belongs to.
+    task_id = fields.Many2one(MODEL_TASK, ondelete="restrict", readonly=True, index=True)
+    # The department of the testing task, whose head sees and adjusts the booking.
+    department_id = fields.Many2one(related="task_id.department_id", store=True, index=True)
+    # Person who runs the test.
+    person_id = fields.Many2one(MODEL_PERSON, ondelete="restrict", readonly=True)
+    # Due date of the sample test, copied so the queue is ordered without a join.
+    due_date = fields.Datetime(related="sample_test_id.due_date", store=True)
+    # When the booking joined the machine's queue; earlier bookings come first among equally urgent ones.
+    queued_at = fields.Datetime(required=True, default=fields.Datetime.now, readonly=True)
+    # Start of the slot; empty while the booking waits in the queue.
+    starts_at = fields.Datetime(string="Start")
+    # End of the slot: the start plus the run time, rounded up to whole slots.
+    ends_at = fields.Datetime(string="End", readonly=True)
+    # Queued, scheduled, in progress, done or cancelled.
+    status = fields.Selection(
+        [
+            ("queued", "Queued"),
+            ("scheduled", "Scheduled"),
+            ("in_progress", "In progress"),
+            ("done", "Done"),
+            ("cancelled", "Cancelled"),
+        ],
+        required=True,
+        default="queued",
+        readonly=True,
+        index=True,
+    )
+    # The calendar event showing the booking on the person's schedule; empty while the booking waits in the queue.
+    calendar_event_id = fields.Many2one("calendar.event", ondelete="set null", readonly=True, copy=False)
+    # True when the due date is within the urgency threshold, so the booking goes first in the queue.
+    is_urgent = fields.Boolean(related="sample_test_id.is_urgent")
+
+    _machine_start_idx = models.Index("(machine_id, starts_at)")
+    _person_start_idx = models.Index("(person_id, starts_at)")
+    _queue_idx = models.Index("(machine_id, status, due_date, queued_at)")
+    _calendar_event_unique = models.Constraint("UNIQUE(calendar_event_id)", "A calendar event shows one booking.")
+    _slot_period = models.Constraint("CHECK(ends_at > starts_at)", "A booking ends after it starts.")
+    _no_overlap = models.Constraint(
+        "EXCLUDE USING gist (machine_id WITH =, tsrange(starts_at, ends_at) WITH &&) "
+        "WHERE (status IN ('scheduled', 'in_progress'))",
+        "The machine already has a booking at that time.",
+    )
+
+    def _auto_init(self):
+        # The overlap constraint compares machines with a GiST index, which needs btree_gist.
+        self.env.cr.execute("CREATE EXTENSION IF NOT EXISTS btree_gist")
+        return super()._auto_init()
+
+    @api.depends("sample_test_id")
+    def _compute_display_name(self):
+        for booking in self:
+            test = booking.sudo().sample_test_id
+            booking.display_name = f"{test.sample_id.code}: {test.parameter_id.name}"
+
+    @api.model
+    def _urgent_until(self):
+        hours = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("urgency_hours")
+        return fields.Datetime.now() + timedelta(hours=hours)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        bookings = super().create(vals_list)
+        bookings._sync_schedule()
+        return bookings
+
+    def write(self, vals):
+        if {"starts_at", "ends_at"} & set(vals) and not self.env.context.get(SCHEDULING):
+            # People move a booking only to a slot the scheduler finds free; its length stays the run time.
+            vals = dict(vals)
+            vals.pop("ends_at", None)
+            if "starts_at" in vals:
+                start = fields.Datetime.to_datetime(vals.pop("starts_at"))
+                if not start:
+                    raise UserError(self.env._("Cancel the booking instead of clearing its start."))
+                for booking in self:
+                    booking._move(start)
+            if not vals:
+                return True
+        result = super().write(vals)
+        if {"status", "starts_at", "person_id", "machine_id"} & set(vals):
+            self._sync_schedule()
+        return result
+
+    def _open(self):
+        return self.filtered(lambda booking: booking.status in OPEN_STATUSES)
+
+    def _set(self, vals):
+        self.sudo().with_context(**{SCHEDULING: True}).write(vals)
+
+    def _check_adjustable(self):
+        """The person who runs a booking adjusts it; anyone else needs the permission to edit it."""
+        person = self.env[MODEL_PERSON]._current()
+        self.filtered(lambda booking: not person or booking.person_id != person)._check_permission("edit")
+
+    def _move(self, start):
+        self.ensure_one()
+        self._check_adjustable()
+        if self.status != "scheduled":
+            raise UserError(self.env._("Only a scheduled booking can be moved."))
+        start = _round_up(start)
+        length = self.ends_at - self.starts_at
+        if self._free_slot(self.machine_id, length, self.person_id, start + length, start, self) != start:
+            raise UserError(
+                self.env._(
+                    "%(machine)s is not free for %(booking)s at that time.",
+                    machine=self.machine_id.name,
+                    booking=self.display_name,
+                )
+            )
+        self._set({"starts_at": start, "ends_at": start + length})
+        self._process_queue()
+
+    def action_cancel(self):
+        self._check_adjustable()
+        if any(booking.status not in ("queued", "scheduled") for booking in self):
+            raise UserError(self.env._("Only a queued or scheduled booking can be cancelled."))
+        self._set({"status": "cancelled"})
+        self._process_queue()
+
+    def action_start(self):
+        self._check_adjustable()
+        if any(booking.status != "scheduled" for booking in self):
+            raise UserError(self.env._("Only a scheduled booking can be started."))
+        self._set({"status": "in_progress"})
+        self.sample_test_id._start()
+
+    def action_done(self):
+        self._check_adjustable()
+        if any(booking.status != "in_progress" for booking in self):
+            raise UserError(self.env._("Only a booking in progress can be done."))
+        self._set({"status": "done"})
+
+    def _sync_schedule(self):
+        """Show each active booking on its person's calendar and as the planned time of its testing task.
+
+        The event has no alarm: the reminder job reminds of it, as of planned tasks.
+        """
+        events = self.env["calendar.event"].sudo().with_context(**{SKIP_SYNC: True})
+        for booking in self.sudo():
+            user = booking.person_id.user_id
+            event = booking.calendar_event_id.with_context(**{SKIP_SYNC: True})
+            if booking.status not in ACTIVE_STATUSES or not user:
+                # A done booking stays on the calendar as the time the test ran.
+                if event and booking.status != "done":
+                    booking._set({"calendar_event_id": False})
+                    event.unlink()
+                continue
+            values = {
+                "name": f"{booking.machine_id.name}: {booking.display_name}",
+                "start": booking.starts_at,
+                "stop": booking.ends_at,
+                "user_id": user.id,
+                "partner_ids": [Command.set(user.partner_id.ids)],
+                "alarm_ids": [Command.clear()],
+            }
+            if event:
+                event.write(values)
+            else:
+                booking._set({"calendar_event_id": events.create(values).id})
+        for task in self.sudo().task_id:
+            slots = task.booking_ids.filtered(lambda booking: booking.status != "cancelled" and booking.starts_at)
+            # Writing the planned time also drops the task's own event: the bookings' events show it.
+            task.write(
+                {
+                    "planned_start": min(slots.mapped("starts_at"), default=False),
+                    "planned_end": max(slots.mapped("ends_at"), default=False),
+                }
+            )
+
+    @api.model
+    def _process_queue(self):
+        """Give each queued booking the next free slot: urgent ones first, then in the order they joined the queue.
+
+        A booking that no machine can finish before its due date stays queued, and its test is suggested for outsourcing.
+        """
+        # ponytail: the whole queue is replanned on every change; plan per machine if the queue grows long.
+        queued = self.sudo().search([("status", "=", "queued")])
+        for booking in queued.sorted(lambda b: (not b.is_urgent, b.queued_at, b.id)):
+            test = booking.sample_test_id
+            found = self._recommend(test, booking.person_id, booking.department_id)
+            if not found:
+                test.outsourcing_suggested = True
+                continue
+            way, machine, start, length = found
+            booking._set(
+                {"machine_id": machine.id, "starts_at": start, "ends_at": start + length, "status": "scheduled"}
+            )
+            test.write({"parameter_method_id": way.id, "outsourcing_suggested": False})
+
+    @api.model
+    def _requeue(self, machines):
+        """Put the scheduled bookings that end after their machine stops being fit to use back in the queue, then replan
+        it."""
+        late = self.browse()
+        for machine in machines:
+            late |= self.sudo().search(
+                [
+                    ("machine_id", "=", machine.id),
+                    ("status", "=", "scheduled"),
+                    ("ends_at", ">", machine._usable_until()),
+                ]
+            )
+        late._set({"status": "queued", "starts_at": False, "ends_at": False})
+        self._process_queue()
+
+    @api.model
+    def _follow_assignment(self, tasks):
+        """Hand the bookings of reassigned testing tasks over to the new assignee.
+
+        A booking not yet running goes back to the queue for a slot in the new assignee's working time, or is cancelled
+        when the task goes back to a queue. For a newly assigned test, check that a machine can finish it in time, and
+        suggest outsourcing it when none can.
+        """
+        released = False
+        for task in tasks.sudo().filtered(lambda task: task.document_model == MODEL_SAMPLE_TEST and task.document_id):
+            bookings = task.booking_ids._open()
+            waiting = bookings.filtered(lambda booking: booking.status != "in_progress")
+            (bookings - waiting)._set({"person_id": task.assignee_id.id})
+            if waiting and task.assignee_id:
+                waiting._set(
+                    {"person_id": task.assignee_id.id, "status": "queued", "starts_at": False, "ends_at": False}
+                )
+            elif waiting:
+                waiting._set({"status": "cancelled"})
+            elif not bookings and task.assignee_id:
+                test = self.env[MODEL_SAMPLE_TEST].sudo().browse(task.document_id)
+                # Only an open test can be suggested for outsourcing; an outsourced one has left the machines.
+                if test.status in OPEN_TEST_STATUSES:
+                    test.outsourcing_suggested = not self._recommend(test, task.assignee_id, task.department_id)
+            released = released or bool(waiting)
+        if released:
+            self._process_queue()
+
+    @api.model
+    def _recommend(self, test, person, department):
+        """The way of testing, machine, start and slot length that finish the test soonest by its due date, from the
+        department's ways of testing and the machines that run them; None when no machine can."""
+        now = fields.Datetime.now()
+        not_after = test.due_date or now + timedelta(days=HORIZON_DAYS)
+        if not_after <= now:
+            return None
+        in_house = (
+            Domain("parameter_method_id.department_id", "=", department.id)
+            if department
+            else Domain("parameter_method_id.department_id", "!=", False)
+        )
+        links = (
+            self.env[MODEL_PARAMETER_METHOD_MACHINE]
+            .sudo()
+            .search(Domain("parameter_method_id.parameter_id", "=", test.parameter_id.id) & in_house)
+        )
+        working = self._working_time(person, _round_up(now), not_after)
+        best, best_end = None, None
+        for link in links:
+            length = _slot_length(link.run_minutes)
+            start = self._free_slot(link.machine_id, length, person, not_after, working=working)
+            if start and (best_end is None or start + length < best_end):
+                best, best_end = (link.parameter_method_id, link.machine_id, start, length), start + length
+        return best
+
+    @api.model
+    def _free_slot(self, machine, length, person, not_after, not_before=None, ignore=None, working=None):
+        """The earliest start of a free slot of the given length on the machine, within the person's working time.
+
+        The slot starts on a slot boundary, not before not_before nor now, and ends by not_after while the machine is
+        still fit to use. working gives the person's working intervals when the caller has them already. Returns None
+        when there is no such slot.
+        """
+        now = fields.Datetime.now()
+        start_from = _round_up(max(not_before or now, now))
+        limit = min(not_after, machine._usable_until())
+        if start_from + length > limit:
+            return None
+        busy = self.sudo().search_fetch(
+            Domain("machine_id", "=", machine.id)
+            & Domain("status", "in", ACTIVE_STATUSES)
+            & Domain("starts_at", "<", limit)
+            & Domain("ends_at", ">", start_from)
+            & Domain("id", "not in", ignore.ids if ignore else []),
+            ["starts_at", "ends_at"],
+            order="starts_at",
+        )
+        if working is None:
+            working = self._working_time(person, start_from, limit)
+        for work_start, work_end in working:
+            start = _round_up(max(work_start, start_from))
+            while start + length <= min(work_end, limit):
+                end = start + length
+                clash = next((b.ends_at for b in busy if b.starts_at < end and b.ends_at > start), None)
+                if not clash:
+                    return start
+                start = _round_up(clash)
+        return None
+
+    @api.model
+    def _working_time(self, person, start, end):
+        """The person's working intervals between start and end, as naive UTC pairs, from their working time."""
+        employee = person.sudo().employee_id
+        calendar = employee.resource_calendar_id or self.env.company.resource_calendar_id
+        resource = employee.resource_id
+        # Without a person, the working hours are placed in the laboratory's time zone.
+        zone = ZoneInfo(self.env.company.tz or "UTC")
+        intervals = calendar._work_intervals_batch(
+            start.replace(tzinfo=UTC).astimezone(zone),
+            end.replace(tzinfo=UTC).astimezone(zone),
+            resource._get_resources_per_tz(),
+        )[resource.id]
+        return [
+            (begin.astimezone(UTC).replace(tzinfo=None), finish.astimezone(UTC).replace(tzinfo=None))
+            for begin, finish, _meta in intervals
+        ]

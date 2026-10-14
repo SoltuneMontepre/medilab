@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_customer_form_sales" model="ir.ui.view">
+        <field name="name">medilab.customer.form.sales</field>
+        <field name="model">medilab.customer</field>
+        <field name="inherit_id" ref="sol_laboratory.view_medilab_customer_form" />
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button
+                    name="%(action_medilab_sale_order)d"
+                    type="action"
+                    class="oe_stat_button"
+                    icon="fa-shopping-cart"
+                    string="Orders"
+                    context="{'search_default_customer_id': partner_id}"
+                    groups="sol_laboratory.group_permission_order_read_all"
+                />
+                <button
+                    name="%(action_medilab_customer_sales_terms)d"
+                    type="action"
+                    class="oe_stat_button"
+                    icon="fa-handshake-o"
+                    string="Sales Terms"
+                    context="{'search_default_customer_id': id, 'default_customer_id': id}"
+                    groups="sol_laboratory.group_permission_customer_sales_terms_read_all"
+                />
+            </div>
+        </field>
+    </record>
+</odoo>

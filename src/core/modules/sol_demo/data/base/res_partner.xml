@@ -101,5 +101,6 @@
         <field name="country_id" ref="base.vn" />
         <field name="phone">0903 456 789</field>
         <field name="email">pham.van.long@mail.example</field>
+        <field name="vat">8012345678</field>
     </record>
 </odoo>

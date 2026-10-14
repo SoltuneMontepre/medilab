@@ -186,4 +186,219 @@
             ]"
         />
     </record>
+
+    <record id="demo_attachment_sample_photo_collected" model="ir.attachment">
+        <field name="name">an-phu-collected.png</field>
+        <field name="raw">iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGNwa9qCFTEMLQkAA3NfAQ/ZfWEAAAAASUVORK5CYII=</field>
+        <field name="mimetype">image/png</field>
+    </record>
+    <record id="demo_attachment_sample_photo_received" model="ir.attachment">
+        <field name="name">an-phu-received.png</field>
+        <field name="raw">iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGOwWRCFFTEMLQkAQQpNgcbvKH4AAAAASUVORK5CYII=</field>
+        <field name="mimetype">image/png</field>
+    </record>
+    <record id="demo_sample_reception_good" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước uống đóng chai An Phú 2 L</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="sample_form">Sealed bottle</field>
+        <field name="container_type">2 L PET bottle</field>
+        <field name="status">received</field>
+        <field name="received_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles of 2 L</field>
+        <field name="condition">good</field>
+        <field name="storage_location">Fridge 2, shelf B</field>
+        <field
+            name="photo_ids"
+            eval="[Command.set([ref('demo_attachment_sample_photo_collected'), ref('demo_attachment_sample_photo_received')])]"
+        />
+    </record>
+    <record id="demo_sample_test_reception_lead" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_reception_good" />
+        <field name="parameter_id" ref="parameter_lead" />
+    </record>
+    <record id="demo_sample_test_reception_coliforms" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_reception_good" />
+        <field name="parameter_id" ref="parameter_coliforms" />
+    </record>
+    <record id="demo_sample_reception_damaged" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước mắm Phan Thiết chai nứt</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="container_type">500 mL glass bottle</field>
+        <field name="status">rejected</field>
+        <field name="received_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">1 bottle of 500 mL</field>
+        <field name="condition">damaged</field>
+        <field name="condition_note">The bottle cracked and the sample leaked.</field>
+        <field name="test_ids" eval="[Command.create({'parameter_id': ref('parameter_ph')})]" />
+    </record>
+    <record id="demo_sample_reception_insufficient" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Bắp cải Đà Lạt thiếu khối lượng</field>
+        <field name="sample_type_id" ref="sample_type_cabbage" />
+        <field name="physical_state">solid</field>
+        <field name="status">on_hold</field>
+        <field name="received_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">1 small head</field>
+        <field name="condition">insufficient</field>
+        <field name="condition_note">Below the minimum amount for the sample type.</field>
+        <field name="recollection_requested_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="recollection_requested_by_id" ref="demo_person_head_of_department" />
+        <field name="test_ids" eval="[Command.create({'parameter_id': ref('parameter_chlorpyrifos')})]" />
+    </record>
+    <record id="demo_sample_retained_soon" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_retention" />
+        <field name="customer_sample_name">Nước uống đóng chai An Phú sắp hết hạn lưu</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">retained</field>
+        <field name="retained_until" eval="(DateTime.today() + relativedelta(days=3)).strftime('%Y-%m-%d')" />
+        <field name="test_ids" eval="[Command.create({'parameter_id': ref('parameter_lead'), 'status': 'approved'})]" />
+    </record>
+    <record id="demo_sample_retained_over" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_retention" />
+        <field name="customer_sample_name">Nước uống đóng chai An Phú quá hạn lưu</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">retained</field>
+        <field name="retained_until" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')" />
+        <field name="test_ids" eval="[Command.create({'parameter_id': ref('parameter_ph'), 'status': 'approved'})]" />
+    </record>
+    <record id="demo_sample_disposed" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_retention" />
+        <field name="customer_sample_name">Nước uống đóng chai An Phú đã hủy</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">disposed</field>
+        <field name="retained_until" eval="(DateTime.today() - relativedelta(days=10)).strftime('%Y-%m-%d')" />
+        <field name="disposed_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="disposed_by_id" ref="demo_person_tester" />
+        <field name="disposal_note">Pour into the drain and recycle the bottles.</field>
+        <field name="test_ids" eval="[Command.create({'parameter_id': ref('parameter_coliforms'), 'status': 'approved'})]" />
+    </record>
+    <record id="demo_sample_lead_done" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước khoáng Suối Mát 500 mL</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">testing</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
+    <record id="demo_sample_test_lead_done" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_done" />
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="status">testing</field>
+        <field name="parameter_method_id" ref="parameter_method_lead_aas" />
+    </record>
+    <record id="demo_sample_lead_running" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước tinh khiết Sông Xanh 1,5 L</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">testing</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
+    <record id="demo_sample_test_lead_running" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_running" />
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="status">testing</field>
+        <field name="parameter_method_id" ref="parameter_method_lead_aas" />
+    </record>
+    <record id="demo_sample_lead_today" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước uống đóng bình Hòa Bình 19 L</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">testing</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
+    <record id="demo_sample_test_lead_today" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_today" />
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="parameter_method_id" ref="parameter_method_lead_aas" />
+    </record>
+    <record id="demo_sample_lead_tomorrow" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước khoáng có ga Thạch Bích 330 mL</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">testing</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
+    <record id="demo_sample_test_lead_tomorrow" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_tomorrow" />
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="parameter_method_id" ref="parameter_method_lead_aas" />
+    </record>
+    <record id="demo_sample_lead_queued" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước tinh khiết Đồng Xanh 500 mL</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">testing</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
+    <record id="demo_sample_test_lead_queued" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_queued" />
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="status">assigned</field>
+    </record>
+    <record id="demo_sample_lead_outsourcing" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước uống đóng chai Bình Minh 350 mL</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">received</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
+    <record id="demo_sample_test_lead_outsourcing" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_outsourcing" />
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="due_date" eval="(DateTime.now() + relativedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="outsourcing_suggested" eval="True" />
+    </record>
+    <record id="demo_sample_lead_urgent" model="medilab.sample">
+        <field name="request_id" ref="demo_test_request_reception" />
+        <field name="customer_sample_name">Nước uống đóng chai Ánh Dương 1 L</field>
+        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="physical_state">liquid</field>
+        <field name="status">received</field>
+        <field name="received_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_sample_delivery_staff" />
+        <field name="received_quantity">2 bottles</field>
+        <field name="condition">good</field>
+    </record>
+    <record id="demo_sample_test_lead_urgent" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_urgent" />
+        <field name="parameter_id" ref="parameter_lead" />
+        <field name="status">waiting</field>
+        <field name="due_date" eval="(DateTime.now() + relativedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
 </odoo>

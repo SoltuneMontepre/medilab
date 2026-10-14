@@ -7,6 +7,8 @@
             name="permission_ids"
             eval="[Command.set([
                 ref('sol_laboratory.permission_customer_read_all'),
+                ref('sol_laboratory.permission_customer_create_all'),
+                ref('sol_laboratory.permission_customer_edit_all'),
                 ref('sol_laboratory.permission_test_request_read_all'),
                 ref('sol_laboratory.permission_test_request_create_all'),
                 ref('sol_laboratory.permission_test_request_edit_all'),
@@ -37,6 +39,8 @@
             name="permission_ids"
             eval="[Command.set([
                 ref('sol_laboratory.permission_customer_read_all'),
+                ref('sol_laboratory.permission_customer_create_all'),
+                ref('sol_laboratory.permission_customer_edit_all'),
                 ref('sol_laboratory.permission_test_request_read_all'),
                 ref('sol_laboratory.permission_test_request_create_all'),
                 ref('sol_laboratory.permission_test_request_edit_all'),
@@ -83,6 +87,18 @@
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_sample_test_create_all'),
                 ref('sol_laboratory.permission_sample_test_edit_all'),
+                ref('sol_laboratory.permission_sample_handover_read_all'),
+                ref('sol_laboratory.permission_sample_handover_create_all'),
+                ref('sol_laboratory.permission_sample_handover_edit_all'),
+                ref('sol_laboratory.permission_handover_record_read_all'),
+                ref('sol_laboratory.permission_handover_record_create_all'),
+                ref('sol_laboratory.permission_handover_record_edit_all'),
+                ref('sol_laboratory.permission_handover_record_sample_read_all'),
+                ref('sol_laboratory.permission_handover_record_sample_create_all'),
+                ref('sol_laboratory.permission_handover_record_sample_edit_all'),
+                ref('sol_laboratory.permission_handover_record_sample_delete_all'),
+                ref('sol_laboratory.permission_test_report_read_all'),
+                ref('sol_laboratory.permission_test_report_edit_all'),
             ])]"
         />
     </record>
@@ -93,7 +109,14 @@
             name="permission_ids"
             eval="[Command.set([
                 ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_sample_edit_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
+                ref('sol_laboratory.permission_sample_handover_read_own_department'),
+                ref('sol_laboratory.permission_sample_handover_edit_own_department'),
+                ref('sol_laboratory.permission_test_result_read_all'),
+                ref('sol_laboratory.permission_test_result_create_all'),
+                ref('sol_laboratory.permission_test_result_edit_all'),
+                ref('sol_laboratory.permission_test_result_sign_all'),
             ])]"
         />
     </record>
@@ -103,13 +126,27 @@
         <field
             name="permission_ids"
             eval="[Command.set([
-                ref('sol_laboratory.permission_person_read_own_department'),
+                ref('sol_laboratory.permission_person_read_all'),
                 ref('sol_laboratory.permission_department_read_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
+                ref('sol_laboratory.permission_sample_edit_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
+                ref('sol_laboratory.permission_sample_test_edit_all'),
+                ref('sol_laboratory.permission_sample_handover_read_own_department'),
+                ref('sol_laboratory.permission_sample_handover_edit_own_department'),
+                ref('sol_laboratory.permission_test_result_read_all'),
+                ref('sol_laboratory.permission_test_result_create_all'),
+                ref('sol_laboratory.permission_test_result_edit_all'),
+                ref('sol_laboratory.permission_test_result_sign_all'),
                 ref('sol_laboratory.permission_task_read_own_department'),
                 ref('sol_laboratory.permission_task_create_own_department'),
                 ref('sol_laboratory.permission_task_edit_own_department'),
+                ref('sol_laboratory.permission_machine_booking_read_own_department'),
+                ref('sol_laboratory.permission_machine_booking_create_own_department'),
+                ref('sol_laboratory.permission_machine_booking_edit_own_department'),
+                ref('sol_laboratory.permission_subcontract_dispatch_read_all'),
+                ref('sol_laboratory.permission_subcontract_dispatch_create_all'),
+                ref('sol_laboratory.permission_subcontract_dispatch_edit_all'),
             ])]"
         />
     </record>
@@ -125,6 +162,9 @@
                 ref('sol_laboratory.permission_test_request_read_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
+                ref('sol_laboratory.permission_test_result_read_all'),
+                ref('sol_laboratory.permission_test_report_read_all'),
+                ref('sol_laboratory.permission_test_report_sign_all'),
             ])]"
         />
     </record>

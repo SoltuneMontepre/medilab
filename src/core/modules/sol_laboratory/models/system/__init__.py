@@ -6,6 +6,7 @@ from . import (
     audit_report,
     hr_department,
     hr_employee,
+    ir_access,
     ir_actions_act_window_view,
     ir_actions_report,
     ir_binary,

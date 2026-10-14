@@ -10,6 +10,7 @@
                 <field name="vat" optional="show" />
                 <field name="phone" optional="show" />
                 <field name="email" optional="show" />
+                <field name="duplicate_of_id" optional="show" />
             </list>
         </field>
     </record>
@@ -19,8 +20,37 @@
         <field name="model">medilab.customer</field>
         <field name="arch" type="xml">
             <form duplicate="0">
+                <header>
+                    <button
+                        name="action_merge_duplicate"
+                        type="object"
+                        string="Merge into Matched Customer"
+                        class="btn-primary"
+                        invisible="not duplicate_of_id"
+                        groups="sol_laboratory.group_permission_customer_edit_all"
+                        confirm="Move every order, document and person of this customer to the customer it matched, and delete this customer?"
+                    />
+                    <button
+                        name="action_clear_duplicate"
+                        type="object"
+                        string="Not a Duplicate"
+                        invisible="not duplicate_of_id"
+                        groups="sol_laboratory.group_permission_customer_edit_all"
+                    />
+                    <button
+                        name="action_invite_to_portal"
+                        type="object"
+                        string="Invite to Portal"
+                        groups="sol_laboratory.group_permission_customer_edit_all"
+                    />
+                </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box" />
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="alert alert-warning" role="alert" invisible="not duplicate_of_id">
+                        Registered with the tax code or citizen ID of another customer. Merge it into that customer, or clear the flag.
+                    </div>
+                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}" />
                     <div class="oe_title">
                         <label for="name" />
                         <h1><field name="name" /></h1>
@@ -28,8 +58,12 @@
                     <group>
                         <group>
                             <field name="code" required="0" placeholder="Filled from the sequence when left empty" />
-                            <field name="is_company" />
                             <field name="vat" />
+                            <field name="citizen_id" groups="sol_laboratory.group_permission_customer_edit_all" />
+                            <field name="is_company" invisible="1" />
+                            <field name="partner_id" invisible="1" />
+                            <field name="default_contact_id" invisible="not is_company" />
+                            <field name="duplicate_of_id" invisible="not duplicate_of_id" />
                         </group>
                         <group>
                             <field name="street" />
@@ -40,13 +74,26 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Contacts" name="contacts" invisible="not is_company">
-                            <field name="child_ids" context="{'default_parent_id': partner_id}">
+                        <page string="Contacts and Addresses" name="contacts">
+                            <field name="child_ids" context="{'default_parent_id': partner_id, 'default_type': 'contact'}">
                                 <list editable="bottom">
+                                    <field name="type" />
                                     <field name="name" />
-                                    <field name="function" />
+                                    <field name="function" string="Position" />
                                     <field name="email" />
                                     <field name="phone" />
+                                    <field name="street" optional="hide" />
+                                    <field name="city" optional="hide" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Possible Duplicates" name="possible_duplicates" invisible="not possible_duplicate_ids">
+                            <field name="possible_duplicate_ids" readonly="1">
+                                <list>
+                                    <field name="code" />
+                                    <field name="name" />
+                                    <field name="vat" />
+                                    <field name="email" />
                                 </list>
                             </field>
                         </page>
@@ -72,5 +119,12 @@
         <field name="name">Customers</field>
         <field name="res_model">medilab.customer</field>
         <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_medilab_customer_duplicate" model="ir.actions.act_window">
+        <field name="name">Possible Duplicates</field>
+        <field name="res_model">medilab.customer</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('duplicate_of_id', '!=', False)]</field>
     </record>
 </odoo>

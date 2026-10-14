@@ -50,6 +50,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/settings.py`    | System parameter keys and their defaults, such as `SAFETY_MARGIN_PARAMETER`                 |
 | `constants/tasks.py`       | Task triggers and statuses, such as `MANUAL_TRIGGER`                                        |
 | `constants/approvals.py`   | Approval chain purposes, signature decisions and approval states, such as `DECISION_SIGNED` |
+| `constants/customers.py`   | Customer types and sign-up values, such as `SIGNUP_CUSTOMER_KEY`                            |
 | `constants/jobs.py`        | Context keys of scheduled jobs, such as `JOB_RUN_CONTEXT`                                   |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
