@@ -97,8 +97,8 @@ def _quotable_order(
     """A claimed order of the salesperson whose items are all tested on one bottled water sample."""
     order = env[MODEL_SALE_ORDER].create(
         {
-            "partner_id": env.ref("sol_demo.demo_partner_hoa").id,
-            "customer_id": env.ref("sol_demo.demo_partner_nuoc_sach").id,
+            "partner_id": env.ref("sol_demo.demo_res_partner_hoa").id,
+            "customer_id": env.ref("sol_demo.demo_res_partner_nuoc_sach").id,
             "source": "portal",
             "order_status": "claimed",
             "user_id": env.ref("sol_demo.demo_res_users_sales").id,

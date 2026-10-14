@@ -10,6 +10,6 @@
         <field name="partner_id" ref="demo_res_partner_pham_van_long" />
     </record>
     <record id="demo_customer_nuoc_sach" model="medilab.customer">
-        <field name="partner_id" ref="demo_partner_nuoc_sach" />
+        <field name="partner_id" ref="demo_res_partner_nuoc_sach" />
     </record>
 </odoo>
