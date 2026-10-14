@@ -1,13 +1,15 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import api, fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_MACHINE,
+    MODEL_MACHINE_BOOKING,
     MODEL_MACHINE_SERVICE,
     MODEL_PARAMETER_METHOD_MACHINE,
     MODEL_PERMISSION_MIXIN,
+    MODEL_SAMPLE,
 )
 
 
@@ -48,6 +50,8 @@ class Machine(models.Model):
     service_ids = fields.One2many(MODEL_MACHINE_SERVICE, "machine_id", string="Service History")
     # Parameter and method pairs the machine can run, with the run time of each.
     parameter_method_ids = fields.One2many(MODEL_PARAMETER_METHOD_MACHINE, "machine_id", string="Ways of Testing")
+    # Bookings of the machine.
+    booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "machine_id", string="Bookings")
     # False when the machine is archived.
     active = fields.Boolean(default=True)
 
@@ -67,3 +71,21 @@ class Machine(models.Model):
                 if maintenance and machine.maintenance_interval_days
                 else False
             )
+
+    def write(self, vals):
+        result = super().write(vals)
+        if {"status", "active"} & set(vals):
+            self.env[MODEL_MACHINE_BOOKING]._requeue(self)
+        return result
+
+    def _usable_until(self):
+        """When the machine stops being fit to use, as naive UTC: at the end of its calibration due date.
+
+        A machine under repair, retired or archived is not fit to use at all.
+        """
+        self.ensure_one()
+        if self.status != "in_use" or not self.active:
+            return datetime.min
+        if not self.next_calibration_date:
+            return datetime.max
+        return self.env[MODEL_SAMPLE]._company_datetime(self.next_calibration_date + timedelta(days=1), 0)

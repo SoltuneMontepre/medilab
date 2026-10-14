@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_sample_test_outsource_form" model="ir.ui.view">
+        <field name="name">medilab.sample.test.outsource.form</field>
+        <field name="model">medilab.sample.test.outsource</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>The test leaves the machine queue and joins the draft dispatch to the subcontractor of the way of testing.</p>
+                <group>
+                    <field name="sample_test_id" invisible="1" />
+                    <field name="subcontracted_method_ids" invisible="1" />
+                    <field name="parameter_method_id" options="{'no_create': True}" />
+                </group>
+                <footer>
+                    <button name="action_outsource" type="object" string="Outsource" class="btn-success" />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_sample_test_outsource" model="ir.actions.act_window">
+        <field name="name">Outsource the Test</field>
+        <field name="res_model">medilab.sample.test.outsource</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

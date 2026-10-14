@@ -11,6 +11,7 @@ from . import (
     regulation,
     regulation_limit,
     res_partner,
+    res_users,
     sample_type,
     subcontractor,
     test_parameter,

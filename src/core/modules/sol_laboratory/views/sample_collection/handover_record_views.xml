@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_handover_record_list" model="ir.ui.view">
+        <field name="name">medilab.handover.record.list</field>
+        <field name="model">medilab.handover.record</field>
+        <field name="arch" type="xml">
+            <list duplicate="0">
+                <field name="code" />
+                <field name="request_id" />
+                <field name="handed_over_at" />
+                <field name="handed_over_by_name" />
+                <field name="received_by_id" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-warning="status == 'draft'"
+                    decoration-success="status == 'signed'"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_handover_record_form" model="ir.ui.view">
+        <field name="name">medilab.handover.record.form</field>
+        <field name="model">medilab.handover.record</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <header>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,signed" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="code" />
+                        <h1><field name="code" placeholder="Filled from the sequence when left empty" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="request_id" readonly="status == 'signed'" />
+                            <field name="handed_over_at" readonly="status == 'signed'" />
+                            <field name="handed_over_by_name" readonly="status == 'signed'" />
+                            <field name="received_by_id" readonly="status == 'signed'" />
+                        </group>
+                        <group>
+                            <field name="signed_at" />
+                            <field name="signed_device_id" />
+                            <field name="sent_at" />
+                            <field name="signature_attachment_id" />
+                            <field name="attachment_id" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Samples" name="samples">
+                            <field name="sample_ids" readonly="status == 'signed'">
+                                <list editable="bottom">
+                                    <field name="sample_id" domain="[('request_id', '=', parent.request_id)]" />
+                                    <field name="quantity" />
+                                    <field name="condition" />
+                                    <field name="condition_note" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_handover_record_search" model="ir.ui.view">
+        <field name="name">medilab.handover.record.search</field>
+        <field name="model">medilab.handover.record</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code" />
+                <field name="request_id" />
+                <field name="handed_over_by_name" />
+                <filter name="draft" string="Draft" domain="[('status', '=', 'draft')]" />
+                <filter name="signed" string="Signed" domain="[('status', '=', 'signed')]" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_handover_record" model="ir.actions.act_window">
+        <field name="name">Handover Records</field>
+        <field name="res_model">medilab.handover.record</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
