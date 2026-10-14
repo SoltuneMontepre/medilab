@@ -39,7 +39,7 @@
     <record id="demo_person_head_of_department" model="medilab.person">
         <field name="user_id" ref="demo_res_users_head_of_department" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
-        <field name="role_ids" eval="[Command.set([ref('demo_role_head_of_department')])]" />
+        <field name="role_ids" eval="[Command.set([ref('demo_role_head_of_department'), ref('demo_role_tester')])]" />
     </record>
     <record id="demo_person_lab_head" model="medilab.person">
         <field name="user_id" ref="demo_res_users_lab_head" />
@@ -48,6 +48,10 @@
     <record id="demo_person_storekeeper" model="medilab.person">
         <field name="user_id" ref="demo_res_users_storekeeper" />
         <field name="role_ids" eval="[Command.set([ref('demo_role_storekeeper')])]" />
+    </record>
+    <record id="demo_person_auditor" model="medilab.person">
+        <field name="user_id" ref="demo_res_users_auditor" />
+        <field name="role_ids" eval="[Command.set([ref('demo_role_auditor')])]" />
     </record>
     <record id="demo_person_microbiology_tester" model="medilab.person">
         <field name="name">Ngo Thi Mai</field>
@@ -58,10 +62,18 @@
     </record>
     <record id="demo_person_chemistry_tester" model="medilab.person">
         <field name="name">Ly Van Hung</field>
+        <field name="user_id" ref="demo_res_users_chemistry_tester" />
         <field name="work_contact_id" ref="demo_res_partner_chemistry_tester" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
         <field name="team_id" ref="demo_hr_department_pesticide_residues" />
         <field name="role_ids" eval="[Command.set([ref('demo_role_tester')])]" />
+    </record>
+    <record id="demo_hr_department_chemistry" model="hr.department">
+        <field
+            name="manager_id"
+            model="hr.employee"
+            search="[('user_id', '=', ref('demo_res_users_head_of_department'))]"
+        />
     </record>
     <!-- Team leads are employees, so they are set once the people exist. -->
     <record id="demo_hr_department_pesticide_residues" model="hr.department">

@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.approvals import (
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_CHAIN,
     MODEL_APPROVAL_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_PERSON,
     MODEL_SIGNATURE,
@@ -23,6 +24,8 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Phê duyệt bằng chữ ký
 class ApprovalMixin(models.AbstractModel):
     _name = MODEL_APPROVAL_MIXIN
+    # Every signed document is audited, and its signatures are entries of its own.
+    _inherit = [MODEL_AUDIT_MIXIN]
     _description = "Approval by Signatures"
 
     # Version of the document that the next signature records; it grows when every signature is withdrawn.
@@ -35,7 +38,7 @@ class ApprovalMixin(models.AbstractModel):
     approval_can_withdraw = fields.Boolean(compute="_compute_approval_actions")
 
     def write(self, vals):
-        content_fields = set(vals) & self._approval_content_fields()
+        content_fields = set(vals) & (self._approval_content_fields() | {"document_version"})
         if content_fields and not self.env.context.get(APPROVAL_SYSTEM_CONTEXT) and self._approval_has_standing():
             raise UserError(self.env._("The document has signatures; withdraw them before changing it."))
         return super().write(vals)
@@ -51,7 +54,10 @@ class ApprovalMixin(models.AbstractModel):
         self.ensure_one()
         level = self._approval_check_actor()
         self._approval_record(level, DECISION_SIGNED)
+        self._audit("sign", level.name)
         is_last = not level.chain_id.level_ids.filtered(lambda other: other.sequence > level.sequence)
+        if is_last:
+            self._audit("approve", level.chain_id.name)
         self.sudo()._approval_set_state(STATE_APPROVED if is_last else STATE_REQUESTED)
 
     def action_reject(self, reason):
@@ -60,19 +66,31 @@ class ApprovalMixin(models.AbstractModel):
         if not (reason or "").strip():
             raise UserError(self.env._("A rejection needs a reason."))
         self._approval_record(level, DECISION_REJECTED, reason)
+        self._audit("reject", f"{level.name}: {reason}")
         self.sudo()._approval_set_state(STATE_REJECTED)
         self._approval_notify_rejected(reason)
 
     def action_withdraw(self):
         self.ensure_one()
-        self._approval_own_row()._withdraw(process_completed=self._approval_process_completed())
+        row = self._approval_own_row()
+        row._withdraw(process_completed=self._approval_process_completed())
+        self._audit("withdraw", row.level_name)
         document = self.sudo()
         if document._approval_has_standing():
             document._approval_set_state(STATE_REQUESTED)
             return
-        document.with_context(**{APPROVAL_SYSTEM_CONTEXT: True}).write({"document_version": self.document_version + 1})
-        document._approval_set_state(STATE_NONE)
-        document._approval_reopened()
+        document._approval_restart()
+
+    def _approval_restart(self):
+        """Withdraw every signature and rejection that still stands and reopen the document, so it is signed again
+        from the first level; the rows stay on record."""
+        for document in self.sudo():
+            document._approval_open_rows().write({"withdrawn_at": fields.Datetime.now()})
+            document.with_context(**{APPROVAL_SYSTEM_CONTEXT: True}).write(
+                {"document_version": document.document_version + 1}
+            )
+            document._approval_set_state(STATE_NONE)
+            document._approval_reopened()
 
     def _approval_chain(self):
         return (

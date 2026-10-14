@@ -5,14 +5,16 @@
         <field name="is_company" eval="True" />
         <field name="email">contact@nuocuongsach.example</field>
         <field name="phone">028 3822 1100</field>
-        <field name="vat">0312345678</field>
+        <field name="vat">0315678901</field>
         <field name="street">12 Nguyễn Huệ</field>
         <field name="city">Quận 1</field>
         <field name="country_id" ref="base.vn" />
+        <field name="image_1920" type="base64" file="sol_demo/static/img/logo_nuoc_sach.png" />
     </record>
     <record id="demo_partner_hoa" model="res.partner">
         <field name="name">Phạm Thị Hoa</field>
         <field name="parent_id" ref="demo_partner_nuoc_sach" />
+        <field name="function">Trưởng phòng Chất lượng</field>
         <field name="email">pham.thi.hoa@nuocuongsach.example</field>
         <field name="phone">0903 111 222</field>
         <field name="type">contact</field>
@@ -20,8 +22,17 @@
     <record id="demo_partner_khoa" model="res.partner">
         <field name="name">Lê Văn Khoa</field>
         <field name="parent_id" ref="demo_partner_nuoc_sach" />
+        <field name="function">Nhân viên Mua hàng</field>
         <field name="email">le.van.khoa@nuocuongsach.example</field>
         <field name="phone">0908 333 444</field>
+        <field name="type">contact</field>
+    </record>
+    <record id="demo_partner_lan" model="res.partner">
+        <field name="name">Ngô Thị Lan</field>
+        <field name="parent_id" ref="demo_partner_nuoc_sach" />
+        <field name="function">Kế toán</field>
+        <field name="email">ngo.thi.lan@nuocuongsach.example</field>
+        <field name="phone">0909 777 888</field>
         <field name="type">contact</field>
     </record>
     <record id="demo_partner_minh" model="res.partner">
@@ -32,10 +43,42 @@
         <field name="city">Quận 1</field>
         <field name="country_id" ref="base.vn" />
     </record>
+    <record id="demo_partner_nong_san_registered" model="res.partner">
+        <field name="name">Công ty CP Nông Sản Xanh</field>
+        <field name="email">tai.do@nongsanxanh.example</field>
+        <field name="phone">0263 382 9999</field>
+        <field name="vat">5801234567</field>
+        <field name="street">12 Hùng Vương</field>
+        <field name="city">Đà Lạt</field>
+        <field name="country_id" ref="base.vn" />
+    </record>
+    <record id="demo_partner_tai" model="res.partner">
+        <field name="name">Đỗ Văn Tài</field>
+        <field name="parent_id" ref="demo_partner_nong_san_registered" />
+        <field name="email">tai.do@nongsanxanh.example</field>
+        <field name="phone">0263 382 9999</field>
+        <field name="type">contact</field>
+    </record>
     <record id="demo_res_users_customer" model="res.users">
         <field name="name">Phạm Thị Hoa</field>
         <field name="login">demo.customer</field>
         <field name="partner_id" ref="demo_partner_hoa" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
+    </record>
+    <record id="demo_res_users_individual" model="res.users">
+        <field name="login">demo.individual</field>
+        <field name="partner_id" ref="demo_res_partner_pham_van_long" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
+    </record>
+    <record id="demo_res_users_registered" model="res.users">
+        <field name="login">demo.registered</field>
+        <field name="partner_id" ref="demo_partner_tai" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
+    </record>
+    <!-- Invited by sales and never signed in. -->
+    <record id="demo_res_users_invited" model="res.users">
+        <field name="login">demo.invited</field>
+        <field name="partner_id" ref="demo_partner_minh" />
         <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
     </record>
 </odoo>

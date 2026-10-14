@@ -4,16 +4,17 @@ from odoo.fields import Domain
 from odoo.tools import format_date
 
 from odoo.addons.sol_commerce.constants.models import MODEL_TAX, MODEL_TAX_RATE
-from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
 
 # Thuế
 class Tax(models.Model):
     _name = MODEL_TAX
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Tax"
     _order = "code"
     _rec_names_search = ("name", "code")
+    _audit_children = ("rate_ids",)
 
     # Unique code of the tax, such as VAT10 or KCT.
     code = fields.Char(required=True, copy=False, index="trigram")

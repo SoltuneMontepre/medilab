@@ -2,13 +2,18 @@ from odoo import api, fields, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ORDER_SAMPLE, MODEL_SALE_ORDER, MODEL_SALE_ORDER_LINE
 from odoo.addons.sol_commerce.constants.orders import FROZEN_SAMPLE_FIELDS
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_REGULATION, MODEL_SAMPLE_TYPE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_REGULATION,
+    MODEL_SAMPLE_TYPE,
+)
 
 
 # Mẫu Đơn Hàng
 class OrderSample(models.Model):
     _name = MODEL_ORDER_SAMPLE
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Order Sample"
     _order = "order_id, sequence, id"
     _rec_name = "customer_sample_name"

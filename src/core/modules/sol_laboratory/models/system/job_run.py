@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 
+from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_RUN, MODEL_PERMISSION_MIXIN, MODEL_SCHEDULED_JOB
 
 
@@ -13,7 +14,9 @@ class JobRun(models.Model):
     _permission_actions = ("read",)
 
     # The job run.
-    job_id = fields.Many2one(MODEL_SCHEDULED_JOB, required=True, ondelete="restrict", index=True)
+    job_id = fields.Many2one(
+        MODEL_SCHEDULED_JOB, string="Scheduled Job", required=True, ondelete="restrict", index=True
+    )
     # When the run started.
     started_at = fields.Datetime(required=True)
     # When the run ended; empty while it runs.
@@ -60,7 +63,8 @@ class JobRun(models.Model):
             run.failed_count += 1
 
     def _close(self, note=None):
-        for run in self.filtered(lambda run: run.status == "running"):
+        running = self.filtered(lambda run: run.status == "running")
+        for run in running:
             if note:
                 run._append_log(note)
             if run.failed_count and not run.done_count:
@@ -70,7 +74,23 @@ class JobRun(models.Model):
             else:
                 status = "succeeded"
             run.write({"status": status, "ended_at": fields.Datetime.now()})
+        running._audit_end()
 
     def _finish(self, status, message):
         self._append_log(message)
         self.write({"status": status, "ended_at": fields.Datetime.now()})
+        self._audit_end()
+
+    def _audit_end(self):
+        # Each run ends with a job entry on its job, linking the run.
+        statuses = dict(self._fields["status"]._description_selection(self.env))
+        for run in self:
+            run.job_id.with_context(**{JOB_RUN_CONTEXT: run.id})._audit(
+                "job",
+                self.env._(
+                    "%(status)s: %(done)s done, %(failed)s failed",
+                    status=statuses[run.status],
+                    done=run.done_count,
+                    failed=run.failed_count,
+                ),
+            )

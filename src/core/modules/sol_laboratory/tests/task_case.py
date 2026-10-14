@@ -5,7 +5,8 @@ from odoo import fields
 from .people_case import PeopleCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_ROLE, MODEL_TASK, MODEL_TASK_TYPE
 
-SAMPLE_RECEIVED = "sample_received"
+# Not the shipped sample_received trigger: that one also creates a sample-test task.
+TESTING_TRIGGER = "parameter_testing"
 SIGNATURE_REQUESTED = "signature_requested"
 
 
@@ -21,7 +22,7 @@ class TaskCase(PeopleCase):
                 {
                     "code": "testing",
                     "name": "Testing a parameter",
-                    "trigger": SAMPLE_RECEIVED,
+                    "trigger": TESTING_TRIGGER,
                     "document_model": MODEL_DEPARTMENT,
                     "action": "enter_result",
                     "route": "department",
@@ -42,7 +43,7 @@ class TaskCase(PeopleCase):
 
     @classmethod
     def receive_sample(cls, department):
-        return cls.tasks._create_for_event(SAMPLE_RECEIVED, department, department=department)
+        return cls.tasks._create_for_event(TESTING_TRIGGER, department, department=department)
 
     @classmethod
     def create_by_hand(cls, assignee, **vals):
