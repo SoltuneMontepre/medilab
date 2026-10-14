@@ -8,9 +8,9 @@
         <field
             name="line_ids"
             eval="[
-                Command.create({'parameter_id': ref('parameter_ph')}),
-                Command.create({'parameter_id': ref('parameter_coliforms')}),
-                Command.create({'parameter_id': ref('parameter_lead')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_ph')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_coliforms')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_lead')}),
             ]"
         />
     </record>
@@ -22,8 +22,8 @@
         <field
             name="line_ids"
             eval="[
-                Command.create({'parameter_id': ref('parameter_coliforms')}),
-                Command.create({'parameter_id': ref('parameter_e_coli')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_coliforms')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_e_coli')}),
             ]"
         />
     </record>

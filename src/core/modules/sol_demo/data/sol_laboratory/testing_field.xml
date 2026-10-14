@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_testing_field_chemistry" model="medilab.testing.field">
+        <field name="code">HH</field>
+        <field name="name">Chemistry</field>
+    </record>
+    <record id="demo_testing_field_microbiology" model="medilab.testing.field">
+        <field name="code">VS</field>
+        <field name="name">Microbiology</field>
+    </record>
+</odoo>

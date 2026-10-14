@@ -114,7 +114,7 @@ def _quotable_order(
         {
             "order_id": order.id,
             "customer_sample_name": "Nước uống đóng chai 500 ml",
-            "sample_type_id": env.ref("sol_demo.sample_type_bottled_water").id,
+            "sample_type_id": env.ref("sol_demo.demo_sample_type_bottled_water").id,
             "physical_state": "liquid",
         }
     )

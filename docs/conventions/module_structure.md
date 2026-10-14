@@ -42,7 +42,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 
 | File                       | Contains                                                                   |
 | -------------------------- | -------------------------------------------------------------------------- |
-| `constants/models.py`      | Database model names, such as `MODEL_TEST_PARAMETER`                       |
+| `constants/models.py`      | Database model names, such as `MODEL_TEST_PARAMETER`, and groups of them, such as `MASTER_DATA_MODELS` |
 | `constants/permissions.py` | Actions, scopes and access domains of permissions, such as `SCOPE_DOMAINS` |
 | `constants/departments.py` | Domains that tell departments from teams, such as `DEPARTMENT_DOMAIN`   |
 | `constants/xml_ids.py`     | External ids Python code refers to, such as `ADMINISTRATOR_ROLE`           |

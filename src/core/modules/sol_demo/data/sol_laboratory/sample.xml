@@ -3,90 +3,90 @@
     <record id="demo_sample_cabbage_draft" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_draft" />
         <field name="customer_sample_name">Bắp cải Đà Lạt lô 12</field>
-        <field name="sample_type_id" ref="sample_type_cabbage" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
         <field name="physical_state">solid</field>
         <field name="sample_form">Whole head</field>
         <field name="container_type">Paper bag</field>
         <field
             name="test_ids"
-            eval="[Command.create({'parameter_id': ref('parameter_chlorpyrifos')}), Command.create({'parameter_id': ref('parameter_lead')})]"
+            eval="[Command.create({'parameter_id': ref('demo_test_parameter_chlorpyrifos')}), Command.create({'parameter_id': ref('demo_test_parameter_lead')})]"
         />
     </record>
 
     <record id="demo_sample_pond_water_confirmed" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_confirmed" />
         <field name="customer_sample_name">Nước ao nuôi cá</field>
-        <field name="sample_type_id" ref="sample_type_surface_water" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
         <field name="physical_state">liquid</field>
         <field name="sample_form">Grab sample</field>
         <field name="container_type">1 L PET bottle</field>
         <field
             name="test_ids"
-            eval="[Command.create({'parameter_id': ref('parameter_ph')}), Command.create({'parameter_id': ref('parameter_coliforms')})]"
+            eval="[Command.create({'parameter_id': ref('demo_test_parameter_ph')}), Command.create({'parameter_id': ref('demo_test_parameter_coliforms')})]"
         />
     </record>
 
     <record id="demo_sample_bottled_water_paid" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_paid" />
         <field name="customer_sample_name">Nước uống đóng chai An Phú 500 mL</field>
-        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="physical_state">liquid</field>
         <field name="sample_form">Sealed bottle</field>
         <field name="container_type">500 mL PET bottle</field>
-        <field name="regulation_id" ref="regulation_qcvn_6_1" />
+        <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
         <field
             name="test_ids"
             eval="[
-                Command.create({'parameter_id': ref('parameter_lead')}),
-                Command.create({'parameter_id': ref('parameter_coliforms')}),
-                Command.create({'parameter_id': ref('parameter_e_coli')}),
-                Command.create({'parameter_id': ref('parameter_ph')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_lead')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_coliforms')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_e_coli')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_ph')}),
             ]"
         />
     </record>
     <record id="demo_sample_source_water_paid" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_paid" />
         <field name="customer_sample_name">Nước nguồn tại nhà máy An Phú</field>
-        <field name="sample_type_id" ref="sample_type_surface_water" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
         <field name="physical_state">liquid</field>
         <field name="sample_form">Grab sample</field>
         <field name="container_type">1 L glass bottle</field>
         <field
             name="test_ids"
-            eval="[Command.create({'parameter_id': ref('parameter_ph')}), Command.create({'parameter_id': ref('parameter_coliforms')})]"
+            eval="[Command.create({'parameter_id': ref('demo_test_parameter_ph')}), Command.create({'parameter_id': ref('demo_test_parameter_coliforms')})]"
         />
     </record>
 
     <record id="demo_sample_cabbage_received" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_sample_received" />
         <field name="customer_sample_name">Bắp cải Đà Lạt lô 15</field>
-        <field name="sample_type_id" ref="sample_type_cabbage" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
         <field name="physical_state">solid</field>
         <field name="sample_form">Whole head</field>
         <field name="container_type">Paper bag</field>
         <field name="status">received</field>
         <field
             name="test_ids"
-            eval="[Command.create({'parameter_id': ref('parameter_chlorpyrifos'), 'quantity': 2}), Command.create({'parameter_id': ref('parameter_lead')})]"
+            eval="[Command.create({'parameter_id': ref('demo_test_parameter_chlorpyrifos'), 'quantity': 2}), Command.create({'parameter_id': ref('demo_test_parameter_lead')})]"
         />
     </record>
 
     <record id="demo_sample_bottled_water_testing" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_testing" />
         <field name="customer_sample_name">Nước uống đóng chai An Phú 1,5 L</field>
-        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="physical_state">liquid</field>
         <field name="sample_form">Sealed bottle</field>
         <field name="container_type">1.5 L PET bottle</field>
-        <field name="regulation_id" ref="regulation_qcvn_6_1" />
+        <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
         <field name="status">testing</field>
         <field
             name="test_ids"
             eval="[
-                Command.create({'parameter_id': ref('parameter_lead'), 'status': 'testing'}),
-                Command.create({'parameter_id': ref('parameter_coliforms'), 'status': 'assigned'}),
-                Command.create({'parameter_id': ref('parameter_e_coli'), 'status': 'outsourced'}),
-                Command.create({'parameter_id': ref('parameter_ph'), 'status': 'result_entered'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_lead'), 'status': 'testing'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_coliforms'), 'status': 'assigned'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_e_coli'), 'status': 'outsourced'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_ph'), 'status': 'result_entered'}),
             ]"
         />
     </record>
@@ -94,7 +94,7 @@
     <record id="demo_sample_lake_water_awaiting_approval" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_awaiting_approval" />
         <field name="customer_sample_name">Nước hồ sinh thái khu vườn</field>
-        <field name="sample_type_id" ref="sample_type_surface_water" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
         <field name="physical_state">liquid</field>
         <field name="sample_form">Grab sample</field>
         <field name="container_type">1 L PET bottle</field>
@@ -102,8 +102,8 @@
         <field
             name="test_ids"
             eval="[
-                Command.create({'parameter_id': ref('parameter_ph'), 'status': 'result_entered'}),
-                Command.create({'parameter_id': ref('parameter_coliforms'), 'status': 'result_entered'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_ph'), 'status': 'result_entered'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_coliforms'), 'status': 'result_entered'}),
             ]"
         />
     </record>
@@ -111,7 +111,7 @@
     <record id="demo_sample_cabbage_completed" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_completed" />
         <field name="customer_sample_name">Bắp cải Đà Lạt lô 09</field>
-        <field name="sample_type_id" ref="sample_type_cabbage" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
         <field name="physical_state">solid</field>
         <field name="sample_form">Whole head</field>
         <field name="container_type">Paper bag</field>
@@ -119,8 +119,8 @@
         <field
             name="test_ids"
             eval="[
-                Command.create({'parameter_id': ref('parameter_chlorpyrifos'), 'status': 'approved'}),
-                Command.create({'parameter_id': ref('parameter_lead'), 'status': 'approved'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_chlorpyrifos'), 'status': 'approved'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_lead'), 'status': 'approved'}),
             ]"
         />
     </record>
@@ -128,19 +128,19 @@
     <record id="demo_sample_bottled_water_reported" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_reported" />
         <field name="customer_sample_name">Nước uống đóng chai An Phú 350 mL</field>
-        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="physical_state">liquid</field>
         <field name="sample_form">Sealed bottle</field>
         <field name="container_type">350 mL PET bottle</field>
-        <field name="regulation_id" ref="regulation_qcvn_6_1" />
+        <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
         <field name="status">reported</field>
         <field
             name="test_ids"
             eval="[
-                Command.create({'parameter_id': ref('parameter_lead'), 'status': 'approved'}),
-                Command.create({'parameter_id': ref('parameter_coliforms'), 'status': 'approved'}),
-                Command.create({'parameter_id': ref('parameter_e_coli'), 'status': 'approved'}),
-                Command.create({'parameter_id': ref('parameter_ph'), 'status': 'approved'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_lead'), 'status': 'approved'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_coliforms'), 'status': 'approved'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_e_coli'), 'status': 'approved'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_ph'), 'status': 'approved'}),
             ]"
         />
     </record>
@@ -148,41 +148,41 @@
     <record id="demo_sample_order_package" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_order" />
         <field name="customer_sample_name">Nước uống đóng chai An Phú 1 L</field>
-        <field name="sample_type_id" ref="sample_type_bottled_water" />
+        <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="physical_state">liquid</field>
         <field name="sample_form">Sealed bottle</field>
         <field name="container_type">1 L PET bottle</field>
-        <field name="regulation_id" ref="regulation_qcvn_6_1" />
+        <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
         <field
             name="test_ids"
             eval="[
-                Command.create({'parameter_id': ref('parameter_ph')}),
-                Command.create({'parameter_id': ref('parameter_coliforms')}),
-                Command.create({'parameter_id': ref('parameter_lead')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_ph')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_coliforms')}),
+                Command.create({'parameter_id': ref('demo_test_parameter_lead')}),
             ]"
         />
     </record>
     <record id="demo_sample_order_cabbage" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_order" />
         <field name="customer_sample_name">Bắp cải Đà Lạt lô 21</field>
-        <field name="sample_type_id" ref="sample_type_cabbage" />
+        <field name="sample_type_id" ref="demo_sample_type_cabbage" />
         <field name="physical_state">solid</field>
         <field name="sample_form">Whole head</field>
         <field name="container_type">Paper bag</field>
-        <field name="test_ids" eval="[Command.create({'parameter_id': ref('parameter_chlorpyrifos')})]" />
+        <field name="test_ids" eval="[Command.create({'parameter_id': ref('demo_test_parameter_chlorpyrifos')})]" />
     </record>
 
     <record id="demo_sample_garden_water_cancelled" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_cancelled" />
         <field name="customer_sample_name">Nước ao vườn nhà</field>
-        <field name="sample_type_id" ref="sample_type_surface_water" />
+        <field name="sample_type_id" ref="demo_sample_type_surface_water" />
         <field name="physical_state">liquid</field>
         <field name="status">cancelled</field>
         <field
             name="test_ids"
             eval="[
-                Command.create({'parameter_id': ref('parameter_ph'), 'status': 'cancelled'}),
-                Command.create({'parameter_id': ref('parameter_coliforms'), 'status': 'cancelled'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_ph'), 'status': 'cancelled'}),
+                Command.create({'parameter_id': ref('demo_test_parameter_coliforms'), 'status': 'cancelled'}),
             ]"
         />
     </record>
