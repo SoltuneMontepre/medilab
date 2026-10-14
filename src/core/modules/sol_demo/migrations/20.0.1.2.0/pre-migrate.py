@@ -20,7 +20,8 @@ OLD_PREFIXES = {
 
 
 def migrate(cr, _version):
-    # The master data demo records are named demo_<model>_<short name>, as the demo data convention says.
+    # The demo records now have demo_<model>_<short name> ids. Their files use noupdate, so an upgrade would create each
+    # record a second time under its new id. Renaming the existing ids before the data files load keeps the records.
     for model, old_prefix in OLD_PREFIXES.items():
         new_prefix = f"demo_{model.removeprefix('medilab.').replace('.', '_')}_"
         cr.execute(
