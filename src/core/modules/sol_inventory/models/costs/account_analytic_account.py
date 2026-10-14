@@ -3,14 +3,19 @@ from odoo.exceptions import ValidationError
 
 from odoo.addons.sol_inventory.constants.models import MODEL_ANALYTIC_ACCOUNT
 from odoo.addons.sol_inventory.constants.xml_ids import COST_CENTRE_PLAN
-from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_DEPARTMENT, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
+    MODEL_DEPARTMENT,
+    MODEL_PERMISSION_MIXIN,
+)
 
 
 # Trung Tâm Chi Phí
 class AccountAnalyticAccount(models.Model):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_ANALYTIC_ACCOUNT
-    _inherit = [MODEL_ANALYTIC_ACCOUNT, MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_ANALYTIC_ACCOUNT, MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
 
     # The department or team whose stock is charged to the cost centre.
     department_id = fields.Many2one(MODEL_DEPARTMENT, string="Department or Team", ondelete="restrict")

@@ -9,6 +9,7 @@ from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOCATION
 from odoo.addons.sol_inventory.constants.xml_ids import STORE_VIEWS
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_EMPLOYEE,
     MODEL_PERMISSION_MIXIN,
@@ -23,7 +24,7 @@ STORE_FIELDS = ("is_store", "holder_id", "manager_id")
 class StockLocation(models.Model):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_LOCATION
-    _inherit = [MODEL_STOCK_LOCATION, MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_LOCATION, MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
 
     # Storage conditions of the location, such as "2-8 °C".
     conditions = fields.Char(string="Storage Conditions")
