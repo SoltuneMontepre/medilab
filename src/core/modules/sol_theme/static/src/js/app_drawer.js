@@ -6,6 +6,7 @@ import { proxy, signal, useOnChange } from "@odoo/owl";
 const APP_ICONS_BY_XMLID = {
     "sol_laboratory.menu_laboratory_root": "mdi:flask",
     "sol_laboratory.menu_master_data_root": "mdi:database",
+    "sol_laboratory.menu_audit_root": "mdi:history",
     "hr.menu_hr_root": "mdi:account-group",
     "base.menu_administration": "mdi:cog",
     "base.menu_management": "mdi:apps",

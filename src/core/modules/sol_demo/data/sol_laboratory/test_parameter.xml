@@ -42,4 +42,10 @@
         <field name="main_group_id" ref="demo_parameter_group_organophosphates" />
         <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_cabbage')])]" />
     </record>
+    <!-- No longer offered: the demo archives it. -->
+    <record id="demo_test_parameter_cadmium" model="medilab.test.parameter">
+        <field name="name">Cadmium (Cd)</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_heavy_metals')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_heavy_metals" />
+    </record>
 </odoo>

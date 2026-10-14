@@ -9,13 +9,13 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_TAX,
     MODEL_VND_MIXIN,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
 
 
 # Giá Chỉ Tiêu
 class ParameterPrice(models.Model):
     _name = MODEL_PARAMETER_PRICE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_VND_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_VND_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Parameter Price"
     _order = "parameter_id"
     _rec_name = "parameter_id"

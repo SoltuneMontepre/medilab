@@ -2561,3 +2561,38 @@ msgstr ""
 #: code:addons/sol_commerce/controllers/account.py:0
 msgid "Your tax code is registered. Contact the laboratory to change it."
 msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/scheduled_job.py:0
+msgid "PayOS created the payment link %s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/scheduled_job.py:0
+msgid "PayOS read the payment link %s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS reported a transfer for the payment link %s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS webhook refused: the body is not JSON"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS webhook refused: the signature does not match"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_audit_entry
+msgid "Audit Entry"
+msgstr ""

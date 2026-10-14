@@ -4,7 +4,11 @@ from zoneinfo import ZoneInfo
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS, MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
+    MODEL_RES_CONFIG_SETTINGS,
+    MODEL_SCHEDULED_JOB,
+)
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TASK_REMINDER, VIETNAM_ZONE
 from odoo.addons.sol_laboratory.constants.settings import DEFAULT_REMINDER_LEAD_MINUTES
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
@@ -97,9 +101,11 @@ class ScheduledJob(models.Model):
         client = firebase_client_from_env()
         if client is None:
             return fields.Datetime.now() + timedelta(minutes=5)
+        message = delivery.notification_id.mail_message_id
         try:
-            client.send(device.token, delivery.notification_id.mail_message_id.subject or "", self._push_body(delivery))
+            client.send(device.token, message.subject or "", self._push_body(delivery))
         except PermanentTokenError as error:
+            device._audit("error", self.env._("Firebase rejected the token: %s", error))
             device.turn_off(str(error))
             delivery.write({"status": "skipped", "error": str(error)})
             return None
@@ -107,6 +113,11 @@ class ScheduledJob(models.Model):
             delivery.write({"status": "pending", "error": str(error)})
             raise
         delivery.write({"status": "sent", "sent_at": fields.Datetime.now(), "error": False})
+        self.env[MODEL_AUDIT_ENTRY]._log_event(
+            "integration",
+            self.env._("Push sent to %(user)s on %(platform)s", user=device.user_id.name, platform=device.platform),
+            message._audit_document(),
+        )
         return None
 
     def _push_body(self, delivery):

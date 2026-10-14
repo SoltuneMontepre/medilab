@@ -5,6 +5,7 @@ from odoo.tools import format_list
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -28,7 +29,7 @@ HOLDER_FIELDS = ("role_ids", "person_ids")
 # Quyền
 class Permission(models.Model):
     _name = MODEL_PERMISSION
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Permission"
     _order = "document_model, action, scope"
     # Permissions come with modules: they are read and renamed on the screen, never created or deleted there.
@@ -167,7 +168,9 @@ class Permission(models.Model):
     @api.ondelete(at_uninstall=False)
     def _unlink_except_group_in_use(self):
         generated = self._generated_records()
-        shared = self.env[IR_ACCESS].sudo().search([("group_id", "in", self.group_id.ids), ("id", "not in", generated.ids)])
+        shared = (
+            self.env[IR_ACCESS].sudo().search([("group_id", "in", self.group_id.ids), ("id", "not in", generated.ids)])
+        )
         if shared:
             raise UserError(
                 self.env._(
@@ -197,7 +200,9 @@ class Permission(models.Model):
     def _generated_records(self):
         records = self.env[IR_ACCESS].sudo()
         for permission in self:
-            records |= self.env.ref(permission._generated_xml_id("access"), raise_if_not_found=False) or records.browse()
+            records |= (
+                self.env.ref(permission._generated_xml_id("access"), raise_if_not_found=False) or records.browse()
+            )
         return records
 
     def _check_holders(self, vals):

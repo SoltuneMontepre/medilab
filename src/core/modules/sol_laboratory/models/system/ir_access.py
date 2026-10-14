@@ -1,11 +1,13 @@
 from odoo import models
 
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACCESS
+
 UNCHECKED_PARENTS = "medilab_unchecked_parent_models"
 
 
 # Accesses: a document whose own permissions govern the contact it delegates to does not need the contact's readers.
 class IrAccess(models.Model):
-    _inherit = "ir.access"
+    _inherit = MODEL_IR_ACCESS
 
     def _get_groups_with_access(self, model_name, operation):
         # Odoo keeps only the groups that can also read the parent of an _inherits model, so a view would hide every

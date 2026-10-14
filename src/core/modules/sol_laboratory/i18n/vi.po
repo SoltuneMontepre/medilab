@@ -1257,7 +1257,7 @@ msgstr "Đã xác nhận"
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_res_partner
 msgid "Contact"
-msgstr "Liên hệ"
+msgstr "Liên Hệ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__contact_person_id
@@ -6628,23 +6628,23 @@ msgstr "Dùng để đăng nhập vào hệ thống"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "User"
-msgstr "Tài khoản"
+msgstr "Tài Khoản"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_state
 msgid "User Status"
-msgstr "Trạng thái người dùng"
+msgstr "Trạng thái tài khoản"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_partner_id
 msgid "User's partner"
-msgstr "Đối tác người dùng"
+msgstr "Liên hệ của tài khoản"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__user_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__user_ids
 msgid "Users"
-msgstr "Người dùng"
+msgstr "Tài Khoản"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__valid_from
@@ -8912,7 +8912,7 @@ msgstr "Một kết quả thử nghiệm bạn nhập đã bị từ chối"
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 msgid "Approve"
-msgstr "Phê duyệt"
+msgstr "Phê Duyệt"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__attempt
@@ -9090,7 +9090,7 @@ msgstr "Xem kết quả thử nghiệm"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
 msgid "Reject"
-msgstr "Từ chối"
+msgstr "Từ Chối"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_test_result_reject
@@ -9660,7 +9660,7 @@ msgstr "Không đạt %s"
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
 msgid "Download"
-msgstr "Tải xuống"
+msgstr "Tải Xuống"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
@@ -9958,3 +9958,314 @@ msgstr "Bàn giao mẫu đã nhận không thể chuyển sang mẫu hoặc phò
 #: model:ir.model,name:sol_laboratory.model_report_sol_laboratory_report_test_report
 msgid "Test Report Document"
 msgstr "Bản In Phiếu Kết Quả"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/job_run.py:0
+msgid "%(status)s: %(done)s done, %(failed)s failed"
+msgstr "%(status)s: %(done)s xong, %(failed)s thất bại"
+
+#. module: sol_laboratory
+#: model:ir.actions.report,print_report_name:sol_laboratory.action_report_audit
+msgid "'Audit report %s - %s' % (object.date_from, object.date_to)"
+msgstr "'Báo cáo nhật ký hoạt động %s - %s' % (object.date_from, object.date_to)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__api
+msgid "API"
+msgstr "API"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_audit_change
+msgid "Audit Change"
+msgstr "Thay Đổi Dữ Liệu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_audit_entry
+msgid "Audit Entry"
+msgstr "Mục Nhật Ký Hoạt Động"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_audit_report model:ir.actions.report,name:sol_laboratory.action_report_audit model:ir.model,name:sol_laboratory.model_medilab_audit_report model:ir.ui.menu,name:sol_laboratory.menu_audit_report
+msgid "Audit Report"
+msgstr "Báo Cáo Nhật Ký Hoạt Động"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__audit_retention_days
+msgid "Audit Retention Days"
+msgstr "Số ngày lưu nhật ký hoạt động"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_audit_entry model:ir.model,name:sol_laboratory.model_medilab_audit_mixin model:ir.ui.menu,name:sol_laboratory.menu_audit_entry model:ir.ui.menu,name:sol_laboratory.menu_audit_root model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
+msgid "Audit Trail"
+msgstr "Nhật Ký Hoạt Động"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_change.py:0
+msgid "Audit changes cannot be changed."
+msgstr "Không thể sửa thay đổi dữ liệu của nhật ký hoạt động."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_change.py:0
+msgid "Audit changes cannot be deleted."
+msgstr "Không thể xóa thay đổi dữ liệu của nhật ký hoạt động."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_entry.py:0
+msgid "Audit entries cannot be changed."
+msgstr "Không thể sửa mục nhật ký hoạt động."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_entry.py:0
+msgid "Audit entries cannot be deleted."
+msgstr "Không thể xóa mục nhật ký hoạt động."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_audit
+msgid "Audit report"
+msgstr "Báo cáo nhật ký hoạt động"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+msgid "Audit report %(start)s - %(end)s.xlsx"
+msgstr "Báo cáo nhật ký hoạt động %(start)s - %(end)s.xlsx"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__change_ids
+msgid "Changes"
+msgstr "Thay Đổi"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "Data changes"
+msgstr "Thay đổi dữ liệu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_form model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_list model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "Date"
+msgstr "Ngày"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__audit_retention_days
+msgid "Days audit entries are kept before the cleanup job writes them to an archive file and removes them. 0 keeps them for ever."
+msgstr "Số ngày giữ các mục nhật ký hoạt động trước khi tác vụ dọn dẹp ghi chúng vào tệp lưu trữ rồi xóa. 0 giữ chúng mãi mãi."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_id
+msgid "Document ID"
+msgstr "ID Chứng Từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__entry_id
+msgid "Entry"
+msgstr "Mục Nhật Ký Hoạt Động"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+msgid "Export Spreadsheet"
+msgstr "Xuất Bảng Tính"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__field_label
+msgid "Field"
+msgstr "Trường"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__field_name
+msgid "Field Name"
+msgstr "Tên Trường"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__file
+msgid "File"
+msgstr "Tệp"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__file_name
+msgid "File Name"
+msgstr "Tên Tệp"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+msgid "Filters"
+msgstr "Bộ Lọc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__date_from
+msgid "From"
+msgstr "Từ Ngày"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+msgid "From %(start)s to %(end)s"
+msgstr "Từ %(start)s đến %(end)s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/audit_mixin.py:0
+msgid "History"
+msgstr "Lịch Sử"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/audit_mixin.py:0
+msgid "History of %s"
+msgstr "Lịch sử của %s"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__integration
+msgid "Integration"
+msgstr "Tích Hợp"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__new_value
+msgid "New Value"
+msgstr "Giá Trị Mới"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__old_value
+msgid "Old Value"
+msgstr "Giá Trị Cũ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+msgid "Period"
+msgstr "Kỳ Báo Cáo"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_audit_entry_read_all
+msgid "Permission: audit.entry.read.all"
+msgstr "Quyền: audit.entry.read.all"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+msgid "Print PDF"
+msgstr "In PDF"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_audit_entry_read_all
+msgid "Read the audit trail"
+msgstr "Xem nhật ký hoạt động"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__screen
+msgid "Screen"
+msgstr "Màn Hình"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "Signatures and approvals"
+msgstr "Chữ ký và phê duyệt"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__source model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__source model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "Source"
+msgstr "Nguồn"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_config_parameter
+msgid "System Parameter"
+msgstr "Tham Số Hệ Thống"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "System events"
+msgstr "Sự kiện hệ thống"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_audit_report_period_check
+msgid "The period must end on or after its first day."
+msgstr "Kỳ báo cáo phải kết thúc vào hoặc sau ngày bắt đầu."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__date_to
+msgid "To"
+msgstr "Đến Ngày"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__withdraw
+msgid "Withdraw"
+msgstr "Rút Lại"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/brevo.py:0
+msgid "Brevo reported %(event)s for %(recipient)s"
+msgstr "Brevo báo %(event)s cho %(recipient)s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/brevo.py:0
+msgid "Brevo webhook refused: the body is not JSON"
+msgstr "Từ chối webhook Brevo: nội dung không phải JSON"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/brevo.py:0
+msgid "Brevo webhook refused: the token does not match"
+msgstr "Từ chối webhook Brevo: mã xác thực không khớp"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "Email not sent: %s"
+msgstr "Không gửi được email: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "Email sent: %s"
+msgstr "Đã gửi email: %s"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_binary
+msgid "File streaming helper model for controllers"
+msgstr "Mô hình hỗ trợ truyền tệp cho bộ điều khiển"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Firebase rejected the token: %s"
+msgstr "Firebase từ chối mã thông báo: %s"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_mail
+msgid "Outgoing Mail"
+msgstr "Email Gửi Đi"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Push sent to %(user)s on %(platform)s"
+msgstr "Đã đẩy thông báo tới %(user)s trên %(platform)s"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_actions_report
+msgid "Report Action"
+msgstr "Tác vụ báo cáo"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__system
+msgid "System"
+msgstr "Hệ Thống"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_model
+msgid "Parent Document Type"
+msgstr "Loại Chứng Từ Cha"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_id
+msgid "Parent Document ID"
+msgstr "ID Chứng Từ Cha"

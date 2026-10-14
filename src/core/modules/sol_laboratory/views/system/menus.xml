@@ -123,6 +123,11 @@
             groups="group_permission_job_run_read_all"
         />
     </menuitem>
+
+    <menuitem id="menu_audit_root" name="Audit Trail" sequence="40">
+        <menuitem id="menu_audit_entry" action="action_medilab_audit_entry" sequence="10" />
+        <menuitem id="menu_audit_report" action="action_medilab_audit_report" sequence="20" />
+    </menuitem>
     <menuitem
         id="menu_notification_event"
         action="action_medilab_notification_event"

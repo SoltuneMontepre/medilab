@@ -9854,3 +9854,314 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_report_sol_laboratory_report_test_report
 msgid "Test Report Document"
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/job_run.py:0
+msgid "%(status)s: %(done)s done, %(failed)s failed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.report,print_report_name:sol_laboratory.action_report_audit
+msgid "'Audit report %s - %s' % (object.date_from, object.date_to)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__api
+msgid "API"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_audit_change
+msgid "Audit Change"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_audit_entry
+msgid "Audit Entry"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_audit_report model:ir.actions.report,name:sol_laboratory.action_report_audit model:ir.model,name:sol_laboratory.model_medilab_audit_report model:ir.ui.menu,name:sol_laboratory.menu_audit_report
+msgid "Audit Report"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__audit_retention_days
+msgid "Audit Retention Days"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_audit_entry model:ir.model,name:sol_laboratory.model_medilab_audit_mixin model:ir.ui.menu,name:sol_laboratory.menu_audit_entry model:ir.ui.menu,name:sol_laboratory.menu_audit_root model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
+msgid "Audit Trail"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_change.py:0
+msgid "Audit changes cannot be changed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_change.py:0
+msgid "Audit changes cannot be deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_entry.py:0
+msgid "Audit entries cannot be changed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_entry.py:0
+msgid "Audit entries cannot be deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.report_audit
+msgid "Audit report"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+msgid "Audit report %(start)s - %(end)s.xlsx"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/brevo.py:0
+msgid "Brevo reported %(event)s for %(recipient)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/brevo.py:0
+msgid "Brevo webhook refused: the body is not JSON"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/brevo.py:0
+msgid "Brevo webhook refused: the token does not match"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__change_ids
+msgid "Changes"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "Data changes"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_form model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_list model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "Date"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__audit_retention_days
+msgid "Days audit entries are kept before the cleanup job writes them to an archive file and removes them. 0 keeps them for ever."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_id
+msgid "Document ID"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "Email not sent: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/mail_mail.py:0
+msgid "Email sent: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__entry_id
+msgid "Entry"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+msgid "Export Spreadsheet"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__field_label
+msgid "Field"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__field_name
+msgid "Field Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__file
+msgid "File"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__file_name
+msgid "File Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_binary
+msgid "File streaming helper model for controllers"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+msgid "Filters"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Firebase rejected the token: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__date_from
+msgid "From"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+msgid "From %(start)s to %(end)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/audit_mixin.py:0
+msgid "History"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/audit_mixin.py:0
+msgid "History of %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__integration
+msgid "Integration"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__new_value
+msgid "New Value"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__old_value
+msgid "Old Value"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_mail_mail
+msgid "Outgoing Mail"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+msgid "Period"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_audit_entry_read_all
+msgid "Permission: audit.entry.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
+msgid "Print PDF"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Push sent to %(user)s on %(platform)s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_audit_entry_read_all
+msgid "Read the audit trail"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_actions_report
+msgid "Report Action"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__screen
+msgid "Screen"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "Signatures and approvals"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__source model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__source model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "Source"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_config_parameter
+msgid "System Parameter"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+msgid "System events"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_audit_report_period_check
+msgid "The period must end on or after its first day."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__date_to
+msgid "To"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__withdraw
+msgid "Withdraw"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__system
+msgid "System"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_model
+msgid "Parent Document Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_id
+msgid "Parent Document ID"
+msgstr ""

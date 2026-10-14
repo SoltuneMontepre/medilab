@@ -1,13 +1,19 @@
 from odoo import fields, models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE_BOOKING, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_CALENDAR_EVENT,
+    MODEL_MACHINE_BOOKING,
+    MODEL_TASK,
+)
 
 SKIP_SYNC = "medilab_skip_calendar_sync"
 
 
 # Lịch
 class CalendarEvent(models.Model):
-    _inherit = "calendar.event"
+    _name = MODEL_CALENDAR_EVENT
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_CALENDAR_EVENT]
 
     # The planned task this event keeps in step with.
     medilab_task_id = fields.Many2one(MODEL_TASK, ondelete="cascade", index=True)
