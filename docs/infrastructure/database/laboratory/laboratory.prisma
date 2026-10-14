@@ -831,11 +831,11 @@ model TestResult {
   sample_test_id Int
   /// Attempt number, 1 for the first measurement and higher for retests.
   attempt        Int              @default(1)
-  /// True for the result reported to the customer.
+  /// True for the result reported to the customer: the latest one entered for the sample test.
   is_reported    Boolean          @default(false)
-  /// Measured value, in unit_id; empty for a text result.
+  /// Measured value, in unit_id, stored exactly; 0 for a text result, whose text is the result.
   value          Decimal? @db.Decimal
-  /// Decimals the value shows, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
+  /// Decimals the value shows, between 0 and 15, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
   value_decimals Int?
   /// Result as text when it is not a number, such as "Not detected", in each language.
   value_text     Json?
@@ -843,9 +843,13 @@ model TestResult {
   unit_id        Int?
   /// The unit of limit_min and limit_max, copied from the sample's regulation.
   limit_unit_id  Int?
-  /// Lowest allowed value, copied from the sample's regulation when the result is created.
+  /// True when the copied limit has a minimum, which may be 0.
+  limit_min_set  Boolean          @default(false)
+  /// Lowest allowed value, copied from the sample's regulation when the result is created. Meaningful when limit_min_set is set.
   limit_min      Decimal? @db.Decimal
-  /// Highest allowed value, copied from the sample's regulation when the result is created.
+  /// True when the copied limit has a maximum, which may be 0.
+  limit_max_set  Boolean          @default(false)
+  /// Highest allowed value, copied from the sample's regulation when the result is created. Meaningful when limit_max_set is set.
   limit_max      Decimal? @db.Decimal
   /// Limit as text, copied from the sample's regulation, in each language.
   limit_text     Json?
@@ -859,6 +863,10 @@ model TestResult {
   started_at     DateTime?
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
+  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
+  status         String           @default("none") @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn.
+  document_version Int            @default(1)
   /// Version of the result, 1 for the first and one higher for each version a change request creates.
   version        Int              @default(1)
   /// The version this row replaces; empty for version 1.
@@ -881,6 +889,8 @@ model TestResult {
   replaced_by    TestResult?      @relation("ResultVersions")
 
   @@unique([sample_test_id, attempt, version])
+  @@index([sample_test_id])
+  @@index([status])
   @@map("medilab_test_result")
 }
 

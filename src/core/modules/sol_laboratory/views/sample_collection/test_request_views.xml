@@ -91,6 +91,17 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Cancelled Tests" name="cancelled_tests" invisible="not cancelled_test_ids">
+                            <field name="cancelled_test_ids">
+                                <list>
+                                    <field name="sample_id" />
+                                    <field name="parameter_id" />
+                                    <field name="cancel_reason" />
+                                    <field name="cancelled_by_id" />
+                                    <field name="cancelled_at" />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Note" name="note">
                             <field name="note" />
                         </page>

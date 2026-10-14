@@ -37,6 +37,18 @@ COLLECTION_START_HOUR = 9
 COLLECTION_END_HOUR = 10
 
 
+def _progress(statuses, sent, done):
+    """The status of a sample or request whose parts have the statuses, given the part status that waits for approval
+    and the one that is approved; None leaves it as it is."""
+    if statuses and all(status == done for status in statuses):
+        return "completed"
+    if statuses and all(status in (sent, done) for status in statuses):
+        return "awaiting_approval"
+    if any(status in ("testing", sent, done) for status in statuses):
+        return "testing"
+    return None
+
+
 # Mẫu
 class Sample(models.Model):
     _name = MODEL_SAMPLE
@@ -161,6 +173,20 @@ class Sample(models.Model):
     def _cancel(self):
         self.filtered(lambda sample: sample.status in CANCELLABLE_STATUSES).status = "cancelled"
         self.test_ids._cancel()
+
+    def _follow_tests(self):
+        """Move the samples, then their test requests, along with their tests. Cancelled tests and samples, and
+        rejected samples, do not count."""
+        for sample in self.filtered(lambda sample: sample.status in ("received", "testing", "awaiting_approval")):
+            tests = sample.test_ids.filtered(lambda test: test.status != "cancelled")
+            status = _progress(tests.mapped("status"), "result_entered", "approved")
+            if status and status != sample.status:
+                sample.status = status
+        for request in self.request_id:
+            samples = request.sample_ids.filtered(lambda sample: sample.status not in ("cancelled", "rejected"))
+            status = _progress(samples.mapped("status"), "awaiting_approval", "completed")
+            if status in request._next_statuses():
+                request._set_status(status)
 
     def _in_use_domain(self):
         return Domain("status", "not in", FINISHED_STATUSES)

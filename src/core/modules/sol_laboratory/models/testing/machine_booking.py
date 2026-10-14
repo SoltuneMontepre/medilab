@@ -176,6 +176,7 @@ class MachineBooking(models.Model):
         if any(booking.status != "scheduled" for booking in self):
             raise UserError(self.env._("Only a scheduled booking can be started."))
         self._set({"status": "in_progress"})
+        self.sample_test_id._start()
 
     def action_done(self):
         self._check_adjustable()

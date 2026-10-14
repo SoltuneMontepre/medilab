@@ -55,7 +55,10 @@
         "views/notifications/notification_views.xml",
         "views/testing/machine_booking_views.xml",
         "views/testing/res_config_settings_views.xml",
+        "views/testing/sample_test_cancel_views.xml",
         "views/testing/sample_test_views.xml",
+        "views/testing/test_result_reject_views.xml",
+        "views/testing/test_result_views.xml",
         "views/system/menus.xml",
     ],
     "assets": {

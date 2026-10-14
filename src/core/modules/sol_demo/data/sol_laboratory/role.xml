@@ -111,6 +111,10 @@
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_sample_handover_read_own_department'),
                 ref('sol_laboratory.permission_sample_handover_edit_own_department'),
+                ref('sol_laboratory.permission_test_result_read_all'),
+                ref('sol_laboratory.permission_test_result_create_all'),
+                ref('sol_laboratory.permission_test_result_edit_all'),
+                ref('sol_laboratory.permission_test_result_sign_all'),
             ])]"
         />
     </record>
@@ -125,8 +129,13 @@
                 ref('sol_laboratory.permission_sample_read_all'),
                 ref('sol_laboratory.permission_sample_edit_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
+                ref('sol_laboratory.permission_sample_test_edit_all'),
                 ref('sol_laboratory.permission_sample_handover_read_own_department'),
                 ref('sol_laboratory.permission_sample_handover_edit_own_department'),
+                ref('sol_laboratory.permission_test_result_read_all'),
+                ref('sol_laboratory.permission_test_result_create_all'),
+                ref('sol_laboratory.permission_test_result_edit_all'),
+                ref('sol_laboratory.permission_test_result_sign_all'),
                 ref('sol_laboratory.permission_task_read_own_department'),
                 ref('sol_laboratory.permission_task_create_own_department'),
                 ref('sol_laboratory.permission_task_edit_own_department'),
@@ -148,6 +157,7 @@
                 ref('sol_laboratory.permission_test_request_read_all'),
                 ref('sol_laboratory.permission_sample_read_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
+                ref('sol_laboratory.permission_test_result_read_all'),
             ])]"
         />
     </record>

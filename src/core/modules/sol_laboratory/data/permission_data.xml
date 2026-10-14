@@ -278,6 +278,26 @@
         <field name="document_model">medilab.sample.test</field>
         <field name="action">edit</field>
     </record>
+    <record id="permission_test_result_read_all" model="medilab.permission">
+        <field name="name">Read test results</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_test_result_create_all" model="medilab.permission">
+        <field name="name">Create test results</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_test_result_edit_all" model="medilab.permission">
+        <field name="name">Edit test results</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_test_result_sign_all" model="medilab.permission">
+        <field name="name">Sign test results</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="action">sign</field>
+    </record>
     <record id="permission_task_type_edit_all" model="medilab.permission">
         <field name="name">Edit task types</field>
         <field name="document_model">medilab.task.type</field>

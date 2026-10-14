@@ -26,6 +26,7 @@
             sequence="31"
             groups="group_permission_customer_edit_all"
         />
+        <menuitem id="menu_test_result" action="action_medilab_test_result" sequence="38" />
         <menuitem id="menu_machine_booking" action="action_medilab_machine_booking" sequence="40" />
         <menuitem
             id="menu_outsourcing_suggestion"

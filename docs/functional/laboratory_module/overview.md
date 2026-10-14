@@ -51,6 +51,7 @@ stateDiagram-v2
     testing --> awaiting_approval: every sample test has a result entered
     awaiting_approval --> testing: a result is rejected
     awaiting_approval --> completed: every result approved
+    testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued
     draft --> cancelled
     confirmed --> cancelled
@@ -74,6 +75,7 @@ stateDiagram-v2
     testing --> awaiting_approval: every sample test has a result entered
     awaiting_approval --> testing: a result is rejected
     awaiting_approval --> completed: every result approved
+    testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued
     reported --> retained: kept after testing
     reported --> disposed: not kept
@@ -93,9 +95,10 @@ stateDiagram-v2
     waiting --> outsourced: sent to a subcontractor
     assigned --> outsourced: sent to a subcontractor
     assigned --> testing: test started
+    waiting --> testing: test started before it is assigned
     testing --> result_entered: result entered and sent for approval
     outsourced --> result_entered: subcontractor result entered
-    result_entered --> testing: result rejected
+    result_entered --> testing: result rejected or withdrawn
     result_entered --> approved: result approved
     waiting --> cancelled
     assigned --> cancelled
@@ -120,15 +123,17 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                                       |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Attempts        | Every measurement of a sample test is its own result. Retests add a result; earlier results are kept. One result per sample test is the reported one. |
+| Attempts        | Every measurement of a sample test is its own result. Retests add a result; earlier results are kept. One result per sample test is the reported one: the latest entered, and only it is sent for approval. A new result can be entered for a received sample while the test waits, is assigned or is in testing, not while its reported result waits for approval. |
 | Value           | A result is a number in the unit of the way of testing, shown with the number of decimals its way of testing sets, or a text such as "Not detected". Numbers are stored exactly, never rounded by floating point. |
 | Limit copy      | When a result is created, the limit of the sample's regulation for its parameter is copied onto it with its unit. Later changes to the regulation do not change existing results. |
 | Versions        | A change request on a result whose process is completed creates a new version that replaces it. The signed version stays unchanged and is marked as replaced. |
-| Measurement     | A result records the machine it ran on and when it started, both taken from its booking and correctable by the lab QA; an outsourced result has no machine. The time the result is entered is when the measurement is done. |
+| Measurement     | A result records the machine it ran on and when it started, both taken from its booking and correctable by the lab QA; an outsourced result has no machine. The time the result is entered is when the measurement is done: the test's scheduled or running bookings are done, and a booking still waiting in the queue is cancelled. |
 | Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA. |
 | Conclusion      | The tester sets each result's conclusion, pass or fail, when the sample has a regulation.                                         |
-| No self-approval | The person who entered a result cannot approve it; another person who signs that level must. |
-| Cancelling      | The head of department can cancel a sample test of their department that has no approved result, with a reason, such as the parameter cannot be tested on the sample. Its task and bookings are cancelled. A cancelled test is left out of the report; its reason stays on the test request. |
+| No self-approval | The person who entered a result cannot approve it; another person who signs that level must. Signing the first level of a chain with more than one level sends the result; any other signature approves it. |
+| Final decision  | The tester can withdraw a result they sent until the head of department acts. The head's approval or rejection completes the result's process, so neither can be withdrawn: a rejected result stays on record and a retest adds a new one. Rejecting tells the person who entered the result the reason. |
+| Progress        | Entering the first result, or starting a booking, starts the test, its sample and its test request. A sample waits for approval once each of its remaining tests has its reported result sent, and is completed once each is approved; its test request follows its samples the same way. Cancelled tests, and cancelled or rejected samples, do not count. |
+| Cancelling      | The head of department can cancel a sample test of their department that has no approved result, with a reason, such as the parameter cannot be tested on the sample: a person of the department of the test's testing task who may edit sample tests. Only a waiting, assigned or testing test can be cancelled. Its task and bookings, running ones included, are cancelled. A cancelled test is left out of the report; its reason stays on the test request. |
 | No deletion     | A result cannot be deleted, and neither can the sample test, sample or test request it belongs to. |
 
 ## Reports and change requests

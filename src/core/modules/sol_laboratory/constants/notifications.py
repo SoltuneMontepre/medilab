@@ -7,6 +7,7 @@ CHANNELS = (CHANNEL_POPUP, CHANNEL_EMAIL, CHANNEL_PUSH)
 EVENT_TASK_REMINDER = "task.reminder"
 EVENT_SAMPLE_INSUFFICIENT = "sample.insufficient"
 EVENT_HANDOVER_RECORD_SIGNED = "handover_record.signed"
+EVENT_TEST_RESULT_REJECTED = "test_result.rejected"
 # Brevo's create-webhook auth.type bearer. The token is compared, never stored.
 BREVO_WEBHOOK_TOKEN = "BREVO_WEBHOOK_TOKEN"
 BREVO_SMTP_HOST = "BREVO_SMTP_HOST"

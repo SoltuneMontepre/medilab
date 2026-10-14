@@ -539,16 +539,19 @@ msgstr "Áp dụng ngay"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_reject
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_reject
 msgid "Approval Can Reject"
 msgstr "Có Thể Từ Chối"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_sign
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_sign
 msgid "Approval Can Sign"
 msgstr "Có Thể Ký"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_withdraw
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_withdraw
 msgid "Approval Can Withdraw"
 msgstr "Có Thể Rút Lại"
 
@@ -575,6 +578,7 @@ msgstr "Phê duyệt bằng chữ ký"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__approved
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__approved
 msgid "Approved"
 msgstr "Đã duyệt"
 
@@ -684,6 +688,7 @@ msgid "Archive ways of testing of their department"
 msgstr "Lưu trữ cách thử của phòng ban mình"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_approval_chain_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_chemical_form
@@ -714,7 +719,6 @@ msgstr "Lưu trữ cách thử của phòng ban mình"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
 msgid "Archived"
 msgstr "Đã lưu trữ"
 
@@ -849,6 +853,8 @@ msgstr "Ảnh đại diện 512"
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__awaiting_approval
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__awaiting_approval
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__requested
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 msgid "Awaiting Approval"
 msgstr "Chờ duyệt"
 
@@ -1074,6 +1080,8 @@ msgid "Choose the role whose holders receive tasks of %s."
 msgstr "Chọn vai trò mà người giữ vai trò đó nhận nhiệm vụ của %s."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__city
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__city
 msgid "City"
@@ -1490,6 +1498,7 @@ msgstr "Tạo cách thử của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_uid
@@ -1499,6 +1508,8 @@ msgstr "Tạo cách thử của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_uid
@@ -1535,6 +1546,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__create_date
@@ -1544,6 +1556,8 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__create_date
@@ -1629,6 +1643,10 @@ msgstr "Tên mẫu của khách hàng"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_customer
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__customer_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__customer_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__customer_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__customer_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_customer
 msgid "Customers"
 msgstr "Khách Hàng"
@@ -1698,6 +1716,7 @@ msgstr "Hạn chót: %s"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__decimals
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_decimals
 msgid "Decimals"
 msgstr "Số chữ số thập phân"
 
@@ -1865,12 +1884,12 @@ msgstr "Ghi chú gửi phiếu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__department_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__department_id
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "Department"
 msgstr "Phòng Ban"
 
@@ -1933,7 +1952,9 @@ msgstr "Cấp dưới trực tiếp"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_scan_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_cancel_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_reassign_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 msgid "Discard"
 msgstr "Hủy"
 
@@ -1961,6 +1982,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_access__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__display_name
@@ -1975,6 +1997,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_contact_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__display_name
@@ -2002,6 +2025,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__display_name
@@ -2011,11 +2035,14 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2056,6 +2083,7 @@ msgstr "Loại Chứng Từ"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__document_version
 msgid "Document Version"
 msgstr "Phiên Bản Chứng Từ"
 
@@ -2089,6 +2117,7 @@ msgstr "Số nhà"
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record__status__draft
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__draft
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__none
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_search
 msgid "Draft"
 msgstr "Nháp"
@@ -2799,6 +2828,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_access__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_act_window_view__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_attachment__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_mail_server__id
@@ -2813,6 +2843,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_code_mixin__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_contact_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__id
@@ -2840,6 +2871,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__id
@@ -2849,11 +2881,14 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users__id
 msgid "ID"
 msgstr "ID"
 
@@ -3350,6 +3385,7 @@ msgstr "Lượt Chạy Theo Lịch Cuối"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_uid
@@ -3359,6 +3395,8 @@ msgstr "Lượt Chạy Theo Lịch Cuối"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_uid
@@ -3395,6 +3433,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_scan__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__write_date
@@ -3404,6 +3443,8 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__write_date
@@ -3494,6 +3535,7 @@ msgstr "Kinh độ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__machine_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__machine_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__machine_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Machine"
@@ -3593,6 +3635,7 @@ msgstr "Số Lần Thử Tối Đa"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__max_value
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_max
 msgid "Maximum"
 msgstr "Tối đa"
 
@@ -3662,6 +3705,7 @@ msgstr "Tin nhắn"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__min_value
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_min
 msgid "Minimum"
 msgstr "Tối thiểu"
 
@@ -4074,6 +4118,7 @@ msgstr "Đã thanh toán"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__parameter_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__parameter_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__parameter_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__parameter_id
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -4769,6 +4814,8 @@ msgid "Person responsible for validating the employee's contracts."
 msgstr "Người chịu trách nhiệm xác thực hợp đồng của nhân viên."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__phone
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__phone
@@ -5050,8 +5097,10 @@ msgid "Read test requests"
 msgstr "Xem yêu cầu thử nghiệm"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__reason
 msgid "Reason"
 msgstr "Lý do"
 
@@ -5087,6 +5136,8 @@ msgstr "Số chứng nhận"
 #: model:ir.model,name:sol_laboratory.model_medilab_regulation
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__regulation_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__regulation_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__regulation_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 msgid "Regulation"
 msgstr "Quy Chuẩn"
 
@@ -5104,7 +5155,9 @@ msgstr "Quy Chuẩn"
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__rejected
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__rejected
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__rejected
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 msgid "Rejected"
 msgstr "Từ chối"
 
@@ -5361,6 +5414,7 @@ msgstr "Cùng Phòng Ban"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__sample_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__sample_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__sample_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 msgid "Sample"
 msgstr "Mẫu"
@@ -5383,7 +5437,10 @@ msgstr "Đã nhận mẫu"
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_sample_test
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__sample_test_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__sample_test_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__sample_test_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 msgid "Sample Test"
 msgstr "Chỉ Tiêu Của Mẫu"
 
@@ -5640,6 +5697,7 @@ msgstr "Bắt đầu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__started_at
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__started_at
 msgid "Started At"
 msgstr "Bắt Đầu Lúc"
 
@@ -5667,12 +5725,14 @@ msgstr "Thống kê"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -6445,6 +6505,7 @@ msgstr "Đang sửa chữa"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__unit_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__unit_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__unit_id
 msgid "Unit"
 msgstr "Đơn vị"
 
@@ -6481,6 +6542,7 @@ msgid "Used to log into the system"
 msgstr "Dùng để đăng nhập vào hệ thống"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_res_users
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_id
@@ -8615,6 +8677,9 @@ msgstr "Hãy hủy lịch đặt máy thay vì xóa thời gian bắt đầu."
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/customer.py:0
 
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
 msgid "Address"
 msgstr "Địa chỉ"
 
@@ -8747,3 +8812,320 @@ msgstr "Số căn cước công dân của bạn đã được đăng ký."
 #: model:ir.model,name:sol_laboratory.model_ir_access
 msgid "Access"
 msgstr "Quyền truy cập"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "A result is entered only for a received sample while %s is waiting, assigned or in testing."
+msgstr "Chỉ nhập kết quả cho mẫu đã nhận khi %s đang chờ, đã phân công hoặc đang thử nghiệm."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_replaces_unique
+msgid "A result is replaced by one newer version."
+msgstr "Một kết quả chỉ được thay bằng một phiên bản mới hơn."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_one_reported
+msgid "A sample test has one reported result."
+msgstr "Một chỉ tiêu của mẫu chỉ có một kết quả báo cáo."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_attempt_unique
+msgid "A sample test has one result per attempt and version."
+msgstr "Mỗi lần thử và phiên bản của một chỉ tiêu của mẫu chỉ có một kết quả."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_test_result_rejected
+msgid "A test result you entered was rejected"
+msgstr "Một kết quả thử nghiệm bạn nhập đã bị từ chối"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Approve"
+msgstr "Phê duyệt"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__attempt
+msgid "Attempt"
+msgstr "Lần thử"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__cancel_reason
+msgid "Cancel Reason"
+msgstr "Lý do hủy"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_cancel_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Cancel Test"
+msgstr "Hủy chỉ tiêu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_sample_test_cancel
+msgid "Cancel a Sample Test"
+msgstr "Hủy Chỉ Tiêu Của Mẫu"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample_test_cancel
+msgid "Cancel the Test"
+msgstr "Hủy chỉ tiêu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Cancellation"
+msgstr "Thông tin hủy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__cancelled_at
+msgid "Cancelled At"
+msgstr "Thời điểm hủy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__cancelled_by_id
+msgid "Cancelled By"
+msgstr "Người hủy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__cancelled_test_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+msgid "Cancelled Tests"
+msgstr "Chỉ tiêu đã hủy"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__conclusion
+msgid "Conclusion"
+msgstr "Kết luận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_result_create_all
+msgid "Create test results"
+msgstr "Tạo kết quả thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_result_edit_all
+msgid "Edit test results"
+msgstr "Sửa kết quả thử nghiệm"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Enter Result"
+msgstr "Nhập kết quả"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__entered_at
+msgid "Entered At"
+msgstr "Thời điểm nhập"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__entered_by_id
+msgid "Entered By"
+msgstr "Người nhập"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
+msgid "Entered by Me"
+msgstr "Tôi đã nhập"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__conclusion__fail
+msgid "Fail"
+msgstr "Không đạt"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Give a reason for cancelling the test."
+msgstr "Nhập lý do hủy chỉ tiêu."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__is_replaced
+msgid "Is Replaced"
+msgstr "Đã bị thay thế"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_text
+msgid "Limit"
+msgstr "Giới hạn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_max_set
+msgid "Limit Max Set"
+msgstr "Có giới hạn tối đa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_min_set
+msgid "Limit Min Set"
+msgstr "Có giới hạn tối thiểu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_unit_id
+msgid "Limit Unit"
+msgstr "Đơn vị giới hạn"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only a waiting, assigned or testing sample test can be cancelled: %s"
+msgstr "Chỉ hủy được chỉ tiêu của mẫu đang chờ, đã phân công hoặc đang thử nghiệm: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only the department testing %s can cancel it."
+msgstr "Chỉ phòng ban đang thử nghiệm %s mới hủy được chỉ tiêu này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "Only the reported result of a sample test is sent for approval."
+msgstr "Chỉ kết quả báo cáo của chỉ tiêu của mẫu mới được gửi duyệt."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__conclusion__pass
+msgid "Pass"
+msgstr "Đạt"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_result_create_all
+msgid "Permission: test.result.create.all"
+msgstr "Quyền: test.result.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_result_edit_all
+msgid "Permission: test.result.edit.all"
+msgstr "Quyền: test.result.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_result_read_all
+msgid "Permission: test.result.read.all"
+msgstr "Quyền: test.result.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_test_result_sign_all
+msgid "Permission: test.result.sign.all"
+msgstr "Quyền: test.result.sign.all"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_result_read_all
+msgid "Read test results"
+msgstr "Xem kết quả thử nghiệm"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
+msgid "Reject"
+msgstr "Từ chối"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_test_result_reject
+msgid "Reject a Test Result"
+msgstr "Từ Chối Kết Quả Thử Nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_test_result_reject
+msgid "Reject the Result"
+msgstr "Từ chối kết quả"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__replaces_id
+msgid "Replaces"
+msgstr "Thay cho"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__is_reported
+msgid "Reported Result"
+msgstr "Kết quả báo cáo"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_display
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__result_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Result"
+msgstr "Kết quả"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "Result %(result)s was rejected: %(reason)s"
+msgstr "Kết quả %(result)s bị từ chối: %(reason)s"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__result_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Results"
+msgstr "Kết quả"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Send for Approval"
+msgstr "Gửi duyệt"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "Set the conclusion against the regulation before sending the result."
+msgstr "Chọn kết luận theo quy chuẩn trước khi gửi kết quả."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_test_result_sign_all
+msgid "Sign test results"
+msgstr "Ký kết quả thử nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_test_result
+msgid "Test Result"
+msgstr "Kết Quả Thử Nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_test_result
+#: model:ir.ui.menu,name:sol_laboratory.menu_test_result
+msgid "Test Results"
+msgstr "Kết Quả Thử Nghiệm"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_test_result_rejected
+msgid "Test result rejected"
+msgstr "Kết quả thử nghiệm bị từ chối"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value_text
+msgid "Text Result"
+msgstr "Kết quả dạng chữ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__value
+msgid "Value"
+msgstr "Giá trị"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__version
+msgid "Version"
+msgstr "Phiên bản"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Withdraw Signature"
+msgstr "Rút chữ ký"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "You entered this result, so another person must approve it."
+msgstr "Bạn đã nhập kết quả này nên người khác phải phê duyệt."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_test_result_decimals_range
+msgid "A result shows between 0 and 15 decimals."
+msgstr "Kết quả hiển thị từ 0 đến 15 chữ số thập phân."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "Only a result of a sample test in testing is sent for approval."
+msgstr "Chỉ gửi duyệt kết quả của chỉ tiêu của mẫu đang thử nghiệm."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid "The system sets the sample test, attempt, entry and status of a result."
+msgstr "Hệ thống tự đặt chỉ tiêu của mẫu, lần thử, thông tin nhập và trạng thái của kết quả."

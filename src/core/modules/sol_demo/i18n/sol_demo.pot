@@ -340,6 +340,10 @@ msgid "Surface water"
 msgstr ""
 
 #. module: sol_demo
+msgid "Test result signing"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_tester
 msgid "Tester"
 msgstr ""

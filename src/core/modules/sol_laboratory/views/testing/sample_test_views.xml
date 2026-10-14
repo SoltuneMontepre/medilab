@@ -13,6 +13,23 @@
                         class="btn-primary"
                         invisible="not recommended_machine_id"
                     />
+                    <button
+                        name="action_enter_result"
+                        type="object"
+                        string="Enter Result"
+                        class="btn-primary"
+                        invisible="status not in ('waiting', 'assigned', 'testing')"
+                        groups="sol_laboratory.group_permission_test_result_create_all"
+                    />
+                    <button
+                        name="%(action_medilab_sample_test_cancel)d"
+                        type="action"
+                        string="Cancel Test"
+                        class="btn-danger"
+                        context="{'default_sample_test_id': id}"
+                        invisible="status not in ('waiting', 'assigned', 'testing')"
+                        groups="sol_laboratory.group_permission_sample_test_edit_all"
+                    />
                     <field name="status" widget="statusbar" />
                 </header>
                 <sheet>
@@ -41,8 +58,37 @@
                             <field name="outsourcing_suggested" invisible="1" />
                             <field name="subcontracted_method_ids" widget="many2many_tags" />
                         </group>
+                        <group string="Cancellation" invisible="not cancel_reason">
+                            <field name="cancel_reason" />
+                            <field name="cancelled_by_id" />
+                            <field name="cancelled_at" />
+                        </group>
                     </group>
                     <notebook>
+                        <page
+                            string="Results"
+                            name="results"
+                            groups="sol_laboratory.group_permission_test_result_read_all"
+                        >
+                            <field name="result_ids" readonly="1">
+                                <list decoration-muted="not is_reported">
+                                    <field name="attempt" />
+                                    <field name="value_display" />
+                                    <field name="unit_id" />
+                                    <field name="conclusion" />
+                                    <field name="is_reported" />
+                                    <field name="entered_by_id" />
+                                    <field name="entered_at" />
+                                    <field
+                                        name="status"
+                                        widget="badge"
+                                        decoration-warning="status == 'requested'"
+                                        decoration-success="status == 'approved'"
+                                        decoration-danger="status == 'rejected'"
+                                    />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Bookings" name="bookings">
                             <field name="booking_ids" readonly="1">
                                 <list decoration-muted="status in ('done', 'cancelled')">

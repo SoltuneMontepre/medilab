@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CUSTOMER,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE,
+    MODEL_SAMPLE_TEST,
     MODEL_TEST_REQUEST,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import SAMPLE_LABEL_REPORT
@@ -18,7 +19,7 @@ TRANSITIONS = {
     "confirmed": ("paid", "sample_received", "cancelled"),
     "paid": ("sample_received", "cancelled"),
     "sample_received": ("testing", "cancelled"),
-    "testing": ("awaiting_approval", "cancelled"),
+    "testing": ("awaiting_approval", "completed", "cancelled"),
     "awaiting_approval": ("testing", "completed"),
     "completed": ("reported",),
     "reported": (),
@@ -82,8 +83,17 @@ class TestRequest(models.Model):
     note = fields.Text()
     # Samples of the request.
     sample_ids = fields.One2many(MODEL_SAMPLE, "request_id", string="Samples")
+    # Sample tests the laboratory cancelled with a reason; the report leaves them out.
+    cancelled_test_ids = fields.Many2many(
+        MODEL_SAMPLE_TEST, string="Cancelled Tests", compute="_compute_cancelled_test_ids"
+    )
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a test request must be unique.")
+
+    @api.depends("sample_ids.test_ids.cancel_reason")
+    def _compute_cancelled_test_ids(self):
+        for request in self:
+            request.cancelled_test_ids = request.sample_ids.test_ids.filtered("cancel_reason")
 
     def action_confirm(self):
         self._set_status("confirmed")

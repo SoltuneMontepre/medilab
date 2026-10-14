@@ -16,9 +16,11 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TEST_PARAMETER,
+    MODEL_TEST_RESULT,
 )
 
-CANCELLABLE_STATUSES = ("waiting", "assigned", "testing")
+# The statuses of a test still open for work: it can be measured, scheduled or cancelled.
+OPEN_STATUSES = ("waiting", "assigned", "testing")
 # The action of the testing task a received sample creates for each of its tests.
 TESTING_ACTION = "test"
 FINISHED_STATUSES = ("approved", "cancelled")
@@ -73,6 +75,16 @@ class SampleTest(models.Model):
     outsourcing_suggested = fields.Boolean(readonly=True, copy=False, index=True)
     # Machine bookings for the test.
     booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "sample_test_id", string="Bookings")
+    # Results of the test, one per attempt.
+    result_ids = fields.One2many(MODEL_TEST_RESULT, "sample_test_id", string="Results")
+    # Why the test was cancelled, such as the parameter cannot be tested on this sample.
+    cancel_reason = fields.Text(readonly=True, copy=False)
+    # Head of department who cancelled the test.
+    cancelled_by_id = fields.Many2one(
+        MODEL_PERSON, string="Cancelled By", readonly=True, copy=False, ondelete="restrict"
+    )
+    # When the test was cancelled.
+    cancelled_at = fields.Datetime(readonly=True, copy=False)
     # True when the due date is within the urgency threshold.
     is_urgent = fields.Boolean(string="Urgent", compute="_compute_is_urgent")
     # The parameter's subcontracted ways of testing, through which an outsourcing suggestion sends the test.
@@ -116,9 +128,9 @@ class SampleTest(models.Model):
     def _compute_recommendation(self):
         bookings = self.env[MODEL_MACHINE_BOOKING]
         for test in self:
-            task = test._testing_task()
             found = None
-            if task.assignee_id and not test.sudo().booking_ids._open():
+            task = test._testing_task() if test.status in OPEN_STATUSES else None
+            if task and task.assignee_id and not test.sudo().booking_ids._open():
                 found = bookings._recommend(test, task.assignee_id, task.department_id)
             way, machine, start, length = found or (False, False, False, False)
             test.recommended_method_id = way
@@ -156,13 +168,55 @@ class SampleTest(models.Model):
             )
         self.env[MODEL_MACHINE_BOOKING]._process_queue()
 
+    def action_enter_result(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": MODEL_TEST_RESULT,
+            "views": [(False, "form")],
+            "context": {"default_sample_test_id": self.id},
+        }
+
+    def action_cancel(self, reason):
+        """The department doing the tests cancels them with a reason; the report leaves them out."""
+        if not (reason or "").strip():
+            raise UserError(self.env._("Give a reason for cancelling the test."))
+        self._check_permission("edit")
+        person = self.env[MODEL_PERSON]._current()
+        for test in self:
+            if test.status not in OPEN_STATUSES:
+                raise UserError(
+                    self.env._(
+                        "Only a waiting, assigned or testing sample test can be cancelled: %s", test.display_name
+                    )
+                )
+            department = test._testing_task().department_id
+            if not person or not department or department != person.department_id:
+                raise UserError(self.env._("Only the department testing %s can cancel it.", test.display_name))
+        tests = self.sudo()
+        tests.write({"cancel_reason": reason, "cancelled_by_id": person.id, "cancelled_at": fields.Datetime.now()})
+        tests._cancel()
+
     def _cancel(self):
-        tests = self.filtered(lambda test: test.status in CANCELLABLE_STATUSES)
+        tests = self.filtered(lambda test: test.status in OPEN_STATUSES)
         tests.status = "cancelled"
-        bookings = tests.sudo().booking_ids.filtered(lambda booking: booking.status in ("queued", "scheduled"))
+        self.env[MODEL_TASK]._cancel_for_document(tests, TESTING_ACTION)
+        bookings = tests.sudo().booking_ids._open()
         if bookings:
             bookings._set({"status": "cancelled"})
             bookings._process_queue()
+        tests.sample_id._follow_tests()
+
+    def _start(self):
+        """The first measurement starts the test, and with it its sample and test request."""
+        self.sudo().filtered(lambda test: test.status in ("waiting", "assigned"))._progress("testing")
+
+    def _progress(self, status):
+        tests = self.sudo()
+        tests.status = status
+        if status == "approved":
+            self.env[MODEL_TASK]._close_for_document(tests, TESTING_ACTION)
+        tests.sample_id._follow_tests()
 
     def _in_use_domain(self):
         return Domain("status", "not in", FINISHED_STATUSES)
