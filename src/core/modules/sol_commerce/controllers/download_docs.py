@@ -3,7 +3,7 @@ from odoo import http
 from odoo.addons.account.controllers.download_docs import AccountDocumentDownloadController
 
 
-class InvoiceDocumentDownload(AccountDocumentDownloadController):
+class MedilabDownloadDocs(AccountDocumentDownloadController):
     @http.route()
     def download_invoice_attachments(self, attachments):
         response = super().download_invoice_attachments(attachments)

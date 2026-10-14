@@ -7,7 +7,7 @@ from odoo.fields import Domain
 from odoo.tools import format_date, format_datetime
 from odoo.tools.binary import BinaryBytes
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_REPORT
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_AUDIT_REPORT, MODEL_RES_USERS
 from odoo.addons.sol_laboratory.constants.xml_ids import AUDIT_REPORT_ACTION
 
 FILTER_FIELDS = ("document_model", "action", "source")
@@ -31,7 +31,7 @@ class AuditReport(models.TransientModel):
     # Only entries on documents whose name contains this text, when set.
     document_name = fields.Char(string="Document")
     # Only entries of this user, when set.
-    user_id = fields.Many2one("res.users")
+    user_id = fields.Many2one(MODEL_RES_USERS)
     # Only entries of this action, when set.
     action = fields.Selection(selection="_selection_action")
     # Only entries from this source, when set.

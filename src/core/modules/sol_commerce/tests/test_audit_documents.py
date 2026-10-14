@@ -2,13 +2,15 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .order_case import OrderCase
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 
 @tagged("post_install", "-at_install")
 class TestAuditDocuments(AuditLookup, OrderCase):
     def test_every_commerce_document_is_audited(self):
-        self.assertFalse(self.unaudited_documents("sol_commerce"))
+        # The trail itself, which E-commerce extends with the route PayOS calls.
+        self.assertEqual(self.unaudited_documents("sol_commerce"), {MODEL_AUDIT_ENTRY})
 
     def test_the_history_of_an_order_includes_its_quotation_sample_and_cancellation(self):
         auditor = self.new_auditor()

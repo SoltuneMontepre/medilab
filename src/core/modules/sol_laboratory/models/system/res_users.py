@@ -1,11 +1,11 @@
 from odoo import api, models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_RES_USERS
 
 
-# Người Dùng
+# Tài Khoản
 class ResUsers(models.Model):
-    _inherit = "res.users"
+    _inherit = MODEL_RES_USERS
 
     @api.model
     def _update_last_login(self):

@@ -41,6 +41,7 @@ Other actions are written by the feature that owns them through `_audit(action, 
 
 - A download is recorded where a printed report or a file is served: the report routes Odoo's print button uses, a PDF opened or downloaded from the portal, an invoice's documents from the portal or Odoo's Download action, a payment receipt, a quotation's stored PDF, and a file downloaded through Odoo's content routes, recorded on the file. A report shown as HTML and a file shown in the browser are pages, not downloads.
 - Emails are recorded on the document of their message when Odoo's mail queue sends them, so every email through Brevo is recorded, whichever feature sent it. Brevo's events are recorded only for emails MediLab sent; an event that matches none of them is not.
+- The webhook routes, `/payment/payos/webhook` and `/medilab/brevo/webhook`, are public, and each refused call writes an error entry that stays until the retention period. They are rate limited in front of Odoo, so refused calls cannot grow the trail without bound.
 - An integration entry is written in the same transaction as the work it is part of. A call whose work is rolled back, such as a job item that fails, leaves no entry; the item's error is recorded when it fails for good.
 
 ### Source and user

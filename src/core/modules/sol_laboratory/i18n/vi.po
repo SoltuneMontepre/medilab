@@ -1424,7 +1424,7 @@ msgstr "Đã xác nhận"
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_res_partner
 msgid "Contact"
-msgstr "Liên hệ"
+msgstr "Liên Hệ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__contact_person_id
@@ -7659,23 +7659,23 @@ msgstr "Dùng để đăng nhập vào hệ thống"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "User"
-msgstr "Tài khoản"
+msgstr "Tài Khoản"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_state
 msgid "User Status"
-msgstr "Trạng thái người dùng"
+msgstr "Trạng thái tài khoản"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_partner_id
 msgid "User's partner"
-msgstr "Đối tác người dùng"
+msgstr "Liên hệ của tài khoản"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__user_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__user_ids
 msgid "Users"
-msgstr "Người dùng"
+msgstr "Tài Khoản"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__valid_from
@@ -8030,7 +8030,7 @@ msgstr "Firebase từ chối mã thông báo: %s"
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_mail_mail
 msgid "Outgoing Mail"
-msgstr "Email gửi đi"
+msgstr "Email Gửi Đi"
 
 #. module: sol_laboratory
 #. odoo-python

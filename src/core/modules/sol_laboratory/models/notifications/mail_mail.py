@@ -3,7 +3,7 @@ from odoo import models
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_MAIL_MAIL
 
 
-# Email
+# Email Gửi Đi
 class MailMail(models.Model):
     _inherit = MODEL_MAIL_MAIL
 

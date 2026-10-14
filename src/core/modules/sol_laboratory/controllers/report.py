@@ -1,6 +1,7 @@
 from odoo import http
 from odoo.http import request
 
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACTIONS_REPORT
 from odoo.addons.web.controllers.report import ReportController
 
 # The converters that make a file. An HTML report is shown in the browser.
@@ -17,6 +18,6 @@ class MedilabReport(ReportController):
     def report_routes(self, reportname, docids=None, converter=None, **data):
         response = super().report_routes(reportname, docids=docids, converter=converter, **data)
         if converter in DOWNLOAD_CONVERTERS and docids:
-            report = request.env["ir.actions.report"]._get_report_from_name(reportname)
+            report = request.env[MODEL_IR_ACTIONS_REPORT]._get_report_from_name(reportname)
             report._audit_download([int(id_) for id_ in docids.split(",") if id_.isdigit()])
         return response

@@ -16,16 +16,9 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 
-# Odoo's external APIs, the session route external applications sign in with, and the routes MediLab serves to other
-# systems: the mobile app and the webhooks of Brevo and PayOS.
-API_PATH_PREFIXES = (
-    "/xmlrpc",
-    "/jsonrpc",
-    "/json/",
-    "/web/session/authenticate",
-    "/medilab/",
-    "/payment/payos/webhook",
-)
+# Odoo's external APIs, the session route external applications sign in with, and the routes the Laboratory serves to
+# other systems: the mobile app and the Brevo webhook.
+API_PATH_PREFIXES = ("/xmlrpc", "/jsonrpc", "/json/", "/web/session/authenticate", "/medilab/")
 # Odoo runs a scheduled action with its cron in the context, including crons that are not MediLab jobs.
 CRON_CONTEXT_KEY = "cron_id"
 POSITIVE_SEARCH_OPERATORS = ("in", "like", "ilike", "=like", "=ilike")
@@ -171,9 +164,14 @@ class AuditEntry(models.Model):
             # Odoo's portal reads a customer's documents as the superuser; the person signed in is who acted.
             user = user.browse(request.session.uid)
         return {
-            "source": "api" if self._request_path().startswith(API_PATH_PREFIXES) else "screen",
+            "source": "api" if self._request_path().startswith(self._api_path_prefixes()) else "screen",
             "user_id": user.id if user.id != SUPERUSER_ID and not user._is_public() else False,
         }
+
+    @api.model
+    def _api_path_prefixes(self):
+        """The routes other systems call. A module adds the routes it serves to them, such as its webhooks."""
+        return API_PATH_PREFIXES
 
     @api.model
     def _request_path(self):

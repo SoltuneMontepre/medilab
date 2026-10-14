@@ -3,7 +3,7 @@ from odoo import models
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_IR_BINARY
 
 
-# Serves the files and binary fields of records.
+# Nội Dung Tệp
 class IrBinary(models.AbstractModel):
     _inherit = MODEL_IR_BINARY
 
