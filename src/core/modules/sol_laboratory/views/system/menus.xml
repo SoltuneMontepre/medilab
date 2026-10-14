@@ -16,6 +16,9 @@
         <menuitem id="menu_test_request" action="action_medilab_test_request" sequence="10" />
         <menuitem id="menu_sample" action="action_medilab_sample" sequence="20" />
         <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
+        <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
+            <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
+        </menuitem>
     </menuitem>
 
     <menuitem id="menu_master_data_root" name="Master Data" sequence="20">
@@ -39,6 +42,13 @@
 
     <!-- Departments are Odoo's own menu in the Employees app. -->
     <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
+    <menuitem
+        id="menu_team"
+        action="action_hr_department_team"
+        parent="hr.menu_hr_root"
+        sequence="15"
+        groups="group_permission_department_read_all"
+    />
     <menuitem id="menu_role" action="action_medilab_role" parent="hr.menu_hr_root" sequence="20" />
     <menuitem id="menu_permission" action="action_medilab_permission" parent="hr.menu_hr_root" sequence="30" />
     <menuitem
@@ -69,7 +79,6 @@
             groups="group_permission_job_run_read_all"
         />
     </menuitem>
-    <menuitem id="menu_settings" name="Settings" action="action_medilab_settings" sequence="90" groups="base.group_system" />
     <menuitem
         id="menu_notification_event"
         action="action_medilab_notification_event"
