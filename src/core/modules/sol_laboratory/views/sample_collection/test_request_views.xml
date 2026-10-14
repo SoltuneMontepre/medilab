@@ -102,6 +102,23 @@
                                 </list>
                             </field>
                         </page>
+                        <page
+                            string="Test Reports"
+                            name="reports"
+                            invisible="not report_ids"
+                            groups="sol_laboratory.group_permission_test_report_read_all"
+                        >
+                            <field name="report_ids">
+                                <list>
+                                    <field name="display_name" string="Report Number" />
+                                    <field name="version" />
+                                    <field name="language" />
+                                    <field name="status" />
+                                    <field name="issued_at" />
+                                    <field name="delivered_at" />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Note" name="note">
                             <field name="note" />
                         </page>

@@ -18,6 +18,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_PARAMETER,
     MODEL_TEST_RESULT,
 )
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER
 
 # The statuses of a test still open for work: it can be measured, scheduled or cancelled.
 OPEN_STATUSES = ("waiting", "assigned", "testing")
@@ -141,6 +142,24 @@ class SampleTest(models.Model):
     def _testing_task(self):
         self.ensure_one()
         return self.env[MODEL_TASK]._system_tasks_of(self, TESTING_ACTION)[:1]
+
+    def _open_testing_task(self, department, note=False):
+        """Put a testing task for the test in the queue of the department that does the work."""
+        self.ensure_one()
+        return self.env[MODEL_TASK]._create_for_event(
+            SAMPLE_RECEIVED_TRIGGER,
+            document=self,
+            department=department,
+            deadline=self.due_date,
+            name=f"{self.sample_id.code}: {self.parameter_id.display_name}",
+            note=note,
+        )
+
+    def _tested_by(self):
+        """The department of the test's latest testing task, finished or not."""
+        self.ensure_one()
+        domain = [("document_model", "=", self._name), ("document_id", "=", self.id), ("action", "=", TESTING_ACTION)]
+        return self.env[MODEL_TASK].sudo().search(domain, order="id desc", limit=1).department_id
 
     def action_schedule(self):
         """Queue each test for the machine the scheduler recommends, then give the queue its slots.

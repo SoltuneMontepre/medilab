@@ -22,41 +22,17 @@ def seed_results(env):
     and a rejected result followed by a text retest."""
     if env.ref("sol_demo.demo_test_request_results", raise_if_not_found=False):
         return
-    staff = env.ref("sol_demo.demo_res_users_sample_delivery_staff")
     tester = env.ref("sol_demo.demo_res_users_tester")
     head = env.ref("sol_demo.demo_res_users_head_of_department")
     lead = env.ref("sol_demo.parameter_lead")
     ph = env.ref("sol_demo.parameter_ph")
-    request = env[MODEL_TEST_REQUEST].create(
-        {
-            "customer_id": env.ref("sol_demo.demo_customer_an_phu").id,
-            "expected_date": fields.Date.today() + timedelta(days=7),
-            "sample_ids": [
-                Command.create(
-                    {
-                        "customer_sample_name": name,
-                        "sample_type_id": env.ref("sol_demo.sample_type_bottled_water").id,
-                        "physical_state": "liquid",
-                        "regulation_id": env.ref("sol_demo.regulation_qcvn_6_1").id,
-                        "test_ids": [Command.create({"parameter_id": parameter.id}) for parameter in parameters],
-                    }
-                )
-                for name, parameters in zip(SAMPLE_NAMES, ((lead, ph), (lead, ph), (lead,)), strict=True)
-            ],
-        }
+    request = _received_request(
+        env,
+        env.ref("sol_demo.demo_customer_an_phu"),
+        zip(SAMPLE_NAMES, ((lead, ph), (lead, ph), (lead,)), strict=True),
+        expected_date=fields.Date.today() + timedelta(days=7),
     )
-    request.action_confirm()
     completed, waiting, retested = request.sample_ids.sorted("id")
-    request.sample_ids.with_user(staff).action_receive("2 bottles", "good")
-    env[MODEL_TASK].search(
-        [("document_model", "=", MODEL_SAMPLE_TEST), ("document_id", "in", request.sample_ids.test_ids.ids)]
-    ).with_user(head).write(
-        {
-            "assignee_id": env.ref("sol_demo.demo_person_tester").id,
-            "assigned_by_id": env.ref("sol_demo.demo_person_head_of_department").id,
-            "status": "assigned",
-        }
-    )
 
     for test, value in ((_test(completed, lead), 0.008), (_test(completed, ph), 7.2)):
         result = _enter(env, tester, test, value=value, conclusion="pass")
@@ -79,6 +55,43 @@ def seed_results(env):
             {"xml_id": "sol_demo.demo_test_result_retest", "record": retest, "noupdate": True},
         ]
     )
+
+
+def _received_request(env, customer, samples, **values):
+    """A confirmed request of bottled water samples, given as (name, parameters), received in good condition and
+    whose testing tasks are assigned to the demo tester."""
+    request = env[MODEL_TEST_REQUEST].create(
+        {
+            "customer_id": customer.id,
+            "sample_ids": [
+                Command.create(
+                    {
+                        "customer_sample_name": name,
+                        "sample_type_id": env.ref("sol_demo.sample_type_bottled_water").id,
+                        "physical_state": "liquid",
+                        "regulation_id": env.ref("sol_demo.regulation_qcvn_6_1").id,
+                        "test_ids": [Command.create({"parameter_id": parameter.id}) for parameter in parameters],
+                    }
+                )
+                for name, parameters in samples
+            ],
+            **values,
+        }
+    )
+    request.action_confirm()
+    request.sample_ids.with_user(env.ref("sol_demo.demo_res_users_sample_delivery_staff")).action_receive(
+        "2 bottles", "good"
+    )
+    env[MODEL_TASK].search(
+        [("document_model", "=", MODEL_SAMPLE_TEST), ("document_id", "in", request.sample_ids.test_ids.ids)]
+    ).with_user(env.ref("sol_demo.demo_res_users_head_of_department")).write(
+        {
+            "assignee_id": env.ref("sol_demo.demo_person_tester").id,
+            "assigned_by_id": env.ref("sol_demo.demo_person_head_of_department").id,
+            "status": "assigned",
+        }
+    )
+    return request
 
 
 def _test(sample, parameter):

@@ -1,1 +1,1 @@
-from . import brevo, mobile_device
+from . import brevo, mobile_device, test_report

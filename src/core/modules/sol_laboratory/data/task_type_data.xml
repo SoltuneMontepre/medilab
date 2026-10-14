@@ -30,4 +30,14 @@
         <field name="document_model">medilab.sample</field>
         <field name="action">dispose</field>
     </record>
+    <record id="task_type_report_signing" model="medilab.task.type">
+        <field name="code">report_signing</field>
+        <field name="name">Report signing</field>
+        <field name="trigger">report_drafted</field>
+        <field name="route">role</field>
+        <field name="role_id" ref="role_administrator" />
+        <field name="document_model">medilab.test.report</field>
+        <field name="action">sign</field>
+        <field name="deadline_hours">24</field>
+    </record>
 </odoo>

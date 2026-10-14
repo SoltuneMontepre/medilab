@@ -1,1 +1,10 @@
-from . import machine_booking, res_config_settings, sample_test, sample_test_cancel, test_result, test_result_reject
+from . import (
+    machine_booking,
+    res_config_settings,
+    sample_test,
+    sample_test_cancel,
+    test_report,
+    test_report_reject,
+    test_result,
+    test_result_reject,
+)
