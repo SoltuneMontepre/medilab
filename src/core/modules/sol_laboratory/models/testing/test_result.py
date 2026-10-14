@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import formatLang
 
 from odoo.addons.sol_laboratory.constants.approvals import (
@@ -18,11 +18,14 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_RESULT_REJECTED
+from odoo.addons.sol_laboratory.models.sample_collection.subcontract_dispatch import SENT_STATUSES
 from odoo.addons.sol_laboratory.models.testing.machine_booking import ACTIVE_STATUSES
 from odoo.addons.sol_laboratory.models.testing.sample_test import OPEN_STATUSES
 
 # The statuses of a sample while results can be entered for its tests.
 OPEN_SAMPLE_STATUSES = ("received", "testing")
+# The statuses of a sample test while a result can be entered for it: open, or sent to a subcontractor.
+MEASURABLE_STATUSES = (*OPEN_STATUSES, "outsourced")
 # Fields only the system sets, so the approval chain and who entered the result cannot be bypassed.
 SYSTEM_FIELDS = frozenset(
     {"attempt", "is_reported", "entered_by_id", "entered_at", "status", "version", "replaces_id", "is_replaced"}
@@ -53,6 +56,8 @@ class TestResult(models.Model):
     sample_id = fields.Many2one(related="sample_test_id.sample_id")
     # The parameter measured.
     parameter_id = fields.Many2one(related="sample_test_id.parameter_id")
+    # The subcontractor that tested it; empty when the laboratory tested it in-house.
+    subcontractor_id = fields.Many2one(related="sample_test_id.subcontractor_id")
     # The regulation the sample's results are compared with; empty when none.
     regulation_id = fields.Many2one(related="sample_test_id.sample_id.regulation_id")
     # Attempt number, 1 for the first measurement and higher for retests.
@@ -85,7 +90,7 @@ class TestResult(models.Model):
     limit_max = fields.Float(string="Maximum", compute="_compute_limit", store=True, min_display_digits=1)
     # The limit as text, copied from the sample's regulation, in each language.
     limit_text = fields.Char(string="Limit", compute="_compute_limit", store=True, translate=True)
-    # The Odoo user who entered the result.
+    # The Odoo user who entered the result: a lab QA, or a subcontractor's person for an outsourced test.
     entered_by_id = fields.Many2one(
         "res.users",
         string="Entered By",
@@ -96,7 +101,7 @@ class TestResult(models.Model):
     )
     # When the result was entered, which is when the measurement counts as done.
     entered_at = fields.Datetime(string="Entered At", required=True, readonly=True, default=fields.Datetime.now)
-    # The machine the measurement ran on, taken from the booking and correctable by the tester.
+    # The machine the measurement ran on, taken from the booking and correctable by the tester; empty when outsourced.
     machine_id = fields.Many2one(
         MODEL_MACHINE, compute="_compute_measurement", store=True, readonly=False, ondelete="restrict"
     )
@@ -191,12 +196,19 @@ class TestResult(models.Model):
                 for name in SYSTEM_FIELDS:
                     vals.pop(name, None)
             test = self.env[MODEL_SAMPLE_TEST].browse(vals.get("sample_test_id")).sudo()
-            if test.status not in OPEN_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
+            if test.status not in MEASURABLE_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
                 raise UserError(
                     self.env._(
-                        "A result is entered only for a received sample while %s is waiting, assigned or in testing.",
+                        "A result is entered only for a received sample while %s is waiting, assigned, in testing "
+                        "or outsourced.",
                         test.display_name,
                     )
+                )
+            if test.status == "outsourced" and not test.dispatch_ids.filtered(
+                lambda dispatch: dispatch.status in SENT_STATUSES
+            ):
+                raise UserError(
+                    self.env._("Send %s to its subcontractor before entering its result.", test.display_name)
                 )
             # A retest becomes the reported result; the earlier ones stay on record.
             vals["attempt"] = max(test.result_ids.mapped("attempt"), default=0) + 1
@@ -217,6 +229,12 @@ class TestResult(models.Model):
             measured._process_queue()
         return results
 
+    @api.constrains("machine_id")
+    def _check_machine(self):
+        for result in self:
+            if result.machine_id and result.subcontractor_id:
+                raise ValidationError(self.env._("An outsourced result has no machine: %s", result.display_name))
+
     def write(self, vals):
         moves = "sample_test_id" in vals and any(result.sample_test_id.id != vals["sample_test_id"] for result in self)
         if not self.env.su and (moves or SYSTEM_FIELDS & set(vals)):
@@ -226,8 +244,11 @@ class TestResult(models.Model):
     def action_sign(self):
         self.ensure_one()
         if self.status == STATE_NONE:
-            if self.sudo().sample_test_id.status != "testing":
-                raise UserError(self.env._("Only a result of a sample test in testing is sent for approval."))
+            test = self.sudo().sample_test_id
+            if test.status != test._work_status():
+                raise UserError(
+                    self.env._("Only a result of a sample test in testing or outsourced is sent for approval.")
+                )
             if not self.is_reported:
                 raise UserError(self.env._("Only the reported result of a sample test is sent for approval."))
             if self.regulation_id and not self.conclusion:
@@ -278,7 +299,9 @@ class TestResult(models.Model):
     def _approval_set_state(self, state):
         self.status = state
         if self.is_reported:
-            self.sample_test_id._progress(TEST_STATUS_BY_STATE[state])
+            status = TEST_STATUS_BY_STATE[state]
+            test = self.sample_test_id
+            test._progress(test._work_status() if status == "testing" else status)
 
     def _approval_notify_rejected(self, reason):
         self.ensure_one()

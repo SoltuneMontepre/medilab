@@ -55,6 +55,12 @@
         <field name="partner_id" ref="demo_res_partner_lab_head" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
+    <record id="demo_res_users_subcontractor" model="res.users">
+        <field name="login">demo.subcontractor</field>
+        <field name="tz">Asia/Ho_Chi_Minh</field>
+        <field name="partner_id" ref="partner_northern_testing_contact" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
+    </record>
     <record id="demo_res_users_storekeeper" model="res.users">
         <field name="login">demo.storekeeper</field>
         <field name="tz">Asia/Ho_Chi_Minh</field>

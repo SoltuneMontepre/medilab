@@ -34,6 +34,19 @@
             sequence="45"
             groups="group_permission_machine_booking_read_all,group_permission_machine_booking_read_own_department"
         />
+        <menuitem
+            id="menu_subcontract_dispatch"
+            action="action_medilab_subcontract_dispatch"
+            sequence="46"
+            groups="group_permission_subcontract_dispatch_read_all"
+        />
+        <menuitem
+            id="menu_outsourcing_schedule"
+            action="action_medilab_subcontract_dispatch_schedule"
+            sequence="47"
+            groups="group_permission_subcontract_dispatch_read_all"
+        />
+        <menuitem id="menu_dispatch_to_carry" action="action_medilab_subcontract_dispatch_carry" sequence="48" />
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
             <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
         </menuitem>

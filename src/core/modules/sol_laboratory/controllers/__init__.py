@@ -1,1 +1,1 @@
-from . import brevo, mobile_device
+from . import brevo, dispatch_portal, mobile_device

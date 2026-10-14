@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_TEST,
     MODEL_TASK,
 )
+from odoo.addons.sol_laboratory.models.testing.sample_test import OPEN_STATUSES as OPEN_TEST_STATUSES
 
 SLOT_MINUTES = 15
 ACTIVE_STATUSES = ("scheduled", "in_progress")
@@ -278,7 +279,9 @@ class MachineBooking(models.Model):
                 waiting._set({"status": "cancelled"})
             elif not bookings and task.assignee_id:
                 test = self.env[MODEL_SAMPLE_TEST].sudo().browse(task.document_id)
-                test.outsourcing_suggested = not self._recommend(test, task.assignee_id, task.department_id)
+                # Only an open test can be suggested for outsourcing; an outsourced one has left the machines.
+                if test.status in OPEN_TEST_STATUSES:
+                    test.outsourcing_suggested = not self._recommend(test, task.assignee_id, task.department_id)
             released = released or bool(waiting)
         if released:
             self._process_queue()
