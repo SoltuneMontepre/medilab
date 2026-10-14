@@ -18,6 +18,8 @@ Departments, people, roles and permissions are records administrators maintain. 
 
 A department is Odoo's `hr.department`, extended by the laboratory module. A person is the module's `medilab.person`, which delegates to an Odoo employee (`hr.employee`) with `_inherits`: the person's table holds their team, roles and direct permissions, and the employee their name, user, work contact and department. Roles and permissions are the module's own models.
 
+A team is a department whose parent is its department, and its manager is the team lead. A team has no teams of its own, and a department that has teams cannot become a team. A person's team must be one of the teams of their department; moving the person to another department, also from Odoo's Employees app, leaves their team. Department choices on MediLab records offer departments only, and the team choice on a person offers the teams of their department only. Odoo's Departments screen lists departments and teams together; the Teams screen of the Employees app lists the teams only.
+
 Odoo checks a user's groups transitively: a role group implies its permission groups, so a user holding the role group holds every access of those permissions. An access (Odoo's `ir.access`) gives its group one operation on a model, limited to the records of its domain; menus whose action model the user cannot read are hidden by Odoo. Generated groups have no privilege, so the user form shows them as independent extra rights, which matches permissions adding up.
 
 ### Permission
@@ -37,8 +39,9 @@ A permission is one action on one document type within one scope. Its code is de
 | ---------------- | ------------------------------------------------------------------------------------------- |
 | `all`            | every record: `[(1, '=', 1)]`                                                               |
 | `own_department` | `[('department_id', 'in', user.employee_id.department_id.ids)]`                             |
+| `own_team`       | `[('team_id', 'in', user.employee_id.person_team_id.ids)]`                                  |
 
-The team scope (`own_team`) planned for teams within departments follows the same mechanism through the person's team, `team_id` on the person, a department whose parent is the person's department, and is built with teams.
+The team scope goes through the person's team: `team_id` on the person, one of the teams of the person's department. Access domains are evaluated as the user from their employee, so the employee carries `person_team_id`, the team of its person, read with full rights. The own-team scope exists only for document types that have a `team_id` field, and works as the own-department scope does: a record without a team belongs to nobody's team, and a person without a team sees no record through it.
 
 Odoo combines the accesses of the groups a user holds with "or": a person holding `person.read.all` and `person.read.own_department` reads every person. The own-department scope exists only for document types that have a `department_id` field; creating such a permission for another document type is refused. A record without a department belongs to nobody's department, so an own-department permission does not show it, and a person without a department sees no record through it.
 
@@ -51,7 +54,7 @@ The generated group and access carry external identifiers of the laboratory modu
 
 The dots of the code become underscores in the identifier. Because the identifiers are stable, views refer to a permission's group as any other group: a field or button with `groups="sol_laboratory.group_permission_person_sign_all"` is removed from the view for everyone else.
 
-Every feature declares the permissions of its document types in its module's `data/permission_data.xml`: `read`, `create`, `edit` and `delete` for every document type, `archive` for a type that can be archived, `sign` for a type that is signed, each with scope `all`, and the same actions with scope `own_department` for a type that has a department. A document type lists the actions it has permissions for in `_permission_actions`, and a test walks every model that inherits the shared mixin below and fails when one of those actions has no scope-`all` permission, so a feature cannot lock the administrator out of a new document type.
+Every feature declares the permissions of its document types in its module's `data/permission_data.xml`: `read`, `create`, `edit` and `delete` for every document type, `archive` for a type that can be archived, `sign` for a type that is signed, each with scope `all`, the same actions with scope `own_department` for a type that has a department, and with scope `own_team` for a type that has a team. A document type lists the actions it has permissions for in `_permission_actions`, and a test walks every model that inherits the shared mixin below and fails when one of those actions has no scope-`all` permission, so a feature cannot lock the administrator out of a new document type.
 
 The permission catalogue belongs to the modules: users read permissions, rename them and give them to roles and people, but never create or delete them on the screen, so the permission document type has only the `read` and `edit` permissions. A permission a module no longer needs is deleted by that module, and its access and group go with it, unless another access still uses its group, in which case the refusal names that access.
 
@@ -108,7 +111,7 @@ There is no administrator bypass in the mixin: the administrator holds every per
 
 ### Archiving and deleting
 
-Departments and people follow [Archiving and deleting](../business/archiving-and-deleting.md); roles and permissions have no archive and are deleted once nothing refers to them. A role a person holds cannot be deleted, a department that people or ways of testing name cannot be archived or deleted, and deleting a person removes them from their roles and takes the role and permission groups off their user.
+Departments and people follow [Archiving and deleting](../business/archiving-and-deleting.md); roles and permissions have no archive and are deleted once nothing refers to them. A role a person holds cannot be deleted, a department that people, teams or ways of testing name cannot be archived or deleted, a team that people belong to cannot be archived or deleted, and deleting a person removes them from their roles and takes the role and permission groups off their user.
 
 Referring records are found with full rights, so records the user cannot see still block archiving or deleting. The refusal names only the records the user can read and gives the others as a count, so it reveals no hidden record.
 
@@ -131,7 +134,7 @@ Installing the module loads its permissions and generates their objects. Shipped
 | Document type | Actions                             | Scopes              |
 | ------------- | ----------------------------------- | ------------------- |
 | Department    | read, create, edit, archive, delete | all                 |
-| Person        | read, create, edit, archive, delete | all, own_department |
+| Person        | read, create, edit, archive, delete | all, own_department, own_team |
 | Role          | read, create, edit, delete          | all                 |
 | Permission    | read, edit                          | all                 |
 

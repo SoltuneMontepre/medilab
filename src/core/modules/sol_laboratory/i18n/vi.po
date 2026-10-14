@@ -714,6 +714,7 @@ msgstr "Lưu trữ cách thử của phòng ban mình"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
 msgid "Archived"
 msgstr "Đã lưu trữ"
 
@@ -1867,6 +1868,9 @@ msgstr "Ghi chú gửi phiếu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
 msgid "Department"
 msgstr "Phòng Ban"
 
@@ -7591,6 +7595,137 @@ msgid "{{ object.name }}"
 msgstr "{{ object.name }}"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_archive_own_team
+msgid "Archive people of their team"
+msgstr "Lưu trữ nhân sự của tổ mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_create_own_team
+msgid "Create people of their team"
+msgstr "Tạo nhân sự của tổ mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_delete_own_team
+msgid "Delete people of their team"
+msgstr "Xóa nhân sự của tổ mình"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_edit_own_team
+msgid "Edit people of their team"
+msgstr "Sửa nhân sự của tổ mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__own_team
+msgid "Own team"
+msgstr "Tổ của mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__parent_id
+msgid "Parent Department"
+msgstr "Phòng Ban Cấp Trên"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_archive_own_team
+msgid "Permission: person.archive.own_team"
+msgstr "Quyền: person.archive.own_team"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_create_own_team
+msgid "Permission: person.create.own_team"
+msgstr "Quyền: person.create.own_team"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_delete_own_team
+msgid "Permission: person.delete.own_team"
+msgstr "Quyền: person.delete.own_team"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_edit_own_team
+msgid "Permission: person.edit.own_team"
+msgstr "Quyền: person.edit.own_team"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_read_own_team
+msgid "Permission: person.read.own_team"
+msgstr "Quyền: person.read.own_team"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__person_team_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__person_team_id
+msgid "Person Team"
+msgstr "Tổ Của Nhân Sự"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_read_own_team
+msgid "Read people of their team"
+msgstr "Xem nhân sự của tổ mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__team_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
+msgid "Team"
+msgstr "Tổ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
+msgid "Team Lead"
+msgstr "Tổ Trưởng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__team_person_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+msgid "Team Members"
+msgstr "Thành Viên Tổ"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_hr_department_team
+#: model:ir.ui.menu,name:sol_laboratory.menu_team
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+msgid "Teams"
+msgstr "Tổ"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/hr_department.py:0
+msgid "%(team)s cannot belong to %(parent)s, which is a team itself."
+msgstr "%(team)s không thể thuộc %(parent)s, vì %(parent)s cũng là một tổ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/person.py:0
+msgid "%(team)s is not a team of the department of %(person)s."
+msgstr "%(team)s không phải là tổ thuộc phòng ban của %(person)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/permission.py:0
+msgid ""
+"%s has no team, so a permission on it cannot be limited to the person's "
+"team."
+msgstr "%s không có tổ, nên quyền trên nó không thể giới hạn trong tổ của nhân sự."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/hr_department.py:0
+msgid ""
+"%s has teams of its own or records that name it as their department, so it "
+"cannot become a team."
+msgstr "%s đã có các tổ riêng hoặc có bản ghi lấy nó làm phòng ban, nên không thể trở thành một tổ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/hr_department.py:0
+msgid ""
+"The people of %s belong to its department; take them out of the team before "
+"moving it."
+msgstr "Nhân sự của %s thuộc phòng ban của tổ; hãy đưa họ ra khỏi tổ trước khi chuyển tổ."
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
 msgid "%s has no handover to %s."
@@ -8476,10 +8611,10 @@ msgstr "Khẩn"
 msgid "Cancel the booking instead of clearing its start."
 msgstr "Hãy hủy lịch đặt máy thay vì xóa thời gian bắt đầu."
 
-
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/customer.py:0
+
 msgid "Address"
 msgstr "Địa chỉ"
 

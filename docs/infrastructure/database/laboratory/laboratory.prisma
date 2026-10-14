@@ -247,6 +247,8 @@ model Department {
   parameter_methods ParameterMethod[]
   /// Employees in the department.
   employees         Employee[]        @relation("EmployeeDepartment")
+  /// People of the team.
+  team_people       Person[]          @relation("PersonTeam")
   /// Notification events whose notifications go to the department.
   notification_recipients NotificationEventRecipient[]
   /// Tasks in the department's queue.
@@ -888,10 +890,14 @@ model Person {
   id            Int          @id @default(autoincrement())
   /// The Odoo employee the person delegates to.
   employee_id   Int          @unique
+  /// Team of the person, one of the teams of their department; empty when they belong to no team.
+  team_id       Int?
   /// False when the person is archived.
   active        Boolean      @default(true)
   /// The Odoo employee the person delegates to.
   employee      Employee     @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  /// Team of the person.
+  team          Department?  @relation("PersonTeam", fields: [team_id], references: [id], onDelete: Restrict)
   /// Roles the person holds.
   roles         PersonRole[]
   /// Tasks assigned to the person.
@@ -925,6 +931,7 @@ model Person {
   /// Wizards that assign tasks to the person.
   task_reassigns TaskReassign[]
 
+  @@index([team_id])
   @@map("medilab_person")
 }
 

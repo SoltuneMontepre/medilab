@@ -59,6 +59,13 @@
 
     <!-- Departments are Odoo's own menu in the Employees app. -->
     <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
+    <menuitem
+        id="menu_team"
+        action="action_hr_department_team"
+        parent="hr.menu_hr_root"
+        sequence="15"
+        groups="group_permission_department_read_all"
+    />
     <menuitem id="menu_role" action="action_medilab_role" parent="hr.menu_hr_root" sequence="20" />
     <menuitem id="menu_permission" action="action_medilab_permission" parent="hr.menu_hr_root" sequence="30" />
     <menuitem

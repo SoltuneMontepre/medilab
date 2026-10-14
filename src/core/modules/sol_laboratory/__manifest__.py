@@ -46,6 +46,7 @@
         "views/system/job_run_views.xml",
         "views/system/permission_views.xml",
         "views/system/scheduled_job_views.xml",
+        "views/system/hr_department_views.xml",
         "views/system/person_views.xml",
         "views/system/role_views.xml",
         "views/tasks/task_type_views.xml",
