@@ -19,11 +19,13 @@ Every workflow can also be started by hand.
 ```mermaid
 flowchart LR
     changes --> lint
+    changes --> tooling
     changes --> build --> test --> sonarqube
 ```
 
 - `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, the lint action or the workflow.
 - `lint` runs `task typecheck` and `task test:typecheck`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
+- `tooling` runs addon link safety and Pyright report tests on Linux and Windows. Windows uses real directory junctions to verify that cleanup preserves unmanaged links and target files.
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
 - `test` builds the image again from that cache, loads it as `medilab-odoo:ci` and runs `task test:core` on it, so the tests run on the image that ships, with its Python requirements. It uploads the coverage report as the `coverage` artifact.
 - `sonarqube` downloads the coverage report, scans with SonarQube Cloud and waits for the quality gate. A failed gate, including on coverage, fails the pipeline.

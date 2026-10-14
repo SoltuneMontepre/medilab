@@ -33,15 +33,29 @@ class TestPyrightReport(unittest.TestCase):
             "file": str(file or self.case),
             "severity": severity,
             "message": f"{severity} on line {line}",
-            "range": {"start": {"line": line, "character": 4}, "end": {"line": line, "character": 17}},
+            "range": {
+                "start": {"line": line, "character": 4},
+                "end": {"line": line, "character": 17},
+            },
             "rule": rule,
         }
 
     def report(self, *diagnostics, files=1, errors=None):
         errors = sum(item["severity"] == "error" for item in diagnostics) if errors is None else errors
         warnings = sum(item["severity"] == "warning" for item in diagnostics)
-        summary = {"filesAnalyzed": files, "errorCount": errors, "warningCount": warnings, "informationCount": 0}
-        return json.dumps({"version": "1.1.414", "generalDiagnostics": list(diagnostics), "summary": summary})
+        summary = {
+            "filesAnalyzed": files,
+            "errorCount": errors,
+            "warningCount": warnings,
+            "informationCount": 0,
+        }
+        return json.dumps(
+            {
+                "version": "1.1.414",
+                "generalDiagnostics": list(diagnostics),
+                "summary": summary,
+            }
+        )
 
     def outcome(self, returncode, stdout, stderr=""):
         """The exit code, standard output and standard error of the typecheck of a pyright run."""
@@ -51,14 +65,20 @@ class TestPyrightReport(unittest.TestCase):
         return code, out.getvalue(), err.getvalue()
 
     def test_odoo_warnings_pass(self):
-        code, out, _ = self.outcome(0, self.report(self.diagnostic(4), self.diagnostic(4, rule="reportArgumentType")))
+        code, out, _ = self.outcome(
+            0,
+            self.report(self.diagnostic(4), self.diagnostic(4, rule="reportArgumentType")),
+        )
         self.assertEqual(code, 0)
         self.assertIn("0 errors, 2 warnings in 1 files", out)
 
     def test_a_missing_imported_name_fails(self):
         code, out, _ = self.outcome(0, self.report(self.diagnostic(1), self.diagnostic(4)))
         self.assertEqual(code, 1)
-        self.assertIn(f"{self.case}:2:5 - error: warning on line 1 ({typecheck.IMPORT_NAME_RULE})", out)
+        self.assertIn(
+            f"{self.case}:2:5 - error: warning on line 1 ({typecheck.IMPORT_NAME_RULE})",
+            out,
+        )
         self.assertIn("1 errors, 1 warnings in 1 files", out)
 
     def test_an_error_fails(self):
@@ -145,13 +165,114 @@ class TestPyrightReport(unittest.TestCase):
                 typecheck.main()
         self.assertEqual(exited.exception.code, 2)
 
-    def test_a_pyright_that_cannot_start_is_not_hidden(self):
+    def test_invalid_report_shapes_fail_cleanly(self):
+        for report in (
+            None,
+            {"summary": [], "generalDiagnostics": []},
+            {
+                "summary": {"filesAnalyzed": 1, "errorCount": 0, "warningCount": 0},
+                "generalDiagnostics": {},
+            },
+        ):
+            with self.subTest(report=report):
+                code, _, err = self.outcome(0, json.dumps(report))
+                self.assertEqual(code, 2)
+                self.assertIn("no complete report", err)
+
+    def test_non_json_numeric_constants_fail(self):
+        for constant in ("NaN", "Infinity", "-Infinity"):
+            with self.subTest(constant=constant):
+                report = self.report().replace(
+                    '"informationCount": 0', f'"informationCount": 0, "timeInSec": {constant}'
+                )
+                code, _, _ = self.outcome(0, report)
+                self.assertEqual(code, 2)
+
+    def test_invalid_counts_fail(self):
+        for key in ("filesAnalyzed", "errorCount", "warningCount", "informationCount"):
+            for value in (-1, True, "1", None):
+                with self.subTest(key=key, value=value):
+                    report = json.loads(self.report())
+                    report["summary"][key] = value
+                    code, _, _ = self.outcome(0, json.dumps(report))
+                    self.assertEqual(code, 2)
+
+    def test_inconsistent_warning_and_information_counts_fail(self):
+        for key in ("warningCount", "informationCount"):
+            with self.subTest(key=key):
+                report = json.loads(self.report())
+                report["summary"][key] = 1
+                code, _, _ = self.outcome(0, json.dumps(report))
+                self.assertEqual(code, 2)
+
+    def test_invalid_diagnostics_fail_cleanly(self):
+        for change in (
+            {"severity": "fatal"},
+            {"range": {"start": {"line": -1, "character": 0}, "end": {"line": 4, "character": 17}}},
+            {"range": {"start": {"line": True, "character": 0}, "end": {"line": 4, "character": 17}}},
+            {"range": {"start": {"line": 1, "character": 0}}},
+            {
+                "range": {
+                    "start": {"line": 2, "character": 0},
+                    "end": {"line": 1, "character": 0},
+                }
+            },
+        ):
+            with self.subTest(change=change):
+                code, _, _ = self.outcome(0, self.report(self.diagnostic(4) | change))
+                self.assertEqual(code, 2)
+
+    def test_unexpected_execution_failures_are_reported(self):
+        for error in (
+            FileNotFoundError("python"),
+            OSError("cannot execute"),
+            UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid"),
+        ):
+            with self.subTest(error=error):
+                err = io.StringIO()
+                with (
+                    mock.patch.object(sys, "argv", ["typecheck.py"]),
+                    mock.patch.object(typecheck.subprocess, "run", side_effect=error),
+                    contextlib.redirect_stderr(err),
+                    self.assertRaises(SystemExit) as exited,
+                ):
+                    typecheck.main()
+                self.assertEqual(exited.exception.code, 2)
+                self.assertIn(str(error), err.getvalue())
+
+    def test_an_incomplete_information_count_fails(self):
+        report = json.loads(self.report())
+        del report["summary"]["informationCount"]
+        code, _, _ = self.outcome(0, json.dumps(report))
+        self.assertEqual(code, 2)
+
+    def test_a_null_diagnostic_fails_cleanly(self):
+        report = json.loads(self.report())
+        report["generalDiagnostics"] = [None]
+        code, _, _ = self.outcome(0, json.dumps(report))
+        self.assertEqual(code, 2)
+
+    def test_a_missing_diagnostic_message_fails(self):
+        diagnostic = self.diagnostic(4)
+        del diagnostic["message"]
+        code, _, _ = self.outcome(0, self.report(diagnostic))
+        self.assertEqual(code, 2)
+
+    def test_a_timeout_is_reported(self):
+        err = io.StringIO()
         with (
             mock.patch.object(sys, "argv", ["typecheck.py"]),
-            mock.patch.object(typecheck.subprocess, "run", side_effect=FileNotFoundError("python")),
-            self.assertRaises(FileNotFoundError),
+            mock.patch.object(
+                typecheck.subprocess,
+                "run",
+                side_effect=subprocess.TimeoutExpired("pyright", 10),
+            ),
+            contextlib.redirect_stderr(err),
+            self.assertRaises(SystemExit) as exited,
         ):
             typecheck.main()
+        self.assertEqual(exited.exception.code, 2)
+        self.assertIn("timed out", err.getvalue())
 
 
 if __name__ == "__main__":

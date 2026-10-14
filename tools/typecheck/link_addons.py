@@ -7,10 +7,8 @@ other links and folders in odoo/addons are left alone.
 """
 
 import argparse
-import filecmp
 import json
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -31,7 +29,10 @@ def is_link(path):
 def create_link(link, target):
     if WINDOWS:
         result = subprocess.run(
-            ["cmd", "/c", "mklink", "/J", str(link), str(target)], capture_output=True, text=True, check=False
+            ["cmd", "/c", "mklink", "/J", str(link), str(target)],
+            capture_output=True,
+            text=True,
+            check=False,
         )
         if result.returncode:
             raise LinkError(f"Could not link {link} to {target}: {result.stderr or result.stdout}")
@@ -44,23 +45,18 @@ def remove_link(link):
     if link.is_junction():
         # RemoveDirectoryW deletes a junction itself, whatever its target holds.
         os.rmdir(link)
-    else:
+    elif link.is_symlink():
         link.unlink()
+    else:
+        raise LinkError(f"{link} is not a link; refusing to remove it.")
 
 
-def files(folder):
-    return {
-        path.relative_to(folder)
-        for path in folder.rglob("*")
-        if path.is_file() and "__pycache__" not in path.relative_to(folder).parts
-    }
-
-
-def is_copy(folder, original):
-    """Whether folder holds exactly the files of original, as the copy that task dev:odoo-source used to make."""
-    names = files(folder)
-    return names == files(original) and all(
-        filecmp.cmp(folder / name, original / name, shallow=False) for name in names
+def valid_name(name):
+    return (
+        isinstance(name, str)
+        and name not in ("", ".", "..")
+        and not name.endswith((".", " "))
+        and not any(part in name for part in ("/", "\\", ":"))
     )
 
 
@@ -76,16 +72,19 @@ class Links:
             raise LinkError(f"{record} cannot be read: {error}. Delete it and run again.") from error
         if not isinstance(self.made, dict):
             raise LinkError(f"{record} is not a record of links. Delete it and run again.")
+        if not all(valid_name(name) and isinstance(target, str) for name, target in self.made.items()):
+            raise LinkError(f"{record} contains an invalid link name or target; refusing to change links.")
 
     def ours(self, link):
         """Whether link is a link this script made and nobody changed since."""
         return is_link(link) and self.made.get(link.name) == os.readlink(link)
 
-    def place(self, name, target, odoo_addon):
+    def place(self, name, target):
         link = self.folder / name
         if is_link(link):
             if link.exists() and link.samefile(target):
-                self.made[name] = os.readlink(link)
+                if not self.ours(link):
+                    self.made.pop(name, None)
                 return
             if not self.ours(link):
                 raise LinkError(
@@ -94,9 +93,7 @@ class Links:
                 )
             remove_link(link)
         elif link.exists():
-            if not (odoo_addon and link.is_dir() and is_copy(link, target)):
-                raise LinkError(f"{link} is a folder, not a link. Move it out of {self.folder} and run again.")
-            shutil.rmtree(link)
+            raise LinkError(f"{link} is a folder, not a link. Move it out of {self.folder} and run again.")
         create_link(link, target)
         self.made[name] = os.readlink(link)
 
@@ -119,15 +116,17 @@ def link_addons(source, modules, addons):
     addons_folder = source / "odoo" / "addons"
     if not addons_folder.is_dir():
         raise LinkError(f"{addons_folder} not found. Run: task dev:odoo-source")
-    targets = {name: (source / "addons" / name, True) for name in addons}
-    targets |= {path.name: (path, False) for path in sorted(modules.iterdir()) if (path / MANIFEST).is_file()}
-    for target, _ in targets.values():
+    if not all(valid_name(name) for name in addons):
+        raise LinkError("Addon names must be single directory names; refusing to change links.")
+    targets = {name: source / "addons" / name for name in addons}
+    targets |= {path.name: path for path in sorted(modules.iterdir()) if (path / MANIFEST).is_file()}
+    for target in targets.values():
         if not target.is_dir():
             raise LinkError(f"{target} not found. Run: task dev:odoo-source")
     links = Links(addons_folder, source / RECORD)
     try:
-        for name, (target, odoo_addon) in targets.items():
-            links.place(name, target.resolve(), odoo_addon)
+        for name, target in targets.items():
+            links.place(name, target.resolve())
         links.remove_others(targets)
     finally:
         links.save()

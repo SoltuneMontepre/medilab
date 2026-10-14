@@ -20,7 +20,7 @@ def snapshot(*folders):
     found = {}
     for folder in folders:
         for path in sorted(folder.rglob("*")):
-            if path.is_symlink():
+            if link_addons.is_link(path):
                 found[path] = ("link", os.readlink(path))
             elif path.is_file():
                 found[path] = path.read_bytes()
@@ -60,7 +60,7 @@ class TestLinkAddons(unittest.TestCase):
 
     def assert_linked(self, name, target):
         link = self.addons / name
-        self.assertTrue(link.is_symlink(), f"{link} is not a link")
+        self.assertTrue(link_addons.is_link(link), f"{link} is not a link")
         self.assertTrue(link.samefile(target))
 
     def record(self):
@@ -83,7 +83,10 @@ class TestLinkAddons(unittest.TestCase):
         self.assertEqual(after.keys(), before.keys())
         for name, stat in before.items():
             with self.subTest(name=name):
-                self.assertEqual((after[name].st_ino, after[name].st_mtime_ns), (stat.st_ino, stat.st_mtime_ns))
+                self.assertEqual(
+                    (after[name].st_ino, after[name].st_mtime_ns),
+                    (stat.st_ino, stat.st_mtime_ns),
+                )
 
     def test_a_link_to_a_moved_module_is_repaired(self):
         self.link()
@@ -106,7 +109,7 @@ class TestLinkAddons(unittest.TestCase):
         self.link()
         shutil.rmtree(self.modules / "sol_b")
         self.link()
-        self.assertFalse((self.addons / "sol_b").is_symlink())
+        self.assertFalse(link_addons.is_link(self.addons / "sol_b"))
         self.assertEqual(set(self.record()), {"web", "sol_a"})
 
     def test_a_new_module_is_linked(self):
@@ -118,58 +121,112 @@ class TestLinkAddons(unittest.TestCase):
     def test_a_module_change_shows_through_its_link(self):
         self.link()
         self.write(self.modules / "sol_a" / "models.py", "NAME = 1\n")
-        self.assertEqual((self.addons / "sol_a" / "models.py").read_text(encoding="utf-8"), "NAME = 1\n")
+        self.assertEqual(
+            (self.addons / "sol_a" / "models.py").read_text(encoding="utf-8"),
+            "NAME = 1\n",
+        )
 
     def test_other_links_are_kept(self):
         elsewhere = self.root / "elsewhere"
         self.write(elsewhere / "hr" / "__init__.py", "")
-        (self.addons / "hr").symlink_to(elsewhere / "hr", target_is_directory=True)
-        (self.addons / "gone").symlink_to(self.modules / "gone", target_is_directory=True)
-        (self.addons / "sol_old").symlink_to(self.modules / "sol_old", target_is_directory=True)
+        link_addons.create_link(self.addons / "hr", elsewhere / "hr")
+        link_addons.create_link(self.addons / "gone", self.modules / "gone")
+        link_addons.create_link(self.addons / "sol_old", self.modules / "sol_old")
+        target = os.readlink(self.addons / "hr")
         self.link()
         self.link()
-        self.assertEqual(os.readlink(self.addons / "hr"), str(elsewhere / "hr"))
-        self.assertTrue((self.addons / "gone").is_symlink())
-        self.assertTrue((self.addons / "sol_old").is_symlink())
+        self.assertEqual(os.readlink(self.addons / "hr"), target)
+        self.assertTrue(link_addons.is_link(self.addons / "gone"))
+        self.assertTrue(link_addons.is_link(self.addons / "sol_old"))
         self.assertNotIn("hr", self.record())
 
     def test_a_link_replaced_by_someone_else_is_kept(self):
         self.link()
         elsewhere = self.root / "elsewhere"
         self.write(elsewhere / "sol_b" / "__init__.py", "")
-        (self.addons / "sol_b").unlink()
-        (self.addons / "sol_b").symlink_to(elsewhere / "sol_b", target_is_directory=True)
+        link_addons.remove_link(self.addons / "sol_b")
+        link_addons.create_link(self.addons / "sol_b", elsewhere / "sol_b")
+        target = os.readlink(self.addons / "sol_b")
         shutil.rmtree(self.modules / "sol_b")
         self.link()
-        self.assertEqual(os.readlink(self.addons / "sol_b"), str(elsewhere / "sol_b"))
+        self.assertEqual(os.readlink(self.addons / "sol_b"), target)
         self.assertNotIn("sol_b", self.record())
 
     def test_another_link_under_a_module_name_is_kept_and_reported(self):
         elsewhere = self.root / "elsewhere"
         self.write(elsewhere / "sol_a" / "__init__.py", "")
-        (self.addons / "sol_a").symlink_to(elsewhere / "sol_a", target_is_directory=True)
+        link_addons.create_link(self.addons / "sol_a", elsewhere / "sol_a")
+        target = os.readlink(self.addons / "sol_a")
         with self.assertRaisesRegex(LinkError, "was not made by this script"):
             self.link()
-        self.assertEqual(os.readlink(self.addons / "sol_a"), str(elsewhere / "sol_a"))
+        self.assertEqual(os.readlink(self.addons / "sol_a"), target)
 
     def test_a_folder_under_a_module_name_is_kept_and_reported(self):
         self.write(self.addons / "sol_a" / "work.py", "KEEP = 1\n")
         with self.assertRaisesRegex(LinkError, "is a folder, not a link"):
             self.link()
-        self.assertEqual((self.addons / "sol_a" / "work.py").read_text(encoding="utf-8"), "KEEP = 1\n")
+        self.assertEqual(
+            (self.addons / "sol_a" / "work.py").read_text(encoding="utf-8"),
+            "KEEP = 1\n",
+        )
         self.assertFalse((self.addons / "sol_a").is_symlink())
 
-    def test_an_earlier_copy_of_an_odoo_addon_is_replaced(self):
+    def test_an_identical_odoo_addon_directory_is_kept_and_reported(self):
         shutil.copytree(self.source / "addons" / "web", self.addons / "web")
+        before = snapshot(self.addons / "web")
+        with self.assertRaises(LinkError):
+            self.link()
+        self.assertFalse(link_addons.is_link(self.addons / "web"))
+        self.assertEqual(snapshot(self.addons / "web"), before)
+
+    def test_a_matching_unmanaged_link_is_not_adopted_or_removed(self):
+        link_addons.create_link(self.addons / "sol_b", self.modules / "sol_b")
         self.link()
-        self.assert_linked("web", self.source / "addons" / "web")
+        self.assertNotIn("sol_b", self.record())
+        shutil.rmtree(self.modules / "sol_b")
+        self.link()
+        self.assertTrue(link_addons.is_link(self.addons / "sol_b"))
+
+    def test_a_record_cannot_remove_a_link_outside_the_addons_folder(self):
+        outside = self.source / "odoo" / "outside"
+        link_addons.create_link(outside, self.modules / "sol_a")
+        (self.source / RECORD).write_text(json.dumps({"../outside": os.readlink(outside)}), encoding="utf-8")
+        with self.assertRaises(LinkError):
+            self.link()
+        self.assertTrue(link_addons.is_link(outside))
+
+    def test_invalid_record_names_are_rejected_before_any_links_are_created(self):
+        for name in ("/outside", "..\\outside", "C:outside", ".", "..", "", ".. ", "..."):
+            with self.subTest(name=name):
+                (self.source / RECORD).write_text(json.dumps({name: "target"}), encoding="utf-8")
+                with self.assertRaises(LinkError):
+                    self.link()
+                self.assertEqual([path.name for path in self.addons.iterdir()], ["base"])
+
+    def test_a_recorded_link_replaced_by_a_directory_is_kept(self):
+        self.link()
+        link_addons.remove_link(self.addons / "sol_b")
+        self.write(self.addons / "sol_b" / "mine.txt", "keep\n")
+        shutil.rmtree(self.modules / "sol_b")
+        self.link()
+        self.assertEqual((self.addons / "sol_b" / "mine.txt").read_text(encoding="utf-8"), "keep\n")
+
+    def test_remove_link_refuses_a_real_directory(self):
+        folder = self.root / "unmanaged"
+        folder.mkdir()
+        with self.assertRaises(LinkError):
+            link_addons.remove_link(folder)
+        self.assertTrue(folder.is_dir())
 
     def test_a_changed_copy_of_an_odoo_addon_is_kept_and_reported(self):
         shutil.copytree(self.source / "addons" / "web", self.addons / "web")
         self.write(self.addons / "web" / "static" / "app.js", "changed()\n")
         with self.assertRaisesRegex(LinkError, "is a folder, not a link"):
             self.link()
-        self.assertEqual((self.addons / "web" / "static" / "app.js").read_text(encoding="utf-8"), "changed()\n")
+        self.assertEqual(
+            (self.addons / "web" / "static" / "app.js").read_text(encoding="utf-8"),
+            "changed()\n",
+        )
 
     def test_a_copy_with_an_extra_file_is_kept_and_reported(self):
         shutil.copytree(self.source / "addons" / "web", self.addons / "web")
@@ -190,7 +247,7 @@ class TestLinkAddons(unittest.TestCase):
 
 
 class TestWindowsJunctions(unittest.TestCase):
-    """Windows gets directory junctions. These tests stand in for Windows, where they cannot run natively here."""
+    """Platform-specific junction calls and target preservation."""
 
     def test_a_junction_is_made_with_mklink(self):
         done = subprocess.CompletedProcess([], 0, "Junction created\n", "")
@@ -202,7 +259,8 @@ class TestWindowsJunctions(unittest.TestCase):
         command = run.call_args.args[0]
         self.assertEqual(command[:4], ["cmd", "/c", "mklink", "/J"])
         self.assertEqual(
-            [Path(part) for part in command[4:]], [Path("C:/odoo/addons/sol_a"), Path("C:/medilab/modules/sol_a")]
+            [Path(part) for part in command[4:]],
+            [Path("C:/odoo/addons/sol_a"), Path("C:/medilab/modules/sol_a")],
         )
 
     def test_a_failed_junction_is_reported(self):
@@ -238,6 +296,26 @@ class TestWindowsJunctions(unittest.TestCase):
             link_addons.remove_link(link)
             self.assertFalse(link.is_symlink())
             self.assertTrue(Path(target, "__manifest__.py").is_file())
+
+    @unittest.skipUnless(os.name == "nt", "requires Windows junctions")
+    def test_native_junction_cleanup_preserves_targets_and_unmanaged_junctions(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            target = root / "target"
+            target.mkdir()
+            keep = target / "keep.txt"
+            keep.write_text("keep\n", encoding="utf-8")
+            addons = root / "addons"
+            addons.mkdir()
+            links = link_addons.Links(addons, root / RECORD)
+            links.place("owned", target)
+            link_addons.create_link(addons / "unmanaged", target)
+            self.assertTrue((addons / "owned").is_junction())
+            links.remove_others([])
+            self.assertFalse((addons / "owned").is_junction())
+            self.assertTrue((addons / "unmanaged").is_junction())
+            self.assertEqual(keep.read_text(encoding="utf-8"), "keep\n")
+            link_addons.remove_link(addons / "unmanaged")
 
 
 if __name__ == "__main__":

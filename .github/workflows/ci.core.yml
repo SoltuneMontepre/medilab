@@ -101,6 +101,31 @@ jobs:
         with:
           addons-path: src/core/modules
 
+  tooling:
+    needs: changes
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Addon link safety tests
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/typecheck -p test_link_addons.py
+
+      - name: Pyright report tests
+        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/typecheck -p test_pyright_report.py
+
   build:
     needs: changes
     runs-on: ubuntu-24.04
