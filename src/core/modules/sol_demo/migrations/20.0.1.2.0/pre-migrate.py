@@ -18,6 +18,12 @@ OLD_PREFIXES = [
     ("medilab.parameter.method.machine", "machine_run_"),
     ("medilab.chemical", "chemical_"),
     ("medilab.notification.event.recipient", "demo_notification_recipient_"),
+    ("account.move", "demo_invoice_"),
+    ("account.payment", "demo_payment_"),
+    ("payment.transaction", "demo_transaction_"),
+    ("medilab.reconciliation.day", "demo_reconciliation_"),
+    ("medilab.push.delivery", "demo_push_"),
+    ("res.users", "demo_portal_"),
 ]
 
 
