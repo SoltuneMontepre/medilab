@@ -11,10 +11,10 @@ vars:
 tasks:
   up:
     aliases: [start]
-    desc: "Start the local infrastrucure and application"
+    desc: "Build the Odoo image, then start the local infrastrucure and application"
     silent: true
     cmds:
-      - docker compose up -d
+      - docker compose up -d --build
       - task: print
 
   stop:
