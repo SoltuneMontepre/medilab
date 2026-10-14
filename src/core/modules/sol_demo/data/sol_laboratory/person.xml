@@ -31,6 +31,8 @@
             eval="[Command.set([
                 ref('sol_laboratory.permission_department_read_all'),
                 ref('sol_laboratory.permission_person_read_own_team'),
+                ref('sol_inventory.permission_location_read_all'),
+                ref('sol_inventory.permission_cost_centre_read_all'),
             ])]"
         />
     </record>
