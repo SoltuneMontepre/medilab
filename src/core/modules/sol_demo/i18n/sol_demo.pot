@@ -175,6 +175,7 @@ msgstr ""
 
 #. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.group_heavy_metals
+#: model:hr.department,name:sol_demo.demo_hr_department_heavy_metals
 msgid "Heavy metals"
 msgstr ""
 
@@ -433,4 +434,14 @@ msgstr ""
 #. module: sol_demo
 #: model:ir.model,name:sol_demo.model_account_move
 msgid "Journal Entry"
+msgstr ""
+
+#. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_pathogens
+msgid "Pathogens"
+msgstr ""
+
+#. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
+msgid "Pesticide residues"
 msgstr ""

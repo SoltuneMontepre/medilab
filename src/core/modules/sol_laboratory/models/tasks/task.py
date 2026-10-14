@@ -5,6 +5,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
 
+from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_PERMISSION_MIXIN,
@@ -42,7 +43,7 @@ class Task(models.Model):
     # Action the task opens on the document, such as enter_result or sign.
     action = fields.Char()
     # Department whose queue holds the task until someone is assigned.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict")
+    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", domain=DEPARTMENT_DOMAIN)
     # Person who does the task; empty while it waits in a queue.
     assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee", ondelete="restrict")
     # Person who assigned the task; the assignee themselves when they claimed it.

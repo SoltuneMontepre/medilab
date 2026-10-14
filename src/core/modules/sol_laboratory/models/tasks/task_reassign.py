@@ -1,6 +1,7 @@
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
+from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_PERSON, MODEL_TASK, MODEL_TASK_REASSIGN
 
 
@@ -12,7 +13,7 @@ class TaskReassign(models.TransientModel):
     # The tasks to assign or move.
     task_ids = fields.Many2many(MODEL_TASK, string="Tasks", required=True)
     # Department whose queue holds the tasks.
-    department_id = fields.Many2one(MODEL_DEPARTMENT)
+    department_id = fields.Many2one(MODEL_DEPARTMENT, domain=DEPARTMENT_DOMAIN)
     # Person who does the tasks; empty to leave them in the department's queue.
     assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee")
     # Why the tasks move to another person or department.
