@@ -69,6 +69,7 @@ stateDiagram-v2
 | Online payment                                    | The gateway confirms the payment with a signed notification; the system records it and matches it to the invoice. Returning to the website without that confirmation does not count as payment. A repeated notification does not create a second payment. |
 | Cash or bank transfer, recorded by the accountant | The accountant selects the invoice, amount, date and method.                                                                                                                                                                                              |
 | Cash or bank transfer, recorded by sales          | Sales creates a pending record; it counts only after the accountant confirms it.                                                                                                                                                                          |
+| Bank transfer by QR code                          | Each invoice, on its PDF and in the portal, shows a VietQR code for the laboratory's bank account with the amount and invoice number, from Odoo's Vietnamese localisation. The customer pays by bank transfer; the accountant confirms the payment once it reaches the account. |
 
 Rules:
 

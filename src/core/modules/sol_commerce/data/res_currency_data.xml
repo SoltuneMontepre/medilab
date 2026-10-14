@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <function model="res.currency" name="write">
-        <value eval="[ref('base.VND')]" />
-        <value eval="{'active': True}" />
-    </function>
+    <record id="base.VND" model="res.currency">
+        <field name="active" eval="True" />
+    </record>
 </odoo>

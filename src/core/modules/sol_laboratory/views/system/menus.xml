@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_tasks_root" name="Tasks" action="action_medilab_task_dashboard" sequence="5">
+        <menuitem id="menu_task_mine" action="action_medilab_task_mine" sequence="10" />
+        <menuitem id="menu_task_finished" action="action_medilab_task_finished" sequence="20" />
+        <menuitem id="menu_task_all" action="action_medilab_task" sequence="30" />
+        <menuitem
+            id="menu_task_type"
+            action="action_medilab_task_type"
+            sequence="40"
+            groups="group_permission_task_type_edit_all"
+        />
+    </menuitem>
+
+    <menuitem id="menu_laboratory_root" name="Laboratory" sequence="10">
+        <menuitem id="menu_test_request" action="action_medilab_test_request" sequence="10" />
+        <menuitem id="menu_sample" action="action_medilab_sample" sequence="20" />
+        <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
+        <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
+            <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
+        </menuitem>
+    </menuitem>
+
+    <menuitem id="menu_master_data_root" name="Master Data" sequence="20">
+        <menuitem id="menu_master_data_catalog" name="Catalog" sequence="10">
+            <menuitem id="menu_test_parameter" action="action_medilab_test_parameter" sequence="10" />
+            <menuitem id="menu_parameter_group" action="action_medilab_parameter_group" sequence="20" />
+            <menuitem id="menu_sample_type" action="action_medilab_sample_type" sequence="30" />
+            <menuitem id="menu_testing_method" action="action_medilab_testing_method" sequence="40" />
+            <menuitem id="menu_testing_field" action="action_medilab_testing_field" sequence="50" />
+            <menuitem id="menu_measurement_unit" action="action_medilab_measurement_unit" sequence="60" />
+            <menuitem id="menu_unit_category" action="action_medilab_unit_category" sequence="70" />
+            <menuitem id="menu_regulation" action="action_medilab_regulation" sequence="80" />
+            <menuitem id="menu_quality_registration" action="action_medilab_quality_registration" sequence="90" />
+        </menuitem>
+        <menuitem id="menu_master_data_machines" name="Machines and Chemicals" sequence="20">
+            <menuitem id="menu_machine" action="action_medilab_machine" sequence="10" />
+            <menuitem id="menu_chemical" action="action_medilab_chemical" sequence="20" />
+        </menuitem>
+        <menuitem id="menu_subcontractor" action="action_medilab_subcontractor" sequence="30" />
+    </menuitem>
+
+    <!-- Departments are Odoo's own menu in the Employees app. -->
+    <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
+    <menuitem
+        id="menu_team"
+        action="action_hr_department_team"
+        parent="hr.menu_hr_root"
+        sequence="15"
+        groups="group_permission_department_read_all"
+    />
+    <menuitem id="menu_role" action="action_medilab_role" parent="hr.menu_hr_root" sequence="20" />
+    <menuitem id="menu_permission" action="action_medilab_permission" parent="hr.menu_hr_root" sequence="30" />
+    <menuitem
+        id="menu_approval_chain"
+        action="action_medilab_approval_chain"
+        parent="hr.menu_human_resources_configuration"
+        sequence="30"
+        groups="group_permission_approval_chain_read_all"
+    />
+
+    <menuitem id="menu_jobs" name="Jobs" sequence="80">
+        <menuitem
+            id="menu_scheduled_job"
+            action="action_medilab_scheduled_job"
+            sequence="10"
+            groups="group_permission_scheduled_job_read_all"
+        />
+        <menuitem
+            id="menu_job_item"
+            action="action_medilab_job_item"
+            sequence="20"
+            groups="group_permission_job_item_read_all"
+        />
+        <menuitem
+            id="menu_job_run"
+            action="action_medilab_job_run"
+            sequence="30"
+            groups="group_permission_job_run_read_all"
+        />
+    </menuitem>
+    <menuitem
+        id="menu_notification_event"
+        action="action_medilab_notification_event"
+        parent="menu_jobs"
+        sequence="40"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="menu_mobile_device"
+        action="action_medilab_mobile_device"
+        parent="menu_jobs"
+        sequence="50"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="menu_push_delivery"
+        action="action_medilab_push_delivery"
+        parent="menu_jobs"
+        sequence="60"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="menu_notification_preference"
+        action="action_medilab_notification_preference"
+        parent="menu_jobs"
+        sequence="70"
+    />
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cron_flag_expired_quotations" model="ir.cron">
+        <field name="name">Flag expired quotations</field>
+        <field name="model_id" ref="model_medilab_quotation" />
+        <field name="state">code</field>
+        <field name="code">model._flag_expired()</field>
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
+    <record id="ir_cron_payos_calls" model="ir.cron">
+        <field name="name">PayOS calls</field>
+        <field name="model_id" ref="sol_laboratory.model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("payos.calls")</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+    </record>
+    <record id="ir_cron_payos_poll" model="ir.cron">
+        <field name="name">PayOS poll</field>
+        <field name="model_id" ref="sol_laboratory.model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("payos.poll")</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+    </record>
+    <record id="ir_cron_overdue_reminders" model="ir.cron">
+        <field name="name">Overdue reminders</field>
+        <field name="model_id" ref="sol_laboratory.model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("overdue.reminders")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
+</odoo>

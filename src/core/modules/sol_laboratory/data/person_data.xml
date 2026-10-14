@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="person_administrator" model="medilab.person">
+        <field name="user_id" ref="base.user_admin" />
+        <field name="role_ids" eval="[Command.set([ref('role_administrator')])]" />
+    </record>
+</odoo>

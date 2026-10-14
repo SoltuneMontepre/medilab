@@ -10,7 +10,7 @@ Every action on a document is recorded once, with who did it, when, from where, 
 
 ### The audit mixin
 
-`medilab.audit.mixin` is inherited by every document model of every MediLab module, in the same way as the permission mixin. It writes one `AuditEntry` per record for each call that changes it, in the same transaction, so an action that is rolled back leaves no entry:
+`medilab.audit.mixin` is inherited by every document model of every MediLab module, in the same way as the permission mixin, including the Odoo models MediLab extends, such as `hr.employee` and `sale.order`. The audit trail is kept apart from Odoo's field tracking, which shows changes in a document's chatter. It writes one `AuditEntry` per record for each call that changes it, in the same transaction, so an action that is rolled back leaves no entry:
 
 | Call     | Action                                          | Changes                                                           |
 | -------- | ----------------------------------------------- | ----------------------------------------------------------------- |

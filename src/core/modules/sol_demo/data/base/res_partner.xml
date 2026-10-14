@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_res_partner_administrator" model="res.partner">
+        <field name="name">Phan Minh Quan</field>
+        <field name="email">phan.minh.quan@medilab.example</field>
+        <field name="lang">en_US</field>
+    </record>
+    <record id="demo_res_partner_sales" model="res.partner">
+        <field name="name">Nguyen Thi Thu</field>
+        <field name="email">nguyen.thi.thu@medilab.example</field>
+        <field name="lang">vi_VN</field>
+    </record>
+    <record id="demo_res_partner_head_of_sales" model="res.partner">
+        <field name="name">Tran Quoc Bao</field>
+        <field name="email">tran.quoc.bao@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_accountant" model="res.partner">
+        <field name="name">Le Thi Hanh</field>
+        <field name="email">le.thi.hanh@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_sample_delivery_staff" model="res.partner">
+        <field name="name">Vo Van Tai</field>
+        <field name="email">vo.van.tai@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_tester" model="res.partner">
+        <field name="name">Dang Thi Lan</field>
+        <field name="email">dang.thi.lan@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_head_of_department" model="res.partner">
+        <field name="name">Hoang Van Minh</field>
+        <field name="email">hoang.van.minh@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_lab_head" model="res.partner">
+        <field name="name">Bui Thi Ngoc</field>
+        <field name="email">bui.thi.ngoc@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_storekeeper" model="res.partner">
+        <field name="name">Do Van Phuc</field>
+        <field name="email">do.van.phuc@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_microbiology_tester" model="res.partner">
+        <field name="name">Ngo Thi Mai</field>
+        <field name="email">ngo.thi.mai@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_chemistry_tester" model="res.partner">
+        <field name="name">Ly Van Hung</field>
+        <field name="email">ly.van.hung@medilab.example</field>
+    </record>
+    <record id="demo_res_partner_an_phat" model="res.partner">
+        <field name="name">Công ty TNHH Thực phẩm An Phát</field>
+        <field name="vat">0316289451</field>
+        <field name="street">27 Lê Văn Việt</field>
+        <field name="city">Thủ Đức</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="email">kinhdoanh@anphat-food.example</field>
+        <field name="lang">vi_VN</field>
+    </record>
+    <record id="demo_res_partner_greenleaf" model="res.partner">
+        <field name="name">Greenleaf Foods Pte. Ltd.</field>
+        <field name="vat">201912345R</field>
+        <field name="street">10 Anson Road</field>
+        <field name="city">Singapore</field>
+        <field name="country_id" ref="base.sg" />
+        <field name="email">quality@greenleaf-foods.example</field>
+        <field name="lang">en_US</field>
+    </record>
+    <record id="demo_res_partner_an_phu" model="res.partner">
+        <field name="name">Công ty TNHH Nước Giải Khát An Phú</field>
+        <field name="is_company" eval="True" />
+        <field name="vat">0312345678</field>
+        <field name="street">25 Đường số 7, KCN Tân Tạo</field>
+        <field name="city">Hồ Chí Minh</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">028 3750 1234</field>
+        <field name="email">contact@anphu-beverage.example</field>
+    </record>
+    <record id="demo_res_partner_an_phu_quality" model="res.partner">
+        <field name="name">Tran Thi Huong</field>
+        <field name="parent_id" ref="demo_res_partner_an_phu" />
+        <field name="function">Quality Assurance Manager</field>
+        <field name="email">huong.tran@anphu-beverage.example</field>
+    </record>
+    <record id="demo_res_partner_green_farm" model="res.partner">
+        <field name="name">Công ty CP Nông Sản Xanh Lâm Đồng</field>
+        <field name="is_company" eval="True" />
+        <field name="vat">5801234567</field>
+        <field name="street">12 Hùng Vương, Phường 10</field>
+        <field name="city">Đà Lạt</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">0263 382 5566</field>
+        <field name="email">info@nongsanxanh.example</field>
+    </record>
+    <record id="demo_res_partner_pham_van_long" model="res.partner">
+        <field name="name">Pham Van Long</field>
+        <field name="street">48 Lê Văn Sỹ, Phường 13, Quận 3</field>
+        <field name="city">Hồ Chí Minh</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">0903 456 789</field>
+        <field name="email">pham.van.long@mail.example</field>
+    </record>
+</odoo>

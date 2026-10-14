@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_invoice_adjustment_form" model="ir.ui.view">
+        <field name="name">medilab.invoice.adjustment.form</field>
+        <field name="model">medilab.invoice.adjustment</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="move_id" invisible="1" />
+                    <field name="currency_id" invisible="1" />
+                    <field name="difference" />
+                </group>
+                <footer>
+                    <button name="action_adjust" type="object" string="Post adjustment" class="btn-primary" />
+                    <button string="Discard" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_invoice_adjustment" model="ir.actions.act_window">
+        <field name="name">Adjust invoice</field>
+        <field name="res_model">medilab.invoice.adjustment</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

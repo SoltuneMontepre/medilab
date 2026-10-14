@@ -21,10 +21,12 @@ tasks:
       - task: test:apps
 
   test:core:
-    desc: "Run the Odoo module tests with coverage in a throwaway database; task test:core MODULES=a,b limits them"
+    desc: "Run the tests of every module in src/core/modules.txt with coverage in a throwaway database; task test:core MODULES=a,b limits them"
     silent: true
     vars:
-      MODULES: '{{.MODULES | default "laboratory"}}'
+      ALL_MODULES:
+        sh: grep -v '^base$' src/core/modules.txt | tr -d '\r' | tr '\n' ',' | sed 's/,$//'
+      MODULES: '{{.MODULES | default .ALL_MODULES}}'
       TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
     cmds:
       - docker compose up -d --wait postgres
@@ -41,6 +43,25 @@ tasks:
       - |
         sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
       - . {{.LOG}} && log_ok "Odoo module tests passed ({{.MODULES}}). Coverage report in {{.COVERAGE_REPORT}}."
+
+  test:uninstall:
+    desc: "Install the modules in a throwaway database, uninstall commerce and inventory and check that the Laboratory data is intact"
+    silent: true
+    vars:
+      MODULES: sol_laboratory,sol_commerce,sol_inventory
+      STANDALONE_TAG: medilab_uninstall
+    cmds:
+      - docker compose up -d --wait postgres
+      - docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
+      - defer: docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
+      - docker compose run --rm -T odoo -d {{.TEST_DB}} -i {{.MODULES}} --stop-after-init --log-level=warn
+      - |
+        docker compose run --rm -T --entrypoint bash odoo -c '
+          set -e
+          export PGHOST="$HOST" PGUSER="$USER" PGPASSWORD="$PASSWORD"
+          python3 -m odoo.tests.test_module_operations -d {{.TEST_DB}} standalone {{.STANDALONE_TAG}} 2>&1 | tee /tmp/standalone.log
+          ! grep -q "Standalone script .* failed" /tmp/standalone.log'
+      - . {{.LOG}} && log_ok "Uninstall test passed."
 
   test:e2e:
     desc: "Run the browser tests against the running Odoo; task test:e2e needs task up first"

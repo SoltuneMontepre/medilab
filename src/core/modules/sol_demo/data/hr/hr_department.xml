@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_hr_department_chemistry" model="hr.department">
+        <field name="name">Chemistry</field>
+    </record>
+    <record id="demo_hr_department_microbiology" model="hr.department">
+        <field name="name">Microbiology</field>
+    </record>
+    <record id="demo_hr_department_sample_reception" model="hr.department">
+        <field name="name">Sample reception</field>
+    </record>
+    <record id="demo_hr_department_pesticide_residues" model="hr.department">
+        <field name="name">Pesticide residues</field>
+        <field name="parent_id" ref="demo_hr_department_chemistry" />
+    </record>
+    <record id="demo_hr_department_heavy_metals" model="hr.department">
+        <field name="name">Heavy metals</field>
+        <field name="parent_id" ref="demo_hr_department_chemistry" />
+    </record>
+    <record id="demo_hr_department_pathogens" model="hr.department">
+        <field name="name">Pathogens</field>
+        <field name="parent_id" ref="demo_hr_department_microbiology" />
+    </record>
+</odoo>

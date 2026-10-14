@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="base.main_company" model="res.company">
-        <field name="name">Medilab</field>
-        <field name="logo" type="bytes" file="laboratory/static/src/theme/img/icons/icon-512x512.png"/>
-    </record>
-</odoo>

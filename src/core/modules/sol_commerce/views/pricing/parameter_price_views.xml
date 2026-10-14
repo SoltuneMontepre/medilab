@@ -19,8 +19,7 @@
         <field name="arch" type="xml">
             <form duplicate="0">
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
-                        invisible="active" />
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
                     <group>
                         <field name="parameter_id" />
                         <field name="currency_id" invisible="1" />

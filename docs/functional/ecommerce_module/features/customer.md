@@ -142,6 +142,8 @@ stateDiagram-v2
 
 | Rule                  | Description                                                                                                                            |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Public catalog        | Anyone can browse the catalog and fill a cart without signing in.                                                                      |
+| Details on submit     | A visitor who is not signed in gives their details and e-mail address when submitting; they become the customer's contact.            |
 | Complete order        | Submitting requires at least one parameter or service package in the cart.                                                             |
 | Submit is not confirm | Submitting only puts the order in the sales queue. Sales then prepares the quotation.                                                  |
 | Cancel                | The customer can cancel until the order is confirmed; after that the customer can only [request cancellation](#request-cancel-us-c12). |
@@ -161,6 +163,8 @@ The customer opens a past order in the order history and chooses **Reorder**. Th
 
 Acceptance criteria:
 
+- A visitor who is not signed in can browse the catalog and fill a cart.
+- Submitting without being signed in asks for the visitor's details and e-mail address, and is refused without an e-mail address.
 - Reordering a completed order creates a draft with the same parameters and packages at current prices.
 - The original order, its invoices and its results are unchanged.
 
