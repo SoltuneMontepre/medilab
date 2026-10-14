@@ -5,6 +5,9 @@ from odoo.tests import HttpCase, new_test_user, tagged
 from .invoicing_case import InvoicingCase
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
+# The password of the test accountant is its login.
+ACCOUNTANT = "ketoan.audit"
+
 
 @tagged("post_install", "-at_install")
 class TestInvoices(InvoicingCase):
@@ -230,10 +233,7 @@ class TestInvoicePortalUrl(AuditLookup, InvoicingCase, HttpCase):
         cls.customer = cls.portal_user("khach.owner", cls.partner)
         cls.other = cls.portal_user("khach.url", other_partner)
         cls.accountant = new_test_user(
-            cls.env,
-            login="ketoan.audit",
-            password="ketoan.audit",
-            groups="base.group_user,account.group_account_manager",
+            cls.env, login=ACCOUNTANT, password=ACCOUNTANT, groups="base.group_user,account.group_account_manager"
         )
 
     def test_another_customers_invoice_url_does_not_open(self):
