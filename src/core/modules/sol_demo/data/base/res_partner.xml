@@ -132,4 +132,36 @@
         <field name="name">Le Thi Hoa</field>
         <field name="parent_id" ref="demo_res_partner_southern_micro" />
     </record>
+    <record id="demo_res_partner_nuoc_sach" model="res.partner">
+        <field name="name">Công ty TNHH Nước Uống Sạch</field>
+        <field name="is_company" eval="True" />
+        <field name="email">contact@nuocuongsach.example</field>
+        <field name="phone">028 3822 1100</field>
+        <field name="vat">0312345678</field>
+        <field name="street">12 Nguyễn Huệ</field>
+        <field name="city">Quận 1</field>
+        <field name="country_id" ref="base.vn" />
+    </record>
+    <record id="demo_res_partner_hoa" model="res.partner">
+        <field name="name">Phạm Thị Hoa</field>
+        <field name="parent_id" ref="demo_res_partner_nuoc_sach" />
+        <field name="email">pham.thi.hoa@nuocuongsach.example</field>
+        <field name="phone">0903 111 222</field>
+        <field name="type">contact</field>
+    </record>
+    <record id="demo_res_partner_khoa" model="res.partner">
+        <field name="name">Lê Văn Khoa</field>
+        <field name="parent_id" ref="demo_res_partner_nuoc_sach" />
+        <field name="email">le.van.khoa@nuocuongsach.example</field>
+        <field name="phone">0908 333 444</field>
+        <field name="type">contact</field>
+    </record>
+    <record id="demo_res_partner_minh" model="res.partner">
+        <field name="name">Trần Văn Minh</field>
+        <field name="email">tran.van.minh@example.com</field>
+        <field name="phone">0912 555 666</field>
+        <field name="street">45 Lê Lợi</field>
+        <field name="city">Quận 1</field>
+        <field name="country_id" ref="base.vn" />
+    </record>
 </odoo>

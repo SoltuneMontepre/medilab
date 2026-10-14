@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_approval_level_order_signing_sales" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_order_signing" />
+        <field name="sequence">10</field>
+        <field name="name">Sales</field>
+        <field name="role_id" ref="demo_role_sales" />
+        <field name="can_reject" eval="False" />
+    </record>
+    <record id="demo_approval_level_order_signing_head_of_sales" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_order_signing" />
+        <field name="sequence">20</field>
+        <field name="name">Head of Sales</field>
+        <field name="role_id" ref="demo_role_head_of_sales" />
+        <field name="can_reject" eval="True" />
+    </record>
+    <record id="demo_approval_level_order_change_request_department" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_order_change_request" />
+        <field name="sequence">10</field>
+        <field name="name">Head of Sales of the department</field>
+        <field name="role_id" ref="demo_role_head_of_sales" />
+        <field name="same_department" eval="True" />
+    </record>
+    <record id="demo_approval_level_order_change_request_final" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_order_change_request" />
+        <field name="sequence">20</field>
+        <field name="name">Head of Sales</field>
+        <field name="role_id" ref="demo_role_head_of_sales" />
+    </record>
+</odoo>
