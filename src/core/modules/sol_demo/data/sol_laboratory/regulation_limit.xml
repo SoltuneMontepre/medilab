@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_regulation_limit_qcvn_6_1_lead" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="unit_id" ref="demo_measurement_unit_mg_l" />
+        <field name="max_set" eval="True" />
+        <field name="max_value">0.01</field>
+        <field name="decimals">3</field>
+    </record>
+    <record id="demo_regulation_limit_qcvn_6_1_ph" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
+        <field name="parameter_id" ref="demo_test_parameter_ph" />
+        <field name="unit_id" ref="demo_measurement_unit_ph" />
+        <field name="min_set" eval="True" />
+        <field name="min_value">6.5</field>
+        <field name="max_set" eval="True" />
+        <field name="max_value">8.5</field>
+        <field name="decimals">1</field>
+    </record>
+    <record id="demo_regulation_limit_qcvn_6_1_e_coli" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
+        <field name="parameter_id" ref="demo_test_parameter_e_coli" />
+        <field name="limit_text">Not detected</field>
+    </record>
+    <record id="demo_regulation_limit_qcvn_6_1_coliforms" model="medilab.regulation.limit">
+        <field name="regulation_id" ref="demo_regulation_qcvn_6_1" />
+        <field name="parameter_id" ref="demo_test_parameter_coliforms" />
+        <field name="limit_text">Not detected</field>
+    </record>
+</odoo>

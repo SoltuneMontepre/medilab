@@ -12,7 +12,7 @@
         <field name="status">done</field>
     </record>
     <record id="demo_machine_booking_lead_running" model="medilab.machine.booking">
-        <field name="machine_id" ref="machine_aas" />
+        <field name="machine_id" ref="demo_machine_aas" />
         <field name="sample_test_id" ref="demo_sample_test_lead_running" />
         <field name="task_id" ref="demo_task_sample_test_lead_running" />
         <field name="person_id" ref="demo_person_chemistry_tester" />
@@ -32,7 +32,7 @@
         <field name="status">scheduled</field>
     </record>
     <record id="demo_machine_booking_lead_tomorrow" model="medilab.machine.booking">
-        <field name="machine_id" ref="machine_aas" />
+        <field name="machine_id" ref="demo_machine_aas" />
         <field name="sample_test_id" ref="demo_sample_test_lead_tomorrow" />
         <field name="task_id" ref="demo_task_sample_test_lead_tomorrow" />
         <field name="person_id" ref="demo_person_chemistry_tester" />

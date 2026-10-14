@@ -103,4 +103,97 @@
         <field name="email">pham.van.long@mail.example</field>
         <field name="vat">8012345678</field>
     </record>
+    <record id="demo_res_partner_northern_testing" model="res.partner">
+        <field name="name">Northern Testing Laboratory</field>
+        <field name="street">12 Tran Hung Dao</field>
+        <field name="city">Hanoi</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">+84 24 3826 0001</field>
+        <field name="email">contact@northern-testing.example</field>
+    </record>
+    <record id="demo_res_partner_northern_testing_contact" model="res.partner">
+        <field name="name">Nguyen Thi Lan</field>
+        <field name="parent_id" ref="demo_res_partner_northern_testing" />
+        <field name="email">lan.nguyen@northern-testing.example</field>
+    </record>
+    <record id="demo_res_partner_coastal_analytics" model="res.partner">
+        <field name="name">Coastal Analytical Services</field>
+        <field name="street">45 Bach Dang</field>
+        <field name="city">Da Nang</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">+84 236 382 0002</field>
+    </record>
+    <record id="demo_res_partner_coastal_analytics_contact" model="res.partner">
+        <field name="name">Tran Van Minh</field>
+        <field name="parent_id" ref="demo_res_partner_coastal_analytics" />
+    </record>
+    <record id="demo_res_partner_southern_micro" model="res.partner">
+        <field name="name">Southern Microbiology Centre</field>
+        <field name="street">88 Nguyen Hue</field>
+        <field name="city">Ho Chi Minh City</field>
+        <field name="country_id" ref="base.vn" />
+    </record>
+    <record id="demo_res_partner_southern_micro_contact" model="res.partner">
+        <field name="name">Le Thi Hoa</field>
+        <field name="parent_id" ref="demo_res_partner_southern_micro" />
+    </record>
+    <record id="demo_res_partner_nuoc_sach" model="res.partner">
+        <field name="name">Công ty TNHH Nước Uống Sạch</field>
+        <field name="is_company" eval="True" />
+        <field name="email">contact@nuocuongsach.example</field>
+        <field name="phone">028 3822 1100</field>
+        <field name="vat">0315678901</field>
+        <field name="street">12 Nguyễn Huệ</field>
+        <field name="city">Quận 1</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="image_1920" type="base64" file="sol_demo/static/img/logo_nuoc_sach.png" />
+    </record>
+    <record id="demo_res_partner_hoa" model="res.partner">
+        <field name="name">Phạm Thị Hoa</field>
+        <field name="parent_id" ref="demo_res_partner_nuoc_sach" />
+        <field name="function">Trưởng phòng Chất lượng</field>
+        <field name="email">pham.thi.hoa@nuocuongsach.example</field>
+        <field name="phone">0903 111 222</field>
+        <field name="type">contact</field>
+    </record>
+    <record id="demo_res_partner_khoa" model="res.partner">
+        <field name="name">Lê Văn Khoa</field>
+        <field name="parent_id" ref="demo_res_partner_nuoc_sach" />
+        <field name="function">Nhân viên Mua hàng</field>
+        <field name="email">le.van.khoa@nuocuongsach.example</field>
+        <field name="phone">0908 333 444</field>
+        <field name="type">contact</field>
+    </record>
+    <record id="demo_res_partner_minh" model="res.partner">
+        <field name="name">Trần Văn Minh</field>
+        <field name="email">tran.van.minh@example.com</field>
+        <field name="phone">0912 555 666</field>
+        <field name="street">45 Lê Lợi</field>
+        <field name="city">Quận 1</field>
+        <field name="country_id" ref="base.vn" />
+    </record>
+    <record id="demo_res_partner_lan" model="res.partner">
+        <field name="name">Ngô Thị Lan</field>
+        <field name="parent_id" ref="demo_res_partner_nuoc_sach" />
+        <field name="function">Kế toán</field>
+        <field name="email">ngo.thi.lan@nuocuongsach.example</field>
+        <field name="phone">0909 777 888</field>
+        <field name="type">contact</field>
+    </record>
+    <record id="demo_res_partner_nong_san_registered" model="res.partner">
+        <field name="name">Công ty CP Nông Sản Xanh</field>
+        <field name="email">tai.do@nongsanxanh.example</field>
+        <field name="phone">0263 382 9999</field>
+        <field name="vat">5801234567</field>
+        <field name="street">12 Hùng Vương</field>
+        <field name="city">Đà Lạt</field>
+        <field name="country_id" ref="base.vn" />
+    </record>
+    <record id="demo_res_partner_tai" model="res.partner">
+        <field name="name">Đỗ Văn Tài</field>
+        <field name="parent_id" ref="demo_res_partner_nong_san_registered" />
+        <field name="email">tai.do@nongsanxanh.example</field>
+        <field name="phone">0263 382 9999</field>
+        <field name="type">contact</field>
+    </record>
 </odoo>

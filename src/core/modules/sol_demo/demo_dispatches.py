@@ -26,8 +26,8 @@ def seed_dispatches(env):
     tester = env.ref("sol_demo.demo_res_users_tester")
     subcontractor_user = env.ref("sol_demo.demo_res_users_subcontractor")
     courier = env.ref("sol_demo.demo_person_sample_delivery_staff")
-    northern = env.ref("sol_demo.parameter_method_lead_subcontracted")
-    southern = env.ref("sol_demo.parameter_method_chlorpyrifos_ug")
+    northern = env.ref("sol_demo.demo_parameter_method_lead_subcontracted")
+    southern = env.ref("sol_demo.demo_parameter_method_chlorpyrifos_ug")
     today = fields.Date.today()
 
     water = _received_tests(env, "nuoc_sach", ("surface_water", "liquid"), "lead", WATER_SAMPLES, "2 bottles")
@@ -66,9 +66,11 @@ def _received_tests(env, customer, kind, parameter, names, quantity):
                 Command.create(
                     {
                         "customer_sample_name": name,
-                        "sample_type_id": env.ref(f"sol_demo.sample_type_{kind[0]}").id,
+                        "sample_type_id": env.ref(f"sol_demo.demo_sample_type_{kind[0]}").id,
                         "physical_state": kind[1],
-                        "test_ids": [Command.create({"parameter_id": env.ref(f"sol_demo.parameter_{parameter}").id})],
+                        "test_ids": [
+                            Command.create({"parameter_id": env.ref(f"sol_demo.demo_test_parameter_{parameter}").id})
+                        ],
                     }
                 )
                 for name in names
