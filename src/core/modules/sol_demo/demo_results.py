@@ -24,8 +24,8 @@ def seed_results(env):
         return
     tester = env.ref("sol_demo.demo_res_users_tester")
     head = env.ref("sol_demo.demo_res_users_head_of_department")
-    lead = env.ref("sol_demo.parameter_lead")
-    ph = env.ref("sol_demo.parameter_ph")
+    lead = env.ref("sol_demo.demo_test_parameter_lead")
+    ph = env.ref("sol_demo.demo_test_parameter_ph")
     request = _received_request(
         env,
         env.ref("sol_demo.demo_customer_an_phu"),
@@ -67,9 +67,9 @@ def _received_request(env, customer, samples, **values):
                 Command.create(
                     {
                         "customer_sample_name": name,
-                        "sample_type_id": env.ref("sol_demo.sample_type_bottled_water").id,
+                        "sample_type_id": env.ref("sol_demo.demo_sample_type_bottled_water").id,
                         "physical_state": "liquid",
-                        "regulation_id": env.ref("sol_demo.regulation_qcvn_6_1").id,
+                        "regulation_id": env.ref("sol_demo.demo_regulation_qcvn_6_1").id,
                         "test_ids": [Command.create({"parameter_id": parameter.id}) for parameter in parameters],
                     }
                 )

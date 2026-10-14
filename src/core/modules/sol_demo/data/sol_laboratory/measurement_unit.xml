@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_measurement_unit_mg_l" model="medilab.measurement.unit">
+        <field name="name">mg/L</field>
+        <field name="category_id" ref="demo_unit_category_liquid_concentration" />
+        <field name="factor">1</field>
+    </record>
+    <record id="demo_measurement_unit_ug_l" model="medilab.measurement.unit">
+        <field name="name">µg/L</field>
+        <field name="category_id" ref="demo_unit_category_liquid_concentration" />
+        <field name="factor">0.001</field>
+    </record>
+    <record id="demo_measurement_unit_ppb" model="medilab.measurement.unit">
+        <field name="name">ppb</field>
+        <field name="category_id" ref="demo_unit_category_liquid_concentration" />
+        <field name="factor">0.001</field>
+        <field name="active" eval="False" />
+    </record>
+    <record id="demo_measurement_unit_mg_kg" model="medilab.measurement.unit">
+        <field name="name">mg/kg</field>
+        <field name="category_id" ref="demo_unit_category_mass_fraction" />
+        <field name="factor">1</field>
+    </record>
+    <record id="demo_measurement_unit_ug_kg" model="medilab.measurement.unit">
+        <field name="name">µg/kg</field>
+        <field name="category_id" ref="demo_unit_category_mass_fraction" />
+        <field name="factor">0.001</field>
+    </record>
+    <record id="demo_measurement_unit_cfu_g" model="medilab.measurement.unit">
+        <field name="name">CFU/g</field>
+        <field name="category_id" ref="demo_unit_category_count_per_mass" />
+        <field name="factor">1</field>
+    </record>
+    <record id="demo_measurement_unit_mpn_100ml" model="medilab.measurement.unit">
+        <field name="name">MPN/100 mL</field>
+        <field name="category_id" ref="demo_unit_category_count_per_volume" />
+        <field name="factor">1</field>
+    </record>
+    <record id="demo_measurement_unit_cfu_100ml" model="medilab.measurement.unit">
+        <field name="name">CFU/100 mL</field>
+        <field name="category_id" ref="demo_unit_category_count_per_volume" />
+        <field name="factor">1</field>
+    </record>
+    <record id="demo_measurement_unit_ph" model="medilab.measurement.unit">
+        <field name="name">pH</field>
+        <field name="category_id" ref="demo_unit_category_acidity" />
+        <field name="factor">1</field>
+    </record>
+    <record id="demo_measurement_unit_ml" model="medilab.measurement.unit">
+        <field name="name">mL</field>
+        <field name="category_id" ref="demo_unit_category_volume" />
+        <field name="factor">1</field>
+    </record>
+    <record id="demo_measurement_unit_g" model="medilab.measurement.unit">
+        <field name="name">g</field>
+        <field name="category_id" ref="demo_unit_category_mass" />
+        <field name="factor">1</field>
+    </record>
+</odoo>

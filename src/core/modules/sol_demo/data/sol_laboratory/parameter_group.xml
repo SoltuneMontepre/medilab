@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_parameter_group_microbiology" model="medilab.parameter.group">
+        <field name="name">Microbiology</field>
+    </record>
+    <record id="demo_parameter_group_heavy_metals" model="medilab.parameter.group">
+        <field name="name">Heavy metals</field>
+    </record>
+    <record id="demo_parameter_group_pesticides" model="medilab.parameter.group">
+        <field name="name">Pesticides</field>
+    </record>
+    <record id="demo_parameter_group_organophosphates" model="medilab.parameter.group">
+        <field name="name">Organophosphates</field>
+        <field name="parent_id" ref="demo_parameter_group_pesticides" />
+    </record>
+    <record id="demo_parameter_group_physicochemical" model="medilab.parameter.group">
+        <field name="name">Physicochemical</field>
+    </record>
+</odoo>

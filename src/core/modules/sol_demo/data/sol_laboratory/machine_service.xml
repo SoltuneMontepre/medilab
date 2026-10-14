@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_machine_service_aas_calibration" model="medilab.machine.service">
+        <field name="machine_id" ref="demo_machine_aas" />
+        <field name="kind">calibration</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=2)).strftime('%Y-%m-%d')" />
+        <field name="next_due_date" eval="(DateTime.today() + relativedelta(months=10)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">Quality Assurance and Testing Centre</field>
+        <field name="reference">HC-2026-0412</field>
+    </record>
+    <record id="demo_machine_service_aas_maintenance" model="medilab.machine.service">
+        <field name="machine_id" ref="demo_machine_aas" />
+        <field name="kind">maintenance</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=1)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">PerkinElmer Vietnam</field>
+        <field name="reference">BT-2026-118</field>
+        <field name="note">Replaced the lamp and cleaned the burner.</field>
+    </record>
+    <record id="demo_machine_service_icpms_calibration" model="medilab.machine.service">
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="kind">calibration</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=13)).strftime('%Y-%m-%d')" />
+        <field name="next_due_date" eval="(DateTime.today() - relativedelta(months=1)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">Quality Assurance and Testing Centre</field>
+        <field name="reference">HC-2025-0907</field>
+    </record>
+    <record id="demo_machine_service_incubator_calibration" model="medilab.machine.service">
+        <field name="machine_id" ref="demo_machine_incubator" />
+        <field name="kind">calibration</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=4)).strftime('%Y-%m-%d')" />
+        <field name="next_due_date" eval="(DateTime.today() + relativedelta(months=8)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">Quality Assurance and Testing Centre</field>
+        <field name="reference">HC-2026-0233</field>
+    </record>
+    <record id="demo_machine_service_incubator_repair" model="medilab.machine.service">
+        <field name="machine_id" ref="demo_machine_incubator" />
+        <field name="kind">repair</field>
+        <field name="service_date" eval="DateTime.today().strftime('%Y-%m-%d')" />
+        <field name="performed_by">Memmert service partner</field>
+        <field name="note">Temperature drifts by 2 °C; controller board sent for repair.</field>
+    </record>
+    <record id="demo_machine_service_aas_2_calibration" model="medilab.machine.service">
+        <field name="machine_id" ref="demo_machine_aas_2" />
+        <field name="kind">calibration</field>
+        <field name="service_date" eval="(DateTime.today() - relativedelta(months=1)).strftime('%Y-%m-%d')" />
+        <field name="next_due_date" eval="(DateTime.today() + relativedelta(months=11)).strftime('%Y-%m-%d')" />
+        <field name="performed_by">Quality Assurance and Testing Centre</field>
+        <field name="reference">HC-2026-0518</field>
+    </record>
+    <record id="demo_machine_service_aas_3_repair" model="medilab.machine.service">
+        <field name="machine_id" ref="demo_machine_aas_3" />
+        <field name="kind">repair</field>
+        <field name="service_date" eval="DateTime.today().strftime('%Y-%m-%d')" />
+        <field name="performed_by">PerkinElmer Vietnam</field>
+        <field name="note">The graphite furnace does not reach temperature; waiting for a new power supply.</field>
+    </record>
+</odoo>

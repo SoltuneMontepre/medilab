@@ -13,8 +13,8 @@ def seed_reports(env):
     beside a cancelled test, a rejected one with a result sent back, and issued ones in Vietnamese, English and both."""
     if env.ref("sol_demo.demo_test_report_draft", raise_if_not_found=False):
         return
-    lead = env.ref("sol_demo.parameter_lead")
-    ph = env.ref("sol_demo.parameter_ph")
+    lead = env.ref("sol_demo.demo_test_parameter_lead")
+    ph = env.ref("sol_demo.demo_test_parameter_ph")
     lab_head = env.ref("sol_demo.demo_res_users_lab_head")
     requests = {
         "draft": _completed_request(
@@ -38,7 +38,7 @@ def seed_reports(env):
             (("Suoi Mat mineral water 500 mL lot 1005", (lead, ph)),),
             report_language="en",
             delivery_method="email",
-            report_recipient_id=env.ref("sol_demo.demo_partner_hoa").id,
+            report_recipient_id=env.ref("sol_demo.demo_res_partner_hoa").id,
         ),
         "in_person": _completed_request(env, (("Nước uống đóng chai Suối Mát 5 L lô 1006", (lead, ph)),)),
     }
@@ -77,7 +77,7 @@ def _completed_request(env, samples, cancelled=(), **values):
             if (index, test.parameter_id) in cancelled:
                 test.with_user(head).action_cancel("Too little sample was left for pH after the lead digestion.")
                 continue
-            value = 0.004 if test.parameter_id == env.ref("sol_demo.parameter_lead") else 7.2
+            value = 0.004 if test.parameter_id == env.ref("sol_demo.demo_test_parameter_lead") else 7.2
             result = _enter(env, tester, test, value=value, conclusion="pass")
             result.with_user(tester).action_sign()
             result.with_user(head).action_sign()
