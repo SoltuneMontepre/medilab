@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
-from odoo.fields import Domain
+from odoo.fields import Command, Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MACHINE,
@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SAMPLE,
     MODEL_SAMPLE_TEST,
+    MODEL_SUBCONTRACT_DISPATCH,
     MODEL_TASK,
     MODEL_TEST_PARAMETER,
     MODEL_TEST_RESULT,
@@ -87,9 +88,21 @@ class SampleTest(models.Model):
     cancelled_at = fields.Datetime(readonly=True, copy=False)
     # True when the due date is within the urgency threshold.
     is_urgent = fields.Boolean(string="Urgent", compute="_compute_is_urgent")
-    # The parameter's subcontracted ways of testing, through which an outsourcing suggestion sends the test.
+    # The parameter's subcontracted ways of testing whose subcontractor can be chosen, through which an outsourcing
+    # suggestion sends the test.
     subcontracted_method_ids = fields.Many2many(
         MODEL_PARAMETER_METHOD, string="Subcontracted Ways", compute="_compute_subcontracted_method_ids"
+    )
+    # The subcontractor that tests it; empty when the laboratory tests it in-house.
+    subcontractor_id = fields.Many2one(related="parameter_method_id.subcontractor_id")
+    # Dispatches that send the test to a subcontractor.
+    dispatch_ids = fields.Many2many(
+        MODEL_SUBCONTRACT_DISPATCH,
+        "medilab_subcontract_dispatch_test_rel",
+        "sample_test_id",
+        "dispatch_id",
+        string="Dispatches",
+        readonly=True,
     )
     # The way of testing the scheduler recommends to the assignee of the test's testing task.
     recommended_method_id = fields.Many2one(MODEL_PARAMETER_METHOD, compute="_compute_recommendation")
@@ -123,7 +136,9 @@ class SampleTest(models.Model):
 
     def _compute_subcontracted_method_ids(self):
         for test in self:
-            test.subcontracted_method_ids = test.parameter_id.method_ids.filtered("subcontractor_id")
+            test.subcontracted_method_ids = test.parameter_id.method_ids.filtered(
+                lambda way: way.subcontractor_id._can_be_chosen()
+            )
 
     def _compute_recommendation(self):
         bookings = self.env[MODEL_MACHINE_BOOKING]
@@ -177,6 +192,32 @@ class SampleTest(models.Model):
             "context": {"default_sample_test_id": self.id},
         }
 
+    def _accept_outsourcing(self, way):
+        """Send a test suggested for outsourcing to the subcontractor of the way of testing: it leaves the machine queue
+        and joins the subcontractor's draft dispatch, which is returned."""
+        self.ensure_one()
+        self._check_permission("edit")
+        if not self.outsourcing_suggested or self.status not in ("waiting", "assigned"):
+            raise UserError(self.env._("%s is not suggested for outsourcing.", self.display_name))
+        if way not in self.subcontracted_method_ids:
+            raise UserError(
+                self.env._(
+                    "%(way)s is not a subcontracted way of testing %(test)s whose subcontractor can be chosen.",
+                    way=way.display_name,
+                    test=self.display_name,
+                )
+            )
+        test = self.sudo()
+        test.write({"parameter_method_id": way.id, "outsourcing_suggested": False})
+        test._release_bookings()
+        test._progress("outsourced")
+        dispatches = self.env[MODEL_SUBCONTRACT_DISPATCH]
+        dispatch = dispatches.search(
+            [("subcontractor_id", "=", way.subcontractor_id.id), ("status", "=", "draft")], order="id", limit=1
+        ) or dispatches.create({"subcontractor_id": way.subcontractor_id.id})
+        dispatch.sample_test_ids = [Command.link(self.id)]
+        return dispatch
+
     def action_cancel(self, reason):
         """The department doing the tests cancels them with a reason; the report leaves them out."""
         if not (reason or "").strip():
@@ -201,11 +242,20 @@ class SampleTest(models.Model):
         tests = self.filtered(lambda test: test.status in OPEN_STATUSES)
         tests.status = "cancelled"
         self.env[MODEL_TASK]._cancel_for_document(tests, TESTING_ACTION)
-        bookings = tests.sudo().booking_ids._open()
+        tests._release_bookings()
+        tests.sample_id._follow_tests()
+
+    def _release_bookings(self):
+        """The tests leave the machines: their open bookings are cancelled and the queue gets the slots."""
+        bookings = self.sudo().booking_ids._open()
         if bookings:
             bookings._set({"status": "cancelled"})
             bookings._process_queue()
-        tests.sample_id._follow_tests()
+
+    def _work_status(self):
+        """The status of the test while it is worked on: by the laboratory, or by the subcontractor of its way."""
+        self.ensure_one()
+        return "outsourced" if self.subcontractor_id else "testing"
 
     def _start(self):
         """The first measurement starts the test, and with it its sample and test request."""

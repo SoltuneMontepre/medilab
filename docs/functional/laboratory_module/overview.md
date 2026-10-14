@@ -97,7 +97,8 @@ stateDiagram-v2
     assigned --> testing: test started
     waiting --> testing: test started before it is assigned
     testing --> result_entered: result entered and sent for approval
-    outsourced --> result_entered: subcontractor result entered
+    outsourced --> result_entered: subcontractor's result sent for approval
+    result_entered --> outsourced: outsourced result rejected or withdrawn
     result_entered --> testing: result rejected or withdrawn
     result_entered --> approved: result approved
     waiting --> cancelled
@@ -128,11 +129,11 @@ stateDiagram-v2
 | Limit copy      | When a result is created, the limit of the sample's regulation for its parameter is copied onto it with its unit. Later changes to the regulation do not change existing results. |
 | Versions        | A change request on a result whose process is completed creates a new version that replaces it. The signed version stays unchanged and is marked as replaced. |
 | Measurement     | A result records the machine it ran on and when it started, both taken from its booking and correctable by the lab QA; an outsourced result has no machine. The time the result is entered is when the measurement is done: the test's scheduled or running bookings are done, and a booking still waiting in the queue is cancelled. |
-| Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA. |
+| Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA, once its dispatch is sent. A lab QA sends them for approval like their own. |
 | Conclusion      | The tester sets each result's conclusion, pass or fail, when the sample has a regulation.                                         |
 | No self-approval | The person who entered a result cannot approve it; another person who signs that level must. Signing the first level of a chain with more than one level sends the result; any other signature approves it. |
 | Final decision  | The tester can withdraw a result they sent until the head of department acts. The head's approval or rejection completes the result's process, so neither can be withdrawn: a rejected result stays on record and a retest adds a new one. Rejecting tells the person who entered the result the reason. |
-| Progress        | Entering the first result, or starting a booking, starts the test, its sample and its test request. A sample waits for approval once each of its remaining tests has its reported result sent, and is completed once each is approved; its test request follows its samples the same way. Cancelled tests, and cancelled or rejected samples, do not count. |
+| Progress        | Entering the first result, or starting a booking, starts the test, its sample and its test request; outsourcing a test starts its sample and its test request. A sample waits for approval once each of its remaining tests has its reported result sent, and is completed once each is approved; its test request follows its samples the same way. Cancelled tests, and cancelled or rejected samples, do not count. |
 | Cancelling      | The head of department can cancel a sample test of their department that has no approved result, with a reason, such as the parameter cannot be tested on the sample: a person of the department of the test's testing task who may edit sample tests. Only a waiting, assigned or testing test can be cancelled. Its task and bookings, running ones included, are cancelled. A cancelled test is left out of the report; its reason stays on the test request. |
 | No deletion     | A result cannot be deleted, and neither can the sample test, sample or test request it belongs to. |
 
@@ -195,7 +196,7 @@ flowchart LR
 | Changing a due date | A sample test's due date can be changed by hand; the date from the safety margin is its default. |
 | Due date check     | A due date falls on a weekday. When a due date is set, the scheduler checks that the test has a free slot that finishes before it, or that other bookings can move to make room without missing their own due dates; otherwise it reports that the date cannot be met. |
 | Bookings as tasks  | A scheduled booking appears on the person's schedule and in their to-do list as part of their testing task, due at its start.                |
-| Outsourcing        | The head of department decides on outsourcing suggestions. Sample tests tested by a subcontractor are sent in a dispatch with the date sent and the date results are expected back, carried by sample delivery staff or a delivery service. |
+| Outsourcing        | The head of department decides on outsourcing suggestions. Sample tests tested by a subcontractor are sent in a dispatch with the date sent and the date results are expected back, carried by sample delivery staff or a delivery service. A dispatch is draft, sent, received or cancelled; a sample test is in one dispatch that is not cancelled, a cancelled dispatch's tests stay outsourced for another dispatch, and a dispatch whose tests have results cannot be cancelled. |
 
 ## Actors
 

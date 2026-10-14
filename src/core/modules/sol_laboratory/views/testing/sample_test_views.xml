@@ -14,11 +14,20 @@
                         invisible="not recommended_machine_id"
                     />
                     <button
+                        name="%(action_medilab_sample_test_outsource)d"
+                        type="action"
+                        string="Outsource"
+                        class="btn-success"
+                        context="{'default_sample_test_id': id}"
+                        invisible="not outsourcing_suggested or status not in ('waiting', 'assigned') or not subcontracted_method_ids"
+                        groups="sol_laboratory.group_permission_subcontract_dispatch_create_all"
+                    />
+                    <button
                         name="action_enter_result"
                         type="object"
                         string="Enter Result"
                         class="btn-primary"
-                        invisible="status not in ('waiting', 'assigned', 'testing')"
+                        invisible="status not in ('waiting', 'assigned', 'testing', 'outsourced')"
                         groups="sol_laboratory.group_permission_test_result_create_all"
                     />
                     <button
@@ -89,6 +98,22 @@
                                 </list>
                             </field>
                         </page>
+                        <page
+                            string="Dispatches"
+                            name="dispatches"
+                            invisible="not dispatch_ids"
+                            groups="sol_laboratory.group_permission_subcontract_dispatch_read_all"
+                        >
+                            <field name="dispatch_ids">
+                                <list>
+                                    <field name="code" />
+                                    <field name="subcontractor_id" />
+                                    <field name="sent_date" />
+                                    <field name="expected_date" />
+                                    <field name="status" widget="badge" />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Bookings" name="bookings">
                             <field name="booking_ids" readonly="1">
                                 <list decoration-muted="status in ('done', 'cancelled')">
@@ -125,6 +150,15 @@
                 <field name="due_date" decoration-danger="is_urgent" />
                 <field name="subcontracted_method_ids" widget="many2many_tags" />
                 <field name="status" widget="badge" />
+                <button
+                    name="%(action_medilab_sample_test_outsource)d"
+                    type="action"
+                    string="Outsource"
+                    class="btn-success"
+                    context="{'default_sample_test_id': id}"
+                    invisible="not subcontracted_method_ids"
+                    groups="sol_laboratory.group_permission_subcontract_dispatch_create_all"
+                />
             </list>
         </field>
     </record>

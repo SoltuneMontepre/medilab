@@ -75,7 +75,8 @@
                             <field name="entered_at" invisible="not id" />
                         </group>
                         <group>
-                            <field name="machine_id" readonly="status != 'none'" />
+                            <field name="subcontractor_id" invisible="not subcontractor_id" />
+                            <field name="machine_id" invisible="subcontractor_id" readonly="status != 'none'" />
                             <field name="started_at" readonly="status != 'none'" />
                         </group>
                     </group>
