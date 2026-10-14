@@ -7848,12 +7848,6 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample.py:0
-msgid "Only a reported sample whose sample type is kept can be retained."
-msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
 msgid "Only a sample on hold can be collected again."
 msgstr ""
 
@@ -8152,11 +8146,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__reminder_lead_minutes
 msgid "Reminder lead (minutes)"
-msgstr ""
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
-msgid "Retain"
 msgstr ""
 
 #. module: sol_laboratory
@@ -9811,4 +9800,57 @@ msgstr ""
 #. module: sol_laboratory
 #: model:mail.message.subtype,description:sol_laboratory.event_test_report_issued
 msgid "The test report of your request is issued and ready to download"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/ir_attachment.py:0
+msgid "The files of a signed or issued document cannot be changed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid "A handover record is signed only by the customer, on the mobile app."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only the head of a department that tests %s asks for it to be collected again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Add a sample test to a dispatch, or take it out, on the dispatch."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "A business is identified by its tax code, not a citizen ID."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Only the name, position, email, phone and address of the customer's people change here."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "A department records receiving a sample by scanning its label."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "A received handover cannot move to another sample or department."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_report_sol_laboratory_report_test_report
+msgid "Test Report Document"
 msgstr ""

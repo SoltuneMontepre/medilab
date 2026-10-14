@@ -3,6 +3,7 @@ from ast import literal_eval
 from freezegun import freeze_time
 
 from odoo.exceptions import UserError, ValidationError
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from .dispatch_case import DispatchCase
@@ -146,3 +147,14 @@ class TestSubcontractDispatch(DispatchCase):
             .create({"sample_test_id": self.test.id, "value": 0.006})
         )
         self.assertEqual(retest.attempt, 2)
+
+    def test_a_test_joins_a_dispatch_only_through_the_dispatch(self):
+        dispatch = self.outsource()
+        in_house = self.add_test()
+
+        with self.assertRaises(UserError):
+            self.as_person(in_house, self.head).write({"dispatch_ids": [Command.link(dispatch.id)]})
+        with self.assertRaises(ValidationError):
+            self.as_person(self.test, self.head).write({"parameter_method_id": self.southern_way.id})
+        self.assertEqual(dispatch.sample_test_ids, self.test)
+        self.assertEqual(self.test.subcontractor_id, self.northern)

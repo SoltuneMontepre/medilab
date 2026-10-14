@@ -94,6 +94,7 @@ stateDiagram-v2
 stateDiagram-v2
     [*] --> waiting
     waiting --> assigned: assigned to a person
+    assigned --> waiting: put back in the department queue
     waiting --> outsourced: sent to a subcontractor
     assigned --> outsourced: sent to a subcontractor
     assigned --> testing: test started

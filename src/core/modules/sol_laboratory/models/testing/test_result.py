@@ -37,8 +37,25 @@ TEST_STATUS_BY_STATE = {
     STATE_APPROVED: "approved",
     STATE_REJECTED: "testing",
 }
-# What the tester enters: edits stop once a signature stands.
-CONTENT_FIELDS = frozenset({"value", "value_decimals", "value_text", "machine_id", "started_at", "conclusion"})
+# What the tester enters, and the unit and limit copied with it: edits stop once a signature stands.
+CONTENT_FIELDS = frozenset(
+    {
+        "value",
+        "value_decimals",
+        "value_text",
+        "machine_id",
+        "started_at",
+        "conclusion",
+        "unit_id",
+        "limit_unit_id",
+        "limit_min_set",
+        "limit_min",
+        "limit_max_set",
+        "limit_max",
+        "limit_decimals",
+        "limit_text",
+    }
+)
 
 
 # Kết Quả Thử Nghiệm

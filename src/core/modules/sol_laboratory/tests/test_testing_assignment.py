@@ -97,3 +97,16 @@ class TestTestingAssignment(SchedulingCase):
         task.write({"assignee_id": False, "status": "open", "reassign_reason": "Back to the queue"})
         self.assertEqual(booking.status, "cancelled")
         self.assertFalse(booking.calendar_event_id)
+
+    def test_the_test_is_assigned_with_its_testing_task_and_waits_again_back_in_the_queue(self):
+        task = self.testing_task(self.test)
+        self.assertEqual(self.test.status, "waiting")
+
+        self.as_person(task, self.tester).action_claim()
+        self.assertEqual(self.test.status, "assigned")
+
+        wizard = self.as_person(self.env[MODEL_TASK_REASSIGN], self.head).with_context(active_ids=task.ids)
+        wizard.create(
+            {"department_id": self.department.id, "assignee_id": False, "reason": "The tester is on leave"}
+        ).action_confirm()
+        self.assertEqual((task.status, self.test.status), ("open", "waiting"))

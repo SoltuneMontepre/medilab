@@ -35,7 +35,7 @@ class ApprovalMixin(models.AbstractModel):
     approval_can_withdraw = fields.Boolean(compute="_compute_approval_actions")
 
     def write(self, vals):
-        content_fields = set(vals) & self._approval_content_fields()
+        content_fields = set(vals) & (self._approval_content_fields() | {"document_version"})
         if content_fields and not self.env.context.get(APPROVAL_SYSTEM_CONTEXT) and self._approval_has_standing():
             raise UserError(self.env._("The document has signatures; withdraw them before changing it."))
         return super().write(vals)

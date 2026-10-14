@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.fields import Command
 from odoo.tests import tagged
@@ -139,12 +140,15 @@ class TestSampleReception(RequestCase):
         self.assertEqual(message.subtype_id, self.env.ref("sol_laboratory.event_sample_insufficient"))
         self.assertEqual(message.notification_ids.res_partner_id, head.user_id.partner_id)
 
-    def test_requesting_recollection_records_who_asked_and_creates_one_task(self):
+    def test_the_head_of_department_asks_to_collect_again_and_one_task_is_created(self):
+        head = self.head_of(self.department)
         sample = self.receive("50 mL", "insufficient")
 
-        sample.action_request_recollection()
+        with self.assertRaises(UserError):
+            sample.action_request_recollection()
+        sample.with_user(head.user_id).action_request_recollection()
 
-        self.assertEqual(sample.recollection_requested_by_id, self.staff)
+        self.assertEqual(sample.recollection_requested_by_id, head)
         self.assertTrue(sample.recollection_requested_at)
         tasks = self.env[MODEL_TASK].search(
             [("type_id.code", "=", SAMPLE_COLLECTION_CODE), ("document_id", "=", sample.id)]
@@ -152,7 +156,7 @@ class TestSampleReception(RequestCase):
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks.assignee_id, sample.received_by_id)
         with self.assertRaises(UserError):
-            sample.action_request_recollection()
+            sample.with_user(head.user_id).action_request_recollection()
 
     def test_more_sample_puts_it_back_to_received_with_its_testing_tasks(self):
         sample = self.receive("50 mL", "insufficient")
@@ -201,3 +205,31 @@ class TestSampleReception(RequestCase):
         self.assertEqual(handover.department_id, self.department)
         with self.assertRaises(UserError):
             self.env[MODEL_SAMPLE_HANDOVER].with_user(outsider.user_id).receive_by_label(sample.code)
+
+    def test_a_department_receipt_is_recorded_only_by_scanning_the_label(self):
+        sample = self.receive("1 L", "good")
+        microbiology = self.env[MODEL_DEPARTMENT].create({"name": "Microbiology"})
+        clerk = self.env[MODEL_PERSON].create(
+            {
+                "name": "Tran Thi Binh",
+                "login": "binh.clerk",
+                "department_id": microbiology.id,
+                "permission_ids": [
+                    Command.set(
+                        [
+                            self.env.ref(f"sol_laboratory.permission_{name}").id
+                            for name in ("sample_read_all", "sample_handover_read_all", "sample_handover_edit_all")
+                        ]
+                    )
+                ],
+            }
+        )
+        handover = sample.handover_ids.with_user(clerk.user_id)
+
+        with self.assertRaises(UserError):
+            handover.write({"received_at": fields.Datetime.now(), "received_by_id": clerk.id})
+        insider = self.department_person("Nguyen Van An", "an.scan", self.department)
+        self.env[MODEL_SAMPLE_HANDOVER].with_user(insider.user_id).receive_by_label(sample.code)
+        with self.assertRaises(UserError):
+            handover.write({"department_id": microbiology.id})
+        self.assertEqual((handover.department_id, handover.received_by_id), (self.department, insider))

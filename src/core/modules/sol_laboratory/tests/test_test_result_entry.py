@@ -92,6 +92,14 @@ class TestTestResultEntry(ResultCase):
         with self.assertRaises(UserError):
             self.as_person(result, self.tester).write({"value": 0.002})
 
+    def test_the_copied_limit_of_a_signed_result_cannot_be_changed(self):
+        result = self.enter()
+        self.send(result)
+
+        for values in ({"limit_max": 999}, {"limit_text": "Any"}, {"unit_id": False}, {"document_version": 9}):
+            with self.subTest(values=values), self.assertRaises(UserError):
+                self.as_person(result, self.head).write(values)
+
     def test_no_result_is_entered_while_one_waits_for_approval(self):
         self.send(self.enter())
 

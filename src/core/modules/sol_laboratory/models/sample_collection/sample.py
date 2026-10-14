@@ -257,6 +257,13 @@ class Sample(models.Model):
         for sample in self:
             if sample.status != "on_hold":
                 raise UserError(self.env._("Only a sample on hold can be collected again."))
+            # The head of a department is its manager.
+            if not self.env.su and self.env.user not in sample.sudo()._test_departments().manager_id.user_id:
+                raise UserError(
+                    self.env._(
+                        "Only the head of a department that tests %s asks for it to be collected again.", sample.code
+                    )
+                )
             if sample.recollection_requested_at:
                 raise UserError(self.env._("Collecting %s again is already asked for.", sample.code))
             if not sample.received_by_id:
@@ -276,15 +283,13 @@ class Sample(models.Model):
                 }
             )
 
-    def action_retain(self):
-        today = self._company_today()
-        for sample in self:
-            if sample.status != "reported" or not sample.sample_type_id.is_retained:
-                raise UserError(self.env._("Only a reported sample whose sample type is kept can be retained."))
+    def _retain(self, report_day):
+        """Keep the reported samples whose sample type is kept until the report day plus its retention days."""
+        for sample in self.filtered(lambda sample: sample.sample_type_id.is_retained):
             sample.write(
                 {
                     "status": "retained",
-                    "retained_until": today + timedelta(days=sample.sample_type_id.retention_days or 0),
+                    "retained_until": report_day + timedelta(days=sample.sample_type_id.retention_days or 0),
                 }
             )
 

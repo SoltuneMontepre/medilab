@@ -116,6 +116,15 @@ class SampleTest(models.Model):
 
     _quantity_positive = models.Constraint("CHECK(quantity >= 1)", "A parameter is tested at least once on a sample.")
 
+    def write(self, vals):
+        if "dispatch_ids" in vals and not self.env.su:
+            raise UserError(self.env._("Add a sample test to a dispatch, or take it out, on the dispatch."))
+        result = super().write(vals)
+        if "parameter_method_id" in vals:
+            # The tests of a dispatch go to its subcontractor, whichever side changes.
+            self.sudo().dispatch_ids.filtered(lambda dispatch: dispatch.status != "cancelled")._check_sample_tests()
+        return result
+
     @api.depends("sample_id.request_id.expected_date")
     def _compute_due_date(self):
         # The margin is read here and is not a dependency: changing it leaves due dates already stored.
@@ -169,6 +178,16 @@ class SampleTest(models.Model):
             name=f"{self.sample_id.code}: {self.parameter_id.display_name}",
             note=note,
         )
+
+    @api.model
+    def _follow_assignment(self, tasks):
+        """A test not started yet is assigned while its testing task has a person, and waits while it is in a queue."""
+        for task in tasks.sudo().filtered(
+            lambda task: task.document_model == self._name and task.action == TESTING_ACTION and task.document_id
+        ):
+            test = self.sudo().browse(task.document_id)
+            if test.status in ("waiting", "assigned"):
+                test.status = "assigned" if task.assignee_id else "waiting"
 
     def _tested_by(self):
         """The department of the test's latest testing task, finished or not."""

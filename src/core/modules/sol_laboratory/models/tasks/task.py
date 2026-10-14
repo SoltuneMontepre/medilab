@@ -159,6 +159,7 @@ class Task(models.Model):
             self._check_reassign(vals)
         result = super().write(vals)
         if "assignee_id" in vals:
+            self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
             self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)
         if not self.env.context.get("medilab_skip_calendar_sync") and {
             "planned_start",

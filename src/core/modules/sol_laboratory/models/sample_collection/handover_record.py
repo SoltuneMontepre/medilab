@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.models import (
@@ -12,6 +12,11 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_HANDOVER_RECORD_SIGNED
 from odoo.addons.sol_laboratory.constants.xml_ids import HANDOVER_RECORD_REPORT
+
+# Fields only signing sets, so a record is signed only with the customer's signature, its PDF and its email.
+SIGNING_FIELDS = frozenset(
+    {"status", "signed_at", "signature_attachment_id", "signed_device_id", "attachment_id", "sent_at"}
+)
 
 
 # Biên Bản Giao Nhận Mẫu
@@ -59,9 +64,19 @@ class HandoverRecord(models.Model):
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a handover record must be unique.")
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        if not self.env.su:
+            for vals in vals_list:
+                for name in SIGNING_FIELDS:
+                    vals.pop(name, None)
+        return super().create(vals_list)
+
     def write(self, vals):
         if any(record.status == "signed" for record in self):
             raise UserError(self.env._("A signed handover record cannot be changed. Create a new record instead."))
+        if SIGNING_FIELDS & set(vals) and not self.env.su:
+            raise UserError(self.env._("A handover record is signed only by the customer, on the mobile app."))
         return super().write(vals)
 
     def unlink(self):
@@ -80,11 +95,12 @@ class HandoverRecord(models.Model):
             raise UserError(self.env._("A signed handover record cannot be changed. Create a new record instead."))
         if not self.sample_ids:
             raise UserError(self.env._("Add the samples to handover record %s before signing it.", self.code))
+        self.check_access("write")
         attachments = self.env["ir.attachment"]
         signature_attachment = attachments.create(
             {"name": f"{self.code}-signature.png", "raw": signature, "res_model": self._name, "res_id": self.id}
         )
-        self.write({"signature_attachment_id": signature_attachment.id, "signed_device_id": device_id or False})
+        self.sudo().write({"signature_attachment_id": signature_attachment.id, "signed_device_id": device_id or False})
         pdf, _report_type = self.env["ir.actions.report"]._render_qweb_pdf(HANDOVER_RECORD_REPORT, self.ids)
         pdf_attachment = attachments.create(
             {
@@ -106,7 +122,7 @@ class HandoverRecord(models.Model):
             attachments=pdf_attachment,
         )
         now = fields.Datetime.now()
-        self.write(
+        self.sudo().write(
             {
                 "attachment_id": pdf_attachment.id,
                 "signed_at": now,
@@ -114,3 +130,7 @@ class HandoverRecord(models.Model):
                 "status": "signed",
             }
         )
+
+    def _files_locked(self):
+        """True when a record's signature and PDF can no longer change."""
+        return any(record.status == "signed" for record in self)

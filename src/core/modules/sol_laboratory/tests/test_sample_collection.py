@@ -66,7 +66,7 @@ class TestSampleCollection(RequestCase):
         sample = self.sample.with_user(self.staff.user_id)
         sample.action_receive("50 mL", "insufficient")
 
-        sample.action_request_recollection()
+        sample.with_user(self.head_of(self.department).user_id).action_request_recollection()
         task = self.env[MODEL_TASK].search(
             [
                 ("type_id.code", "=", SAMPLE_COLLECTION_CODE),

@@ -19,7 +19,7 @@ class TestSampleTestCancellation(ResultCase):
         with self.assertRaises(UserError):
             self.cancel(self.test, reason=" ")
 
-        self.assertEqual(self.test.status, "waiting")
+        self.assertEqual(self.test.status, "assigned")
 
     def test_cancelling_cancels_the_task_and_running_booking_and_keeps_the_reason_on_the_request(self):
         booking = self.schedule(self.test, self.tester)

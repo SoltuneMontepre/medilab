@@ -10,6 +10,9 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_HANDOVER,
 )
 
+# Fields only scanning the sample's label sets, for the scanner's department.
+RECEIPT_FIELDS = frozenset({"received_at", "received_by_id"})
+
 
 # Bàn Giao Mẫu
 class SampleHandover(models.Model):
@@ -45,7 +48,19 @@ class SampleHandover(models.Model):
                     format_list(self.env, blocked.mapped("code")),
                 )
             )
+        if not self.env.su:
+            for vals in vals_list:
+                for name in RECEIPT_FIELDS:
+                    vals.pop(name, None)
         return super().create(vals_list)
+
+    def write(self, vals):
+        if not self.env.su:
+            if RECEIPT_FIELDS & set(vals):
+                raise UserError(self.env._("A department records receiving a sample by scanning its label."))
+            if {"sample_id", "department_id"} & set(vals) and any(handover.received_at for handover in self):
+                raise UserError(self.env._("A received handover cannot move to another sample or department."))
+        return super().write(vals)
 
     @api.model
     def receive_by_label(self, code):
@@ -62,5 +77,6 @@ class SampleHandover(models.Model):
             raise UserError(self.env._("%s has no handover to %s.", sample.code, person.department_id.name))
         # Scanning a label again keeps the first receipt.
         if not handover.received_at:
-            handover.write({"received_at": fields.Datetime.now(), "received_by_id": person.id})
+            handover.check_access("write")
+            handover.sudo().write({"received_at": fields.Datetime.now(), "received_by_id": person.id})
         return handover

@@ -1,4 +1,6 @@
-from odoo.exceptions import UserError
+from datetime import timedelta
+
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 
 from .report_case import ReportCase
@@ -66,3 +68,33 @@ class TestTestReportSigning(ReportCase):
                 action(report)
         with self.assertRaises(UserError):
             self.as_person(report, self.courier).write({"language": "vi"})
+
+    def test_the_pdf_of_an_issued_report_cannot_be_replaced(self):
+        self.complete()
+        self.sign()
+
+        with self.assertRaises(UserError):
+            self.as_person(self.report().attachment_id, self.courier).write({"raw": b"forged"})
+
+    def test_a_draft_report_is_printed_only_by_those_who_read_results(self):
+        self.complete()
+        report = self.report()
+
+        def print_as(person):
+            printing = self.as_person(self.env["ir.actions.report"], person)
+            return printing._render_qweb_html(TEST_REPORT_REPORT, report.ids)[0].decode()
+
+        with self.assertRaises(AccessError):
+            print_as(self.courier)
+        self.assertIn(self.parameter.name, print_as(self.lab_head))
+        self.sign(report)
+        self.assertIn(self.parameter.name, print_as(self.courier))
+
+    def test_issuing_the_report_retains_a_kept_sample_from_the_report_date(self):
+        self.sample_type.write({"is_retained": True, "retention_days": 30})
+        self.complete()
+
+        self.sign()
+
+        self.assertEqual(self.sample.status, "retained")
+        self.assertEqual(self.sample.retained_until, self.report()._report_day() + timedelta(days=30))

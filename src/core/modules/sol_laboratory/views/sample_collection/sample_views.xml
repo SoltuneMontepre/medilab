@@ -54,14 +54,6 @@
                         groups="sol_laboratory.group_permission_sample_edit_all"
                     />
                     <button
-                        name="action_retain"
-                        type="object"
-                        string="Retain"
-                        class="btn-secondary"
-                        invisible="status != 'reported'"
-                        groups="sol_laboratory.group_permission_sample_edit_all"
-                    />
-                    <button
                         name="action_dispose"
                         type="object"
                         string="Dispose"

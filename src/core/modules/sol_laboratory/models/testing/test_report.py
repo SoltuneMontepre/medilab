@@ -218,7 +218,8 @@ class TestReport(models.Model):
             self.env[MODEL_TASK]._close_for_document(self, SIGNING_ACTION)
 
     def _issue(self):
-        """Number the report, store its PDF, mark its request and samples reported and tell the customer."""
+        """Number the report, store its PDF, mark its request and samples reported, retain the kept samples and tell
+        the customer."""
         self.ensure_one()
         self.write(
             {
@@ -238,7 +239,9 @@ class TestReport(models.Model):
             }
         )
         request = self.request_id
-        request.sample_ids.filtered(lambda sample: sample.status == "completed").status = "reported"
+        reported = request.sample_ids.filtered(lambda sample: sample.status == "completed")
+        reported.status = "reported"
+        reported._retain(self._report_day())
         request._set_status("reported")
         partner = request.customer_id.partner_id
         self.env[MODEL_MAIL_MESSAGE].raise_event(
@@ -263,8 +266,12 @@ class TestReport(models.Model):
     def _print_langs(self):
         return PRINT_LANGS[self.language]
 
+    def _files_locked(self):
+        """True when a report's PDF can no longer change: it is issued."""
+        return any(report.status in ("issued", "replaced") for report in self)
+
     def _print_env(self):
-        # Printing reads what the report shows with full rights; who may print is checked on the report action.
+        # Printing reads what the report shows with full rights; TestReportDocument checks who may print.
         return self.sudo().with_context(lang=self._print_langs()[0]).env
 
     def _in_langs(self, read):

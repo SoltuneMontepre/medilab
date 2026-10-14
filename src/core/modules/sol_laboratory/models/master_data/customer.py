@@ -22,6 +22,8 @@ LOGO_MIMETYPES = ("image/png", "image/jpeg")
 LOGO_MAX_BYTES = 2 * 1024 * 1024
 SIGNUP_KEYS = ("customer_type", "company_name", "phone", "street", "city", "vat", "citizen_id")
 CONTACT_PERSON_KEYS = ("name", "function", "email", "phone")
+# What the customer form changes on its people and addresses, which are written with full rights.
+CHILD_KEYS = frozenset({"type", "name", "function", "email", "phone", "street", "city"})
 
 
 # Khách Hàng
@@ -78,8 +80,15 @@ class Customer(models.Model):
         if contact.get("image_1920"):
             self._check_logo(contact["image_1920"])
         own = self.partner_id.child_ids.ids
-        if any(command[0] != Command.CREATE and command[1] not in own for command in contact.get("child_ids", ())):
-            raise AccessError(self.env._("Only the customer's own people can be changed here."))
+        for command in contact.get("child_ids", ()):
+            if command[0] != Command.CREATE and command[1] not in own:
+                raise AccessError(self.env._("Only the customer's own people can be changed here."))
+            if command[0] in (Command.CREATE, Command.UPDATE) and set(command[2]) - CHILD_KEYS:
+                raise AccessError(
+                    self.env._(
+                        "Only the name, position, email, phone and address of the customer's people change here."
+                    )
+                )
 
     def _check_logo(self, image):
         data = base64.b64decode(image)
@@ -204,6 +213,8 @@ class Customer(models.Model):
         self.ensure_one()
         if self.citizen_id:
             raise UserError(self.env._("Your citizen ID is already registered."))
+        if self.is_company:
+            raise UserError(self.env._("A business is identified by its tax code, not a citizen ID."))
         value = (citizen_id or "").strip()
         if not value:
             raise UserError(self.env._("Enter your citizen ID."))

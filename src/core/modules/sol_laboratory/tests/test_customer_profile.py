@@ -77,6 +77,37 @@ class TestCustomerProfile(RequestCase):
         with self.assertRaises(UserError):
             customer.set_citizen_id("079085009999")
 
+    def test_people_are_changed_only_through_their_contact_details(self):
+        customer = self.customer.with_user(self.editor)
+        admin = self.env.ref("base.user_admin")
+        probe = {
+            "login": "probe.admin",
+            "name": "Probe",
+            "group_ids": [Command.link(self.env.ref("base.group_system").id)],
+        }
+
+        for command in (
+            Command.create({"name": "Probe", "user_ids": [Command.create(probe)]}),
+            Command.update(self.hoa.id, {"user_ids": [Command.link(admin.id)]}),
+            Command.update(self.hoa.id, {"child_ids": [Command.link(self.env.ref("base.partner_admin").id)]}),
+        ):
+            with self.subTest(command=command), self.assertRaises(AccessError):
+                customer.write({"child_ids": [command]})
+
+        self.assertFalse(self.env["res.users"].search([("login", "=", "probe.admin")]))
+        self.assertEqual(admin.partner_id, self.env.ref("base.partner_admin"))
+        self.assertFalse(self.env.ref("base.partner_admin").parent_id)
+
+    def test_a_business_is_not_given_a_citizen_id(self):
+        customer = self.customer.sudo()
+        customer.vat = "0301234567"
+
+        with self.assertRaises(UserError):
+            customer.set_citizen_id("079085001234")
+
+        self.assertFalse(customer.citizen_id)
+        self.assertTrue(customer.is_company)
+
     def test_a_business_adds_edits_removes_and_picks_its_default_contact(self):
         customer = self.customer.sudo()
 

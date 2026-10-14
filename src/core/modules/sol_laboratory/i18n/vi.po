@@ -8172,12 +8172,6 @@ msgstr "Chỉ mẫu đã tiếp nhận mới có thể bàn giao cho phòng ban.
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/sample_collection/sample.py:0
-msgid "Only a reported sample whose sample type is kept can be retained."
-msgstr "Chỉ mẫu đã có phiếu kết quả và thuộc loại mẫu cần lưu mới có thể lưu mẫu."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
 msgid "Only a sample on hold can be collected again."
 msgstr "Chỉ mẫu đang tạm giữ mới có thể lấy lại."
 
@@ -8341,11 +8335,6 @@ msgstr "Thời điểm yêu cầu lấy lại mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__recollection_requested_by_id
 msgid "Recollection Requested By"
 msgstr "Người yêu cầu lấy lại mẫu"
-
-#. module: sol_laboratory
-#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
-msgid "Retain"
-msgstr "Lưu mẫu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__retained_until
@@ -9916,3 +9905,56 @@ msgstr "Đã có kết quả của yêu cầu thử nghiệm %(request)s. Hãy t
 #: model:mail.message.subtype,description:sol_laboratory.event_test_report_issued
 msgid "The test report of your request is issued and ready to download"
 msgstr "Phiếu kết quả của yêu cầu của bạn đã được phát hành và sẵn sàng để tải"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/ir_attachment.py:0
+msgid "The files of a signed or issued document cannot be changed."
+msgstr "Không thể thay đổi tệp của tài liệu đã ký hoặc đã phát hành."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/handover_record.py:0
+msgid "A handover record is signed only by the customer, on the mobile app."
+msgstr "Biên bản giao nhận mẫu chỉ được khách hàng ký trên ứng dụng di động."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample.py:0
+msgid "Only the head of a department that tests %s asks for it to be collected again."
+msgstr "Chỉ trưởng phòng ban thử nghiệm %s mới được yêu cầu lấy lại mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Add a sample test to a dispatch, or take it out, on the dispatch."
+msgstr "Thêm chỉ tiêu của mẫu vào phiếu gửi, hoặc bỏ ra, trên chính phiếu gửi."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "A business is identified by its tax code, not a citizen ID."
+msgstr "Doanh nghiệp được xác định bằng mã số thuế, không phải số căn cước công dân."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/customer.py:0
+msgid "Only the name, position, email, phone and address of the customer's people change here."
+msgstr "Tại đây chỉ thay đổi được tên, chức vụ, email, điện thoại và địa chỉ của người liên hệ của khách hàng."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "A department records receiving a sample by scanning its label."
+msgstr "Phòng ban ghi nhận đã nhận mẫu bằng cách quét tem mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_handover.py:0
+msgid "A received handover cannot move to another sample or department."
+msgstr "Bàn giao mẫu đã nhận không thể chuyển sang mẫu hoặc phòng ban khác."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_report_sol_laboratory_report_test_report
+msgid "Test Report Document"
+msgstr "Bản In Phiếu Kết Quả"
