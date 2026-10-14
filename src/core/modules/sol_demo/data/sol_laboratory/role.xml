@@ -131,5 +131,15 @@
     <record id="demo_role_storekeeper" model="medilab.role">
         <field name="code">storekeeper</field>
         <field name="name">Storekeeper</field>
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('sol_inventory.permission_location_read_all'),
+                ref('sol_inventory.permission_location_create_all'),
+                ref('sol_inventory.permission_location_edit_all'),
+                ref('sol_inventory.permission_location_archive_all'),
+                ref('sol_inventory.permission_cost_centre_read_all'),
+            ])]"
+        />
     </record>
 </odoo>

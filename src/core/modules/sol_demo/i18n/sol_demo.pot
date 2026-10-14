@@ -81,6 +81,7 @@ msgid "Cabbage"
 msgstr ""
 
 #. module: sol_demo
+#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_chemistry
 #: model:hr.department,name:sol_demo.demo_hr_department_chemistry
 #: model:medilab.testing.field,name:sol_demo.field_chemistry
 msgid "Chemistry"
@@ -225,6 +226,7 @@ msgid "Microbial count per volume"
 msgstr ""
 
 #. module: sol_demo
+#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_microbiology
 #: model:hr.department,name:sol_demo.demo_hr_department_microbiology
 #: model:medilab.parameter.group,name:sol_demo.group_microbiology
 #: model:medilab.testing.field,name:sol_demo.field_microbiology
@@ -437,6 +439,7 @@ msgid "Pathogens"
 msgstr ""
 
 #. module: sol_demo
+#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_pesticide_residues
 #: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
 msgid "Pesticide residues"
 msgstr ""

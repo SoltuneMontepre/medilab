@@ -20,6 +20,8 @@ How code inside an Odoo module is laid out.
 | `pricing`           | Parameter prices, taxes and their rates, subcontract costs and service packages                                                                                                  |
 | `orders`            | Sale orders, the portal cart and cancellation requests                                                                                                                           |
 | `system`            | People, departments, roles, permissions, approval chains, signatures, mobile devices and menus                                                                                   |
+| `stores`            | Stores and the locations inside them, with their holders and managers                                                                                                            |
+| `costs`             | Cost centres                                                                                                                                                                     |
 
 ## Files
 

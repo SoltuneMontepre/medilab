@@ -5,7 +5,7 @@
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
-    "depends": ["account", "sol_laboratory", "sol_commerce"],
+    "depends": ["account", "sol_laboratory", "sol_commerce", "sol_inventory"],
     "data": [
         "data/measurement_unit_data.xml",
         "data/subcontractor_data.xml",
@@ -34,6 +34,8 @@
         "data/sol_laboratory/job_run.xml",
         "data/sol_laboratory/notification_demo.xml",
         "data/sol_commerce/invoice_demo.xml",
+        "data/stock/stock_location.xml",
+        "data/analytic/account_analytic_account.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

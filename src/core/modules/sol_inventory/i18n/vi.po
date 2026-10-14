@@ -16,14 +16,248 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid "%(store)s is below %(above)s, so a department or team must hold it."
+msgstr "%(store)s nằm dưới %(above)s nên phải có phòng hoặc tổ giữ kho."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid ""
+"%(store)s is held by the team %(team)s, so the store above it must be held "
+"by %(department)s."
+msgstr "%(store)s do tổ %(team)s giữ nên kho cấp trên phải do %(department)s giữ."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid "%s is the central store, so no department or team holds it."
+msgstr "%s là kho tổng nên không thuộc phòng hay tổ nào."
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_account_analytic_account
+msgid "Analytic Account"
+msgstr "Tài khoản phân tích"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_archive_all
+msgid "Archive cost centres"
+msgstr "Lưu trữ trung tâm chi phí"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_archive_own_department
+msgid "Archive cost centres of their department"
+msgstr "Lưu trữ trung tâm chi phí của phòng ban mình"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_location_archive_all
+msgid "Archive locations"
+msgstr "Lưu trữ vị trí kho"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_search
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_search
+msgid "Archived"
+msgstr "Đã lưu trữ"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_list
+msgid "Code"
+msgstr "Mã"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_search
+msgid "Cost Centre"
+msgstr "Trung tâm chi phí"
+
+#. module: sol_inventory
+#: model:account.analytic.plan,name:sol_inventory.analytic_plan_cost_centres
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_cost_centre
+#: model:ir.ui.menu,name:sol_inventory.menu_cost_centre
+msgid "Cost Centres"
+msgstr "Trung tâm chi phí"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_create_all
+msgid "Create cost centres"
+msgstr "Tạo trung tâm chi phí"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_create_own_department
+msgid "Create cost centres of their department"
+msgstr "Tạo trung tâm chi phí của phòng ban mình"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_location_create_all
+msgid "Create locations"
+msgstr "Tạo vị trí kho"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_delete_all
+msgid "Delete cost centres"
+msgstr "Xóa trung tâm chi phí"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_delete_own_department
+msgid "Delete cost centres of their department"
+msgstr "Xóa trung tâm chi phí của phòng ban mình"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_location_delete_all
+msgid "Delete locations"
+msgstr "Xóa vị trí kho"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_hr_department
+msgid "Department"
+msgstr "Phòng Ban"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__department_id
+msgid "Department or Team"
+msgstr "Phòng hoặc tổ"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_hr_department__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_edit_all
+msgid "Edit cost centres"
+msgstr "Sửa trung tâm chi phí"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_edit_own_department
+msgid "Edit cost centres of their department"
+msgstr "Sửa trung tâm chi phí của phòng ban mình"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_location_edit_all
+msgid "Edit locations"
+msgstr "Sửa vị trí kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__holder_id
+msgid "Holder"
+msgstr "Đơn vị giữ kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__id
+#: model:ir.model.fields,field_description:sol_inventory.field_hr_department__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sol_inventory
+#: model:ir.ui.menu,name:sol_inventory.menu_master_data_inventory
+msgid "Inventory"
+msgstr "Kho"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_location
+msgid "Inventory Location"
+msgstr "Vị trí kho"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_form
+msgid "Locations"
+msgstr "Vị trí kho"
+
+#. module: sol_inventory
 #: model:ir.module.module,summary:base.module_sol_inventory
 msgid ""
 "Manage stock, expiry, material movement and suppliers for testing centers"
-msgstr ""
-"Quản lý tồn kho, hạn sử dụng, luân chuyển vật tư và nhà cung cấp cho trung "
-"tâm thử nghiệm"
+msgstr "Quản lý tồn kho, hạn sử dụng, luân chuyển vật tư và nhà cung cấp cho trung tâm thử nghiệm"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__manager_id
+msgid "Manager"
+msgstr "Người quản lý"
 
 #. module: sol_inventory
 #: model:ir.module.module,shortdesc:base.module_sol_inventory
 msgid "Medilab - Inventory"
 msgstr "Medilab - Kho"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid ""
+"Only the central store has no store above it, but these stores have none: "
+"%s."
+msgstr "Chỉ kho tổng không có kho cấp trên, nhưng các kho sau cũng không có: %s."
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_read_all
+msgid "Read cost centres"
+msgstr "Xem trung tâm chi phí"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_cost_centre_read_own_department
+msgid "Read cost centres of their department"
+msgstr "Xem trung tâm chi phí của phòng ban mình"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_location_read_all
+msgid "Read locations"
+msgstr "Xem vị trí kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__conditions
+msgid "Storage Conditions"
+msgstr "Điều kiện bảo quản"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__is_store
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_search
+msgid "Store"
+msgstr "Kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__parent_store_id
+msgid "Store Above"
+msgstr "Kho cấp trên"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_store
+#: model:ir.model.fields,field_description:sol_inventory.field_hr_department__store_ids
+#: model:ir.ui.menu,name:sol_inventory.menu_store
+msgid "Stores"
+msgstr "Kho"
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_account_analytic_account_code_unique
+msgid "The code of a cost centre or analytic account must be unique."
+msgstr "Mã của trung tâm chi phí hoặc tài khoản phân tích không được trùng."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/costs/account_analytic_account.py:0
+msgid "The cost centre %s needs a code and a department or team."
+msgstr "Trung tâm chi phí %s cần có mã và phòng hoặc tổ."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid "These stores have no manager, so they cannot receive requisitions: %s."
+msgstr "Các kho sau chưa có người quản lý nên không nhận được phiếu yêu cầu cấp: %s."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_account_analytic_account_department_unique
+msgid "This department or team already has a cost centre."
+msgstr "Phòng hoặc tổ này đã có trung tâm chi phí."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_search
+msgid "Without Manager"
+msgstr "Chưa có người quản lý"
