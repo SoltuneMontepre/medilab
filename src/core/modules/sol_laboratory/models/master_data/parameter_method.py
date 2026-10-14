@@ -2,6 +2,7 @@ from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.tools import format_date
 
+from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_DEPARTMENT,
@@ -40,7 +41,7 @@ class ParameterMethod(models.Model):
         domain=[("active", "=", True), ("accreditation_expired", "=", False)],
     )
     # The department that tests it in-house; empty when a subcontractor tests it.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True)
+    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True, domain=DEPARTMENT_DOMAIN)
     # True when this way of testing is within an ISO 17025 accreditation scope.
     is_accredited = fields.Boolean(string="Accredited")
     # Limit of detection: the lowest value this method can detect, in the row's unit.

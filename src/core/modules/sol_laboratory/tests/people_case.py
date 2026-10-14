@@ -28,6 +28,10 @@ class PeopleCase(TransactionCase):
         return cls.env[MODEL_PERSON].create(vals)
 
     @classmethod
+    def create_team(cls, name, department):
+        return cls.env[MODEL_DEPARTMENT].create({"name": name, "parent_id": department.id})
+
+    @classmethod
     def permissions(cls, *codes):
         return cls.env[MODEL_PERMISSION].concat(
             cls.env.ref(f"sol_laboratory.permission_{code.replace('.', '_')}") for code in codes

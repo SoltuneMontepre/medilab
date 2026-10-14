@@ -698,6 +698,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
 msgid "Archived"
 msgstr ""
 
@@ -1783,6 +1784,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__department_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
 msgid "Department"
 msgstr ""
 
@@ -6609,4 +6613,135 @@ msgstr ""
 
 #. module: sol_laboratory
 msgid "Permission: unit.category.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_archive_own_team
+msgid "Archive people of their team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_create_own_team
+msgid "Create people of their team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_delete_own_team
+msgid "Delete people of their team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_edit_own_team
+msgid "Edit people of their team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__own_team
+msgid "Own team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__parent_id
+msgid "Parent Department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_archive_own_team
+msgid "Permission: person.archive.own_team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_create_own_team
+msgid "Permission: person.create.own_team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_delete_own_team
+msgid "Permission: person.delete.own_team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_edit_own_team
+msgid "Permission: person.edit.own_team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_person_read_own_team
+msgid "Permission: person.read.own_team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_employee__person_team_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__person_team_id
+msgid "Person Team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_person_read_own_team
+msgid "Read people of their team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__team_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
+msgid "Team"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_hr_department_team_search
+msgid "Team Lead"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__team_person_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+msgid "Team Members"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_hr_department_team
+#: model:ir.ui.menu,name:sol_laboratory.menu_team
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_department_form_teams
+msgid "Teams"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/hr_department.py:0
+msgid "%(team)s cannot belong to %(parent)s, which is a team itself."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/person.py:0
+msgid "%(team)s is not a team of the department of %(person)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/permission.py:0
+msgid ""
+"%s has no team, so a permission on it cannot be limited to the person's "
+"team."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/hr_department.py:0
+msgid ""
+"%s has teams of its own or records that name it as their department, so it "
+"cannot become a team."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/hr_department.py:0
+msgid ""
+"The people of %s belong to its department; take them out of the team before "
+"moving it."
 msgstr ""
