@@ -88,6 +88,8 @@ class TestResult(models.Model):
     limit_max_set = fields.Boolean(compute="_compute_limit", store=True)
     # Highest allowed value, copied from the sample's regulation when the result is created.
     limit_max = fields.Float(string="Maximum", compute="_compute_limit", store=True, min_display_digits=1)
+    # Decimals the copied minimum and maximum show on the report, such as 2 for 0.50.
+    limit_decimals = fields.Integer(compute="_compute_limit", store=True)
     # The limit as text, copied from the sample's regulation, in each language.
     limit_text = fields.Char(string="Limit", compute="_compute_limit", store=True, translate=True)
     # The Odoo user who entered the result: a lab QA, or a subcontractor's person for an outsourced test.
@@ -169,6 +171,7 @@ class TestResult(models.Model):
             result.limit_min = limit.min_value
             result.limit_max_set = limit.max_set
             result.limit_max = limit.max_value
+            result.limit_decimals = limit.decimals
             result.limit_text = limit.limit_text
 
     @api.depends("sample_test_id")
@@ -279,12 +282,15 @@ class TestResult(models.Model):
 
     def _approval_check_actor(self, rejecting=False):
         level = super()._approval_check_actor(rejecting)
-        # Signing the first level of a longer chain sends the result; any other signature approves it.
-        levels = level.chain_id.level_ids.sorted("sequence")
-        sends = level == levels[:1] and len(levels) > 1
-        if not rejecting and not sends and self.entered_by_id == self.env.user:
+        if not rejecting and level != self._approval_sending_level() and self.entered_by_id == self.env.user:
             raise UserError(self.env._("You entered this result, so another person must approve it."))
         return level
+
+    @api.model
+    def _approval_sending_level(self):
+        """The first level of a chain with more than one level: signing it sends the result, any other approves it."""
+        levels = self._approval_chain().level_ids.sorted("sequence")
+        return levels[:1] if len(levels) > 1 else levels.browse()
 
     def _approval_department(self):
         return self.sample_test_id._testing_task().department_id
@@ -294,6 +300,7 @@ class TestResult(models.Model):
 
     def _approval_process_completed(self):
         # The head's approval or rejection is final: a rejected result stays on record and a retest adds a new one.
+        # Only the lab head's rejection of the report sends an approved result back.
         return self.status in (STATE_APPROVED, STATE_REJECTED)
 
     def _approval_set_state(self, state):
@@ -302,6 +309,14 @@ class TestResult(models.Model):
             status = TEST_STATUS_BY_STATE[state]
             test = self.sample_test_id
             test._progress(test._work_status() if status == "testing" else status)
+
+    def _send_back(self, note):
+        """The lab head sends approved results back to the department that tested them: their signatures are withdrawn,
+        and a new testing task with the note waits unassigned in the department's queue."""
+        for result in self.sudo():
+            result._approval_restart()
+            test = result.sample_test_id
+            test._open_testing_task(test._tested_by(), note)
 
     def _approval_notify_rejected(self, reason):
         self.ensure_one()

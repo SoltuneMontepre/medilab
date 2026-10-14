@@ -44,23 +44,31 @@ class ResultCase(SchedulingCase):
 
     @classmethod
     def signing_chain(cls):
-        """A tester signs first and cannot reject, then the head of the department; the demo data may have made it."""
+        """A tester signs first and cannot reject, then the head of the department."""
+        return cls.approval_chain(
+            MODEL_TEST_RESULT, (("Tester", "qa_tester", True, False), ("Head", "qa_head", True, True))
+        )
+
+    @classmethod
+    def approval_chain(cls, document_model, levels):
+        """The signing chain of the document type, with a level and a new role for each (name, role code, same
+        department, can reject) in signing order; the demo data may have made it."""
         chain = cls.env[MODEL_APPROVAL_CHAIN].search(
-            [("document_model", "=", MODEL_TEST_RESULT), ("purpose", "=", PURPOSE_SIGNING)]
+            [("document_model", "=", document_model), ("purpose", "=", PURPOSE_SIGNING)]
         )
         if chain:
             return chain
         chain = cls.env[MODEL_APPROVAL_CHAIN].create(
-            {"document_model": MODEL_TEST_RESULT, "purpose": PURPOSE_SIGNING, "name": "Test result signing"}
+            {"document_model": document_model, "purpose": PURPOSE_SIGNING, "name": f"Signing of {document_model}"}
         )
-        for sequence, name, code, can_reject in ((10, "Tester", "qa_tester", False), (20, "Head", "qa_head", True)):
+        for sequence, (name, code, same_department, can_reject) in enumerate(levels, start=1):
             cls.env[MODEL_APPROVAL_LEVEL].create(
                 {
                     "chain_id": chain.id,
-                    "sequence": sequence,
+                    "sequence": sequence * 10,
                     "name": name,
                     "role_id": cls.env[MODEL_ROLE].create({"code": code, "name": name}).id,
-                    "same_department": True,
+                    "same_department": same_department,
                     "can_reject": can_reject,
                 }
             )

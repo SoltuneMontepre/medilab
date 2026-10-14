@@ -851,6 +851,8 @@ model TestResult {
   limit_max_set  Boolean          @default(false)
   /// Highest allowed value, copied from the sample's regulation when the result is created. Meaningful when limit_max_set is set.
   limit_max      Decimal? @db.Decimal
+  /// Decimals the copied minimum and maximum show on the report, such as 2 for 0.50, copied from the sample's regulation.
+  limit_decimals Int?
   /// Limit as text, copied from the sample's regulation, in each language.
   limit_text     Json?
   /// The Odoo user who entered the result: a lab QA, or a subcontractor's user for an outsourced test.
@@ -863,7 +865,7 @@ model TestResult {
   started_at     DateTime?
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
-  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
+  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
   status         String           @default("none") @db.VarChar
   /// The version the next signature records; it grows when every signature is withdrawn.
   document_version Int            @default(1)
@@ -1561,6 +1563,8 @@ model TestReport {
   replaces_id     Int?        @unique
   /// draft, signing, issued or replaced.
   status          String      @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn or the report is signed again after a rejection.
+  document_version Int         @default(1)
   /// Language the report is issued in, taken from the request: vi, en or bilingual for Vietnamese and English side by side.
   language        String      @db.VarChar
   /// When the report was issued.
@@ -1581,6 +1585,7 @@ model TestReport {
   delivered_by    Person?     @relation("ReportDeliverer", fields: [delivered_by_id], references: [id], onDelete: Restrict)
 
   @@unique([request_id, version])
+  @@index([status])
   @@map("medilab_test_report")
 }
 

@@ -97,6 +97,8 @@
                 ref('sol_laboratory.permission_handover_record_sample_create_all'),
                 ref('sol_laboratory.permission_handover_record_sample_edit_all'),
                 ref('sol_laboratory.permission_handover_record_sample_delete_all'),
+                ref('sol_laboratory.permission_test_report_read_all'),
+                ref('sol_laboratory.permission_test_report_edit_all'),
             ])]"
         />
     </record>
@@ -161,6 +163,8 @@
                 ref('sol_laboratory.permission_sample_read_all'),
                 ref('sol_laboratory.permission_sample_test_read_all'),
                 ref('sol_laboratory.permission_test_result_read_all'),
+                ref('sol_laboratory.permission_test_report_read_all'),
+                ref('sol_laboratory.permission_test_report_sign_all'),
             ])]"
         />
     </record>

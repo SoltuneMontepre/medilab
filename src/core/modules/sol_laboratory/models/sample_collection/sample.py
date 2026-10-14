@@ -24,7 +24,6 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_SAMPLE_INSUFFICIENT
 from odoo.addons.sol_laboratory.constants.tasks import (
     SAMPLE_COLLECTION_CODE,
-    SAMPLE_RECEIVED_TRIGGER,
     SAMPLE_TEST_CODE,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REQUEST_READER_GROUP
@@ -177,7 +176,10 @@ class Sample(models.Model):
     def _follow_tests(self):
         """Move the samples, then their test requests, along with their tests. Cancelled tests and samples, and
         rejected samples, do not count."""
-        for sample in self.filtered(lambda sample: sample.status in ("received", "testing", "awaiting_approval")):
+        # A completed sample goes back to testing when the lab head sends one of its results back.
+        for sample in self.filtered(
+            lambda sample: sample.status in ("received", "testing", "awaiting_approval", "completed")
+        ):
             tests = sample.test_ids.filtered(lambda test: test.status != "cancelled")
             status = _progress(tests.mapped("status"), "result_entered", "approved")
             if status and status != sample.status:
@@ -349,13 +351,7 @@ class Sample(models.Model):
                     ]
                 ):
                     continue
-                tasks._create_for_event(
-                    SAMPLE_RECEIVED_TRIGGER,
-                    document=test,
-                    department=department,
-                    deadline=test.due_date,
-                    name=f"{sample.code}: {test.parameter_id.display_name}",
-                )
+                test._open_testing_task(department)
             for department in departments:
                 if handovers.search_count([("sample_id", "=", sample.id), ("department_id", "=", department.id)]):
                     continue

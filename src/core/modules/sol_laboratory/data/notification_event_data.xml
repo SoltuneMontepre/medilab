@@ -44,6 +44,28 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_test_report_issued" model="mail.message.subtype">
+        <field name="name">Results released</field>
+        <field name="description">The test report of your request is issued and ready to download</field>
+        <field name="code">test_report.issued</field>
+        <field name="res_model">medilab.test.report</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_test_report_delivered" model="mail.message.subtype">
+        <field name="name">Test report sent</field>
+        <field name="description">A test report is emailed to its recipient</field>
+        <field name="code">test_report.delivered</field>
+        <field name="res_model">medilab.test.report</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="mail_template_task_reminder" model="mail.template">
         <field name="name">Task reminder</field>
         <field name="model_id" ref="model_medilab_task" />

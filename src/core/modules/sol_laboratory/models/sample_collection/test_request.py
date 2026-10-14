@@ -9,9 +9,10 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE,
     MODEL_SAMPLE_TEST,
+    MODEL_TEST_REPORT,
     MODEL_TEST_REQUEST,
 )
-from odoo.addons.sol_laboratory.constants.xml_ids import SAMPLE_LABEL_REPORT
+from odoo.addons.sol_laboratory.constants.xml_ids import SAMPLE_LABEL_REPORT, TEST_REPORT_READER_GROUP
 
 # The statuses each status can move to.
 TRANSITIONS = {
@@ -21,7 +22,7 @@ TRANSITIONS = {
     "sample_received": ("testing", "cancelled"),
     "testing": ("awaiting_approval", "completed", "cancelled"),
     "awaiting_approval": ("testing", "completed"),
-    "completed": ("reported",),
+    "completed": ("reported", "testing"),
     "reported": (),
     "cancelled": (),
 }
@@ -86,6 +87,13 @@ class TestRequest(models.Model):
     # Sample tests the laboratory cancelled with a reason; the report leaves them out.
     cancelled_test_ids = fields.Many2many(
         MODEL_SAMPLE_TEST, string="Cancelled Tests", compute="_compute_cancelled_test_ids"
+    )
+    # Reports of the request, one per version.
+    report_ids = fields.One2many(
+        MODEL_TEST_REPORT,
+        "request_id",
+        string="Test Reports",
+        groups=TEST_REPORT_READER_GROUP,
     )
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a test request must be unique.")
@@ -220,6 +228,8 @@ class TestRequest(models.Model):
                     )
                 )
         self.status = status
+        if status == "completed":
+            self.env[MODEL_TEST_REPORT]._draft_for(self)
 
     def _in_use_domain(self):
         return Domain("status", "not in", FINISHED_STATUSES)

@@ -313,6 +313,21 @@
         <field name="document_model">medilab.test.result</field>
         <field name="action">sign</field>
     </record>
+    <record id="permission_test_report_read_all" model="medilab.permission">
+        <field name="name">Read test reports</field>
+        <field name="document_model">medilab.test.report</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_test_report_edit_all" model="medilab.permission">
+        <field name="name">Edit test reports</field>
+        <field name="document_model">medilab.test.report</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_test_report_sign_all" model="medilab.permission">
+        <field name="name">Sign test reports</field>
+        <field name="document_model">medilab.test.report</field>
+        <field name="action">sign</field>
+    </record>
     <record id="permission_task_type_edit_all" model="medilab.permission">
         <field name="name">Edit task types</field>
         <field name="document_model">medilab.task.type</field>

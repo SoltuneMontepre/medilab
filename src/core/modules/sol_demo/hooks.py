@@ -12,9 +12,11 @@ def post_init_hook(env):
     from .demo_dispatches import seed_dispatches
     from .demo_orders import seed_orders
     from .demo_quotations import seed_quotations
+    from .demo_reports import seed_reports
     from .demo_results import seed_results
 
     seed_orders(env)
     seed_quotations(env)
     seed_results(env)
+    seed_reports(env)
     seed_dispatches(env)

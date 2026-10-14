@@ -53,6 +53,7 @@ stateDiagram-v2
     awaiting_approval --> completed: every result approved
     testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued
+    completed --> testing: the lab head sends results back
     draft --> cancelled
     confirmed --> cancelled
     paid --> cancelled
@@ -77,6 +78,7 @@ stateDiagram-v2
     awaiting_approval --> completed: every result approved
     testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued
+    completed --> testing: the lab head sends one of its results back
     reported --> retained: kept after testing
     reported --> disposed: not kept
     retained --> disposed: retention period over
@@ -101,10 +103,25 @@ stateDiagram-v2
     result_entered --> outsourced: outsourced result rejected or withdrawn
     result_entered --> testing: result rejected or withdrawn
     result_entered --> approved: result approved
+    approved --> testing: the lab head sends its result back
     waiting --> cancelled
     assigned --> cancelled
     testing --> cancelled
 ```
+
+### Test report
+
+```mermaid
+stateDiagram-v2
+    [*] --> draft: every sample test of the request approved or cancelled
+    draft --> signing: a level of a longer chain signs
+    draft --> issued: the last level signs
+    signing --> issued: the last level signs
+    signing --> draft: a signature is withdrawn or the report is rejected
+    issued --> replaced: a change request creates a new version
+```
+
+- A rejected report stays in draft until the results sent back are approved again; its request is then completed again and the lab head gets a new signing task.
 
 ## Reception
 
@@ -132,7 +149,7 @@ stateDiagram-v2
 | Entered by      | Each result records who entered it. The results of an outsourced test are entered by the subcontractor, whose people sign in to the system, or by a lab QA, once its dispatch is sent. A lab QA sends them for approval like their own. |
 | Conclusion      | The tester sets each result's conclusion, pass or fail, when the sample has a regulation.                                         |
 | No self-approval | The person who entered a result cannot approve it; another person who signs that level must. Signing the first level of a chain with more than one level sends the result; any other signature approves it. |
-| Final decision  | The tester can withdraw a result they sent until the head of department acts. The head's approval or rejection completes the result's process, so neither can be withdrawn: a rejected result stays on record and a retest adds a new one. Rejecting tells the person who entered the result the reason. |
+| Final decision  | The tester can withdraw a result they sent until the head of department acts. The head's approval or rejection completes the result's process, so neither can be withdrawn: a rejected result stays on record and a retest adds a new one. Rejecting tells the person who entered the result the reason. Only the lab head's rejection of the report sends an approved result back. |
 | Progress        | Entering the first result, or starting a booking, starts the test, its sample and its test request; outsourcing a test starts its sample and its test request. A sample waits for approval once each of its remaining tests has its reported result sent, and is completed once each is approved; its test request follows its samples the same way. Cancelled tests, and cancelled or rejected samples, do not count. |
 | Cancelling      | The head of department can cancel a sample test of their department that has no approved result, with a reason, such as the parameter cannot be tested on the sample: a person of the department of the test's testing task who may edit sample tests. Only a waiting, assigned or testing test can be cancelled. Its task and bookings, running ones included, are cancelled. A cancelled test is left out of the report; its reason stays on the test request. |
 | No deletion     | A result cannot be deleted, and neither can the sample test, sample or test request it belongs to. |
@@ -144,8 +161,8 @@ stateDiagram-v2
 | Test report     | A test request has one test report (certificate of analysis, CoA) covering all its samples, issued in Vietnamese, English or both side by side. Samples have no sign-off of their own: once a sample's results are approved, the next signature is the lab head's on the report. It is signed through its approval chain and issued with a report number from a sequence and the digitally signed PDF ([SH-04](../shared.md#sh-04-signatures-and-digital-signing)). |
 | Draft           | When every sample test of a request is approved or cancelled, the system creates the draft report and a signing task for the lab head. |
 | Content         | The report shows its report number and the test request's code, the customer and their address, when the samples were received and the report date, and for each sample its name, lab code and conclusion with a table of parameter, result, unit, limit and method. It prints the heads of department who approved the results and the lab head; testers' signatures are internal and not printed. Cancelled tests are left out. |
-| Rejection       | The lab head can reject a report with a reason, naming the results to check again. Those results go back to the queue of their head of department, unassigned and unsigned, and the report waits until they are approved again. |
-| Delivery        | The test request records the report language (Vietnamese, English or bilingual, bilingual by default), how the report is delivered (in person by default, by post, by email or another way with a note) and the contact who receives it. Sample delivery staff deliver the issued report that way and record when it was delivered and by whom. Issued reports can always be downloaded from the customer portal. |
+| Rejection       | The lab head can reject a report with a reason, naming the results to check again. Those results go back to the queue of their head of department, unassigned and unsigned: their signatures are withdrawn, their sample tests, samples and request go back to testing, and a new testing task with the reason waits unassigned in the queue of the department that tested them. The report waits until they are approved again; the lab head then gets a new signing task. |
+| Delivery        | The test request records the report language (Vietnamese, English or bilingual, bilingual by default), how the report is delivered (in person by default, by post, by email or another way with a note) and the contact who receives it. Sample delivery staff deliver the issued report that way and record when it was delivered and by whom; recording an email delivery emails the PDF to the recipient. Customers are notified when a report is issued, and issued reports can always be downloaded from the customer portal. |
 | Change request  | A change to a document whose process is completed is a change request: what to change, why, who asked and when. Anyone who can edit that type of document can raise one. It is signed through the change-request chain of the document's type ([SH-07](../shared.md#sh-07-signed-documents-are-locked)). |
 | New version     | An applied change request creates a new version of the document, such as a result or a report, that replaces the old one. The old version is kept unchanged. |
 

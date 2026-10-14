@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_test_reports" name="My Test Reports">
+        <t t-call="portal.portal_layout">
+            <h3 class="mt-3">Test Reports</h3>
+            <p t-if="not reports">No test report has been issued for your requests yet.</p>
+            <table t-else="" class="table">
+                <thead>
+                    <tr>
+                        <th>Report Number</th>
+                        <th>Test Request</th>
+                        <th>Issued</th>
+                        <th />
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="reports" t-as="report">
+                        <td t-out="report.code" />
+                        <td t-out="report.request_id.code" />
+                        <td><span t-field="report.issued_at" t-options="{'widget': 'date'}" /></td>
+                        <td class="text-end">
+                            <a t-attf-href="/my/test-reports/#{report.id}/download">Download</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </t>
+    </template>
+</odoo>
