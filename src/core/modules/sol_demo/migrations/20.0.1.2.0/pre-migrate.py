@@ -19,7 +19,7 @@ OLD_PREFIXES = {
 }
 
 
-def migrate(cr, version):
+def migrate(cr, _version):
     # The master data demo records are named demo_<model>_<short name>, as the demo data convention says.
     for model, old_prefix in OLD_PREFIXES.items():
         new_prefix = f"demo_{model.removeprefix('medilab.').replace('.', '_')}_"
