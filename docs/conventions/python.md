@@ -83,6 +83,7 @@ How a module is laid out, from its root:
 
 - pyright finds `odoo.addons.<name>` only inside `odoo/addons` of the Odoo source. `task dev:odoo-source` links each module of `src/core/modules` there, and each Odoo addon in `ODOO_ADDONS` of `dev.taskfile.yml`: a symbolic link on Linux and macOS, a directory junction on Windows, which needs no administrator rights.
 - A link shows the current code, so a changed module needs no new `task dev:odoo-source`. `task typecheck` refreshes the links first, so a new module is found too.
+- `tools/typecheck/link_addons.py` records the links it makes in `.local/odoo-source/medilab-links.json` and replaces or removes only those. Other links in `odoo/addons` stay. Another link or a folder under a name it needs stops it with an error naming the path. The exception is a copy of an Odoo addon, which `task dev:odoo-source` used to make: the script replaces a copy that holds the same files as the addon.
 - An Odoo addon that a module imports in Python is added to `ODOO_ADDONS`.
 - Import `SUPERUSER_ID` from `odoo.api`. Odoo 20 sets it on the `odoo` package only at startup, so `from odoo import SUPERUSER_ID` is a missing name to pyright.
 - `lxml-stubs`, in the `dev` group, gives pyright the names of the compiled `lxml.etree`.
@@ -98,6 +99,7 @@ pyright cannot follow Odoo's dynamic models. These rules are warnings: the edito
 | `reportOptionalContextManager` | `assertRaises` of Odoo's test cases has no annotation, so pyright infers that `with self.assertRaises(...)` may get `None`.                                                                                                                                |
 
 - pyright reports a missing name in `from <module> import <name>` under `reportAttributeAccessIssue` too. `tools/typecheck/typecheck.py` reports those warnings as errors, so a missing name still fails.
+- `typecheck.py` also fails, with exit code 2, when pyright itself fails: it exits with a code other than 0 or 1, writes no complete report, lists other errors than it counts, or checks no files.
 - `__manifest__.py` files are not checked: a manifest is a bare dict, which pyright reports as an unused expression.
 - Every other rule keeps its `basic` level. Do not silence one with an inline comment or `cast()`; fix the code.
 

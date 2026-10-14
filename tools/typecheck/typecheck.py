@@ -3,6 +3,7 @@
 pyright reports "from <module> import <name>" of a missing name under reportAttributeAccessIssue, the rule that
 pyrightconfig.json lowers to a warning for Odoo's dynamic models. This script reports those warnings as errors.
 Files given as arguments are checked instead of the modules.
+A pyright run that fails, writes no complete report or checks no files fails too, whatever it reported.
 """
 
 import argparse
@@ -16,12 +17,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / "pyrightconfig.json"
 IMPORT_NAME_RULE = "reportAttributeAccessIssue"
+SUMMARY_COUNTS = ("filesAnalyzed", "errorCount", "warningCount")
 
 
 @functools.cache
 def import_lines(path):
-    """The line numbers, from 0 as pyright counts them, of the "from ... import" statements in the file at path."""
-    tree = ast.parse(Path(path).read_text(encoding="utf-8"), filename=path)
+    """The line numbers, from 0 as pyright counts them, of the "from ... import" statements in the file at path.
+
+    None when the file cannot be parsed, so that every warning of the rule in it fails.
+    """
+    try:
+        tree = ast.parse(Path(path).read_text(encoding="utf-8"), filename=path)
+    except (OSError, SyntaxError, ValueError):
+        return None
     return {
         line
         for node in ast.walk(tree)
@@ -33,8 +41,10 @@ def import_lines(path):
 def fails(diagnostic):
     if diagnostic["severity"] == "error":
         return True
-    line = diagnostic["range"]["start"]["line"]
-    return diagnostic.get("rule") == IMPORT_NAME_RULE and line in import_lines(diagnostic["file"])
+    if diagnostic.get("rule") != IMPORT_NAME_RULE:
+        return False
+    lines = import_lines(diagnostic["file"])
+    return lines is None or diagnostic["range"]["start"]["line"] in lines
 
 
 def describe(diagnostic):
@@ -53,21 +63,63 @@ def checked_files():
     return [str(path) for path in files]
 
 
+def is_complete(diagnostic):
+    start = diagnostic["range"]["start"]
+    return all(isinstance(diagnostic[key], str) for key in ("file", "severity", "message")) and all(
+        isinstance(start[key], int) for key in ("line", "character")
+    )
+
+
+def read_report(output):
+    """The JSON report that pyright wrote to output, or None when it is missing or incomplete."""
+    try:
+        report = json.loads(output)
+        complete = all(isinstance(report["summary"][key], int) for key in SUMMARY_COUNTS) and all(
+            is_complete(diagnostic) for diagnostic in report["generalDiagnostics"]
+        )
+    except (ValueError, TypeError, KeyError):
+        return None
+    return report if complete else None
+
+
+def broken_run(returncode, report):
+    """Why a pyright run cannot be trusted, or None when it can."""
+    if report is None:
+        return f"pyright exited with {returncode} and wrote no complete report."
+    if returncode not in (0, 1):
+        return f"pyright exited with {returncode}, so it did not check the modules."
+    summary = report["summary"]
+    errors = sum(diagnostic["severity"] == "error" for diagnostic in report["generalDiagnostics"])
+    if errors != summary["errorCount"] or (returncode == 1) != (errors > 0):
+        return f"pyright exited with {returncode} and counted {summary['errorCount']} errors, but listed {errors}."
+    if not summary["filesAnalyzed"]:
+        return "pyright checked no files."
+    return None
+
+
+def outcome(result):
+    """Write what the pyright run in result found, and return the exit code: 1 for errors, 2 for a failed run."""
+    sys.stderr.write(result.stderr)
+    report = read_report(result.stdout)
+    failures = []
+    if report is None:
+        sys.stderr.write(result.stdout)
+    else:
+        failures = [diagnostic for diagnostic in report["generalDiagnostics"] if fails(diagnostic)]
+        for diagnostic in failures:
+            sys.stdout.write(describe(diagnostic) + "\n")
+        summary = report["summary"]
+        warnings = summary["warningCount"] - (len(failures) - summary["errorCount"])
+        sys.stdout.write(f"{len(failures)} errors, {warnings} warnings in {summary['filesAnalyzed']} files\n")
+    if problem := broken_run(result.returncode, report):
+        sys.stderr.write(f"error: {problem}\n")
+        return 2
+    return 1 if failures else 0
+
+
 def main():
     command = [sys.executable, "-m", "pyright", "--outputjson", "--project", str(CONFIG), *checked_files()]
-    result = subprocess.run(command, capture_output=True, text=True, cwd=ROOT)
-    try:
-        report = json.loads(result.stdout)
-    except json.JSONDecodeError:
-        sys.stderr.write(result.stdout + result.stderr)
-        sys.exit(result.returncode or 1)
-    failures = [diagnostic for diagnostic in report["generalDiagnostics"] if fails(diagnostic)]
-    for diagnostic in failures:
-        sys.stdout.write(describe(diagnostic) + "\n")
-    summary = report["summary"]
-    warnings = summary["warningCount"] - (len(failures) - summary["errorCount"])
-    sys.stdout.write(f"{len(failures)} errors, {warnings} warnings in {summary['filesAnalyzed']} files\n")
-    sys.exit(1 if failures else 0)
+    sys.exit(outcome(subprocess.run(command, capture_output=True, text=True, cwd=ROOT, check=False)))
 
 
 if __name__ == "__main__":

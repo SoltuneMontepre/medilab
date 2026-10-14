@@ -28,6 +28,9 @@ How tests are written, where they live and how they run.
 - `task test:typecheck` checks that every module is linked into the Odoo source and that an import of a module's constant resolves.
 - It checks that a missing name, a missing module, a type error and a wrong call fail, and that the Odoo patterns behind the [relaxed rules](python.md#relaxed-rules) pass.
 - Each case is a file the test writes to a temporary folder, so no failing code is committed.
+- `test_link_addons.py` runs the linking in a temporary folder. It checks that correct links stay as they are, links to a moved, removed or new module are updated, other links and folders are kept, and the linked folders never change.
+- `test_pyright_report.py` feeds `typecheck.py` made-up pyright results: a failed run, an incomplete report and a run that checked no files must fail.
+- The Windows junction calls are tested with mocks; the pipeline runs on Linux only.
 
 ## Pipeline
 
