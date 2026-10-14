@@ -35,7 +35,7 @@ class ApprovalMixin(models.AbstractModel):
     approval_can_withdraw = fields.Boolean(compute="_compute_approval_actions")
 
     def write(self, vals):
-        content_fields = set(vals) & self._approval_content_fields()
+        content_fields = set(vals) & (self._approval_content_fields() | {"document_version"})
         if content_fields and not self.env.context.get(APPROVAL_SYSTEM_CONTEXT) and self._approval_has_standing():
             raise UserError(self.env._("The document has signatures; withdraw them before changing it."))
         return super().write(vals)
@@ -70,9 +70,18 @@ class ApprovalMixin(models.AbstractModel):
         if document._approval_has_standing():
             document._approval_set_state(STATE_REQUESTED)
             return
-        document.with_context(**{APPROVAL_SYSTEM_CONTEXT: True}).write({"document_version": self.document_version + 1})
-        document._approval_set_state(STATE_NONE)
-        document._approval_reopened()
+        document._approval_restart()
+
+    def _approval_restart(self):
+        """Withdraw every signature and rejection that still stands and reopen the document, so it is signed again
+        from the first level; the rows stay on record."""
+        for document in self.sudo():
+            document._approval_open_rows().write({"withdrawn_at": fields.Datetime.now()})
+            document.with_context(**{APPROVAL_SYSTEM_CONTEXT: True}).write(
+                {"document_version": document.document_version + 1}
+            )
+            document._approval_set_state(STATE_NONE)
+            document._approval_reopened()
 
     def _approval_chain(self):
         return (

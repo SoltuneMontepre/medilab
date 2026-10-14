@@ -3,6 +3,7 @@ from . import (
     approval_level,
     hr_department,
     hr_employee,
+    ir_access,
     ir_actions_act_window_view,
     ir_mail_server,
     ir_ui_menu,

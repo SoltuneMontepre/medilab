@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_sample_test_reception_lead" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_reception_good" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+    </record>
+    <record id="demo_sample_test_reception_coliforms" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_reception_good" />
+        <field name="parameter_id" ref="demo_test_parameter_coliforms" />
+    </record>
+    <record id="demo_sample_test_lead_done" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_done" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">testing</field>
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+    </record>
+    <record id="demo_sample_test_lead_running" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_running" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">testing</field>
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+    </record>
+    <record id="demo_sample_test_lead_today" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_today" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+    </record>
+    <record id="demo_sample_test_lead_tomorrow" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_tomorrow" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+    </record>
+    <record id="demo_sample_test_lead_queued" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_queued" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">assigned</field>
+    </record>
+    <record id="demo_sample_test_lead_outsourcing" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_outsourcing" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="due_date" eval="(DateTime.now() + relativedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="outsourcing_suggested" eval="True" />
+    </record>
+    <record id="demo_sample_test_lead_urgent" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_urgent" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">waiting</field>
+        <field name="due_date" eval="(DateTime.now() + relativedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+</odoo>

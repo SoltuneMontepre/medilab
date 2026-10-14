@@ -24,6 +24,7 @@ OLD_PREFIXES = [
     ("medilab.reconciliation.day", "demo_reconciliation_"),
     ("medilab.push.delivery", "demo_push_"),
     ("res.users", "demo_portal_"),
+    ("ir.attachment", "demo_attachment_"),
 ]
 
 

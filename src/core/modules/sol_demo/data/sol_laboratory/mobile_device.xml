@@ -18,4 +18,9 @@
         <field name="platform">android</field>
         <field name="active" eval="True" />
     </record>
+    <record id="demo_mobile_device_sample_delivery_staff" model="medilab.mobile.device">
+        <field name="user_id" ref="demo_res_users_sample_delivery_staff" />
+        <field name="token">demo-device-sample-delivery-staff</field>
+        <field name="platform">android</field>
+    </record>
 </odoo>

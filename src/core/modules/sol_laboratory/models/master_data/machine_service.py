@@ -2,7 +2,14 @@ from odoo import api, fields, models
 from odoo.fields import Domain
 from odoo.tools import format_date
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_MACHINE, MODEL_MACHINE_SERVICE, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_MACHINE,
+    MODEL_MACHINE_BOOKING,
+    MODEL_MACHINE_SERVICE,
+    MODEL_PERMISSION_MIXIN,
+)
+
+CALIBRATION_FIELDS = {"machine_id", "kind", "service_date", "next_due_date"}
 
 
 # Lịch Sử Bảo Trì Máy
@@ -38,6 +45,34 @@ class MachineService(models.Model):
         for service in self:
             parts = [service.machine_id.code, kinds.get(service.kind), format_date(self.env, service.service_date)]
             service.display_name = " – ".join(part for part in parts if part)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        services = super().create(vals_list)
+        self._requeue_bookings(services._calibrated_machines())
+        return services
+
+    def write(self, vals):
+        machines = self._calibrated_machines()
+        result = super().write(vals)
+        if CALIBRATION_FIELDS & set(vals):
+            self._requeue_bookings(machines | self._calibrated_machines())
+        return result
+
+    def unlink(self):
+        machines = self._calibrated_machines()
+        result = super().unlink()
+        self._requeue_bookings(machines)
+        return result
+
+    def _calibrated_machines(self):
+        return self.filtered(lambda service: service.kind == "calibration").machine_id
+
+    @api.model
+    def _requeue_bookings(self, machines):
+        # A calibration record can bring the calibration due date forward, past which the machine takes no bookings.
+        if machines:
+            self.env[MODEL_MACHINE_BOOKING]._requeue(machines)
 
     def _in_use_domain(self):
         # Service records are history and never keep a machine in use.

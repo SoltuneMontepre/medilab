@@ -27,4 +27,27 @@
         <field name="name">Head of Sales</field>
         <field name="role_id" ref="demo_role_head_of_sales" />
     </record>
+    <record id="demo_approval_level_test_result_signing_tester" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_test_result_signing" />
+        <field name="sequence">10</field>
+        <field name="name">Tester</field>
+        <field name="role_id" ref="demo_role_tester" />
+        <field name="same_department" eval="True" />
+        <field name="can_reject" eval="False" />
+    </record>
+    <record id="demo_approval_level_test_result_signing_head_of_department" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_test_result_signing" />
+        <field name="sequence">20</field>
+        <field name="name">Head of department</field>
+        <field name="role_id" ref="demo_role_head_of_department" />
+        <field name="same_department" eval="True" />
+        <field name="can_reject" eval="True" />
+    </record>
+    <record id="demo_approval_level_test_report_signing_lab_head" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_test_report_signing" />
+        <field name="sequence">10</field>
+        <field name="name">Lab head</field>
+        <field name="role_id" ref="demo_role_lab_head" />
+        <field name="can_reject" eval="True" />
+    </record>
 </odoo>

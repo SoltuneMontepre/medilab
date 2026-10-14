@@ -127,6 +127,9 @@
                     confirm="Cancel this order?"
                 />
             </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="domain">[('id', 'child_of', customer_id)] if customer_id else []</attribute>
+            </xpath>
             <xpath expr="//sheet" position="before">
                 <div
                     class="alert alert-warning"

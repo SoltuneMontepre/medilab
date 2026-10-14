@@ -50,5 +50,14 @@
                 </div>
             </div>
         </xpath>
+        <xpath expr="//t[@t-set='address']/*[1]" position="before">
+            <img
+                t-if="o.partner_id.commercial_partner_id.image_128"
+                t-att-src="image_data_uri(o.partner_id.commercial_partner_id.image_128)"
+                class="mb-2"
+                style="max-height: 60px"
+                alt="Logo"
+            />
+        </xpath>
     </template>
 </odoo>

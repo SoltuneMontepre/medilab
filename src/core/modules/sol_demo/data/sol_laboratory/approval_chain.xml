@@ -10,4 +10,14 @@
         <field name="document_model">sale.order</field>
         <field name="purpose">change_request</field>
     </record>
+    <record id="demo_approval_chain_test_result_signing" model="medilab.approval.chain">
+        <field name="name">Test result signing</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="purpose">signing</field>
+    </record>
+    <record id="demo_approval_chain_test_report_signing" model="medilab.approval.chain">
+        <field name="name">Test report signing</field>
+        <field name="document_model">medilab.test.report</field>
+        <field name="purpose">signing</field>
+    </record>
 </odoo>

@@ -1,4 +1,5 @@
 from odoo import api, models
+from odoo.exceptions import UserError
 from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_SAMPLE
@@ -17,3 +18,22 @@ class IrAttachment(models.Model):
         if self.env.su or self.env.is_system() or reader in self.env.user._get_group_ids():
             return domain
         return domain & Domain("res_model", "!=", MODEL_SAMPLE)
+
+    def write(self, vals):
+        self._check_document_lock()
+        return super().write(vals)
+
+    def unlink(self):
+        self._check_document_lock()
+        return super().unlink()
+
+    def _check_document_lock(self):
+        """Refuse changing the files of a signed or issued document, such as its PDF; documents that lock their files
+        say so with _files_locked()."""
+        if self.env.su:
+            return
+        for model_name, attachments in self.sudo().grouped("res_model").items():
+            if model_name not in self.env or not hasattr(self.env[model_name], "_files_locked"):
+                continue
+            if self.env[model_name].sudo().browse(attachments.mapped("res_id")).exists()._files_locked():
+                raise UserError(self.env._("The files of a signed or issued document cannot be changed."))

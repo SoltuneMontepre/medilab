@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_sample_handover_chemistry" model="medilab.sample.handover">
+        <field name="sample_id" ref="demo_sample_reception_good" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="received_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="received_by_id" ref="demo_person_head_of_department" />
+    </record>
+    <record id="demo_sample_handover_microbiology" model="medilab.sample.handover">
+        <field name="sample_id" ref="demo_sample_reception_good" />
+        <field name="department_id" ref="demo_hr_department_microbiology" />
+    </record>
+</odoo>
