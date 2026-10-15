@@ -149,7 +149,10 @@ Acceptance criteria:
 | Rule     | Description                                                                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------- |
 | Handling | Sales handles support requests. A request about an order goes to the order's salesperson; any other request waits until a salesperson takes it. |
+| Taking   | A salesperson takes a waiting request with **Take**, or by replying to it. From then on only that salesperson and the Head of Sales see it. |
 | Reply    | A reply sets the request to answered and notifies the customer. Sales closes a request once the customer's question is settled. |
+| Who answers | Only those who may edit the request answer it: its salesperson, any salesperson while nobody has taken it, and the Head of Sales. A message from another employee and an internal note change neither its status nor its salesperson. |
+| Deadline | The task is due 24 elapsed hours after the request reaches the salesperson, nights and weekends included. The administrator changes this default on the task type. |
 
 Acceptance criteria:
 
