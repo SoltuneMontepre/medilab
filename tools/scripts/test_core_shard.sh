@@ -7,13 +7,13 @@ status_file="$TEST_RUN_DIR/status/$SHARD"
 shard_db="${TEST_DB}_$SHARD"
 filestore="$TEST_RUN_DIR/data/filestore"
 tags=$(cat "$TEST_RUN_DIR/shards/$SHARD.txt")
-if [ -z "$tags" ]; then
+if [[ -z "$tags" ]]; then
   echo 0 > "$status_file"
   exit 0
 fi
 
 install_coverage
-if [ -d "$filestore/$TEST_DB" ]; then
+if [[ -d "$filestore/$TEST_DB" ]]; then
   runuser -u odoo -- cp -a "$filestore/$TEST_DB" "$filestore/$shard_db"
 fi
 cd /mnt/extra-addons

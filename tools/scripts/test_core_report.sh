@@ -11,6 +11,6 @@ python3 -m coverage xml -q --data-file="$TEST_RUN_DIR/coverage/.coverage" -o cov
 
 failed=""
 for n in $SHARD_NUMBERS; do
-  [ "$(cat "$TEST_RUN_DIR/status/$n" 2>/dev/null)" = 0 ] || failed="$failed $n"
+  [[ "$(cat "$TEST_RUN_DIR/status/$n" 2>/dev/null)" = 0 ]] || failed="$failed $n"
 done
 echo $failed

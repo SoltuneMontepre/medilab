@@ -7,12 +7,12 @@ DIR="$1"
 REV="$2"
 shift 2
 log_step "Odoo source"
-if [ ! -d "$DIR" ]; then
+if [[ ! -d "$DIR" ]]; then
   log_info "Downloading Odoo 20.0 at ${REV:0:7}. This takes a minute."
   git clone --quiet --depth 1 --filter=blob:none --sparse --branch 20.0 https://github.com/odoo/odoo.git "$DIR"
   git -C "$DIR" fetch --quiet --depth 1 origin "$REV"
   git -C "$DIR" -c advice.detachedHead=false checkout --quiet --detach "$REV"
-elif [ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ]; then
+elif [[ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ]]; then
   log_info "Updating the Odoo source to ${REV:0:7}."
   git -C "$DIR" fetch --quiet --depth 1 origin "$REV"
   git -C "$DIR" -c advice.detachedHead=false checkout --quiet --detach "$REV"
@@ -23,7 +23,7 @@ for addon in "$@"; do
 done
 log_info "Checking out odoo and addons: $addons"
 git -C "$DIR" sparse-checkout set odoo $(for addon in "$@"; do printf 'addons/%s ' "$addon"; done)
-if [ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ] || [ ! -f "$DIR/odoo/fields/__init__.py" ]; then
+if [[ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ]] || [[ ! -f "$DIR/odoo/fields/__init__.py" ]]; then
   log_error "$DIR is not at $REV; delete it and run again."
   exit 1
 fi

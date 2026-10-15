@@ -57,6 +57,7 @@ A command longer than ten lines goes into a script in `tools/scripts/`, and the 
 - A script for the host is sourced, so it runs in Task's built-in shell on every platform: `. tools/scripts/odoo_source.sh {{.ODOO_SOURCE_DIR}} {{.ODOO_SOURCE_REVISION}}`. It loads `log.sh` itself and starts with `set -e` when a failed step must stop it.
 - A script for the Odoo container runs with `bash`; the `odoo` service mounts `tools/scripts` read-only at `/opt/medilab/scripts`: `docker compose run --rm -T -e SHARD=1 --entrypoint bash odoo /opt/medilab/scripts/test_core_shard.sh`. Do not pipe a script into `bash -s`; a command that reads standard input swallows the rest of the script.
 - Code shared by several scripts goes in a script they source, such as `test_core_common.sh`.
+- SonarQube scans the scripts: test with `[[ ]]`, end every function with an explicit `return`, and install packages with `--only-binary :all:` for pip and `--ignore-scripts` for bun and npm.
 - `.gitattributes` keeps `*.sh` files at LF line endings on every checkout, because bash in the container fails on CRLF.
 
 ## Output

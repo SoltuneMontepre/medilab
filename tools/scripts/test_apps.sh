@@ -5,7 +5,7 @@ set -e
 
 cd "$1"
 log_step "Medilab Sync frontend"
-bun install --frozen-lockfile
+bun install --frozen-lockfile --ignore-scripts
 bun test
 if command -v cargo >/dev/null 2>&1; then
   log_step "Medilab Sync backend"
