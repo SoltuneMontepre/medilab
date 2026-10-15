@@ -3,6 +3,7 @@
     <record id="action_medilab_order_feedback" model="ir.actions.act_window">
         <field name="name">Feedback</field>
         <field name="res_model">rating.rating</field>
+        <field name="path">order-feedback</field>
         <field name="view_mode">list,kanban,graph,pivot,form</field>
         <field name="domain">[('res_model', '=', 'sale.order'), ('consumed', '=', True)]</field>
         <field name="search_view_id" ref="rating.rating_rating_view_search" />
