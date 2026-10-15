@@ -23,6 +23,10 @@ class RatingRating(models.Model):
         for rating in self:
             rating.order_id = rating.res_id if rating.res_model == MODEL_SALE_ORDER else False
 
+    def _audit_scope(self):
+        # Only the feedback on orders is a MediLab document; the ratings of other Odoo apps stay out of the trail.
+        return self.filtered(lambda rating: rating.sudo().res_model == MODEL_SALE_ORDER)
+
     def _audit_parents(self):
         # The feedback is part of its order, so the order's history keeps it.
         return {rating.id: (MODEL_SALE_ORDER, rating.order_id.id) for rating in self.sudo() if rating.order_id}

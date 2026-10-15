@@ -1,10 +1,14 @@
+from datetime import datetime
+
+from freezegun import freeze_time
+
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import tagged
 
 from .support_case import SupportCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SUPPORT_REQUEST
 from odoo.addons.sol_commerce.constants.xml_ids import SUPPORT_READ_ACCESS
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_PERMISSION, MODEL_PERSON
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 
@@ -66,6 +70,43 @@ class TestSupportRequest(AuditLookup, SupportCase):
 
         self.assertEqual(request.status, "open")
         self.assertFalse(request.handled_by_id)
+
+    def test_a_reply_from_staff_who_cannot_edit_the_request_neither_takes_nor_answers_it(self):
+        reader = self.env[MODEL_PERSON].create({"name": "Do Van Doc", "login": "support.reader"})
+        reader.permission_ids = self.env[MODEL_PERMISSION].search([("code", "=", "support.request.read.all")])
+        request = self.open_request()
+
+        self.write_on(request, reader.user_id, "I only read requests.")
+
+        self.assertEqual((request.status, request.handled_by_id), ("open", self.env["res.users"]))
+        self.assertFalse(self.tasks_of(request))
+
+    def test_a_reply_from_the_head_of_sales_answers_a_taken_request_and_keeps_its_handler(self):
+        order = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
+        request = self.open_request(order=order)
+
+        self.write_on(request, self.head, "The laboratory releases them today.")
+
+        self.assertEqual((request.status, request.handled_by_id), ("answered", self.sales))
+
+    def test_the_customer_is_notified_once_of_a_reply(self):
+        order = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
+        request = self.open_request(order=order)
+
+        message = self.write_on(request, self.sales, "Released today.")
+
+        notifications = self.env["mail.notification"].search(
+            [("mail_message_id", "=", message.id), ("res_partner_id", "=", self.contact.id)]
+        )
+        self.assertEqual(len(notifications), 1)
+
+    def test_the_task_is_due_24_elapsed_hours_after_it_reaches_the_salesperson(self):
+        order = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
+
+        with freeze_time("2026-10-17 16:00:00"):
+            request = self.open_request(order=order)
+
+        self.assertEqual(self.tasks_of(request).deadline, datetime(2026, 10, 18, 16, 0))
 
     def test_reply_to_an_untaken_request_takes_it(self):
         request = self.open_request()

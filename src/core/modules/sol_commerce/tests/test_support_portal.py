@@ -21,7 +21,10 @@ class TestSupportPortal(HttpCase, SupportCase):
         self.authenticate(self.portal.login, PASSWORD)
 
     def csrf_token(self, url):
-        return re.search(r'name="csrf_token" value="([^"]+)"', self.url_open(url).text).group(1)
+        match = re.search(r'name="csrf_token" value="([^"]+)"', self.url_open(url).text)
+        if match is None:
+            self.fail(f"{url} has no CSRF token.")
+        return match.group(1)
 
     def post_request(self, subject, order_id="", body="Please help.", files=None):
         token = self.csrf_token("/support/new")

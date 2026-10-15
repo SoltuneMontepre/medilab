@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.fields import Domain
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SUPPORT_REQUEST
 from odoo.addons.sol_commerce.constants.support import (
@@ -148,10 +149,24 @@ class SupportRequest(models.Model):
         self.env[MODEL_TASK]._close_for_document(self, SUPPORT_ACTION)
         return True
 
-    def message_post(self, **kwargs):
-        if self.env.user.share and self.sudo().status == SUPPORT_CLOSED:
+    def _mail_get_operation_for_mail_message_operation(self, message_operation):
+        # The customer writes and uploads files on an open or answered request with read access. A closed request takes
+        # messages and files only from those who can edit it, which a customer cannot.
+        if message_operation == "create":
+            return [(Domain("status", "!=", SUPPORT_CLOSED), "read"), (Domain.TRUE, "write")]
+        return super()._mail_get_operation_for_mail_message_operation(message_operation)
+
+    def _check_open_for_customer(self):
+        if self.env.user.share and SUPPORT_CLOSED in self.sudo().mapped("status"):
             raise UserError(self.env._("This request is closed. Open a new request if you need more help."))
+
+    def message_post(self, **kwargs):
+        self._check_open_for_customer()
         return super().message_post(**kwargs)
+
+    def _message_update_content(self, message, /, *, body, **kwargs):
+        self._check_open_for_customer()
+        return super()._message_update_content(message, body=body, **kwargs)
 
     def _message_post_after_hook(self, message):
         super()._message_post_after_hook(message)
@@ -161,7 +176,9 @@ class SupportRequest(models.Model):
         if author and author.commercial_partner_id == self.sudo().customer_id.partner_id.commercial_partner_id:
             self._customer_wrote()
             return
-        staff = author.user_ids.filtered(lambda user: not user.share)[:1]
+        # Only someone who may edit the request answers it: its handler, any salesperson while nobody has taken it,
+        # and those who handle every request. Another employee's message changes nothing.
+        staff = author.user_ids.filtered(lambda user: not user.share and self.with_user(user).has_access("write"))[:1]
         if staff:
             self._sales_replied(staff)
 

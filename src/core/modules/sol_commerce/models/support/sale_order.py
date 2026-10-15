@@ -6,7 +6,7 @@ from odoo.tools import mute_logger
 
 from odoo.addons.sol_commerce.constants.models import MODEL_RATING, MODEL_SALE_ORDER, MODEL_SUPPORT_REQUEST
 from odoo.addons.sol_commerce.constants.orders import STATUS_COMPLETED
-from odoo.addons.sol_commerce.constants.support import FEEDBACK_MAX, FEEDBACK_MIN
+from odoo.addons.sol_commerce.constants.support import FEEDBACK_CONTEXT, FEEDBACK_MAX, FEEDBACK_MIN
 
 
 # Đơn Hàng: the support requests about the order and the customer's feedback on it.
@@ -68,11 +68,26 @@ class SaleOrder(models.Model):
             )
         try:
             with mute_logger("odoo.sql_db"), self.env.cr.savepoint():
-                return order.rating_apply(value, rating=rating, feedback=(comment or "").strip() or False)
+                return order.with_context(**{FEEDBACK_CONTEXT: True}).rating_apply(
+                    value, rating=rating, feedback=(comment or "").strip() or False
+                )
         except IntegrityError:
             # Another feedback on the order was saved meanwhile.
             self.env.invalidate_all()
             raise UserError(self.env._("This order already has feedback.")) from None
+
+    def rating_apply(self, rate, token=None, rating=None, feedback=None, subtype_xmlid=None, notify_delay_send=False):
+        # Odoo's rating links rate with full rights from a token alone, which skips the order's owner and status.
+        if not (self.env.su and self.env.context.get(FEEDBACK_CONTEXT)):
+            raise AccessError(self.env._("Feedback is given from the order's page in the portal."))
+        return super().rating_apply(
+            rate,
+            token=token,
+            rating=rating,
+            feedback=feedback,
+            subtype_xmlid=subtype_xmlid,
+            notify_delay_send=notify_delay_send,
+        )
 
     def _get_allowed_message_params(self):
         # Feedback is given only through action_give_feedback, never as a value of a chatter message.

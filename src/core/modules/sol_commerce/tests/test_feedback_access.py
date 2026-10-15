@@ -6,12 +6,14 @@ from odoo.tools import mute_logger
 
 from .support_case import SupportCase
 from odoo.addons.sol_commerce.constants.models import MODEL_RATING, MODEL_SALE_ORDER
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 READ_FIELDS = ["rating", "feedback"]
 
 
 @tagged("post_install", "-at_install")
-class TestFeedbackAccess(SupportCase):
+class TestFeedbackAccess(AuditLookup, SupportCase):
     """Who reads, changes or creates the feedback of an order, through the ORM as a JSON-RPC call reaches it."""
 
     @classmethod
@@ -149,3 +151,33 @@ class TestFeedbackAccess(SupportCase):
             self.order.with_user(self.admin)._message_update_content(message, body="Changed", rating_value=1)
 
         self.assertEqual(self.feedback.rating, 4)
+
+    def test_only_order_feedback_is_audited(self):
+        partner_rating = self.ratings.create(
+            {
+                "res_model_id": self.env["ir.model"]._get_id("res.partner"),
+                "res_id": self.contact.id,
+                "partner_id": self.contact.id,
+                "rating": 3,
+            }
+        )
+        partner_rating.write({"rating": 5, "feedback": "Changed"})
+
+        self.assertTrue(self.entries(self.feedback, "create"))
+        self.assertFalse(self.entries(partner_rating))
+        partner_rating.unlink()
+        self.assertFalse(self.entries(partner_rating))
+
+    def test_deleting_feedback_is_kept_in_the_order_history(self):
+        feedback_id = self.feedback.id
+
+        self.known_id(self.admin).unlink()
+
+        deleted = (
+            self.env[MODEL_AUDIT_ENTRY]
+            .sudo()
+            .search(
+                [("document_model", "=", MODEL_RATING), ("document_id", "=", feedback_id), ("action", "=", "delete")]
+            )
+        )
+        self.assertEqual((deleted.parent_model, deleted.parent_id), (MODEL_SALE_ORDER, self.order.id))

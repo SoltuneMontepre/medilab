@@ -22,8 +22,14 @@ class TestFeedbackPortal(HttpCase, SupportCase):
     def page(self):
         return self.url_open(f"/orders/{self.order.id}")
 
+    def csrf_token(self, url):
+        match = re.search(r'name="csrf_token" value="([^"]+)"', self.url_open(url).text)
+        if match is None:
+            self.fail(f"{url} has no CSRF token.")
+        return match.group(1)
+
     def post_feedback(self, rating, comment):
-        token = re.search(r'name="csrf_token" value="([^"]+)"', self.page().text).group(1)
+        token = self.csrf_token(f"/orders/{self.order.id}")
         return self.url_open(
             f"/orders/{self.order.id}/feedback",
             data={"csrf_token": token, "rating": rating, "comment": comment},
@@ -57,7 +63,7 @@ class TestFeedbackPortal(HttpCase, SupportCase):
 
     def test_another_customer_cannot_open_or_rate_the_order(self):
         self.authenticate(self.other_portal.login, PASSWORD)
-        token = re.search(r'name="csrf_token" value="([^"]+)"', self.url_open("/support/new").text).group(1)
+        token = self.csrf_token("/support/new")
 
         response = self.url_open(
             f"/orders/{self.order.id}/feedback", data={"csrf_token": token, "rating": "1"}, allow_redirects=False
