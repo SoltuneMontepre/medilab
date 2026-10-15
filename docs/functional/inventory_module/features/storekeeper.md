@@ -43,14 +43,17 @@ Follows [Stock](../overview.md#stock), [Stores](../overview.md#stores) and [Purc
 | --------- | ------------------------------------------------------------------------------------------------------------ |
 | Codes     | Items and suppliers get a code from a sequence when none is typed. A typed code must still be unique.        |
 | Tracking  | An item's tracking (container, lot or quantity) cannot change once it has stock.                            |
-| Archiving | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md).                               |
+| Archiving | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Items and suppliers are archived, never deleted. An item is in use while it has stock on hand or an active testing method uses it per test. An archived supplier keeps its items and last prices, but purchases no longer suggest it. Minimum quantities, supplier items and uses per test are removed by deleting them; an item's minimum quantities are archived and restored with it. |
 
 Acceptance criteria:
 
 - An item without a code gets one from its sequence.
 - A chemical item stocks exactly one Laboratory chemical, and a chemical is stocked by at most one item.
 - An item with stock on hand cannot be archived; the message lists the locations that hold it.
+- An item that an active testing method uses per test cannot be archived; the message lists the methods.
 - Changing the tracking of an item with stock is refused.
+- An item or a supplier cannot be deleted, only archived.
+- An archived supplier is no longer suggested when buying, and keeps its last prices.
 - Choosing a floor of the premises shows the stock of every stock location whose location of the premises is that floor or a room or bench under it.
 
 ### 2. Buying (US-SK04 to US-SK06)

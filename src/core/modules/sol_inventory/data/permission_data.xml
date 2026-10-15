@@ -80,4 +80,79 @@
         <field name="action">delete</field>
         <field name="scope">own_department</field>
     </record>
+    <record id="permission_stock_item_create_all" model="medilab.permission">
+        <field name="name">Create stock items</field>
+        <field name="document_model">product.product</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_stock_item_edit_all" model="medilab.permission">
+        <field name="name">Edit stock items</field>
+        <field name="document_model">product.product</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_stock_item_archive_all" model="medilab.permission">
+        <field name="name">Archive stock items</field>
+        <field name="document_model">product.product</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_supplier_create_all" model="medilab.permission">
+        <field name="name">Create suppliers</field>
+        <field name="document_model">medilab.supplier</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_supplier_edit_all" model="medilab.permission">
+        <field name="name">Edit suppliers</field>
+        <field name="document_model">medilab.supplier</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_supplier_archive_all" model="medilab.permission">
+        <field name="name">Archive suppliers</field>
+        <field name="document_model">medilab.supplier</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_supplier_item_create_all" model="medilab.permission">
+        <field name="name">Create supplier items</field>
+        <field name="document_model">product.supplierinfo</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_supplier_item_edit_all" model="medilab.permission">
+        <field name="name">Edit supplier items</field>
+        <field name="document_model">product.supplierinfo</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_supplier_item_delete_all" model="medilab.permission">
+        <field name="name">Delete supplier items</field>
+        <field name="document_model">product.supplierinfo</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_minimum_quantity_create_all" model="medilab.permission">
+        <field name="name">Create minimum quantities</field>
+        <field name="document_model">stock.warehouse.orderpoint</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_minimum_quantity_edit_all" model="medilab.permission">
+        <field name="name">Edit minimum quantities</field>
+        <field name="document_model">stock.warehouse.orderpoint</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_minimum_quantity_delete_all" model="medilab.permission">
+        <field name="name">Delete minimum quantities</field>
+        <field name="document_model">stock.warehouse.orderpoint</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_method_consumption_create_all" model="medilab.permission">
+        <field name="name">Create item use per test</field>
+        <field name="document_model">medilab.method.consumption</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_method_consumption_edit_all" model="medilab.permission">
+        <field name="name">Edit item use per test</field>
+        <field name="document_model">medilab.method.consumption</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_method_consumption_delete_all" model="medilab.permission">
+        <field name="name">Delete item use per test</field>
+        <field name="document_model">medilab.method.consumption</field>
+        <field name="action">delete</field>
+    </record>
 </odoo>
