@@ -36,7 +36,7 @@ How tests are written, where they live and how they run.
 
 ## Pipeline
 
-[Pipelines](../infrastructure/pipelines.md) describes how `ci-core` runs the module tests and reports coverage. Locally, `task test:core` uses the stock Odoo image unless `MEDILAB_ODOO_IMAGE` names another.
+[Pipelines](../infrastructure/pipelines.md) describes how `ci-core` runs the module tests and reports coverage. Locally, `task test:core` uses the image `task up` builds from `tools/dockerfiles/prod.dockerfile` unless `MEDILAB_ODOO_IMAGE` names another.
 
 ## Browser tests
 

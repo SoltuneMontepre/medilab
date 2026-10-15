@@ -11,10 +11,15 @@ vars:
 tasks:
   up:
     aliases: [start]
-    desc: "Start the local infrastrucure and application"
+    desc: "Build the Odoo image unless MEDILAB_ODOO_IMAGE names another, then start the local infrastructure and application"
     silent: true
     cmds:
-      - docker compose up -d
+      - |
+        if [ -n "${MEDILAB_ODOO_IMAGE:-}" ]; then
+          docker compose up -d --no-build
+        else
+          docker compose up -d --build
+        fi
       - task: print
 
   stop:
