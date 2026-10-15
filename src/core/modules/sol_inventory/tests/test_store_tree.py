@@ -47,6 +47,20 @@ class TestStoreTree(StoresCase):
 
         self.assertFalse(self.pesticides_store.active)
 
+    def test_a_location_with_locations_inside_cannot_be_deleted(self):
+        self.pesticides_store.action_archive()
+
+        with self.assertRaises(UserError) as refusal:
+            self.chemistry_store.unlink()
+
+        self.assertIn(self.pesticides_store.display_name, str(refusal.exception))
+        self.assertTrue(self.pesticides_store.exists())
+
+        self.pesticides_store.unlink()
+        self.chemistry_store.unlink()
+
+        self.assertFalse((self.pesticides_store | self.chemistry_store).exists())
+
     def test_a_team_that_holds_a_store_cannot_be_archived(self):
         with self.assertRaises(UserError):
             self.pesticides.action_archive()

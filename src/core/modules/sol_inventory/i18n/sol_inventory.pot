@@ -18,6 +18,12 @@ msgstr ""
 #. module: sol_inventory
 #. odoo-python
 #: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid "%(locations)s cannot be deleted while these locations are inside: %(inside)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
 msgid "%(store)s is below %(above)s, so a department or team must hold it."
 msgstr ""
 
