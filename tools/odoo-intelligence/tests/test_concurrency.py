@@ -72,7 +72,7 @@ class ProbeUsage(models.Model):
 
     async def run(root, marker, excluded):
         params = StdioServerParameters(
-            command=sys.executable, args=[str(PACKAGE_ROOT / "run.py"), "mcp", "--root", str(root)], cwd=str(root)
+            command=sys.executable, args=["-m", "odoo_intelligence.cli", "mcp", "--root", str(root)], cwd=str(root)
         )
         async with (
             stdio_client(params) as (read, write),

@@ -26,10 +26,7 @@ def test_every_client_starts_odoo_and_serena_through_the_same_launcher():
         assert launcher(servers["odoo"]) == expected, name
         assert launcher(servers["serena"]) == expected, name
         assert servers["odoo"]["args"][len(expected[1]) :] == ["mcp"], name
-        serena = servers["serena"]["args"][len(expected[1]) :]
-        assert serena[:2] == ["serena", "start-mcp-server"], name
-        assert serena[serena.index("--context") + 1] == SERENA_CONTEXTS[name], name
-        assert serena[serena.index("--project") + 1] == ".", name
+        assert servers["serena"]["args"][len(expected[1]) :] == [f"serena-{SERENA_CONTEXTS[name]}"], name
 
 
 def test_launcher_finds_this_checkout_from_a_subdirectory():
@@ -65,9 +62,9 @@ def test_serena_uses_its_built_in_python_server():
     assert "odoo" not in project["language_servers"]
 
 
-def test_launcher_starts_only_the_client_servers():
-    result = subprocess.run(
-        [sys.executable, str(ROOT / "tools/odoo-intelligence/run.py"), "install"], capture_output=True, text=True
-    )
-    assert result.returncode == 1
-    assert "mcp, serena" in result.stderr
+def test_launcher_starts_only_the_client_servers_with_fixed_arguments():
+    launcher = str(ROOT / "tools/odoo-intelligence/run.py")
+    for arguments in [["install"], ["mcp", "--root", "/"], ["serena", "start-mcp-server"]]:
+        result = subprocess.run([sys.executable, launcher, *arguments], capture_output=True, text=True)
+        assert result.returncode == 1, arguments
+        assert "mcp, serena-claude-code, serena-ide" in result.stderr, arguments

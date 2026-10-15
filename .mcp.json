@@ -74,16 +74,7 @@
         "python",
         "-c",
         "import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')",
-        "serena",
-        "start-mcp-server",
-        "--context",
-        "claude-code",
-        "--project",
-        ".",
-        "--enable-web-dashboard",
-        "false",
-        "--enable-gui-log-window",
-        "false"
+        "serena-claude-code"
       ]
     },
     "odoo": {

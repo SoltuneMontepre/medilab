@@ -89,7 +89,7 @@ def test_disconnect_stops_the_official_child_during_indexing(tmp_path):
     async def run():
         previous = set((workspace.local / "logs").iterdir())
         params = StdioServerParameters(
-            command=sys.executable, args=[str(PACKAGE_ROOT / "run.py"), "mcp", "--root", str(tmp_path)]
+            command=sys.executable, args=["-m", "odoo_intelligence.cli", "mcp", "--root", str(tmp_path)]
         )
         child_pid = None
         async with (

@@ -9,14 +9,14 @@ from pathlib import Path
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-from .workspace import PACKAGE_ROOT, utf16_position
+from .workspace import utf16_position
 
 CASES = json.loads(Path(__file__).with_name("navigation_cases.json").read_text())
 
 
 async def check_navigation(root: Path) -> dict:
     parameters = StdioServerParameters(
-        command=sys.executable, args=[str(PACKAGE_ROOT / "run.py"), "mcp", "--root", str(root)], cwd=str(root)
+        command=sys.executable, args=["-m", "odoo_intelligence.cli", "mcp", "--root", str(root)], cwd=str(root)
     )
     async with (
         stdio_client(parameters) as (read, write),
