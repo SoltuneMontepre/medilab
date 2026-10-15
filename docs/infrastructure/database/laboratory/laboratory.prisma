@@ -231,6 +231,8 @@ model TestingMethodStep {
   location_id      Int?
   /// Where the step is done.
   location         Location? @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// Location bookings the scheduler made for the step.
+  room_events      CalendarEvent[]
   /// The testing method the step belongs to.
   method           TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
 
@@ -1464,6 +1466,14 @@ model CalendarEvent {
   location_id Int?
   /// The bookable location the event books.
   booked_location Location?     @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// The machine booking whose step the location booking is for; empty for a booking people made.
+  machine_booking_id Int?
+  /// The method step the location booking is for.
+  step_id   Int?
+  /// The machine booking whose step the location booking is for.
+  machine_booking MachineBooking? @relation("BookingRoomEvents", fields: [machine_booking_id], references: [id], onDelete: Cascade)
+  /// The method step the location booking is for.
+  step      TestingMethodStep? @relation(fields: [step_id], references: [id], onDelete: Restrict)
   /// The task whose planned time the event shows.
   task      Task?           @relation("TaskEvent")
   /// The machine booking the event shows.
@@ -1471,6 +1481,7 @@ model CalendarEvent {
 
   @@index([start])
   @@index([location_id])
+  @@index([machine_booking_id])
   @@map("calendar_event")
 }
 
@@ -1513,6 +1524,8 @@ model MachineBooking {
   department       Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
   /// Person who runs the test.
   person           Person?    @relation(fields: [person_id], references: [id], onDelete: Restrict)
+  /// Calendar events booking the locations of the method's steps for this booking.
+  room_events      CalendarEvent[] @relation("BookingRoomEvents")
 
   @@index([machine_id, starts_at])
   @@index([person_id, starts_at])

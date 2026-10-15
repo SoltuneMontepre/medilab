@@ -48,6 +48,8 @@ Acceptance criteria:
 - Claiming a task assigns it to the tester; a second tester claiming it at the same time is told it is already claimed.
 - A tester cannot claim a task of another department.
 - A reminder arrives before the booking starts.
+- A test whose method has a step in a bookable room is planned only at a time when the machine and the room are both free, and the room's booking shows on the tester's calendar and the room's schedule.
+- Moving a booking moves the room bookings of its steps with it.
 - A tester sees the lab code of a sample, not its customer or the customer's name for it.
 
 ### 2. Results (US-T05 to US-T09, US-T17, US-T18)
