@@ -19,6 +19,7 @@ The tester, also called lab QA, runs the tests assigned to them on the laborator
 - **US-T08** As a tester, I want to retest when a result is rejected, so that the reported result is correct, while the rejected one stays on record.
 - **US-T09** As a tester, I want to enter the results a subcontractor sends back for an outsourced test, so that they reach the report when the subcontractor does not enter them itself.
 - **US-T17** As a tester, I want to see the steps of the testing method of my test, each with how long it takes, what to do and its note, so that I run the test the way the laboratory defines it.
+- **US-T18** As a tester, I want to see the testing location of my booking, so that I know where to go to run the test.
 
 ### Samples
 
@@ -30,7 +31,7 @@ The tester, also called lab QA, runs the tests assigned to them on the laborator
 
 ## II. Feature details
 
-### 1. Planning (US-T01 to US-T04)
+### 1. Planning (US-T01 to US-T04, US-T18)
 
 Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling), [SH-10](../../shared.md#sh-10-tasks-and-to-do-list) and [SH-11](../../shared.md#sh-11-schedules-and-reminders).
 
@@ -47,6 +48,7 @@ Acceptance criteria:
 - Claiming a task assigns it to the tester; a second tester claiming it at the same time is told it is already claimed.
 - A tester cannot claim a task of another department.
 - A reminder arrives before the booking starts.
+- A booking shows the testing location of its machine on the tester's schedule, in the to-do list and on the calendar event.
 - A tester sees the lab code of a sample, not its customer or the customer's name for it.
 
 ### 2. Results (US-T05 to US-T09, US-T17)

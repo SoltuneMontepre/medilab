@@ -254,6 +254,8 @@ model TestingLocation {
   children      TestingLocation[] @relation("TestingLocationTree")
   /// The department that uses the location.
   department    Department?       @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  /// Machines standing in the location.
+  machines      Machine[]
 
   @@index([parent_id])
   @@index([department_id])
@@ -527,8 +529,10 @@ model Machine {
   manufacturer          String?                @db.VarChar
   /// Serial number given by the manufacturer.
   serial_number         String?                @db.VarChar
-  /// Where the machine is, such as "Room 203, bench 2".
-  location              String?                @db.VarChar
+  /// Where the machine stands.
+  location_id           Int?
+  /// Where the machine stands.
+  location              TestingLocation?       @relation(fields: [location_id], references: [id], onDelete: Restrict)
   /// in_use, under_repair or retired.
   status                String                 @db.VarChar
   /// Date the next calibration is due, taken from the latest calibration record; the machine cannot be used after it.

@@ -7,7 +7,7 @@
 - **Who maintains customers.** A customer's details are an Odoo contact, and Odoo lets only its contact managers create and edit contacts, so for now only administrators create and edit customers. Should sales get Odoo's contact creation group, or should a customer write its contact with full rights once the customer permission is checked, as people do? (blocks US-S03)
 - **Cancelling during testing.** A test request can be cancelled while testing, but the lifecycles let only expected, received and testing samples, and waiting, assigned and testing sample tests, be cancelled. What happens to a sample on hold or awaiting approval, and to a test outsourced or with a result entered, when its request is cancelled? For now they keep their status. (US-SD06, US-S17)
 - **Every test cancelled.** When the head of department cancels every sample test of a sample, nothing is left to test or report. Is the sample cancelled too, and its test request once all its samples are? For now the sample keeps its status. (US-HD09)
-- **Testing locations.** Should a machine's location, a testing task and a booking point to a testing location instead of free text, and should locations become bookable rooms with a schedule and a map? (blocks US-AD09, US-AD27)
+- **Bookable locations.** Should a testing location itself be bookable, such as a shared room with its own schedule, and should locations show on a map? (blocks US-AD27)
 
 ## Related documents
 

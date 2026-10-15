@@ -19,7 +19,7 @@ The administrator maintains the master data of the Laboratory module: test param
 
 ### Machines and chemicals
 
-- **US-AD09** As an administrator, I want to maintain machines with their location, status, calibration and maintenance, so that tests only run on machines that are fit to use.
+- **US-AD09** As an administrator, I want to maintain machines with their location, status, calibration and maintenance, so that tests only run on machines that are fit to use and people know where each machine is.
 - **US-AD10** As an administrator, I want to record which parameter and method pairs each machine can run, so that a test is planned on a suitable machine.
 - **US-AD11** As an administrator, I want to maintain chemicals with their identity, storage conditions and the methods that use them, so that the laboratory knows what each method needs.
 
@@ -90,7 +90,7 @@ Acceptance criteria:
 
 | Rule            | Description                                                                                                                                   |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Machine         | A machine has a code, name, model, manufacturer, serial number, location and status: in use, under repair or retired.                       |
+| Machine         | A machine has a code, name, model, manufacturer, serial number, testing location and status: in use, under repair or retired.                       |
 | Service history | Each calibration, maintenance or repair is recorded with its date, who did it, its certificate or report number and when the next one is due. A record can be edited, and the changes are kept in the audit trail. |
 | Calibration     | A machine whose next calibration date has passed cannot be used until a new calibration is recorded.                                          |
 | Maintenance     | A machine can have a maintenance interval in days; its next maintenance date follows from the latest maintenance record.                      |
@@ -102,6 +102,7 @@ Acceptance criteria:
 - A machine whose next calibration date is in the past cannot be chosen to run a test.
 - Recording a calibration with a new due date makes the machine usable again.
 - A machine that is under repair or retired cannot be chosen to run a test.
+- A machine is saved with a testing location chosen from the locations; a location a machine uses cannot be deleted, only archived.
 - A testing method shows the chemicals it uses, and a chemical shows the methods that use it.
 - A machine with a queued, scheduled or running booking cannot be archived; once its bookings are done or cancelled, it can be archived.
 - A machine that is in use, has any booking or service record, or is linked to a parameter and method pair cannot be deleted.
