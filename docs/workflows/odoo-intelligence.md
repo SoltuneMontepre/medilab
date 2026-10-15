@@ -34,7 +34,7 @@ flowchart LR
     Serena --> Generic[Python / TypeScript / Terraform / HTML]
 ```
 
-The read-only Odoo MCP server exposes `definition`, `references`, `hover`, `completion`, `document_symbols`, `diagnostics` and `status`. Paths are relative to the worktree; line and character positions are zero-based, with characters counted as UTF-16 code units. It rejects paths that escape the checkout, including symlinks. Results include file URIs and source ranges from OdooLS.
+The read-only Odoo MCP server exposes `definition`, `references`, `hover`, `completion`, `document_symbols`, `diagnostics` and `status`. Paths are relative to the worktree; line and character positions are zero-based, with characters counted as UTF-16 code units. It reads only Python and XML files inside the checkout, including the Odoo mirror under `.local`, and rejects paths and symlinks that lead outside it. It never writes project files; it writes only its session logs under `.local/odoo-intelligence/logs`. Results include file URIs and source ranges from OdooLS.
 
 Serena uses its built-in `python` server and retains its other language servers and editing tools. Use Odoo MCP for framework model strings, inherited fields and XML navigation; use Serena for general symbol search and edits. OdooLS has no rename support, so rename is not exposed by the bridge. The bridge also avoids unsupported pull-diagnostic requests and reads published diagnostics with freshness metadata instead. An unavailable or stale diagnostic report is not a clean validation result.
 
@@ -44,14 +44,20 @@ Blocking LSP operations run in worker threads so MCP cancellation and disconnect
 
 ## Clients
 
-| Client | Project configuration | Navigation interface |
-| --- | --- | --- |
-| Claude Code | `.mcp.json`, `.claude/settings.json` | Odoo MCP; local Serena and its existing hooks |
-| Codex CLI | `.codex/config.toml` | Odoo MCP and local Serena |
-| Cursor Agent | `.cursor/mcp.json` | Odoo MCP and local Serena |
-| Cursor editor | `odools.toml`, `.vscode/settings.json` | Official `Odoo.odoo` extension |
+| Client        | Project configuration                  | Odoo interface                                   | Serena               |
+| ------------- | -------------------------------------- | ------------------------------------------------ | -------------------- |
+| Claude Code   | `.mcp.json`, `.claude/settings.json`   | `odoo` MCP tools                                 | MCP server and hooks |
+| Codex CLI     | `.codex/config.toml`                   | `odoo` MCP tools                                 | MCP server           |
+| Cursor Agent  | `.cursor/mcp.json`                     | `odoo` MCP tools                                 | MCP server           |
+| Cursor editor | `odools.toml`, `.vscode/settings.json` | Native LSP of the official `Odoo.odoo` extension | Not used             |
+
+The MCP tools and the editor's native LSP run separate OdooLS processes on the same `odools.toml`. Cursor Agent and the Cursor editor are configured and checked separately: the Agent uses MCP, the editor uses the extension.
 
 Start a new session after setup; existing agents keep their processes and configurations. Cursor's project configuration also holds the Doppler, SonarQube, Postgres and Context7 servers of `.mcp.json`. Codex's project configuration holds only Odoo and Serena and leaves global MCP definitions alone.
+
+### Database access
+
+The `postgres` server inspects records and schema of the local Compose database. In Cursor it runs `postgres-mcp --access-mode=restricted`, which runs read-only SQL and rejects `CREATE`, `INSERT`, `DROP` and other writes. Its URL holds the Compose default credentials of the local database; set `DATABASE_URI` in the environment to reach a local database with other credentials. Never point it at a shared or production database. Claude Code's `postgres` server in `.mcp.json` runs unrestricted: use it to write only when the owner has asked for that change.
 
 ### Claude Code
 
@@ -90,7 +96,7 @@ The installer downloads the official platform-specific 1.6.0 VSIX, verifies its 
 
 ## Verification
 
-`task ai:verify` writes `.local/verification/mcp-navigation.json`: the asserted definitions, relation hover, field completion, references, document symbols and diagnostic freshness. `task ai:test` includes framed JSON-RPC, path and archive safety, error/timeout propagation, a references crash regression and concurrent-worktree tests. Live tests report skips when OdooLS is absent; inspect the summary before claiming integration passed.
+`ci-ai` runs `task ai:test` on pull requests that change the AI tooling or a client configuration; it installs no OdooLS, so the live tests skip there and `task ai:verify` runs only locally. `task ai:verify` writes `.local/verification/mcp-navigation.json`: the asserted definitions, relation hover, field completion, references, document symbols and diagnostic freshness. `task ai:test` includes framed JSON-RPC, path and archive safety, error/timeout propagation, a references crash regression and concurrent-worktree tests. Live tests report skips when OdooLS is absent; inspect the summary before claiming integration passed.
 
 For the native Cursor check, install the isolated profile and run:
 
@@ -103,9 +109,9 @@ The probe writes `.local/verification/cursor-editor.json`. It quits its test win
 ## Limitations
 
 - Only the navigation cases in `navigation_cases.json` are checked; indexing every manifest does not prove that every dynamic ORM expression resolves.
-- No native Odoo LSP plugin is installed for Claude Code or Codex; MCP is their Odoo interface.
+- No native Odoo LSP plugin is installed for Claude Code, Codex or Cursor Agent; MCP is their Odoo interface. Only the Cursor editor uses native Odoo LSP.
 - Codex loads the project configuration only in a trusted checkout.
-- The installer selects the official Linux, macOS and Windows artifacts, but only Linux x86-64 has been run.
+- Only Linux x86-64 is verified. The installer selects the official macOS and Windows artifacts, but they have not been run. On Windows the launcher's `os.execv` starts a new process instead of replacing itself, and stdio MCP through it is untested.
 - MCP connectivity and tool schemas do not prove that a client's model-driven calls succeed; check actual tool responses.
 
 ## Maintenance and troubleshooting
