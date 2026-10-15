@@ -63,3 +63,11 @@ def test_serena_uses_its_built_in_python_server():
     project = yaml.safe_load((ROOT / ".serena/project.yml").read_text())
     assert project["language_servers"][0] == "python"
     assert "odoo" not in project["language_servers"]
+
+
+def test_launcher_starts_only_the_client_servers():
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "tools/odoo-intelligence/run.py"), "install"], capture_output=True, text=True
+    )
+    assert result.returncode == 1
+    assert "mcp, serena" in result.stderr
