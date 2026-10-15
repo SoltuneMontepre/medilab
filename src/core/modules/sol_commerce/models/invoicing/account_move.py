@@ -62,7 +62,9 @@ class AccountMove(models.Model):
             raises = move.raising_adjustment_ids.filtered(lambda invoice: invoice.state == "posted")
             # A reconciled credit note is already in amount_residual. Only an open one is subtracted here.
             move.amount_owed = (
-                move.amount_residual - sum(lowering.mapped("amount_residual")) + sum(raises.mapped("amount_residual"))
+                move.amount_residual
+                - sum(refund.amount_residual for refund in lowering)
+                + sum(invoice.amount_residual for invoice in raises)
             )
 
     def _compute_is_overdue(self):

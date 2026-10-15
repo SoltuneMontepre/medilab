@@ -1,7 +1,8 @@
 import threading
 from urllib.parse import urlsplit
 
-from odoo import SUPERUSER_ID, api, fields, models
+from odoo import api, fields, models
+from odoo.api import SUPERUSER_ID
 from odoo.exceptions import UserError
 from odoo.fields import Domain
 from odoo.http import request
@@ -140,7 +141,8 @@ class AuditEntry(models.Model):
     def _compute_display_name(self):
         actions = dict(self._fields["action"]._description_selection(self.env))
         for entry in self:
-            entry.display_name = " ".join(filter(None, [actions.get(entry.action), entry.document_name or entry.note]))
+            parts = (actions.get(entry.action), entry.document_name or entry.note)
+            entry.display_name = " ".join(part for part in parts if part)
 
     def write(self, vals):
         self._refuse_change()
@@ -160,7 +162,7 @@ class AuditEntry(models.Model):
             # The user who ran the job by hand, or none for a scheduled run.
             run = self.env[MODEL_JOB_RUN].sudo().browse(run_id)
             return {"source": "job", "user_id": run.triggered_by_id.id, "job_run_id": run.id}
-        if CRON_CONTEXT_KEY in self.env.context:
+        if self.env.context.get(CRON_CONTEXT_KEY) is not None:
             return {"source": "job", "user_id": False}
         user = self.env.user
         if user.id == SUPERUSER_ID and request and request.session.uid:
