@@ -2,8 +2,6 @@
 
 import argparse
 import os
-import subprocess
-import sys
 from pathlib import Path
 
 from .workspace import PACKAGE_ROOT, Workspace
@@ -11,7 +9,7 @@ from .workspace import PACKAGE_ROOT, Workspace
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=["install", "mcp", "serena", "serena-hooks", "lsp", "verify", "cursor-setup"])
+    parser.add_argument("mode", choices=["install", "mcp", "serena", "serena-hooks", "verify", "cursor-setup"])
     parser.add_argument("--root", type=Path, default=PACKAGE_ROOT.parents[1])
     args, remaining = parser.parse_known_args()
     root = args.root.resolve()
@@ -37,13 +35,6 @@ def main() -> None:
             from serena.hooks import hook_commands
 
             hook_commands(args=remaining)
-    elif args.mode == "lsp":
-        workspace = Workspace(root)
-        logs = workspace.session_directory()
-        result = subprocess.run(
-            [str(workspace.binary), "--log-level", "info", "--logs-directory", str(logs), *remaining], cwd=root
-        )
-        sys.exit(result.returncode)
     elif args.mode == "cursor-setup":
         from .prerequisites import install_cursor
 
