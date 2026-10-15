@@ -15,6 +15,7 @@ The administrator maintains the master data of the Laboratory module: test param
 - **US-AD07** As an administrator, I want to maintain regulations with their limit per parameter, so that results can be compared with the limit that applies to the sample.
 - **US-AD08** As an administrator, I want to maintain quality registration dossiers and the ways of testing they cover, so that reports print the right mark and the laboratory knows when a registration expires.
 - **US-AD26** As an administrator, I want to define the steps of a testing method, each with its number, how long it takes, what to do and a note, so that everyone in the laboratory follows the same procedure.
+- **US-AD27** As an administrator, I want to define the testing locations of the laboratory as a tree with a code and name, optionally belonging to a department, so that the laboratory can name every place where work is done.
 
 ### Machines and chemicals
 
@@ -35,7 +36,7 @@ The administrator maintains the master data of the Laboratory module: test param
 
 ## II. Feature details
 
-### 1. Catalog (US-AD01 to US-AD08, US-AD26)
+### 1. Catalog (US-AD01 to US-AD08, US-AD26, US-AD27)
 
 | Rule                 | Description                                                                                                                                      |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -47,6 +48,7 @@ The administrator maintains the master data of the Laboratory module: test param
 | Way of testing       | Each parameter is tested by one or more pairs of parameter and testing method. Each pair has a unit, LOD and LOQ, and is tested either in-house or by one subcontractor. One pair per parameter is the default. |
 | Testing method       | A method has its standard reference as its code, such as TCVN 6187-1:2009, and the title of the standard in each language. Each method belongs to one testing field, such as Chemistry or Microbiology. |
 | Method steps         | A testing method has an ordered list of steps. A step has a number, how long it takes in minutes, what to do and an optional note. Step numbers are unique within a method. The steps belong to the method, so every department and subcontractor way of testing that uses the method shows the same steps. |
+| Testing location     | A testing location is a place in the laboratory's premises, such as a room, a bench or an area, with a unique code, a name in each language and an optional image. It can have a parent location, so locations form a tree, and can name the department that uses it. The administrator defines the layout; the system ships none. |
 | Department           | An in-house pair of parameter and method names the department that tests it. Departments are maintained by the administrator (US-AD13). |
 | Accreditation        | Each pair of parameter and method is marked as within an ISO 17025 accreditation scope or not.                                                  |
 | Detection limits     | LOD and LOQ are recorded per parameter and method pair, in that pair's unit.                                                                     |
@@ -73,6 +75,8 @@ Acceptance criteria:
 - Saving a parameter whose main group is not one of its groups is refused with a message.
 - A method can be saved with several steps, and the form lists them by step number.
 - Saving two steps of one method with the same number, or a step without a number, how long or what to do, is refused with a message.
+- A location can be saved under a parent location, with or without a department and an image.
+- A location cannot be its own ancestor, and two locations cannot share a code; both are refused with a message.
 - A regulation cannot hold two limits for the same parameter.
 - An archived record no longer appears when choosing records on a quotation or a parameter.
 - A unit used by an active parameter and method pair cannot be archived or deleted; the message lists the pairs.

@@ -232,6 +232,34 @@ model TestingMethodStep {
   @@map("medilab_testing_method_step")
 }
 
+/// A place in the laboratory's premises (Vị trí thử nghiệm), such as a room, a bench or an area.
+model TestingLocation {
+  /// Row identifier.
+  id            Int               @id @default(autoincrement())
+  /// Unique code of the location.
+  code          String            @unique @db.VarChar
+  /// Name of the location in each language.
+  name          Json
+  /// The broader location this one is in; empty for a top-level location.
+  parent_id     Int?
+  /// The department that uses the location.
+  department_id Int?
+  /// Picture of the location, such as a floor plan.
+  image         Bytes?
+  /// False when the location is archived.
+  active        Boolean           @default(true)
+  /// The broader location this one is in.
+  parent        TestingLocation?  @relation("TestingLocationTree", fields: [parent_id], references: [id], onDelete: Restrict)
+  /// Locations inside this one.
+  children      TestingLocation[] @relation("TestingLocationTree")
+  /// The department that uses the location.
+  department    Department?       @relation(fields: [department_id], references: [id], onDelete: SetNull)
+
+  @@index([parent_id])
+  @@index([department_id])
+  @@map("medilab_testing_location")
+}
+
 /// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
 model TestingField {
   /// Row identifier.
@@ -282,6 +310,8 @@ model Department {
   handovers         SampleHandover[]
   /// Machine bookings of the department's testing tasks.
   bookings          MachineBooking[]
+  /// Testing locations the department uses.
+  locations         TestingLocation[]
 
   @@index([parent_id])
   @@map("hr_department")

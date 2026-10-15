@@ -21,6 +21,7 @@ erDiagram
     TEST_PARAMETER ||--|{ PARAMETER_METHOD : "is tested by"
     PARAMETER_METHOD }o--|| TESTING_METHOD : uses
     TESTING_METHOD ||--o{ TESTING_METHOD_STEP : "is done in"
+    TESTING_LOCATION ||--o{ TESTING_LOCATION : contains
     SAMPLE_TEST ||--o{ TEST_RESULT : "is measured in"
 ```
 
