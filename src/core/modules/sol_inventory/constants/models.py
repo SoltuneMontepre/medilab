@@ -1,4 +1,11 @@
 """Technical names of the database models of the Inventory module."""
 
 MODEL_ANALYTIC_ACCOUNT = "account.analytic.account"
+MODEL_METHOD_CONSUMPTION = "medilab.method.consumption"
+MODEL_ORDERPOINT = "stock.warehouse.orderpoint"
+MODEL_PRODUCT = "product.product"
+MODEL_PRODUCT_TEMPLATE = "product.template"
 MODEL_STOCK_LOCATION = "stock.location"
+MODEL_STOCK_QUANT = "stock.quant"
+MODEL_SUPPLIER = "medilab.supplier"
+MODEL_SUPPLIER_INFO = "product.supplierinfo"

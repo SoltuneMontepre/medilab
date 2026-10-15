@@ -33,5 +33,10 @@ class TestDemoDataConvention(TransactionCase):
         self.env[MODEL_ACCOUNT_MOVE]._seed_notification_demo()
         xml_ids = self.env["ir.model.data"].search([("module", "=", "sol_demo"), ("model", "not in", GENERATED_MODELS)])
         self.assertTrue(xml_ids)
+        models = dict(zip(xml_ids.mapped("name"), xml_ids.mapped("model"), strict=True))
         for xml_id in xml_ids:
+            # Odoo names the parent it creates for a delegated record after the record, such as a product's template.
+            child = models.get(xml_id.name.removesuffix(f"_{xml_id.model.replace('.', '_')}"))
+            if child and xml_id.model in self.env[child]._inherits:
+                continue
             self.assertTrue(xml_id.name.startswith(f"demo_{short_name(xml_id.model)}_"), xml_id.name)
