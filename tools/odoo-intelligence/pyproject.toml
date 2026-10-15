@@ -14,7 +14,7 @@ dependencies = [
 medilab-odoo = "odoo_intelligence.cli:main"
 
 [dependency-groups]
-dev = ["pytest==9.1.1", "ruff==0.17.0"]
+dev = ["pytest==9.1.1", "pyyaml==6.0.2", "ruff==0.17.0"]
 
 [build-system]
 requires = ["hatchling==1.29.0"]
