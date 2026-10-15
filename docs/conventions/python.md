@@ -4,13 +4,13 @@ How Python code in the Odoo modules is written. Ruff enforces formatting and mos
 
 ## Tooling
 
-| Tool        | Purpose                                     | Config                    |
-| ----------- | ------------------------------------------- | ------------------------- |
-| uv          | Dependencies, lock file, virtual environment | `src/core/pyproject.toml` |
-| Ruff        | Formatting and linting                      | `src/core/pyproject.toml` |
-| pylint-odoo | Odoo-specific checks                        | `src/core/.pylintrc`      |
-| Pyright     | Type checking, `basic` mode                 | `pyrightconfig.json`      |
-| OdooLS      | Odoo model and field navigation             | `odools.toml`             |
+| Tool        | Purpose                                      | Config                                   |
+| ----------- | -------------------------------------------- | ---------------------------------------- |
+| uv          | Dependencies, lock file, virtual environment | `src/core/pyproject.toml`                |
+| Ruff        | Formatting and linting                       | `src/core/pyproject.toml`                |
+| pylint-odoo | Odoo-specific checks                         | `src/core/.pylintrc`                     |
+| Pyright     | Type checking, `basic` mode                  | `pyrightconfig.json`, `tools/typecheck/` |
+| OdooLS      | Odoo model and field navigation              | `odools.toml`                            |
 
 - Runtime packages go in `[project.dependencies]`, developer tools in the `dev` dependency group; `uv.lock` pins every version and is committed.
 - `task dev:setup` creates `src/core/.venv`; `task lint`, `task format` and `task typecheck` run the tools through `uv run`.
@@ -76,6 +76,45 @@ How a module is laid out, from its root:
 - Do not run raw SQL unless the ORM cannot express the query; when you do, use parameters, never string formatting.
 - Raise Odoo exceptions (`UserError`, `ValidationError`) for errors a user can act on, with a translated message.
 - Comments explain why, not what, except on model classes and fields: a class names its Vietnamese term and a field says what data it holds (see [Database](database.md#models)). Do not leave commented-out code.
+
+## Type checking
+
+`task typecheck` runs pyright in `basic` mode on `src/core/modules` with `pyrightconfig.json`. It fails on every error and on an import of a name that a module does not define. `task test:typecheck` checks that it still does.
+
+### Imports
+
+- pyright finds `odoo.addons.<name>` only inside `odoo/addons` of the Odoo source. `task dev:odoo-source` links each module of `src/core/modules` there, and each Odoo addon in `ODOO_ADDONS` of `dev.taskfile.yml`: a symbolic link on Linux and macOS, a directory junction on Windows, which needs no administrator rights.
+- A link shows the current code, so a changed module needs no new `task dev:odoo-source`. `task typecheck` refreshes the links first, so a new module is found too.
+- `tools/typecheck/link_addons.py` records the links it makes in `.local/odoo-source/medilab-links.json` and replaces or removes only recorded links whose targets still match the record. Matching unrecorded links can be used, but remain unmanaged. Other links in `odoo/addons` stay. A conflicting unrecorded link or any real folder under a name it needs stops it with an error naming the path. Move a conflicting folder out of `odoo/addons` before running again; matching files do not prove tool ownership. Invalid names in the record stop linking before any changes.
+- An Odoo addon that a module imports in Python is added to `ODOO_ADDONS`.
+- Import `SUPERUSER_ID` from `odoo.api`. Odoo 20 sets it on the `odoo` package only at startup, so `from odoo import SUPERUSER_ID` is a missing name to pyright.
+- `lxml-stubs`, in the `dev` group, gives pyright the names of the compiled `lxml.etree`.
+- `freezegun` and `xlsxwriter`, in the `dev` group, let pyright resolve the packages that the Odoo image provides and the modules import.
+
+### Relaxed rules
+
+pyright cannot follow Odoo's dynamic models. These rules are warnings: the editor shows them and `task typecheck` does not fail on them.
+
+| Rule                           | Why                                                                                                                                                                                                                                                        |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `reportAttributeAccessIssue`   | `self.env[<model>]` is typed as `BaseModel`, and fields and methods added through `_inherit` are unknown to pyright, so every field or model method access fails. `self.env.context` is typed as `frozendict`, which pyright sees without mapping methods. |
+| `reportArgumentType`           | `fields.Selection(selection=...)` is typed as a sentinel, a record id as `int`, `NewId`, `str` or `False` where `Command.link()` takes an `int`, and `mapped()` returns a list or a recordset.                                                             |
+| `reportOptionalContextManager` | `assertRaises` of Odoo's test cases has no annotation, so pyright infers that `with self.assertRaises(...)` may get `None`.                                                                                                                                |
+
+- pyright reports a missing name in `from <module> import <name>` under `reportAttributeAccessIssue` too. `tools/typecheck/typecheck.py` reports those warnings as errors, so a missing name still fails.
+- `typecheck.py` also fails, with exit code 2, when pyright cannot execute, exits with a code other than 0 or 1, writes no complete report, reports invalid counts or diagnostic positions, lists different diagnostic counts than its summary, or checks no files. Exit codes 0 and 1 must agree with the reported errors. Missing imported names still fail with exit code 1 when pyright reports them as warnings.
+- `__manifest__.py` files are not checked: a manifest is a bare dict, which pyright reports as an unused expression.
+- Every other rule keeps its `basic` level. Do not silence one with an inline comment or `cast()`; fix the code.
+
+### Odoo typing in code
+
+Where Odoo's annotations are narrower than its behaviour, the code says what it relies on:
+
+- Controllers read the environment with `request_env()` from `sol_laboratory/services/request_env.py`. Odoo types `request.env` as optional, because a request may have no database.
+- A route option that an addon reads, such as `website` of `http_routing`, is passed by unpacking a dict constant, because `odoo.http` does not declare it: `**FRONTEND_PAGE` from `sol_laboratory/constants/routes.py`.
+- Read the context with `self.env.context.get(<key>)`. `in` and `[]` fail on its `frozendict` type.
+- A Char field reads as `False` when empty, `display_name` too. Give a fallback before joining or formatting it.
+- In tests, narrow an optional value with `if value is None: self.fail(...)`. pyright knows that `fail()` does not return.
 
 ## Related documents
 

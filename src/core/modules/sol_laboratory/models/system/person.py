@@ -123,7 +123,7 @@ class Person(models.Model):
             else:
                 employees.action_archive()
             self.sudo().user_id.write({"active": vals["active"]})
-        if "employee_id" in vals:
+        if previous_users is not None:
             self._strip_user_groups(previous_users - self.sudo().user_id)
         if {"role_ids", "permission_ids", "employee_id"} & set(vals):
             self._sync_user_groups()

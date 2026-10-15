@@ -4,8 +4,8 @@ from collections import defaultdict
 
 import polib
 
-from odoo.modules.module import get_module_path
 from odoo.tests import TransactionCase, tagged
+from odoo.tools.misc import file_path
 from odoo.tools.translate import TranslationModuleReader
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_ROLE
@@ -40,7 +40,7 @@ class TestTranslations(TransactionCase):
         modules = cls.env["ir.module.module"].search(
             [("name", "=like", f"{MODULE_PREFIX}%"), ("state", "=", "installed")]
         )
-        cls.po_paths = {name: os.path.join(get_module_path(name), VIETNAMESE_PO) for name in modules.mapped("name")}
+        cls.po_paths = {name: os.path.join(file_path(name), VIETNAMESE_PO) for name in modules.mapped("name")}
 
     def test_every_module_translates_its_strings_to_vietnamese(self):
         missing = untranslated_terms(self.env, self.po_paths)

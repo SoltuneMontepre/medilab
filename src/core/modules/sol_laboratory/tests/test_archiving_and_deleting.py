@@ -1,11 +1,11 @@
 from psycopg2 import IntegrityError
 
 from odoo.exceptions import AccessError, UserError
-from odoo.fields import Command
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
 from .common import MasterDataCase
+from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CHEMICAL,
     MODEL_MACHINE,
@@ -13,7 +13,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
-    MODEL_QUALITY_REGISTRATION,
     MODEL_REGULATION,
     MODEL_REGULATION_LIMIT,
     MODEL_SAMPLE_TYPE,
@@ -75,10 +74,10 @@ class TestArchivingAndDeleting(MasterDataCase):
 
         self.assertFalse(limit.exists())
 
-    def test_parameter_and_subcontractor_are_never_deleted(self):
+    def test_parameter_way_of_testing_and_subcontractor_are_never_deleted(self):
         administrator = self.env.ref("base.user_admin")
 
-        for record in (self.parameter, self.subcontractor):
+        for record in (self.parameter, self.pair, self.subcontractor):
             with self.subTest(model=record._name), self.assertRaises(AccessError):
                 record.with_user(administrator).unlink()
 
@@ -88,26 +87,27 @@ class TestArchivingAndDeleting(MasterDataCase):
 
         self.assertIn(self.pair.display_name, str(refusal.exception))
 
-    def test_way_of_testing_nothing_refers_to_can_be_deleted(self):
-        administrator = self.env.ref("base.user_admin")
-
-        self.pair.with_user(administrator).unlink()
-
-        self.assertFalse(self.pair.exists())
-
-    def test_way_of_testing_a_dossier_covers_cannot_be_deleted(self):
-        self.env[MODEL_QUALITY_REGISTRATION].create(
+    def test_way_of_testing_is_never_deleted_even_with_full_rights(self):
+        archived = self.env[MODEL_PARAMETER_METHOD].create(
             {
-                "code": "HS.9001",
-                "name": "VILAS",
-                "parameter_method_ids": [Command.set([self.pair.id])],
+                "parameter_id": self.parameter.id,
+                "method_id": self.method.id,
+                "unit_id": self.unit.id,
+                "subcontractor_id": self.subcontractor.id,
+                "active": False,
             }
         )
 
-        with self.assertRaises(UserError) as refusal:
-            self.pair.unlink()
+        for pair in (self.pair, archived):
+            with self.subTest(pair=pair.display_name), self.assertRaises(UserError) as refusal:
+                pair.sudo().unlink()
+            self.assertIn(pair.display_name, str(refusal.exception))
+            self.assertTrue(pair.exists())
 
-        self.assertIn("VILAS", str(refusal.exception))
+    def test_uninstalling_still_removes_ways_of_testing(self):
+        self.pair.with_context(**{MODULE_UNINSTALL_FLAG: True}).unlink()
+
+        self.assertFalse(self.pair.exists())
 
     def test_active_way_of_testing_is_unique_and_an_archived_one_can_be_replaced(self):
         values = {
