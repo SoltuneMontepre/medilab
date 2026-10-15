@@ -20,9 +20,10 @@ How tests are written, where they live and how they run.
 - One test class per file, named after the file: `test_parameter_constraints.py` holds `TestParameterConstraints`.
 - Tag each class `@tagged("post_install", "-at_install")`.
 - Use `TransactionCase` for models and `HttpCase` for routes.
-- `task test:core` installs the modules in a throwaway database, runs only their tests with `--test-tags /<module>`, and drops the database afterwards. `task test:core MODULES=a,b` limits it to those modules; by default it runs every module in `src/core/modules.txt`.
+- `task test:core` installs the modules in a throwaway database, copies it once per shard and runs the shards at once, each with the `--test-tags /<module>:<class>` of its classes. `tools/scripts/test_shards.py` splits the classes so each shard has about the same number of test methods. The output of each shard starts with `[shard <n>]`. The task drops the databases afterwards. `MEDILAB_TEST_DB` names the test database, `medilab_test` by default; give each run its own name when two run against the same Postgres. `task test:core MODULES=a,b` limits it to those modules; by default it runs every module in `src/core/modules.txt`.
+- Tests in different classes run in different processes and databases, so a test never depends on another class having run.
 - `task test:uninstall` installs Laboratory, E-commerce and Inventory in a throwaway database, uninstalls E-commerce and Inventory, and checks that the Laboratory data is intact.
-- `task test:core` also writes the coverage report `src/core/modules/coverage.xml`, which is not committed.
+- `task test:core` also combines the coverage of the install and of every shard into the report `src/core/modules/coverage.xml`, which is not committed.
 
 ## Type checking tests
 
