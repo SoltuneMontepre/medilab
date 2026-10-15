@@ -40,6 +40,7 @@
     <record id="action_medilab_notification_event" model="ir.actions.act_window">
         <field name="name">Notification events</field>
         <field name="res_model">mail.message.subtype</field>
+        <field name="path">notification-events</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[("code", "!=", False)]</field>
         <field name="view_ids" eval="[(5, 0, 0),
@@ -63,6 +64,7 @@
     <record id="action_medilab_mobile_device" model="ir.actions.act_window">
         <field name="name">Mobile devices</field>
         <field name="res_model">medilab.mobile.device</field>
+        <field name="path">mobile-devices</field>
         <field name="view_mode">list,form</field>
     </record>
 
@@ -83,6 +85,7 @@
     <record id="action_medilab_push_delivery" model="ir.actions.act_window">
         <field name="name">Push deliveries</field>
         <field name="res_model">medilab.push.delivery</field>
+        <field name="path">push-deliveries</field>
         <field name="view_mode">list,form</field>
     </record>
 
@@ -101,6 +104,7 @@
     <record id="action_medilab_notification_preference" model="ir.actions.act_window">
         <field name="name">Notification preferences</field>
         <field name="res_model">medilab.notification.preference</field>
+        <field name="path">notification-preferences</field>
         <field name="view_mode">list</field>
         <field name="domain">[("user_id", "=", uid)]</field>
         <field name="context">{"default_user_id": uid}</field>

@@ -49,6 +49,7 @@
     <record id="action_medilab_sample_handover" model="ir.actions.act_window">
         <field name="name">Sample Handovers</field>
         <field name="res_model">medilab.sample.handover</field>
+        <field name="path">sample-handovers</field>
         <field name="view_mode">list,form</field>
         <field name="context">{'search_default_to_receive': 1}</field>
     </record>
