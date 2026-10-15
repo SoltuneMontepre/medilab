@@ -17,7 +17,8 @@ tools/
 ├── typecheck/                  pyright runner, the links of the addons into the Odoo source, and their tests
 └── scripts/
     ├── log.sh                  output helpers sourced by the tasks
-    └── doppler.sh              Doppler login helper sourced by the tasks
+    ├── doppler.sh              Doppler login helper sourced by the tasks
+    └── test_shards.py          splits the Odoo test classes into shards for task test:core
 ```
 
 - `taskfile.yml` includes each taskfile with `dir: .` and `flatten: true`, so every task runs from the repository root and is called without a prefix: `task up`, not `task app:up`.
