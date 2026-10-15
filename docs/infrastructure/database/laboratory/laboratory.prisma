@@ -204,9 +204,119 @@ model TestingMethod {
   parameters ParameterMethod[]
   /// Chemicals the method uses.
   chemicals  ChemicalMethod[]
+  /// Steps of the procedure, in step number order.
+  steps      TestingMethodStep[]
+  /// Accreditation certificates whose scope lists the method.
+  certificates AccreditationCertificateMethod[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
+}
+
+/// A step of a testing method's procedure.
+model TestingMethodStep {
+  /// Row identifier.
+  id               Int           @id @default(autoincrement())
+  /// The testing method the step belongs to.
+  method_id        Int
+  /// Step number; steps are shown in this order.
+  sequence         Int
+  /// Minutes the step takes.
+  duration_minutes Int
+  /// What to do in the step.
+  instruction      String
+  /// Remark on the step, such as a precaution.
+  note             String?
+  /// Where the step is done.
+  location_id      Int?
+  /// Where the step is done.
+  location         Location? @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// Location bookings the scheduler made for the step.
+  room_events      CalendarEvent[]
+  /// The testing method the step belongs to.
+  method           TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
+
+  @@index([location_id])
+  @@unique([method_id, sequence])
+  @@map("medilab_testing_method_step")
+}
+
+/// A place in the company's premises (Vị trí), such as a room, a bench, an area or a sampling point. Every module uses it.
+model Location {
+  /// Row identifier.
+  id            Int               @id @default(autoincrement())
+  /// Unique code of the location.
+  code          String            @unique @db.VarChar
+  /// Name of the location in each language.
+  name          Json
+  /// The broader location this one is in; empty for a top-level location.
+  parent_id     Int?
+  /// The department that uses the location.
+  department_id Int?
+  /// Picture of the location, such as a floor plan, an Odoo attachment; the map the locations inside it are placed on.
+  image_attachment_id Int?
+  /// Horizontal position on the parent location's image, as a share of its width from 0 to 1; empty when not placed.
+  map_x         Float?
+  /// Vertical position on the parent location's image, as a share of its height from 0 to 1; empty when not placed.
+  map_y         Float?
+  /// True when people can book the location on their calendar.
+  is_bookable   Boolean           @default(false)
+  /// False when the location is archived.
+  active        Boolean           @default(true)
+  /// The broader location this one is in.
+  parent        Location?  @relation("LocationTree", fields: [parent_id], references: [id], onDelete: Restrict)
+  /// Locations inside this one.
+  children      Location[] @relation("LocationTree")
+  /// The department that uses the location.
+  department    Department?       @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  /// Steps done in the location.
+  steps         TestingMethodStep[]
+  /// Samples taken from the location.
+  samples       Sample[]
+  /// Calendar events that book the location.
+  bookings      CalendarEvent[]
+  /// Machines standing in the location.
+  machines      Machine[]
+
+  @@index([parent_id])
+  @@index([department_id])
+  @@map("medilab_location")
+}
+
+/// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận).
+model AccreditationCertificate {
+  /// Row identifier.
+  id           Int                             @id @default(autoincrement())
+  /// Certificate number, such as VILAS 123.
+  code         String                          @unique @db.VarChar
+  /// The body that issued the certificate.
+  issuing_body String?                         @db.VarChar
+  /// First day the certificate is valid.
+  valid_from   DateTime?                       @db.Date
+  /// Last day the certificate is valid.
+  valid_until  DateTime?                       @db.Date
+  /// False when the certificate is archived.
+  active       Boolean                         @default(true)
+  /// Testing methods in the scope of the certificate.
+  methods      AccreditationCertificateMethod[]
+
+  @@map("medilab_accreditation_certificate")
+}
+
+/// Links an accreditation certificate to the testing methods in its scope.
+model AccreditationCertificateMethod {
+  /// The certificate.
+  certificate_id Int
+  /// A method in its scope.
+  method_id      Int
+  /// The certificate.
+  certificate    AccreditationCertificate @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
+  /// The testing method.
+  method         TestingMethod            @relation(fields: [method_id], references: [id], onDelete: Restrict)
+
+  @@id([certificate_id, method_id])
+  @@index([method_id])
+  @@map("medilab_accreditation_certificate_method_rel")
 }
 
 /// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
@@ -259,6 +369,8 @@ model Department {
   handovers         SampleHandover[]
   /// Machine bookings of the department's testing tasks.
   bookings          MachineBooking[]
+  /// Locations the department uses.
+  locations         Location[]
 
   @@index([parent_id])
   @@map("hr_department")
@@ -323,7 +435,7 @@ model ParameterMethod {
   subcontractor_id Int?
   /// The department that tests it in-house; empty when a subcontractor tests it.
   department_id    Int?
-  /// True when this way of testing is within an ISO 17025 accreditation scope.
+  /// True while this in-house way of testing's method is on an accreditation certificate valid that day; worked out, never set by hand.
   is_accredited    Boolean         @default(false)
   /// Limit of detection: the lowest value this method can detect, in the row's unit.
   lod              Decimal? @db.Decimal
@@ -474,8 +586,10 @@ model Machine {
   manufacturer          String?                @db.VarChar
   /// Serial number given by the manufacturer.
   serial_number         String?                @db.VarChar
-  /// Where the machine is, such as "Room 203, bench 2".
-  location              String?                @db.VarChar
+  /// The location the machine stands in, such as a bench.
+  location_id           Int?
+  /// The location the machine stands in.
+  location              Location?              @relation(fields: [location_id], references: [id], onDelete: Restrict)
   /// in_use, under_repair or retired.
   status                String                 @db.VarChar
   /// Date the next calibration is due, taken from the latest calibration record; the machine cannot be used after it.
@@ -496,6 +610,7 @@ model Machine {
   results               TestResult[]
 
   @@index([next_calibration_date])
+  @@index([location_id])
   @@map("medilab_machine")
 }
 
@@ -734,6 +849,10 @@ model Sample {
   condition_note       String?      @db.Text
   /// Where the sample is stored, such as "Fridge 2, shelf B".
   storage_location     String?      @db.VarChar
+  /// The location the sample was taken from, such as a sampling point.
+  sampling_location_id Int?
+  /// The location the sample was taken from.
+  sampling_location    Location? @relation(fields: [sampling_location_id], references: [id], onDelete: Restrict)
   /// When the head of department asked for the sample to be collected again because it arrived insufficient.
   recollection_requested_at DateTime?
   /// Head of department who asked for the sample to be collected again.
@@ -771,6 +890,7 @@ model Sample {
   @@index([sample_type_id])
   @@index([regulation_id])
   @@index([status])
+  @@index([sampling_location_id])
   @@map("medilab_sample")
 }
 
@@ -1329,7 +1449,8 @@ model TaskReassignTask {
   @@map("medilab_task_medilab_task_reassign_rel")
 }
 
-/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task or a machine booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task, a machine booking or a location booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+/// Events that book one location do not overlap: an exclusion constraint on (location_id, time range) where location_id is set, using btree_gist.
 model CalendarEvent {
   /// Row identifier.
   id        Int             @id @default(autoincrement())
@@ -1341,12 +1462,26 @@ model CalendarEvent {
   stop      DateTime
   /// User who organises the event.
   user_id   Int?
+  /// The bookable location the event books.
+  location_id Int?
+  /// The bookable location the event books.
+  booked_location Location?     @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// The machine booking whose step the location booking is for; empty for a booking people made.
+  machine_booking_id Int?
+  /// The method step the location booking is for.
+  step_id   Int?
+  /// The machine booking whose step the location booking is for.
+  machine_booking MachineBooking? @relation("BookingRoomEvents", fields: [machine_booking_id], references: [id], onDelete: Cascade)
+  /// The method step the location booking is for.
+  step      TestingMethodStep? @relation(fields: [step_id], references: [id], onDelete: Restrict)
   /// The task whose planned time the event shows.
   task      Task?           @relation("TaskEvent")
   /// The machine booking the event shows.
   booking   MachineBooking? @relation("BookingEvent")
 
   @@index([start])
+  @@index([location_id])
+  @@index([machine_booking_id])
   @@map("calendar_event")
 }
 
@@ -1389,6 +1524,8 @@ model MachineBooking {
   department       Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
   /// Person who runs the test.
   person           Person?    @relation(fields: [person_id], references: [id], onDelete: Restrict)
+  /// Calendar events booking the locations of the method's steps for this booking.
+  room_events      CalendarEvent[] @relation("BookingRoomEvents")
 
   @@index([machine_id, starts_at])
   @@index([person_id, starts_at])
