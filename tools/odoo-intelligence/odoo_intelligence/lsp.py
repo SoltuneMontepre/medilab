@@ -5,6 +5,7 @@ import os
 import threading
 import time
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 from urllib.request import url2pathname
 
@@ -19,6 +20,16 @@ METHOD_CAPABILITIES = {
     "textDocument/documentSymbol": "documentSymbolProvider",
 }
 INDEX_TIMEOUT = 600
+
+
+def location_uri(location: dict) -> str:
+    return location.get("targetUri", location.get("uri"))
+
+
+def location_start(location: dict) -> tuple[str, int, int]:
+    """The URI and start of a Location or the selection start of a LocationLink."""
+    start = location.get("targetSelectionRange", location.get("range"))["start"]
+    return location_uri(location), start["line"], start["character"]
 
 
 class LspClient:
@@ -92,7 +103,7 @@ class LspClient:
             if time.monotonic() >= deadline:
                 raise TimeoutError(f"OdooLS did not finish indexing within {INDEX_TIMEOUT}s; inspect {self.logs}.")
 
-    def _notification(self, method: str, params: object) -> None:
+    def _notification(self, method: str, params: Any) -> None:
         if method == "$Odoo/loadingStatusUpdate":
             if params == "stop":
                 self.ready.set()
@@ -112,7 +123,7 @@ class LspClient:
             with (self.logs / "notifications.jsonl").open("a", encoding="utf-8") as output:
                 output.write(json.dumps({"method": method, "params": params}) + "\n")
 
-    def request(self, method: str, params: dict) -> object:
+    def request(self, method: str, params: dict) -> Any:
         if method not in METHOD_CAPABILITIES:
             raise ValueError(f"Unsupported OdooLS method: {method}")
         with self.lock:
@@ -152,9 +163,7 @@ class LspClient:
             self.documents[uri] = {"text": text, "version": version, "sent_at": time.time()}
         return uri
 
-    def navigate(
-        self, method: str, path: str, line: int | None = None, character: int | None = None, **extra
-    ) -> object:
+    def navigate(self, method: str, path: str, line: int | None = None, character: int | None = None, **extra) -> Any:
         with self.lock:
             document = self.workspace.document(path)
             position = self.workspace.position(document, line, character) if line is not None else None
@@ -164,45 +173,32 @@ class LspClient:
             if position is not None:
                 params["position"] = position
             if method == "textDocument/references":
-                definitions = (
-                    self.request(
-                        "textDocument/definition",
-                        {
-                            "textDocument": params["textDocument"],
-                            "position": params["position"],
-                        },
-                    )
-                    or []
-                )
-                if isinstance(definitions, dict):
-                    definitions = [definitions]
-                # OdooLS 1.6.0 assumes definition text is resident when constructing references.
-                for definition in definitions:
-                    target_uri = definition.get("targetUri", definition.get("uri"))
-                    target = Path(url2pathname(urlparse(target_uri).path)).resolve()
-                    if not target.is_relative_to(self.workspace.root):
-                        raise RuntimeError("References to definitions outside this worktree are unsupported.")
-                    # A package definition points at its directory, which has no text to open.
-                    if target.is_file():
-                        self.sync_document(target)
-                result = self.request(method, params)
-                if result and not params.get("context", {}).get("includeDeclaration", False):
-                    declarations = {
-                        (
-                            item.get("targetUri", item.get("uri")),
-                            item.get("targetSelectionRange", item.get("range"))["start"]["line"],
-                            item.get("targetSelectionRange", item.get("range"))["start"]["character"],
-                        )
-                        for item in definitions
-                    }
-                    return [
-                        item
-                        for item in result
-                        if (item["uri"], item["range"]["start"]["line"], item["range"]["start"]["character"])
-                        not in declarations
-                    ]
-                return result
+                return self._references(params)
             return self.request(method, params)
+
+    def _references(self, params: dict) -> Any:
+        definitions = (
+            self.request(
+                "textDocument/definition",
+                {"textDocument": params["textDocument"], "position": params["position"]},
+            )
+            or []
+        )
+        if isinstance(definitions, dict):
+            definitions = [definitions]
+        # OdooLS 1.6.0 assumes definition text is resident when constructing references.
+        for definition in definitions:
+            target = Path(url2pathname(urlparse(location_uri(definition)).path)).resolve()
+            if not target.is_relative_to(self.workspace.root):
+                raise RuntimeError("References to definitions outside this worktree are unsupported.")
+            # A package definition points at its directory, which has no text to open.
+            if target.is_file():
+                self.sync_document(target)
+        result = self.request("textDocument/references", params)
+        if not result or params.get("context", {}).get("includeDeclaration", False):
+            return result
+        declarations = {location_start(item) for item in definitions}
+        return [item for item in result if location_start(item) not in declarations]
 
     def published_diagnostics(self, path: str) -> dict:
         with self.lock:

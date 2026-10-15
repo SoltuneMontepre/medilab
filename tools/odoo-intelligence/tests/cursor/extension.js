@@ -2,6 +2,14 @@ const vscode = require("vscode");
 const fs = require("node:fs");
 const path = require("node:path");
 
+// Retry once a second while OdooLS indexes, until a definition ends with the target path.
+async function definitions(uri, position, target, attempts) {
+  const locations = await vscode.commands.executeCommand("vscode.executeDefinitionProvider", uri, position) || [];
+  if (attempts <= 1 || locations.some(item => (item.targetUri || item.uri).fsPath.endsWith(target))) return locations;
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return definitions(uri, position, target, attempts - 1);
+}
+
 exports.activate = async function () {
   const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
   const output = path.join(root, ".local/verification/cursor-editor.json");
@@ -19,12 +27,7 @@ exports.activate = async function () {
       await vscode.window.showTextDocument(document);
       const position = document.positionAt(document.getText().indexOf(needle) + offset);
       positions[name] = {uri, position};
-      let locations = [];
-      for (let attempt = 0; attempt < 90; attempt++) {
-        locations = await vscode.commands.executeCommand("vscode.executeDefinitionProvider", uri, position) || [];
-        if (locations.some(item => (item.targetUri || item.uri).fsPath.endsWith(target))) break;
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      const locations = await definitions(uri, position, target, 90);
       if (!locations.some(item => (item.targetUri || item.uri).fsPath.endsWith(target))) {
         throw new Error(`Definition did not resolve for ${name} in ${file}`);
       }

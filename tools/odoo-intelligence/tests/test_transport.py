@@ -17,8 +17,9 @@ def test_framing_uses_utf8_byte_lengths():
 
 def test_truncated_payload_and_missing_length_fail():
     for data in [b"Content-Length: 40\r\n\r\n{}", b"X-Header: yes\r\n\r\n{}"]:
+        stream = io.BytesIO(data)
         with pytest.raises((ValueError, EOFError)):
-            read_message(io.BytesIO(data))
+            read_message(stream)
 
 
 def test_request_errors_timeout_and_process_cleanup(tmp_path):

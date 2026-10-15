@@ -5,6 +5,7 @@ import queue
 import subprocess
 import threading
 from pathlib import Path
+from typing import Any
 
 MAX_MESSAGE_BYTES = 64 * 1024 * 1024
 
@@ -69,7 +70,7 @@ class JsonRpcProcess:
     def notify(self, method: str, params: dict) -> None:
         self.send({"method": method, "params": params})
 
-    def request(self, method: str, params: dict | None, timeout: float = 120) -> object:
+    def request(self, method: str, params: dict | None, timeout: float = 120) -> Any:
         response_queue = queue.Queue(maxsize=1)
         with self.state_lock:
             if self.failure:
@@ -93,16 +94,7 @@ class JsonRpcProcess:
     def _read(self) -> None:
         try:
             while (message := read_message(self.process.stdout)) is not None:
-                if "method" in message:
-                    if "id" in message:
-                        self._answer(message)
-                    else:
-                        self.notification(message["method"], message.get("params"))
-                else:
-                    with self.state_lock:
-                        waiting = self.pending.get(message.get("id"))
-                        if waiting:
-                            waiting.put_nowait(message)
+                self._dispatch(message)
         except Exception as exc:
             self.failure = f"OdooLS connection closed: {exc}"
         finally:
@@ -111,6 +103,17 @@ class JsonRpcProcess:
                 for waiting in self.pending.values():
                     if waiting.empty():
                         waiting.put_nowait({"error": self.failure})
+
+    def _dispatch(self, message: dict) -> None:
+        if "method" not in message:
+            with self.state_lock:
+                waiting = self.pending.get(message.get("id"))
+                if waiting:
+                    waiting.put_nowait(message)
+        elif "id" in message:
+            self._answer(message)
+        else:
+            self.notification(message["method"], message.get("params"))
 
     def _answer(self, message: dict) -> None:
         method = message["method"]
@@ -136,7 +139,7 @@ class JsonRpcProcess:
                 self.request("shutdown", None, timeout=2)
                 self.notify("exit", {})
                 self.process.wait(timeout=2)
-            except (RuntimeError, OSError, TimeoutError, subprocess.TimeoutExpired):
+            except (RuntimeError, OSError, subprocess.TimeoutExpired):
                 self.process.terminate()
                 try:
                     self.process.wait(timeout=2)

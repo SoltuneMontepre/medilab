@@ -52,10 +52,9 @@ def test_cancellation_interrupts_an_owned_lsp_wait(tmp_path, monkeypatch):
 
     async def run():
         start = time.monotonic()
+        call = server.call_tool("definition", {"path": "unused.py", "line": 0, "character": 0})
         with pytest.raises(TimeoutError):
-            await asyncio.wait_for(
-                server.call_tool("definition", {"path": "unused.py", "line": 0, "character": 0}), timeout=0.02
-            )
+            await asyncio.wait_for(call, timeout=0.02)
         assert time.monotonic() - start < 0.3
         assert released.is_set()
 
