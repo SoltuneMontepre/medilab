@@ -20,6 +20,11 @@ erDiagram
     SAMPLE_TEST }o--o| PARAMETER_METHOD : "is tested by"
     TEST_PARAMETER ||--|{ PARAMETER_METHOD : "is tested by"
     PARAMETER_METHOD }o--|| TESTING_METHOD : uses
+    TESTING_METHOD ||--o{ TESTING_METHOD_STEP : "is done in"
+    LOCATION ||--o{ LOCATION : contains
+    TESTING_METHOD_STEP }o--o| LOCATION : "is done in"
+    SAMPLE }o--o| LOCATION : "is taken from"
+    ACCREDITATION_CERTIFICATE }o--o{ TESTING_METHOD : covers
     SAMPLE_TEST ||--o{ TEST_RESULT : "is measured in"
 ```
 
@@ -30,7 +35,7 @@ erDiagram
 | Customer          | A customer is a company or an individual. Their details are their contact; a company's people are the contact's people. A customer has a code from a sequence, the tax ID on its contact, and a citizen ID for an individual, which is masked in the audit trail. People who use the customer portal sign in with Odoo users linked to those contacts. Sales maintains customers. |
 | Test request      | A test request groups the samples of one customer. E-commerce creates it from a confirmed order, with the samples sales defined on the quotation; without E-commerce, sample delivery staff create it with its samples and parameters. Confirming it needs at least one sample, and each sample at least one parameter. |
 | Lab code          | Each sample gets a unique lab code (mã PTN) from a sequence, such as PTN.2026.0001, numbered again each year. Testers see only the lab code, never the customer or the customer's name for the sample: only people who can read test requests see those. |
-| Sample details    | A sample has the customer's name for it, its sample type, its physical state (solid, liquid, gas or semi-solid), and its form and container as text. |
+| Sample details    | A sample has the customer's name for it, its sample type, its physical state (solid, liquid, gas or semi-solid), and its form and container as text. It can name the [location](features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) it was taken from, such as a sampling point. |
 | Regulation        | A sample can name the regulation its results are compared with.                                                                               |
 | Sample test       | Each parameter tested on a sample is a sample test, with a quantity and a due date. The way of testing is chosen later by the laboratory, helped by the scheduling system, and must be a way of testing that parameter. |
 
@@ -204,12 +209,15 @@ flowchart LR
 | Testing tasks      | When a sample is received, the system creates a testing task for each sample test and puts it in the queue of the department that does the work. |
 | Assignment         | Testers claim unassigned testing tasks of their department, or the head of department assigns them: all of a sample's testing tasks in the department to one person at once, or a single task. Moving a task to another person or department needs a reason. |
 | Due date           | Sales states the date the customer expects the results on the test request. Each sample test is due at the end of the day, in the company's time zone, a safety margin in days before that date (2 days by default), kept for handling incidents. The due date is worked out when the sample test is created or the request's expected date changes; changing the safety margin does not change due dates already worked out. The worked-out date is the default and can be changed on the sample test. A test is urgent when its due date is within a number of hours, 24 by default. The safety margin and the urgency threshold are [system parameters](../shared.md#sh-03-configuration-through-settings-and-system-parameters) administrators change. |
+| Method steps       | The person running a test sees the steps of the testing method of its way of testing, each with its number, how long it takes, what to do and its note. The steps are the same for the whole laboratory. |
 | Recommendation     | When a task is assigned, the scheduler recommends the way of testing and machine that can finish it soonest within its due date, from the machines that can run it and are fit to use. |
 | Run time and slots | Each way of testing has a run time on each machine that can run it. A booking takes the run time rounded up to whole slots of 15 minutes.     |
 | Machine queue      | Tests waiting for a machine join its queue. The scheduler gives each the next free slot: urgent tests first, then in the order they joined the queue. |
 | No overlap         | The bookings of one machine do not overlap. A machine that is overdue for calibration, under repair or retired gets no bookings.              |
 | Suggest outsourcing | When no machine that can run a test is available, or none has a free slot that finishes before the test's due date, the scheduler suggests outsourcing it through one of the parameter's subcontracted ways of testing. |
 | Machine unavailable | When a machine becomes under repair or overdue for calibration, its scheduled bookings go back to the queue and are rescheduled on other machines; those that cannot finish in time get an outsourcing suggestion. |
+| Locations          | A step of a testing method can name the [location](features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) where it is done, such as a fume hood or a water point. A sample can name the location it was taken from. The person running a test sees the locations of its steps and of its sample, on the testing task, the schedule, the to-do list and the timeline of their day, and opens it on its parent location's map. A bookable location, such as a shared room, is booked on the calendar ([SH-11](../shared.md#sh-11-schedules-and-reminders)), by people or by the scheduler for a step done in it. |
+| Rooms              | When a step of the way of testing's method is done in a bookable location, the scheduler books that location for the step's time along with the machine, and plans the test only when the machine and every such location are free. Steps run in step number order from the start of the test, each for its duration rounded up to whole slots of 15 minutes. Each location booking is a calendar event on the person's calendar and the location's schedule ([SH-11](../shared.md#sh-11-schedules-and-reminders)). Moving, cancelling or rescheduling the machine booking moves or cancels its location bookings with it. |
 | Adjusting          | The person running a test, and the head of their department, can move or cancel its booking; the slot goes back to the queue.                 |
 | Changing a due date | A sample test's due date can be changed by hand; the date from the safety margin is its default. |
 | Due date check     | A due date falls on a weekday. When a due date is set, the scheduler checks that the test has a free slot that finishes before it, or that other bookings can move to make room without missing their own due dates; otherwise it reports that the date cannot be met. |
