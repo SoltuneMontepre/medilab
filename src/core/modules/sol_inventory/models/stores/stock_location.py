@@ -5,6 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
 from odoo.tools import format_list
 
+from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_inventory.constants.models import MODEL_ANALYTIC_ACCOUNT, MODEL_STOCK_LOCATION
 from odoo.addons.sol_inventory.constants.xml_ids import COST_CENTRE_PLAN, STORE_VIEWS
 from odoo.addons.sol_laboratory.constants.models import (
@@ -67,6 +68,25 @@ class StockLocation(models.Model):
         if departments is not None:
             domain &= Domain("department_id", "in", departments.ids)
         return self.env[MODEL_ANALYTIC_ACCOUNT].sudo().search(domain)
+
+    def unlink(self):
+        # Odoo deletes the locations inside a location along with it; they are deleted or moved first. Odoo finds
+        # them with a search that skips archived ones, so an archived location is deleted with archived ones included.
+        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+            inside = (
+                self.sudo()
+                .with_context(active_test=False)
+                .search(Domain("location_id", "in", self.ids) & Domain("id", "not in", self.ids))
+            )
+            if inside:
+                raise UserError(
+                    self.env._(
+                        "%(locations)s cannot be deleted while these locations are inside: %(inside)s.",
+                        locations=format_list(self.env, inside.location_id.mapped("display_name")),
+                        inside=format_list(self.env, inside.mapped("display_name")),
+                    )
+                )
+        return super(StockLocation, self.with_context(active_test=False)).unlink()
 
     def _store_above(self):
         self.ensure_one()
