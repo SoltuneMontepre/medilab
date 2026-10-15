@@ -8,8 +8,11 @@ env:
 vars:
   ALL_MODULES:
     sh: grep -v '^base$' src/core/modules.txt | tr -d '\r' | tr '\n' ',' | sed 's/,$//'
-  MODULES: '{{.MODULES | default .ALL_MODULES}}'
-  TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
+  EXCLUDE: '{{.EXCLUDE | default ""}}'
+  MODULES: '{{.MODULES | default (without (splitList "," .ALL_MODULES) .EXCLUDE | join ",")}}'
+  TEST_MODULES: '{{.TEST_MODULES | default .MODULES}}'
+  TAGS: '{{range $i, $m := splitList "," .TEST_MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
+  INSTALL_COVERAGE: '{{.INSTALL_COVERAGE | default "true"}}'
   TEST_DB: '{{.MEDILAB_TEST_DB | default "medilab_test"}}'
   RUNNER: "{{.RUNNER | default 1}}"
   RUNNERS: "{{.RUNNERS | default 1}}"
@@ -37,16 +40,16 @@ tasks:
       - task: test:apps
 
   test:core:
-    desc: "Run the tests of every module in src/core/modules.txt with coverage, split over parallel shards in throwaway databases; task test:core MODULES=a,b limits them, RUNNER=2 RUNNERS=3 runs this machine's share of the shards"
+    desc: "Run the tests of every module in src/core/modules.txt with coverage, split over parallel shards in throwaway databases; task test:core MODULES=a,b or EXCLUDE=a limits the modules, TEST_MODULES=a runs the tests of only some of them, RUNNER=2 RUNNERS=3 runs this machine's share of the shards, INSTALL_COVERAGE=false installs without coverage"
     silent: true
     cmds:
       - docker compose up -d --wait postgres
       - task: test:core:clean
       - defer: { task: test:core:clean }
       - . {{.LOG}} && log_step "Splitting the test classes into {{.TOTAL_SHARDS}} shards"
-      - docker compose run --rm -T --entrypoint python3 odoo {{.ODOO_SCRIPTS}}/test_shards.py {{.MODULES}} {{.TOTAL_SHARDS}} {{.TEST_RUN_DIR}}/shards
+      - docker compose run --rm -T --entrypoint python3 odoo {{.ODOO_SCRIPTS}}/test_shards.py {{.TEST_MODULES}} {{.TOTAL_SHARDS}} {{.TEST_RUN_DIR}}/shards
       - . {{.LOG}} && log_step "Installing {{.MODULES}}"
-      - docker compose run --rm -T --user root {{.TEST_ENV}} -e TAGS={{.TAGS}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_install.sh
+      - docker compose run --rm -T --user root {{.TEST_ENV}} -e TAGS={{.TAGS}} -e INSTALL_COVERAGE={{.INSTALL_COVERAGE}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_install.sh
       - docker compose exec -T postgres bash -c 'set -e; for n in {{.SHARD_NUMBERS}}; do createdb -U {{.DB_USER}} -T {{.TEST_DB}} {{.TEST_DB}}_$n; done'
       - . {{.LOG}} && log_step "Running shards {{trim .SHARD_NUMBERS}} of {{.TOTAL_SHARDS}}"
       - task: test:core:shards

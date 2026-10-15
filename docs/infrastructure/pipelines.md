@@ -21,7 +21,7 @@ Every workflow can also be started by hand.
 flowchart LR
     changes --> lint
     changes --> tooling
-    changes --> build --> runners["test (1/3), (2/3), (3/3)"]
+    changes --> build --> runners["test (1/3), (2/3), (3/3), (install)"]
     runners --> test --> sonarqube
     runners --> coverage --> sonarqube
 ```
@@ -30,9 +30,11 @@ flowchart LR
 - `lint` runs `task typecheck` and `task test:typecheck`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
 - `tooling` runs addon link safety and Pyright report tests on Linux and Windows, only when `tools/typecheck` or the workflow changes. Windows uses real directory junctions to verify that cleanup preserves unmanaged links and target files.
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
-- Three test runners, `test (1/3)` to `test (3/3)`, each build the image again from that cache and load it as `medilab-odoo:ci`, so the tests run on the image that ships, with its Python requirements. Each runner installs the modules and runs `task test:core RUNNER=<n> RUNNERS=3`: its four of the twelve shards, one per runner CPU, each in its own copy of the test database. It uploads its raw coverage data as the `coverage-data-<n>` artifact. The runners skip when the change is not relevant.
+- Four test runners each build the image again from that cache and load it as `medilab-odoo:ci`, so the tests run on the image that ships, with its Python requirements. Each runs its own copy of the test database per shard, four shards at once, one per runner CPU, and uploads its raw coverage data as a `coverage-data-<n>` artifact. The runners skip when the change is not relevant.
+  - `test (1/3)` to `test (3/3)` install every module except `sol_demo`, without coverage, and each run four of the twelve shards: `task test:core RUNNER=<n> RUNNERS=3 EXCLUDE=sol_demo INSTALL_COVERAGE=false`. No other module's tests use the demo data, and coverage makes the install about 60% slower.
+  - `test (install)` installs every module with coverage and runs the `sol_demo` tests: `task test:core TEST_MODULES=sol_demo`. It records the code that only runs while the modules install and checks that the demo data loads, alongside the other runners.
 - `test` is the required check for the tests: it fails unless every runner passed.
-- `coverage` combines the coverage data of the runners with `task test:core:coverage` and uploads the report as the `coverage` artifact.
+- `coverage` combines the coverage data of the four runners with `task test:core:coverage` and uploads the report as the `coverage` artifact.
 - `sonarqube` downloads the coverage report, scans with SonarQube Cloud and waits for the quality gate. A failed gate, including on coverage, fails the pipeline. A pull request that changes only the AI tooling skips `lint`, `build`, the test runners and `coverage`; `sonarqube` then scans without a coverage report, which is enough because `tools/**` is excluded from coverage.
 - A pull request from a fork cannot read secrets, so `sonarqube` fails on it with a message. Contributors push a branch to the repository instead.
 - Static assets, the applications, the tests, the tools, module manifests and migration scripts are excluded from SonarQube coverage in `sonar-project.properties`, because no coverage report exists for them; Odoo reads manifests as data, and the tests install the modules fresh, so they never run the lines of either. SonarQube's coverage figure therefore does not include the typecheck scripts in `tools/typecheck`; `task test:typecheck` tests them in `lint`, and SonarQube still reports issues and security hotspots in `tools/`. Browser tests do not run in the pipeline.
