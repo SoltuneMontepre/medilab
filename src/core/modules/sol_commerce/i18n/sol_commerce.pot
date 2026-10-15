@@ -2650,6 +2650,11 @@ msgid "Action Needed"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_medilab_support_request_code_unique
+msgid "The code of a support request must be unique."
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.constraint,message:sol_commerce.constraint_rating_rating_order_feedback_unique
 msgid "An order has at most one feedback."
 msgstr ""

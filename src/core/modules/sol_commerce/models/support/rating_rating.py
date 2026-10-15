@@ -1,11 +1,13 @@
 from odoo import api, fields, models
 
 from odoo.addons.sol_commerce.constants.models import MODEL_RATING, MODEL_SALE_ORDER
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 
 
 # Phản Hồi: the feedback of an order follows the order's access, and an order has at most one.
 class RatingRating(models.Model):
-    _inherit = MODEL_RATING
+    _name = MODEL_RATING
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_RATING]
 
     # The order the rating is about, for ratings of orders; access rules on order feedback follow it.
     order_id = fields.Many2one(
@@ -20,3 +22,7 @@ class RatingRating(models.Model):
     def _compute_order_id(self):
         for rating in self:
             rating.order_id = rating.res_id if rating.res_model == MODEL_SALE_ORDER else False
+
+    def _audit_parents(self):
+        # The feedback is part of its order, so the order's history keeps it.
+        return {rating.id: (MODEL_SALE_ORDER, rating.order_id.id) for rating in self.sudo() if rating.order_id}

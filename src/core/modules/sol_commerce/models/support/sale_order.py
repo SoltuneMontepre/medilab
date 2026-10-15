@@ -67,7 +67,7 @@ class SaleOrder(models.Model):
                 )
             )
         try:
-            with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
+            with mute_logger("odoo.sql_db"), self.env.cr.savepoint():
                 return order.rating_apply(value, rating=rating, feedback=(comment or "").strip() or False)
         except IntegrityError:
             # Another feedback on the order was saved meanwhile.

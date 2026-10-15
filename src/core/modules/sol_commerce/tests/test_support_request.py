@@ -5,10 +5,11 @@ from .support_case import SupportCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SUPPORT_REQUEST
 from odoo.addons.sol_commerce.constants.xml_ids import SUPPORT_READ_ACCESS
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 
 @tagged("post_install", "-at_install")
-class TestSupportRequest(SupportCase):
+class TestSupportRequest(AuditLookup, SupportCase):
     def test_request_about_an_order_goes_to_its_salesperson_as_a_task(self):
         order = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
 
@@ -220,3 +221,16 @@ class TestSupportRequest(SupportCase):
 
         with self.assertRaises(UserError):
             self.open_request(user=user)
+
+    def test_the_history_of_an_order_includes_its_support_requests_and_feedback(self):
+        auditor = self.new_auditor()
+        order = self.make_order([(self.lead_product, 1)], status="completed", user_id=self.sales.id)
+        request = self.open_request(order=order)
+        request.with_user(self.sales).action_close()
+        feedback = order.with_user(self.portal).action_give_feedback(5, "Clear report.")
+
+        history = self.history(order, auditor)
+
+        self.assertLessEqual(self.entries(request, "create") | self.entries(request, "edit"), history)
+        self.assertLessEqual(self.entries(feedback, "create"), history)
+        self.assertEqual(self.changes(self.entries(request, "edit"))["status"], ("open", "closed"))

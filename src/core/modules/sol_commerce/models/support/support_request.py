@@ -11,6 +11,7 @@ from odoo.addons.sol_commerce.constants.support import (
 )
 from odoo.addons.sol_commerce.constants.xml_ids import SUPPORT_EDIT_ACCESS, SUPPORT_READ_ACCESS
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_CUSTOMER,
     MODEL_PERMISSION_MIXIN,
@@ -30,7 +31,7 @@ HANDLER_DOMAIN = "['|', ('handled_by_id', '=', user.id), ('handled_by_id', '=', 
 # Yêu Cầu Hỗ Trợ
 class SupportRequest(models.Model):
     _name = MODEL_SUPPORT_REQUEST
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, "mail.thread", "portal.mixin"]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN, "mail.thread", "portal.mixin"]
     _description = "Support Request"
     _order = "id desc"
     _rec_names_search = ("code", "subject")
@@ -64,6 +65,7 @@ class SupportRequest(models.Model):
     # When the request was closed.
     closed_at = fields.Datetime(readonly=True)
 
+    _code_unique = models.Constraint("UNIQUE(code)", "The code of a support request must be unique.")
     _customer_status_idx = models.Index("(customer_id, status)")
 
     @api.depends("code", "subject")

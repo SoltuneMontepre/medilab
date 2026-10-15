@@ -793,7 +793,10 @@ model SupportRequest {
   handled_by    User?      @relation("SupportHandler", fields: [handled_by_id], references: [id], onDelete: Restrict)
 
   @@index([customer_id, status])
+  @@index([customer_id])
+  @@index([order_id])
   @@index([status])
+  @@index([handled_by_id])
   @@map("medilab_support_request")
 }
 
@@ -801,31 +804,33 @@ model SupportRequest {
 /// One feedback per order: unique on res_id for the consumed ratings of sale.order.
 model Rating {
   /// Row identifier.
-  id         Int      @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   /// sale.order.
-  res_model  String   @db.VarChar
+  res_model        String?    @db.VarChar
   /// The completed order rated.
-  res_id     Int
+  res_id           Int
   /// The order rated, for ratings of orders; the access rules on feedback follow it.
-  order_id   Int?
+  order_id         Int?
   /// Rating from 1 to 5.
-  rating     Decimal  @db.Decimal
+  rating           Float?
   /// The customer's comment.
-  feedback   String?  @db.Text
+  feedback         String?    @db.Text
   /// The customer's contact who gave the rating.
-  partner_id Int
+  partner_id       Int?
   /// The salesperson of the order, whom the rating is about.
   rated_partner_id Int?
   /// True once the customer has given the rating.
-  consumed   Boolean  @default(false)
+  consumed         Boolean    @default(false)
   /// The customer's contact who gave the rating.
-  partner    Contact  @relation("RatingCustomer", fields: [partner_id], references: [id], onDelete: Restrict)
+  partner          Contact?   @relation("RatingCustomer", fields: [partner_id], references: [id], onDelete: SetNull)
   /// The salesperson of the order, whom the rating is about.
-  rated_partner Contact? @relation("RatingSalesperson", fields: [rated_partner_id], references: [id], onDelete: SetNull)
+  rated_partner    Contact?   @relation("RatingSalesperson", fields: [rated_partner_id], references: [id], onDelete: SetNull)
   /// The order rated.
-  order      SaleOrder? @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  order            SaleOrder? @relation(fields: [order_id], references: [id], onDelete: Cascade)
 
+  @@index([res_model])
+  @@index([res_id])
   @@index([order_id])
-  @@index([rating])
+  @@index([rated_partner_id])
   @@map("rating_rating")
 }
