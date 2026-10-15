@@ -137,6 +137,13 @@
         <field name="name">Le Thi Hoa</field>
         <field name="parent_id" ref="demo_res_partner_southern_micro" />
     </record>
+    <record id="demo_res_partner_mekong_food_testing" model="res.partner">
+        <field name="name">Mekong Food Testing</field>
+        <field name="street">21 Hoa Binh</field>
+        <field name="city">Can Tho</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">+84 292 383 0004</field>
+    </record>
     <record id="demo_res_partner_nuoc_sach" model="res.partner">
         <field name="name">Công ty TNHH Nước Uống Sạch</field>
         <field name="is_company" eval="True" />

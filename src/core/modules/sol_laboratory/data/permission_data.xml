@@ -525,11 +525,6 @@
         <field name="document_model">medilab.parameter.method</field>
         <field name="action">archive</field>
     </record>
-    <record id="permission_parameter_method_delete_all" model="medilab.permission">
-        <field name="name">Delete ways of testing</field>
-        <field name="document_model">medilab.parameter.method</field>
-        <field name="action">delete</field>
-    </record>
     <record id="permission_parameter_method_create_own_department" model="medilab.permission">
         <field name="name">Create ways of testing of their department</field>
         <field name="document_model">medilab.parameter.method</field>
@@ -546,12 +541,6 @@
         <field name="name">Archive ways of testing of their department</field>
         <field name="document_model">medilab.parameter.method</field>
         <field name="action">archive</field>
-        <field name="scope">own_department</field>
-    </record>
-    <record id="permission_parameter_method_delete_own_department" model="medilab.permission">
-        <field name="name">Delete ways of testing of their department</field>
-        <field name="document_model">medilab.parameter.method</field>
-        <field name="action">delete</field>
         <field name="scope">own_department</field>
     </record>
     <record id="permission_parameter_method_machine_create_all" model="medilab.permission">
