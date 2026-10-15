@@ -70,7 +70,7 @@ Acceptance criteria:
 - A result entered on a sample with a regulation shows the copied limit and needs a conclusion before it is sent for approval.
 - A tester opening a testing task sees the steps of its method with their number, duration, what to do and note, in step number order; a method without steps shows none.
 - A step with a location shows that location's code and name to the tester.
-- A testing task whose sample names a location shows that location on the task, the schedule, the to-do list and the timeline.
+- A testing task whose sample names a location shows that location on the task, the schedule, the to-do list and the timeline, and opening it shows it marked on its parent location's map.
 - A tester cannot change a step.
 - A rejected result stays on record, and the sample test goes back to testing.
 - Approving the reported result closes the tester's testing task.

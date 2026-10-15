@@ -7,8 +7,6 @@
 - **Who maintains customers.** A customer's details are an Odoo contact, and Odoo lets only its contact managers create and edit contacts, so for now only administrators create and edit customers. Should sales get Odoo's contact creation group, or should a customer write its contact with full rights once the customer permission is checked, as people do? (blocks US-S03)
 - **Cancelling during testing.** A test request can be cancelled while testing, but the lifecycles let only expected, received and testing samples, and waiting, assigned and testing sample tests, be cancelled. What happens to a sample on hold or awaiting approval, and to a test outsourced or with a result entered, when its request is cancelled? For now they keep their status. (US-SD06, US-S17)
 - **Every test cancelled.** When the head of department cancels every sample test of a sample, nothing is left to test or report. Is the sample cancelled too, and its test request once all its samples are? For now the sample keeps its status. (US-HD09)
-- **Location map.** Should locations show on a map of the premises, using each location's image or a floor plan? (blocks US-AD27)
-- **Accreditation and ways of testing.** A parameter and method pair is marked as accredited by hand. Should it instead be accredited when its method is on a valid accreditation certificate, and should an expired certificate remove the mark? (blocks US-AD28)
 
 ## Related documents
 
