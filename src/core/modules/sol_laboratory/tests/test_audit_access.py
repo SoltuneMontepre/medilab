@@ -64,7 +64,10 @@ class TestAuditAccess(AuditCase):
         self.env[MODEL_REGULATION]._add_history_button(arch)
 
         self.assertEqual([child.tag for child in arch], ["header", "div", "group"])
-        self.assertEqual(arch[1].find("button").get("name"), "action_open_audit_history")
+        button = arch[1].find("button")
+        if button is None:
+            self.fail("The history button is missing.")
+        self.assertEqual(button.get("name"), "action_open_audit_history")
 
     def test_every_document_model_of_the_laboratory_is_audited(self):
         # The trail itself, and the records the trail already describes: signatures, the work of jobs, such as the

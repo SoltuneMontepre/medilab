@@ -13,13 +13,10 @@ from odoo.addons.sol_commerce.constants.models import (
 )
 from odoo.addons.sol_commerce.constants.xml_ids import PAYMENT_RECEIPT_REPORT
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACTIONS_REPORT, MODEL_JOB_ITEM
+from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 _logger = logging.getLogger(__name__)
-
-# website=True makes a route a frontend page. The http_routing addon reads it, and odoo.http does not declare it
-# among the route options, so pyright rejects it as a keyword.
-FRONTEND_PAGE = {"website": True}
 
 
 class InvoicePortal(PortalAccount):

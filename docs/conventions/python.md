@@ -87,6 +87,7 @@ How a module is laid out, from its root:
 - An Odoo addon that a module imports in Python is added to `ODOO_ADDONS`.
 - Import `SUPERUSER_ID` from `odoo.api`. Odoo 20 sets it on the `odoo` package only at startup, so `from odoo import SUPERUSER_ID` is a missing name to pyright.
 - `lxml-stubs`, in the `dev` group, gives pyright the names of the compiled `lxml.etree`.
+- `freezegun` and `xlsxwriter`, in the `dev` group, let pyright resolve the packages that the Odoo image provides and the modules import.
 
 ### Relaxed rules
 
@@ -108,7 +109,7 @@ pyright cannot follow Odoo's dynamic models. These rules are warnings: the edito
 Where Odoo's annotations are narrower than its behaviour, the code says what it relies on:
 
 - Controllers read the environment with `request_env()` from `sol_laboratory/services/request_env.py`. Odoo types `request.env` as optional, because a request may have no database.
-- A route option that an addon reads, such as `website` of `http_routing`, is passed by unpacking a dict constant, because `odoo.http` does not declare it: `**FRONTEND_PAGE` in `sol_commerce/controllers/portal.py`.
+- A route option that an addon reads, such as `website` of `http_routing`, is passed by unpacking a dict constant, because `odoo.http` does not declare it: `**FRONTEND_PAGE` from `sol_laboratory/constants/routes.py`.
 - Read the context with `self.env.context.get(<key>)`. `in` and `[]` fail on its `frozendict` type.
 - A Char field reads as `False` when empty, `display_name` too. Give a fallback before joining or formatting it.
 - In tests, narrow an optional value with `if value is None: self.fail(...)`. pyright knows that `fail()` does not return.
