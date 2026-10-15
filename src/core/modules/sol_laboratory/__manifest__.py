@@ -76,6 +76,7 @@
     ],
     "assets": {
         "web.assets_backend": [
+            "sol_laboratory/static/src/fields/*",
             "sol_laboratory/static/src/views/control_panel/*",
             "sol_laboratory/static/src/views/timeline/*",
             "sol_laboratory/static/src/tasks/dashboard/*",

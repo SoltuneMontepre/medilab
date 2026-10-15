@@ -175,6 +175,7 @@
     <record id="action_medilab_sample" model="ir.actions.act_window">
         <field name="name">Samples</field>
         <field name="res_model">medilab.sample</field>
+        <field name="path">samples</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>
