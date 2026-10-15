@@ -1,0 +1,58 @@
+name: ci-ai
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medilab-ci-ai-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "tools/odoo-intelligence/**"
+              - "tools/taskfiles/ai.taskfile.yml"
+              - "tools/taskfiles/dev.taskfile.yml"
+              - "infra/terraform.tf"
+              - "odools.toml"
+              - ".mcp.json"
+              - ".cursor/mcp.json"
+              - ".codex/config.toml"
+              - ".serena/project.yml"
+              - ".claude/settings.json"
+              - ".github/workflows/ci.ai.yml"
+
+      - name: Set up uv
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: tools/odoo-intelligence/uv.lock
+
+      - name: Set up Task
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: AI tooling tests and lint
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: task ai:test

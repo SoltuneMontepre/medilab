@@ -29,7 +29,7 @@ Documentation index: [docs/readme.md](docs/readme.md).
 task setup
 ```
 
-`task setup` creates `src/core/.venv`, fetches the Odoo source, installs Serena with the Odoo Language Server, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
+`task setup` creates `src/core/.venv`, fetches the Odoo source, installs Serena and the Odoo Language Server for the coding clients, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
 
 Open http://localhost:8069. The `medilab` database is created by the first `task upgrade`; the database manager is turned off (`list_db = False`), so the login page shows no database administration link. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=sol_laboratory`.
 
@@ -58,8 +58,11 @@ Open http://localhost:8069. The `medilab` database is created by the first `task
 | `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                   |
 | `task reset`               | Delete the database and volumes, then start again                                                        |
 | `task dev:setup`           | Sync `src/core/.venv` from `uv.lock`, fetch the Odoo source and link the modules into it for type checks |
-| `task ai:setup`            | Check `npx` for the MCP servers, install Serena with the OdooLS adapter and run `ai:odoo-ls`             |
-| `task ai:odoo-ls`          | Download the pinned Odoo Language Server that Serena uses for Python and XML in the modules              |
+| `task ai:setup`            | Install Serena, OdooLS and its Odoo source in this worktree for the coding clients                       |
+| `task ai:odoo-ls`          | Install the pinned OdooLS release, typeshed and Odoo source that the `odoo` MCP server uses              |
+| `task ai:test`             | Run the AI tooling tests and lint checks                                                                 |
+| `task ai:verify`           | Check Odoo model and field navigation through the `odoo` MCP server                                      |
+| `task ai:cursor-setup`     | Install the official Odoo extension into an isolated Cursor profile                                      |
 | `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                      |
 | `task lint`                | Run ruff and pylint-odoo on `src/core/modules`                                                           |
 | `task format`              | Format `src/core/modules` with ruff                                                                      |

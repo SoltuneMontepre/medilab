@@ -45,8 +45,8 @@
       "args": [
         "--with",
         "mcp<2",
-        "postgres-mcp",
-        "--access-mode=unrestricted",
+        "postgres-mcp==0.3.0",
+        "--access-mode=restricted",
         "postgresql://root:root@localhost:15432/medilab"
       ]
     },
@@ -67,13 +67,26 @@
     },
     "serena": {
       "type": "stdio",
-      "command": "serena",
+      "command": "uv",
       "args": [
-        "start-mcp-server",
-        "--context",
-        "claude-code",
-        "--project",
-        "."
+        "run",
+        "--no-project",
+        "python",
+        "-c",
+        "import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')",
+        "serena-claude-code"
+      ]
+    },
+    "odoo": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--no-project",
+        "python",
+        "-c",
+        "import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')",
+        "mcp"
       ]
     }
   }
