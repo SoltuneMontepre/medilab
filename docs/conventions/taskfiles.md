@@ -7,9 +7,9 @@ How the [Task](https://taskfile.dev) commands in this repository are written, an
 ```text
 taskfile.yml                    entrypoint: includes the taskfiles, defines setup
 tools/
-├── serena-odoo-ls/             OdooLS adapter that Serena loads as the `odoo` language server
+├── odoo-intelligence/          Shared OdooLS MCP bridge, local installer, Serena launcher and tests
 ├── taskfiles/
-│   ├── ai.taskfile.yml         AI tooling: the npx check for the MCP servers, Serena with the OdooLS adapter, OdooLS download
+│   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification and isolated Cursor setup
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint, typecheck
 │   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, apps
