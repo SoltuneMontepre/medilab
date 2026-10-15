@@ -22,7 +22,7 @@ tools/
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
     ├── test_apps.sh            test:apps
     ├── test_shards.py          splits the Odoo test classes into shards for test:core
-    └── test_core_*.sh          test:core steps run inside the Odoo container
+    └── test_core_*.sh          test:core steps run inside a container
 ```
 
 - `taskfile.yml` includes each taskfile with `dir: .` and `flatten: true`, so every task runs from the repository root and is called without a prefix: `task up`, not `task app:up`.

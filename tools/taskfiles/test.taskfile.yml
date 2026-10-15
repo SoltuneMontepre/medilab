@@ -6,12 +6,21 @@ env:
   COMPOSE_FILE: tools/infrastructure/docker-compose.yml
 
 vars:
+  ALL_MODULES:
+    sh: grep -v '^base$' src/core/modules.txt | tr -d '\r' | tr '\n' ',' | sed 's/,$//'
+  MODULES: '{{.MODULES | default .ALL_MODULES}}'
+  TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
   TEST_DB: '{{.MEDILAB_TEST_DB | default "medilab_test"}}'
+  RUNNER: "{{.RUNNER | default 1}}"
+  RUNNERS: "{{.RUNNERS | default 1}}"
   TEST_SHARDS: 4
-  SHARD_NUMBERS: "{{range $i := until .TEST_SHARDS}}{{add $i 1}} {{end}}"
+  TOTAL_SHARDS: "{{mul .RUNNERS .TEST_SHARDS}}"
+  SHARD_NUMBERS: "{{range $i := until .TEST_SHARDS}}{{add (mul (sub $.RUNNER 1) $.TEST_SHARDS) $i 1}} {{end}}"
   TEST_RUN_DIR: /var/lib/odoo/{{.TEST_DB}}-run
   ODOO_SCRIPTS: /opt/medilab/scripts
-  TEST_ENV: -e TEST_DB={{.TEST_DB}} -e TEST_RUN_DIR={{.TEST_RUN_DIR}} -e "SHARD_NUMBERS={{.SHARD_NUMBERS}}"
+  TEST_ENV: -e TEST_DB={{.TEST_DB}} -e TEST_RUN_DIR={{.TEST_RUN_DIR}} -e MODULES={{.MODULES}} -e "SHARD_NUMBERS={{.SHARD_NUMBERS}}"
+  COVERAGE_IMAGE: docker.io/library/python:3.12-slim
+  COVERAGE_DIR: "{{.COVERAGE_DIR}}"
   DB_USER: '{{.MEDILAB_DB_USER | default "root"}}'
   COVERAGE_REPORT: src/core/modules/coverage.xml
   E2E_DIR: src/tests
@@ -28,48 +37,66 @@ tasks:
       - task: test:apps
 
   test:core:
-    desc: "Run the tests of every module in src/core/modules.txt with coverage, split over parallel shards in throwaway databases; task test:core MODULES=a,b limits them"
+    desc: "Run the tests of every module in src/core/modules.txt with coverage, split over parallel shards in throwaway databases; task test:core MODULES=a,b limits them, RUNNER=2 RUNNERS=3 runs this machine's share of the shards"
     silent: true
-    vars:
-      ALL_MODULES:
-        sh: grep -v '^base$' src/core/modules.txt | tr -d '\r' | tr '\n' ',' | sed 's/,$//'
-      MODULES: '{{.MODULES | default .ALL_MODULES}}'
-      TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
     cmds:
       - docker compose up -d --wait postgres
       - task: test:core:clean
       - defer: { task: test:core:clean }
-      - . {{.LOG}} && log_step "Splitting the test classes into {{.TEST_SHARDS}} shards"
-      - docker compose run --rm -T --entrypoint python3 odoo {{.ODOO_SCRIPTS}}/test_shards.py {{.MODULES}} {{.TEST_SHARDS}} {{.TEST_RUN_DIR}}/shards
+      - . {{.LOG}} && log_step "Splitting the test classes into {{.TOTAL_SHARDS}} shards"
+      - docker compose run --rm -T --entrypoint python3 odoo {{.ODOO_SCRIPTS}}/test_shards.py {{.MODULES}} {{.TOTAL_SHARDS}} {{.TEST_RUN_DIR}}/shards
       - . {{.LOG}} && log_step "Installing {{.MODULES}}"
-      - docker compose run --rm -T --user root {{.TEST_ENV}} -e MODULES={{.MODULES}} -e TAGS={{.TAGS}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_install.sh
+      - docker compose run --rm -T --user root {{.TEST_ENV}} -e TAGS={{.TAGS}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_install.sh
       - docker compose exec -T postgres bash -c 'set -e; for n in {{.SHARD_NUMBERS}}; do createdb -U {{.DB_USER}} -T {{.TEST_DB}} {{.TEST_DB}}_$n; done'
-      - . {{.LOG}} && log_step "Running the tests in {{.TEST_SHARDS}} shards"
+      - . {{.LOG}} && log_step "Running shards {{trim .SHARD_NUMBERS}} of {{.TOTAL_SHARDS}}"
       - task: test:core:shards
-        vars: { MODULES: "{{.MODULES}}" }
-      - |
-        set -e
-        . {{.LOG}}
-        failed=$(docker compose run --rm -T --user root {{.TEST_ENV}} -e MODULES={{.MODULES}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_report.sh)
-        sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
-        if [ -n "$failed" ]; then
-          log_error "Odoo module tests failed in shard $failed. Search the output for [shard N]. Coverage report in {{.COVERAGE_REPORT}}."
-          exit 1
-        fi
-        log_ok "Odoo module tests passed ({{.MODULES}}). Coverage report in {{.COVERAGE_REPORT}}."
+      - task: test:core:report
 
   test:core:shards:
     internal: true
     deps:
       - for: { var: SHARD_NUMBERS }
         task: test:core:shard
-        vars: { MODULES: "{{.MODULES}}", SHARD: "{{.ITEM}}" }
+        vars: { SHARD: "{{.ITEM}}" }
 
   test:core:shard:
     internal: true
     silent: true
     cmds:
-      - docker compose run --rm -T --user root {{.TEST_ENV}} -e MODULES={{.MODULES}} -e SHARD={{.SHARD}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_shard.sh
+      - docker compose run --rm -T --user root {{.TEST_ENV}} -e SHARD={{.SHARD}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_shard.sh
+
+  test:core:report:
+    internal: true
+    silent: true
+    cmds:
+      - cmd: mkdir -p {{.COVERAGE_DIR}}
+        if: '[ -n "{{.COVERAGE_DIR}}" ]'
+      - cmd: docker compose run --rm -T --user root -v "{{.ROOT_DIR}}/{{.COVERAGE_DIR}}:/export" --entrypoint cp odoo -a {{.TEST_RUN_DIR}}/coverage/. /export/
+        if: '[ -n "{{.COVERAGE_DIR}}" ]'
+      - cmd: docker compose run --rm -T --user root {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_coverage.sh {{.TEST_RUN_DIR}}/coverage
+        if: '[ -z "{{.COVERAGE_DIR}}" ]'
+      - cmd: sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
+        if: '[ -z "{{.COVERAGE_DIR}}" ]'
+      - |
+        set -e
+        . {{.LOG}}
+        failed=$(docker compose run --rm -T {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_status.sh)
+        if [ -n "$failed" ]; then
+          log_error "Odoo module tests failed in shard $failed. Search the output for [shard N]."
+          exit 1
+        fi
+        log_ok "Odoo module tests passed in shards {{trim .SHARD_NUMBERS}}. {{if .COVERAGE_DIR}}Coverage data in {{.COVERAGE_DIR}}{{else}}Coverage report in {{.COVERAGE_REPORT}}{{end}}."
+
+  test:core:coverage:
+    desc: "Combine the coverage data that test:core runners saved in COVERAGE_DIR into the coverage report"
+    silent: true
+    preconditions:
+      - sh: '[ -n "{{.COVERAGE_DIR}}" ]'
+        msg: "Set COVERAGE_DIR to the folder with the coverage data: task test:core:coverage COVERAGE_DIR=.local/coverage"
+    cmds:
+      - docker run --rm -v "{{.ROOT_DIR}}/src/core/modules:/mnt/extra-addons" -v "{{.ROOT_DIR}}/tools/scripts:{{.ODOO_SCRIPTS}}:ro" -v "{{.ROOT_DIR}}/{{.COVERAGE_DIR}}:/coverage" {{.COVERAGE_IMAGE}} bash {{.ODOO_SCRIPTS}}/test_core_coverage.sh /coverage
+      - sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
+      - . {{.LOG}} && log_ok "Coverage report in {{.COVERAGE_REPORT}}."
 
   test:core:clean:
     internal: true

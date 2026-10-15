@@ -173,27 +173,29 @@ jobs:
           provenance: false
           sbom: false
 
-  test:
+  test-runner:
+    name: test (${{ matrix.runner }}/3)
     needs: [changes, build]
+    if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [1, 2, 3]
     steps:
       - name: Checkout
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v7
 
       - name: Set up Task
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: arduino/setup-task@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Build
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/setup-buildx-action@v4
 
       - name: Build image from cache
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
@@ -207,20 +209,68 @@ jobs:
           sbom: false
 
       - name: Odoo module tests
+        run: task test:core RUNNER=${{ matrix.runner }} RUNNERS=${{ strategy.job-total }} COVERAGE_DIR=.local/coverage
+
+      - name: Upload coverage data
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-data-${{ matrix.runner }}
+          path: .local/coverage
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 1
+
+  test:
+    needs: [changes, test-runner]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check the test runners
         if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
-        run: task test:core
+        env:
+          RESULT: ${{ needs.test-runner.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::The test runners finished with result $RESULT."
+            exit 1
+          fi
+
+  coverage:
+    needs: [changes, test-runner]
+    if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Task
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download coverage data
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-data-*
+          merge-multiple: true
+          path: .local/coverage
+
+      - name: Combine coverage
+        run: task test:core:coverage COVERAGE_DIR=.local/coverage
 
       - name: Upload coverage report
-        if: always() && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-artifact@v7
         with:
           name: coverage
           path: src/core/modules/coverage.xml
-          if-no-files-found: ignore
           retention-days: 1
 
   sonarqube:
-    needs: [changes, test]
+    needs: [changes, test, coverage]
+    if: ${{ !cancelled() && needs.test.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:

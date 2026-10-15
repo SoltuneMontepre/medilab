@@ -26,6 +26,7 @@ A required check must always report, and a workflow that a `paths:` filter keeps
 - Do not filter the trigger with `paths:`; the workflow starts on every pull request.
 - Each job always starts. The first steps detect whether the change is relevant with `dorny/paths-filter`; every later step has `if: <relevant> || github.event_name == 'workflow_dispatch'`.
 - A change that is not relevant finishes green without doing anything. A manual run always does the work.
+- A job that is not a required check, such as a matrix runner whose result a required job collects, skips with a job-level `if:` instead.
 - When several jobs share the detection, or a rule needs more than path patterns, put it in a `changes` job and have the others depend on it with `needs`. `ci-core` does this to ignore Markdown under `src/core`.
 
 ### A `paths:` filter
