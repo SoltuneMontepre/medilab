@@ -96,6 +96,7 @@
     <record id="action_medilab_machine" model="ir.actions.act_window">
         <field name="name">Machines</field>
         <field name="res_model">medilab.machine</field>
+        <field name="path">machines</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

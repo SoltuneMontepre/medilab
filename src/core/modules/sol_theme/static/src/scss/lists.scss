@@ -75,7 +75,7 @@
                 th {
                     color: $ml-text-secondary !important;
                     font-weight: 600;
-                    font-size: 0.75rem;
+                    font-size: $ml-font-size-xs;
                     letter-spacing: 0.02em;
                     text-transform: none;
                     border-bottom: 1px solid $ml-border !important;
@@ -103,7 +103,7 @@
                     .form-control-sm,
                     input {
                         color: $ml-text !important;
-                        border-color: $ml-border-strong !important;
+                        border-color: $ml-border-control !important;
                         background: $ml-surface !important;
 
                         &::placeholder {
@@ -113,7 +113,7 @@
 
                         &:focus {
                             border-color: rgba($ml-primary, 0.45) !important;
-                            box-shadow: 0 0 0 3px rgba($ml-primary, 0.1) !important;
+                            box-shadow: $ml-focus-ring !important;
                             outline: none;
                         }
                     }
@@ -320,7 +320,7 @@
     .badge {
         border-radius: $ml-radius-pill;
         font-weight: 550;
-        font-size: 0.75rem;
+        font-size: $ml-font-size-xs;
         padding: 0.35em 0.8em;
         letter-spacing: 0.01em;
         border: none;
@@ -396,4 +396,75 @@
 .o_list_renderer tr.o_data_row:hover .o_fill_down_btn,
 .o_list_renderer tr.o_selected_row .o_fill_down_btn {
     opacity: 1;
+}
+
+.o_list_renderer .o_data_cell {
+    .o_field_widget {
+        &:not(.o_field_boolean):not(.o_field_boolean_toggle) {
+            width: 100%;
+            max-width: 100%;
+
+            .o_many2one,
+            .o-autocomplete,
+            .o_input_dropdown {
+                width: 100%;
+            }
+        }
+
+        .o_input:not(.o_searchview_input),
+        input:not([type="checkbox"]):not([type="radio"]),
+        select,
+        textarea {
+            min-height: 0;
+            padding: 0.2rem 0.5rem !important;
+            border-radius: $ml-radius-sm !important;
+        }
+
+        &.o_field_boolean_toggle {
+            min-height: 0;
+        }
+    }
+}
+
+.o_list_renderer .o_field_x2many_list_row_add .btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    &::before {
+        content: "";
+        width: 0.875rem;
+        height: 0.875rem;
+        background-color: currentColor;
+        mask: $ml-icon-plus center / contain no-repeat;
+    }
+}
+
+.o_list_renderer .o_data_cell {
+    .o_required_modifier::after {
+        display: none !important;
+    }
+}
+
+.o_form_view .o_list_renderer .o_data_cell .o_field_widget.o_field_monetary:not(.o_readonly_modifier) {
+    min-height: 0;
+    padding: 0 !important;
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+
+    input.o_input {
+        border: 1px solid $ml-border !important;
+        background-color: $ml-surface !important;
+
+        &:focus {
+            border-color: rgba($ml-primary, 0.45) !important;
+            box-shadow: $ml-focus-ring !important;
+        }
+    }
+
+    span.o_input {
+        border: none !important;
+        background: transparent !important;
+    }
 }

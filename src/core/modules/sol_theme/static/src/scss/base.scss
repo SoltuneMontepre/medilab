@@ -5,11 +5,11 @@
     box-sizing: border-box;
 
     .form-check-input {
-        border-color: $ml-border-strong;
+        border-color: $ml-border-control;
 
         &:focus {
             border-color: rgba($ml-primary, 0.45);
-            box-shadow: 0 0 0 0.2rem rgba($ml-primary, 0.12);
+            box-shadow: $ml-focus-ring;
         }
     }
 
@@ -18,7 +18,7 @@
     .o_input:not(.o_searchview_input) {
         &:focus {
             border-color: rgba($ml-primary, 0.45);
-            box-shadow: 0 0 0 3px rgba($ml-primary, 0.1);
+            box-shadow: $ml-focus-ring;
         }
     }
 
