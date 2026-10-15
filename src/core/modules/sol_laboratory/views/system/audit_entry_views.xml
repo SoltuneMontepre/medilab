@@ -83,6 +83,7 @@
     <record id="action_medilab_audit_entry" model="ir.actions.act_window">
         <field name="name">Audit Trail</field>
         <field name="res_model">medilab.audit.entry</field>
+        <field name="path">audit-entries</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

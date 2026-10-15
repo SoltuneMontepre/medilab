@@ -15,9 +15,14 @@ tools/
 │   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, apps
 │   └── tf.taskfile.yml         Terraform: setup, init, plan, apply, output
 ├── typecheck/                  pyright runner, the links of the addons into the Odoo source, and their tests
-└── scripts/
+└── scripts/                    scripts the tasks run, see Scripts
     ├── log.sh                  output helpers sourced by the tasks
-    └── doppler.sh              Doppler login helper sourced by the tasks
+    ├── doppler.sh              Doppler login helper sourced by the tasks
+    ├── ai_setup.sh             ai:setup prerequisites and environment
+    ├── odoo_source.sh          dev:odoo-source download and sparse checkout
+    ├── test_apps.sh            test:apps
+    ├── test_shards.py          splits the Odoo test classes into shards for test:core
+    └── test_core_*.sh          test:core steps run inside the Odoo container
 ```
 
 - `taskfile.yml` includes each taskfile with `dir: .` and `flatten: true`, so every task runs from the repository root and is called without a prefix: `task up`, not `task app:up`.
@@ -41,6 +46,19 @@ tools/
 - A multi-line command starts with `set -e` when a failed step must stop the task.
 - Check that an external tool exists before using it, and say how to install it when it does not.
 - Turn off the progress output of noisy tools (`git --quiet`, `-c advice.detachedHead=false`) and print one line about what is happening instead. Keep their errors visible.
+
+## Scripts
+
+A command longer than ten lines goes into a script in `tools/scripts/`, and the task runs the script instead of holding the code.
+
+- Name the script after its task: `odoo_source.sh` for `dev:odoo-source`. Split a task with several long steps into one script per step: `test_core_install.sh`, `test_core_shard.sh`.
+- The first lines of a script say what it does, where it runs, and its usage or the environment variables it needs.
+- Pass values from the taskfile as arguments or environment variables; the taskfile keeps the `vars`, the script holds no copies of them.
+- A script for the host is sourced, so it runs in Task's built-in shell on every platform: `. tools/scripts/odoo_source.sh {{.ODOO_SOURCE_DIR}} {{.ODOO_SOURCE_REVISION}}`. It loads `log.sh` itself and starts with `set -e` when a failed step must stop it.
+- A script for the Odoo container runs with `bash`; the `odoo` service mounts `tools/scripts` read-only at `/opt/medilab/scripts`: `docker compose run --rm -T -e SHARD=1 --entrypoint bash odoo /opt/medilab/scripts/test_core_shard.sh`. Do not pipe a script into `bash -s`; a command that reads standard input swallows the rest of the script.
+- Code shared by several scripts goes in a script they source, such as `test_core_common.sh`.
+- SonarQube scans the scripts: test with `[[ ]]`, end every function with an explicit `return`, and install packages with `--only-binary :all:` for pip and `--ignore-scripts` for bun and npm.
+- `.gitattributes` keeps `*.sh` files at LF line endings on every checkout, because bash in the container fails on CRLF.
 
 ## Output
 
