@@ -75,6 +75,7 @@
     <record id="action_medilab_supplier" model="ir.actions.act_window">
         <field name="name">Suppliers</field>
         <field name="res_model">medilab.supplier</field>
+        <field name="path">suppliers</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

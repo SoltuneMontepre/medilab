@@ -29,7 +29,7 @@ msgstr "# Hóa đơn mua hàng"
 #. odoo-python
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "%(items)s cannot be archived while stock is held in: %(locations)s."
-msgstr "Không thể lưu trữ %(items)s khi vẫn còn tồn tại: %(locations)s."
+msgstr "Không thể lưu trữ %(items)s khi vẫn còn tồn kho tại: %(locations)s."
 
 #. module: sol_inventory
 #. odoo-python
@@ -1042,7 +1042,7 @@ msgstr "Là công ty"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_search
 msgid "Item"
-msgstr "Mục"
+msgstr "Vật tư"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__item_kind
@@ -1058,7 +1058,7 @@ msgstr "Cách theo dõi"
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_form
 msgid "Items"
-msgstr "Mục"
+msgstr "Mặt hàng cung cấp"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__function
@@ -1419,7 +1419,7 @@ msgstr "Số đơn mua hàng"
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__quantity
 msgid "Quantity"
-msgstr "Số lần thử"
+msgstr "Lượng dùng"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__rating_ids
@@ -1449,7 +1449,7 @@ msgstr "Nhắc nhở nhận hàng"
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__ref
 msgid "Reference"
-msgstr "Số chứng nhận"
+msgstr "Tham chiếu"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__parent_id
@@ -1791,7 +1791,7 @@ msgstr "Nhà cung cấp đã bán vật tư này; hãy sửa dòng hiện có."
 msgid ""
 "The tracking of %(items)s cannot change while stock is held in: "
 "%(locations)s."
-msgstr "Không thể đổi cách theo dõi của %(items)s khi vẫn còn tồn tại: %(locations)s."
+msgstr "Không thể đổi cách theo dõi của %(items)s khi vẫn còn tồn kho tại: %(locations)s."
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__main_user_id

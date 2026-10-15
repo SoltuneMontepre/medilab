@@ -5,7 +5,7 @@
         <field name="model">product.product</field>
         <field name="priority">20</field>
         <field name="arch" type="xml">
-            <list duplicate="0">
+            <list duplicate="0" delete="0">
                 <field name="default_code" string="Code" />
                 <field name="name" />
                 <field name="item_kind" />
@@ -21,7 +21,7 @@
         <field name="model">product.product</field>
         <field name="priority">20</field>
         <field name="arch" type="xml">
-            <form duplicate="0">
+            <form duplicate="0" delete="0">
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
                     <div class="oe_title">
@@ -121,6 +121,7 @@
     <record id="action_medilab_stock_item" model="ir.actions.act_window">
         <field name="name">Stock Items</field>
         <field name="res_model">product.product</field>
+        <field name="path">stock-items</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('item_kind', '!=', False)]</field>
         <field name="search_view_id" ref="view_medilab_stock_item_search" />
