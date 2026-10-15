@@ -22,6 +22,7 @@ erDiagram
     PARAMETER_METHOD }o--|| TESTING_METHOD : uses
     TESTING_METHOD ||--o{ TESTING_METHOD_STEP : "is done in"
     TESTING_LOCATION ||--o{ TESTING_LOCATION : contains
+    ACCREDITATION_CERTIFICATE }o--o{ TESTING_METHOD : covers
     SAMPLE_TEST ||--o{ TEST_RESULT : "is measured in"
 ```
 

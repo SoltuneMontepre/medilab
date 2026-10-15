@@ -206,6 +206,8 @@ model TestingMethod {
   chemicals  ChemicalMethod[]
   /// Steps of the procedure, in step number order.
   steps      TestingMethodStep[]
+  /// Accreditation certificates whose scope lists the method.
+  certificates AccreditationCertificateMethod[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
@@ -265,6 +267,42 @@ model TestingLocation {
   @@index([parent_id])
   @@index([department_id])
   @@map("medilab_testing_location")
+}
+
+/// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận).
+model AccreditationCertificate {
+  /// Row identifier.
+  id           Int                             @id @default(autoincrement())
+  /// Certificate number, such as VILAS 123.
+  code         String                          @unique @db.VarChar
+  /// The body that issued the certificate.
+  issuing_body String?                         @db.VarChar
+  /// First day the certificate is valid.
+  valid_from   DateTime?                       @db.Date
+  /// Last day the certificate is valid.
+  valid_until  DateTime?                       @db.Date
+  /// False when the certificate is archived.
+  active       Boolean                         @default(true)
+  /// Testing methods in the scope of the certificate.
+  methods      AccreditationCertificateMethod[]
+
+  @@map("medilab_accreditation_certificate")
+}
+
+/// Links an accreditation certificate to the testing methods in its scope.
+model AccreditationCertificateMethod {
+  /// The certificate.
+  certificate_id Int
+  /// A method in its scope.
+  method_id      Int
+  /// The certificate.
+  certificate    AccreditationCertificate @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
+  /// The testing method.
+  method         TestingMethod            @relation(fields: [method_id], references: [id], onDelete: Restrict)
+
+  @@id([certificate_id, method_id])
+  @@index([method_id])
+  @@map("medilab_accreditation_certificate_method_rel")
 }
 
 /// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
