@@ -179,10 +179,12 @@ class LspClient:
                 # OdooLS 1.6.0 assumes definition text is resident when constructing references.
                 for definition in definitions:
                     target_uri = definition.get("targetUri", definition.get("uri"))
-                    target = Path(url2pathname(urlparse(target_uri).path))
+                    target = Path(url2pathname(urlparse(target_uri).path)).resolve()
                     if not target.is_relative_to(self.workspace.root):
                         raise RuntimeError("References to definitions outside this worktree are unsupported.")
-                    self.sync_document(target)
+                    # A package definition points at its directory, which has no text to open.
+                    if target.is_file():
+                        self.sync_document(target)
                 result = self.request(method, params)
                 if result and not params.get("context", {}).get("includeDeclaration", False):
                     declarations = {

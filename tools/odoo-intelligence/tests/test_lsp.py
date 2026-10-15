@@ -35,6 +35,29 @@ def test_model_references_do_not_crash_on_unopened_definition():
         client.close()
 
 
+def test_references_do_not_open_a_package_definition(tmp_path, monkeypatch):
+    root = tmp_path.resolve()
+    package = root / "package"
+    package.mkdir()
+    usage = root / "usage.py"
+    usage.write_text("import package\n")
+    reference = {"uri": usage.as_uri(), "range": {"start": {"line": 0, "character": 7}}}
+    client = LspClient(root)
+    opened = []
+    monkeypatch.setattr(client, "start", lambda: None)
+    monkeypatch.setattr(client, "refresh_addons", lambda: None)
+    monkeypatch.setattr(client, "sync_document", lambda path: opened.append(path) or path.as_uri())
+
+    def request(method, _params):
+        if method == "textDocument/definition":
+            return [{"targetUri": package.as_uri(), "targetSelectionRange": {"start": {"line": 0, "character": 0}}}]
+        return [reference]
+
+    monkeypatch.setattr(client, "request", request)
+    assert client.navigate("textDocument/references", "usage.py", 0, 7) == [reference]
+    assert opened == [usage]
+
+
 def test_delayed_diagnostics_for_an_old_version_are_stale(tmp_path, monkeypatch):
     import time
 
