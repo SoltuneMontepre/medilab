@@ -85,7 +85,7 @@ Acceptance criteria:
 - A certificate can be saved with several methods, and a method with several certificates.
 - A location placed on its parent's image shows as a point on the parent's map.
 - A location can be saved under a parent location, with or without a department and an image, and marked bookable or not.
-- A location a step or a sample uses cannot be deleted, only archived.
+- A location a step, a sample or a booking uses cannot be deleted, only archived.
 - A location cannot be its own ancestor, and two locations cannot share a code; both are refused with a message.
 - A regulation cannot hold two limits for the same parameter.
 - An archived record no longer appears when choosing records on a quotation or a parameter.
