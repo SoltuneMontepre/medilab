@@ -40,6 +40,8 @@ jobs:
               - "tools/typecheck/**"
               - "tools/taskfiles/dev.taskfile.yml"
               - "tools/taskfiles/test.taskfile.yml"
+              - "tools/scripts/**"
+              - "tools/infrastructure/docker-compose.yml"
               - "pyrightconfig.json"
               - ".github/actions/odoo-lint/**"
               - ".github/workflows/ci.core.yml"

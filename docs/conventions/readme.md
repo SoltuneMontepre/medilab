@@ -12,7 +12,7 @@ Code conventions for agents and the system.
 - [Demo data](demo_data.md): the demo records every feature adds to the `sol_demo` module
 - [Git](git.md): branch names and pull request titles that CI accepts
 - [Pipelines](pipeline.md): how GitHub Actions workflows are written: names, change detection, jobs, images, secrets
-- [Taskfiles](taskfiles.md): task layout, shell rules, colored output helpers
+- [Taskfiles](taskfiles.md): task layout, shell rules, scripts, colored output helpers
 - [Terraform](terraform.md): provider pinning, lock file, deprecations
 - [Frontend](frontend.md): frontend code rules
 - [Styling](styling.md): colors by meaning for buttons, statuses and rows

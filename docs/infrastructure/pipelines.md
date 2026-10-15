@@ -24,7 +24,7 @@ flowchart LR
     changes --> build --> test --> sonarqube
 ```
 
-- `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, the lint action or the workflow. It also decides whether to scan: on core changes, or on changes to `tools/odoo-intelligence`, the AI taskfile or `ci-ai`.
+- `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file, the lint action or the workflow. It also decides whether to scan: on core changes, or on changes to `tools/odoo-intelligence`, the AI taskfile or `ci-ai`.
 - `lint` runs `task typecheck` and `task test:typecheck`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
 - `tooling` runs addon link safety and Pyright report tests on Linux and Windows. Windows uses real directory junctions to verify that cleanup preserves unmanaged links and target files.
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
