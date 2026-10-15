@@ -12,9 +12,10 @@ from urllib.request import url2pathname
 from .transport import JsonRpcProcess
 from .workspace import Workspace
 
+REFERENCES = "textDocument/references"
 METHOD_CAPABILITIES = {
     "textDocument/definition": "definitionProvider",
-    "textDocument/references": "referencesProvider",
+    REFERENCES: "referencesProvider",
     "textDocument/hover": "hoverProvider",
     "textDocument/completion": "completionProvider",
     "textDocument/documentSymbol": "documentSymbolProvider",
@@ -172,7 +173,7 @@ class LspClient:
             params = {"textDocument": {"uri": self.sync_document(document)}, **extra}
             if position is not None:
                 params["position"] = position
-            if method == "textDocument/references":
+            if method == REFERENCES:
                 return self._references(params)
             return self.request(method, params)
 
@@ -194,7 +195,7 @@ class LspClient:
             # A package definition points at its directory, which has no text to open.
             if target.is_file():
                 self.sync_document(target)
-        result = self.request("textDocument/references", params)
+        result = self.request(REFERENCES, params)
         if not result or params.get("context", {}).get("includeDeclaration", False):
             return result
         declarations = {location_start(item) for item in definitions}

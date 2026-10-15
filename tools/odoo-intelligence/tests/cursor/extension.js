@@ -10,6 +10,19 @@ async function definitions(uri, position, target, attempts) {
   return definitions(uri, position, target, attempts - 1);
 }
 
+async function checkDefinition(root, {name, path: file, needle, offset, target}, positions, report) {
+  const uri = vscode.Uri.file(path.join(root, file));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const position = document.positionAt(document.getText().indexOf(needle) + offset);
+  positions[name] = {uri, position};
+  const locations = await definitions(uri, position, target, 90);
+  if (!locations.some(item => (item.targetUri || item.uri).fsPath.endsWith(target))) {
+    throw new Error(`Definition did not resolve for ${name} in ${file}`);
+  }
+  report.definitions.push({name, file, line: position.line, character: position.character, targets: locations.map(item => (item.targetUri || item.uri).fsPath)});
+}
+
 exports.activate = async function () {
   const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
   const output = path.join(root, ".local/verification/cursor-editor.json");
@@ -21,18 +34,8 @@ exports.activate = async function () {
     report.extension_version = odoo.packageJSON.version;
     const cases = JSON.parse(fs.readFileSync(path.join(__dirname, "../../odoo_intelligence/navigation_cases.json"), "utf8"));
     const positions = {};
-    for (const {name, path: file, needle, offset, target} of cases) {
-      const uri = vscode.Uri.file(path.join(root, file));
-      const document = await vscode.workspace.openTextDocument(uri);
-      await vscode.window.showTextDocument(document);
-      const position = document.positionAt(document.getText().indexOf(needle) + offset);
-      positions[name] = {uri, position};
-      const locations = await definitions(uri, position, target, 90);
-      if (!locations.some(item => (item.targetUri || item.uri).fsPath.endsWith(target))) {
-        throw new Error(`Definition did not resolve for ${name} in ${file}`);
-      }
-      report.definitions.push({name, file, line: position.line, character: position.character, targets: locations.map(item => (item.targetUri || item.uri).fsPath)});
-    }
+    // Check the cases one after another, so each editor is shown before its definition is requested.
+    await cases.reduce((previous, item) => previous.then(() => checkDefinition(root, item, positions, report)), Promise.resolve());
     const {uri: fieldUri, position: fieldPosition} = positions.custom_field;
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(fieldUri), {preview: false});
     const hover = await vscode.commands.executeCommand("vscode.executeHoverProvider", fieldUri, fieldPosition);
