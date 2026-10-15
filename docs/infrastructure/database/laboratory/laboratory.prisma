@@ -257,6 +257,8 @@ model Location {
   map_x         Float?
   /// Vertical position on the parent location's image, as a share of its height from 0 to 1; empty when not placed.
   map_y         Float?
+  /// True when people can book the location on their calendar.
+  is_bookable   Boolean           @default(false)
   /// False when the location is archived.
   active        Boolean           @default(true)
   /// The broader location this one is in.
@@ -269,6 +271,8 @@ model Location {
   steps         TestingMethodStep[]
   /// Samples taken from the location.
   samples       Sample[]
+  /// Calendar events that book the location.
+  bookings      CalendarEvent[]
 
   @@index([parent_id])
   @@index([department_id])
@@ -1438,7 +1442,8 @@ model TaskReassignTask {
   @@map("medilab_task_medilab_task_reassign_rel")
 }
 
-/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task or a machine booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task, a machine booking or a location booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+/// Events that book one location do not overlap: an exclusion constraint on (location_id, time range) where location_id is set, using btree_gist.
 model CalendarEvent {
   /// Row identifier.
   id        Int             @id @default(autoincrement())
@@ -1450,12 +1455,17 @@ model CalendarEvent {
   stop      DateTime
   /// User who organises the event.
   user_id   Int?
+  /// The bookable location the event books.
+  location_id Int?
+  /// The bookable location the event books.
+  booked_location Location?     @relation(fields: [location_id], references: [id], onDelete: Restrict)
   /// The task whose planned time the event shows.
   task      Task?           @relation("TaskEvent")
   /// The machine booking the event shows.
   booking   MachineBooking? @relation("BookingEvent")
 
   @@index([start])
+  @@index([location_id])
   @@map("calendar_event")
 }
 
