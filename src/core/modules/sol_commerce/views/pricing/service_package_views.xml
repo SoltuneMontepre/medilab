@@ -70,6 +70,7 @@
     <record id="action_medilab_service_package" model="ir.actions.act_window">
         <field name="name">Service Packages</field>
         <field name="res_model">medilab.service.package</field>
+        <field name="path">service-packages</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

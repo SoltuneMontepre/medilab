@@ -10,6 +10,8 @@ EVENT_HANDOVER_RECORD_SIGNED = "handover_record.signed"
 EVENT_TEST_RESULT_REJECTED = "test_result.rejected"
 EVENT_TEST_REPORT_ISSUED = "test_report.issued"
 EVENT_TEST_REPORT_DELIVERED = "test_report.delivered"
+EVENT_CHANGE_REQUEST_APPROVED = "change_request.approved"
+EVENT_CHANGE_REQUEST_REJECTED = "change_request.rejected"
 # Brevo's create-webhook auth.type bearer. The token is compared, never stored.
 BREVO_WEBHOOK_TOKEN = "BREVO_WEBHOOK_TOKEN"
 BREVO_SMTP_HOST = "BREVO_SMTP_HOST"

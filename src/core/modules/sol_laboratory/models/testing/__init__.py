@@ -1,4 +1,7 @@
 from . import (
+    change_request,
+    change_request_raise,
+    change_request_reject,
     machine_booking,
     res_config_settings,
     sample_test,

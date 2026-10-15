@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_change_request_raise_form" model="ir.ui.view">
+        <field name="name">medilab.change.request.raise.form</field>
+        <field name="model">medilab.change.request.raise</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="document_model" invisible="1" />
+                    <field name="document_id" invisible="1" />
+                    <field name="requested_change" placeholder="What to change, such as the value or the conclusion" />
+                    <field name="reason" placeholder="Why the change is needed" />
+                </group>
+                <footer>
+                    <button name="action_raise" type="object" string="Raise" class="btn-primary" />
+                    <button special="cancel" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_change_request_raise" model="ir.actions.act_window">
+        <field name="name">Request a Change</field>
+        <field name="res_model">medilab.change.request.raise</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

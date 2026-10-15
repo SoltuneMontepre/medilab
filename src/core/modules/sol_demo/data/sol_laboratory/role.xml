@@ -165,6 +165,8 @@
                 ref('sol_laboratory.permission_test_result_read_all'),
                 ref('sol_laboratory.permission_test_report_read_all'),
                 ref('sol_laboratory.permission_test_report_sign_all'),
+                ref('sol_laboratory.permission_change_request_read_all'),
+                ref('sol_laboratory.permission_change_request_sign_all'),
             ])]"
         />
     </record>
