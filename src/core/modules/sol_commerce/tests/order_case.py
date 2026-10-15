@@ -164,3 +164,21 @@ class OrderCase(PricingCase):
         self.pay_advance(order)
         order.with_user(self.sales).action_confirm_order()
         return order
+
+    def sent_order(self):
+        """A quotable order whose quotation sales sent."""
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+        return order
+
+    def requested_order(self):
+        """A confirmed order whose approval sales requested."""
+        order = self.make_confirmed_order()
+        order.with_user(self.sales).action_request_approval()
+        return order
+
+    def approved_order(self):
+        """A requested order the Head of Sales approved."""
+        order = self.requested_order()
+        order.with_user(self.head).action_sign()
+        return order

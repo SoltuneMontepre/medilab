@@ -14,16 +14,6 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_SIGNATURE
 
 @tagged("post_install", "-at_install")
 class TestOrderApproval(OrderCase):
-    def requested_order(self):
-        order = self.make_confirmed_order()
-        order.with_user(self.sales).action_request_approval()
-        return order
-
-    def approved_order(self):
-        order = self.requested_order()
-        order.with_user(self.head).action_sign()
-        return order
-
     def test_requesting_signs_the_first_level(self):
         order = self.make_confirmed_order()
         self.assertEqual(order.approval_status, "none")

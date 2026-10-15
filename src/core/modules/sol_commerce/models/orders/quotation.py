@@ -96,9 +96,11 @@ class Quotation(models.Model):
 
     def _accept(self):
         """Accept the quotations that are still sent, whether the customer or the payment of the advance did it."""
-        self.sudo().filtered(
+        accepted = self.sudo().filtered(
             lambda quotation: quotation.status == QUOTATION_SENT and quotation.order_id.state != "draft"
-        ).write({"status": QUOTATION_ACCEPTED})
+        )
+        accepted.write({"status": QUOTATION_ACCEPTED})
+        accepted.order_id.write({"accepted_at": fields.Datetime.now()})
 
     def _is_advance_touched(self):
         """True when the customer has paid, or started paying, the advance invoice."""

@@ -36,6 +36,7 @@
         "views/pricing/test_parameter_views.xml",
         "views/orders/order_reject_views.xml",
         "views/orders/sale_order_views.xml",
+        "views/orders/sale_order_analysis_views.xml",
         "views/orders/cancellation_request_views.xml",
         "views/orders/customer_sales_terms_views.xml",
         "views/orders/customer_views.xml",
