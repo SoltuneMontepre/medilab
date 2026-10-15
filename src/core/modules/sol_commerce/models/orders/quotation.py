@@ -11,13 +11,17 @@ from odoo.addons.sol_commerce.constants.orders import (
     QUOTATION_REPLACED,
     QUOTATION_SENT,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_CODE_MIXIN, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_CODE_MIXIN,
+    MODEL_PERMISSION_MIXIN,
+)
 
 
 # Báo Giá
 class Quotation(models.Model):
     _name = MODEL_QUOTATION
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Quotation"
     _order = "order_id desc, revision desc"
     _rec_name = "code"

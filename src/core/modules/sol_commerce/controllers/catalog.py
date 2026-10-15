@@ -7,6 +7,7 @@ from odoo.http import request
 from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.orders import SOURCE_PORTAL, STATUS_DRAFT
 from odoo.addons.sol_commerce.constants.xml_ids import PUBLIC_PARTNER
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CART_SESSION = "medilab_cart_id"
@@ -52,6 +53,11 @@ class Catalog(http.Controller):
     @http.route("/cart", type="http", auth="public")
     def cart(self, error=None, message=None, **kwargs):
         order = self._cart()
+        contacts = order._contact_choices() if order else request_env()["res.partner"]
+        # The order's contact stays chosen; otherwise the customer's default contact is preselected.
+        chosen = (order.partner_id & contacts) or (
+            order._customer_record().default_contact_id if contacts else contacts
+        )
         return request.render(
             "sol_commerce.cart_page",
             {
@@ -60,6 +66,8 @@ class Catalog(http.Controller):
                 "error": error,
                 "message": message,
                 "public": request_env().user._is_public(),
+                "contacts": contacts,
+                "chosen_contact": chosen,
             },
         )
 
@@ -78,20 +86,30 @@ class Catalog(http.Controller):
         return request.redirect("/cart")
 
     @http.route("/cart/save", type="http", auth="public", methods=["POST"])
-    def save(self, **kwargs):
-        if not self._cart():
+    def save(self, contact_id=None, **kwargs):
+        order = self._cart()
+        if not order:
             return request.redirect("/catalog")
+        try:
+            self._choose_contact(order, contact_id)
+        except UserError as error:
+            return request.redirect(f"/cart?error={quote(str(error))}")
         return request.redirect("/cart?message=Saved")
 
     @http.route("/cart/submit", type="http", auth="public", methods=["POST"])
-    def submit(self, name=None, email=None, phone=None, **kwargs):
+    def submit(self, name=None, email=None, phone=None, contact_id=None, **kwargs):
         order = self._get_or_create_cart()
         try:
+            self._choose_contact(order, contact_id)
             order.action_submit({"name": name, "email": email, "phone": phone})
         except UserError as error:
             return request.redirect(f"/cart?error={quote(str(error))}")
         request.session.pop(CART_SESSION, None)
         return request.render("sol_commerce.order_submitted", {"order": order.sudo()})
+
+    def _choose_contact(self, order, contact_id):
+        if contact_id and contact_id.isdigit():
+            order.set_portal_contact(int(contact_id))
 
     def _groups(self, products):
         grouped = []
@@ -140,8 +158,9 @@ class Catalog(http.Controller):
             partner = request_env().ref(PUBLIC_PARTNER)
             customer_id = False
         else:
-            partner = user.partner_id
-            customer_id = partner.commercial_partner_id.id
+            customer_id = user.partner_id.commercial_partner_id.id
+            # A business's order starts with its default contact, which the customer can change in the cart.
+            partner = request_env()[MODEL_CUSTOMER]._of_user(user).default_contact_id or user.partner_id
         order = (
             request_env()[MODEL_SALE_ORDER]
             .sudo()

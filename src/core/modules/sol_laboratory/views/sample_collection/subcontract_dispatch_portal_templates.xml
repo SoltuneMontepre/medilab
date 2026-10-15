@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="portal_entry_dispatches" model="portal.entry">
+        <field name="name">Dispatches</field>
+        <field name="description">Sample tests the laboratory sent you, and their results</field>
+        <field name="url">/my/dispatches</field>
+        <field name="placeholder_count">dispatch_count</field>
+        <field name="category">vendor_category</field>
+        <field name="sequence" eval="160" />
+    </record>
+
+    <template id="portal_breadcrumbs_dispatches" inherit_id="portal.portal_breadcrumbs" name="Dispatch breadcrumbs">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'dispatches'" class="breadcrumb-item active">Dispatches</li>
+            <t t-if="page_name == 'dispatch'">
+                <li class="breadcrumb-item"><a href="/my/dispatches">Dispatches</a></li>
+                <li class="breadcrumb-item active" t-out="dispatch.code" />
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_my_dispatches" name="Dispatches">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True" />
+            <p t-if="not dispatches" class="mt-3">The laboratory has sent you no dispatch.</p>
+            <t t-else="" t-call="portal.portal_table">
+                <thead>
+                    <tr>
+                        <th>Dispatch</th>
+                        <th>Date Sent</th>
+                        <th>Results Expected</th>
+                        <th class="text-end">Sample Tests</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="dispatches" t-as="dispatch">
+                        <td><a t-att-href="'/my/dispatches/%s' % dispatch.id" t-out="dispatch.code" /></td>
+                        <td><span t-field="dispatch.sent_date" /></td>
+                        <td><span t-field="dispatch.expected_date" /></td>
+                        <td class="text-end" t-out="len(dispatch.sample_test_ids)" />
+                        <td><span t-field="dispatch.status" /></td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_my_dispatch" name="Dispatch">
+        <t t-call="portal.portal_layout">
+            <h2 class="mt-3" t-out="dispatch.code" />
+            <p>
+                Sent on <span t-field="dispatch.sent_date" />, results expected by
+                <span t-field="dispatch.expected_date" />.
+            </p>
+            <p t-if="error" class="alert alert-danger" t-out="error" />
+            <t t-call="portal.portal_table">
+                <thead>
+                    <tr>
+                        <th>Lab Code</th>
+                        <th>Sample Type</th>
+                        <th>Parameter</th>
+                        <th>Method</th>
+                        <th class="text-end">Quantity</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="dispatch.sample_test_ids" t-as="test">
+                        <t t-set="result" t-value="results.get(test.id)" />
+                        <td t-out="test.sample_id.code" />
+                        <td t-out="test.sample_id.sample_type_id.name" />
+                        <td t-out="test.parameter_id.name" />
+                        <td t-out="test.parameter_method_id.method_id.code" />
+                        <td class="text-end" t-out="test.quantity" />
+                        <td>
+                            <t t-if="result and (result.status != 'rejected' or test.status != 'outsourced')">
+                                <t t-out="result.value_display" /> <t t-out="result.unit_id.name if not result.value_text else ''" />
+                                <div class="text-muted small">
+                                    Entered by <t t-out="result.entered_by_id.name" />, <span t-field="result.status" />
+                                </div>
+                            </t>
+                            <form
+                                t-elif="test.status == 'outsourced'"
+                                t-att-action="'/my/dispatches/%s/results' % dispatch.id"
+                                method="post"
+                                class="d-flex flex-wrap gap-2"
+                            >
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                <input type="hidden" name="sample_test_id" t-att-value="test.id" />
+                                <div class="input-group" style="max-width: 14rem">
+                                    <input
+                                        type="text"
+                                        name="value"
+                                        inputmode="decimal"
+                                        class="form-control"
+                                        placeholder="Value"
+                                        aria-label="Value"
+                                    />
+                                    <span class="input-group-text" t-out="test.parameter_method_id.unit_id.name" />
+                                </div>
+                                <input
+                                    type="text"
+                                    name="value_text"
+                                    class="form-control"
+                                    style="max-width: 14rem"
+                                    placeholder="or a text, such as Not detected"
+                                    aria-label="Text result"
+                                />
+                                <button type="submit" class="btn btn-primary">Enter</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </t>
+            <a class="d-inline-block mt-3" href="/my/dispatches">Back to the dispatches</a>
+        </t>
+    </template>
+</odoo>

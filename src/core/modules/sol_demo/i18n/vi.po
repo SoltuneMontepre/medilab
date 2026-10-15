@@ -1,13 +1,13 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* demo
+# 	* sol_demo
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 07:34+0000\n"
-"PO-Revision-Date: 2026-10-10 03:45+0000\n"
+"POT-Creation-Date: 2026-10-13 17:56+0000\n"
+"PO-Revision-Date: 2026-10-13 17:56+0000\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Language: vi\n"
@@ -17,22 +17,22 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_demo
-#: model:medilab.sample.type,storage_conditions:sol_demo.sample_type_cabbage
+#: model:medilab.sample.type,storage_conditions:sol_demo.demo_sample_type_cabbage
 msgid "0–4 °C"
 msgstr "0–4 °C"
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_lead_standard
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_lead_standard
 msgid "2–8 °C"
 msgstr "2–8 °C"
 
 #. module: sol_demo
-#: model:medilab.sample.type,storage_conditions:sol_demo.sample_type_bottled_water
+#: model:medilab.sample.type,storage_conditions:sol_demo.demo_sample_type_bottled_water
 msgid "2–8 °C, away from light"
 msgstr "2–8 °C, tránh ánh sáng"
 
 #. module: sol_demo
-#: model:medilab.sample.type,storage_conditions:sol_demo.sample_type_surface_water
+#: model:medilab.sample.type,storage_conditions:sol_demo.demo_sample_type_surface_water
 msgid "2–8 °C, tested within 24 hours"
 msgstr "2–8 °C, thử nghiệm trong vòng 24 giờ"
 
@@ -42,27 +42,32 @@ msgid "Accountant"
 msgstr "Kế Toán"
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_acetonitrile
+#: model:medilab.chemical,name:sol_demo.demo_chemical_acetonitrile
 msgid "Acetonitrile"
 msgstr "Acetonitril"
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_nitric_acid
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_nitric_acid
 msgid "Acid cabinet, away from organic substances"
 msgstr "Tủ đựng axit, tránh xa chất hữu cơ"
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_acidity
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_acidity
 msgid "Acidity"
 msgstr "Độ axit"
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_animal_feed
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_animal_feed
 msgid "Animal feed"
 msgstr "Thức ăn chăn nuôi"
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_bottled_water
+#: model:medilab.role,name:sol_demo.demo_role_auditor
+msgid "Auditor"
+msgstr "Kiểm Toán Viên"
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_bottled_water
 msgid "Bottled water"
 msgstr "Nước đóng chai"
 
@@ -77,80 +82,101 @@ msgid "Bottled water microbiology"
 msgstr "Vi sinh nước đóng chai"
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_cabbage
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_cabbage
 msgid "Cabbage"
 msgstr "Bắp cải"
 
 #. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_cadmium
+msgid "Cadmium (Cd)"
+msgstr "Cadimi (Cd)"
+
+#. module: sol_demo
 #: model:hr.department,name:sol_demo.demo_hr_department_chemistry
-#: model:medilab.testing.field,name:sol_demo.field_chemistry
+#: model:medilab.testing.field,name:sol_demo.demo_testing_field_chemistry
 msgid "Chemistry"
 msgstr "Hóa học"
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_chlorpyrifos
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_chlorpyrifos
 msgid "Chlorpyrifos"
 msgstr "Chlorpyrifos"
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_coliforms
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_coliforms
 msgid "Coliforms"
 msgstr "Coliform"
 
 #. module: sol_demo
-#: model:medilab.sample.type,sampling_requirements:sol_demo.sample_type_bottled_water
+#: model:medilab.sample.type,sampling_requirements:sol_demo.demo_sample_type_bottled_water
 msgid "Collect sealed bottles from the same lot."
 msgstr "Lấy các chai còn niêm phong cùng một lô."
 
 #. module: sol_demo
-#: model:medilab.sample.type,sampling_requirements:sol_demo.sample_type_cabbage
+#: model:medilab.sample.type,sampling_requirements:sol_demo.demo_sample_type_cabbage
 msgid "Collect whole heads in clean paper bags."
 msgstr "Lấy nguyên cây, đựng trong túi giấy sạch."
 
 #. module: sol_demo
-#: model:medilab.sample.type,disposal_method:sol_demo.sample_type_cabbage
+#: model:medilab.scheduled.job,name:sol_demo.demo_scheduled_job_echo
+msgid "Demo echo"
+msgstr "Demo phản hồi"
+
+#. module: sol_demo
+#: model:ir.actions.server,name:sol_demo.demo_ir_cron_echo_ir_actions_server
+msgid "Demo: echo"
+msgstr "Demo: phản hồi"
+
+#. module: sol_demo
+#: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: sol_demo
+#: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_cabbage
 msgid "Dispose of as organic waste."
 msgstr "Hủy như rác thải hữu cơ."
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_sodium_chloride
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_sodium_chloride
 msgid "Dry place, room temperature"
 msgstr "Nơi khô ráo, nhiệt độ phòng"
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_e_coli
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_e_coli
 msgid "E. coli"
 msgstr "E. coli"
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_environment
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_environment
 msgid "Environment"
 msgstr "Môi trường"
 
 #. module: sol_demo
-#: model:medilab.quality.registration,name:sol_demo.quality_registration_expired
+#: model:medilab.quality.registration,name:sol_demo.demo_quality_registration_expired
 msgid ""
 "Environmental monitoring registration with the Ministry of Natural Resources"
 " and Environment"
 msgstr "Đăng ký quan trắc môi trường với Bộ Tài nguyên và Môi trường"
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_acetonitrile
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_acetonitrile
 msgid "Flammables cabinet"
 msgstr "Tủ đựng chất dễ cháy"
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_food
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_food
 msgid "Food"
 msgstr "Thực phẩm"
 
 #. module: sol_demo
-#: model:medilab.quality.registration,name:sol_demo.quality_registration_valid
+#: model:medilab.quality.registration,name:sol_demo.demo_quality_registration_valid
 msgid "Food testing registration with the Ministry of Health"
 msgstr "Đăng ký kiểm nghiệm thực phẩm với Bộ Y tế"
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_en_15662
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_en_15662
 msgid ""
 "Foods of plant origin — Multimethod for the determination of pesticide "
 "residues using GC- and LC-based analysis following acetonitrile extraction "
@@ -160,13 +186,24 @@ msgstr ""
 "thuốc bảo vệ thực vật bằng GC và LC sau khi chiết bằng acetonitril (QuEChERS)"
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_7602
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_7602
 msgid ""
 "Foodstuffs — Determination of lead content by atomic absorption "
 "spectrophotometry"
 msgstr ""
 "Thực phẩm — Xác định hàm lượng chì bằng phương pháp quang phổ hấp thụ nguyên "
 "tử"
+
+#. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_change_request_final
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_head_of_sales
+msgid "Head of Sales"
+msgstr "Trưởng Phòng Kinh Doanh"
+
+#. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_change_request_department
+msgid "Head of Sales of the department"
+msgstr "Trưởng Phòng Kinh Doanh của phòng ban"
 
 #. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_head_of_department
@@ -179,38 +216,50 @@ msgid "Head of sales"
 msgstr "Trưởng Phòng Kinh Doanh"
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.group_heavy_metals
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_heavy_metals
 #: model:hr.department,name:sol_demo.demo_hr_department_heavy_metals
 msgid "Heavy metals"
 msgstr "Kim loại nặng"
 
 #. module: sol_demo
+#: model:ir.model.fields,field_description:sol_demo.field_account_move__id
+#: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_account_move
+msgid "Journal Entry"
+msgstr "Bút toán"
+
+#. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_signing_lab_head
 msgid "Lab head"
 msgstr "Trưởng Phòng Thí Nghiệm"
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_lead
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_lead
 msgid "Lead (Pb)"
 msgstr "Chì (Pb)"
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_lead_standard
+#: model:medilab.chemical,name:sol_demo.demo_chemical_lead_standard
 msgid "Lead standard solution 1000 mg/L"
 msgstr "Dung dịch chuẩn chì 1000 mg/L"
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_mass
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_mass
 msgid "Mass"
 msgstr "Khối lượng"
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_liquid_concentration
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_liquid_concentration
 msgid "Mass concentration in liquid"
 msgstr "Nồng độ khối lượng trong chất lỏng"
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_mass_fraction
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_mass_fraction
 msgid "Mass fraction"
 msgstr "Phần khối lượng"
 
@@ -220,24 +269,24 @@ msgid "Medilab - Testing Data"
 msgstr "Medilab - Dữ liệu thử nghiệm"
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_count_per_mass
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_count_per_mass
 msgid "Microbial count per mass"
 msgstr "Mật độ vi sinh vật theo khối lượng"
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_count_per_volume
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_count_per_volume
 msgid "Microbial count per volume"
 msgstr "Mật độ vi sinh vật theo thể tích"
 
 #. module: sol_demo
 #: model:hr.department,name:sol_demo.demo_hr_department_microbiology
-#: model:medilab.parameter.group,name:sol_demo.group_microbiology
-#: model:medilab.testing.field,name:sol_demo.field_microbiology
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_microbiology
+#: model:medilab.testing.field,name:sol_demo.demo_testing_field_microbiology
 msgid "Microbiology"
 msgstr "Vi sinh"
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_iso_4832
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_iso_4832
 msgid ""
 "Microbiology of food and animal feeding stuffs — Enumeration of coliforms — "
 "Colony-count technique"
@@ -246,7 +295,7 @@ msgstr ""
 "thuật đếm khuẩn lạc"
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_iso_16649_2
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_iso_16649_2
 msgid ""
 "Microbiology of food and animal feeding stuffs — Enumeration of "
 "β-glucuronidase-positive Escherichia coli — Part 2: Colony-count technique "
@@ -256,7 +305,7 @@ msgstr ""
 "coli dương tính β-glucuronidaza — Phần 2: Kỹ thuật đếm khuẩn lạc ở 44 °C"
 
 #. module: sol_demo
-#: model:medilab.regulation,name:sol_demo.regulation_qcvn_6_1
+#: model:medilab.regulation,name:sol_demo.demo_regulation_qcvn_6_1
 msgid ""
 "National technical regulation on natural mineral waters and bottled drinking"
 " waters"
@@ -265,13 +314,13 @@ msgstr ""
 "đóng chai"
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_nitric_acid
+#: model:medilab.chemical,name:sol_demo.demo_chemical_nitric_acid
 msgid "Nitric acid 65%"
 msgstr "Axit nitric 65%"
 
 #. module: sol_demo
-#: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_coliforms
-#: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_e_coli
+#: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_coliforms
+#: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_e_coli
 msgid "Not detected"
 msgstr "Không phát hiện"
 
@@ -281,36 +330,47 @@ msgid "Not subject to VAT"
 msgstr "Không chịu thuế GTGT"
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.group_organophosphates
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_order_change_request
+msgid "Order change request"
+msgstr "Yêu cầu thay đổi đơn hàng"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_order_signing
+msgid "Order signing"
+msgstr "Ký đơn hàng"
+
+#. module: sol_demo
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_organophosphates
 msgid "Organophosphates"
 msgstr "Lân hữu cơ"
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.group_pesticides
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_pesticides
 msgid "Pesticides"
 msgstr "Thuốc bảo vệ thực vật"
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.group_physicochemical
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_physicochemical
 msgid "Physicochemical"
 msgstr "Hóa lý"
 
 #. module: sol_demo
-#: model:medilab.sample.type,disposal_method:sol_demo.sample_type_bottled_water
+#: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_bottled_water
 msgid "Pour into the drain and recycle the bottles."
 msgstr "Đổ vào cống thải và tái chế chai."
 
 #. module: sol_demo
-#: model:medilab.sample.type,post_test_requirements:sol_demo.sample_type_bottled_water
+#: model:medilab.sample.type,post_test_requirements:sol_demo.demo_sample_type_bottled_water
 msgid "Reseal the remaining bottles and label them with the lab code."
 msgstr "Niêm phong lại các chai còn lại và dán nhãn mã PTN."
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_ph_buffer
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_ph_buffer
 msgid "Room temperature, tightly closed"
 msgstr "Nhiệt độ phòng, đậy kín"
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_sales
 #: model:medilab.role,name:sol_demo.demo_role_sales
 msgid "Sales"
 msgstr "Nhân Viên Kinh Doanh"
@@ -326,17 +386,22 @@ msgid "Sample reception"
 msgstr "Tiếp nhận mẫu"
 
 #. module: sol_demo
+#: model:ir.model,name:sol_demo.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr "Tác Vụ Định Kỳ"
+
+#. module: sol_demo
 #: model:ir.module.module,summary:base.module_sol_demo
 msgid "Seeds and configure data for demo purposes."
 msgstr "Tạo và cấu hình dữ liệu cho mục đích trình diễn."
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_sodium_chloride
+#: model:medilab.chemical,name:sol_demo.demo_chemical_sodium_chloride
 msgid "Sodium chloride"
 msgstr "Natri clorua"
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_5979
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_5979
 msgid "Soil quality — Determination of pH"
 msgstr "Chất lượng đất — Xác định pH"
 
@@ -346,9 +411,13 @@ msgid "Storekeeper"
 msgstr "Thủ Kho"
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_surface_water
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_surface_water
 msgid "Surface water"
 msgstr "Nước mặt"
+
+#. module: sol_demo
+msgid "Test result signing"
+msgstr "Ký kết quả thử nghiệm"
 
 #. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_tester
@@ -361,17 +430,17 @@ msgid "VAT 10%"
 msgstr "Thuế GTGT 10%"
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_vegetables
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_vegetables
 msgid "Vegetables"
 msgstr "Rau"
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_volume
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_volume
 msgid "Volume"
 msgstr "Thể tích"
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_iso_17294_2
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_iso_17294_2
 msgid ""
 "Water quality — Application of inductively coupled plasma mass spectrometry "
 "— Part 2: Determination of selected elements"
@@ -380,7 +449,7 @@ msgstr ""
 "Phần 2: Xác định một số nguyên tố"
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_6187_2
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_6187_2
 msgid ""
 "Water quality — Detection and enumeration of coliform organisms — Part 2: "
 "Multiple tube (most probable number) method"
@@ -389,12 +458,12 @@ msgstr ""
 "nhiều ống (số có xác suất lớn nhất)"
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_6492
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_6492
 msgid "Water quality — Determination of pH"
 msgstr "Chất lượng nước — Xác định pH"
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_6187_1
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_6187_1
 msgid ""
 "Water quality — Enumeration of Escherichia coli and coliform bacteria — Part"
 " 1: Membrane filtration method"
@@ -403,50 +472,14 @@ msgstr ""
 "Phần 1: Phương pháp lọc màng"
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_ph
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_ph
 msgid "pH"
 msgstr "pH"
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_ph_buffer
+#: model:medilab.chemical,name:sol_demo.demo_chemical_ph_buffer
 msgid "pH buffer solution 7.00"
 msgstr "Dung dịch đệm pH 7,00"
-
-#. module: sol_demo
-msgid "Demo echo"
-msgstr "Demo phản hồi"
-
-#. module: sol_demo
-msgid "Demo: echo"
-msgstr "Demo: phản hồi"
-
-#. module: sol_demo
-msgid "Display Name"
-msgstr "Tên hiển thị"
-
-#. module: sol_demo
-msgid "ID"
-msgstr "ID"
-
-#. module: sol_demo
-msgid "Scheduled Job"
-msgstr "Tác Vụ Định Kỳ"
-
-#. module: sol_demo
-msgid "Head of Sales"
-msgstr "Trưởng Phòng Kinh Doanh"
-
-#. module: sol_demo
-msgid "Head of Sales of the department"
-msgstr "Trưởng Phòng Kinh Doanh của phòng ban"
-
-#. module: sol_demo
-msgid "Order change request"
-msgstr "Yêu cầu thay đổi đơn hàng"
-
-#. module: sol_demo
-msgid "Order signing"
-msgstr "Ký đơn hàng"
 
 #. module: sol_demo
 #: model:hr.department,name:sol_demo.demo_hr_department_pathogens
@@ -457,3 +490,8 @@ msgstr "Vi sinh vật gây bệnh"
 #: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
 msgid "Pesticide residues"
 msgstr "Dư lượng thuốc bảo vệ thực vật"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_signing
+msgid "Test report signing"
+msgstr "Ký phiếu kết quả"

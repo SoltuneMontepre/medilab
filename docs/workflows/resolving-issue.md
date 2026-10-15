@@ -14,14 +14,14 @@ How an open feature issue is implemented, checked in the browser and opened as a
    - The existing code the issue touches.
 4. **Branch** from an up-to-date `main`: `feat/<issue number>-<short-description>`, following [Git](../conventions/git.md).
 5. **Plan.** Turn each checklist item and acceptance criterion into the models, views, data and tests to write. Ask the owner when the documents do not answer something; add what stays undecided to `questions/<topic>.md`. Do not guess.
-6. **Implement**, following the [module structure](../conventions/module_structure.md), [database](../conventions/database.md), [Python](../conventions/python.md) and [translation and menus](../conventions/translation.md) conventions: one model per file in its concern folder, a `MODEL_*` constant per model, a comment with the Vietnamese term above each model class and a comment above each field, access rules, sequences, views, menus and Vietnamese translations.
+6. **Implement**, following the [module structure](../conventions/module_structure.md), [database](../conventions/database.md), [Python](../conventions/python.md), [translation and menus](../conventions/translation.md), [styling](../conventions/styling.md) and [UX and UI](../conventions/ux-ui.md) conventions: one model per file in its concern folder, a `MODEL_*` constant per model, a comment with the Vietnamese term above each model class and a comment above each field, access rules, sequences, views, menus and Vietnamese translations.
    Add the feature's demo data to the `sol_demo` module ([demo data](../conventions/demo_data.md)).
 7. **Test.** Write a test for each acceptance criterion ([testing](../conventions/testing.md)), then run `task lint`, `task typecheck` and `task test:core`. Fix everything they report.
 8. **Check in the browser.**
    - Start the app with `task up`, then `task upgrade MODULES=<module>`.
    - Open `http://localhost:8069` in the browser and sign in with the local development account.
    - Walk through every acceptance criterion in the interface, on the demo data and as the demo user of each role involved, including that a user without the permission does not see the action.
-   - Check the screens in English and Vietnamese. Fix what does not work and test again.
+   - Check the screens in English and Vietnamese against the [UX and UI](../conventions/ux-ui.md#checking-a-screen) rules. Fix what does not work and test again.
 9. **Review.** Review the change for correctness and simplicity, and update every document the change makes outdated, including the [database diagrams](../infrastructure/readme.md).
 10. **Open the pull request.**
    - Commit and push. The title follows [Git](../conventions/git.md): `[feat] | #<issue number> <title>`.

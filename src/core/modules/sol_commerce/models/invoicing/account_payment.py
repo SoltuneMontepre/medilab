@@ -7,6 +7,7 @@ from odoo.fields import Command
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_PAYMENT
 from odoo.addons.sol_commerce.constants.notifications import EVENT_PAYMENT_RECEIPT, EVENT_PAYMENT_REJECTED
 from odoo.addons.sol_commerce.models.invoicing.account_move import ADMINISTRATOR_GROUP, BILLING_GROUP
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 
 _logger = logging.getLogger(__name__)
 
@@ -16,7 +17,9 @@ JOURNAL_TYPE = {"online": "bank", "bank_transfer": "bank", "cash": "cash"}
 
 # Phiếu thu
 class AccountPayment(models.Model):
-    _inherit = MODEL_ACCOUNT_PAYMENT
+    # _name is required to add a mixin to an Odoo model. The audit mixin comes first so it wraps Odoo's write.
+    _name = MODEL_ACCOUNT_PAYMENT
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_ACCOUNT_PAYMENT]
 
     # online, bank_transfer or cash.
     method = fields.Selection(

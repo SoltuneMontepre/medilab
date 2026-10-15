@@ -4,7 +4,11 @@ from zoneinfo import ZoneInfo
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTINGS, MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
+    MODEL_RES_CONFIG_SETTINGS,
+    MODEL_SCHEDULED_JOB,
+)
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TASK_REMINDER, VIETNAM_ZONE
 from odoo.addons.sol_laboratory.constants.settings import DEFAULT_REMINDER_LEAD_MINUTES
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
@@ -33,11 +37,18 @@ class ScheduledJob(models.Model):
         end = (now + timedelta(minutes=lead)).astimezone(UTC).replace(tzinfo=None)
         # A run that starts a few minutes late still sends the reminder once. The item key stops a second one.
         grace = start - timedelta(minutes=5)
-        # A machine booking is reminded the same way once its calendar event exists. That event is #22.
         events = (
             self.env["calendar.event"]
             .sudo()
-            .search([("medilab_task_id", "!=", False), ("start", ">", grace), ("start", "<=", end)])
+            .search(
+                [
+                    "|",
+                    ("medilab_task_id", "!=", False),
+                    ("medilab_booking_ids", "!=", False),
+                    ("start", ">", grace),
+                    ("start", "<=", end),
+                ]
+            )
         )
         for event in events:
             stamp = fields.Datetime.to_string(event.start)
@@ -45,13 +56,15 @@ class ScheduledJob(models.Model):
 
     def _handle_notifications_remind(self, item):
         event = item._document()
-        if not event or not event.exists() or not event.medilab_task_id or not event.start:
+        if not event or not event.exists() or not event.start:
+            return
+        task = event.medilab_task_id or event.medilab_booking_ids.task_id[:1]
+        if not task:
             return
         stamp = fields.Datetime.to_string(event.start)
         if item.item_key != f"{event.id}:{stamp}":
             return
-        task = event.medilab_task_id
-        partner = task.assignee_id.user_id.partner_id
+        partner = event.user_id.partner_id
         if not partner:
             return
         self.env["mail.message"].raise_event(
@@ -88,9 +101,11 @@ class ScheduledJob(models.Model):
         client = firebase_client_from_env()
         if client is None:
             return fields.Datetime.now() + timedelta(minutes=5)
+        message = delivery.notification_id.mail_message_id
         try:
-            client.send(device.token, delivery.notification_id.mail_message_id.subject or "", self._push_body(delivery))
+            client.send(device.token, message.subject or "", self._push_body(delivery))
         except PermanentTokenError as error:
+            device._audit("error", self.env._("Firebase rejected the token: %s", error))
             device.turn_off(str(error))
             delivery.write({"status": "skipped", "error": str(error)})
             return None
@@ -98,6 +113,11 @@ class ScheduledJob(models.Model):
             delivery.write({"status": "pending", "error": str(error)})
             raise
         delivery.write({"status": "sent", "sent_at": fields.Datetime.now(), "error": False})
+        self.env[MODEL_AUDIT_ENTRY]._log_event(
+            "integration",
+            self.env._("Push sent to %(user)s on %(platform)s", user=device.user_id.name, platform=device.platform),
+            message._audit_document(),
+        )
         return None
 
     def _push_body(self, delivery):

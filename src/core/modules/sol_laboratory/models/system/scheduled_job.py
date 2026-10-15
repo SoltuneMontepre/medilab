@@ -8,7 +8,9 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import SQL, mute_logger
 
+from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_IR_CRON,
     MODEL_IR_CRON_PROGRESS,
     MODEL_JOB_ITEM,
@@ -33,11 +35,13 @@ class PermanentJobError(Exception):
 # Tác Vụ Định Kỳ
 class ScheduledJob(models.Model):
     _name = MODEL_SCHEDULED_JOB
-    _inherit = [MODEL_PERMISSION_MIXIN, "mail.thread", "mail.activity.mixin"]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN, "mail.thread", "mail.activity.mixin"]
     _description = "Scheduled Job"
     _order = "name"
     # Jobs come with modules: administrators change their schedule and limits, run them and retry their items.
     _permission_actions = ("read", "edit")
+    # The job entry of each run records who ran it by hand.
+    _audit_exclude = ("run_requested_by_id", "run_requested_at")
 
     # Unique key of the job, such as notifications.send or payos.poll; the handler is named after it.
     key = fields.Char(required=True)
@@ -199,6 +203,8 @@ class ScheduledJob(models.Model):
         job = self.sudo()
         now = fields.Datetime.now()
         run = job._current_run(now)
+        # The audit entries written while the run works link it.
+        job = job.with_context(**{JOB_RUN_CONTEXT: run.id})
         job._release_abandoned(run, now)
         handler = getattr(job, job._handler_name(), None)
         if handler is None:
@@ -249,7 +255,9 @@ class ScheduledJob(models.Model):
             [("job_id", "=", self.id), ("status", "=", "running"), ("claimed_at", "<", cutoff)]
         )
         for item in abandoned:
-            outcome = item._record_failure(self, "Claimed longer than the claim timeout; the worker may have crashed", now)
+            outcome = item._record_failure(
+                self, "Claimed longer than the claim timeout; the worker may have crashed", now
+            )
             run._append_log(f"{item.item_key}: abandoned claim released, {outcome}")
 
     def _claim(self, now):
@@ -291,7 +299,7 @@ class ScheduledJob(models.Model):
                 result = handler(item)
         except PermanentJobError as error:
             item._fail(str(error))
-            self._notify_failed_item(item)
+            self._item_failed(item)
             run._count_failed()
             run._append_log(f"{item.item_key}: failed, {error}")
         except Exception as error:
@@ -311,6 +319,12 @@ class ScheduledJob(models.Model):
         # Odoo's cron progress commits the batch so far and decides whether to call the next batch.
         if self._in_cron():
             self.env[MODEL_IR_CRON]._commit_progress(processed, remaining=remaining)
+
+    def _item_failed(self, item):
+        """Record and report an item that failed for good."""
+        lines = (item.last_error or "").strip().splitlines()
+        self._audit("error", f"{item.item_key}: {lines[-1]}" if lines else item.item_key)
+        self._notify_failed_item(item)
 
     def _notify_failed_item(self, item):
         # Brevo notifications come later; the administrator gets an activity and the Jobs screen lists the item.

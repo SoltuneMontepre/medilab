@@ -352,6 +352,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Browse the catalog"
 msgstr ""
 
@@ -391,6 +392,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__cancelled
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__cancelled
 msgid "Cancelled"
 msgstr ""
 
@@ -470,6 +472,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__completed
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__completed
 msgid "Completed"
 msgstr ""
 
@@ -597,6 +600,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__customer_id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_id
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
 msgid "Customer"
 msgstr ""
 
@@ -713,6 +717,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_order_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 msgid "Discard"
 msgstr ""
 
@@ -736,6 +741,7 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__draft
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__draft
 msgid "Draft"
 msgstr ""
 
@@ -959,6 +965,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__name
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_search
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_tax_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
 msgid "Name"
 msgstr ""
 
@@ -1070,6 +1078,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__order_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__order_id
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Order"
 msgstr ""
 
@@ -1103,6 +1112,7 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_commerce.menu_sale_order
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_customer_form_sales
 msgid "Orders"
 msgstr ""
 
@@ -1184,6 +1194,9 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
 msgid "Phone"
 msgstr ""
 
@@ -1390,6 +1403,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__reorder_ids
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Reorder"
 msgstr ""
 
@@ -1580,6 +1594,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__status
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Status"
 msgstr ""
 
@@ -1607,6 +1622,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__submitted
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__submitted
 msgid "Submitted"
 msgstr ""
 
@@ -1848,6 +1864,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Total excluding VAT"
 msgstr ""
 
@@ -2342,4 +2359,240 @@ msgstr ""
 
 #. module: sol_commerce
 msgid "invoice"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "<small class=\"form-text text-muted d-block mb-2\">PNG or JPEG, up to 2 MB.</small>"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "<small class=\"form-text text-muted\">Required for a business.</small>"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "<small class=\"form-text text-muted\">Required for an individual.</small>"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "A business"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Add a contact"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "Address"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Addresses"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "An individual"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Back to my account"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/account.py:0
+msgid "Choose a logo to upload."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_customer.py:0
+msgid "Choose one of your company's contacts."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "Citizen ID"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "City"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "Company name"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Contact for this order"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Contacts"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_status
+msgid "Customer Status"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Customer code"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Default"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Edit"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+msgid "Edit a contact"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "I register as"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_invoice_document_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
+msgid "Logo"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Make default"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+msgid "No orders yet."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Order history"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Position"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__quoted
+msgid "Quoted"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Remove"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Remove the logo"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_customer_form_sales
+msgid "Sales Terms"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Save"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "Tax code"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__testing
+msgid "Testing"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "The laboratory reaches the default contact about your orders unless you choose another one."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Upload"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__waiting
+msgid "Waiting"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/account.py:0
+msgid "Your tax code is registered. Contact the laboratory to change it."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/scheduled_job.py:0
+msgid "PayOS created the payment link %s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/scheduled_job.py:0
+msgid "PayOS read the payment link %s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS reported a transfer for the payment link %s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS webhook refused: the body is not JSON"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS webhook refused: the signature does not match"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_audit_entry
+msgid "Audit Entry"
 msgstr ""

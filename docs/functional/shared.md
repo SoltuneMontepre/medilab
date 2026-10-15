@@ -87,14 +87,14 @@ Acceptance criteria:
 
 Every action in the system is recorded and can be reported on.
 
-- **What is recorded:** user actions (login, create, edit, delete, approve, sign, download), system events (scheduled jobs, integrations, errors) and data changes with the old and the new value.
-- **Each entry has:** who (user or system), when, what (document and field), the old and new value, and the source (screen, API or job).
+- **What is recorded:** user actions (create, edit, delete, approve, sign, download), system events (scheduled jobs, integrations, errors) and data changes with the old and the new value.
+- **Each entry has:** who (user or system), when, what (document and field), the old and new value, and the source (screen, API, job, or the system installing or upgrading a module).
 - Audit entries cannot be edited or deleted by any user, including administrators. Only the cleanup job removes them, once they are older than the audit retention period and written to an archive file (SH-09).
 - The audit retention period is a system parameter. Until an administrator sets it, entries are kept for ever.
-- Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document. The history of a document includes the entries of the documents under it, such as the samples and sample tests of a test request.
+- Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document. The history of a document includes the entries of the documents under it, such as the samples and sample tests of a test request, also once a sample is deleted.
 - **Audit reports** can be generated for a period and exported for compliance purposes.
-- Personal data in the trail is limited to what is needed to identify who acted.
-- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. Logins come from Odoo's own login log.
+- Personal data in the trail is limited to what is needed to identify who acted. Personal data in a changed field, such as an email, a phone or an address, is masked so its value is never shown in full.
+- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. Signing in and out is not recorded.
 - Odoo's field tracking shows the changes of a document in its chatter to everyone who reads it; the audit trail is the record that no one can edit or remove, kept apart from the chatter.
 
 Acceptance criteria:

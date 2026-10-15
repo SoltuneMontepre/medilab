@@ -7,6 +7,7 @@ from odoo.fields import Command, Domain
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_SALE_ORDER
 from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_SENT
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 
 BILLING_GROUP = "account.group_account_invoice"
@@ -16,7 +17,9 @@ VIETNAM = ZoneInfo(VIETNAM_ZONE)
 
 # Hóa đơn
 class AccountMove(models.Model):
-    _inherit = MODEL_ACCOUNT_MOVE
+    # _name is required to add a mixin to an Odoo model. The audit mixin comes first so it wraps Odoo's write.
+    _name = MODEL_ACCOUNT_MOVE
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_ACCOUNT_MOVE]
 
     # advance, final or adjustment; empty on journal entries that are not laboratory invoices.
     invoice_kind = fields.Selection(
@@ -167,6 +170,22 @@ class AccountMove(models.Model):
     def action_print_invoice(self):
         self._check_billing()
         return self.env.ref("account.account_invoices").report_action(self)
+
+    def _get_invoice_legal_documents(self, filetype, allow_fallback=False):
+        documents = super()._get_invoice_legal_documents(filetype, allow_fallback=allow_fallback)
+        self._audit_legal_documents(documents)
+        return documents
+
+    def _get_invoice_legal_documents_all(self, allow_fallback=False):
+        documents = super()._get_invoice_legal_documents_all(allow_fallback=allow_fallback)
+        self._audit_legal_documents(documents)
+        return documents
+
+    def _audit_legal_documents(self, documents):
+        # Odoo reads an invoice's legal documents only to serve them: from the portal, the Download action and the
+        # export of journal entries.
+        if documents:
+            self._audit("download", ", ".join(document["filename"] for document in documents))
 
     def _report_paid_amount(self):
         self.ensure_one()
