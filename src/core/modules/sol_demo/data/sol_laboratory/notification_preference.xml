@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_notification_preference_email_off" model="medilab.notification.preference">
+        <field name="user_id" ref="demo_res_users_sales" />
+        <field name="event_id" ref="sol_commerce.event_invoice_overdue" />
+        <field name="channel">email</field>
+        <field name="enabled" eval="False" />
+    </record>
+</odoo>

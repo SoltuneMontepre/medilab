@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_chemical_nitric_acid" model="medilab.chemical">
+        <field name="code">HC-001</field>
+        <field name="name">Nitric acid 65%</field>
+        <field name="cas_number">7697-37-2</field>
+        <field name="formula">HNO3</field>
+        <field name="grade">Suprapur</field>
+        <field name="storage_conditions">Acid cabinet, away from organic substances</field>
+        <field name="method_ids" eval="[Command.set([ref('demo_testing_method_tcvn_7602'), ref('demo_testing_method_iso_17294_2')])]" />
+    </record>
+    <record id="demo_chemical_lead_standard" model="medilab.chemical">
+        <field name="code">HC-002</field>
+        <field name="name">Lead standard solution 1000 mg/L</field>
+        <field name="cas_number">7439-92-1</field>
+        <field name="formula">Pb</field>
+        <field name="grade">Certified reference material</field>
+        <field name="storage_conditions">2–8 °C</field>
+        <field name="method_ids" eval="[Command.set([ref('demo_testing_method_tcvn_7602'), ref('demo_testing_method_iso_17294_2')])]" />
+    </record>
+    <record id="demo_chemical_sodium_chloride" model="medilab.chemical">
+        <field name="code">HC-003</field>
+        <field name="name">Sodium chloride</field>
+        <field name="cas_number">7647-14-5</field>
+        <field name="formula">NaCl</field>
+        <field name="grade">AR, ≥ 99.5 %</field>
+        <field name="storage_conditions">Dry place, room temperature</field>
+        <field
+            name="method_ids"
+            eval="[Command.set([ref('demo_testing_method_tcvn_6187_1'), ref('demo_testing_method_tcvn_6187_2'), ref('demo_testing_method_iso_4832')])]"
+        />
+    </record>
+    <record id="demo_chemical_ph_buffer" model="medilab.chemical">
+        <field name="code">HC-004</field>
+        <field name="name">pH buffer solution 7.00</field>
+        <field name="grade">Certified</field>
+        <field name="storage_conditions">Room temperature, tightly closed</field>
+        <field name="method_ids" eval="[Command.set([ref('demo_testing_method_tcvn_6492'), ref('demo_testing_method_tcvn_5979')])]" />
+    </record>
+    <record id="demo_chemical_acetonitrile" model="medilab.chemical">
+        <field name="code">HC-005</field>
+        <field name="name">Acetonitrile</field>
+        <field name="cas_number">75-05-8</field>
+        <field name="formula">C2H3N</field>
+        <field name="grade">HPLC grade</field>
+        <field name="storage_conditions">Flammables cabinet</field>
+        <field name="method_ids" eval="[Command.set([ref('demo_testing_method_en_15662')])]" />
+    </record>
+</odoo>

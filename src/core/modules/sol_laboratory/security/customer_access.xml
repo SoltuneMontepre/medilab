@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Those who maintain customers invite them with Odoo's portal access wizard, which creates the users itself. -->
+    <record id="access_portal_wizard_customer" model="ir.access">
+        <field name="name">portal.wizard customer editors</field>
+        <field name="model_id" ref="portal.model_portal_wizard" />
+        <field name="group_id" ref="group_permission_customer_edit_all" />
+        <field name="operation">cru</field>
+        <field name="domain">[(1, "=", 1)]</field>
+    </record>
+    <record id="access_portal_wizard_user_customer" model="ir.access">
+        <field name="name">portal.wizard.user customer editors</field>
+        <field name="model_id" ref="portal.model_portal_wizard_user" />
+        <field name="group_id" ref="group_permission_customer_edit_all" />
+        <field name="operation">cru</field>
+        <field name="domain">[(1, "=", 1)]</field>
+    </record>
+</odoo>

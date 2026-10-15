@@ -40,10 +40,22 @@
     background-color: transparent;
     border-bottom: none !important;
     padding-top: 1rem !important;
-    padding-bottom: 0.75rem !important;
+    padding-bottom: 1rem !important;
 
     .o_control_panel_breadcrumbs {
         gap: 0.75rem !important;
+    }
+
+    .o_cp_action_menus .o_btn_circle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        padding: 0 !important;
+        border: 1px solid $ml-border-control;
+        border-radius: $ml-radius-pill;
+        background: $ml-surface;
     }
 
     .o_control_panel_main {
@@ -72,7 +84,7 @@
     .o_breadcrumb .breadcrumb-item a,
     .o_breadcrumb .breadcrumb-item:not(.active) {
         color: $ml-text-muted !important;
-        font-size: 0.875rem;
+        font-size: $ml-font-size-base;
     }
 
     .btn-primary,
@@ -94,9 +106,11 @@
         gap: 0.4rem;
 
         &::before {
-            font-family: "FontAwesome", sans-serif;
-            content: "\f067";
-            font-size: 0.75rem;
+            content: "";
+            width: 0.875rem;
+            height: 0.875rem;
+            background-color: currentColor;
+            mask: $ml-icon-plus center / contain no-repeat;
         }
     }
 
@@ -199,6 +213,26 @@
         line-height: 1.3;
     }
 
+    .o_breadcrumb .breadcrumb-item.o_back_button a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &::before {
+            content: "";
+            box-sizing: border-box;
+            width: 2rem;
+            height: 2rem;
+            border: 1px solid $ml-border-control;
+            border-radius: $ml-radius-pill;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230a4d8c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 8H3M7 4L3 8l4 4'/%3E%3C/svg%3E") center / 0.875rem no-repeat $ml-surface;
+        }
+
+        &:hover::before {
+            background-color: $ml-primary-light;
+        }
+    }
+
     .o_control_panel_actions,
     .o_cp_buttons,
     .o_cp_action_menus {
@@ -230,13 +264,21 @@
             display: flex !important;
             align-items: center;
             gap: 0.5rem;
+
+            &::before {
+                content: "";
+                width: 1px;
+                height: 1.5rem;
+                margin-right: 0.25rem;
+                background: $ml-border-strong;
+            }
         }
     }
 
     .btn-primary,
     .o_form_button_save {
         border-radius: $ml-radius !important;
-        font-size: 0.75rem;
+        font-size: $ml-font-size-xs;
         font-weight: 600;
         letter-spacing: 0.04em;
         line-height: 1.25;
@@ -254,10 +296,10 @@
     .btn-secondary:not(.o_pager_previous):not(.o_pager_next),
     .o_form_button_cancel {
         background: $ml-surface !important;
-        border: 1px solid $ml-border-strong !important;
+        border: 1px solid $ml-border-control !important;
         border-radius: $ml-radius !important;
         color: $ml-primary !important;
-        font-size: 0.75rem;
+        font-size: $ml-font-size-xs;
         font-weight: 600;
         letter-spacing: 0.04em;
         line-height: 1.25;
@@ -270,7 +312,7 @@
         &:hover,
         &:focus {
             background: $ml-bg !important;
-            border-color: $ml-border-strong !important;
+            border-color: $ml-border-control !important;
             color: $ml-primary !important;
         }
 
@@ -287,7 +329,7 @@
             border: 1px solid transparent !important;
             box-shadow: none !important;
             color: $ml-text-muted !important;
-            font-size: 0.875rem;
+            font-size: $ml-font-size-base;
             font-weight: 500;
             letter-spacing: normal;
             line-height: 1;
@@ -313,7 +355,7 @@
     .btn-link,
     .o_form_button_edit {
         color: $ml-primary !important;
-        font-size: 0.75rem;
+        font-size: $ml-font-size-xs;
         font-weight: 600;
         letter-spacing: 0.04em;
         text-decoration: none;
@@ -394,7 +436,7 @@
         background: $ml-surface !important;
         color: $ml-text-muted !important;
         font-weight: 500;
-        font-size: 0.8125rem;
+        font-size: $ml-font-size-sm;
         padding: 0.35rem 0.9rem;
         box-shadow: none;
 
@@ -415,7 +457,7 @@
 .o_pager,
 .o_cp_pager {
     color: $ml-text-muted;
-    font-size: 0.875rem;
+    font-size: $ml-font-size-base;
 
     .o_pager_counter {
         color: $ml-text-muted;

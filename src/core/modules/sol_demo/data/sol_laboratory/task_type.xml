@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The lab head signs the reports. -->
+    <record id="sol_laboratory.task_type_report_signing" model="medilab.task.type">
+        <field name="role_id" ref="demo_role_lab_head" />
+    </record>
+</odoo>

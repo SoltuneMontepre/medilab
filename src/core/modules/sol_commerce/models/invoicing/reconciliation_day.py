@@ -5,7 +5,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_TRANSACTION, MODEL_RECONCILIATION_DAY
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
 VIETNAM = ZoneInfo("Asia/Ho_Chi_Minh")
 
@@ -13,7 +13,7 @@ VIETNAM = ZoneInfo("Asia/Ho_Chi_Minh")
 # Ngày đối soát
 class ReconciliationDay(models.Model):
     _name = MODEL_RECONCILIATION_DAY
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Reconciliation Day"
     _order = "day desc"
     # The accountant opens a day, posts what is missing and locks it. A locked day stays locked.

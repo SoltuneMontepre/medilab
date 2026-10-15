@@ -65,6 +65,7 @@
     <record id="action_medilab_parameter_group" model="ir.actions.act_window">
         <field name="name">Parameter Groups</field>
         <field name="res_model">medilab.parameter.group</field>
+        <field name="path">parameter-groups</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

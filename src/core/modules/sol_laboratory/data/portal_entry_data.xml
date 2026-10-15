@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="portal_entry_test_report" model="portal.entry">
+        <field name="name">Test Reports</field>
+        <field name="description">Download the test reports of your requests</field>
+        <field name="url">/my/test-reports</field>
+        <field name="image" type="bytes" file="sol_laboratory/static/src/img/test_report.svg" />
+        <field name="placeholder_count">test_report_count</field>
+        <field name="sequence" eval="50" />
+    </record>
+</odoo>
