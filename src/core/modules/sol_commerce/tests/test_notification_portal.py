@@ -39,7 +39,9 @@ class TestNotificationPortal(HttpCase):
     def save(self, **fields):
         self.authenticate("hoa.portal", "hoa.portal")
         page = self.url_open("/my/notifications")
-        token = re.search(r'name="csrf_token" value="([^"]+)"', page.text).group(1)
+        found = re.search(r'name="csrf_token" value="([^"]+)"', page.text)
+        self.assertIsNotNone(found)
+        token = found.group(1) if found else ""
         return self.url_open("/my/notifications", data={"csrf_token": token, **fields})
 
     def test_the_page_lists_the_events_to_choose_from(self):
