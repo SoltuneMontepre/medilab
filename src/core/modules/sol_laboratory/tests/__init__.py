@@ -51,6 +51,7 @@ from . import (
     test_person_employee,
     test_person_user,
     test_regulation_constraints,
+    test_reminders,
     test_role_lifecycle,
     test_sample_collection,
     test_sample_disposal,
