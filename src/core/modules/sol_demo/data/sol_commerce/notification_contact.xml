@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_notification_contact_invoice_sent" model="medilab.notification.contact">
+        <field name="partner_id" ref="demo_res_partner_nuoc_sach" />
+        <field name="event_id" ref="sol_commerce.event_invoice_sent" />
+        <field name="contact_id" ref="demo_res_partner_khoa" />
+    </record>
+    <record id="demo_notification_contact_invoice_overdue" model="medilab.notification.contact">
+        <field name="partner_id" ref="demo_res_partner_nuoc_sach" />
+        <field name="event_id" ref="sol_commerce.event_invoice_overdue" />
+        <field name="contact_id" ref="demo_res_partner_khoa" />
+    </record>
+</odoo>

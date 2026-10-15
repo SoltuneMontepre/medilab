@@ -56,6 +56,7 @@
         "data/account/account_move.xml",
         "data/stock/stock_location.xml",
         "data/analytic/account_analytic_account.xml",
+        "data/sol_commerce/notification_contact.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

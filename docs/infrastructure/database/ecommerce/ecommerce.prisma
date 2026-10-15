@@ -126,6 +126,10 @@ model Contact {
   ratings            Rating[]       @relation("RatingCustomer")
   /// Ratings of orders this contact sold as salesperson.
   rated_ratings      Rating[]       @relation("RatingSalesperson")
+  /// Events this business sends to one of its contacts.
+  notification_contacts NotificationContact[] @relation("NotificationBusiness")
+  /// Events this contact receives for its business.
+  notification_routes NotificationContact[] @relation("NotificationReceiver")
 
   @@map("res_partner")
 }
@@ -833,4 +837,38 @@ model Rating {
   @@index([order_id])
   @@index([rated_partner_id])
   @@map("rating_rating")
+}
+
+/// Odoo's message subtype (mail_message_subtype), shown with the columns this module uses: one event a customer is notified of.
+model NotificationEvent {
+  /// Row identifier.
+  id      Int                   @id @default(autoincrement())
+  /// Unique code of the event, such as order.updated.
+  code    String                @unique @db.VarChar
+  /// Contacts that receive this event for their business.
+  routes  NotificationContact[]
+
+  @@map("mail_message_subtype")
+}
+
+/// The contact of a business that receives one event instead of the contact the document names. Unique on (partner_id, event_id); the contact belongs to the business.
+model NotificationContact {
+  /// Row identifier.
+  id         Int               @id @default(autoincrement())
+  /// The business customer.
+  partner_id Int
+  /// The event.
+  event_id   Int
+  /// The contact of the business who receives the event.
+  contact_id Int
+  /// The business customer.
+  partner    Contact           @relation("NotificationBusiness", fields: [partner_id], references: [id], onDelete: Cascade)
+  /// The event.
+  event      NotificationEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  /// The contact of the business who receives the event.
+  contact    Contact           @relation("NotificationReceiver", fields: [contact_id], references: [id], onDelete: Cascade)
+
+  @@unique([partner_id, event_id])
+  @@index([event_id])
+  @@map("medilab_notification_contact")
 }

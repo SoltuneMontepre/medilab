@@ -10352,3 +10352,23 @@ msgstr "Loại Chứng Từ Cha"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_id
 msgid "Parent Document ID"
 msgstr "ID Chứng Từ Cha"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_create_all
+msgid "Permission: notification.contact.create.all"
+msgstr "Quyền: notification.contact.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_delete_all
+msgid "Permission: notification.contact.delete.all"
+msgstr "Quyền: notification.contact.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_edit_all
+msgid "Permission: notification.contact.edit.all"
+msgstr "Quyền: notification.contact.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_read_all
+msgid "Permission: notification.contact.read.all"
+msgstr "Quyền: notification.contact.read.all"

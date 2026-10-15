@@ -5,8 +5,10 @@ from odoo.fields import Command
 from odoo.tools import format_datetime
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_ADVANCE_PAYMENT_INV, MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.notifications import EVENT_QUOTATION_SENT
 from odoo.addons.sol_commerce.constants.orders import ADVANCE_FIXED, ADVANCE_FULL, ADVANCE_NONE, ADVANCE_PERCENTAGE
 from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
+from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE
 
 
 # Đơn Hàng: the advance invoice and the notice that go out with a quotation.
@@ -80,10 +82,11 @@ class SaleOrderAdvance(models.Model):
                 code=quotation.code,
                 deadline=deadline,
             )
-        self.sudo().message_post(
-            body=body,
-            partner_ids=self.partner_id.ids,
-            attachment_ids=quotation.attachment_id.ids,
-            message_type="comment",
-            subtype_xmlid="mail.mt_comment",
+        self.env[MODEL_MAIL_MESSAGE].raise_event(
+            EVENT_QUOTATION_SENT,
+            self.sudo(),
+            f"quotation:{quotation.id}:sent",
+            body,
+            partners=self.partner_id,
+            attachments=quotation.attachment_id,
         )

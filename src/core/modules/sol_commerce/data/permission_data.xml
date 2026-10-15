@@ -300,4 +300,24 @@
         <field name="document_model">medilab.support.request</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_notification_contact_read_all" model="medilab.permission">
+        <field name="name">Read customer notification contacts</field>
+        <field name="document_model">medilab.notification.contact</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_notification_contact_create_all" model="medilab.permission">
+        <field name="name">Create customer notification contacts</field>
+        <field name="document_model">medilab.notification.contact</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_notification_contact_edit_all" model="medilab.permission">
+        <field name="name">Edit customer notification contacts</field>
+        <field name="document_model">medilab.notification.contact</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_notification_contact_delete_all" model="medilab.permission">
+        <field name="name">Delete customer notification contacts</field>
+        <field name="document_model">medilab.notification.contact</field>
+        <field name="action">delete</field>
+    </record>
 </odoo>
