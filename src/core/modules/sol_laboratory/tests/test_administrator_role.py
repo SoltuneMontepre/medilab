@@ -59,3 +59,9 @@ class TestAdministratorRole(TransactionCase):
             shipped = self.env[MODEL_PERMISSION].search([("document_model", "=", model_name), ("scope", "=", "all")])
             with self.subTest(model=model_name):
                 self.assertFalse(actions - set(shipped.mapped("action")))
+
+    def test_no_permission_names_an_action_its_document_type_does_not_have(self):
+        # Such as deleting ways of testing, which are archived, never deleted.
+        for permission in self.env[MODEL_PERMISSION].search([]):
+            with self.subTest(permission=permission.code):
+                self.assertIn(permission.action, self.env[permission.document_model]._supported_permission_actions())
