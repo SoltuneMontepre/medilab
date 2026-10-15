@@ -280,6 +280,8 @@ model Department {
   task_reassigns    TaskReassign[]
   /// Samples handed over to the department.
   handovers         SampleHandover[]
+  /// Machine bookings of the department's testing tasks.
+  bookings          MachineBooking[]
 
   @@index([parent_id])
   @@map("hr_department")
@@ -785,6 +787,8 @@ model Sample {
   handovers            SampleHandover[]
   /// Handover records that list the sample.
   handover_lines       HandoverRecordSample[]
+  /// Photos of the sample taken when it was collected or received.
+  photos               SamplePhoto[]
 
   @@index([request_id])
   @@index([sample_type_id])
@@ -815,6 +819,8 @@ model SampleTest {
   cancelled_by_id     Int?
   /// When the test was cancelled.
   cancelled_at        DateTime?
+  /// True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
+  outsourcing_suggested Boolean        @default(false)
   /// The sample tested.
   sample              Sample           @relation(fields: [sample_id], references: [id], onDelete: Cascade)
   /// The parameter tested.
@@ -834,6 +840,7 @@ model SampleTest {
   @@index([parameter_id])
   @@index([parameter_method_id])
   @@index([status])
+  @@index([outsourcing_suggested])
   @@map("medilab_sample_test")
 }
 
@@ -847,11 +854,11 @@ model TestResult {
   sample_test_id Int
   /// Attempt number, 1 for the first measurement and higher for retests.
   attempt        Int              @default(1)
-  /// True for the result reported to the customer.
+  /// True for the result reported to the customer: the latest one entered for the sample test.
   is_reported    Boolean          @default(false)
-  /// Measured value, in unit_id; empty for a text result.
+  /// Measured value, in unit_id, stored exactly; 0 for a text result, whose text is the result.
   value          Decimal? @db.Decimal
-  /// Decimals the value shows, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
+  /// Decimals the value shows, between 0 and 15, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
   value_decimals Int?
   /// Result as text when it is not a number, such as "Not detected", in each language.
   value_text     Json?
@@ -859,10 +866,16 @@ model TestResult {
   unit_id        Int?
   /// The unit of limit_min and limit_max, copied from the sample's regulation.
   limit_unit_id  Int?
-  /// Lowest allowed value, copied from the sample's regulation when the result is created.
+  /// True when the copied limit has a minimum, which may be 0.
+  limit_min_set  Boolean          @default(false)
+  /// Lowest allowed value, copied from the sample's regulation when the result is created. Meaningful when limit_min_set is set.
   limit_min      Decimal? @db.Decimal
-  /// Highest allowed value, copied from the sample's regulation when the result is created.
+  /// True when the copied limit has a maximum, which may be 0.
+  limit_max_set  Boolean          @default(false)
+  /// Highest allowed value, copied from the sample's regulation when the result is created. Meaningful when limit_max_set is set.
   limit_max      Decimal? @db.Decimal
+  /// Decimals the copied minimum and maximum show on the report, such as 2 for 0.50, copied from the sample's regulation.
+  limit_decimals Int?
   /// Limit as text, copied from the sample's regulation, in each language.
   limit_text     Json?
   /// The Odoo user who entered the result: a lab QA, or a subcontractor's user for an outsourced test.
@@ -875,6 +888,10 @@ model TestResult {
   started_at     DateTime?
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
+  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
+  status         String           @default("none") @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn.
+  document_version Int            @default(1)
   /// Version of the result, 1 for the first and one higher for each version a change request creates.
   version        Int              @default(1)
   /// The version this row replaces; empty for version 1.
@@ -897,6 +914,8 @@ model TestResult {
   replaced_by    TestResult?      @relation("ResultVersions")
 
   @@unique([sample_test_id, attempt, version])
+  @@index([sample_test_id])
+  @@index([status])
   @@map("medilab_test_result")
 }
 
@@ -1365,6 +1384,8 @@ model MachineBooking {
   sample_test_id   Int
   /// The testing task the booking belongs to.
   task_id          Int?
+  /// The department of the testing task, whose head sees and adjusts the booking.
+  department_id    Int?
   /// Person who runs the test.
   person_id        Int?
   /// Due date of the sample test, copied so the queue is ordered without a join.
@@ -1387,12 +1408,15 @@ model MachineBooking {
   sample_test      SampleTest @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
   /// The testing task the booking belongs to.
   task             Task?      @relation(fields: [task_id], references: [id], onDelete: Restrict)
+  /// The department of the testing task.
+  department       Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
   /// Person who runs the test.
   person           Person?    @relation(fields: [person_id], references: [id], onDelete: Restrict)
 
   @@index([machine_id, starts_at])
   @@index([person_id, starts_at])
   @@index([machine_id, status, due_date, queued_at])
+  @@index([department_id])
   @@map("medilab_machine_booking")
 }
 
@@ -1468,6 +1492,20 @@ model SampleHandover {
   @@unique([sample_id, department_id])
   @@index([department_id, received_at])
   @@map("medilab_sample_handover")
+}
+
+/// Links samples to their photos, Odoo attachments on the sample that only people who can read test requests see.
+model SamplePhoto {
+  /// The sample.
+  sample_id     Int
+  /// The photo's attachment.
+  attachment_id Int
+  /// The sample.
+  sample        Sample @relation(fields: [sample_id], references: [id], onDelete: Cascade)
+
+  @@id([sample_id, attachment_id])
+  @@index([attachment_id])
+  @@map("medilab_sample_photo_rel")
 }
 
 /// Handover record (biên bản giao nhận mẫu): the samples a customer hands to the laboratory, signed by the customer by hand on the mobile app. A signed record is never edited; a correction is a new record.
@@ -1548,6 +1586,8 @@ model TestReport {
   replaces_id     Int?        @unique
   /// draft, signing, issued or replaced.
   status          String      @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn or the report is signed again after a rejection.
+  document_version Int         @default(1)
   /// Language the report is issued in, taken from the request: vi, en or bilingual for Vietnamese and English side by side.
   language        String      @db.VarChar
   /// When the report was issued.
@@ -1568,6 +1608,7 @@ model TestReport {
   delivered_by    Person?     @relation("ReportDeliverer", fields: [delivered_by_id], references: [id], onDelete: Restrict)
 
   @@unique([request_id, version])
+  @@index([status])
   @@map("medilab_test_report")
 }
 
@@ -1632,23 +1673,27 @@ model MobileDevice {
 
 /// One recorded action or event (SH-05). Entries are never edited; only the cleanup job removes them after the audit retention period, once they are in an archive file.
 /// Points to its document by document_model and document_id, indexed together. A BRIN index on create_date serves period reports.
-/// Logins are read from Odoo's login log (res.users.log), not written here.
+/// An entry on a part of a document, such as a sample of a test request or a file attached to it, names that document in parent_model and parent_id, indexed together.
 model AuditEntry {
   /// Row identifier.
   id             Int           @id @default(autoincrement())
   /// When it happened: Odoo's creation time of the entry.
   create_date    DateTime
-  /// The Odoo user who acted; empty when the system acted.
+  /// The Odoo user who acted; empty when the system or someone not signed in acted.
   user_id        Int?
-  /// screen, api or job.
+  /// screen, api, job or system.
   source         String        @db.VarChar
-  /// login, logout, create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
+  /// create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
   action         String        @db.VarChar
-  /// Technical name of the document acted on.
+  /// Technical name of the document acted on; empty for an event without one, such as a refused webhook.
   document_model String?       @db.VarChar
   /// Id of the document acted on.
   document_id    Int?
-  /// The job run that acted, when the source is a job.
+  /// Technical name of the document the one acted on is a part of.
+  parent_model   String?       @db.VarChar
+  /// Id of the document the one acted on is a part of.
+  parent_id      Int?
+  /// The job run that acted, when a MediLab job acted; empty for another Odoo cron.
   job_run_id     Int?
   /// What happened, for actions without field changes, such as an integration error.
   note           String?       @db.Text
@@ -1660,6 +1705,7 @@ model AuditEntry {
   changes        AuditChange[]
 
   @@index([document_model, document_id])
+  @@index([parent_model, parent_id])
   @@index([user_id, create_date])
   @@index([action, create_date])
   @@map("medilab_audit_entry")

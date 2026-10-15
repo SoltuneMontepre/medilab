@@ -21,4 +21,11 @@
         <field name="batch_size">50</field>
         <field name="max_attempts">5</field>
     </record>
+    <record id="scheduled_job_sample_retention_reminders" model="medilab.scheduled.job">
+        <field name="key">sample.retention.reminders</field>
+        <field name="name">Sample retention reminders</field>
+        <field name="cron_id" ref="ir_cron_sample_retention_reminders" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
 </odoo>

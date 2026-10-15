@@ -7,7 +7,7 @@ from odoo.fields import Command
 from odoo.addons.sol_commerce.models.orders.sale_order_confirmation import CONFIRMING_ORDER_IDS
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 
-MARKER = "sol_demo.demo_invoice_advance"
+MARKER = "sol_demo.demo_account_move_advance"
 PARTNER_AN_PHU = "sol_demo.demo_res_partner_an_phu"
 MODEL_ACCOUNT_PAYMENT = "account.payment"
 MODEL_PRODUCT = "product.product"
@@ -91,17 +91,17 @@ class AccountMove(models.Model):
         self._demo_portal_users(an_phu, green)
         self._remember(
             {
-                "demo_invoice_advance": advance,
-                "demo_invoice_final": final,
-                "demo_invoice_raising": raising,
-                "demo_invoice_lowering": lowering,
-                "demo_invoice_draft": draft,
-                "demo_invoice_cancelled": cancelled,
-                "demo_invoice_overdue": overdue,
-                "demo_payment_cash": cash,
-                "demo_payment_transfer": transfer,
-                "demo_payment_pending": pending,
-                "demo_payment_rejected": rejected,
+                "demo_account_move_advance": advance,
+                "demo_account_move_final": final,
+                "demo_account_move_raising": raising,
+                "demo_account_move_lowering": lowering,
+                "demo_account_move_draft": draft,
+                "demo_account_move_cancelled": cancelled,
+                "demo_account_move_overdue": overdue,
+                "demo_account_payment_cash": cash,
+                "demo_account_payment_transfer": transfer,
+                "demo_account_payment_pending": pending,
+                "demo_account_payment_rejected": rejected,
             }
         )
         self._demo_notification_rows()
@@ -184,18 +184,18 @@ class AccountMove(models.Model):
         opened = reconciliation_days.create({"day": reconciliation_days._vietnam_day(now)})
         self._remember(
             {
-                "demo_reconciliation_locked": locked,
-                "demo_reconciliation_open": opened,
-                "demo_invoice_payos_locked": locked_invoice,
-                "demo_invoice_payos_open": open_invoice,
+                "demo_reconciliation_day_locked": locked,
+                "demo_reconciliation_day_open": opened,
+                "demo_account_move_payos_locked": locked_invoice,
+                "demo_account_move_payos_open": open_invoice,
             }
         )
 
     def _demo_portal_users(self, an_phu, green):
         portal = self.env.ref("base.group_portal")
         for xml_id, partner, login in (
-            ("demo_portal_an_phu", an_phu, "portal.anphu"),
-            ("demo_portal_green_farm", green, "portal.greenfarm"),
+            ("demo_res_users_an_phu", an_phu, "portal.anphu"),
+            ("demo_res_users_green_farm", green, "portal.greenfarm"),
         ):
             user = self.env["res.users"].create(
                 {
@@ -228,7 +228,7 @@ class AccountMove(models.Model):
             )
 
     def _seed_two_rate_invoice(self):
-        if self.env.ref("sol_demo.demo_invoice_two_rates", raise_if_not_found=False):
+        if self.env.ref("sol_demo.demo_account_move_two_rates", raise_if_not_found=False):
             return
         partner = self.env.ref(PARTNER_AN_PHU, raise_if_not_found=False)
         if not partner:
@@ -264,10 +264,10 @@ class AccountMove(models.Model):
             }
         )
         invoice.action_post()
-        self._remember({"demo_invoice_two_rates": invoice})
+        self._remember({"demo_account_move_two_rates": invoice})
 
     def _seed_payos_advance(self):
-        if self.env.ref("sol_demo.demo_invoice_payos_advance", raise_if_not_found=False):
+        if self.env.ref("sol_demo.demo_account_move_payos_advance", raise_if_not_found=False):
             return
         provider = self.env.ref("sol_commerce.payment_provider_payos", raise_if_not_found=False)
         partner = self.env.ref(PARTNER_AN_PHU, raise_if_not_found=False)
@@ -294,14 +294,14 @@ class AccountMove(models.Model):
         payment = transaction._create_online_payment()
         self._remember(
             {
-                "demo_invoice_payos_advance": invoice,
-                "demo_transaction_payos_advance": transaction,
-                "demo_payment_payos_advance": payment,
+                "demo_account_move_payos_advance": invoice,
+                "demo_payment_transaction_payos_advance": transaction,
+                "demo_account_payment_payos_advance": payment,
             }
         )
 
     def _seed_failed_push(self):
-        if self.env.ref("sol_demo.demo_push_failed", raise_if_not_found=False):
+        if self.env.ref("sol_demo.demo_push_delivery_failed", raise_if_not_found=False):
             return
         notification = self.env["mail.notification"].search([], limit=1)
         device = self.env.ref("sol_demo.demo_mobile_device_failed", raise_if_not_found=False)
@@ -319,7 +319,7 @@ class AccountMove(models.Model):
                 }
             )
         )
-        self._remember({"demo_push_failed": delivery})
+        self._remember({"demo_push_delivery_failed": delivery})
 
     def _demo_tax(self, name, amount):
         tax = self.env[MODEL_TAX].search(

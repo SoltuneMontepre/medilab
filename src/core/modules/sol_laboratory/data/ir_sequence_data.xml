@@ -21,6 +21,14 @@
         <field name="padding">4</field>
     </record>
 
+    <record id="sequence_handover_record" model="ir.sequence">
+        <field name="name">Handover Record</field>
+        <field name="code">medilab.handover.record</field>
+        <field name="prefix">BBGN.%(range_year)s.</field>
+        <field name="padding">4</field>
+        <field name="use_date_range" eval="True" />
+    </record>
+
     <record id="sequence_sample" model="ir.sequence">
         <field name="name">Sample Lab Code</field>
         <field name="code">medilab.sample</field>
@@ -50,10 +58,26 @@
         <field name="padding">4</field>
     </record>
 
+    <record id="sequence_subcontract_dispatch" model="ir.sequence">
+        <field name="name">Subcontract Dispatch</field>
+        <field name="code">medilab.subcontract.dispatch</field>
+        <field name="prefix">PGTP.%(range_year)s.</field>
+        <field name="padding">4</field>
+        <field name="use_date_range" eval="True" />
+    </record>
+
     <record id="sequence_test_request" model="ir.sequence">
         <field name="name">Test Request</field>
         <field name="code">medilab.test.request</field>
         <field name="prefix">YC.%(range_year)s.</field>
+        <field name="padding">4</field>
+        <field name="use_date_range" eval="True" />
+    </record>
+
+    <record id="sequence_test_report" model="ir.sequence">
+        <field name="name">Test Report</field>
+        <field name="code">medilab.test.report</field>
+        <field name="prefix">PKQ.%(range_year)s.</field>
         <field name="padding">4</field>
         <field name="use_date_range" eval="True" />
     </record>

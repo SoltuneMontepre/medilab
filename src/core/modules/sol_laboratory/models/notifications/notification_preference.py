@@ -1,14 +1,18 @@
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_NOTIFICATION_PREFERENCE, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_NOTIFICATION_PREFERENCE,
+    MODEL_PERMISSION_MIXIN,
+)
 from odoo.addons.sol_laboratory.constants.notifications import CHANNEL_EMAIL, CHANNEL_POPUP, CHANNELS
 
 
 # Tuỳ Chọn Thông Báo
 class NotificationPreference(models.Model):
     _name = MODEL_NOTIFICATION_PREFERENCE
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Notification Preference"
     _permission_actions = ("read", "create", "edit", "delete")
 

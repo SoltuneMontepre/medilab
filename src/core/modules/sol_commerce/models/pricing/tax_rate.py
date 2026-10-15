@@ -4,13 +4,13 @@ from odoo.fields import Domain
 from odoo.tools import format_date
 
 from odoo.addons.sol_commerce.constants.models import MODEL_TAX, MODEL_TAX_RATE
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
 
 # Thuế Suất
 class TaxRate(models.Model):
     _name = MODEL_TAX_RATE
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Tax Rate"
     _order = "tax_id, valid_from"
 

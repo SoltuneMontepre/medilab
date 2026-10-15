@@ -4,6 +4,7 @@ import os
 from odoo import models
 from odoo.exceptions import UserError
 
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_MAIL_SERVER
 from odoo.addons.sol_laboratory.constants.notifications import (
     BREVO_SMTP_HOST,
     BREVO_SMTP_PASSWORD,
@@ -19,7 +20,7 @@ IMPLICIT_SSL_PORT = 465
 
 # Máy Chủ Thư
 class IrMailServer(models.Model):
-    _inherit = "ir.mail_server"
+    _inherit = MODEL_IR_MAIL_SERVER
 
     def _connect__(  # ruff: ignore[bad-dunder-method-name]
         self,
@@ -69,7 +70,13 @@ class IrMailServer(models.Model):
         port = self._brevo_port(os.environ.get(BREVO_SMTP_PORT))
         # 465 is implicit TLS. 587, the default, asks for STARTTLS after the connection opens.
         encryption = "ssl" if port == IMPLICIT_SSL_PORT else "starttls"
-        return host, port, os.environ.get(BREVO_SMTP_USER) or None, os.environ.get(BREVO_SMTP_PASSWORD) or None, encryption
+        return (
+            host,
+            port,
+            os.environ.get(BREVO_SMTP_USER) or None,
+            os.environ.get(BREVO_SMTP_PASSWORD) or None,
+            encryption,
+        )
 
     def _brevo_port(self, value):
         if not value:

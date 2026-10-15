@@ -16,7 +16,9 @@ class JobItem(models.Model):
     _permission_actions = ("read", "edit")
 
     # The job the item is queued for.
-    job_id = fields.Many2one(MODEL_SCHEDULED_JOB, required=True, ondelete="restrict", index=True)
+    job_id = fields.Many2one(
+        MODEL_SCHEDULED_JOB, string="Scheduled Job", required=True, ondelete="restrict", index=True
+    )
     # Key of the work within the job, such as delivery:812.
     item_key = fields.Char(required=True)
     # Technical name of the document the work is about.
@@ -84,7 +86,7 @@ class JobItem(models.Model):
         attempts = self.attempts + 1
         if attempts >= job.max_attempts:
             self.write({"status": "failed", "claimed_at": False, "attempts": attempts, "last_error": message})
-            job._notify_failed_item(self)
+            job._item_failed(self)
             return f"failed after {attempts} attempts"
         next_attempt_at = now + timedelta(minutes=job.retry_delay_minutes * 2 ** (attempts - 1))
         self.write(
