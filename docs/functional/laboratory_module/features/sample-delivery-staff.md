@@ -41,6 +41,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 | Scheduled task | Sales schedules a sample collection task on an order. A head of department's request to collect a sample again schedules one too. |
 | Done by hand   | The task is marked done once the samples are collected.                                                           |
 | Photos         | Photos of a sample are attached when it is collected or received, on the web or the mobile app. Testers never see them. |
+| Sampling location | When a sample is collected or received, the testing location it was taken from, such as sampling point RO-01, can be chosen from the testing locations. |
 | Handover record | The handover record lists each sample with the amount and condition handed over, who handed it over for the customer and who took it. The customer signs by hand on the mobile app; the signed PDF is emailed to the customer. A signed record cannot be edited; a correction is a new record. |
 
 Acceptance criteria:

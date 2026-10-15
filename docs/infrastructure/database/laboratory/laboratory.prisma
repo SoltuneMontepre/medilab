@@ -251,8 +251,8 @@ model TestingLocation {
   parent_id     Int?
   /// The department that uses the location.
   department_id Int?
-  /// Picture of the location, such as a floor plan.
-  image         Bytes?
+  /// Picture of the location, such as a floor plan, an Odoo attachment.
+  image_attachment_id Int?
   /// False when the location is archived.
   active        Boolean           @default(true)
   /// The broader location this one is in.
@@ -263,6 +263,8 @@ model TestingLocation {
   department    Department?       @relation(fields: [department_id], references: [id], onDelete: SetNull)
   /// Steps done in the location.
   steps         TestingMethodStep[]
+  /// Samples taken from the location.
+  samples       Sample[]
 
   @@index([parent_id])
   @@index([department_id])
@@ -832,6 +834,10 @@ model Sample {
   condition_note       String?      @db.Text
   /// Where the sample is stored, such as "Fridge 2, shelf B".
   storage_location     String?      @db.VarChar
+  /// The testing location the sample was taken from, such as a sampling point.
+  sampling_location_id Int?
+  /// The testing location the sample was taken from.
+  sampling_location    TestingLocation? @relation(fields: [sampling_location_id], references: [id], onDelete: Restrict)
   /// When the head of department asked for the sample to be collected again because it arrived insufficient.
   recollection_requested_at DateTime?
   /// Head of department who asked for the sample to be collected again.
@@ -869,6 +875,7 @@ model Sample {
   @@index([sample_type_id])
   @@index([regulation_id])
   @@index([status])
+  @@index([sampling_location_id])
   @@map("medilab_sample")
 }
 

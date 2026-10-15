@@ -15,8 +15,8 @@ The administrator maintains the master data of the Laboratory module: test param
 - **US-AD07** As an administrator, I want to maintain regulations with their limit per parameter, so that results can be compared with the limit that applies to the sample.
 - **US-AD08** As an administrator, I want to maintain quality registration dossiers and the ways of testing they cover, so that reports print the right mark and the laboratory knows when a registration expires.
 - **US-AD26** As an administrator, I want to define the steps of a testing method, each with its number, how long it takes, what to do and a note, so that everyone in the laboratory follows the same procedure.
-- **US-AD28** As an administrator, I want to record the ISO 17025 accreditation certificates of the laboratory and create the testing methods they list in one go, so that the methods of an accreditation scope are entered once instead of one by one.
 - **US-AD27** As an administrator, I want to define the testing locations of the laboratory as a tree with a code and name, optionally belonging to a department, so that the laboratory can name every place where work is done.
+- **US-AD28** As an administrator, I want to record the ISO 17025 accreditation certificates of the laboratory and create the testing methods they list in one go, so that the methods of an accreditation scope are entered once instead of one by one.
 
 ### Machines and chemicals
 
@@ -64,7 +64,7 @@ The administrator maintains the master data of the Laboratory module: test param
 | Expiry warning       | Administrators are warned a number of days before a dossier expires and on the day it expires. The number of days is a system setting the administrator configures. |
 | Permissions          | Creating, editing, archiving and deleting master data are permissions the administrator holds and can give to other roles and people. Everyone who works for the laboratory reads it. |
 | Archiving            | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Test parameters and subcontractors are archived, never deleted. A parameter and method pair can be deleted when nothing refers to it; an archived pair that a past result refers to is kept. Once a pair is archived, a new pair for the same parameter, method and subcontractor is allowed. |
-| Deleting             | Units, unit categories, testing fields, testing methods, parameter groups, sample types, regulations, quality registration dossiers, machines and chemicals can also be deleted when nothing refers to them, such as a sample type no parameter, sample or regulation names. |
+| Deleting             | Units, unit categories, testing fields, testing methods, parameter groups, sample types, regulations, quality registration dossiers, accreditation certificates, testing locations, machines and chemicals can also be deleted when nothing refers to them, such as a sample type no parameter, sample or regulation names. |
 
 Acceptance criteria:
 
@@ -82,7 +82,7 @@ Acceptance criteria:
 - Importing a list with a row without a code or title is refused with a message and creates nothing.
 - A certificate can be saved with several methods, and a method with several certificates.
 - A location can be saved under a parent location, with or without a department and an image.
-- A location a step uses cannot be deleted, only archived.
+- A location a step or a sample uses cannot be deleted, only archived.
 - A location cannot be its own ancestor, and two locations cannot share a code; both are refused with a message.
 - A regulation cannot hold two limits for the same parameter.
 - An archived record no longer appears when choosing records on a quotation or a parameter.
