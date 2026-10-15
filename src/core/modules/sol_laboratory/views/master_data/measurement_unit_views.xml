@@ -45,6 +45,7 @@
     <record id="action_medilab_measurement_unit" model="ir.actions.act_window">
         <field name="name">Measurement Units</field>
         <field name="res_model">medilab.measurement.unit</field>
+        <field name="path">measurement-units</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

@@ -127,7 +127,7 @@
     .o_calendar_filter {
         .o_cw_filter_label {
             color: $ml-text;
-            font-size: 0.8125rem;
+            font-size: $ml-font-size-sm;
         }
 
         .form-check-input {
@@ -166,7 +166,7 @@
             background: $ml-bg;
             color: $ml-text-secondary;
             font-weight: 600;
-            font-size: 0.8125rem;
+            font-size: $ml-font-size-sm;
             border-color: $ml-border !important;
             vertical-align: top;
         }

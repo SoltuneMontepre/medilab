@@ -148,6 +148,7 @@
     <record id="action_medilab_test_request" model="ir.actions.act_window">
         <field name="name">Test Requests</field>
         <field name="res_model">medilab.test.request</field>
+        <field name="path">test-requests</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

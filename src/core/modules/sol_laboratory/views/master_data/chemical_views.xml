@@ -67,6 +67,7 @@
     <record id="action_medilab_chemical" model="ir.actions.act_window">
         <field name="name">Chemicals</field>
         <field name="res_model">medilab.chemical</field>
+        <field name="path">chemicals</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

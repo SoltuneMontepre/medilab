@@ -74,6 +74,7 @@
     <record id="action_medilab_quality_registration" model="ir.actions.act_window">
         <field name="name">Quality Registrations</field>
         <field name="res_model">medilab.quality.registration</field>
+        <field name="path">quality-registrations</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

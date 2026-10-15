@@ -142,7 +142,7 @@
             .o_kanban_aggregate {
                 color: $ml-text-muted;
                 font-weight: 600;
-                font-size: 0.75rem;
+                font-size: $ml-font-size-xs;
             }
         }
 
@@ -178,7 +178,7 @@
 
             &:focus {
                 border-color: rgba($ml-primary, 0.45);
-                box-shadow: 0 0 0 3px rgba($ml-primary, 0.1);
+                box-shadow: $ml-focus-ring;
             }
         }
     }

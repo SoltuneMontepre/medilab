@@ -43,6 +43,20 @@ model MeasurementUnit {
   @@map("uom_uom")
 }
 
+/// A place in the company's premises (Vị trí), from the Laboratory module, shown with the columns this module uses.
+model Location {
+  /// Row identifier.
+  id             Int             @id @default(autoincrement())
+  /// Unique code of the location.
+  code           String          @unique @db.VarChar
+  /// The broader location this one is in.
+  parent_id      Int?
+  /// Stock locations in this location.
+  stock_locations StockLocation[]
+
+  @@map("medilab_location")
+}
+
 /// Odoo's employee department, shown with the columns this module uses. A team is a department whose parent is its department.
 model Department {
   /// Row identifier.
@@ -239,6 +253,8 @@ model StockLocation {
   manager_id        Int?
   /// Storage conditions of the location, such as "2–8 °C".
   conditions        String?         @db.VarChar
+  /// The location of the company's premises the stock location is in, such as a room or a bench.
+  place_id          Int?
   /// False when the location is archived.
   active            Boolean         @default(true)
   /// The location this one is inside.
@@ -249,6 +265,8 @@ model StockLocation {
   holder            Department?     @relation(fields: [holder_id], references: [id], onDelete: Restrict)
   /// The person who manages the store.
   manager           Person?         @relation(fields: [manager_id], references: [id], onDelete: Restrict)
+  /// The location of the company's premises the stock location is in.
+  place             Location?       @relation(fields: [place_id], references: [id], onDelete: Restrict)
   /// Minimum quantities of items in the store.
   minimums          Orderpoint[]
   /// Containers in the location.
@@ -271,6 +289,7 @@ model StockLocation {
   take_lines        StockTakeLine[] @relation("TakeLineLocation")
 
   @@index([parent_path])
+  @@index([place_id])
   @@map("stock_location")
 }
 

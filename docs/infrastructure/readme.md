@@ -1,5 +1,6 @@
 # Infrastructure
 
+- [Architecture](architecture.md): production on two sites and a witness, database failover and ingress through Cloudflare Tunnel
 - Database diagrams, one Prisma schema per module:
   - [Laboratory](database/laboratory/laboratory.prisma): master data, test requests, samples, results, signing, tasks, scheduling and the shared platform tables
   - [E-commerce](database/ecommerce/ecommerce.prisma): prices, taxes, service packages, orders, quotations, invoices, payments, support and feedback

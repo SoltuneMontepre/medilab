@@ -7,7 +7,7 @@ The storekeeper (thủ kho) manages the central store: items, locations and supp
 ### Catalog
 
 - **US-SK01** As a storekeeper, I want to maintain stock items with their unit, tracking, minimum quantity and shelf life after opening, so that stock is counted and checked the same way every time.
-- **US-SK02** As a storekeeper, I want to maintain the tree of stock locations inside each store with their storage conditions, so that everyone knows where stock is and how it is kept.
+- **US-SK02** As a storekeeper, I want to maintain the tree of stock locations inside each store with their storage conditions and the location of the premises each is in, so that everyone knows where stock is and how it is kept.
 - **US-SK03** As a storekeeper, I want to maintain suppliers with the items they sell, their references and last prices, so that I know where to buy each item.
 
 ### Buying
@@ -54,6 +54,7 @@ Acceptance criteria:
 - Changing the tracking of an item with stock is refused.
 - An item or a supplier cannot be deleted, only archived.
 - An archived supplier is no longer suggested when buying, and keeps its last prices.
+- Choosing a floor of the premises shows the stock of every stock location whose location of the premises is that floor or a room or bench under it.
 
 ### 2. Buying (US-SK04 to US-SK06)
 
