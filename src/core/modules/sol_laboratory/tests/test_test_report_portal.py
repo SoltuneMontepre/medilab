@@ -11,8 +11,7 @@ class TestTestReportPortal(HttpCase, ReportCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        contact = cls.env["res.partner"].create({"name": "Nguyen Thi Hoa", "parent_id": cls.customer.partner_id.id})
-        cls.portal = new_test_user(cls.env, "hoa.portal", groups="base.group_portal", partner_id=contact.id)
+        cls.portal = cls.portal_user()
         other = cls.env[MODEL_CUSTOMER].create({"name": "Green Farm Co., Ltd.", "is_company": True})
         new_test_user(cls.env, "farm.portal", groups="base.group_portal", partner_id=other.partner_id.id)
 

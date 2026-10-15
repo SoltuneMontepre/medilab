@@ -333,6 +333,16 @@
         <field name="document_model">medilab.test.report</field>
         <field name="action">sign</field>
     </record>
+    <record id="permission_change_request_read_all" model="medilab.permission">
+        <field name="name">Read change requests</field>
+        <field name="document_model">medilab.change.request</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_change_request_sign_all" model="medilab.permission">
+        <field name="name">Sign change requests</field>
+        <field name="document_model">medilab.change.request</field>
+        <field name="action">sign</field>
+    </record>
     <record id="permission_task_type_edit_all" model="medilab.permission">
         <field name="name">Edit task types</field>
         <field name="document_model">medilab.task.type</field>

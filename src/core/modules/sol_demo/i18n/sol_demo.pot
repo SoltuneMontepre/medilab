@@ -230,6 +230,8 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_lab_head
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_signing_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_change_request_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_change_request_lab_head
 msgid "Lab head"
 msgstr ""
 
@@ -477,4 +479,14 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_signing
 msgid "Test report signing"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_change_request
+msgid "Test result change request"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_change_request
+msgid "Test report change request"
 msgstr ""
