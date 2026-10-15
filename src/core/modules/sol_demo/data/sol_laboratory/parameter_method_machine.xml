@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_parameter_method_machine_lead_aas" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+        <field name="machine_id" ref="demo_machine_aas" />
+        <field name="run_minutes">30</field>
+    </record>
+    <record id="demo_parameter_method_machine_lead_icpms" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_icpms" />
+        <field name="machine_id" ref="demo_machine_icpms" />
+        <field name="run_minutes">20</field>
+    </record>
+    <record id="demo_parameter_method_machine_coliforms_incubator" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="demo_parameter_method_coliforms_mpn" />
+        <field name="machine_id" ref="demo_machine_incubator" />
+        <field name="run_minutes">2880</field>
+    </record>
+    <record id="demo_parameter_method_machine_e_coli_incubator" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="demo_parameter_method_e_coli_membrane" />
+        <field name="machine_id" ref="demo_machine_incubator" />
+        <field name="run_minutes">1440</field>
+    </record>
+    <record id="demo_parameter_method_machine_lead_aas_2" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+        <field name="machine_id" ref="demo_machine_aas_2" />
+        <field name="run_minutes">40</field>
+    </record>
+    <record id="demo_parameter_method_machine_lead_aas_3" model="medilab.parameter.method.machine">
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_aas" />
+        <field name="machine_id" ref="demo_machine_aas_3" />
+        <field name="run_minutes">70</field>
+    </record>
+</odoo>

@@ -1,8 +1,12 @@
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
-from odoo.tests import HttpCase, tagged
+from odoo.tests import HttpCase, new_test_user, tagged
 
 from .invoicing_case import InvoicingCase
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
+
+# The password of the test accountant is its login.
+ACCOUNTANT = "ketoan.audit"
 
 
 @tagged("post_install", "-at_install")
@@ -220,7 +224,7 @@ class TestInvoices(InvoicingCase):
 
 
 @tagged("post_install", "-at_install")
-class TestInvoicePortalUrl(InvoicingCase, HttpCase):
+class TestInvoicePortalUrl(AuditLookup, InvoicingCase, HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -228,6 +232,9 @@ class TestInvoicePortalUrl(InvoicingCase, HttpCase):
         other_partner = cls.env["res.partner"].create({"name": "Other customer"})
         cls.customer = cls.portal_user("khach.owner", cls.partner)
         cls.other = cls.portal_user("khach.url", other_partner)
+        cls.accountant = new_test_user(
+            cls.env, login=ACCOUNTANT, password=ACCOUNTANT, groups="base.group_user,account.group_account_manager"
+        )
 
     def test_another_customers_invoice_url_does_not_open(self):
         self.authenticate(self.other.login, self.other.login)
@@ -260,6 +267,24 @@ class TestInvoicePortalUrl(InvoicingCase, HttpCase):
         self.assertIn("pdf", pdf.headers.get("Content-Type", "").lower())
         self.assertIn(hidden.status_code, (301, 302, 303))
         self.assertTrue(hidden.headers["Location"].endswith("/my"))
+        self.assertEqual(self.entries(self.invoice, "download").user_id, self.customer)
+
+    def test_downloading_an_invoices_documents_in_the_back_office_is_a_download(self):
+        self.authenticate(self.accountant.login, self.accountant.login)
+
+        self.url_open(f"/account/download_invoice_documents/{self.invoice.id}/pdf")
+
+        self.assertEqual(self.entries(self.invoice, "download").user_id, self.accountant)
+
+    def test_printing_an_invoice_in_the_back_office_is_a_download(self):
+        report = self.env.ref("account.account_invoices")
+        self.authenticate(self.accountant.login, self.accountant.login)
+
+        self.url_open(f"/report/pdf/{report.report_name}/{self.invoice.id}")
+
+        entry = self.entries(self.invoice, "download")
+        self.assertEqual((entry.note, entry.user_id), (report.name, self.accountant))
+        self.assertFalse(entry.change_ids)
 
     def test_a_token_opens_only_that_posted_invoice(self):
         self.opener.cookies.clear()

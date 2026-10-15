@@ -37,6 +37,12 @@
         <field name="partner_id" ref="demo_res_partner_tester" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
+    <record id="demo_res_users_chemistry_tester" model="res.users">
+        <field name="login">demo.chemistry_tester</field>
+        <field name="tz">Asia/Ho_Chi_Minh</field>
+        <field name="partner_id" ref="demo_res_partner_chemistry_tester" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
+    </record>
     <record id="demo_res_users_head_of_department" model="res.users">
         <field name="login">demo.head_of_department</field>
         <field name="tz">Asia/Ho_Chi_Minh</field>
@@ -49,10 +55,43 @@
         <field name="partner_id" ref="demo_res_partner_lab_head" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
+    <record id="demo_res_users_subcontractor" model="res.users">
+        <field name="login">demo.subcontractor</field>
+        <field name="tz">Asia/Ho_Chi_Minh</field>
+        <field name="partner_id" ref="demo_res_partner_northern_testing_contact" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
+    </record>
     <record id="demo_res_users_storekeeper" model="res.users">
         <field name="login">demo.storekeeper</field>
         <field name="tz">Asia/Ho_Chi_Minh</field>
         <field name="partner_id" ref="demo_res_partner_storekeeper" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
+    </record>
+    <record id="demo_res_users_customer" model="res.users">
+        <field name="name">Phạm Thị Hoa</field>
+        <field name="login">demo.customer</field>
+        <field name="partner_id" ref="demo_res_partner_hoa" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
+    </record>
+    <record id="demo_res_users_individual" model="res.users">
+        <field name="login">demo.individual</field>
+        <field name="partner_id" ref="demo_res_partner_pham_van_long" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
+    </record>
+    <record id="demo_res_users_registered" model="res.users">
+        <field name="login">demo.registered</field>
+        <field name="partner_id" ref="demo_res_partner_tai" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
+    </record>
+    <!-- Invited by sales and never signed in. -->
+    <record id="demo_res_users_invited" model="res.users">
+        <field name="login">demo.invited</field>
+        <field name="partner_id" ref="demo_res_partner_minh" />
+        <field name="group_ids" eval="[Command.set([ref('base.group_portal')])]" />
+    </record>
+    <record id="demo_res_users_auditor" model="res.users">
+        <field name="login">demo.auditor</field>
+        <field name="partner_id" ref="demo_res_partner_auditor" />
         <field name="group_ids" eval="[Command.set([ref('base.group_user')])]" />
     </record>
 </odoo>

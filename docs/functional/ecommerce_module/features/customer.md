@@ -46,9 +46,11 @@ The customer is an external user of the laboratory. A customer has an account li
 
 - A customer can **self-register** or be **invited** by sales. Self-registration creates an account and a new customer profile; a business is identified by tax code and an individual by citizen ID plus tax code.
 - Self-registration asks for the name, address, phone and email, and the tax code of a business or the citizen ID and tax code of an individual. Registration with any of them missing is refused.
+- A business also gives its company name. The company becomes the customer, and the person who registers becomes its contact, who logs in and is its default contact. An individual is their own contact.
 - If the identity matches an existing profile, the account is flagged for sales to review instead of being merged automatically.
 - The account page shows contact details, tax and identity information, and additional addresses.
-- Order history is a single list of every quotation and order of the customer, with a customer-facing status.
+- Order history is a single list of every quotation and order of the customer, with a customer-facing status: Draft for the cart, Submitted once sent to sales, Quoted once a quotation is sent, then the labels of [Tracking and results](#4-tracking-and-results-us-c18-us-c19).
+- Tax and identity information already submitted is shown, not asked again; a missing citizen ID is asked once.
 
 #### Password reset (US-C04)
 
@@ -67,7 +69,7 @@ A business customer can register the people of their company as **contacts** on 
 
 #### Logo (US-C06)
 
-- The customer uploads a logo image from the account page and can remove it again. Accepted formats are image files up to a size limit, shown before upload.
+- The customer uploads a logo image from the account page and can remove it again. Accepted formats are PNG and JPEG images up to 2 MB, shown before upload.
 - The logo appears on the portal and on documents addressed to the customer, such as the quotation and the result report. After removal, documents show the customer name only.
 - Replacing the logo does not alter documents already issued.
 
@@ -240,18 +242,29 @@ The customer receives one notification per event, through the channels chosen in
 - **Support.** The customer opens a support request from the portal, optionally linked to an order, and follows the conversation with sales until it is closed.
 - **Feedback.** After an order is completed the customer can rate the service and leave a comment. Feedback is visible to sales and management and is not shown to other customers.
 
+```mermaid
+stateDiagram-v2
+    [*] --> open: customer opens request
+    open --> answered: sales replies
+    answered --> open: customer writes again
+    open --> closed: sales closes
+    answered --> closed: sales closes
+```
+
 | Rule         | Description                                                                                                                  |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | Request      | A support request has a subject and can be linked to one of the customer's orders. Files can be attached to its messages.     |
 | Status       | A request is open, answered once support has replied and the customer has not written since, or closed. Writing on an answered request opens it again. |
+| Closed       | A closed request cannot be written on from the portal; the customer opens a new request for a new question.                   |
 | One feedback | An order has at most one feedback: a rating from 1 to 5 and an optional comment, given once the order is completed.          |
+| Feedback kept | Feedback cannot be changed once given. Only those who can read the order see it, and only an administrator can delete it.  |
 
 Acceptance criteria:
 
 - A support request linked to an order shows on that order for the customer and for sales.
 - A reply from support sets the request to answered and notifies the customer.
 - Feedback can be given only on a completed order, once.
-- Another customer never sees a customer's feedback.
+- Another customer never sees a customer's support requests or feedback.
 
 ## IV. Related documents
 

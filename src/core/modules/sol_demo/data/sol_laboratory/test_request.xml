@@ -68,4 +68,16 @@
         <field name="note">The customer sold the property before the samples were collected.</field>
         <field name="status">cancelled</field>
     </record>
+    <record id="demo_test_request_reception" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=7)).strftime('%Y-%m-%d')" />
+        <field name="status">sample_received</field>
+    </record>
+    <record id="demo_test_request_retention" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=40)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() - relativedelta(days=20)).strftime('%Y-%m-%d')" />
+        <field name="status">reported</field>
+    </record>
 </odoo>

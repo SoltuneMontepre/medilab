@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_master_data_inventory" name="Inventory" parent="sol_laboratory.menu_master_data_root" sequence="25">
+        <menuitem
+            id="menu_store"
+            action="action_medilab_store"
+            sequence="10"
+            groups="sol_laboratory.group_permission_location_read_all"
+        />
+        <menuitem
+            id="menu_cost_centre"
+            action="action_medilab_cost_centre"
+            sequence="20"
+            groups="sol_laboratory.group_permission_cost_centre_read_all,sol_laboratory.group_permission_cost_centre_read_own_department"
+        />
+    </menuitem>
+</odoo>

@@ -6,6 +6,7 @@ from odoo.tools import format_list
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_EMPLOYEE,
     MODEL_PERMISSION,
@@ -20,7 +21,7 @@ from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, AD
 # Nhân Sự
 class Person(models.Model):
     _name = MODEL_PERSON
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _inherits = {MODEL_EMPLOYEE: "employee_id"}
     # The permissions on the person decide; the employee is read and written for them.
     _check_inherits_access = False
@@ -122,7 +123,7 @@ class Person(models.Model):
             else:
                 employees.action_archive()
             self.sudo().user_id.write({"active": vals["active"]})
-        if "employee_id" in vals:
+        if previous_users is not None:
             self._strip_user_groups(previous_users - self.sudo().user_id)
         if {"role_ids", "permission_ids", "employee_id"} & set(vals):
             self._sync_user_groups()

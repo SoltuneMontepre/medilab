@@ -10,9 +10,10 @@ How the `sol_demo` module seeds data for demos and browser checks.
 - A `demo.<role>` user exists for every role, to check that role's screens. Their password is `demo`; a deployed environment sets another one with the `MEDILAB_DEMO_PASSWORD` environment variable at install.
 - Demo data creates departments, people and roles and gives them shipped permissions; it never creates a permission ([Module structure](module_structure.md#permissions)).
 - `sol_demo` depends on every module it seeds data for. The other modules never depend on `sol_demo`.
-- Files live in `data/<module>/<model>.xml`, such as `data/sol_laboratory/test_parameter.xml`, and are listed in the manifest in dependency order.
-- Record XML ids are `demo_<model>_<short name>`, such as `demo_test_parameter_lead`.
-- Data files use `noupdate="1"`, so upgrading the module does not overwrite records changed during a demo.
+- Files live in `data/<module>/<model>.xml`, where `<module>` is the module that defines the model, such as `data/sol_laboratory/test_parameter.xml`, `data/base/res_partner.xml` and `data/account/account_move.xml`. The manifest lists them in dependency order.
+- A record that needs records loaded after it is completed in a later file, such as a team's lead set in `person.xml` once the people exist.
+- Record XML ids are `demo_<model>_<short name>`, such as `demo_test_parameter_lead`. Records that seeding code creates in Python follow the same rule.
+- Data files use `noupdate="1"`, so upgrading the module does not overwrite records changed during a demo. Function calls stay outside it, so every upgrade runs them: a seeding function, which adds only what is missing, or a call that records loaded after it need, such as flagging Odoo's stock location as the central store, because an upgrade leaves the records of other modules unchanged.
 
 ## Related documents
 

@@ -6,11 +6,18 @@ env:
   COMPOSE_FILE: tools/infrastructure/docker-compose.yml
 
 vars:
-  TEST_DB: medilab_test
+  TEST_DB: '{{.MEDILAB_TEST_DB | default "medilab_test"}}'
+  TEST_SHARDS: 4
+  SHARD_NUMBERS: "{{range $i := until .TEST_SHARDS}}{{add $i 1}} {{end}}"
+  TEST_RUN_DIR: /var/lib/odoo/{{.TEST_DB}}-run
+  ODOO_SCRIPTS: /opt/medilab/scripts
+  TEST_ENV: -e TEST_DB={{.TEST_DB}} -e TEST_RUN_DIR={{.TEST_RUN_DIR}} -e "SHARD_NUMBERS={{.SHARD_NUMBERS}}"
   DB_USER: '{{.MEDILAB_DB_USER | default "root"}}'
   COVERAGE_REPORT: src/core/modules/coverage.xml
   E2E_DIR: src/tests
   SYNC_APP_DIR: src/applications/medilab-sync
+  TYPECHECK_DIR: tools/typecheck
+  UV: uv --project src/core
   LOG: tools/scripts/log.sh
 
 tasks:
@@ -21,7 +28,7 @@ tasks:
       - task: test:apps
 
   test:core:
-    desc: "Run the tests of every module in src/core/modules.txt with coverage in a throwaway database; task test:core MODULES=a,b limits them"
+    desc: "Run the tests of every module in src/core/modules.txt with coverage, split over parallel shards in throwaway databases; task test:core MODULES=a,b limits them"
     silent: true
     vars:
       ALL_MODULES:
@@ -30,19 +37,46 @@ tasks:
       TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
     cmds:
       - docker compose up -d --wait postgres
-      - docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
-      - defer: docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
+      - task: test:core:clean
+      - defer: { task: test:core:clean }
+      - . {{.LOG}} && log_step "Splitting the test classes into {{.TEST_SHARDS}} shards"
+      - docker compose run --rm -T --entrypoint python3 odoo {{.ODOO_SCRIPTS}}/test_shards.py {{.MODULES}} {{.TEST_SHARDS}} {{.TEST_RUN_DIR}}/shards
+      - . {{.LOG}} && log_step "Installing {{.MODULES}}"
+      - docker compose run --rm -T --user root {{.TEST_ENV}} -e MODULES={{.MODULES}} -e TAGS={{.TAGS}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_install.sh
+      - docker compose exec -T postgres bash -c 'set -e; for n in {{.SHARD_NUMBERS}}; do createdb -U {{.DB_USER}} -T {{.TEST_DB}} {{.TEST_DB}}_$n; done'
+      - . {{.LOG}} && log_step "Running the tests in {{.TEST_SHARDS}} shards"
+      - task: test:core:shards
+        vars: { MODULES: "{{.MODULES}}" }
       - |
-        docker compose run --rm -T --user root --entrypoint bash odoo -c '
-          pip install -q --root-user-action=ignore --break-system-packages coverage
-          cd /mnt/extra-addons
-          runuser -u odoo -- python3 -m coverage run --branch --source={{.MODULES}} --omit="*/tests/*" --data-file=/tmp/.coverage -m odoo             --db_host "$HOST" --db_user "$USER" --db_password "$PASSWORD"             -d {{.TEST_DB}} -i {{.MODULES}} --test-enable --test-tags "{{.TAGS}}" --stop-after-init --log-level=test
-          status=$?
-          python3 -m coverage xml --data-file=/tmp/.coverage -o coverage.xml
-          exit $status'
-      - |
+        set -e
+        . {{.LOG}}
+        failed=$(docker compose run --rm -T --user root {{.TEST_ENV}} -e MODULES={{.MODULES}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_report.sh)
         sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
-      - . {{.LOG}} && log_ok "Odoo module tests passed ({{.MODULES}}). Coverage report in {{.COVERAGE_REPORT}}."
+        if [ -n "$failed" ]; then
+          log_error "Odoo module tests failed in shard $failed. Search the output for [shard N]. Coverage report in {{.COVERAGE_REPORT}}."
+          exit 1
+        fi
+        log_ok "Odoo module tests passed ({{.MODULES}}). Coverage report in {{.COVERAGE_REPORT}}."
+
+  test:core:shards:
+    internal: true
+    deps:
+      - for: { var: SHARD_NUMBERS }
+        task: test:core:shard
+        vars: { MODULES: "{{.MODULES}}", SHARD: "{{.ITEM}}" }
+
+  test:core:shard:
+    internal: true
+    silent: true
+    cmds:
+      - docker compose run --rm -T --user root {{.TEST_ENV}} -e MODULES={{.MODULES}} -e SHARD={{.SHARD}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_shard.sh
+
+  test:core:clean:
+    internal: true
+    silent: true
+    cmds:
+      - docker compose exec -T postgres bash -c 'set -e; for db in {{.TEST_DB}} $(for n in {{.SHARD_NUMBERS}}; do echo {{.TEST_DB}}_$n; done); do dropdb -U {{.DB_USER}} --if-exists $db; done'
+      - docker compose run --rm -T --user root --entrypoint rm odoo -rf {{.TEST_RUN_DIR}}
 
   test:uninstall:
     desc: "Install the modules in a throwaway database, uninstall commerce and inventory and check that the Laboratory data is intact"
@@ -63,6 +97,12 @@ tasks:
           ! grep -q "Standalone script .* failed" /tmp/standalone.log'
       - . {{.LOG}} && log_ok "Uninstall test passed."
 
+  test:typecheck:
+    desc: "Check that task typecheck resolves the module imports and still fails on missing names and type errors"
+    cmds:
+      - task: dev:odoo-links
+      - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
+
   test:e2e:
     desc: "Run the browser tests against the running Odoo; task test:e2e needs task up first"
     silent: true
@@ -80,17 +120,4 @@ tasks:
     desc: "Run the application tests"
     silent: true
     cmds:
-      - |
-        set -e
-        . {{.LOG}}
-        cd {{.SYNC_APP_DIR}}
-        log_step "Medilab Sync frontend"
-        bun install --frozen-lockfile
-        bun test
-        if command -v cargo >/dev/null 2>&1; then
-          log_step "Medilab Sync backend"
-          cargo test --manifest-path src-tauri/Cargo.toml
-        else
-          log_info "cargo not found, skipping the Rust tests. Install: winget install Rustlang.Rustup"
-        fi
-        log_ok "Application tests passed."
+      - . tools/scripts/test_apps.sh {{.SYNC_APP_DIR}}

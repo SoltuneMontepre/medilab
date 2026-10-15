@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+    <record id="permission_audit_entry_read_all" model="medilab.permission">
+        <field name="name">Read the audit trail</field>
+        <field name="document_model">medilab.audit.entry</field>
+        <field name="action">read</field>
+    </record>
     <record id="permission_department_read_all" model="medilab.permission">
         <field name="name">Read departments</field>
         <field name="document_model">hr.department</field>
@@ -195,6 +200,74 @@
         <field name="document_model">medilab.sample</field>
         <field name="action">edit</field>
     </record>
+    <record id="permission_sample_handover_read_all" model="medilab.permission">
+        <field name="name">Read sample handovers</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_sample_handover_create_all" model="medilab.permission">
+        <field name="name">Create sample handovers</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_sample_handover_edit_all" model="medilab.permission">
+        <field name="name">Edit sample handovers</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_sample_handover_read_own_department" model="medilab.permission">
+        <field name="name">Read sample handovers of their department</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_sample_handover_create_own_department" model="medilab.permission">
+        <field name="name">Create sample handovers of their department</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_sample_handover_edit_own_department" model="medilab.permission">
+        <field name="name">Edit sample handovers of their department</field>
+        <field name="document_model">medilab.sample.handover</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_handover_record_read_all" model="medilab.permission">
+        <field name="name">Read handover records</field>
+        <field name="document_model">medilab.handover.record</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_handover_record_create_all" model="medilab.permission">
+        <field name="name">Create handover records</field>
+        <field name="document_model">medilab.handover.record</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_handover_record_edit_all" model="medilab.permission">
+        <field name="name">Edit handover records</field>
+        <field name="document_model">medilab.handover.record</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_handover_record_sample_read_all" model="medilab.permission">
+        <field name="name">Read handover record samples</field>
+        <field name="document_model">medilab.handover.record.sample</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_handover_record_sample_create_all" model="medilab.permission">
+        <field name="name">Create handover record samples</field>
+        <field name="document_model">medilab.handover.record.sample</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_handover_record_sample_edit_all" model="medilab.permission">
+        <field name="name">Edit handover record samples</field>
+        <field name="document_model">medilab.handover.record.sample</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_handover_record_sample_delete_all" model="medilab.permission">
+        <field name="name">Delete handover record samples</field>
+        <field name="document_model">medilab.handover.record.sample</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_sample_test_read_all" model="medilab.permission">
         <field name="name">Read sample tests</field>
         <field name="document_model">medilab.sample.test</field>
@@ -209,6 +282,56 @@
         <field name="name">Edit sample tests</field>
         <field name="document_model">medilab.sample.test</field>
         <field name="action">edit</field>
+    </record>
+    <record id="permission_subcontract_dispatch_read_all" model="medilab.permission">
+        <field name="name">Read subcontract dispatches</field>
+        <field name="document_model">medilab.subcontract.dispatch</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_subcontract_dispatch_create_all" model="medilab.permission">
+        <field name="name">Create subcontract dispatches</field>
+        <field name="document_model">medilab.subcontract.dispatch</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_subcontract_dispatch_edit_all" model="medilab.permission">
+        <field name="name">Edit subcontract dispatches</field>
+        <field name="document_model">medilab.subcontract.dispatch</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_test_result_read_all" model="medilab.permission">
+        <field name="name">Read test results</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_test_result_create_all" model="medilab.permission">
+        <field name="name">Create test results</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_test_result_edit_all" model="medilab.permission">
+        <field name="name">Edit test results</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_test_result_sign_all" model="medilab.permission">
+        <field name="name">Sign test results</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="action">sign</field>
+    </record>
+    <record id="permission_test_report_read_all" model="medilab.permission">
+        <field name="name">Read test reports</field>
+        <field name="document_model">medilab.test.report</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_test_report_edit_all" model="medilab.permission">
+        <field name="name">Edit test reports</field>
+        <field name="document_model">medilab.test.report</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_test_report_sign_all" model="medilab.permission">
+        <field name="name">Sign test reports</field>
+        <field name="document_model">medilab.test.report</field>
+        <field name="action">sign</field>
     </record>
     <record id="permission_task_type_edit_all" model="medilab.permission">
         <field name="name">Edit task types</field>
@@ -257,6 +380,39 @@
         <field name="name">Delete tasks of their department</field>
         <field name="document_model">medilab.task</field>
         <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_machine_booking_read_all" model="medilab.permission">
+        <field name="name">Read machine bookings</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_machine_booking_create_all" model="medilab.permission">
+        <field name="name">Create machine bookings</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_machine_booking_edit_all" model="medilab.permission">
+        <field name="name">Edit machine bookings</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_machine_booking_read_own_department" model="medilab.permission">
+        <field name="name">Read machine bookings of their department</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_machine_booking_create_own_department" model="medilab.permission">
+        <field name="name">Create machine bookings of their department</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_machine_booking_edit_own_department" model="medilab.permission">
+        <field name="name">Edit machine bookings of their department</field>
+        <field name="document_model">medilab.machine.booking</field>
+        <field name="action">edit</field>
         <field name="scope">own_department</field>
     </record>
     <record id="permission_chemical_create_all" model="medilab.permission">
@@ -369,11 +525,6 @@
         <field name="document_model">medilab.parameter.method</field>
         <field name="action">archive</field>
     </record>
-    <record id="permission_parameter_method_delete_all" model="medilab.permission">
-        <field name="name">Delete ways of testing</field>
-        <field name="document_model">medilab.parameter.method</field>
-        <field name="action">delete</field>
-    </record>
     <record id="permission_parameter_method_create_own_department" model="medilab.permission">
         <field name="name">Create ways of testing of their department</field>
         <field name="document_model">medilab.parameter.method</field>
@@ -390,12 +541,6 @@
         <field name="name">Archive ways of testing of their department</field>
         <field name="document_model">medilab.parameter.method</field>
         <field name="action">archive</field>
-        <field name="scope">own_department</field>
-    </record>
-    <record id="permission_parameter_method_delete_own_department" model="medilab.permission">
-        <field name="name">Delete ways of testing of their department</field>
-        <field name="document_model">medilab.parameter.method</field>
-        <field name="action">delete</field>
         <field name="scope">own_department</field>
     </record>
     <record id="permission_parameter_method_machine_create_all" model="medilab.permission">

@@ -280,4 +280,24 @@
         <field name="document_model">medilab.reconciliation.day</field>
         <field name="action">edit</field>
     </record>
+    <record id="permission_support_request_read_all" model="medilab.permission">
+        <field name="name">Read support requests</field>
+        <field name="document_model">medilab.support.request</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_support_request_create_all" model="medilab.permission">
+        <field name="name">Create support requests</field>
+        <field name="document_model">medilab.support.request</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_support_request_edit_all" model="medilab.permission">
+        <field name="name">Edit support requests</field>
+        <field name="document_model">medilab.support.request</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_support_request_delete_all" model="medilab.permission">
+        <field name="name">Delete support requests</field>
+        <field name="document_model">medilab.support.request</field>
+        <field name="action">delete</field>
+    </record>
 </odoo>

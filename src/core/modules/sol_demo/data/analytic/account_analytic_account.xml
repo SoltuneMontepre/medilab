@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_account_analytic_account_chemistry" model="account.analytic.account">
+        <field name="name">Chemistry</field>
+        <field name="code">HH</field>
+        <field name="plan_id" ref="sol_inventory.analytic_plan_cost_centres" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+    </record>
+    <record id="demo_account_analytic_account_microbiology" model="account.analytic.account">
+        <field name="name">Microbiology</field>
+        <field name="code">VS</field>
+        <field name="plan_id" ref="sol_inventory.analytic_plan_cost_centres" />
+        <field name="department_id" ref="demo_hr_department_microbiology" />
+    </record>
+    <record id="demo_account_analytic_account_pesticide_residues" model="account.analytic.account">
+        <field name="name">Pesticide residues</field>
+        <field name="code">HH-TBVTV</field>
+        <field name="plan_id" ref="sol_inventory.analytic_plan_cost_centres" />
+        <field name="department_id" ref="demo_hr_department_pesticide_residues" />
+    </record>
+</odoo>

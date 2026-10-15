@@ -5,8 +5,12 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_RES_CONFIG_SETTING
 from odoo.addons.sol_laboratory.constants.settings import (
     DEFAULT_REMINDER_LEAD_MINUTES,
     DEFAULT_SAFETY_MARGIN_DAYS,
+    DEFAULT_SAMPLE_RETENTION_REMINDER_DAYS,
+    DEFAULT_URGENCY_HOURS,
     REMINDER_LEAD_PARAMETER,
     SAFETY_MARGIN_PARAMETER,
+    SAMPLE_RETENTION_REMINDER_PARAMETER,
+    URGENCY_HOURS_PARAMETER,
 )
 
 
@@ -22,7 +26,7 @@ class ResConfigSettings(models.TransientModel):
         if stored in (False, None, ""):
             default = field.default
             return default(self) if callable(default) else default
-        settings = self.with_context(clean_context(dict(self.env.context))).sudo()
+        settings = self.with_context(clean_context(self.env.context)).sudo()
         return settings.default_get([field_name])[field_name]
 
     # Days a sample test is due before the date promised to the customer, kept for handling incidents.
@@ -37,4 +41,18 @@ class ResConfigSettings(models.TransientModel):
         string="Reminder lead (minutes)",
         config_parameter=REMINDER_LEAD_PARAMETER,
         default=DEFAULT_REMINDER_LEAD_MINUTES,
+    )
+    # Days before a sample's retention ends when testers are reminded to dispose of it.
+    sample_retention_reminder_days = fields.Integer(
+        string="Retention Reminder Days",
+        config_parameter=SAMPLE_RETENTION_REMINDER_PARAMETER,
+        default=DEFAULT_SAMPLE_RETENTION_REMINDER_DAYS,
+        help="Days before a sample's retention ends when testers are reminded to dispose of it.",
+    )
+    # Hours before its due date when a sample test becomes urgent and is scheduled before the others.
+    urgency_hours = fields.Integer(
+        string="Urgency (hours)",
+        config_parameter=URGENCY_HOURS_PARAMETER,
+        default=DEFAULT_URGENCY_HOURS,
+        help="A sample test due within this many hours is urgent: it gets the next free slot on a machine first.",
     )

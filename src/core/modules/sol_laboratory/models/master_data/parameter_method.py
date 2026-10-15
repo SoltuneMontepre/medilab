@@ -1,9 +1,12 @@
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools import format_date, format_list
 
+from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
@@ -17,11 +20,12 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Cách Thử
 class ParameterMethod(models.Model):
     _name = MODEL_PARAMETER_METHOD
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Way of Testing"
     _order = "parameter_id, is_default desc, id"
     _rec_names_search = ("parameter_id", "method_id")
-    _permission_actions = ("create", "edit", "archive", "delete")
+    # Ways of testing are archived, never deleted, so they have no delete permission.
+    _permission_actions = ("create", "edit", "archive")
 
     # The parameter being tested.
     parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict")
@@ -31,8 +35,14 @@ class ParameterMethod(models.Model):
     )
     # The unit the result is expressed in.
     unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, required=True, ondelete="restrict", index=True)
-    # The subcontractor that tests it; empty when the laboratory tests it in-house.
-    subcontractor_id = fields.Many2one(MODEL_SUBCONTRACTOR, ondelete="restrict", index=True)
+    # The subcontractor that tests it; empty when the laboratory tests it in-house. Only an active subcontractor with a
+    # valid accreditation is offered, also where the list disables the active test to show archived ways of testing.
+    subcontractor_id = fields.Many2one(
+        MODEL_SUBCONTRACTOR,
+        ondelete="restrict",
+        index=True,
+        domain=[("active", "=", True), ("accreditation_expired", "=", False)],
+    )
     # The department that tests it in-house; empty when a subcontractor tests it.
     department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True, domain=DEPARTMENT_DOMAIN)
     # True when this way of testing is within an ISO 17025 accreditation scope.
@@ -77,12 +87,32 @@ class ParameterMethod(models.Model):
                     self.env._("%s needs the department that tests it, or a subcontractor.", pair.display_name)
                 )
 
+    @api.constrains("subcontractor_id")
+    def _check_subcontractor_can_be_chosen(self):
+        # Runs when a subcontractor is chosen, so a pair keeps its subcontractor after the accreditation expires.
+        for pair in self.filtered("subcontractor_id"):
+            subcontractor = pair.subcontractor_id
+            if not subcontractor.active:
+                raise ValidationError(self.env._("%s is archived and cannot be chosen.", subcontractor.display_name))
+            if subcontractor.accreditation_expired:
+                raise ValidationError(
+                    self.env._(
+                        "The accreditation of %(subcontractor)s expired on %(date)s. Renew it before choosing this "
+                        "subcontractor.",
+                        subcontractor=subcontractor.display_name,
+                        date=format_date(self.env, subcontractor.accreditation_expiry),
+                    )
+                )
+
     @api.model_create_multi
     def create(self, vals_list):
         self._unset_defaults([vals.get("parameter_id") for vals in vals_list if vals.get("is_default")])
         return super().create(vals_list)
 
     def write(self, vals):
+        # Removing a line from its parameter, as the parameter's unlink and clear commands do, would delete it.
+        if "parameter_id" in vals and not vals["parameter_id"]:
+            raise UserError(self._never_deleted_message())
         if vals.get("is_default"):
             self._unset_defaults([vals["parameter_id"]] if vals.get("parameter_id") else self.parameter_id.ids)
         # Archiving drops the default so another way of testing can take it. Done with full rights so archive
@@ -90,6 +120,18 @@ class ParameterMethod(models.Model):
         if vals.get("active") is False and not vals.get("is_default"):
             self.filtered("is_default").sudo().write({"is_default": False})
         return super().write(vals)
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_never(self):
+        # Uninstalling a module deletes the ways of testing it shipped, such as demo data. The flag is set for that.
+        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+            raise UserError(self._never_deleted_message())
+
+    def _never_deleted_message(self):
+        return self.env._(
+            "Ways of testing are archived, never deleted: %s. Archive them with their Active toggle instead.",
+            format_list(self.env, self.mapped("display_name")),
+        )
 
     def _unset_defaults(self, parameter_ids):
         # Making a way of testing the default replaces the parameter's previous default. The change is flushed

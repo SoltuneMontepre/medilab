@@ -9,9 +9,9 @@ def seed_orders(env):
     if env.ref("sol_demo.demo_sale_order_draft", raise_if_not_found=False):
         return
     env.ref("sol_demo.demo_res_users_head_of_sales").write({"group_ids": [Command.link(env.ref(ALL_ORDERS_GROUP).id)]})
-    company = env.ref("sol_demo.demo_partner_nuoc_sach")
-    hoa = env.ref("sol_demo.demo_partner_hoa")
-    minh = env.ref("sol_demo.demo_partner_minh")
+    company = env.ref("sol_demo.demo_res_partner_nuoc_sach")
+    hoa = env.ref("sol_demo.demo_res_partner_hoa")
+    minh = env.ref("sol_demo.demo_res_partner_minh")
     sales = env.ref("sol_demo.demo_res_users_sales")
     customer = env.ref("sol_demo.demo_res_users_customer")
     lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)
@@ -33,6 +33,7 @@ def seed_orders(env):
     declined_order = _order(orders, hoa, company, "confirmed", package, user_id=sales.id)
     accepted_order = _order(orders, hoa, company, "confirmed", lead, user_id=sales.id)
     completed = _order(orders, hoa, company, "completed", lead, quantity=2, user_id=sales.id)
+    completed_unrated = _order(orders, hoa, company, "completed", package, user_id=sales.id)
     behalf = (
         orders.with_user(sales)
         .with_context(medilab_sales_order=True)
@@ -61,6 +62,7 @@ def seed_orders(env):
         ("demo_sale_order_confirmed", confirmed),
         ("demo_sale_order_declined", declined_order),
         ("demo_sale_order_completed", completed),
+        ("demo_sale_order_completed_unrated", completed_unrated),
         ("demo_sale_order_sales", behalf),
         ("demo_sale_order_reorder", reorder),
         ("demo_cancellation_request_open", open_request),

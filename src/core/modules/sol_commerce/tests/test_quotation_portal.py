@@ -3,12 +3,13 @@ import re
 from odoo.tests import HttpCase, tagged
 
 from .order_case import OrderCase
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 PASSWORD = "portal-quotation-pass-1"
 
 
 @tagged("post_install", "-at_install")
-class TestQuotationPortal(HttpCase, OrderCase):
+class TestQuotationPortal(AuditLookup, HttpCase, OrderCase):
     """The customer of an order opens its quotation, sees the revisions and declines with a reason."""
 
     def setUp(self):
@@ -22,11 +23,16 @@ class TestQuotationPortal(HttpCase, OrderCase):
     def page(self):
         return self.url_open(f"/orders/{self.order.id}/quotation")
 
+    def csrf_token(self):
+        match = re.search(r'name="csrf_token" value="([^"]+)"', self.page().text)
+        if match is None:
+            self.fail("The quotation page has no CSRF token.")
+        return match.group(1)
+
     def post_decline(self, reason):
-        token = re.search(r'name="csrf_token" value="([^"]+)"', self.page().text).group(1)
         return self.url_open(
             f"/orders/{self.order.id}/quotation/decline",
-            data={"csrf_token": token, "reason": reason},
+            data={"csrf_token": self.csrf_token(), "reason": reason},
             allow_redirects=False,
         )
 
@@ -59,6 +65,9 @@ class TestQuotationPortal(HttpCase, OrderCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("attachment", response.headers["Content-Disposition"])
         self.assertTrue(response.content)
+        entry = self.entries(self.quotation, "download")
+        self.assertEqual(entry.user_id, self.portal)
+        self.assertFalse(entry.change_ids)
 
     def test_customer_declines_with_a_reason(self):
         status = self.order.order_status
@@ -82,10 +91,10 @@ class TestQuotationPortal(HttpCase, OrderCase):
 
     def test_customer_accepts_a_quotation_sent_without_an_advance(self):
         self.send_without_an_advance()
-        token = re.search(r'name="csrf_token" value="([^"]+)"', self.page().text).group(1)
-
         response = self.url_open(
-            f"/orders/{self.order.id}/quotation/accept", data={"csrf_token": token}, allow_redirects=False
+            f"/orders/{self.order.id}/quotation/accept",
+            data={"csrf_token": self.csrf_token()},
+            allow_redirects=False,
         )
 
         self.assertEqual(response.status_code, 303)

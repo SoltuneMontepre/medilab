@@ -9,6 +9,7 @@ from odoo.tools import SQL
 
 from odoo.addons.sol_commerce.constants.notifications import EVENT_INVOICE_OVERDUE
 from odoo.addons.sol_commerce.services.payos_client import payos_client_from_env
+from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_JOB_RUN, MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
@@ -53,9 +54,7 @@ class ScheduledJob(models.Model):
             # The item stays queued. Setting the secrets later lets the same item continue.
             _logger.error("PayOS credentials are not set")
             return fields.Datetime.now() + POLL_AGAIN
-        order_code = int(transaction._payos_order_code())
-        amount = int(transaction.amount)
-        checkout_url = self._payos_checkout_url(client, order_code, amount)
+        checkout_url = self._payos_checkout_url(client, transaction)
         if not checkout_url:
             return fields.Datetime.now() + POLL_AGAIN
         transaction.with_context(payment_safe_write=True).write({"payos_checkout_url": checkout_url})
@@ -63,11 +62,16 @@ class ScheduledJob(models.Model):
         self.env[MODEL_SCHEDULED_JOB].queue("payos.poll", transaction.reference, document=transaction)
         return None
 
-    def _payos_checkout_url(self, client, order_code, amount):
+    def _payos_checkout_url(self, client, transaction):
+        order_code = int(transaction._payos_order_code())
+        amount = int(transaction.amount)
         # None is the HTTP 404. A timeout, 401, 403, 429 or 5xx raises and must not create a link.
         remote = client.request("GET", f"/v2/payment-requests/{order_code}")
+        transaction._audit("integration", self.env._("PayOS read the payment link %s", order_code))
         if remote is None:
-            return self._payos_create_link(client, order_code, amount)
+            checkout_url = self._payos_create_link(client, order_code, amount)
+            transaction._audit("integration", self.env._("PayOS created the payment link %s", order_code))
+            return checkout_url
         data = remote.get("data") if isinstance(remote, dict) else None
         if not data:
             raise requests.HTTPError("PayOS did not confirm that this order is missing")
@@ -137,11 +141,12 @@ class ScheduledJob(models.Model):
         self.ensure_one()
         now = fields.Datetime.now()
         run = self.env[MODEL_JOB_RUN].sudo().create({"job_id": self.id, "started_at": now})
-        handler = getattr(self, self._handler_name(), None)
+        job = self.with_context(**{JOB_RUN_CONTEXT: run.id})
+        handler = getattr(job, job._handler_name(), None)
         if handler is None:
-            run._finish("failed", f"No handler {self._handler_name()} is defined")
+            run._finish("failed", f"No handler {job._handler_name()} is defined")
             return
-        self._process_item(item, handler, run)
+        job._process_item(item.with_context(**{JOB_RUN_CONTEXT: run.id}), handler, run)
         run._close()
 
     def _payos_link_matches(self, data, amount, order_code):
@@ -161,6 +166,7 @@ class ScheduledJob(models.Model):
             return fields.Datetime.now() + POLL_AGAIN
         order_code = transaction._payos_order_code()
         body = client.request("GET", f"/v2/payment-requests/{order_code}") or {}
+        transaction._audit("integration", self.env._("PayOS read the payment link %s", order_code))
         data = body.get("data") or body
         # amount on the payment request is what was asked. Money received is each transfer.
         self.env["payment.transaction"]._payos_record_transfers(order_code, data.get("transactions") or [])

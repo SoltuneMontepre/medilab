@@ -133,6 +133,14 @@
                             <input type="text" name="phone" class="form-control" placeholder="Phone" />
                         </div>
                     </div>
+                    <div t-if="contacts" class="mb-3">
+                        <label for="contact_id" class="form-label">Contact for this order</label>
+                        <select name="contact_id" id="contact_id" class="form-select">
+                            <t t-foreach="contacts" t-as="contact">
+                                <option t-att-value="contact.id" t-att-selected="contact == chosen_contact" t-out="contact.name" />
+                            </t>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                     <button type="submit" class="btn btn-secondary" formaction="/cart/save">Save as draft</button>
                     <a class="btn btn-secondary" href="/catalog">Continue</a>
@@ -156,33 +164,12 @@
             <div class="container py-4">
                 <div class="d-flex justify-content-between mb-3">
                     <h1>Orders</h1>
-                    <a class="btn btn-secondary" href="/catalog">Catalog</a>
+                    <div>
+                        <a class="btn btn-secondary me-2" href="/support">Support</a>
+                        <a class="btn btn-secondary" href="/catalog">Catalog</a>
+                    </div>
                 </div>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Order</th>
-                            <th>Status</th>
-                            <th class="text-end">Total excluding VAT</th>
-                            <th />
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="orders" t-as="order">
-                            <tr>
-                                <td><a t-att-href="'/orders/%s' % order.id" t-out="order.name" /></td>
-                                <td t-out="order.order_status" />
-                                <td class="text-end" t-out="order.catalog_total" />
-                                <td class="text-end">
-                                    <form t-att-action="'/orders/%s/reorder' % order.id" method="post">
-                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                        <button type="submit" class="btn btn-primary">Reorder</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        </t>
-                    </tbody>
-                </table>
+                <t t-call="sol_commerce.order_table" />
             </div>
         </t>
     </template>
@@ -192,8 +179,7 @@
             <div class="container py-4">
                 <p t-if="request.params.get('error')" class="text-danger" t-out="request.params.get('error')" />
                 <h1 t-out="order.name" />
-                <p>Status: <t t-out="dict(order._fields['order_status']._description_selection(order.env))[order.order_status]" /></p>
-                <p t-if="order._latest_quotation()"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
+                <p>Status: <span t-field="order.customer_status" /></p>                <p t-if="order._latest_quotation()"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
                 <p t-if="order.reorder_note" t-out="order.reorder_note" />
                 <table class="table">
                     <thead>
@@ -245,6 +231,33 @@
                 <form t-att-action="'/orders/%s/reorder' % order.id" method="post" class="mt-3">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <button type="submit" class="btn btn-primary">Reorder</button>
+                </form>
+                <h2 class="mt-4">Support</h2>
+                <t t-set="statuses" t-value="dict(support_requests._fields['status']._description_selection(support_requests.env))" />
+                <ul t-if="support_requests">
+                    <li t-foreach="support_requests" t-as="support_request">
+                        <a t-att-href="'/support/%s' % support_request.id" t-out="support_request.code" />
+                        <t t-out="support_request.subject" /> (<t t-out="statuses[support_request.status]" />)
+                    </li>
+                </ul>
+                <p><a class="btn btn-secondary" t-att-href="'/support/new?order_id=%s' % order.id">Ask for help about this order</a></p>
+                <h2 class="mt-4" t-if="order.feedback_rating or order.can_give_feedback()">Feedback</h2>
+                <div t-if="order.feedback_rating" class="border rounded p-3 mb-3">
+                    <p>Your rating: <t t-out="order.feedback_rating" />/5</p>
+                    <p t-if="order.feedback_comment" t-out="order.feedback_comment" />
+                </div>
+                <form t-if="order.can_give_feedback()" t-att-action="'/orders/%s/feedback' % order.id" method="post" class="mb-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <div class="mb-2">
+                        <t t-foreach="range(1, 6)" t-as="star">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="rating" t-att-id="'rating-%s' % star" t-att-value="star" required="required" />
+                                <label class="form-check-label" t-att-for="'rating-%s' % star" t-out="star" />
+                            </div>
+                        </t>
+                    </div>
+                    <textarea name="comment" class="form-control mb-2" placeholder="Comment" />
+                    <button type="submit" class="btn btn-success">Send feedback</button>
                 </form>
             </div>
         </t>

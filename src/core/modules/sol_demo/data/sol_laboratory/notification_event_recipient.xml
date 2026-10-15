@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_notification_event_recipient_role" model="medilab.notification.event.recipient">
+        <field name="event_id" ref="sol_laboratory.event_task_reminder" />
+        <field name="role_id" ref="sol_laboratory.role_administrator" />
+    </record>
+    <record id="demo_notification_event_recipient_department" model="medilab.notification.event.recipient">
+        <field name="event_id" ref="sol_commerce.event_invoice_overdue" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+    </record>
+</odoo>

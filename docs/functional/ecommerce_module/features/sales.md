@@ -52,7 +52,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 - **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson (and the Head of Sales) sees and edits it. A claimed order is not visible to other salespeople.
 - **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
 - **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below). The customer itself is kept by the [Laboratory module](../../laboratory_module/overview.md#test-requests-and-samples); E-commerce keeps the customer's sales terms.
-- **Portal invitation and duplicates.** Sales can invite a customer to the portal. A self-registered account that matches an existing profile is flagged; sales reviews it and merges the two so that the history stays on one profile.
+- **Portal invitation and duplicates.** Sales can invite a customer to the portal. A self-registered account that matches an existing profile on tax code or citizen ID is flagged; sales reviews it and either clears the flag or merges it into the profile it matched. Merging moves every order, document and person of the flagged account to that profile and deletes the flagged one; its login stays, as a contact of the remaining profile.
 
 Acceptance criteria:
 
@@ -149,7 +149,10 @@ Acceptance criteria:
 | Rule     | Description                                                                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------- |
 | Handling | Sales handles support requests. A request about an order goes to the order's salesperson; any other request waits until a salesperson takes it. |
+| Taking   | A salesperson takes a waiting request with **Take**, or by replying to it. From then on only that salesperson and the Head of Sales see it. |
 | Reply    | A reply sets the request to answered and notifies the customer. Sales closes a request once the customer's question is settled. |
+| Who answers | Only those who may edit the request answer it: its salesperson, any salesperson while nobody has taken it, and the Head of Sales. A message from another employee and an internal note change neither its status nor its salesperson. |
+| Deadline | The task is due 24 elapsed hours after the request reaches the salesperson, nights and weekends included. The administrator changes this default on the task type. |
 
 Acceptance criteria:
 

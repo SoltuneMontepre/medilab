@@ -204,9 +204,119 @@ model TestingMethod {
   parameters ParameterMethod[]
   /// Chemicals the method uses.
   chemicals  ChemicalMethod[]
+  /// Steps of the procedure, in step number order.
+  steps      TestingMethodStep[]
+  /// Accreditation certificates whose scope lists the method.
+  certificates AccreditationCertificateMethod[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
+}
+
+/// A step of a testing method's procedure.
+model TestingMethodStep {
+  /// Row identifier.
+  id               Int           @id @default(autoincrement())
+  /// The testing method the step belongs to.
+  method_id        Int
+  /// Step number; steps are shown in this order.
+  sequence         Int
+  /// Minutes the step takes.
+  duration_minutes Int
+  /// What to do in the step.
+  instruction      String
+  /// Remark on the step, such as a precaution.
+  note             String?
+  /// Where the step is done.
+  location_id      Int?
+  /// Where the step is done.
+  location         Location? @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// Location bookings the scheduler made for the step.
+  room_events      CalendarEvent[]
+  /// The testing method the step belongs to.
+  method           TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
+
+  @@index([location_id])
+  @@unique([method_id, sequence])
+  @@map("medilab_testing_method_step")
+}
+
+/// A place in the company's premises (Vị trí), such as a room, a bench, an area or a sampling point. Every module uses it.
+model Location {
+  /// Row identifier.
+  id            Int               @id @default(autoincrement())
+  /// Unique code of the location.
+  code          String            @unique @db.VarChar
+  /// Name of the location in each language.
+  name          Json
+  /// The broader location this one is in; empty for a top-level location.
+  parent_id     Int?
+  /// The department that uses the location.
+  department_id Int?
+  /// Picture of the location, such as a floor plan, an Odoo attachment; the map the locations inside it are placed on.
+  image_attachment_id Int?
+  /// Horizontal position on the parent location's image, as a share of its width from 0 to 1; empty when not placed.
+  map_x         Float?
+  /// Vertical position on the parent location's image, as a share of its height from 0 to 1; empty when not placed.
+  map_y         Float?
+  /// True when people can book the location on their calendar.
+  is_bookable   Boolean           @default(false)
+  /// False when the location is archived.
+  active        Boolean           @default(true)
+  /// The broader location this one is in.
+  parent        Location?  @relation("LocationTree", fields: [parent_id], references: [id], onDelete: Restrict)
+  /// Locations inside this one.
+  children      Location[] @relation("LocationTree")
+  /// The department that uses the location.
+  department    Department?       @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  /// Steps done in the location.
+  steps         TestingMethodStep[]
+  /// Samples taken from the location.
+  samples       Sample[]
+  /// Calendar events that book the location.
+  bookings      CalendarEvent[]
+  /// Machines standing in the location.
+  machines      Machine[]
+
+  @@index([parent_id])
+  @@index([department_id])
+  @@map("medilab_location")
+}
+
+/// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận).
+model AccreditationCertificate {
+  /// Row identifier.
+  id           Int                             @id @default(autoincrement())
+  /// Certificate number, such as VILAS 123.
+  code         String                          @unique @db.VarChar
+  /// The body that issued the certificate.
+  issuing_body String?                         @db.VarChar
+  /// First day the certificate is valid.
+  valid_from   DateTime?                       @db.Date
+  /// Last day the certificate is valid.
+  valid_until  DateTime?                       @db.Date
+  /// False when the certificate is archived.
+  active       Boolean                         @default(true)
+  /// Testing methods in the scope of the certificate.
+  methods      AccreditationCertificateMethod[]
+
+  @@map("medilab_accreditation_certificate")
+}
+
+/// Links an accreditation certificate to the testing methods in its scope.
+model AccreditationCertificateMethod {
+  /// The certificate.
+  certificate_id Int
+  /// A method in its scope.
+  method_id      Int
+  /// The certificate.
+  certificate    AccreditationCertificate @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
+  /// The testing method.
+  method         TestingMethod            @relation(fields: [method_id], references: [id], onDelete: Restrict)
+
+  @@id([certificate_id, method_id])
+  @@index([method_id])
+  @@map("medilab_accreditation_certificate_method_rel")
 }
 
 /// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
@@ -257,6 +367,10 @@ model Department {
   task_reassigns    TaskReassign[]
   /// Samples handed over to the department.
   handovers         SampleHandover[]
+  /// Machine bookings of the department's testing tasks.
+  bookings          MachineBooking[]
+  /// Locations the department uses.
+  locations         Location[]
 
   @@index([parent_id])
   @@map("hr_department")
@@ -321,7 +435,7 @@ model ParameterMethod {
   subcontractor_id Int?
   /// The department that tests it in-house; empty when a subcontractor tests it.
   department_id    Int?
-  /// True when this way of testing is within an ISO 17025 accreditation scope.
+  /// True while this in-house way of testing's method is on an accreditation certificate valid that day; worked out, never set by hand.
   is_accredited    Boolean         @default(false)
   /// Limit of detection: the lowest value this method can detect, in the row's unit.
   lod              Decimal? @db.Decimal
@@ -472,8 +586,10 @@ model Machine {
   manufacturer          String?                @db.VarChar
   /// Serial number given by the manufacturer.
   serial_number         String?                @db.VarChar
-  /// Where the machine is, such as "Room 203, bench 2".
-  location              String?                @db.VarChar
+  /// The location the machine stands in, such as a bench.
+  location_id           Int?
+  /// The location the machine stands in.
+  location              Location?              @relation(fields: [location_id], references: [id], onDelete: Restrict)
   /// in_use, under_repair or retired.
   status                String                 @db.VarChar
   /// Date the next calibration is due, taken from the latest calibration record; the machine cannot be used after it.
@@ -494,6 +610,7 @@ model Machine {
   results               TestResult[]
 
   @@index([next_calibration_date])
+  @@index([location_id])
   @@map("medilab_machine")
 }
 
@@ -732,6 +849,10 @@ model Sample {
   condition_note       String?      @db.Text
   /// Where the sample is stored, such as "Fridge 2, shelf B".
   storage_location     String?      @db.VarChar
+  /// The location the sample was taken from, such as a sampling point.
+  sampling_location_id Int?
+  /// The location the sample was taken from.
+  sampling_location    Location? @relation(fields: [sampling_location_id], references: [id], onDelete: Restrict)
   /// When the head of department asked for the sample to be collected again because it arrived insufficient.
   recollection_requested_at DateTime?
   /// Head of department who asked for the sample to be collected again.
@@ -762,11 +883,14 @@ model Sample {
   handovers            SampleHandover[]
   /// Handover records that list the sample.
   handover_lines       HandoverRecordSample[]
+  /// Photos of the sample taken when it was collected or received.
+  photos               SamplePhoto[]
 
   @@index([request_id])
   @@index([sample_type_id])
   @@index([regulation_id])
   @@index([status])
+  @@index([sampling_location_id])
   @@map("medilab_sample")
 }
 
@@ -792,6 +916,8 @@ model SampleTest {
   cancelled_by_id     Int?
   /// When the test was cancelled.
   cancelled_at        DateTime?
+  /// True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
+  outsourcing_suggested Boolean        @default(false)
   /// The sample tested.
   sample              Sample           @relation(fields: [sample_id], references: [id], onDelete: Cascade)
   /// The parameter tested.
@@ -811,6 +937,7 @@ model SampleTest {
   @@index([parameter_id])
   @@index([parameter_method_id])
   @@index([status])
+  @@index([outsourcing_suggested])
   @@map("medilab_sample_test")
 }
 
@@ -824,11 +951,11 @@ model TestResult {
   sample_test_id Int
   /// Attempt number, 1 for the first measurement and higher for retests.
   attempt        Int              @default(1)
-  /// True for the result reported to the customer.
+  /// True for the result reported to the customer: the latest one entered for the sample test.
   is_reported    Boolean          @default(false)
-  /// Measured value, in unit_id; empty for a text result.
+  /// Measured value, in unit_id, stored exactly; 0 for a text result, whose text is the result.
   value          Decimal? @db.Decimal
-  /// Decimals the value shows, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
+  /// Decimals the value shows, between 0 and 15, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
   value_decimals Int?
   /// Result as text when it is not a number, such as "Not detected", in each language.
   value_text     Json?
@@ -836,10 +963,16 @@ model TestResult {
   unit_id        Int?
   /// The unit of limit_min and limit_max, copied from the sample's regulation.
   limit_unit_id  Int?
-  /// Lowest allowed value, copied from the sample's regulation when the result is created.
+  /// True when the copied limit has a minimum, which may be 0.
+  limit_min_set  Boolean          @default(false)
+  /// Lowest allowed value, copied from the sample's regulation when the result is created. Meaningful when limit_min_set is set.
   limit_min      Decimal? @db.Decimal
-  /// Highest allowed value, copied from the sample's regulation when the result is created.
+  /// True when the copied limit has a maximum, which may be 0.
+  limit_max_set  Boolean          @default(false)
+  /// Highest allowed value, copied from the sample's regulation when the result is created. Meaningful when limit_max_set is set.
   limit_max      Decimal? @db.Decimal
+  /// Decimals the copied minimum and maximum show on the report, such as 2 for 0.50, copied from the sample's regulation.
+  limit_decimals Int?
   /// Limit as text, copied from the sample's regulation, in each language.
   limit_text     Json?
   /// The Odoo user who entered the result: a lab QA, or a subcontractor's user for an outsourced test.
@@ -852,6 +985,10 @@ model TestResult {
   started_at     DateTime?
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
+  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
+  status         String           @default("none") @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn.
+  document_version Int            @default(1)
   /// Version of the result, 1 for the first and one higher for each version a change request creates.
   version        Int              @default(1)
   /// The version this row replaces; empty for version 1.
@@ -874,6 +1011,8 @@ model TestResult {
   replaced_by    TestResult?      @relation("ResultVersions")
 
   @@unique([sample_test_id, attempt, version])
+  @@index([sample_test_id])
+  @@index([status])
   @@map("medilab_test_result")
 }
 
@@ -1310,7 +1449,8 @@ model TaskReassignTask {
   @@map("medilab_task_medilab_task_reassign_rel")
 }
 
-/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task or a machine booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task, a machine booking or a location booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+/// Events that book one location do not overlap: an exclusion constraint on (location_id, time range) where location_id is set, using btree_gist.
 model CalendarEvent {
   /// Row identifier.
   id        Int             @id @default(autoincrement())
@@ -1322,12 +1462,26 @@ model CalendarEvent {
   stop      DateTime
   /// User who organises the event.
   user_id   Int?
+  /// The bookable location the event books.
+  location_id Int?
+  /// The bookable location the event books.
+  booked_location Location?     @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// The machine booking whose step the location booking is for; empty for a booking people made.
+  machine_booking_id Int?
+  /// The method step the location booking is for.
+  step_id   Int?
+  /// The machine booking whose step the location booking is for.
+  machine_booking MachineBooking? @relation("BookingRoomEvents", fields: [machine_booking_id], references: [id], onDelete: Cascade)
+  /// The method step the location booking is for.
+  step      TestingMethodStep? @relation(fields: [step_id], references: [id], onDelete: Restrict)
   /// The task whose planned time the event shows.
   task      Task?           @relation("TaskEvent")
   /// The machine booking the event shows.
   booking   MachineBooking? @relation("BookingEvent")
 
   @@index([start])
+  @@index([location_id])
+  @@index([machine_booking_id])
   @@map("calendar_event")
 }
 
@@ -1342,6 +1496,8 @@ model MachineBooking {
   sample_test_id   Int
   /// The testing task the booking belongs to.
   task_id          Int?
+  /// The department of the testing task, whose head sees and adjusts the booking.
+  department_id    Int?
   /// Person who runs the test.
   person_id        Int?
   /// Due date of the sample test, copied so the queue is ordered without a join.
@@ -1364,12 +1520,17 @@ model MachineBooking {
   sample_test      SampleTest @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
   /// The testing task the booking belongs to.
   task             Task?      @relation(fields: [task_id], references: [id], onDelete: Restrict)
+  /// The department of the testing task.
+  department       Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
   /// Person who runs the test.
   person           Person?    @relation(fields: [person_id], references: [id], onDelete: Restrict)
+  /// Calendar events booking the locations of the method's steps for this booking.
+  room_events      CalendarEvent[] @relation("BookingRoomEvents")
 
   @@index([machine_id, starts_at])
   @@index([person_id, starts_at])
   @@index([machine_id, status, due_date, queued_at])
+  @@index([department_id])
   @@map("medilab_machine_booking")
 }
 
@@ -1445,6 +1606,20 @@ model SampleHandover {
   @@unique([sample_id, department_id])
   @@index([department_id, received_at])
   @@map("medilab_sample_handover")
+}
+
+/// Links samples to their photos, Odoo attachments on the sample that only people who can read test requests see.
+model SamplePhoto {
+  /// The sample.
+  sample_id     Int
+  /// The photo's attachment.
+  attachment_id Int
+  /// The sample.
+  sample        Sample @relation(fields: [sample_id], references: [id], onDelete: Cascade)
+
+  @@id([sample_id, attachment_id])
+  @@index([attachment_id])
+  @@map("medilab_sample_photo_rel")
 }
 
 /// Handover record (biên bản giao nhận mẫu): the samples a customer hands to the laboratory, signed by the customer by hand on the mobile app. A signed record is never edited; a correction is a new record.
@@ -1525,6 +1700,8 @@ model TestReport {
   replaces_id     Int?        @unique
   /// draft, signing, issued or replaced.
   status          String      @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn or the report is signed again after a rejection.
+  document_version Int         @default(1)
   /// Language the report is issued in, taken from the request: vi, en or bilingual for Vietnamese and English side by side.
   language        String      @db.VarChar
   /// When the report was issued.
@@ -1545,6 +1722,7 @@ model TestReport {
   delivered_by    Person?     @relation("ReportDeliverer", fields: [delivered_by_id], references: [id], onDelete: Restrict)
 
   @@unique([request_id, version])
+  @@index([status])
   @@map("medilab_test_report")
 }
 
@@ -1609,23 +1787,27 @@ model MobileDevice {
 
 /// One recorded action or event (SH-05). Entries are never edited; only the cleanup job removes them after the audit retention period, once they are in an archive file.
 /// Points to its document by document_model and document_id, indexed together. A BRIN index on create_date serves period reports.
-/// Logins are read from Odoo's login log (res.users.log), not written here.
+/// An entry on a part of a document, such as a sample of a test request or a file attached to it, names that document in parent_model and parent_id, indexed together.
 model AuditEntry {
   /// Row identifier.
   id             Int           @id @default(autoincrement())
   /// When it happened: Odoo's creation time of the entry.
   create_date    DateTime
-  /// The Odoo user who acted; empty when the system acted.
+  /// The Odoo user who acted; empty when the system or someone not signed in acted.
   user_id        Int?
-  /// screen, api or job.
+  /// screen, api, job or system.
   source         String        @db.VarChar
-  /// login, logout, create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
+  /// create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
   action         String        @db.VarChar
-  /// Technical name of the document acted on.
+  /// Technical name of the document acted on; empty for an event without one, such as a refused webhook.
   document_model String?       @db.VarChar
   /// Id of the document acted on.
   document_id    Int?
-  /// The job run that acted, when the source is a job.
+  /// Technical name of the document the one acted on is a part of.
+  parent_model   String?       @db.VarChar
+  /// Id of the document the one acted on is a part of.
+  parent_id      Int?
+  /// The job run that acted, when a MediLab job acted; empty for another Odoo cron.
   job_run_id     Int?
   /// What happened, for actions without field changes, such as an integration error.
   note           String?       @db.Text
@@ -1637,6 +1819,7 @@ model AuditEntry {
   changes        AuditChange[]
 
   @@index([document_model, document_id])
+  @@index([parent_model, parent_id])
   @@index([user_id, create_date])
   @@index([action, create_date])
   @@map("medilab_audit_entry")
