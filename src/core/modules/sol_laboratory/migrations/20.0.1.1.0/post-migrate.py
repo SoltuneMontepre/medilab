@@ -1,4 +1,5 @@
-from odoo import SUPERUSER_ID, api
+from odoo import api
+from odoo.api import SUPERUSER_ID
 from odoo.tools.sql import set_not_null, table_exists
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_EMPLOYEE

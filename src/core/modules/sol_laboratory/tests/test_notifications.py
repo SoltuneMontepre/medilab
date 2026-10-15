@@ -239,6 +239,12 @@ class TestNotifications(TransactionCase):
         ):
             ready.send("token", "Title", "Body")
 
+    def client_from_env(self):
+        client = firebase_client.firebase_client_from_env()
+        if client is None:
+            self.fail("No Firebase client was built.")
+        return client
+
     def test_a_client_is_built_from_credentials_or_left_unset(self):
         credentials = _Credentials()
         with patch.dict(os.environ, {FIREBASE_PROJECT_ID: "project", FIREBASE_CREDENTIALS: "not-json"}):
@@ -251,7 +257,7 @@ class TestNotifications(TransactionCase):
                 return_value=credentials,
             ),
         ):
-            client = firebase_client.firebase_client_from_env()
+            client = self.client_from_env()
         self.assertEqual(client.project_id, "project")
         absent = {FIREBASE_PROJECT_ID: "", FIREBASE_CREDENTIALS: ""}
         with (
@@ -263,13 +269,13 @@ class TestNotifications(TransactionCase):
             patch.dict(os.environ, absent),
             patch("google.auth.default", return_value=(credentials, "detected")),
         ):
-            detected = firebase_client.firebase_client_from_env()
+            detected = self.client_from_env()
         self.assertEqual(detected.project_id, "detected")
         with (
             patch.dict(os.environ, {FIREBASE_PROJECT_ID: "from-env", FIREBASE_CREDENTIALS: ""}),
             patch("google.auth.default", return_value=(credentials, None)),
         ):
-            from_env = firebase_client.firebase_client_from_env()
+            from_env = self.client_from_env()
         self.assertEqual(from_env.project_id, "from-env")
         with (
             patch.dict(os.environ, absent),

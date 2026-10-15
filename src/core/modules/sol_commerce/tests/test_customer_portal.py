@@ -36,7 +36,10 @@ class TestCustomerPortal(HttpCase, OrderCase):
         self.customer.vat = "0315678901"
 
     def csrf(self, url):
-        return re.search(r'name="csrf_token" value="([^"]+)"', self.url_open(url).text).group(1)
+        match = re.search(r'name="csrf_token" value="([^"]+)"', self.url_open(url).text)
+        if match is None:
+            self.fail(f"{url} has no CSRF token.")
+        return match.group(1)
 
     def post(self, url, data, page="/my/account", **kwargs):
         response = self.url_open(url, data={"csrf_token": self.csrf(page), **data}, allow_redirects=False, **kwargs)
