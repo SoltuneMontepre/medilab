@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_audit" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sol_laboratory.audit</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='sol_laboratory']" position="inside">
+                <block title="Audit Trail" name="audit_setting_container">
+                    <setting id="audit_retention_setting">
+                        <field name="audit_retention_days" class="o_light_label" />
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

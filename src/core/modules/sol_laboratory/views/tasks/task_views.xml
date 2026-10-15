@@ -21,7 +21,16 @@
                     decoration-success="status == 'done'"
                     decoration-danger="status == 'cancelled'"
                 />
+                <field name="document_model" column_invisible="1" />
                 <button name="action_claim" type="object" string="Claim" class="btn-primary btn-sm" invisible="not in_my_queue" />
+                <button
+                    name="action_assign_sample"
+                    type="object"
+                    string="Assign Sample"
+                    class="btn-sm"
+                    invisible="document_model != 'medilab.sample.test' or status in ('done', 'cancelled')"
+                    groups="sol_laboratory.group_permission_task_edit_all,sol_laboratory.group_permission_task_edit_own_department"
+                />
             </list>
         </field>
     </record>
@@ -71,6 +80,13 @@
                         string="Assign"
                         context="{'active_ids': [id]}"
                         invisible="not id or status in ('done', 'cancelled')"
+                        groups="sol_laboratory.group_permission_task_edit_all,sol_laboratory.group_permission_task_edit_own_department"
+                    />
+                    <button
+                        name="action_assign_sample"
+                        type="object"
+                        string="Assign Sample"
+                        invisible="document_model != 'medilab.sample.test' or status in ('done', 'cancelled')"
                         groups="sol_laboratory.group_permission_task_edit_all,sol_laboratory.group_permission_task_edit_own_department"
                     />
                     <button
@@ -221,6 +237,15 @@
         <field name="view_id" ref="view_medilab_task_awaiting_list" />
         <field name="domain">[('in_my_queue', '=', True)]</field>
         <field name="context">{'create': False}</field>
+    </record>
+
+    <record id="action_medilab_task_queue" model="ir.actions.act_window">
+        <field name="name">Department Queue</field>
+        <field name="res_model">medilab.task</field>
+        <field name="path">department-queue</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('status', '=', 'open'), ('department_id', '!=', False)]</field>
+        <field name="context">{'create': False, 'search_default_group_department': 1}</field>
     </record>
 
     <record id="action_medilab_task" model="ir.actions.act_window">

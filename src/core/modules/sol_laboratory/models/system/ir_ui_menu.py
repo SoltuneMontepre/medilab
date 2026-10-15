@@ -1,12 +1,12 @@
 from odoo import models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT
+from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_IR_UI_MENU
 from odoo.addons.sol_laboratory.constants.xml_ids import DEPARTMENTS_MENU
 
 
 # Menu
 class IrUiMenu(models.Model):
-    _inherit = "ir.ui.menu"
+    _inherit = MODEL_IR_UI_MENU
 
     def _load_menus_blacklist(self):
         # Odoo shows Departments only to employee officers and department managers; the read permission shows it too.

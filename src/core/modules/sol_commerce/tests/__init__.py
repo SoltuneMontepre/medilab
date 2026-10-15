@@ -1,5 +1,10 @@
 from . import (
+    test_audit_documents,
+    test_audit_pricing,
+    test_audit_signatures,
     test_catalog_page,
+    test_customer_orders,
+    test_customer_portal,
     test_feedback_access,
     test_feedback_portal,
     test_invoice_notices,

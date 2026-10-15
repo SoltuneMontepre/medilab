@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_saleorder_document_customer_logo" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//t[@t-set='address']/*[1]" position="before">
+            <img
+                t-if="doc.partner_id.commercial_partner_id.image_128"
+                t-att-src="image_data_uri(doc.partner_id.commercial_partner_id.image_128)"
+                class="mb-2"
+                style="max-height: 60px"
+                alt="Logo"
+            />
+        </xpath>
+    </template>
+</odoo>

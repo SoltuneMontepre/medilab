@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_subcontract_dispatch_list" model="ir.ui.view">
+        <field name="name">medilab.subcontract.dispatch.list</field>
+        <field name="model">medilab.subcontract.dispatch</field>
+        <field name="arch" type="xml">
+            <list duplicate="0" decoration-muted="status == 'cancelled'">
+                <field name="code" />
+                <field name="subcontractor_id" />
+                <field name="sent_date" />
+                <field name="expected_date" />
+                <field name="courier_id" />
+                <field name="delivery_service" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-warning="status == 'draft'"
+                    decoration-info="status == 'sent'"
+                    decoration-success="status == 'received'"
+                    decoration-danger="status == 'cancelled'"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_subcontract_dispatch_form" model="ir.ui.view">
+        <field name="name">medilab.subcontract.dispatch.form</field>
+        <field name="model">medilab.subcontract.dispatch</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <header>
+                    <button
+                        name="action_send"
+                        type="object"
+                        string="Send"
+                        class="btn-primary"
+                        invisible="status != 'draft'"
+                        groups="sol_laboratory.group_permission_subcontract_dispatch_edit_all"
+                    />
+                    <button
+                        name="action_receive"
+                        type="object"
+                        string="Mark Received"
+                        class="btn-success"
+                        invisible="status != 'sent'"
+                        groups="sol_laboratory.group_permission_subcontract_dispatch_edit_all"
+                    />
+                    <button
+                        name="action_cancel"
+                        type="object"
+                        string="Cancel Dispatch"
+                        class="btn-danger"
+                        invisible="status not in ('draft', 'sent')"
+                        groups="sol_laboratory.group_permission_subcontract_dispatch_edit_all"
+                        confirm="Cancel this dispatch? Its sample tests stay outsourced and can go in another dispatch."
+                    />
+                    <field name="status" widget="statusbar" statusbar_visible="draft,sent,received" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="code" />
+                        <h1><field name="code" placeholder="Filled from the sequence when left empty" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field
+                                name="subcontractor_id"
+                                readonly="status != 'draft'"
+                                domain="['|', ('accreditation_expiry', '=', False), ('accreditation_expiry', '&gt;=', context_today().strftime('%Y-%m-%d'))]"
+                            />
+                            <field name="sent_date" readonly="status not in ('draft', 'sent')" />
+                            <field name="expected_date" readonly="status not in ('draft', 'sent')" />
+                            <field name="received_date" invisible="status != 'received'" />
+                        </group>
+                        <group string="Carrier">
+                            <field
+                                name="courier_id"
+                                readonly="status not in ('draft', 'sent') or delivery_service"
+                            />
+                            <field
+                                name="delivery_service"
+                                readonly="status not in ('draft', 'sent') or courier_id"
+                                placeholder="e.g. Viettel Post, VTP 8402 1157 2210"
+                            />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Sample Tests" name="sample_tests">
+                            <field
+                                name="sample_test_ids"
+                                readonly="status != 'draft'"
+                                domain="[('status', '=', 'outsourced'), ('parameter_method_id.subcontractor_id', '=', subcontractor_id), ('dispatch_ids', 'not any', [('status', '!=', 'cancelled')])]"
+                            >
+                                <list>
+                                    <field name="sample_id" />
+                                    <field name="parameter_id" />
+                                    <field name="parameter_method_id" />
+                                    <field name="quantity" />
+                                    <field name="due_date" />
+                                    <field name="status" widget="badge" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="note" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_subcontract_dispatch_calendar" model="ir.ui.view">
+        <field name="name">medilab.subcontract.dispatch.calendar</field>
+        <field name="model">medilab.subcontract.dispatch</field>
+        <field name="arch" type="xml">
+            <calendar
+                string="Outsourcing Schedule"
+                date_start="sent_date"
+                date_stop="expected_date"
+                color="subcontractor_id"
+                mode="month"
+                create="0"
+                quick_create="0"
+                event_open_popup="0"
+            >
+                <field name="subcontractor_id" filters="1" />
+                <field name="courier_id" />
+                <field name="delivery_service" />
+                <field name="status" />
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_medilab_subcontract_dispatch_search" model="ir.ui.view">
+        <field name="name">medilab.subcontract.dispatch.search</field>
+        <field name="model">medilab.subcontract.dispatch</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code" />
+                <field name="subcontractor_id" />
+                <field name="sample_test_ids" string="Sample" filter_domain="[('sample_test_ids.sample_id', 'ilike', self)]" />
+                <filter name="draft" string="Draft" domain="[('status', '=', 'draft')]" />
+                <filter name="sent" string="Sent" domain="[('status', '=', 'sent')]" />
+                <filter name="received" string="Received" domain="[('status', '=', 'received')]" />
+                <group>
+                    <filter name="group_subcontractor" string="Subcontractor" context="{'group_by': 'subcontractor_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_subcontract_dispatch" model="ir.actions.act_window">
+        <field name="name">Subcontract Dispatches</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="path">subcontract-dispatches</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_medilab_subcontract_dispatch_schedule" model="ir.actions.act_window">
+        <field name="name">Outsourcing Schedule</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="path">outsourcing-schedule</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="domain">[('status', 'in', ('sent', 'received'))]</field>
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <record id="action_medilab_subcontract_dispatch_carry" model="ir.actions.act_window">
+        <field name="name">Dispatches to Carry</field>
+        <field name="res_model">medilab.subcontract.dispatch</field>
+        <field name="path">dispatches-to-carry</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('carried_by_me', '=', True), ('status', '=', 'sent')]</field>
+        <field name="context">{'create': False}</field>
+    </record>
+</odoo>

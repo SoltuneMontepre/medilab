@@ -39,7 +39,7 @@
                         <page string="Ways of Testing" name="methods">
                             <field name="method_ids" context="{'active_test': False}">
                                 <list editable="bottom" decoration-muted="not active">
-                                    <field name="is_default" widget="boolean_toggle" />
+                                    <field name="is_default" widget="exclusive_boolean" />
                                     <field name="method_id" />
                                     <field name="unit_id" />
                                     <field name="department_id" invisible="subcontractor_id" required="not subcontractor_id" />
@@ -76,6 +76,7 @@
     <record id="action_medilab_test_parameter" model="ir.actions.act_window">
         <field name="name">Test Parameters</field>
         <field name="res_model">medilab.test.parameter</field>
+        <field name="path">test-parameters</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

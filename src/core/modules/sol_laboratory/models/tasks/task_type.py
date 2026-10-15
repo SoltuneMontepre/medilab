@@ -1,7 +1,13 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_ROLE, MODEL_TASK, MODEL_TASK_TYPE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_ROLE,
+    MODEL_TASK,
+    MODEL_TASK_TYPE,
+)
 from odoo.addons.sol_laboratory.constants.tasks import MANUAL_TRIGGER
 
 EDITABLE_FIELDS = {"route", "role_id", "deadline_hours"}
@@ -10,7 +16,7 @@ EDITABLE_FIELDS = {"route", "role_id", "deadline_hours"}
 # Loại Nhiệm Vụ
 class TaskType(models.Model):
     _name = MODEL_TASK_TYPE
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Task Type"
     _order = "name"
     _rec_names_search = ("name", "code")

@@ -68,7 +68,7 @@
                 <filter name="running" string="Running" domain="[('status', '=', 'running')]" />
                 <filter name="failed" string="Failed" domain="[('status', '=', 'failed')]" />
                 <filter name="done" string="Done" domain="[('status', '=', 'done')]" />
-                <filter name="group_by_job" string="Job" context="{'group_by': 'job_id'}" />
+                <filter name="group_by_job" string="Scheduled Job" context="{'group_by': 'job_id'}" />
                 <filter name="group_by_status" string="Status" context="{'group_by': 'status'}" />
             </search>
         </field>

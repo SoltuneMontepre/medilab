@@ -11,20 +11,7 @@ from odoo.addons.sol_commerce.controllers.catalog import CART_SESSION
 class CustomerOrder(http.Controller):
     @http.route("/orders", type="http", auth="user", website=False)
     def orders(self, **kwargs):
-        user = request.env.user
-        commercial = user.partner_id.commercial_partner_id
-        orders = (
-            request.env[MODEL_SALE_ORDER]
-            .sudo()
-            .search(
-                [
-                    "|",
-                    ("customer_id", "child_of", commercial.id),
-                    ("partner_id", "child_of", commercial.id),
-                ],
-                order="id desc",
-            )
-        )
+        orders = request.env[MODEL_SALE_ORDER]._portal_orders(request.env.user)
         return request.render("sol_commerce.order_list", {"orders": orders})
 
     @http.route("/orders/<int:order_id>", type="http", auth="user", website=False)
@@ -145,6 +132,7 @@ class CustomerOrder(http.Controller):
         sent = order.quotation_ids.filtered(lambda item: item.id == quotation_id) if order else None
         if not sent:
             return request.not_found()
+        sent._audit("download")
         stream = request.env["ir.binary"]._get_stream_from(sent.attachment_id, "raw", filename_field="name")
         return stream.get_response(as_attachment=True)
 

@@ -133,6 +133,14 @@
                             <input type="text" name="phone" class="form-control" placeholder="Phone" />
                         </div>
                     </div>
+                    <div t-if="contacts" class="mb-3">
+                        <label for="contact_id" class="form-label">Contact for this order</label>
+                        <select name="contact_id" id="contact_id" class="form-select">
+                            <t t-foreach="contacts" t-as="contact">
+                                <option t-att-value="contact.id" t-att-selected="contact == chosen_contact" t-out="contact.name" />
+                            </t>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                     <button type="submit" class="btn btn-secondary" formaction="/cart/save">Save as draft</button>
                     <a class="btn btn-secondary" href="/catalog">Continue</a>
@@ -161,31 +169,7 @@
                         <a class="btn btn-secondary" href="/catalog">Catalog</a>
                     </div>
                 </div>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Order</th>
-                            <th>Status</th>
-                            <th class="text-end">Total excluding VAT</th>
-                            <th />
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="orders" t-as="order">
-                            <tr>
-                                <td><a t-att-href="'/orders/%s' % order.id" t-out="order.name" /></td>
-                                <td t-out="order.order_status" />
-                                <td class="text-end" t-out="order.catalog_total" />
-                                <td class="text-end">
-                                    <form t-att-action="'/orders/%s/reorder' % order.id" method="post">
-                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                                        <button type="submit" class="btn btn-primary">Reorder</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        </t>
-                    </tbody>
-                </table>
+                <t t-call="sol_commerce.order_table" />
             </div>
         </t>
     </template>
@@ -195,8 +179,7 @@
             <div class="container py-4">
                 <p t-if="request.params.get('error')" class="text-danger" t-out="request.params.get('error')" />
                 <h1 t-out="order.name" />
-                <p>Status: <t t-out="dict(order._fields['order_status']._description_selection(order.env))[order.order_status]" /></p>
-                <p t-if="order._latest_quotation()"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
+                <p>Status: <span t-field="order.customer_status" /></p>                <p t-if="order._latest_quotation()"><a t-att-href="'/orders/%s/quotation' % order.id">View quotation</a></p>
                 <p t-if="order.reorder_note" t-out="order.reorder_note" />
                 <table class="table">
                     <thead>

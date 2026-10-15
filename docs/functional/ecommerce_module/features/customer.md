@@ -46,9 +46,11 @@ The customer is an external user of the laboratory. A customer has an account li
 
 - A customer can **self-register** or be **invited** by sales. Self-registration creates an account and a new customer profile; a business is identified by tax code and an individual by citizen ID plus tax code.
 - Self-registration asks for the name, address, phone and email, and the tax code of a business or the citizen ID and tax code of an individual. Registration with any of them missing is refused.
+- A business also gives its company name. The company becomes the customer, and the person who registers becomes its contact, who logs in and is its default contact. An individual is their own contact.
 - If the identity matches an existing profile, the account is flagged for sales to review instead of being merged automatically.
 - The account page shows contact details, tax and identity information, and additional addresses.
-- Order history is a single list of every quotation and order of the customer, with a customer-facing status.
+- Order history is a single list of every quotation and order of the customer, with a customer-facing status: Draft for the cart, Submitted once sent to sales, Quoted once a quotation is sent, then the labels of [Tracking and results](#4-tracking-and-results-us-c18-us-c19).
+- Tax and identity information already submitted is shown, not asked again; a missing citizen ID is asked once.
 
 #### Password reset (US-C04)
 
@@ -67,7 +69,7 @@ A business customer can register the people of their company as **contacts** on 
 
 #### Logo (US-C06)
 
-- The customer uploads a logo image from the account page and can remove it again. Accepted formats are image files up to a size limit, shown before upload.
+- The customer uploads a logo image from the account page and can remove it again. Accepted formats are PNG and JPEG images up to 2 MB, shown before upload.
 - The logo appears on the portal and on documents addressed to the customer, such as the quotation and the result report. After removal, documents show the customer name only.
 - Replacing the logo does not alter documents already issued.
 

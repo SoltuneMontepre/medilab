@@ -66,6 +66,7 @@
     <record id="action_medilab_sample_type" model="ir.actions.act_window">
         <field name="name">Sample Types</field>
         <field name="res_model">medilab.sample.type</field>
+        <field name="path">sample-types</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

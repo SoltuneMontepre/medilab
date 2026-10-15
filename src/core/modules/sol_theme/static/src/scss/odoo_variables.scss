@@ -46,28 +46,28 @@ $o-btns-bs-override: (
     ),
     "secondary": (
         background: $ml-surface,
-        border: $ml-border-strong,
+        border: $ml-border-control,
         color: $ml-secondary,
 
         hover-background: $ml-secondary-light,
-        hover-border: $ml-border-strong,
+        hover-border: $ml-border-control,
         hover-color: $ml-secondary,
 
         active-background: $ml-secondary-light,
-        active-border: $ml-border-strong,
+        active-border: $ml-border-control,
         active-color: $ml-secondary,
     ),
     "light": (
         background: $ml-surface,
-        border: $ml-border-strong,
+        border: $ml-border-control,
         color: $ml-text,
 
         hover-background: $ml-bg,
-        hover-border: $ml-border-strong,
+        hover-border: $ml-border-control,
         hover-color: $ml-text,
 
         active-background: $ml-bg,
-        active-border: $ml-border-strong,
+        active-border: $ml-border-control,
         active-color: $ml-text,
     ),
 );

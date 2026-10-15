@@ -47,7 +47,7 @@
 
     &:has(.o-mail-Composer-input:focus) {
         border-color: rgba($ml-primary, 0.4) !important;
-        box-shadow: 0 0 0 3px rgba($ml-primary, 0.1);
+        box-shadow: $ml-focus-ring;
     }
 }
 
