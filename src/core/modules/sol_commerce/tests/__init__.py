@@ -9,6 +9,7 @@ from . import (
     test_feedback_portal,
     test_invoice_notices,
     test_invoices,
+    test_notification_portal,
     test_notification_preferences,
     test_order_access,
     test_order_approval,

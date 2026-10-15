@@ -2250,6 +2250,7 @@ msgid "Payment Transaction"
 msgstr ""
 
 #. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_payment_rejected
 msgid "Payment rejected"
 msgstr ""
 
@@ -3195,4 +3196,19 @@ msgstr ""
 #. module: sol_commerce
 #: model:portal.entry,description:sol_commerce.portal_entry_notifications
 msgid "Choose which updates you receive and where"
+msgstr ""
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_invoice_sent
+msgid "Invoice sent"
+msgstr ""
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_invoice_overdue
+msgid "Invoice overdue"
+msgstr ""
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_payment_receipt
+msgid "Payment receipt"
 msgstr ""

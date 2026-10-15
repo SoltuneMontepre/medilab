@@ -2237,6 +2237,7 @@ msgid "Payment Transaction"
 msgstr "Giao Dịch Thanh Toán"
 
 #. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_payment_rejected
 msgid "Payment rejected"
 msgstr "Thanh toán bị từ chối"
 
@@ -2405,10 +2406,12 @@ msgid "Invoice %(name)s is overdue."
 msgstr "Hóa đơn %(name)s đã quá hạn."
 
 #. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_invoice_overdue
 msgid "Invoice overdue"
 msgstr "Hóa đơn quá hạn"
 
 #. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_invoice_sent
 msgid "Invoice sent"
 msgstr "Hóa đơn đã gửi"
 
@@ -2437,6 +2440,7 @@ msgid "Payment of %(amount)s was recorded."
 msgstr "Đã ghi nhận khoản thanh toán %(amount)s."
 
 #. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_payment_receipt
 msgid "Payment receipt"
 msgstr "Biên lai thanh toán"
 
