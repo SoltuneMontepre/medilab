@@ -1,4 +1,5 @@
 from . import (
+    test_action_paths,
     test_administrator_person,
     test_administrator_role,
     test_approval_chain,

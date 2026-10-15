@@ -103,24 +103,18 @@ model MachineService {
   @@map("medilab_machine_service")
 }
 
-/// Odoo's contact table, shown with the columns this module uses and the columns it adds. A supplier is a company contact with a supplier code.
+/// Odoo's contact table, shown with the columns this module uses. A supplier's name, address and people are its company contact.
 model Contact {
   /// Row identifier.
   id                   Int             @id @default(autoincrement())
   /// Name of the company or person.
   name                 String          @db.VarChar
-  /// Unique code of a supplier; filled from a sequence when a contact first becomes a supplier.
-  supplier_code        String?         @unique @db.VarChar
-  /// The person the laboratory deals with by default at a supplier.
-  supplier_contact_id  Int?
-  /// Free notes about the supplier.
-  supplier_note        String?         @db.Text
-  /// Odoo's count of purchases from the contact; above 0 for a supplier.
+  /// Odoo's supplier rank; above 0 for a supplier, so Odoo's Purchase app offers it as a vendor.
   supplier_rank        Int             @default(0)
-  /// The person the laboratory deals with by default at a supplier.
-  supplier_contact     Contact?        @relation("SupplierContactPerson", fields: [supplier_contact_id], references: [id], onDelete: SetNull)
+  /// The supplier whose company contact this is.
+  supplier             Supplier?       @relation("SupplierCompany")
   /// Suppliers for which this person is the contact person.
-  supplier_contact_for Contact[]       @relation("SupplierContactPerson")
+  supplier_contact_for Supplier[]      @relation("SupplierContactPerson")
   /// Items the supplier sells.
   supplier_items       SupplierItem[]
   /// Purchase orders to the supplier.
@@ -131,21 +125,44 @@ model Contact {
   @@map("res_partner")
 }
 
-/// Odoo's product (product.product with its template), shown with the columns this module uses and the columns it adds: something the laboratory keeps in stock, a chemical or reagent, a consumable, a machine spare part or a prepared solution.
+/// A company the laboratory buys stock from. Its name, address and people are its contact. A trigram index on code serves search; the name is the contact's.
+model Supplier {
+  /// Row identifier.
+  id                Int      @id @default(autoincrement())
+  /// Unique code of the supplier, such as NCC.0001; filled from a sequence when left empty.
+  code              String   @unique @db.VarChar
+  /// The company contact of the supplier.
+  partner_id        Int      @unique
+  /// The person the laboratory deals with by default at the supplier.
+  contact_person_id Int?
+  /// Free notes about the supplier.
+  note              String?  @db.Text
+  /// False when the laboratory no longer buys from the supplier.
+  active            Boolean  @default(true)
+  /// The company contact of the supplier.
+  partner           Contact  @relation("SupplierCompany", fields: [partner_id], references: [id], onDelete: Restrict)
+  /// The person the laboratory deals with by default.
+  contact_person    Contact? @relation("SupplierContactPerson", fields: [contact_person_id], references: [id], onDelete: SetNull)
+
+  @@index([contact_person_id])
+  @@map("medilab_supplier")
+}
+
+/// Odoo's product (product.product with its template), shown with the columns this module uses and the columns it adds: something the laboratory keeps in stock, a chemical or reagent, a consumable, a machine spare part or a prepared solution. A product with an item kind is a stock item. Check: shelf_life_after_opening_days is 0 or more.
 /// A trigram index on name serves search.
 model StockItem {
   /// Row identifier.
   id                            Int                 @id @default(autoincrement())
-  /// Unique code of the item; filled from a sequence when left empty.
-  default_code                  String              @unique @db.VarChar
+  /// Unique code of the product; filled from a sequence for a stock item left without one, empty for other products.
+  default_code                  String?             @unique @db.VarChar
   /// Item name in each language.
   name                          Json
   /// True for every stock item: Odoo keeps its stock on hand.
   is_storable                   Boolean             @default(true)
-  /// chemical, consumable, spare_part or solution; a solution is made by a recipe.
-  item_kind                     String              @db.VarChar
-  /// Odoo's tracking: lot for items tracked by container or lot, none for items tracked by quantity only.
-  tracking                      String              @db.VarChar
+  /// chemical, consumable, spare_part or solution; a solution is made by a recipe. Empty for a product that is not a stock item.
+  item_kind                     String?             @db.VarChar
+  /// Odoo's tracking: lot for items tracked by container or lot, empty for items tracked by quantity only.
+  tracking                      String?             @db.VarChar
   /// True when each bottle or vial of the item is a container with its own code.
   track_containers              Boolean             @default(false)
   /// The Laboratory chemical the item stocks; set only for a chemical.
@@ -154,7 +171,7 @@ model StockItem {
   uom_id                        Int
   /// True when lots of the item have an expiry date.
   use_expiration_date           Boolean             @default(false)
-  /// Days an opened container stays usable; empty when opening does not shorten its life.
+  /// Days an opened container stays usable; 0 when opening does not shorten its life.
   shelf_life_after_opening_days Int?
   /// True when each lot keeps its own cost, so first in, first out costs a container at its lot's price.
   lot_valuated                  Boolean             @default(false)
@@ -203,12 +220,14 @@ model Orderpoint {
   product_min_qty Decimal       @db.Decimal
   /// Quantity a suggested purchase brings the stock up to.
   product_max_qty Decimal       @db.Decimal
+  /// The company the rule belongs to.
+  company_id      Int
   /// The item.
   item            StockItem     @relation(fields: [product_id], references: [id], onDelete: Cascade)
   /// The store the minimum applies to.
   location        StockLocation @relation(fields: [location_id], references: [id], onDelete: Cascade)
 
-  @@unique([product_id, location_id])
+  @@unique([product_id, location_id, company_id])
   @@map("stock_warehouse_orderpoint")
 }
 
@@ -666,7 +685,7 @@ model AccountingApiKey {
   @@map("medilab_accounting_api_key")
 }
 
-/// How much of an item one test of a method usually uses; entering a result deducts it. Unique on (method_id, product_id).
+/// How much of an item one test of a method usually uses; entering a result deducts it. Unique on (method_id, product_id). Check: quantity above 0.
 model MethodConsumption {
   /// Row identifier.
   id         Int           @id @default(autoincrement())
@@ -689,19 +708,19 @@ model MethodConsumption {
 /// Odoo's vendor price (product.supplierinfo), shown with the columns this module uses: an item a supplier sells, with the supplier's own reference and last price. Unique on (partner_id, product_id).
 model SupplierItem {
   /// Row identifier.
-  id           Int       @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   /// The supplier.
   partner_id   Int
   /// The item.
-  product_id   Int
+  product_id   Int?
   /// The supplier's reference for the item.
-  product_code String?   @db.VarChar
+  product_code String?    @db.VarChar
   /// Last price paid for one unit, excluding VAT.
-  price        Decimal   @db.Decimal
+  price        Decimal?   @db.Decimal
   /// The supplier.
-  supplier     Contact   @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  supplier     Contact    @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   /// The item.
-  item         StockItem @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  item         StockItem? @relation(fields: [product_id], references: [id], onDelete: SetNull)
 
   @@unique([partner_id, product_id])
   @@index([product_id])

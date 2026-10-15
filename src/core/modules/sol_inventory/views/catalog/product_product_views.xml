@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_stock_item_list" model="ir.ui.view">
+        <field name="name">product.product.stock.item.list</field>
+        <field name="model">product.product</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list duplicate="0" delete="0">
+                <field name="default_code" string="Code" />
+                <field name="name" />
+                <field name="item_kind" />
+                <field name="item_tracking" />
+                <field name="uom_id" string="Unit" />
+                <field name="chemical_id" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_stock_item_form" model="ir.ui.view">
+        <field name="name">product.product.stock.item.form</field>
+        <field name="model">product.product</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <form duplicate="0" delete="0">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field
+                                name="default_code"
+                                string="Code"
+                                placeholder="Filled from the sequence when left empty"
+                            />
+                            <field name="item_kind" required="1" />
+                            <field
+                                name="chemical_id"
+                                invisible="item_kind != 'chemical'"
+                                required="item_kind == 'chemical'"
+                                options="{'no_create': True}"
+                            />
+                            <field name="uom_id" string="Unit" options="{'no_create': True}" />
+                        </group>
+                        <group>
+                            <field name="item_tracking" widget="radio" required="1" />
+                            <field name="use_expiration_date" invisible="item_tracking == 'quantity'" />
+                            <field name="shelf_life_after_opening_days" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Minimums" name="minimums">
+                            <field name="orderpoint_ids" context="{'default_trigger': 'manual'}">
+                                <list editable="bottom">
+                                    <field
+                                        name="location_id"
+                                        string="Store"
+                                        domain="[('is_store', '=', True)]"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="product_min_qty" string="Minimum" />
+                                    <field name="product_max_qty" string="Maximum" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Suppliers" name="suppliers">
+                            <field name="supplier_item_ids" context="{'default_product_tmpl_id': product_tmpl_id}">
+                                <list editable="bottom">
+                                    <field
+                                        name="partner_id"
+                                        string="Supplier"
+                                        domain="[('supplier_ids', '!=', False)]"
+                                        options="{'no_create': True}"
+                                    />
+                                    <field name="product_code" string="Supplier's Reference" />
+                                    <field name="price" string="Last Price" />
+                                    <field name="currency_id" column_invisible="1" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Use per Test" name="consumptions">
+                            <field name="consumption_ids">
+                                <list editable="bottom">
+                                    <field name="method_id" options="{'no_create': True}" />
+                                    <field name="quantity" />
+                                    <field name="uom_id" string="Unit" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_stock_item_search" model="ir.ui.view">
+        <field name="name">product.product.stock.item.search</field>
+        <field name="model">product.product</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <search>
+                <field
+                    name="name"
+                    string="Item"
+                    filter_domain="['|', ('name', 'ilike', self), ('default_code', 'ilike', self)]"
+                />
+                <field name="chemical_id" />
+                <filter name="chemicals" string="Chemicals and Reagents" domain="[('item_kind', '=', 'chemical')]" />
+                <filter name="consumables" string="Consumables" domain="[('item_kind', '=', 'consumable')]" />
+                <filter name="spare_parts" string="Spare Parts" domain="[('item_kind', '=', 'spare_part')]" />
+                <filter name="solutions" string="Prepared Solutions" domain="[('item_kind', '=', 'solution')]" />
+                <separator />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+                <filter name="group_by_kind" string="Item Kind" context="{'group_by': 'item_kind'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_stock_item" model="ir.actions.act_window">
+        <field name="name">Stock Items</field>
+        <field name="res_model">product.product</field>
+        <field name="path">stock-items</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('item_kind', '!=', False)]</field>
+        <field name="search_view_id" ref="view_medilab_stock_item_search" />
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_stock_item_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_medilab_stock_item_form')})]" />
+    </record>
+</odoo>

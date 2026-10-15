@@ -55,6 +55,7 @@
     <record id="action_medilab_tax" model="ir.actions.act_window">
         <field name="name">Taxes</field>
         <field name="res_model">medilab.tax</field>
+        <field name="path">lab-taxes</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

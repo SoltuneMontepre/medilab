@@ -47,6 +47,11 @@ msgid "Acetonitrile"
 msgstr "Acetonitril"
 
 #. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_acetonitrile_product_template
+msgid "Acetonitrile, HPLC grade"
+msgstr "Acetonitril, loại HPLC"
+
+#. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_nitric_acid
 msgid "Acid cabinet, away from organic substances"
 msgstr "Tủ đựng axit, tránh xa chất hữu cơ"
@@ -117,6 +122,11 @@ msgstr "Lấy các chai còn niêm phong cùng một lô."
 #: model:medilab.sample.type,sampling_requirements:sol_demo.demo_sample_type_cabbage
 msgid "Collect whole heads in clean paper bags."
 msgstr "Lấy nguyên cây, đựng trong túi giấy sạch."
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_cotton_swabs_product_template
+msgid "Cotton swabs, 15 cm"
+msgstr "Tăm bông, 15 cm"
 
 #. module: sol_demo
 #: model:medilab.scheduled.job,name:sol_demo.demo_scheduled_job_echo
@@ -245,6 +255,11 @@ msgid "Lead (Pb)"
 msgstr "Chì (Pb)"
 
 #. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_aas_lamp_product_template
+msgid "Lead hollow cathode lamp for AAS"
+msgstr "Đèn catốt rỗng chì cho máy AAS"
+
+#. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_lead_standard
 msgid "Lead standard solution 1000 mg/L"
 msgstr "Dung dịch chuẩn chì 1000 mg/L"
@@ -317,8 +332,14 @@ msgstr ""
 
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_nitric_acid
+#: model:product.template,name:sol_demo.demo_product_product_nitric_acid_product_template
 msgid "Nitric acid 65%"
 msgstr "Axit nitric 65%"
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_nitrile_gloves_product_template
+msgid "Nitrile gloves, size M"
+msgstr "Găng tay nitrile, cỡ M"
 
 #. module: sol_demo
 #: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_coliforms
@@ -355,6 +376,11 @@ msgstr "Thuốc bảo vệ thực vật"
 #: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_physicochemical
 msgid "Physicochemical"
 msgstr "Hóa lý"
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_agar_plates_product_template
+msgid "Plate count agar plates"
+msgstr "Đĩa thạch đếm khuẩn lạc (PCA)"
 
 #. module: sol_demo
 #: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_bottled_water
@@ -399,6 +425,7 @@ msgstr "Tạo và cấu hình dữ liệu cho mục đích trình diễn."
 
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_sodium_chloride
+#: model:product.template,name:sol_demo.demo_product_product_sodium_chloride_product_template
 msgid "Sodium chloride"
 msgstr "Natri clorua"
 
