@@ -16,12 +16,12 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 | ----------- | ------------------------------------------------------------------------------------------------------ |
 | `odoo`      | Resolve Odoo model names, fields, inheritance and Python/XML references through OdooLS.                |
 | `serena`    | Find symbols, references and definitions in the modules, and edit code by symbol, instead of grepping. |
-| `postgres`  | Query the local database to check records, schema and constraints after an install or upgrade.        |
+| `postgres`  | Read the local database to check records, schema and constraints after an install or upgrade.          |
 | `context7`  | Read current documentation of Odoo and other libraries before relying on an API.                       |
 | `sonarqube` | Read the quality gate and issues of a branch or pull request, and fix what it reports.                 |
 | `doppler`   | Look up which secrets and configs exist. Never print a secret's value.                                 |
 
-When a server is not connected, say so, then continue with the shell.
+The `postgres` server is read-only; [Database access](docs/workflows/odoo-intelligence.md#database-access) says how an authorized write is configured. When a server is not connected, say so, then continue with the shell.
 
 ## Hard Rules
 

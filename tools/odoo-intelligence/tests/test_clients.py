@@ -42,10 +42,12 @@ def test_launcher_finds_this_checkout_from_a_subdirectory():
     assert result.stdout.strip() == str(ROOT / "tools/odoo-intelligence/run.py")
 
 
-def test_cursor_reads_the_database_without_writing():
-    args = CURSOR["postgres"]["args"]
-    assert "--access-mode=restricted" in args
-    assert not any(arg.startswith("--access-mode=") and arg != "--access-mode=restricted" for arg in args)
+def test_clients_read_the_database_without_writing():
+    for name, servers in {"claude": CLAUDE, "cursor": CURSOR}.items():
+        args = servers["postgres"]["args"]
+        assert [arg for arg in args if arg.startswith("--access-mode")] == ["--access-mode=restricted"], name
+        assert "postgres-mcp==0.3.0" in args, name
+        assert not any(arg.startswith("postgres-mcp") and arg != "postgres-mcp==0.3.0" for arg in args), name
 
 
 def test_claude_hooks_run_serena_from_this_worktree():

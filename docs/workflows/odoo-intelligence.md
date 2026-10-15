@@ -57,7 +57,9 @@ Start a new session after setup; existing agents keep their processes and config
 
 ### Database access
 
-The `postgres` server inspects records and schema of the local Compose database. In Cursor it runs `postgres-mcp --access-mode=restricted`, which runs read-only SQL and rejects `CREATE`, `INSERT`, `DROP` and other writes. Its URL holds the Compose default credentials of the local database; set `DATABASE_URI` in the environment to reach a local database with other credentials. Never point it at a shared or production database. Claude Code's `postgres` server in `.mcp.json` runs unrestricted: use it to write only when the owner has asked for that change.
+The `postgres` server inspects records and schema of the local Compose database. Claude Code and Cursor run `postgres-mcp==0.3.0 --access-mode=restricted`, which runs read-only SQL and rejects `CREATE`, `INSERT`, `DROP`, temporary tables and statements chained after a `SELECT`. Its URL holds the Compose default credentials of the local database; set `DATABASE_URI` in the environment to reach a local database with other credentials. Never point it at a shared or production database.
+
+Writing through MCP needs a separate development configuration that the owner has authorized for that change, such as a personal, uncommitted server entry with `--access-mode=unrestricted`. Restricted mode filters statements in the MCP server; for stronger enforcement, connect it as a PostgreSQL role that has only `SELECT` and `USAGE` grants.
 
 ### Claude Code
 
