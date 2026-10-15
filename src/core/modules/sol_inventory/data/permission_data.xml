@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="permission_location_read_all" model="medilab.permission">
+        <field name="name">Read locations</field>
+        <field name="document_model">stock.location</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_location_create_all" model="medilab.permission">
+        <field name="name">Create locations</field>
+        <field name="document_model">stock.location</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_location_edit_all" model="medilab.permission">
+        <field name="name">Edit locations</field>
+        <field name="document_model">stock.location</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_location_archive_all" model="medilab.permission">
+        <field name="name">Archive locations</field>
+        <field name="document_model">stock.location</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_location_delete_all" model="medilab.permission">
+        <field name="name">Delete locations</field>
+        <field name="document_model">stock.location</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_cost_centre_read_all" model="medilab.permission">
+        <field name="name">Read cost centres</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_cost_centre_create_all" model="medilab.permission">
+        <field name="name">Create cost centres</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_cost_centre_edit_all" model="medilab.permission">
+        <field name="name">Edit cost centres</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_cost_centre_archive_all" model="medilab.permission">
+        <field name="name">Archive cost centres</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_cost_centre_delete_all" model="medilab.permission">
+        <field name="name">Delete cost centres</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_cost_centre_read_own_department" model="medilab.permission">
+        <field name="name">Read cost centres of their department</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_cost_centre_create_own_department" model="medilab.permission">
+        <field name="name">Create cost centres of their department</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_cost_centre_edit_own_department" model="medilab.permission">
+        <field name="name">Edit cost centres of their department</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_cost_centre_archive_own_department" model="medilab.permission">
+        <field name="name">Archive cost centres of their department</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">archive</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_cost_centre_delete_own_department" model="medilab.permission">
+        <field name="name">Delete cost centres of their department</field>
+        <field name="document_model">account.analytic.account</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
+</odoo>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="analytic_plan_cost_centres" model="account.analytic.plan">
+        <field name="name">Cost Centres</field>
+    </record>
+</odoo>

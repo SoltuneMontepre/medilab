@@ -4387,6 +4387,46 @@ msgid "Permission: cancellation.request.read.all"
 msgstr "Quyền: cancellation.request.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: cost_centre.archive.all"
+msgstr "Quyền: cost_centre.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.archive.own_department"
+msgstr "Quyền: cost_centre.archive.own_department"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.create.all"
+msgstr "Quyền: cost_centre.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.create.own_department"
+msgstr "Quyền: cost_centre.create.own_department"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.delete.all"
+msgstr "Quyền: cost_centre.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.delete.own_department"
+msgstr "Quyền: cost_centre.delete.own_department"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.edit.all"
+msgstr "Quyền: cost_centre.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.edit.own_department"
+msgstr "Quyền: cost_centre.edit.own_department"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.read.all"
+msgstr "Quyền: cost_centre.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.read.own_department"
+msgstr "Quyền: cost_centre.read.own_department"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_archive_all
 msgid "Permission: customer.archive.all"
 msgstr "Quyền: customer.archive.all"
@@ -4482,6 +4522,26 @@ msgstr "Quyền: job.item.read.all"
 #: model:res.groups,name:sol_laboratory.group_permission_job_run_read_all
 msgid "Permission: job.run.read.all"
 msgstr "Quyền: job.run.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.archive.all"
+msgstr "Quyền: location.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.create.all"
+msgstr "Quyền: location.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.delete.all"
+msgstr "Quyền: location.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.edit.all"
+msgstr "Quyền: location.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.read.all"
+msgstr "Quyền: location.read.all"
 
 #. module: sol_laboratory
 msgid "Permission: order.create.all"

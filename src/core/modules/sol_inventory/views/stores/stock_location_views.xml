@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_store_list" model="ir.ui.view">
+        <field name="name">stock.location.store.list</field>
+        <field name="model">stock.location</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list duplicate="0" decoration-warning="not manager_id or cost_centre_missing">
+                <field name="complete_name" string="Store" />
+                <field name="parent_store_id" />
+                <field name="holder_id" />
+                <field name="cost_centre_code" />
+                <field name="cost_centre_missing" column_invisible="1" />
+                <field name="manager_id" widget="many2one_avatar_employee" />
+                <field name="conditions" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_store_form" model="ir.ui.view">
+        <field name="name">stock.location.store.form</field>
+        <field name="model">stock.location</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field
+                                name="location_id"
+                                required="1"
+                                domain="[('usage', 'in', ('view', 'internal'))]"
+                                options="{'no_create': True}"
+                            />
+                            <field name="parent_store_id" />
+                            <field
+                                name="holder_id"
+                                invisible="not parent_store_id"
+                                required="parent_store_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="cost_centre_code" invisible="not holder_id" />
+                            <field name="manager_id" widget="many2one_avatar_employee" />
+                        </group>
+                        <group>
+                            <field name="conditions" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Locations" name="locations">
+                            <field name="child_ids" readonly="1">
+                                <list>
+                                    <field name="name" />
+                                    <field name="is_store" />
+                                    <field name="conditions" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_store_search" model="ir.ui.view">
+        <field name="name">stock.location.store.search</field>
+        <field name="model">stock.location</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="complete_name" string="Store" />
+                <field name="holder_id" />
+                <field name="manager_id" />
+                <filter name="without_manager" string="Without Manager" domain="[('manager_id', '=', False)]" />
+                <filter
+                    name="without_cost_centre"
+                    string="Without Cost Centre"
+                    domain="[('cost_centre_missing', '=', True)]"
+                />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_store" model="ir.actions.act_window">
+        <field name="name">Stores</field>
+        <field name="res_model">stock.location</field>
+        <field name="path">stores</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_store', '=', True)]</field>
+        <field name="context">{'default_is_store': True}</field>
+        <field name="search_view_id" ref="view_medilab_store_search" />
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_store_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_medilab_store_form')})]" />
+    </record>
+</odoo>

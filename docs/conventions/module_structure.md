@@ -21,6 +21,8 @@ How code inside an Odoo module is laid out.
 | `orders`            | Sale orders, the portal cart and cancellation requests                                                                                                                           |
 | `support`           | Support requests and the customers' feedback on orders                                                                                                                           |
 | `system`            | People, departments, roles, permissions, approval chains, signatures, the audit trail, mobile devices and menus                                                                  |
+| `stores`            | Stores and the locations inside them, with their holders and managers                                                                                                            |
+| `costs`             | Cost centres                                                                                                                                                                     |
 
 ## Files
 
