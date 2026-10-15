@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Odoo's stock location is the central store. An update skips Odoo's own records, so a function flags it on
+         every update too, before the stores below it are created. -->
+    <function model="stock.location" name="write" eval="[[ref('stock.stock_location_stock')], {'is_store': True}]" />
+    <data noupdate="1">
+        <record id="stock.stock_location_stock" model="stock.location">
+            <field name="name">Central store</field>
+            <field name="conditions">15–25 °C, dry</field>
+            <field name="manager_id" model="hr.employee" search="[('user_id', '=', ref('demo_res_users_storekeeper'))]" />
+        </record>
+        <record id="demo_stock_location_room_101" model="stock.location">
+            <field name="name">Room 101</field>
+            <field name="location_id" ref="stock.stock_location_stock" />
+            <field name="conditions">15–25 °C, dry, away from light</field>
+        </record>
+        <record id="demo_stock_location_fridge_1" model="stock.location">
+            <field name="name">Fridge 1</field>
+            <field name="location_id" ref="demo_stock_location_room_101" />
+            <field name="conditions">2–8 °C</field>
+        </record>
+        <record id="demo_stock_location_room_102" model="stock.location">
+            <field name="name">Room 102</field>
+            <field name="location_id" ref="stock.stock_location_stock" />
+            <field name="conditions">Below 30 °C, ventilated, flammables cabinet</field>
+        </record>
+        <record id="demo_stock_location_chemistry_store" model="stock.location">
+            <field name="name">Chemistry store</field>
+            <field name="location_id" ref="stock.stock_location_stock" />
+            <field name="is_store" eval="True" />
+            <field name="holder_id" ref="demo_hr_department_chemistry" />
+            <field name="manager_id" model="hr.employee" search="[('user_id', '=', ref('demo_res_users_head_of_department'))]" />
+            <field name="conditions">15–25 °C</field>
+        </record>
+        <record id="demo_stock_location_microbiology_store" model="stock.location">
+            <field name="name">Microbiology store</field>
+            <field name="location_id" ref="stock.stock_location_stock" />
+            <field name="is_store" eval="True" />
+            <field name="holder_id" ref="demo_hr_department_microbiology" />
+            <field name="conditions">15–25 °C</field>
+        </record>
+        <record id="demo_stock_location_pesticide_residues_store" model="stock.location">
+            <field name="name">Pesticide residues store</field>
+            <field name="location_id" ref="demo_stock_location_chemistry_store" />
+            <field name="is_store" eval="True" />
+            <field name="holder_id" ref="demo_hr_department_pesticide_residues" />
+            <field name="manager_id" model="hr.employee" search="[('user_id', '=', ref('demo_res_users_tester'))]" />
+            <field name="conditions">2–8 °C for standards</field>
+        </record>
+    </data>
+</odoo>
