@@ -4478,6 +4478,34 @@ msgid "Permission: location.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: method.consumption.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: method.consumption.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: method.consumption.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: minimum_quantity.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: minimum_quantity.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: minimum_quantity.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: minimum_quantity.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
 msgid "Permission: order.create.all"
 msgstr ""
 
@@ -4723,6 +4751,22 @@ msgid "Permission: signature.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: stock_item.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: stock_item.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: stock_item.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: stock_item.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
 msgid "Permission: subcontract.cost.archive.all"
 msgstr ""
 
@@ -4740,6 +4784,34 @@ msgstr ""
 
 #. module: sol_laboratory
 msgid "Permission: subcontract.cost.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: supplier.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: supplier.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: supplier.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: supplier.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: supplier_item.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: supplier_item.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: supplier_item.edit.all"
 msgstr ""
 
 #. module: sol_laboratory

@@ -1,7 +1,6 @@
 from lxml import etree
 
 from odoo.exceptions import AccessError
-from odoo.fields import Command
 from odoo.tests import tagged
 
 from .stores_case import StoresCase
@@ -16,10 +15,7 @@ class TestStoreSetupAccess(StoresCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.storekeeper.permission_ids = [
-            Command.link(cls.env.ref(f"sol_inventory.permission_location_{action}_all").id)
-            for action in LOCATION_PERMISSIONS
-        ]
+        cls.grant_inventory(cls.storekeeper, *(f"location.{action}.all" for action in LOCATION_PERMISSIONS))
         cls.administrator = cls.env.ref("base.user_admin")
 
     def test_the_storekeeper_maintains_locations_inside_a_store(self):

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_supplier_list" model="ir.ui.view">
+        <field name="name">medilab.supplier.list</field>
+        <field name="model">medilab.supplier</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code" />
+                <field name="name" />
+                <field name="contact_person_id" />
+                <field name="phone" optional="show" />
+                <field name="email" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_supplier_form" model="ir.ui.view">
+        <field name="name">medilab.supplier.form</field>
+        <field name="model">medilab.supplier</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" required="0" placeholder="Filled from the sequence when left empty" />
+                            <field name="vat" />
+                            <field name="street" />
+                            <field name="city" />
+                            <field name="country_id" />
+                        </group>
+                        <group>
+                            <field
+                                name="contact_person_id"
+                                context="{'default_parent_id': partner_id, 'default_is_company': False}"
+                            />
+                            <field name="phone" />
+                            <field name="email" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Items" name="items">
+                            <field name="supplier_item_ids" readonly="1">
+                                <list>
+                                    <field name="product_id" string="Item" />
+                                    <field name="product_code" string="Supplier's Reference" />
+                                    <field name="price" string="Last Price" />
+                                    <field name="currency_id" column_invisible="1" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <field name="note" placeholder="Notes" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_supplier_search" model="ir.ui.view">
+        <field name="name">medilab.supplier.search</field>
+        <field name="model">medilab.supplier</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" string="Name" />
+                <field name="supplier_item_ids" string="Item" filter_domain="[('supplier_item_ids.product_id', 'ilike', self)]" />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_supplier" model="ir.actions.act_window">
+        <field name="name">Suppliers</field>
+        <field name="res_model">medilab.supplier</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

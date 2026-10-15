@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_method_consumption_en_15662_acetonitrile" model="medilab.method.consumption">
+        <field name="method_id" ref="demo_testing_method_en_15662" />
+        <field name="product_id" ref="demo_product_product_acetonitrile" />
+        <field name="quantity">10</field>
+    </record>
+    <record id="demo_method_consumption_en_15662_sodium_chloride" model="medilab.method.consumption">
+        <field name="method_id" ref="demo_testing_method_en_15662" />
+        <field name="product_id" ref="demo_product_product_sodium_chloride" />
+        <field name="quantity">1</field>
+    </record>
+</odoo>

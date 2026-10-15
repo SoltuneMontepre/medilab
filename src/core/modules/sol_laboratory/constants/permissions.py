@@ -18,4 +18,7 @@ ODOO_DOCUMENT_TYPES = {
     "sale.order": "order",
     "stock.location": "location",
     "account.analytic.account": "cost_centre",
+    "product.product": "stock_item",
+    "product.supplierinfo": "supplier_item",
+    "stock.warehouse.orderpoint": "minimum_quantity",
 }

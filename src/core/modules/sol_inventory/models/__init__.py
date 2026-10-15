@@ -1,1 +1,1 @@
-from . import costs, stores
+from . import catalog, costs, stores
