@@ -2,7 +2,7 @@ version: "3"
 
 vars:
   AI_PROJECT: tools/odoo-intelligence
-  AI_RUN: uv run --locked --project tools/odoo-intelligence medilab-odoo
+  AI_RUN: uv run --locked --project {{.AI_PROJECT}} medilab-odoo
   LOG: tools/scripts/log.sh
 
 tasks:
@@ -27,7 +27,7 @@ tasks:
           log_error "git not found. Install: https://git-scm.com/downloads"
           exit 1
         fi
-        uv sync --quiet --locked --python 3.13 --project {{.AI_PROJECT}}
+        uv sync --quiet --locked --project {{.AI_PROJECT}}
       - task: ai:odoo-ls
       - |
         . {{.LOG}}
@@ -42,9 +42,9 @@ tasks:
   ai:test:
     desc: "Run the AI tooling tests and lint checks"
     cmds:
-      - uv run --directory {{.AI_PROJECT}} --locked pytest -q
-      - uv run --directory {{.AI_PROJECT}} --locked ruff check .
-      - uv run --directory {{.AI_PROJECT}} --locked ruff format --check .
+      - uv run --locked --directory {{.AI_PROJECT}} pytest -q
+      - uv run --locked --directory {{.AI_PROJECT}} ruff check .
+      - uv run --locked --directory {{.AI_PROJECT}} ruff format --check .
 
   ai:verify:
     desc: "Verify core and custom Odoo model and field navigation through MCP"
