@@ -26,6 +26,7 @@ Each module also has every app its own apps depend on: `mail`, `bus` and `resour
 
 | Concept                                   | Built on                                                                                                                                                                             |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Location                                  | `medilab.location` in Laboratory, so every module can use it; not `hr.work.location`, which lists where employees work, nor `stock.location`, which Laboratory does not depend on |
 | Department, team                          | `hr.department`; a team is a department whose parent is its department                                                                                                               |
 | Person                                    | `medilab.person`, delegating to `hr.employee` with `_inherits`: its table holds the team, roles and direct permissions, and the employee the name, user, work contact and department |
 | Role, permission                          | MediLab roles and permissions generating Odoo groups (`res.groups`) and accesses (`ir.access`), see [Permissions](../specs/permissions.md)                                           |

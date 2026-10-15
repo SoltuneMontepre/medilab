@@ -230,7 +230,7 @@ model TestingMethodStep {
   /// Where the step is done.
   location_id      Int?
   /// Where the step is done.
-  location         TestingLocation? @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  location         Location? @relation(fields: [location_id], references: [id], onDelete: Restrict)
   /// The testing method the step belongs to.
   method           TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
 
@@ -239,8 +239,8 @@ model TestingMethodStep {
   @@map("medilab_testing_method_step")
 }
 
-/// A place in the laboratory's premises (Vị trí thử nghiệm), such as a room, a bench or an area.
-model TestingLocation {
+/// A place in the company's premises (Vị trí), such as a room, a bench, an area or a sampling point. Every module uses it.
+model Location {
   /// Row identifier.
   id            Int               @id @default(autoincrement())
   /// Unique code of the location.
@@ -256,9 +256,9 @@ model TestingLocation {
   /// False when the location is archived.
   active        Boolean           @default(true)
   /// The broader location this one is in.
-  parent        TestingLocation?  @relation("TestingLocationTree", fields: [parent_id], references: [id], onDelete: Restrict)
+  parent        Location?  @relation("LocationTree", fields: [parent_id], references: [id], onDelete: Restrict)
   /// Locations inside this one.
-  children      TestingLocation[] @relation("TestingLocationTree")
+  children      Location[] @relation("LocationTree")
   /// The department that uses the location.
   department    Department?       @relation(fields: [department_id], references: [id], onDelete: SetNull)
   /// Steps done in the location.
@@ -268,7 +268,7 @@ model TestingLocation {
 
   @@index([parent_id])
   @@index([department_id])
-  @@map("medilab_testing_location")
+  @@map("medilab_location")
 }
 
 /// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận).
@@ -357,8 +357,8 @@ model Department {
   handovers         SampleHandover[]
   /// Machine bookings of the department's testing tasks.
   bookings          MachineBooking[]
-  /// Testing locations the department uses.
-  locations         TestingLocation[]
+  /// Locations the department uses.
+  locations         Location[]
 
   @@index([parent_id])
   @@map("hr_department")
@@ -834,10 +834,10 @@ model Sample {
   condition_note       String?      @db.Text
   /// Where the sample is stored, such as "Fridge 2, shelf B".
   storage_location     String?      @db.VarChar
-  /// The testing location the sample was taken from, such as a sampling point.
+  /// The location the sample was taken from, such as a sampling point.
   sampling_location_id Int?
-  /// The testing location the sample was taken from.
-  sampling_location    TestingLocation? @relation(fields: [sampling_location_id], references: [id], onDelete: Restrict)
+  /// The location the sample was taken from.
+  sampling_location    Location? @relation(fields: [sampling_location_id], references: [id], onDelete: Restrict)
   /// When the head of department asked for the sample to be collected again because it arrived insufficient.
   recollection_requested_at DateTime?
   /// Head of department who asked for the sample to be collected again.
