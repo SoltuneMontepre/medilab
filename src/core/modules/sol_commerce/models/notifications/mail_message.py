@@ -19,7 +19,7 @@ class MailMessage(models.Model):
             .sudo()
             .search([("event_id", "=", event.id), ("partner_id", "in", collected.commercial_partner_id.ids)])
         )
-        for route in routes:
+        for route in routes.filtered(lambda route: route.contact_id.active and route.contact_id.email):
             replaced = collected.filtered(
                 lambda partner, route=route: partner.commercial_partner_id == route.partner_id
             )

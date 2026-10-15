@@ -89,6 +89,13 @@ class TestNotificationPreferences(InvoicingCase):
         recipients = self.env["mail.message"]._event_partners(self.updated, self.hoa)
         self.assertEqual(recipients, self.hoa)
 
+    def test_an_archived_contact_is_not_routed_to(self):
+        routes = self.env["medilab.notification.contact"].with_user(self.hoa_user)
+        routes.set_own(self.updated, self.khoa)
+        self.khoa.active = False
+        recipients = self.env["mail.message"]._event_partners(self.updated, self.hoa)
+        self.assertEqual(recipients, self.hoa)
+
     def test_a_business_cannot_choose_a_contact_of_another_company(self):
         stranger = self.env["res.partner"].create({"name": "Stranger", "email": "s@example.com"})
         routes = self.env["medilab.notification.contact"].with_user(self.hoa_user)
