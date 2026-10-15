@@ -46,7 +46,7 @@
         "--with",
         "mcp<2",
         "postgres-mcp",
-        "--access-mode=unrestricted",
+        "--access-mode=restricted",
         "postgresql://root:root@localhost:15432/medilab"
       ]
     },
