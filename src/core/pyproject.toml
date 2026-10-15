@@ -24,9 +24,12 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "freezegun>=1.2.1",
+    "lxml-stubs>=0.5.1",
     "pylint-odoo>=10.0.12",
     "pyright>=1.1.400",
     "ruff>=0.15.0",
+    "xlsxwriter>=3.1.9",
 ]
 
 # The addons are loaded by Odoo from addons_path, not installed as a package,

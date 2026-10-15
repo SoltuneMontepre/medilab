@@ -4,7 +4,8 @@ Module operations cannot run inside a test case, so this is a standalone functio
 ``python3 -m odoo.tests.test_module_operations -d <database> standalone medilab_uninstall`` runs: ``task test:uninstall``.
 """
 
-from odoo import SUPERUSER_ID, api
+from odoo import api
+from odoo.api import SUPERUSER_ID
 from odoo.tests.common import standalone
 
 from odoo.addons.sol_laboratory.constants.models import (

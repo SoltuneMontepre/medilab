@@ -20,4 +20,12 @@
         <field name="accreditation_number">VILAS 303</field>
         <field name="note">Accreditation without expiry date.</field>
     </record>
+    <record id="demo_subcontractor_mekong_food_testing" model="medilab.subcontractor">
+        <field name="partner_id" ref="demo_res_partner_mekong_food_testing" />
+        <field name="accreditation_number">VILAS 404</field>
+        <field name="accreditation_expiry" eval="(DateTime.today() + relativedelta(years=1)).strftime('%Y-%m-%d')" />
+        <field name="contract_reference">HD-2023/11</field>
+        <field name="note">No longer used by the laboratory.</field>
+        <field name="active" eval="False" />
+    </record>
 </odoo>

@@ -151,7 +151,7 @@ class MachineBooking(models.Model):
     def _move(self, start):
         self.ensure_one()
         self._check_adjustable()
-        if self.status != "scheduled":
+        if self.status != "scheduled" or not self.starts_at or not self.ends_at:
             raise UserError(self.env._("Only a scheduled booking can be moved."))
         start = _round_up(start)
         length = self.ends_at - self.starts_at

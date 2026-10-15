@@ -63,7 +63,8 @@ class ArchiveMixin(models.AbstractModel):
             return []
         readable = referrers.has_access("read") and referrers._has_field_access(field, "read")
         visible = referrers.search(domain, limit=LISTED_REFERENCES) if readable else referrers
-        names = visible.mapped("display_name")
+        # A record with an empty name has no display name; it is named by its id.
+        names = [record.display_name or f"#{record.id}" for record in visible]
         if total > len(visible):
             names.append(self.env._("%s more", total - len(visible)))
         return names

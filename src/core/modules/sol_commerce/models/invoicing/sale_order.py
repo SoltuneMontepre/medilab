@@ -48,7 +48,7 @@ class SaleOrder(models.Model):
                         ("method", "in", ("cash", "bank_transfer")),
                     ]
                 )
-            order.pending_amount = sum(pending.mapped("amount"))
+            order.pending_amount = sum(payment.amount for payment in pending)
 
     def create_advance_invoice(self, amount=None, percentage=None):
         """Post one down-payment invoice for this order. Sending a quotation calls this through _on_quotation_sent."""
