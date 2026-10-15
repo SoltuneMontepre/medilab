@@ -18,6 +18,7 @@ The tester, also called lab QA, runs the tests assigned to them on the laborator
 - **US-T07** As a tester, I want to send my result for approval and sign it, so that the head of department can review it.
 - **US-T08** As a tester, I want to retest when a result is rejected, so that the reported result is correct, while the rejected one stays on record.
 - **US-T09** As a tester, I want to enter the results a subcontractor sends back for an outsourced test, so that they reach the report when the subcontractor does not enter them itself.
+- **US-T17** As a tester, I want to see the steps of the testing method of my test, each with how long it takes, what to do and its note, so that I run the test the way the laboratory defines it.
 
 ### Samples
 
@@ -48,7 +49,7 @@ Acceptance criteria:
 - A reminder arrives before the booking starts.
 - A tester sees the lab code of a sample, not its customer or the customer's name for it.
 
-### 2. Results (US-T05 to US-T09)
+### 2. Results (US-T05 to US-T09, US-T17)
 
 Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 
@@ -60,11 +61,14 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 | Retest      | A retest adds a result; the earlier one is kept.                                                     |
 | Task done   | The testing task is done when the reported result is approved.                                       |
 | Outsourced  | The results of an outsourced test are entered by the subcontractor or by a lab QA; each result records who entered it. |
+| Method steps | A tester sees the steps of the testing method of the way of testing chosen for their sample test, in step number order, from the testing task and the booking. They only read them; the administrator maintains them ([Administrator](admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26)). |
 
 Acceptance criteria:
 
 - A result entered for a booked test shows the booking's machine and start time, and the tester can correct them.
 - A result entered on a sample with a regulation shows the copied limit and needs a conclusion before it is sent for approval.
+- A tester opening a testing task sees the steps of its method with their number, duration, what to do and note, in step number order; a method without steps shows none.
+- A tester cannot change a step.
 - A rejected result stays on record, and the sample test goes back to testing.
 - Approving the reported result closes the tester's testing task.
 

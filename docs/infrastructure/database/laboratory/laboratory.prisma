@@ -204,9 +204,32 @@ model TestingMethod {
   parameters ParameterMethod[]
   /// Chemicals the method uses.
   chemicals  ChemicalMethod[]
+  /// Steps of the procedure, in step number order.
+  steps      TestingMethodStep[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
+}
+
+/// A step of a testing method's procedure.
+model TestingMethodStep {
+  /// Row identifier.
+  id               Int           @id @default(autoincrement())
+  /// The testing method the step belongs to.
+  method_id        Int
+  /// Step number; steps are shown in this order.
+  sequence         Int
+  /// Minutes the step takes.
+  duration_minutes Int
+  /// What to do in the step.
+  instruction      String
+  /// Remark on the step, such as a precaution.
+  note             String?
+  /// The testing method the step belongs to.
+  method           TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
+
+  @@unique([method_id, sequence])
+  @@map("medilab_testing_method_step")
 }
 
 /// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
