@@ -42,7 +42,7 @@ tasks:
   ai:test:
     desc: "Run the AI tooling tests and lint checks"
     cmds:
-      - uv run --locked --directory {{.AI_PROJECT}} pytest -q
+      - uv run --locked --directory {{.AI_PROJECT}} pytest -q -rs
       - uv run --locked --directory {{.AI_PROJECT}} ruff check .
       - uv run --locked --directory {{.AI_PROJECT}} ruff format --check .
 

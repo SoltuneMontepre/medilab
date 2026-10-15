@@ -51,7 +51,7 @@ How tests are written, where they live and how they run.
 
 ## AI tooling
 
-`task ai:test` runs the tooling suite and lint checks. Live OdooLS tests run when `task ai:setup` has installed the binary and source; otherwise they report skips. `task ai:verify` checks the Python and XML model and field definitions in `odoo_intelligence/navigation_cases.json` through MCP, plus completion, hover, references and symbols. [Odoo intelligence](../workflows/odoo-intelligence.md) explains the client and Cursor extension-host checks. These checks do not install application modules or alter a database.
+`task ai:test` runs the tooling suite and lint checks; `ci-ai` runs it on pull requests that change the AI tooling. Live OdooLS tests run when `task ai:setup` has installed the binary and source; otherwise they report skips, as they do in CI. `task ai:verify` checks the Python and XML model and field definitions in `odoo_intelligence/navigation_cases.json` through MCP, plus completion, hover, references and symbols. [Odoo intelligence](../workflows/odoo-intelligence.md) explains the client and Cursor extension-host checks. These checks do not install application modules or alter a database.
 
 ## Related documents
 
