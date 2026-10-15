@@ -24,7 +24,7 @@ class TestWaysOfTestingList(MasterDataCase):
 
     def test_ways_of_testing_list_offers_archiving_but_not_deleting(self):
         arch = self.env[MODEL_TEST_PARAMETER].get_views([(False, "form")])["views"]["form"]["arch"]
-        rows = etree.fromstring(arch).xpath("//field[@name='method_ids']/list")
+        rows = etree.fromstring(arch).findall(".//field[@name='method_ids']/list")
 
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0].get("delete"), "0")
