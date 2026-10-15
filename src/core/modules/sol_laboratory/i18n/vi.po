@@ -4809,6 +4809,22 @@ msgid "Permission: subcontract.cost.read.all"
 msgstr "Quyền: subcontract.cost.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: support.request.create.all"
+msgstr "Quyền: support.request.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.delete.all"
+msgstr "Quyền: support.request.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.edit.all"
+msgstr "Quyền: support.request.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.read.all"
+msgstr "Quyền: support.request.read.all"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_task_create_all
 msgid "Permission: task.create.all"
 msgstr "Quyền: task.create.all"

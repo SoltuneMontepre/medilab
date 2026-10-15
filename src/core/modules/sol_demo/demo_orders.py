@@ -33,6 +33,7 @@ def seed_orders(env):
     declined_order = _order(orders, hoa, company, "confirmed", package, user_id=sales.id)
     accepted_order = _order(orders, hoa, company, "confirmed", lead, user_id=sales.id)
     completed = _order(orders, hoa, company, "completed", lead, quantity=2, user_id=sales.id)
+    completed_unrated = _order(orders, hoa, company, "completed", package, user_id=sales.id)
     behalf = (
         orders.with_user(sales)
         .with_context(medilab_sales_order=True)
@@ -61,6 +62,7 @@ def seed_orders(env):
         ("demo_sale_order_confirmed", confirmed),
         ("demo_sale_order_declined", declined_order),
         ("demo_sale_order_completed", completed),
+        ("demo_sale_order_completed_unrated", completed_unrated),
         ("demo_sale_order_sales", behalf),
         ("demo_sale_order_reorder", reorder),
         ("demo_cancellation_request_open", open_request),

@@ -164,7 +164,10 @@
             <div class="container py-4">
                 <div class="d-flex justify-content-between mb-3">
                     <h1>Orders</h1>
-                    <a class="btn btn-secondary" href="/catalog">Catalog</a>
+                    <div>
+                        <a class="btn btn-secondary me-2" href="/support">Support</a>
+                        <a class="btn btn-secondary" href="/catalog">Catalog</a>
+                    </div>
                 </div>
                 <t t-call="sol_commerce.order_table" />
             </div>
@@ -228,6 +231,33 @@
                 <form t-att-action="'/orders/%s/reorder' % order.id" method="post" class="mt-3">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                     <button type="submit" class="btn btn-primary">Reorder</button>
+                </form>
+                <h2 class="mt-4">Support</h2>
+                <t t-set="statuses" t-value="dict(support_requests._fields['status']._description_selection(support_requests.env))" />
+                <ul t-if="support_requests">
+                    <li t-foreach="support_requests" t-as="support_request">
+                        <a t-att-href="'/support/%s' % support_request.id" t-out="support_request.code" />
+                        <t t-out="support_request.subject" /> (<t t-out="statuses[support_request.status]" />)
+                    </li>
+                </ul>
+                <p><a class="btn btn-secondary" t-att-href="'/support/new?order_id=%s' % order.id">Ask for help about this order</a></p>
+                <h2 class="mt-4" t-if="order.feedback_rating or order.can_give_feedback()">Feedback</h2>
+                <div t-if="order.feedback_rating" class="border rounded p-3 mb-3">
+                    <p>Your rating: <t t-out="order.feedback_rating" />/5</p>
+                    <p t-if="order.feedback_comment" t-out="order.feedback_comment" />
+                </div>
+                <form t-if="order.can_give_feedback()" t-att-action="'/orders/%s/feedback' % order.id" method="post" class="mb-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <div class="mb-2">
+                        <t t-foreach="range(1, 6)" t-as="star">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="rating" t-att-id="'rating-%s' % star" t-att-value="star" required="required" />
+                                <label class="form-check-label" t-att-for="'rating-%s' % star" t-out="star" />
+                            </div>
+                        </t>
+                    </div>
+                    <textarea name="comment" class="form-control mb-2" placeholder="Comment" />
+                    <button type="submit" class="btn btn-success">Send feedback</button>
                 </form>
             </div>
         </t>

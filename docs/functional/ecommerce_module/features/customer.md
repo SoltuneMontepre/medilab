@@ -242,18 +242,29 @@ The customer receives one notification per event, through the channels chosen in
 - **Support.** The customer opens a support request from the portal, optionally linked to an order, and follows the conversation with sales until it is closed.
 - **Feedback.** After an order is completed the customer can rate the service and leave a comment. Feedback is visible to sales and management and is not shown to other customers.
 
+```mermaid
+stateDiagram-v2
+    [*] --> open: customer opens request
+    open --> answered: sales replies
+    answered --> open: customer writes again
+    open --> closed: sales closes
+    answered --> closed: sales closes
+```
+
 | Rule         | Description                                                                                                                  |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | Request      | A support request has a subject and can be linked to one of the customer's orders. Files can be attached to its messages.     |
 | Status       | A request is open, answered once support has replied and the customer has not written since, or closed. Writing on an answered request opens it again. |
+| Closed       | A closed request cannot be written on from the portal; the customer opens a new request for a new question.                   |
 | One feedback | An order has at most one feedback: a rating from 1 to 5 and an optional comment, given once the order is completed.          |
+| Feedback kept | Feedback cannot be changed once given. Only those who can read the order see it, and only an administrator can delete it.  |
 
 Acceptance criteria:
 
 - A support request linked to an order shows on that order for the customer and for sales.
 - A reply from support sets the request to answered and notifies the customer.
 - Feedback can be given only on a completed order, once.
-- Another customer never sees a customer's feedback.
+- Another customer never sees a customer's support requests or feedback.
 
 ## IV. Related documents
 
