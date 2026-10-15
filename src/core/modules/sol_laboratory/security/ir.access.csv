@@ -19,6 +19,11 @@ access_medilab_task_type_user,medilab.task.type user,medilab.task.type,base.grou
 access_medilab_task_assignee,medilab.task assignee,medilab.task,base.group_user,r,"[('assignee_id.user_id', '=', user.id)]"
 access_medilab_task_queue,medilab.task queue,medilab.task,base.group_user,r,"['&', ('status', '=', 'open'), '|', ('department_id', 'in', user.employee_id.department_id.ids), '&', '&', ('department_id', '=', False), ('type_id.route', '=', 'role'), ('type_id.role_id.person_ids', 'any', [('user_id', '=', user.id), ('active', '=', True)])]"
 access_medilab_task_reassign_user,medilab.task.reassign user,medilab.task.reassign,base.group_user,crud,
+access_medilab_test_result_reject_user,medilab.test.result.reject user,medilab.test.result.reject,base.group_user,crud,
+access_medilab_test_report_reject_user,medilab.test.report.reject user,medilab.test.report.reject,base.group_user,crud,
+access_medilab_sample_test_cancel_user,medilab.sample.test.cancel user,medilab.sample.test.cancel,base.group_user,crud,
+access_medilab_sample_test_outsource_user,medilab.sample.test.outsource user,medilab.sample.test.outsource,base.group_user,crud,
+access_medilab_subcontract_dispatch_courier,medilab.subcontract.dispatch courier,medilab.subcontract.dispatch,base.group_user,r,"[('courier_id.user_id', '=', user.id)]"
 access_medilab_notification_event_recipient_user,medilab.notification.event.recipient user,medilab.notification.event.recipient,base.group_user,r,
 access_medilab_notification_event_recipient_system,medilab.notification.event.recipient system,medilab.notification.event.recipient,base.group_system,crud,
 access_medilab_notification_preference_user,medilab.notification.preference user,medilab.notification.preference,base.group_user,ru,"[('user_id', '=', user.id)]"
@@ -27,3 +32,5 @@ access_medilab_mobile_device_user,medilab.mobile.device user,medilab.mobile.devi
 access_medilab_mobile_device_system,medilab.mobile.device system,medilab.mobile.device,base.group_system,crud,
 access_medilab_push_delivery_user,medilab.push.delivery user,medilab.push.delivery,base.group_user,r,
 access_medilab_push_delivery_system,medilab.push.delivery system,medilab.push.delivery,base.group_system,crud,
+access_medilab_sample_scan_user,medilab.sample.scan user,medilab.sample.scan,base.group_user,crud,
+access_medilab_machine_booking_person,medilab.machine.booking person,medilab.machine.booking,base.group_user,r,"[('person_id.user_id', '=', user.id)]"

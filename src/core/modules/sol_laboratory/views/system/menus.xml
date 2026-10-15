@@ -2,6 +2,7 @@
 <odoo>
     <menuitem id="menu_tasks_root" name="Tasks" action="action_medilab_task_dashboard" sequence="5">
         <menuitem id="menu_task_mine" action="action_medilab_task_mine" sequence="10" />
+        <menuitem id="menu_task_queue" action="action_medilab_task_queue" sequence="15" />
         <menuitem id="menu_task_finished" action="action_medilab_task_finished" sequence="20" />
         <menuitem id="menu_task_all" action="action_medilab_task" sequence="30" />
         <menuitem
@@ -15,7 +16,53 @@
     <menuitem id="menu_laboratory_root" name="Laboratory" sequence="10">
         <menuitem id="menu_test_request" action="action_medilab_test_request" sequence="10" />
         <menuitem id="menu_sample" action="action_medilab_sample" sequence="20" />
+        <menuitem id="menu_handover_record" action="action_medilab_handover_record" sequence="25" />
+        <menuitem id="menu_sample_handover" action="action_medilab_sample_handover" sequence="26" />
+        <menuitem id="menu_sample_scan" action="action_medilab_sample_scan" sequence="27" />
         <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
+        <menuitem
+            id="menu_customer_duplicate"
+            action="action_medilab_customer_duplicate"
+            sequence="31"
+            groups="group_permission_customer_edit_all"
+        />
+        <menuitem id="menu_test_result" action="action_medilab_test_result" sequence="38" />
+        <menuitem id="menu_test_report" action="action_medilab_test_report" sequence="39" />
+        <menuitem
+            id="menu_test_report_to_sign"
+            action="action_medilab_test_report_to_sign"
+            sequence="39"
+            groups="group_permission_test_report_sign_all"
+        />
+        <menuitem
+            id="menu_test_report_to_deliver"
+            action="action_medilab_test_report_to_deliver"
+            sequence="39"
+            groups="group_permission_test_report_edit_all"
+        />
+        <menuitem id="menu_machine_booking" action="action_medilab_machine_booking" sequence="40" />
+        <menuitem
+            id="menu_outsourcing_suggestion"
+            action="action_medilab_sample_test_outsourcing"
+            sequence="45"
+            groups="group_permission_machine_booking_read_all,group_permission_machine_booking_read_own_department"
+        />
+        <menuitem
+            id="menu_subcontract_dispatch"
+            action="action_medilab_subcontract_dispatch"
+            sequence="46"
+            groups="group_permission_subcontract_dispatch_read_all"
+        />
+        <menuitem
+            id="menu_outsourcing_schedule"
+            action="action_medilab_subcontract_dispatch_schedule"
+            sequence="47"
+            groups="group_permission_subcontract_dispatch_read_all"
+        />
+        <menuitem id="menu_dispatch_to_carry" action="action_medilab_subcontract_dispatch_carry" sequence="48" />
+        <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
+            <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
+        </menuitem>
     </menuitem>
 
     <menuitem id="menu_master_data_root" name="Master Data" sequence="20">
@@ -39,6 +86,13 @@
 
     <!-- Departments are Odoo's own menu in the Employees app. -->
     <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />
+    <menuitem
+        id="menu_team"
+        action="action_hr_department_team"
+        parent="hr.menu_hr_root"
+        sequence="15"
+        groups="group_permission_department_read_all"
+    />
     <menuitem id="menu_role" action="action_medilab_role" parent="hr.menu_hr_root" sequence="20" />
     <menuitem id="menu_permission" action="action_medilab_permission" parent="hr.menu_hr_root" sequence="30" />
     <menuitem
@@ -69,7 +123,11 @@
             groups="group_permission_job_run_read_all"
         />
     </menuitem>
-    <menuitem id="menu_settings" name="Settings" action="action_medilab_settings" sequence="90" groups="base.group_system" />
+
+    <menuitem id="menu_audit_root" name="Audit Trail" sequence="40">
+        <menuitem id="menu_audit_entry" action="action_medilab_audit_entry" sequence="10" />
+        <menuitem id="menu_audit_report" action="action_medilab_audit_report" sequence="20" />
+    </menuitem>
     <menuitem
         id="menu_notification_event"
         action="action_medilab_notification_event"

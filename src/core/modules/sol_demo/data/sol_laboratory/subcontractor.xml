@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_subcontractor_northern_testing" model="medilab.subcontractor">
+        <field name="partner_id" ref="demo_res_partner_northern_testing" />
+        <field name="contact_person_id" ref="demo_res_partner_northern_testing_contact" />
+        <field name="accreditation_number">VILAS 101</field>
+        <field name="accreditation_expiry" eval="(DateTime.today() + relativedelta(years=2)).strftime('%Y-%m-%d')" />
+        <field name="contract_reference">HD-2026/01</field>
+    </record>
+    <record id="demo_subcontractor_coastal_analytics" model="medilab.subcontractor">
+        <field name="partner_id" ref="demo_res_partner_coastal_analytics" />
+        <field name="contact_person_id" ref="demo_res_partner_coastal_analytics_contact" />
+        <field name="accreditation_number">VILAS 202</field>
+        <field name="accreditation_expiry" eval="(DateTime.today() - relativedelta(months=3)).strftime('%Y-%m-%d')" />
+        <field name="contract_reference">HD-2024/07</field>
+    </record>
+    <record id="demo_subcontractor_southern_micro" model="medilab.subcontractor">
+        <field name="partner_id" ref="demo_res_partner_southern_micro" />
+        <field name="contact_person_id" ref="demo_res_partner_southern_micro_contact" />
+        <field name="accreditation_number">VILAS 303</field>
+        <field name="note">Accreditation without expiry date.</field>
+    </record>
+</odoo>

@@ -9,7 +9,7 @@ Install and configure a laboratory. Each step says what to check before the next
 3. **Company.** Set the company name, address, logo and time zone to Asia/Ho_Chi_Minh. The time zone is the one sample-test due dates use.
 4. **Languages.** Install Vietnamese and set it on the users who work in it.
 5. **E-commerce and Inventory.** Install either or both on top of Laboratory. Each runs without the other. Set the company country to Vietnam and load the Vietnamese accounting chart before issuing invoices; E-commerce does not issue them through an e-invoice provider.
-6. **Settings.** Settings opens one block per installed MediLab module. Laboratory holds the safety margin and Code formats. A missing value falls back to its default.
+6. **Settings.** Settings, under the Laboratory app's Configuration menu or in Odoo's Settings app, opens one block per installed MediLab module. Laboratory holds the safety margin and Code formats. A missing value falls back to its default.
 7. **Code formats.** Code formats lists the `medilab.*` sequences. Change a prefix or padding there; codes already given keep their value.
 8. **Demo data.** Install the demo module only on a database used for trying the system. It is not part of a laboratory's installation.
 

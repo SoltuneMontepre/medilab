@@ -5,10 +5,14 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
 
+from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_MACHINE_BOOKING,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
+    MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TASK_TYPE,
 )
@@ -24,7 +28,7 @@ CLAIMABLE_LIMIT = 3
 # Nhiệm Vụ
 class Task(models.Model):
     _name = MODEL_TASK
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Task"
     _order = "deadline, id"
     _permission_actions = ("read", "create", "edit", "delete")
@@ -42,7 +46,7 @@ class Task(models.Model):
     # Action the task opens on the document, such as enter_result or sign.
     action = fields.Char()
     # Department whose queue holds the task until someone is assigned.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict")
+    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", domain=DEPARTMENT_DOMAIN)
     # Person who does the task; empty while it waits in a queue.
     assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee", ondelete="restrict")
     # Person who assigned the task; the assignee themselves when they claimed it.
@@ -70,6 +74,8 @@ class Task(models.Model):
     )
     # When the task was done.
     done_at = fields.Datetime(readonly=True)
+    # Machine bookings made for the task.
+    booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "task_id", string="Bookings")
     # True when the system closes the task once its work is done, rather than the assignee.
     closed_by_system = fields.Boolean(compute="_compute_closed_by_system")
     # True when the current user is the assignee.
@@ -153,6 +159,9 @@ class Task(models.Model):
         if {"assignee_id", "department_id"} & set(vals):
             self._check_reassign(vals)
         result = super().write(vals)
+        if "assignee_id" in vals:
+            self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
+            self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)
         if not self.env.context.get("medilab_skip_calendar_sync") and {
             "planned_start",
             "planned_end",
@@ -231,7 +240,9 @@ class Task(models.Model):
         for task in self:
             event = events.search([("medilab_task_id", "=", task.id)], limit=1)
             user = task.assignee_id.sudo().user_id
-            if task.status in FINAL_STATUSES or not task.planned_start or not user:
+            # A testing task planned by its bookings shows on the calendar through the bookings' events.
+            planned_by_bookings = task.sudo().booking_ids.calendar_event_id
+            if task.status in FINAL_STATUSES or not task.planned_start or not user or planned_by_bookings:
                 if event:
                     event.with_context(medilab_skip_calendar_sync=True).unlink()
                 continue
@@ -248,6 +259,22 @@ class Task(models.Model):
                 event.with_context(medilab_skip_calendar_sync=True).write(values)
             else:
                 events.with_context(medilab_skip_calendar_sync=True).create({**values, "medilab_task_id": task.id})
+
+    def action_assign_sample(self):
+        """Open the assign wizard on every unfinished testing task of the task's sample in its department."""
+        self.ensure_one()
+        sample = self.env[MODEL_SAMPLE_TEST].sudo().browse(self.document_id).sample_id
+        tasks = self.search(
+            [
+                ("document_model", "=", MODEL_SAMPLE_TEST),
+                ("document_id", "in", sample.test_ids.ids),
+                ("department_id", "=", self.department_id.id),
+                ("status", NOT_IN, FINAL_STATUSES),
+            ]
+        )
+        action = self.env["ir.actions.actions"]._for_xml_id("sol_laboratory.action_medilab_task_reassign")
+        action["context"] = {"active_ids": tasks.ids}
+        return action
 
     def action_open_document(self):
         self.ensure_one()

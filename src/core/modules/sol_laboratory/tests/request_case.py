@@ -1,7 +1,12 @@
 from odoo.fields import Command
 
 from .common import MasterDataCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_SAMPLE_TYPE, MODEL_TEST_REQUEST
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_CUSTOMER,
+    MODEL_PERSON,
+    MODEL_SAMPLE_TYPE,
+    MODEL_TEST_REQUEST,
+)
 
 
 class RequestCase(MasterDataCase):
@@ -33,3 +38,23 @@ class RequestCase(MasterDataCase):
                 ],
             }
         )
+
+    def head_of(self, department):
+        """A person who manages the department and may edit samples."""
+        head = self.env[MODEL_PERSON].create(
+            {
+                "name": "Le Thi Hoa",
+                "login": "hoa.head",
+                "department_id": department.id,
+                "permission_ids": [
+                    Command.set(
+                        [
+                            self.env.ref(f"sol_laboratory.permission_sample_{action}_all").id
+                            for action in ("read", "edit")
+                        ]
+                    )
+                ],
+            }
+        )
+        department.manager_id = head.employee_id
+        return head

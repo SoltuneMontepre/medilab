@@ -41,6 +41,7 @@
     <record id="action_medilab_testing_field" model="ir.actions.act_window">
         <field name="name">Testing Fields</field>
         <field name="res_model">medilab.testing.field</field>
+        <field name="path">testing-fields</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

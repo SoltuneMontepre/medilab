@@ -1,8 +1,10 @@
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
+from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
@@ -16,7 +18,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Cách Thử
 class ParameterMethod(models.Model):
     _name = MODEL_PARAMETER_METHOD
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Way of Testing"
     _order = "parameter_id, is_default desc, id"
     _rec_names_search = ("parameter_id", "method_id")
@@ -33,7 +35,7 @@ class ParameterMethod(models.Model):
     # The subcontractor that tests it; empty when the laboratory tests it in-house.
     subcontractor_id = fields.Many2one(MODEL_SUBCONTRACTOR, ondelete="restrict", index=True)
     # The department that tests it in-house; empty when a subcontractor tests it.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True)
+    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True, domain=DEPARTMENT_DOMAIN)
     # True when this way of testing is within an ISO 17025 accreditation scope.
     is_accredited = fields.Boolean(string="Accredited")
     # Limit of detection: the lowest value this method can detect, in the row's unit.

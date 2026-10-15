@@ -12,7 +12,7 @@ Every value a laboratory may change is a system parameter with a default, declar
 
 A parameter is a field on `res.config.settings`, declared by the module that reads it. `config_parameter` is the key `sol_<module>.<name>` in Odoo's system parameter table. `default` is the value a fresh installation uses, and the value an installation falls back to when the parameter is missing. `help` is the explanation shown on the settings screen.
 
-The Laboratory block holds the safety margin and opens Code formats, the `medilab.*` sequences. Each later module adds its own `<app>` block, shown only while that module is installed.
+The Laboratory block holds the safety margin, the urgency threshold and the [audit](audit-trail.md) retention period, and opens Code formats, the `medilab.*` sequences. Each later module adds its own `<app>` block, shown only while that module is installed.
 
 ### Reading a parameter
 
@@ -26,7 +26,7 @@ days = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("safety_margin_days")
 
 ### Who changes settings
 
-The Settings menu opens the settings screen and is limited to Odoo's settings group. The administrator role implies that group. A setting that changes the behaviour of existing documents applies to documents created from then on; the safety margin is an example, because a sample test keeps the due date it already stored.
+Settings sits under the Configuration menu of the Laboratory app, as settings do in Odoo's own apps, and opens the settings screen on the Laboratory block; Odoo's Settings app shows the same blocks. The menu is limited to Odoo's settings group. The administrator role implies that group. A setting that changes the behaviour of existing documents applies to documents created from then on; the safety margin is an example, because a sample test keeps the due date it already stored.
 
 ### Installation and removal
 

@@ -106,7 +106,7 @@
             line-height: 2.25rem !important;
             margin: 0.05rem 0;
             color: $ml-text-muted !important;
-            font-size: 0.875rem;
+            font-size: $ml-font-size-base;
             border-radius: $ml-radius !important;
             transition: $ml-transition;
 
@@ -153,7 +153,7 @@
 
             h3.o_setting_tip {
                 color: $ml-text-muted !important;
-                font-size: 0.8125rem !important;
+                font-size: $ml-font-size-sm !important;
                 padding: 0 1.5rem 0.35rem !important;
             }
 
@@ -209,7 +209,7 @@
 
                         .text-muted {
                             color: $ml-text-muted !important;
-                            font-size: 0.8125rem;
+                            font-size: $ml-font-size-sm;
                         }
 
                         .mt16 {
@@ -220,7 +220,7 @@
                         button.btn-link {
                             color: $ml-accent !important;
                             font-weight: 600;
-                            font-size: 0.8125rem;
+                            font-size: $ml-font-size-sm;
                             text-decoration: none !important;
                             padding-left: 0;
                             padding-right: 0;
@@ -331,7 +331,7 @@
             border-radius: $ml-radius;
             background: $ml-tint-1;
             color: $ml-primary !important;
-            font-size: 1rem !important;
+            font-size: $ml-font-size-md !important;
         }
 
         .o_field_widget,
@@ -348,7 +348,7 @@
         .o_form_label {
             display: inline;
             color: $ml-text-muted !important;
-            font-size: 0.8125rem !important;
+            font-size: $ml-font-size-sm !important;
             font-weight: 500 !important;
         }
 

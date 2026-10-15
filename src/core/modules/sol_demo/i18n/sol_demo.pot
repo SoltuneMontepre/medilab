@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 16:30+0000\n"
-"PO-Revision-Date: 2026-10-11 16:30+0000\n"
+"POT-Creation-Date: 2026-10-13 17:56+0000\n"
+"PO-Revision-Date: 2026-10-13 17:56+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,22 +16,22 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_demo
-#: model:medilab.sample.type,storage_conditions:sol_demo.sample_type_cabbage
+#: model:medilab.sample.type,storage_conditions:sol_demo.demo_sample_type_cabbage
 msgid "0–4 °C"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_lead_standard
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_lead_standard
 msgid "2–8 °C"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,storage_conditions:sol_demo.sample_type_bottled_water
+#: model:medilab.sample.type,storage_conditions:sol_demo.demo_sample_type_bottled_water
 msgid "2–8 °C, away from light"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,storage_conditions:sol_demo.sample_type_surface_water
+#: model:medilab.sample.type,storage_conditions:sol_demo.demo_sample_type_surface_water
 msgid "2–8 °C, tested within 24 hours"
 msgstr ""
 
@@ -41,27 +41,32 @@ msgid "Accountant"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_acetonitrile
+#: model:medilab.chemical,name:sol_demo.demo_chemical_acetonitrile
 msgid "Acetonitrile"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_nitric_acid
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_nitric_acid
 msgid "Acid cabinet, away from organic substances"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_acidity
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_acidity
 msgid "Acidity"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_animal_feed
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_animal_feed
 msgid "Animal feed"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_bottled_water
+#: model:medilab.role,name:sol_demo.demo_role_auditor
+msgid "Auditor"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_bottled_water
 msgid "Bottled water"
 msgstr ""
 
@@ -76,80 +81,101 @@ msgid "Bottled water microbiology"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_cabbage
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_cabbage
 msgid "Cabbage"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_cadmium
+msgid "Cadmium (Cd)"
+msgstr ""
+
+#. module: sol_demo
 #: model:hr.department,name:sol_demo.demo_hr_department_chemistry
-#: model:medilab.testing.field,name:sol_demo.field_chemistry
+#: model:medilab.testing.field,name:sol_demo.demo_testing_field_chemistry
 msgid "Chemistry"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_chlorpyrifos
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_chlorpyrifos
 msgid "Chlorpyrifos"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_coliforms
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_coliforms
 msgid "Coliforms"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,sampling_requirements:sol_demo.sample_type_bottled_water
+#: model:medilab.sample.type,sampling_requirements:sol_demo.demo_sample_type_bottled_water
 msgid "Collect sealed bottles from the same lot."
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,sampling_requirements:sol_demo.sample_type_cabbage
+#: model:medilab.sample.type,sampling_requirements:sol_demo.demo_sample_type_cabbage
 msgid "Collect whole heads in clean paper bags."
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,disposal_method:sol_demo.sample_type_cabbage
+#: model:medilab.scheduled.job,name:sol_demo.demo_scheduled_job_echo
+msgid "Demo echo"
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.actions.server,name:sol_demo.demo_ir_cron_echo_ir_actions_server
+msgid "Demo: echo"
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_cabbage
 msgid "Dispose of as organic waste."
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_sodium_chloride
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_sodium_chloride
 msgid "Dry place, room temperature"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_e_coli
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_e_coli
 msgid "E. coli"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_environment
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_environment
 msgid "Environment"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.quality.registration,name:sol_demo.quality_registration_expired
+#: model:medilab.quality.registration,name:sol_demo.demo_quality_registration_expired
 msgid ""
 "Environmental monitoring registration with the Ministry of Natural Resources"
 " and Environment"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_acetonitrile
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_acetonitrile
 msgid "Flammables cabinet"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_food
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_food
 msgid "Food"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.quality.registration,name:sol_demo.quality_registration_valid
+#: model:medilab.quality.registration,name:sol_demo.demo_quality_registration_valid
 msgid "Food testing registration with the Ministry of Health"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_en_15662
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_en_15662
 msgid ""
 "Foods of plant origin — Multimethod for the determination of pesticide "
 "residues using GC- and LC-based analysis following acetonitrile extraction "
@@ -157,10 +183,21 @@ msgid ""
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_7602
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_7602
 msgid ""
 "Foodstuffs — Determination of lead content by atomic absorption "
 "spectrophotometry"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_change_request_final
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_head_of_sales
+msgid "Head of Sales"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_change_request_department
+msgid "Head of Sales of the department"
 msgstr ""
 
 #. module: sol_demo
@@ -174,37 +211,50 @@ msgid "Head of sales"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.group_heavy_metals
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_heavy_metals
+#: model:hr.department,name:sol_demo.demo_hr_department_heavy_metals
 msgid "Heavy metals"
 msgstr ""
 
 #. module: sol_demo
+#: model:ir.model.fields,field_description:sol_demo.field_account_move__id
+#: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
+msgid "ID"
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_signing_lab_head
 msgid "Lab head"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_lead
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_lead
 msgid "Lead (Pb)"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_lead_standard
+#: model:medilab.chemical,name:sol_demo.demo_chemical_lead_standard
 msgid "Lead standard solution 1000 mg/L"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_mass
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_mass
 msgid "Mass"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_liquid_concentration
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_liquid_concentration
 msgid "Mass concentration in liquid"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_mass_fraction
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_mass_fraction
 msgid "Mass fraction"
 msgstr ""
 
@@ -214,31 +264,31 @@ msgid "Medilab - Testing Data"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_count_per_mass
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_count_per_mass
 msgid "Microbial count per mass"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_count_per_volume
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_count_per_volume
 msgid "Microbial count per volume"
 msgstr ""
 
 #. module: sol_demo
 #: model:hr.department,name:sol_demo.demo_hr_department_microbiology
-#: model:medilab.parameter.group,name:sol_demo.group_microbiology
-#: model:medilab.testing.field,name:sol_demo.field_microbiology
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_microbiology
+#: model:medilab.testing.field,name:sol_demo.demo_testing_field_microbiology
 msgid "Microbiology"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_iso_4832
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_iso_4832
 msgid ""
 "Microbiology of food and animal feeding stuffs — Enumeration of coliforms — "
 "Colony-count technique"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_iso_16649_2
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_iso_16649_2
 msgid ""
 "Microbiology of food and animal feeding stuffs — Enumeration of "
 "β-glucuronidase-positive Escherichia coli — Part 2: Colony-count technique "
@@ -246,20 +296,20 @@ msgid ""
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.regulation,name:sol_demo.regulation_qcvn_6_1
+#: model:medilab.regulation,name:sol_demo.demo_regulation_qcvn_6_1
 msgid ""
 "National technical regulation on natural mineral waters and bottled drinking"
 " waters"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_nitric_acid
+#: model:medilab.chemical,name:sol_demo.demo_chemical_nitric_acid
 msgid "Nitric acid 65%"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_coliforms
-#: model:medilab.regulation.limit,limit_text:sol_demo.regulation_limit_qcvn_6_1_e_coli
+#: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_coliforms
+#: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_e_coli
 msgid "Not detected"
 msgstr ""
 
@@ -269,36 +319,47 @@ msgid "Not subject to VAT"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.group_organophosphates
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_order_change_request
+msgid "Order change request"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_order_signing
+msgid "Order signing"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_organophosphates
 msgid "Organophosphates"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.group_pesticides
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_pesticides
 msgid "Pesticides"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.group_physicochemical
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_physicochemical
 msgid "Physicochemical"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,disposal_method:sol_demo.sample_type_bottled_water
+#: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_bottled_water
 msgid "Pour into the drain and recycle the bottles."
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,post_test_requirements:sol_demo.sample_type_bottled_water
+#: model:medilab.sample.type,post_test_requirements:sol_demo.demo_sample_type_bottled_water
 msgid "Reseal the remaining bottles and label them with the lab code."
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,storage_conditions:sol_demo.chemical_ph_buffer
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_ph_buffer
 msgid "Room temperature, tightly closed"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_order_signing_sales
 #: model:medilab.role,name:sol_demo.demo_role_sales
 msgid "Sales"
 msgstr ""
@@ -314,17 +375,22 @@ msgid "Sample reception"
 msgstr ""
 
 #. module: sol_demo
+#: model:ir.model,name:sol_demo.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr ""
+
+#. module: sol_demo
 #: model:ir.module.module,summary:base.module_sol_demo
 msgid "Seeds and configure data for demo purposes."
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_sodium_chloride
+#: model:medilab.chemical,name:sol_demo.demo_chemical_sodium_chloride
 msgid "Sodium chloride"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_5979
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_5979
 msgid "Soil quality — Determination of pH"
 msgstr ""
 
@@ -334,8 +400,12 @@ msgid "Storekeeper"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_surface_water
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_surface_water
 msgid "Surface water"
+msgstr ""
+
+#. module: sol_demo
+msgid "Test result signing"
 msgstr ""
 
 #. module: sol_demo
@@ -349,83 +419,62 @@ msgid "VAT 10%"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.sample.type,name:sol_demo.sample_type_vegetables
+#: model:medilab.sample.type,name:sol_demo.demo_sample_type_vegetables
 msgid "Vegetables"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.unit.category,name:sol_demo.unit_category_volume
+#: model:medilab.unit.category,name:sol_demo.demo_unit_category_volume
 msgid "Volume"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_iso_17294_2
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_iso_17294_2
 msgid ""
 "Water quality — Application of inductively coupled plasma mass spectrometry "
 "— Part 2: Determination of selected elements"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_6187_2
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_6187_2
 msgid ""
 "Water quality — Detection and enumeration of coliform organisms — Part 2: "
 "Multiple tube (most probable number) method"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_6492
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_6492
 msgid "Water quality — Determination of pH"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.testing.method,name:sol_demo.method_tcvn_6187_1
+#: model:medilab.testing.method,name:sol_demo.demo_testing_method_tcvn_6187_1
 msgid ""
 "Water quality — Enumeration of Escherichia coli and coliform bacteria — Part"
 " 1: Membrane filtration method"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.test.parameter,name:sol_demo.parameter_ph
+#: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_ph
 msgid "pH"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.chemical,name:sol_demo.chemical_ph_buffer
+#: model:medilab.chemical,name:sol_demo.demo_chemical_ph_buffer
 msgid "pH buffer solution 7.00"
 msgstr ""
 
 #. module: sol_demo
-msgid "Demo echo"
+#: model:hr.department,name:sol_demo.demo_hr_department_pathogens
+msgid "Pathogens"
 msgstr ""
 
 #. module: sol_demo
-msgid "Demo: echo"
+#: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
+msgid "Pesticide residues"
 msgstr ""
 
 #. module: sol_demo
-msgid "Display Name"
-msgstr ""
-
-#. module: sol_demo
-msgid "ID"
-msgstr ""
-
-#. module: sol_demo
-msgid "Scheduled Job"
-msgstr ""
-
-#. module: sol_demo
-msgid "Head of Sales"
-msgstr ""
-
-#. module: sol_demo
-msgid "Head of Sales of the department"
-msgstr ""
-
-#. module: sol_demo
-msgid "Order change request"
-msgstr ""
-
-#. module: sol_demo
-msgid "Order signing"
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_signing
+msgid "Test report signing"
 msgstr ""

@@ -9,9 +9,9 @@ def seed_orders(env):
     if env.ref("sol_demo.demo_sale_order_draft", raise_if_not_found=False):
         return
     env.ref("sol_demo.demo_res_users_head_of_sales").write({"group_ids": [Command.link(env.ref(ALL_ORDERS_GROUP).id)]})
-    company = env.ref("sol_demo.demo_partner_nuoc_sach")
-    hoa = env.ref("sol_demo.demo_partner_hoa")
-    minh = env.ref("sol_demo.demo_partner_minh")
+    company = env.ref("sol_demo.demo_res_partner_nuoc_sach")
+    hoa = env.ref("sol_demo.demo_res_partner_hoa")
+    minh = env.ref("sol_demo.demo_res_partner_minh")
     sales = env.ref("sol_demo.demo_res_users_sales")
     customer = env.ref("sol_demo.demo_res_users_customer")
     lead = _product(env, "parameter_id", env.ref("sol_demo.demo_parameter_price_lead").parameter_id.id)

@@ -4,6 +4,7 @@ from odoo.tools import format_list
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_PARAMETER_GROUP,
     MODEL_PERMISSION_MIXIN,
@@ -14,7 +15,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Nhóm Chỉ Tiêu
 class ParameterGroup(models.Model):
     _name = MODEL_PARAMETER_GROUP
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Parameter Group"
     _parent_store = True
     _order = "code"

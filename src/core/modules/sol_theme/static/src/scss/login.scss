@@ -115,7 +115,7 @@ body.bg-100 main {
     p {
         margin: 0;
         color: rgba(255, 255, 255, 0.9);
-        font-size: 1rem;
+        font-size: $ml-font-size-md;
         line-height: 1.7;
     }
 }
@@ -184,7 +184,7 @@ body.bg-100 main {
     .col-form-label {
         margin-bottom: 0.5rem;
         color: $ml-text;
-        font-size: 0.875rem;
+        font-size: $ml-font-size-base;
         font-weight: 600;
         line-height: 1.35;
     }
@@ -193,7 +193,7 @@ body.bg-100 main {
         min-height: 3rem;
         padding: 0.75rem 0.875rem;
         color: $ml-text;
-        font-size: 1rem;
+        font-size: $ml-font-size-md;
         background-color: $ml-surface;
         border: 1px solid $ml-border;
         border-radius: 12px;
@@ -268,7 +268,7 @@ body.bg-100 main {
     .d-flex > .btn-link {
         min-height: auto;
         padding: 0;
-        font-size: 0.8125rem;
+        font-size: $ml-font-size-sm;
         line-height: 1.35;
     }
 
@@ -282,7 +282,7 @@ body.bg-100 main {
             justify-content: center;
             min-height: 2.75rem;
             padding: 0.5rem;
-            font-size: 0.875rem;
+            font-size: $ml-font-size-base;
             text-decoration: none;
         }
     }
@@ -327,7 +327,7 @@ body.bg-100 main {
         padding: 0.875rem 1rem;
         border: 1px solid transparent;
         border-radius: 12px;
-        font-size: 0.875rem;
+        font-size: $ml-font-size-base;
         line-height: 1.5;
     }
 
@@ -359,7 +359,7 @@ body.bg-100 main {
 
 .ml_auth_admin_link {
     color: $ml-text-muted !important;
-    font-size: 0.75rem;
+    font-size: $ml-font-size-xs;
     font-weight: 500;
     text-decoration: none;
 

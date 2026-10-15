@@ -5,16 +5,17 @@ from odoo.tools import format_list
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_ROLE,
 )
 from odoo.addons.sol_laboratory.constants.permissions import (
-    DEPARTMENT_FIELD,
     ODOO_DOCUMENT_TYPES,
     OPERATIONS,
     SCOPE_DOMAINS,
+    SCOPE_FIELDS,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, ADMINISTRATOR_ROLE, MODULE
 
@@ -28,7 +29,7 @@ HOLDER_FIELDS = ("role_ids", "person_ids")
 # Quyền
 class Permission(models.Model):
     _name = MODEL_PERMISSION
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Permission"
     _order = "document_model, action, scope"
     # Permissions come with modules: they are read and renamed on the screen, never created or deleted there.
@@ -52,9 +53,12 @@ class Permission(models.Model):
         ],
         required=True,
     )
-    # all for every record, or own_department for the person's department only; cannot change once it exists.
+    # all for every record, own_department for the person's department only or own_team for the person's team
+    # only; cannot change once it exists.
     scope = fields.Selection(
-        [("all", "All records"), ("own_department", "Own department")], required=True, default="all"
+        [("all", "All records"), ("own_department", "Own department"), ("own_team", "Own team")],
+        required=True,
+        default="all",
     )
     # The Odoo group generated for the permission, which carries its access.
     group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
@@ -164,7 +168,9 @@ class Permission(models.Model):
     @api.ondelete(at_uninstall=False)
     def _unlink_except_group_in_use(self):
         generated = self._generated_records()
-        shared = self.env[IR_ACCESS].sudo().search([("group_id", "in", self.group_id.ids), ("id", "not in", generated.ids)])
+        shared = (
+            self.env[IR_ACCESS].sudo().search([("group_id", "in", self.group_id.ids), ("id", "not in", generated.ids)])
+        )
         if shared:
             raise UserError(
                 self.env._(
@@ -194,7 +200,9 @@ class Permission(models.Model):
     def _generated_records(self):
         records = self.env[IR_ACCESS].sudo()
         for permission in self:
-            records |= self.env.ref(permission._generated_xml_id("access"), raise_if_not_found=False) or records.browse()
+            records |= (
+                self.env.ref(permission._generated_xml_id("access"), raise_if_not_found=False) or records.browse()
+            )
         return records
 
     def _check_holders(self, vals):
@@ -204,13 +212,17 @@ class Permission(models.Model):
     def _check_action(self, document_model, action, scope):
         model = self.env[document_model]
         label = self.env[IR_MODEL]._get(document_model).name
-        if scope == "own_department" and DEPARTMENT_FIELD not in model._fields:
-            raise ValidationError(
-                self.env._(
+        if scope in SCOPE_FIELDS and SCOPE_FIELDS[scope] not in model._fields:
+            refusals = {
+                "own_department": self.env._(
                     "%s has no department, so a permission on it cannot be limited to the person's department.",
                     label,
-                )
-            )
+                ),
+                "own_team": self.env._(
+                    "%s has no team, so a permission on it cannot be limited to the person's team.", label
+                ),
+            }
+            raise ValidationError(refusals[scope])
         # Only the mixin enforces permissions, so a model without it has none.
         if (
             document_model not in self.env.registry[MODEL_PERMISSION_MIXIN]._inherit_children
