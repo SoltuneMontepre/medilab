@@ -74,6 +74,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "%s is archived and cannot be chosen."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "%s is cancelled by the system when its work is cancelled."
 msgstr ""
@@ -315,6 +321,7 @@ msgid "Account Receivable Active"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__accreditation_expired
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontractor_search
 msgid "Accreditation Expired"
 msgstr ""
@@ -5998,6 +6005,14 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid ""
+"The accreditation of %(subcontractor)s expired on %(date)s. Renew it before "
+"choosing this subcontractor."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid "The administrator role cannot be deleted."
 msgstr ""
@@ -6631,6 +6646,14 @@ msgid "Ways of Testing"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid ""
+"Ways of testing are archived, never deleted: %s. Archive them with their "
+"Active toggle instead."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__website
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__website
 msgid "Website Link"
@@ -6932,16 +6955,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_parameter_method_create_own_department
 msgid "Permission: parameter.method.create.own_department"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_delete_all
-msgid "Permission: parameter.method.delete.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_parameter_method_delete_own_department
-msgid "Permission: parameter.method.delete.own_department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -7529,16 +7542,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_notification_event_recipient_delete_all
 msgid "Delete notification recipients"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_delete_all
-msgid "Delete ways of testing"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_parameter_method_delete_own_department
-msgid "Delete ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
