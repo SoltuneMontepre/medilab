@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_sample_type_food" model="medilab.sample.type">
+        <field name="name">Food</field>
+    </record>
+    <record id="demo_sample_type_bottled_water" model="medilab.sample.type">
+        <field name="name">Bottled water</field>
+        <field name="parent_id" ref="demo_sample_type_food" />
+        <field name="minimum_quantity">2000</field>
+        <field name="minimum_quantity_unit_id" ref="demo_measurement_unit_ml" />
+        <field name="sampling_requirements">Collect sealed bottles from the same lot.</field>
+        <field name="storage_conditions">2–8 °C, away from light</field>
+        <field name="is_retained" eval="True" />
+        <field name="retention_days">30</field>
+        <field name="post_test_requirements">Reseal the remaining bottles and label them with the lab code.</field>
+        <field name="disposal_method">Pour into the drain and recycle the bottles.</field>
+    </record>
+    <record id="demo_sample_type_vegetables" model="medilab.sample.type">
+        <field name="name">Vegetables</field>
+        <field name="parent_id" ref="demo_sample_type_food" />
+    </record>
+    <record id="demo_sample_type_cabbage" model="medilab.sample.type">
+        <field name="name">Cabbage</field>
+        <field name="parent_id" ref="demo_sample_type_vegetables" />
+        <field name="minimum_quantity">500</field>
+        <field name="minimum_quantity_unit_id" ref="demo_measurement_unit_g" />
+        <field name="sampling_requirements">Collect whole heads in clean paper bags.</field>
+        <field name="storage_conditions">0–4 °C</field>
+        <field name="disposal_method">Dispose of as organic waste.</field>
+    </record>
+    <record id="demo_sample_type_environment" model="medilab.sample.type">
+        <field name="name">Environment</field>
+    </record>
+    <record id="demo_sample_type_surface_water" model="medilab.sample.type">
+        <field name="name">Surface water</field>
+        <field name="parent_id" ref="demo_sample_type_environment" />
+        <field name="minimum_quantity">1000</field>
+        <field name="minimum_quantity_unit_id" ref="demo_measurement_unit_ml" />
+        <field name="storage_conditions">2–8 °C, tested within 24 hours</field>
+    </record>
+    <record id="demo_sample_type_animal_feed" model="medilab.sample.type">
+        <field name="name">Animal feed</field>
+        <field name="active" eval="False" />
+    </record>
+</odoo>

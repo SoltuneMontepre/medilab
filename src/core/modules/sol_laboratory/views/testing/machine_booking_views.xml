@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_machine_booking_list" model="ir.ui.view">
+        <field name="name">medilab.machine.booking.list</field>
+        <field name="model">medilab.machine.booking</field>
+        <field name="arch" type="xml">
+            <list
+                create="0"
+                decoration-muted="status in ('done', 'cancelled')"
+                decoration-danger="is_urgent and status in ('queued', 'scheduled')"
+            >
+                <field name="is_urgent" column_invisible="1" />
+                <field name="display_name" string="Sample Test" />
+                <field name="machine_id" />
+                <field name="person_id" />
+                <field name="department_id" optional="hide" />
+                <field name="starts_at" />
+                <field name="ends_at" />
+                <field name="due_date" optional="show" />
+                <field name="queued_at" optional="hide" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-warning="status == 'queued'"
+                    decoration-info="status in ('scheduled', 'in_progress')"
+                    decoration-success="status == 'done'"
+                    decoration-danger="status == 'cancelled'"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_machine_booking_form" model="ir.ui.view">
+        <field name="name">medilab.machine.booking.form</field>
+        <field name="model">medilab.machine.booking</field>
+        <field name="arch" type="xml">
+            <form create="0" duplicate="0">
+                <header>
+                    <button name="action_start" type="object" string="Start" class="btn-primary" invisible="status != 'scheduled'" />
+                    <button name="action_done" type="object" string="Done" class="btn-primary" invisible="status != 'in_progress'" />
+                    <button
+                        name="action_cancel"
+                        type="object"
+                        string="Cancel Booking"
+                        class="btn-danger"
+                        invisible="status not in ('queued', 'scheduled')"
+                    />
+                    <field name="status" widget="statusbar" statusbar_visible="queued,scheduled,in_progress,done" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_name" /></h1>
+                        <field name="is_urgent" invisible="1" />
+                        <span class="badge text-bg-danger" invisible="not is_urgent">Urgent</span>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sample_test_id" />
+                            <field name="machine_id" />
+                            <field name="person_id" />
+                            <field name="task_id" />
+                        </group>
+                        <group>
+                            <field name="starts_at" readonly="status != 'scheduled'" />
+                            <field name="ends_at" />
+                            <field name="due_date" />
+                            <field name="queued_at" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_machine_booking_calendar" model="ir.ui.view">
+        <field name="name">medilab.machine.booking.calendar</field>
+        <field name="model">medilab.machine.booking</field>
+        <field name="arch" type="xml">
+            <calendar
+                string="Machine Bookings"
+                date_start="starts_at"
+                date_stop="ends_at"
+                color="machine_id"
+                mode="week"
+                quick_create="0"
+                create="0"
+                event_open_popup="1"
+            >
+                <field name="machine_id" filters="1" />
+                <field name="person_id" filters="1" />
+                <field name="status" />
+                <field name="due_date" />
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_medilab_machine_booking_search" model="ir.ui.view">
+        <field name="name">medilab.machine.booking.search</field>
+        <field name="model">medilab.machine.booking</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="machine_id" />
+                <field name="person_id" />
+                <field name="sample_test_id" />
+                <filter name="open" string="Not Finished" domain="[('status', 'in', ('queued', 'scheduled', 'in_progress'))]" />
+                <filter name="queued" string="Queued" domain="[('status', '=', 'queued')]" />
+                <group>
+                    <filter name="group_machine" string="Machine" context="{'group_by': 'machine_id'}" />
+                    <filter name="group_person" string="Person" context="{'group_by': 'person_id'}" />
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_machine_booking" model="ir.actions.act_window">
+        <field name="name">Machine Schedule</field>
+        <field name="res_model">medilab.machine.booking</field>
+        <field name="path">machine-schedule</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="context">{'search_default_open': 1}</field>
+    </record>
+
+    <record id="view_medilab_machine_form_bookings" model="ir.ui.view">
+        <field name="name">medilab.machine.form.bookings</field>
+        <field name="model">medilab.machine</field>
+        <field name="inherit_id" ref="view_medilab_machine_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/widget[@name='web_ribbon']" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button
+                        name="%(action_medilab_machine_booking)d"
+                        type="action"
+                        class="oe_stat_button"
+                        icon="fa-calendar"
+                        string="Schedule"
+                        context="{'search_default_machine_id': id}"
+                    />
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -7,13 +7,18 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER_LINE,
     MODEL_SERVICE_PACKAGE,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_GROUP, MODEL_SAMPLE_TYPE, MODEL_TEST_PARAMETER
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_PARAMETER_GROUP,
+    MODEL_SAMPLE_TYPE,
+    MODEL_TEST_PARAMETER,
+)
 
 
 # Sản Phẩm
 class ProductTemplate(models.Model):
     _name = MODEL_PRODUCT_TEMPLATE
-    _inherit = MODEL_PRODUCT_TEMPLATE
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_PRODUCT_TEMPLATE]
 
     # The parameter this product sells; empty for a package.
     parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, ondelete="restrict", index=True)

@@ -9,12 +9,13 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_SALE_ORDER_LINE,
 )
 from odoo.addons.sol_commerce.constants.orders import APPROVAL_FROZEN_LINE_FIELDS, PORTAL_LOCKED_LINE_FIELDS
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 
 
 # Dòng Đơn Hàng
 class SaleOrderLine(models.Model):
     _name = MODEL_SALE_ORDER_LINE
-    _inherit = MODEL_SALE_ORDER_LINE
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_SALE_ORDER_LINE]
 
     # The sample the line is tested on.
     sample_id = fields.Many2one(MODEL_ORDER_SAMPLE, ondelete="restrict", index="btree_not_null", copy=False)

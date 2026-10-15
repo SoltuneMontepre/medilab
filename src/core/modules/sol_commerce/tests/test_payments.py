@@ -13,6 +13,7 @@ from odoo.tests import HttpCase, tagged
 from .invoicing_case import InvoicingCase
 from odoo.addons.sol_commerce.services.payos_client import PayosClient
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 PAID_STATES = ("partial", "in_payment", "paid")
 
@@ -241,7 +242,7 @@ class TestPayments(InvoicingCase):
 
 
 @tagged("post_install", "-at_install")
-class TestPaymentPortal(InvoicingCase, HttpCase):
+class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -337,6 +338,7 @@ class TestPaymentPortal(InvoicingCase, HttpCase):
         self.assertIn("1000000", receipt.text.replace(",", "").replace("\xa0", "").replace(" ", ""))
         self.assertIn(missing.status_code, (301, 302, 303))
         self.assertTrue(missing.headers["Location"].endswith("/my"))
+        self.assertEqual(self.entries(payment, "download").user_id, self.customer)
 
     def test_payos_checkout_follows_the_provider_and_a_paid_invoice_is_refused(self):
         provider = self.env.ref("sol_commerce.payment_provider_payos")

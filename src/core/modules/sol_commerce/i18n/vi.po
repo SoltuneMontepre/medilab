@@ -2526,3 +2526,240 @@ msgstr "<span>Tổng chuyển khoản</span>"
 #. module: sol_commerce
 msgid "<strong>Payment details</strong>"
 msgstr "<strong>Chi tiết thanh toán</strong>"
+
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "<small class=\"form-text text-muted d-block mb-2\">PNG or JPEG, up to 2 MB.</small>"
+msgstr "<small class=\"form-text text-muted d-block mb-2\">PNG hoặc JPEG, tối đa 2 MB.</small>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "<small class=\"form-text text-muted\">Required for a business.</small>"
+msgstr "<small class=\"form-text text-muted\">Bắt buộc với doanh nghiệp.</small>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "<small class=\"form-text text-muted\">Required for an individual.</small>"
+msgstr "<small class=\"form-text text-muted\">Bắt buộc với cá nhân.</small>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "A business"
+msgstr "Doanh nghiệp"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Add a contact"
+msgstr "Thêm người liên hệ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "Address"
+msgstr "Địa chỉ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Addresses"
+msgstr "Địa chỉ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "An individual"
+msgstr "Cá nhân"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Back to my account"
+msgstr "Quay lại tài khoản của tôi"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/account.py:0
+msgid "Choose a logo to upload."
+msgstr "Chọn logo để tải lên."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_customer.py:0
+msgid "Choose one of your company's contacts."
+msgstr "Chọn một người liên hệ của công ty bạn."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "Citizen ID"
+msgstr "Số căn cước công dân"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "City"
+msgstr "Thành phố"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "Company name"
+msgstr "Tên công ty"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+msgid "Contact for this order"
+msgstr "Người liên hệ cho đơn hàng này"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Contacts"
+msgstr "Người liên hệ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_status
+msgid "Customer Status"
+msgstr "Trạng thái cho khách hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Customer code"
+msgstr "Mã khách hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Default"
+msgstr "Mặc định"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Edit"
+msgstr "Sửa"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+msgid "Edit a contact"
+msgstr "Sửa người liên hệ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "I register as"
+msgstr "Tôi đăng ký với tư cách"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_invoice_document_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
+msgid "Logo"
+msgstr "Logo"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Make default"
+msgstr "Đặt làm mặc định"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
+msgid "No orders yet."
+msgstr "Chưa có đơn hàng."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Order history"
+msgstr "Lịch sử đơn hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Position"
+msgstr "Chức vụ"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__quoted
+msgid "Quoted"
+msgstr "Đã báo giá"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "Remove"
+msgstr "Xóa"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Remove the logo"
+msgstr "Xóa logo"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_customer_form_sales
+msgid "Sales Terms"
+msgstr "Điều Khoản Bán Hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Save"
+msgstr "Lưu"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
+msgid "Tax code"
+msgstr "Mã số thuế"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__testing
+msgid "Testing"
+msgstr "Đang thử nghiệm"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+msgid "The laboratory reaches the default contact about your orders unless you choose another one."
+msgstr "Phòng thí nghiệm liên hệ với người liên hệ mặc định về đơn hàng của bạn, trừ khi bạn chọn người khác."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+msgid "Upload"
+msgstr "Tải lên"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__waiting
+msgid "Waiting"
+msgstr "Đang chờ"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/account.py:0
+msgid "Your tax code is registered. Contact the laboratory to change it."
+msgstr "Mã số thuế của bạn đã được đăng ký. Liên hệ phòng thí nghiệm để thay đổi."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/scheduled_job.py:0
+msgid "PayOS created the payment link %s"
+msgstr "PayOS đã tạo liên kết thanh toán %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/invoicing/scheduled_job.py:0
+msgid "PayOS read the payment link %s"
+msgstr "Đã đọc liên kết thanh toán %s từ PayOS"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS reported a transfer for the payment link %s"
+msgstr "PayOS báo có chuyển khoản cho liên kết thanh toán %s"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS webhook refused: the body is not JSON"
+msgstr "Từ chối webhook PayOS: nội dung không phải JSON"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/controllers/payos.py:0
+msgid "PayOS webhook refused: the signature does not match"
+msgstr "Từ chối webhook PayOS: chữ ký không khớp"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_audit_entry
+msgid "Audit Entry"
+msgstr "Mục Nhật Ký Hoạt Động"

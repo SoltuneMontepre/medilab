@@ -7,16 +7,17 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_TAX,
     MODEL_VND_MIXIN,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
 
 # Nhóm Dịch Vụ
 class ServicePackage(models.Model):
     _name = MODEL_SERVICE_PACKAGE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_VND_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_VND_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Service Package"
     _order = "code"
     _rec_names_search = ("name", "code")
+    _audit_children = ("line_ids",)
 
     # Short unique code of the package.
     code = fields.Char(required=True, copy=False, index="trigram")

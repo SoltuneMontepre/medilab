@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_handover_record" model="ir.actions.report">
+        <field name="name">Handover Record</field>
+        <field name="model">medilab.handover.record</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sol_laboratory.report_handover_record</field>
+        <field name="print_report_name">'Handover record %s' % object.code</field>
+        <field name="group_ids" eval="[Command.set([ref('group_permission_handover_record_read_all')])]" />
+        <field name="binding_model_id" ref="model_medilab_handover_record" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_handover_record">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="record">
+                <t t-call="sol_laboratory.report_handover_record_document" t-lang="record.request_id.customer_id.lang" />
+            </t>
+        </t>
+    </template>
+
+    <template id="report_handover_record_document">
+        <div class="page" style="font-family: sans-serif; font-size: 11pt">
+            <h2>Handover Record</h2>
+            <p>
+                <strong>Code</strong>
+                <span t-field="record.code" />
+            </p>
+            <p>
+                <strong>Test Request</strong>
+                <span t-field="record.request_id.code" />
+            </p>
+            <p>
+                <strong>Handed Over At</strong>
+                <span t-field="record.handed_over_at" />
+            </p>
+            <p>
+                <strong>Handed Over By</strong>
+                <span t-field="record.handed_over_by_name" />
+            </p>
+            <p>
+                <strong>Received By</strong>
+                <span t-field="record.received_by_id" />
+            </p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 8mm">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; border-bottom: 1px solid #000">Sample</th>
+                        <th style="text-align: left; border-bottom: 1px solid #000">Amount</th>
+                        <th style="text-align: left; border-bottom: 1px solid #000">Condition</th>
+                        <th style="text-align: left; border-bottom: 1px solid #000">Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="record.sample_ids" t-as="line">
+                        <td style="padding-top: 2mm"><span t-field="line.sample_id.code" /></td>
+                        <td style="padding-top: 2mm"><span t-field="line.quantity" /></td>
+                        <td style="padding-top: 2mm"><span t-field="line.condition" /></td>
+                        <td style="padding-top: 2mm"><span t-field="line.condition_note" /></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div t-if="record.signature_attachment_id" style="margin-top: 10mm">
+                <div>Signature</div>
+                <img t-att-src="image_data_uri(record.signature_attachment_id.raw)" style="max-height: 30mm" />
+            </div>
+        </div>
+    </template>
+</odoo>

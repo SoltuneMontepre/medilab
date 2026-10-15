@@ -11,13 +11,18 @@ from odoo.addons.sol_commerce.constants.orders import (
     WITHDRAWN,
 )
 from odoo.addons.sol_commerce.constants.xml_ids import CANCELLATION_TASK_TYPE
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_PERSON, MODEL_TASK
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_PERSON,
+    MODEL_TASK,
+)
 
 
 # Yêu Cầu Hủy
 class CancellationRequest(models.Model):
     _name = MODEL_CANCELLATION_REQUEST
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Cancellation Request"
     _order = "id desc"
     _rec_name = "order_id"

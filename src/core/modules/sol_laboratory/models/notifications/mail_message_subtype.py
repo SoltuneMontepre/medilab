@@ -2,6 +2,7 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_MAIL_MESSAGE_SUBTYPE,
     MODEL_NOTIFICATION_EVENT_RECIPIENT,
 )
@@ -9,7 +10,9 @@ from odoo.addons.sol_laboratory.constants.models import (
 
 # Loại Thông Báo
 class MailMessageSubtype(models.Model):
-    _inherit = MODEL_MAIL_MESSAGE_SUBTYPE
+    _name = MODEL_MAIL_MESSAGE_SUBTYPE
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_MAIL_MESSAGE_SUBTYPE]
+    _audit_children = ("recipient_ids",)
 
     # Unique code of the event, such as task.reminder.
     code = fields.Char(index=True)
