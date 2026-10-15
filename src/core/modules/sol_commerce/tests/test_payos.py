@@ -907,7 +907,7 @@ class TestPayosConcurrency(BaseCase):
                 "SELECT count(*) FROM payment_transaction WHERE payos_bank_reference = %s",
                 (bank_reference,),
             )
-            self.assertEqual(cursor.fetchone()[0], 1)
+            self.assertEqual(cursor.fetchone(), (1,))
             env = api.Environment(cursor, SUPERUSER_ID, {})
             env["payment.transaction"]._payos_apply_webhook(
                 {

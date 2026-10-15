@@ -1,4 +1,5 @@
-from odoo import SUPERUSER_ID, api, fields, models
+from odoo import api, fields, models
+from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessError, UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_ACCOUNT_MOVE, MODEL_QUOTATION, MODEL_SALE_ORDER

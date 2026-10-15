@@ -405,7 +405,9 @@ class TestReport(models.Model):
         )
         return {
             way: " ".join(
-                registrations.filtered(lambda r, way=way: way in r.parameter_method_ids).mapped("report_mark")
+                registration.report_mark
+                for registration in registrations.filtered(lambda r, way=way: way in r.parameter_method_ids)
+                if registration.report_mark
             )
             for way in ways
         }

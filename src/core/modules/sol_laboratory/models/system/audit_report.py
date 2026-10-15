@@ -133,7 +133,7 @@ class AuditReport(models.TransientModel):
 
     def _entry_domain(self):
         domain = Domain("create_date", ">=", self._utc_start(self.date_from)) & Domain(
-            "create_date", "<", self._utc_start(self.date_to + timedelta(days=1))
+            "create_date", "<", self._utc_end(self.date_to)
         )
         for field_name in FILTER_FIELDS:
             if self[field_name]:
@@ -148,3 +148,7 @@ class AuditReport(models.TransientModel):
         # The start of the day in the user's time zone, as Odoo stores datetimes: in UTC without a zone.
         zone = ZoneInfo(self.env.user.tz or "UTC")
         return datetime.combine(day, time.min, tzinfo=zone).astimezone(UTC).replace(tzinfo=None)
+
+    def _utc_end(self, day):
+        # The end of the day in the user's time zone: the start of the next day.
+        return self._utc_start(day + timedelta(days=1))

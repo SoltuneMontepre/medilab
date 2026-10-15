@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from lxml import etree
 
-from odoo import api, fields, models, tools
+from odoo import api, fields, models
 from odoo.fields import Command, Domain
 
 from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL, MASK_SECRET
@@ -175,7 +175,7 @@ class AuditMixin(models.AbstractModel):
         }
 
     @api.model
-    @tools.ormcache()
+    @api.ormcache()
     def _audit_part_fields(self):
         """For each model whose records are parts of a document through the _audit_children of the document's model,
         the field on the part that names the document."""
