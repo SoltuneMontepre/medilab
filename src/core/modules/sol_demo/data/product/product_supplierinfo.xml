@@ -36,4 +36,10 @@
         <field name="product_code">LS-GLV-M</field>
         <field name="price">2500</field>
     </record>
+    <record id="demo_product_supplierinfo_nitrile_gloves_saigon_glassware" model="product.supplierinfo">
+        <field name="partner_id" ref="demo_res_partner_saigon_glassware" />
+        <field name="product_id" ref="demo_product_product_nitrile_gloves" />
+        <field name="product_code">SG-NG-M</field>
+        <field name="price">2300</field>
+    </record>
 </odoo>

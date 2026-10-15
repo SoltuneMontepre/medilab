@@ -110,6 +110,7 @@
                 <filter name="chemicals" string="Chemicals and Reagents" domain="[('item_kind', '=', 'chemical')]" />
                 <filter name="consumables" string="Consumables" domain="[('item_kind', '=', 'consumable')]" />
                 <filter name="spare_parts" string="Spare Parts" domain="[('item_kind', '=', 'spare_part')]" />
+                <filter name="solutions" string="Prepared Solutions" domain="[('item_kind', '=', 'solution')]" />
                 <separator />
                 <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
                 <filter name="group_by_kind" string="Item Kind" context="{'group_by': 'item_kind'}" />

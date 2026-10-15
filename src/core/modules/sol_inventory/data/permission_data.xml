@@ -95,11 +95,6 @@
         <field name="document_model">product.product</field>
         <field name="action">archive</field>
     </record>
-    <record id="permission_stock_item_delete_all" model="medilab.permission">
-        <field name="name">Delete stock items</field>
-        <field name="document_model">product.product</field>
-        <field name="action">delete</field>
-    </record>
     <record id="permission_supplier_create_all" model="medilab.permission">
         <field name="name">Create suppliers</field>
         <field name="document_model">medilab.supplier</field>
@@ -114,11 +109,6 @@
         <field name="name">Archive suppliers</field>
         <field name="document_model">medilab.supplier</field>
         <field name="action">archive</field>
-    </record>
-    <record id="permission_supplier_delete_all" model="medilab.permission">
-        <field name="name">Delete suppliers</field>
-        <field name="document_model">medilab.supplier</field>
-        <field name="action">delete</field>
     </record>
     <record id="permission_supplier_item_create_all" model="medilab.permission">
         <field name="name">Create supplier items</field>
@@ -144,11 +134,6 @@
         <field name="name">Edit minimum quantities</field>
         <field name="document_model">stock.warehouse.orderpoint</field>
         <field name="action">edit</field>
-    </record>
-    <record id="permission_minimum_quantity_archive_all" model="medilab.permission">
-        <field name="name">Archive minimum quantities</field>
-        <field name="document_model">stock.warehouse.orderpoint</field>
-        <field name="action">archive</field>
     </record>
     <record id="permission_minimum_quantity_delete_all" model="medilab.permission">
         <field name="name">Delete minimum quantities</field>

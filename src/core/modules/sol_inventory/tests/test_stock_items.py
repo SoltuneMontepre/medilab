@@ -59,6 +59,33 @@ class TestStockItems(CatalogCase):
 
         self.assertFalse(self.plates.active)
 
+    def test_an_item_an_active_method_uses_per_test_cannot_be_archived(self):
+        self.env[MODEL_METHOD_CONSUMPTION].create(
+            {"method_id": self.method.id, "product_id": self.plates.id, "quantity": 1}
+        )
+
+        with self.assertRaises(UserError) as refusal:
+            self.plates.action_archive()
+
+        self.assertIn(self.method.display_name, str(refusal.exception))
+        self.assertTrue(self.plates.active)
+
+        self.method.action_archive()
+        self.plates.action_archive()
+
+        self.assertFalse(self.plates.active)
+
+    def test_a_stock_item_is_archived_never_deleted(self):
+        administrator = self.env.ref("base.user_admin")
+
+        for items in (self.plates, self.plates.with_user(administrator)):
+            with self.subTest(user=items.env.user.login), self.assertRaises(UserError):
+                items.unlink()
+        with self.assertRaises(UserError):
+            self.plates.product_tmpl_id.with_user(administrator).unlink()
+
+        self.assertTrue(self.plates.exists())
+
     def test_changing_the_tracking_of_an_item_with_stock_is_refused(self):
         self.put_stock(self.gloves, self.fridge, 10)
 

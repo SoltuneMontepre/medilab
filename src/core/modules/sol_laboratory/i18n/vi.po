@@ -4559,10 +4559,6 @@ msgid "Permission: method.consumption.edit.all"
 msgstr "Quyền: method.consumption.edit.all"
 
 #. module: sol_laboratory
-msgid "Permission: minimum_quantity.archive.all"
-msgstr "Quyền: minimum_quantity.archive.all"
-
-#. module: sol_laboratory
 msgid "Permission: minimum_quantity.create.all"
 msgstr "Quyền: minimum_quantity.create.all"
 
@@ -4828,10 +4824,6 @@ msgid "Permission: stock_item.create.all"
 msgstr "Quyền: stock_item.create.all"
 
 #. module: sol_laboratory
-msgid "Permission: stock_item.delete.all"
-msgstr "Quyền: stock_item.delete.all"
-
-#. module: sol_laboratory
 msgid "Permission: stock_item.edit.all"
 msgstr "Quyền: stock_item.edit.all"
 
@@ -4862,10 +4854,6 @@ msgstr "Quyền: supplier.archive.all"
 #. module: sol_laboratory
 msgid "Permission: supplier.create.all"
 msgstr "Quyền: supplier.create.all"
-
-#. module: sol_laboratory
-msgid "Permission: supplier.delete.all"
-msgstr "Quyền: supplier.delete.all"
 
 #. module: sol_laboratory
 msgid "Permission: supplier.edit.all"

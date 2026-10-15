@@ -9,4 +9,9 @@
         <field name="partner_id" ref="demo_res_partner_labware_supplies" />
         <field name="contact_person_id" ref="demo_res_partner_labware_supplies_contact" />
     </record>
+    <record id="demo_supplier_saigon_glassware" model="medilab.supplier">
+        <field name="partner_id" ref="demo_res_partner_saigon_glassware" />
+        <field name="note">Stopped trading in 2025; its last prices are kept for reference.</field>
+        <field name="active" eval="False" />
+    </record>
 </odoo>

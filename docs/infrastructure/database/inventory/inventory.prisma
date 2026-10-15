@@ -689,19 +689,19 @@ model MethodConsumption {
 /// Odoo's vendor price (product.supplierinfo), shown with the columns this module uses: an item a supplier sells, with the supplier's own reference and last price. Unique on (partner_id, product_id).
 model SupplierItem {
   /// Row identifier.
-  id           Int       @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   /// The supplier.
   partner_id   Int
   /// The item.
-  product_id   Int
+  product_id   Int?
   /// The supplier's reference for the item.
-  product_code String?   @db.VarChar
+  product_code String?    @db.VarChar
   /// Last price paid for one unit, excluding VAT.
-  price        Decimal   @db.Decimal
+  price        Decimal?   @db.Decimal
   /// The supplier.
-  supplier     Contact   @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  supplier     Contact    @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   /// The item.
-  item         StockItem @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  item         StockItem? @relation(fields: [product_id], references: [id], onDelete: SetNull)
 
   @@unique([partner_id, product_id])
   @@index([product_id])

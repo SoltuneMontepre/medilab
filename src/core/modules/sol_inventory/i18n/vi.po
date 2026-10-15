@@ -33,6 +33,12 @@ msgstr "Không thể lưu trữ %(items)s khi vẫn còn tồn tại: %(location
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/catalog/product_product.py:0
+msgid "%(items)s cannot be archived while used per test by: %(methods)s."
+msgstr "Không thể lưu trữ %(items)s khi vẫn còn trong định mức tiêu hao của: %(methods)s."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/stores/stock_location.py:0
 msgid "%(store)s is below %(above)s, so a department or team must hold it."
 msgstr "%(store)s nằm dưới %(above)s nên phải có phòng hoặc tổ giữ kho."
@@ -195,11 +201,6 @@ msgstr "Lưu trữ trung tâm chi phí của phòng ban mình"
 #: model:medilab.permission,name:sol_inventory.permission_location_archive_all
 msgid "Archive locations"
 msgstr "Lưu trữ vị trí kho"
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_minimum_quantity_archive_all
-msgid "Archive minimum quantities"
-msgstr "Lưu trữ tồn tối thiểu"
 
 #. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_stock_item_archive_all
@@ -635,19 +636,9 @@ msgid "Delete minimum quantities"
 msgstr "Xóa tồn tối thiểu"
 
 #. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_stock_item_delete_all
-msgid "Delete stock items"
-msgstr "Xóa vật tư"
-
-#. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_supplier_item_delete_all
 msgid "Delete supplier items"
 msgstr "Xóa mặt hàng của nhà cung cấp"
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_supplier_delete_all
-msgid "Delete suppliers"
-msgstr "Xóa nhà cung cấp"
 
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_hr_department
@@ -895,6 +886,12 @@ msgid "If checked, some messages have a delivery error."
 msgstr "Nếu chọn, một số tin nhắn bị lỗi gửi."
 
 #. module: sol_inventory
+#: model:ir.model.fields,help:sol_inventory.field_product_supplierinfo__product_id
+msgid ""
+"If not set, the vendor price will apply to all variants of this product."
+msgstr "Nếu không chọn, giá nhập hàng sẽ áp dụng cho tất cả biến thể của sản phẩm này."
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__is_blacklisted
 msgid ""
 "If the email address is on the blacklist, the contact won't receive mass "
@@ -1052,6 +1049,11 @@ msgstr "Mục"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_search
 msgid "Item Kind"
 msgstr "Loại vật tư"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_product_product__item_tracking
+msgid "Item Tracking"
+msgstr "Cách theo dõi"
 
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_form
@@ -1273,12 +1275,6 @@ msgid "Number of messages with delivery error"
 msgstr "Số tin nhắn bị lỗi gửi"
 
 #. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_list
-msgid "On Hand"
-msgstr "Tồn kho"
-
-#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__on_time_rate
 msgid "On-Time Delivery Rate"
 msgstr "Tỷ lệ giao hàng đúng hạn"
@@ -1364,6 +1360,16 @@ msgstr "Số điện thoại bị chặn"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__phone_mobile_search
 msgid "Phone Number"
 msgstr "Số điện thoại"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__product_product__item_kind__solution
+msgid "Prepared Solution"
+msgstr "Dung dịch pha chế"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_search
+msgid "Prepared Solutions"
+msgstr "Dung dịch pha chế"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__property_product_pricelist
@@ -1536,11 +1542,6 @@ msgid "Signup Token Type"
 msgstr "Loại mã đăng ký"
 
 #. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__product_product__item_kind__solution
-msgid "Solution"
-msgstr "Dung dịch"
-
-#. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__product_product__item_kind__spare_part
 msgid "Spare Part"
 msgstr "Phụ tùng"
@@ -1574,6 +1575,12 @@ msgstr "Trạng thái theo hoạt động Quá hạn: Đã qua hạn Hôm nay: H
 #: model:ir.ui.menu,name:sol_inventory.menu_stock_item
 msgid "Stock Items"
 msgstr "Vật tư"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/product_product.py:0
+msgid "Stock items are archived, never deleted."
+msgstr "Vật tư chỉ được lưu trữ, không bao giờ bị xóa."
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__conditions
@@ -1860,11 +1867,6 @@ msgstr "Tổng tiền bạn phải trả cho nhà cung cấp này."
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__track_containers
 msgid "Track Containers"
 msgstr "Theo dõi chai/lọ"
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_product_product__item_tracking
-msgid "Tracking"
-msgstr "Cách theo dõi"
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__activity_exception_decoration

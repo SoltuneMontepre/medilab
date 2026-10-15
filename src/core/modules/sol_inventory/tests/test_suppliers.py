@@ -48,12 +48,26 @@ class TestSuppliers(CatalogCase):
         self.assertEqual(self.supplier.contact_person_id.parent_id, self.supplier.partner_id)
         self.assertFalse(self.supplier.contact_person_id.is_company)
 
-    def test_a_supplier_no_longer_used_is_archived_and_keeps_its_items(self):
+    def test_an_archived_supplier_keeps_its_prices_but_is_no_longer_offered(self):
         line = self.env[MODEL_SUPPLIER_INFO].create(
-            {"partner_id": self.supplier.partner_id.id, "product_id": self.acid.id, "price": 250000}
+            {
+                "partner_id": self.supplier.partner_id.id,
+                "product_id": self.acid.id,
+                "product_tmpl_id": self.acid.product_tmpl_id.id,
+                "price": 250000,
+            }
         )
+        self.assertEqual(self.acid._select_seller(quantity=1).get("supplierinfo"), line)
 
         self.supplier.action_archive()
 
-        self.assertFalse(self.supplier.active)
         self.assertEqual(self.supplier.with_context(active_test=False).supplier_item_ids, line)
+        self.assertFalse(self.acid._select_seller(quantity=1))
+
+        self.supplier.action_unarchive()
+
+        self.assertEqual(self.acid._select_seller(quantity=1).get("supplierinfo"), line)
+
+    def test_a_supplier_is_archived_never_deleted(self):
+        with self.assertRaises(AccessError):
+            self.supplier.with_user(self.env.ref("base.user_admin")).unlink()

@@ -19,7 +19,7 @@ class Supplier(models.Model):
     _description = "Supplier"
     _order = "code"
     _rec_names_search = ("name", "code")
-    _permission_actions = ("create", "edit", "archive", "delete")
+    _permission_actions = ("create", "edit", "archive")
     # The supplier's permissions govern it, not Odoo's contact rights, which only administrators hold.
     _check_inherits_access = False
     _contact_fields = ("name", "vat", "street", "city", "country_id", "phone", "email")

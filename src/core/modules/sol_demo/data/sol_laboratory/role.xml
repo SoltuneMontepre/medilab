@@ -190,7 +190,6 @@
                 ref('sol_inventory.permission_supplier_item_delete_all'),
                 ref('sol_inventory.permission_minimum_quantity_create_all'),
                 ref('sol_inventory.permission_minimum_quantity_edit_all'),
-                ref('sol_inventory.permission_minimum_quantity_archive_all'),
                 ref('sol_inventory.permission_minimum_quantity_delete_all'),
                 ref('sol_inventory.permission_method_consumption_create_all'),
                 ref('sol_inventory.permission_method_consumption_edit_all'),

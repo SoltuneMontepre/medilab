@@ -51,6 +51,7 @@ class TestCatalogAccess(CatalogCase):
         self.assertEqual(item.supplier_item_ids.product_code, "FP-90")
         self.assertEqual(item.consumption_ids.method_id, self.method)
 
+        item.consumption_ids.unlink()
         item.action_archive()
 
         self.assertFalse(item.active)

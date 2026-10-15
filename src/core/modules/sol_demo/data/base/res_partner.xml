@@ -224,4 +224,12 @@
         <field name="parent_id" ref="demo_res_partner_labware_supplies" />
         <field name="email">hoa.le@labware-supplies.example</field>
     </record>
+    <record id="demo_res_partner_saigon_glassware" model="res.partner">
+        <field name="name">Saigon Glassware Trading Co., Ltd.</field>
+        <field name="vat">0305551234</field>
+        <field name="street">12 Ly Thuong Kiet, Ward 7</field>
+        <field name="city">Ho Chi Minh City</field>
+        <field name="country_id" ref="base.vn" />
+        <field name="phone">+84 28 3855 4321</field>
+    </record>
 </odoo>

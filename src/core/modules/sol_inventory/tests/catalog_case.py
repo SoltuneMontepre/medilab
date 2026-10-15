@@ -15,6 +15,7 @@ CATALOG_PERMISSIONS = (
     "minimum_quantity.edit.all",
     "method_consumption.create.all",
     "method_consumption.edit.all",
+    "method_consumption.delete.all",
 )
 
 

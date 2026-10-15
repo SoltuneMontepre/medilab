@@ -9,4 +9,4 @@ class StockWarehouseOrderpoint(models.Model):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_ORDERPOINT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_ORDERPOINT, MODEL_PERMISSION_MIXIN]
-    _permission_actions = ("create", "edit", "archive", "delete")
+    _permission_actions = ("create", "edit", "delete")

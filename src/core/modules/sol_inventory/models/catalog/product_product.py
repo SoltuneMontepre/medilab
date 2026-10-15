@@ -28,7 +28,7 @@ class ProductProduct(models.Model):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_PRODUCT
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_PRODUCT, MODEL_PERMISSION_MIXIN]
-    _permission_actions = ("create", "edit", "archive", "delete")
+    _permission_actions = ("create", "edit", "archive")
     _audit_children = PART_FIELDS
     # An item's permissions govern its template too, which Odoo lets only product managers change.
     _check_inherits_access = False
@@ -41,7 +41,7 @@ class ProductProduct(models.Model):
             (CHEMICAL, "Chemical or Reagent"),
             ("consumable", "Consumable"),
             ("spare_part", "Spare Part"),
-            ("solution", "Solution"),
+            ("solution", "Prepared Solution"),
         ],
         string="Item Kind",
         index=True,
@@ -51,7 +51,7 @@ class ProductProduct(models.Model):
     # How the item is counted: by container, by lot or by quantity only; sets Odoo's tracking and track_containers.
     item_tracking = fields.Selection(
         [(CONTAINER, "By Container"), (LOT, "By Lot"), (QUANTITY, "By Quantity")],
-        string="Tracking",
+        string="Item Tracking",
         compute="_compute_item_tracking",
         inverse="_inverse_item_tracking",
     )
@@ -131,14 +131,7 @@ class ProductProduct(models.Model):
         else:
             items._check_item_rights(vals)
         if "active" in vals and not vals["active"]:
-            quants = self.filtered("item_kind")._held_stock()
-            if quants:
-                raise UserError(
-                    self.env._(
-                        "%(items)s cannot be archived while stock is held in: %(locations)s.",
-                        **self._stock_names(quants),
-                    )
-                )
+            self.filtered("item_kind")._check_archivable()
         tracking_before = self._item_trackings() if set(TRACKING_FIELDS) & vals.keys() else None
         if items is None:
             result = super().write(vals)
@@ -171,13 +164,11 @@ class ProductProduct(models.Model):
         items._check_item_rights({"active": True})
         return super(ProductProduct, items.sudo()).action_unarchive()
 
-    def unlink(self):
-        items = self._as_items()
-        if items is None:
-            self._check_product_manager()
-            return super().unlink()
-        items.check_access("unlink")
-        return super(ProductProduct, items.sudo()).unlink()
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_stock_item(self):
+        # Odoo lets its product managers delete products; stock items stay, archived, for the records that name them.
+        if self.filtered("item_kind"):
+            raise UserError(self.env._("Stock items are archived, never deleted."))
 
     def _as_items(self):
         """The records when they are all stock items handled for a user; None when Odoo's own rights apply."""
@@ -202,6 +193,30 @@ class ProductProduct(models.Model):
         # The item permissions give accesses on every product; other products stay with Odoo's product managers.
         if not self.env.su and not self.env.user.has_group(PRODUCT_MANAGER_GROUP):
             raise AccessError(self.env._("Only product managers may change products that are not stock items."))
+
+    def _check_archivable(self):
+        """Refuse archiving items held in stock or used per test by an active testing method, listing what holds them."""
+        quants = self._held_stock()
+        if quants:
+            raise UserError(
+                self.env._(
+                    "%(items)s cannot be archived while stock is held in: %(locations)s.",
+                    **self._stock_names(quants),
+                )
+            )
+        uses = (
+            self.env[MODEL_METHOD_CONSUMPTION]
+            .sudo()
+            .search(Domain("product_id", "in", self.ids) & Domain("method_id.active", "=", True))
+        )
+        if uses:
+            raise UserError(
+                self.env._(
+                    "%(items)s cannot be archived while used per test by: %(methods)s.",
+                    items=format_list(self.env, uses.product_id.mapped("display_name")),
+                    methods=format_list(self.env, uses.method_id.mapped("display_name")),
+                )
+            )
 
     def _item_trackings(self):
         return {item.id: item.item_tracking for item in self.filtered("item_kind")}
