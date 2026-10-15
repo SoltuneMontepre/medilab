@@ -55,5 +55,9 @@
   "git-graph.repository.commits.fetchAvatars": true,
   "workbench.tree.indent": 12,
   "workbench.tree.renderIndentGuides": "always",
-  "workbench.list.smoothScrolling": true
+  "workbench.list.smoothScrolling": true,
+  "Odoo.selectedProfile": "default",
+  "Odoo.serverLogLevel": "info",
+  "Odoo.disablePythonLanguageServerPopup": true,
+  "Odoo.disableJsLanguageServerPopup": true
 }

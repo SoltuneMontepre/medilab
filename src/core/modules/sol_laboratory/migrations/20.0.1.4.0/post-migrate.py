@@ -1,4 +1,5 @@
-from odoo import SUPERUSER_ID, api
+from odoo import api
+from odoo.api import SUPERUSER_ID
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_CHANGE
 

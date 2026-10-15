@@ -6,6 +6,8 @@ from odoo.http import request
 
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.sol_laboratory.constants.models import MODEL_SUBCONTRACT_DISPATCH
+from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
+from odoo.addons.sol_laboratory.services.request_env import request_env
 
 DISPATCH_COUNTER = "dispatch_count"
 
@@ -15,17 +17,17 @@ class MedilabDispatchPortal(CustomerPortal):
 
     def _prepare_portal_counter_values(self, counter):
         if counter == DISPATCH_COUNTER:
-            domain = request.env[MODEL_SUBCONTRACT_DISPATCH]._portal_domain(request.env.user)
+            domain = request_env()[MODEL_SUBCONTRACT_DISPATCH]._portal_domain(request_env().user)
             return MODEL_SUBCONTRACT_DISPATCH, domain, "sudo"
         return super()._prepare_portal_counter_values(counter)
 
-    @http.route("/my/dispatches", type="http", auth="user", website=True)
+    @http.route("/my/dispatches", type="http", auth="user", **FRONTEND_PAGE)
     def portal_my_dispatches(self, **kwargs):
         values = self._prepare_portal_layout_values()
         values.update(page_name="dispatches", dispatches=self._dispatches())
         return request.render("sol_laboratory.portal_my_dispatches", values)
 
-    @http.route("/my/dispatches/<int:dispatch_id>", type="http", auth="user", website=True)
+    @http.route("/my/dispatches/<int:dispatch_id>", type="http", auth="user", **FRONTEND_PAGE)
     def portal_my_dispatch(self, dispatch_id, error=None, **kwargs):
         dispatch = self._dispatches(dispatch_id)
         if not dispatch:
@@ -42,7 +44,7 @@ class MedilabDispatchPortal(CustomerPortal):
         )
         return request.render("sol_laboratory.portal_my_dispatch", values)
 
-    @http.route("/my/dispatches/<int:dispatch_id>/results", type="http", auth="user", methods=["POST"], website=True)
+    @http.route("/my/dispatches/<int:dispatch_id>/results", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def portal_enter_result(self, dispatch_id, sample_test_id="", value=None, value_text=None, **kwargs):
         dispatch = self._dispatches(dispatch_id)
         if not dispatch:
@@ -55,4 +57,4 @@ class MedilabDispatchPortal(CustomerPortal):
         return request.redirect(page)
 
     def _dispatches(self, dispatch_id=None):
-        return request.env[MODEL_SUBCONTRACT_DISPATCH]._portal_dispatches(request.env.user, dispatch_id)
+        return request_env()[MODEL_SUBCONTRACT_DISPATCH]._portal_dispatches(request_env().user, dispatch_id)

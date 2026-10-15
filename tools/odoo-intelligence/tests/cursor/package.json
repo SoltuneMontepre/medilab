@@ -1,0 +1,8 @@
+{
+  "name": "odoo-navigation-probe",
+  "publisher": "medilab",
+  "version": "0.1.0",
+  "engines": {"vscode": "^1.125.0"},
+  "main": "./extension.js",
+  "activationEvents": ["onStartupFinished"]
+}

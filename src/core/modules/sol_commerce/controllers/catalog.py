@@ -8,14 +8,15 @@ from odoo.addons.sol_commerce.constants.models import MODEL_PRODUCT_TEMPLATE, MO
 from odoo.addons.sol_commerce.constants.orders import SOURCE_PORTAL, STATUS_DRAFT
 from odoo.addons.sol_commerce.constants.xml_ids import PUBLIC_PARTNER
 from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
+from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CART_SESSION = "medilab_cart_id"
 
 
 class Catalog(http.Controller):
-    @http.route("/catalog", type="http", auth="public", website=False)
+    @http.route("/catalog", type="http", auth="public")
     def catalog(self, sample_type=None, group=None, name=None, price_min=None, price_max=None, **kwargs):
-        products = request.env[MODEL_PRODUCT_TEMPLATE]
+        products = request_env()[MODEL_PRODUCT_TEMPLATE]
         sample_types = products.catalog_filters()["sample_types"]
         groups = products.catalog_filters()["groups"]
         sample = self._record(sample_types, sample_type)
@@ -40,19 +41,19 @@ class Catalog(http.Controller):
             },
         )
 
-    @http.route("/catalog/add", type="http", auth="public", methods=["POST"], website=False)
+    @http.route("/catalog/add", type="http", auth="public", methods=["POST"])
     def add(self, product_tmpl_id, quantity="1", **kwargs):
-        product = request.env[MODEL_PRODUCT_TEMPLATE].sudo().browse(int(product_tmpl_id)).exists()
+        product = request_env()[MODEL_PRODUCT_TEMPLATE].sudo().browse(int(product_tmpl_id)).exists()
         try:
             self._get_or_create_cart().add_catalog_product(product, self._quantity(quantity))
         except UserError as error:
             return request.redirect(f"/catalog?error={quote(str(error))}")
         return request.redirect("/cart")
 
-    @http.route("/cart", type="http", auth="public", website=False)
+    @http.route("/cart", type="http", auth="public")
     def cart(self, error=None, message=None, **kwargs):
         order = self._cart()
-        contacts = order._contact_choices() if order else request.env["res.partner"]
+        contacts = order._contact_choices() if order else request_env()["res.partner"]
         # The order's contact stays chosen; otherwise the customer's default contact is preselected.
         chosen = (order.partner_id & contacts) or (
             order._customer_record().default_contact_id if contacts else contacts
@@ -64,13 +65,13 @@ class Catalog(http.Controller):
                 "lines": order._catalog_lines(),
                 "error": error,
                 "message": message,
-                "public": request.env.user._is_public(),
+                "public": request_env().user._is_public(),
                 "contacts": contacts,
                 "chosen_contact": chosen,
             },
         )
 
-    @http.route("/cart/line", type="http", auth="public", methods=["POST"], website=False)
+    @http.route("/cart/line", type="http", auth="public", methods=["POST"])
     def update_line(self, line_id, quantity="1", **kwargs):
         order = self._cart()
         line = order._catalog_lines().filtered(lambda item: item.id == int(line_id))[:1]
@@ -84,7 +85,7 @@ class Catalog(http.Controller):
             line._lock_catalog_price()
         return request.redirect("/cart")
 
-    @http.route("/cart/save", type="http", auth="public", methods=["POST"], website=False)
+    @http.route("/cart/save", type="http", auth="public", methods=["POST"])
     def save(self, contact_id=None, **kwargs):
         order = self._cart()
         if not order:
@@ -95,7 +96,7 @@ class Catalog(http.Controller):
             return request.redirect(f"/cart?error={quote(str(error))}")
         return request.redirect("/cart?message=Saved")
 
-    @http.route("/cart/submit", type="http", auth="public", methods=["POST"], website=False)
+    @http.route("/cart/submit", type="http", auth="public", methods=["POST"])
     def submit(self, name=None, email=None, phone=None, contact_id=None, **kwargs):
         order = self._get_or_create_cart()
         try:
@@ -121,15 +122,15 @@ class Catalog(http.Controller):
         return grouped
 
     def _cart(self):
-        order = request.env[MODEL_SALE_ORDER].sudo().browse(request.session.get(CART_SESSION)).exists()
-        user = request.env.user
+        order = request_env()[MODEL_SALE_ORDER].sudo().browse(request.session.get(CART_SESSION)).exists()
+        user = request_env().user
         if order and order.order_status == STATUS_DRAFT and order.source == SOURCE_PORTAL:
             if user._is_public() or order._owned_by(user):
                 return order
         if not user._is_public():
             commercial = user.partner_id.commercial_partner_id
             existing = (
-                request.env[MODEL_SALE_ORDER]
+                request_env()[MODEL_SALE_ORDER]
                 .sudo()
                 .search(
                     [
@@ -146,22 +147,22 @@ class Catalog(http.Controller):
             if existing:
                 request.session[CART_SESSION] = existing.id
                 return existing
-        return request.env[MODEL_SALE_ORDER].sudo()
+        return request_env()[MODEL_SALE_ORDER].sudo()
 
     def _get_or_create_cart(self):
         order = self._cart()
         if order:
             return order
-        user = request.env.user
+        user = request_env().user
         if user._is_public():
-            partner = request.env.ref(PUBLIC_PARTNER)
+            partner = request_env().ref(PUBLIC_PARTNER)
             customer_id = False
         else:
             customer_id = user.partner_id.commercial_partner_id.id
             # A business's order starts with its default contact, which the customer can change in the cart.
-            partner = request.env[MODEL_CUSTOMER]._of_user(user).default_contact_id or user.partner_id
+            partner = request_env()[MODEL_CUSTOMER]._of_user(user).default_contact_id or user.partner_id
         order = (
-            request.env[MODEL_SALE_ORDER]
+            request_env()[MODEL_SALE_ORDER]
             .sudo()
             .create(
                 {
@@ -189,9 +190,9 @@ class Catalog(http.Controller):
         try:
             quantity = float(value)
         except (TypeError, ValueError) as error:
-            raise UserError(request.env._("A catalog line needs a quantity of at least 1.")) from error
+            raise UserError(request_env()._("A catalog line needs a quantity of at least 1.")) from error
         if quantity == 0 and allow_zero:
             return 0
         if quantity < 1:
-            raise UserError(request.env._("A catalog line needs a quantity of at least 1."))
+            raise UserError(request_env()._("A catalog line needs a quantity of at least 1."))
         return quantity

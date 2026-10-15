@@ -48,6 +48,7 @@ from . import (
     test_person_employee,
     test_person_user,
     test_regulation_constraints,
+    test_reminders,
     test_role_lifecycle,
     test_sample_collection,
     test_sample_disposal,
@@ -59,6 +60,7 @@ from . import (
     test_settings,
     test_subcontract_dispatch,
     test_subcontractor,
+    test_subcontractor_selection,
     test_task_claiming,
     test_task_dashboard,
     test_task_document,
@@ -81,4 +83,5 @@ from . import (
     test_translations,
     test_tree_filters,
     test_uninstall,
+    test_ways_of_testing_list,
 )
