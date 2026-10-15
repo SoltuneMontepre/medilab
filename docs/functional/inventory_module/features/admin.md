@@ -32,7 +32,7 @@ Follows [Stores](../overview.md#stores) and [Costs](../overview.md#costs).
 | Holder       | A department store is held by a department, a team store by a team of the department whose store is above it.       |
 | Manager      | Each store names the person who manages it; until it does, it receives no requisitions. The manager of the central store holds the storekeeper role. |
 | Setup        | Only administrators mark a location as a store and set its holder and manager. The storekeeper maintains the locations inside the stores. |
-| Cost centre  | Each department and each team that holds a store has a cost centre code, unique across the laboratory.              |
+| Cost centre  | Each department and each team that holds a store has a cost centre code, unique across the laboratory. The Stores screen marks a store whose department or team has no cost centre yet, without refusing it, so stores and cost centres can be set up in any order. |
 
 Acceptance criteria:
 

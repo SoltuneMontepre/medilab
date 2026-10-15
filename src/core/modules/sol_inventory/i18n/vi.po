@@ -72,6 +72,7 @@ msgstr "Mã"
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_list
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__cost_centre_code
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_search
 msgid "Cost Centre"
 msgstr "Trung tâm chi phí"
@@ -256,6 +257,12 @@ msgstr "Các kho sau chưa có người quản lý nên không nhận được p
 #: model:ir.model.constraint,message:sol_inventory.constraint_account_analytic_account_department_unique
 msgid "This department or team already has a cost centre."
 msgstr "Phòng hoặc tổ này đã có trung tâm chi phí."
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__cost_centre_missing
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_search
+msgid "Without Cost Centre"
+msgstr "Chưa có trung tâm chi phí"
 
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_search
