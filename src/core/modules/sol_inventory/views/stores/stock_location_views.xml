@@ -82,6 +82,7 @@
     <record id="action_medilab_store" model="ir.actions.act_window">
         <field name="name">Stores</field>
         <field name="res_model">stock.location</field>
+        <field name="path">stores</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('is_store', '=', True)]</field>
         <field name="context">{'default_is_store': True}</field>

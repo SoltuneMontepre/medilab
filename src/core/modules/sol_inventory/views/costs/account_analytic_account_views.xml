@@ -53,6 +53,7 @@
     <record id="action_medilab_cost_centre" model="ir.actions.act_window">
         <field name="name">Cost Centres</field>
         <field name="res_model">account.analytic.account</field>
+        <field name="path">cost-centres</field>
         <field name="view_mode">list,form</field>
         <field name="domain" eval="[('plan_id', '=', ref('analytic_plan_cost_centres'))]" />
         <field name="context" eval="{'default_plan_id': ref('analytic_plan_cost_centres')}" />
