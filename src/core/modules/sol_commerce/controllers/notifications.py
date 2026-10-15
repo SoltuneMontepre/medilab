@@ -17,6 +17,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_NOTIFICATION_PREFERENCE,
 )
 from odoo.addons.sol_laboratory.constants.notifications import CHANNEL_EMAIL, CHANNEL_POPUP
+from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
+from odoo.addons.sol_laboratory.services.request_env import request_env
 
 # The event types a customer chooses for, in the order the page lists them.
 CUSTOMER_EVENTS = (
@@ -32,14 +34,14 @@ RECENT_NOTIFICATIONS = 20
 
 
 class NotificationPortal(http.Controller):
-    @http.route("/my/notifications", type="http", auth="user", methods=["GET"], website=True)
+    @http.route("/my/notifications", type="http", auth="user", methods=["GET"], **FRONTEND_PAGE)
     def portal_notifications(self, **kwargs):
         return request.render("sol_commerce.portal_notification_preferences", self._page_values())
 
-    @http.route("/my/notifications", type="http", auth="user", methods=["POST"], website=True)
+    @http.route("/my/notifications", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def portal_save_notifications(self, **post):
-        preferences = request.env[MODEL_NOTIFICATION_PREFERENCE]
-        routes = request.env[MODEL_NOTIFICATION_CONTACT]
+        preferences = request_env()[MODEL_NOTIFICATION_PREFERENCE]
+        routes = request_env()[MODEL_NOTIFICATION_CONTACT]
         business = self._business()
         contacts = self._contacts(business)
         for event in self._events():
@@ -54,20 +56,20 @@ class NotificationPortal(http.Controller):
         return request.redirect("/my/notifications?saved=1")
 
     def _business(self):
-        return request.env.user.partner_id.commercial_partner_id
+        return request_env().user.partner_id.commercial_partner_id
 
     def _contacts(self, business):
         return business.child_ids if business.is_company else business.browse()
 
     def _events(self):
-        events = request.env[MODEL_MAIL_MESSAGE_SUBTYPE].sudo().search([("code", "in", CUSTOMER_EVENTS)])
+        events = request_env()[MODEL_MAIL_MESSAGE_SUBTYPE].sudo().search([("code", "in", CUSTOMER_EVENTS)])
         return events.sorted(key=lambda event: CUSTOMER_EVENTS.index(event.code))
 
     def _page_values(self):
-        user = request.env.user
-        messages = request.env[MODEL_MAIL_MESSAGE].sudo()
+        user = request_env().user
+        messages = request_env()[MODEL_MAIL_MESSAGE].sudo()
         business = self._business()
-        routes = request.env[MODEL_NOTIFICATION_CONTACT].sudo().search([("partner_id", "=", business.id)])
+        routes = request_env()[MODEL_NOTIFICATION_CONTACT].sudo().search([("partner_id", "=", business.id)])
         rows = []
         for event in self._events():
             popup, email, _push = messages._preferred_channels(user, event)
@@ -81,7 +83,7 @@ class NotificationPortal(http.Controller):
                 }
             )
         inbox = (
-            request.env["mail.notification"]
+            request_env()["mail.notification"]
             .sudo()
             .search(
                 [("res_partner_id", "in", user.partner_id.ids), ("notification_type", "=", "inbox")],
