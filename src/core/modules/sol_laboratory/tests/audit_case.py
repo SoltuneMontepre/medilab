@@ -17,13 +17,15 @@ class AuditLookup:
 
     @classmethod
     def unaudited_documents(cls, module):
-        """The stored models the module defines or extends that do not inherit the audit mixin."""
+        """The stored models the module defines or extends that do not inherit the audit mixin. Reports read from a
+        query hold no records of their own."""
         mixin = cls.env.registry[MODEL_AUDIT_MIXIN]
         return {
             name
             for name, model in cls.env.registry.items()
             if not model._abstract
             and not model._transient
+            and model._auto
             and not issubclass(model, mixin)
             and any(
                 getattr(base, "_name", None) == name and getattr(base, "_module", None) == module

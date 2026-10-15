@@ -12,6 +12,7 @@ def post_init_hook(env):
     from .demo_audit import seed_audit
     from .demo_change_requests import seed_change_requests
     from .demo_dispatches import seed_dispatches
+    from .demo_finance import seed_finance
     from .demo_orders import seed_orders
     from .demo_quotations import seed_quotations
     from .demo_reports import seed_reports
@@ -25,4 +26,5 @@ def post_init_hook(env):
     seed_change_requests(env)
     seed_tracking(env)
     seed_dispatches(env)
+    seed_finance(env)
     seed_audit(env)

@@ -601,6 +601,10 @@ model Invoice {
   amount_residual Decimal       @db.Decimal
   /// not_paid, partial, in_payment or paid, from the payments reconciled with it.
   payment_state   String        @db.VarChar
+  /// True once the invoice was emailed to the customer.
+  is_move_sent    Boolean       @default(false)
+  /// When the invoice first went to the customer; collection reports count the days to payment from it.
+  sent_at         DateTime?
   /// The order invoiced.
   order           SaleOrder     @relation(fields: [order_id], references: [id], onDelete: Restrict)
   /// The contact the invoice is addressed to.

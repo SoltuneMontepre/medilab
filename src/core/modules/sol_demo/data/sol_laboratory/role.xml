@@ -70,6 +70,14 @@
     <record id="demo_role_accountant" model="medilab.role">
         <field name="code">accountant</field>
         <field name="name">Accountant</field>
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('sol_commerce.permission_revenue_report_read_all'),
+                ref('sol_commerce.permission_receivable_report_read_all'),
+                ref('sol_commerce.permission_cash_flow_report_read_all'),
+            ])]"
+        />
     </record>
     <record id="demo_role_sample_delivery_staff" model="medilab.role">
         <field name="code">sample_delivery_staff</field>

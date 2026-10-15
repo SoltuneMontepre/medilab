@@ -5,6 +5,7 @@ from . import (
     test_catalog_page,
     test_customer_orders,
     test_customer_portal,
+    test_finance_reports,
     test_invoice_notices,
     test_invoices,
     test_order_access,

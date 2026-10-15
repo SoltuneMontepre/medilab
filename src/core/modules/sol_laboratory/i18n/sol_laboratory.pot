@@ -4352,6 +4352,10 @@ msgid "Permission: cancellation.request.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: cash.flow.report.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_archive_all
 msgid "Permission: customer.archive.all"
 msgstr ""
@@ -4581,6 +4585,10 @@ msgid "Permission: quotation.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: receivable.report.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 msgid "Permission: reconciliation.day.create.all"
 msgstr ""
 
@@ -4590,6 +4598,10 @@ msgstr ""
 
 #. module: sol_laboratory
 msgid "Permission: reconciliation.day.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: revenue.report.read.all"
 msgstr ""
 
 #. module: sol_laboratory

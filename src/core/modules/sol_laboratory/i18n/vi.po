@@ -4421,6 +4421,10 @@ msgid "Permission: cancellation.request.read.all"
 msgstr "Quyền: cancellation.request.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: cash.flow.report.read.all"
+msgstr "Quyền: cash.flow.report.read.all"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_archive_all
 msgid "Permission: customer.archive.all"
 msgstr "Quyền: customer.archive.all"
@@ -4650,6 +4654,10 @@ msgid "Permission: quotation.read.all"
 msgstr "Quyền: quotation.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: receivable.report.read.all"
+msgstr "Quyền: receivable.report.read.all"
+
+#. module: sol_laboratory
 msgid "Permission: reconciliation.day.create.all"
 msgstr "Quyền: reconciliation.day.create.all"
 
@@ -4660,6 +4668,10 @@ msgstr "Quyền: reconciliation.day.edit.all"
 #. module: sol_laboratory
 msgid "Permission: reconciliation.day.read.all"
 msgstr "Quyền: reconciliation.day.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: revenue.report.read.all"
+msgstr "Quyền: revenue.report.read.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_role_create_all
