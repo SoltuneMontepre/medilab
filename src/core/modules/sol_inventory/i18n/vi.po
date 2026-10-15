@@ -1102,7 +1102,7 @@ msgstr "Vĩ độ"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_search
 msgid "Location"
-msgstr "Vị trí"
+msgstr "Vị trí kho"
 
 #. module: sol_inventory
 #: model:ir.actions.act_window,name:sol_inventory.action_medilab_location
