@@ -211,16 +211,18 @@ Acceptance criteria:
 
 #### SH-11 Schedules and reminders
 
-Tasks with a planned time and machine bookings appear on schedules, and people are reminded before they start.
+Tasks with a planned time, machine bookings and location bookings appear on schedules, and people are reminded before they start.
 
 | Schedule              | Shows                                                                                     |
 | --------------------- | ----------------------------------------------------------------------------------------- |
 | Personal schedule     | A person's planned tasks and machine bookings                                             |
 | Machine schedule      | A machine's bookings and its queue                                                        |
+| Location schedule     | The bookings of a bookable location, such as a meeting room or a shared working room     |
 | Test request schedule | The tasks, bookings and due dates of the samples of one test request                     |
 | Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
 
 - **Built on Odoo Calendar.** A planned task and a machine booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a machine booking's event can only be moved where the scheduler finds the slot free. Working hours come from the person's working time (`resource.calendar`).
+- **Booking a location.** Anyone who works for the company can book a bookable [location](laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) for a time: the booking is an Odoo calendar event that names the location, with its organiser and attendees, so it shows on their calendars and on the location's schedule. Bookings of one location do not overlap; a location that is not bookable, or is archived, cannot be booked. The organiser moves or cancels the booking; an administrator can cancel any booking. Booking a location shows the free times of the locations under a chosen location, such as the rooms of a floor.
 - A reminder is sent a number of minutes before a task starts, 15 by default, set by an administrator. It is raised once from the task's calendar event, and that event has no second Odoo alarm. A machine booking will use the same reminder when its calendar event exists. That event is part of machine scheduling, which is not built yet.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
 - **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.
@@ -232,6 +234,9 @@ Tasks with a planned time and machine bookings appear on schedules, and people a
 Acceptance criteria:
 
 - A booking appears on the personal schedule of the person who runs it and on the machine's schedule.
+- A location booking appears on the calendars of its organiser and attendees and on the location's schedule.
+- Booking a location for a time that overlaps another of its bookings is refused with a message naming the existing booking.
+- A location that is not bookable cannot be chosen for a booking.
 - A reminder arrives 15 minutes before a booking starts, once on each channel.
 - An event the administrator turned off notifies nobody; turning it on again notifies the next occurrence.
 
