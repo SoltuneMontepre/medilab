@@ -58,11 +58,13 @@ class TestSubcontractorSelection(MasterDataCase):
 
         self.assertIn(self.expired.name, str(refusal.exception))
 
-    def test_expired_subcontractor_cannot_replace_the_subcontractor_of_a_pair(self):
+    def test_expired_or_archived_subcontractor_cannot_replace_the_subcontractor_of_a_pair(self):
         pair = self.choose(self.accredited)
 
-        with self.assertRaises(ValidationError):
-            pair.subcontractor_id = self.expired
+        for subcontractor in (self.expired, self.archived):
+            with self.subTest(subcontractor=subcontractor.name), self.assertRaises(ValidationError):
+                pair.write({"subcontractor_id": subcontractor.id})
+        self.assertEqual(pair.subcontractor_id, self.accredited)
 
     def test_renewed_accreditation_allows_choosing_again(self):
         with self.assertRaises(ValidationError):
