@@ -1,7 +1,8 @@
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
-from odoo.tools import format_date
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools import format_date, format_list
 
+from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
@@ -23,7 +24,8 @@ class ParameterMethod(models.Model):
     _description = "Way of Testing"
     _order = "parameter_id, is_default desc, id"
     _rec_names_search = ("parameter_id", "method_id")
-    _permission_actions = ("create", "edit", "archive", "delete")
+    # Ways of testing are archived, never deleted, so they have no delete permission.
+    _permission_actions = ("create", "edit", "archive")
 
     # The parameter being tested.
     parameter_id = fields.Many2one(MODEL_TEST_PARAMETER, required=True, ondelete="restrict")
@@ -108,6 +110,9 @@ class ParameterMethod(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
+        # Removing a line from its parameter, as the parameter's unlink and clear commands do, would delete it.
+        if "parameter_id" in vals and not vals["parameter_id"]:
+            raise UserError(self._never_deleted_message())
         if vals.get("is_default"):
             self._unset_defaults([vals["parameter_id"]] if vals.get("parameter_id") else self.parameter_id.ids)
         # Archiving drops the default so another way of testing can take it. Done with full rights so archive
@@ -115,6 +120,18 @@ class ParameterMethod(models.Model):
         if vals.get("active") is False and not vals.get("is_default"):
             self.filtered("is_default").sudo().write({"is_default": False})
         return super().write(vals)
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_never(self):
+        # Uninstalling a module deletes the ways of testing it shipped, such as demo data. The flag is set for that.
+        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+            raise UserError(self._never_deleted_message())
+
+    def _never_deleted_message(self):
+        return self.env._(
+            "Ways of testing are archived, never deleted: %s. Archive them with their Active toggle instead.",
+            format_list(self.env, self.mapped("display_name")),
+        )
 
     def _unset_defaults(self, parameter_ids):
         # Making a way of testing the default replaces the parameter's previous default. The change is flushed

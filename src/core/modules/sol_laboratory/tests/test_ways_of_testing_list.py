@@ -1,6 +1,6 @@
 from lxml import etree
 
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import new_test_user, tagged
 
@@ -39,8 +39,20 @@ class TestWaysOfTestingList(MasterDataCase):
         parameter.write({"method_ids": [Command.update(self.pair.id, {"active": True})]})
         self.assertTrue(self.pair.active)
 
-    def test_deleting_a_way_of_testing_still_needs_the_delete_permission(self):
-        with self.assertRaises(AccessError):
-            self.parameter.with_user(self.editor).write({"method_ids": [Command.delete(self.pair.id)]})
+    def test_commands_of_the_parameter_never_delete_a_way_of_testing(self):
+        administrator = self.env.ref("base.user_admin")
+        commands = {
+            "delete": Command.delete(self.pair.id),
+            "unlink": Command.unlink(self.pair.id),
+            "clear": Command.clear(),
+        }
+        for user in (self.editor, administrator):
+            for name, command in commands.items():
+                with self.subTest(user=user.login, command=name), self.assertRaises((AccessError, UserError)):
+                    self.parameter.with_user(user).write({"method_ids": [command]})
+        for name, command in commands.items():
+            with self.subTest(user="superuser", command=name), self.assertRaises(UserError):
+                self.parameter.sudo().write({"method_ids": [command]})
 
         self.assertTrue(self.pair.exists())
+        self.assertEqual(self.pair.parameter_id, self.parameter)
