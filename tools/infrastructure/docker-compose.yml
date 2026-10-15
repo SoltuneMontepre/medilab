@@ -3,7 +3,10 @@ name: medilab
 services:
   odoo:
     container_name: medilab-odoo
-    image: ${MEDILAB_ODOO_IMAGE:-docker.io/library/odoo:20.0}
+    image: ${MEDILAB_ODOO_IMAGE:-medilab-odoo:local}
+    build:
+      context: ../..
+      dockerfile: tools/dockerfiles/prod.dockerfile
     restart: unless-stopped
     environment:
       HOST: postgres
