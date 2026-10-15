@@ -463,6 +463,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_search
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__cost_centre_code
 msgid "Cost Centre"
 msgstr ""
 
@@ -1943,6 +1944,12 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__employee
 msgid "Whether this contact is an Employee."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__cost_centre_missing
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_search
+msgid "Without Cost Centre"
 msgstr ""
 
 #. module: sol_inventory

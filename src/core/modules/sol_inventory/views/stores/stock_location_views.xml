@@ -5,10 +5,12 @@
         <field name="model">stock.location</field>
         <field name="priority">20</field>
         <field name="arch" type="xml">
-            <list duplicate="0" decoration-warning="not manager_id">
+            <list duplicate="0" decoration-warning="not manager_id or cost_centre_missing">
                 <field name="complete_name" string="Store" />
                 <field name="parent_store_id" />
                 <field name="holder_id" />
+                <field name="cost_centre_code" />
+                <field name="cost_centre_missing" column_invisible="1" />
                 <field name="manager_id" widget="many2one_avatar_employee" />
                 <field name="conditions" optional="show" />
             </list>
@@ -42,6 +44,7 @@
                                 required="parent_store_id"
                                 options="{'no_create': True}"
                             />
+                            <field name="cost_centre_code" invisible="not holder_id" />
                             <field name="manager_id" widget="many2one_avatar_employee" />
                         </group>
                         <group>
@@ -74,6 +77,11 @@
                 <field name="holder_id" />
                 <field name="manager_id" />
                 <filter name="without_manager" string="Without Manager" domain="[('manager_id', '=', False)]" />
+                <filter
+                    name="without_cost_centre"
+                    string="Without Cost Centre"
+                    domain="[('cost_centre_missing', '=', True)]"
+                />
                 <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
             </search>
         </field>

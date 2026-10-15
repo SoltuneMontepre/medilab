@@ -5,8 +5,8 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
 from odoo.tools import format_list
 
-from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOCATION
-from odoo.addons.sol_inventory.constants.xml_ids import STORE_VIEWS
+from odoo.addons.sol_inventory.constants.models import MODEL_ANALYTIC_ACCOUNT, MODEL_STOCK_LOCATION
+from odoo.addons.sol_inventory.constants.xml_ids import COST_CENTRE_PLAN, STORE_VIEWS
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
@@ -36,11 +36,37 @@ class StockLocation(models.Model):
     manager_id = fields.Many2one(MODEL_EMPLOYEE, string="Manager", ondelete="restrict", copy=False)
     # The nearest store the location is inside; empty for the central store.
     parent_store_id = fields.Many2one(MODEL_STOCK_LOCATION, string="Store Above", compute="_compute_parent_store_id")
+    # Code of the cost centre of the department or team that holds the store; empty while it has none.
+    cost_centre_code = fields.Char(string="Cost Centre", compute="_compute_cost_centre")
+    # True when a department or team holds the store but has no cost centre yet.
+    cost_centre_missing = fields.Boolean(
+        string="Without Cost Centre", compute="_compute_cost_centre", search="_search_cost_centre_missing"
+    )
 
     @api.depends("location_id")
     def _compute_parent_store_id(self):
         for location in self:
             location.parent_store_id = location._store_above()
+
+    @api.depends("holder_id")
+    def _compute_cost_centre(self):
+        codes = {centre.department_id.id: centre.code for centre in self._cost_centres(self.holder_id)}
+        for location in self:
+            location.cost_centre_code = codes.get(location.holder_id.id, False)
+            location.cost_centre_missing = bool(location.holder_id) and not location.cost_centre_code
+
+    def _search_cost_centre_missing(self, operator, value):
+        if operator != "in" or True not in value:
+            return NotImplemented
+        holders = self._cost_centres().department_id
+        return Domain("holder_id", "!=", False) & Domain("holder_id", "not in", holders.ids)
+
+    def _cost_centres(self, departments=None):
+        # Read with full rights: the Stores screen shows the cost centre to those who cannot open cost centres.
+        domain = Domain("plan_id", "=", self.env.ref(COST_CENTRE_PLAN).id)
+        if departments is not None:
+            domain &= Domain("department_id", "in", departments.ids)
+        return self.env[MODEL_ANALYTIC_ACCOUNT].sudo().search(domain)
 
     def _store_above(self):
         self.ensure_one()
