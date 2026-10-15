@@ -6,6 +6,7 @@ from odoo.tools import mute_logger
 
 from .catalog_case import CatalogCase
 from odoo.addons.sol_inventory.constants.models import MODEL_SUPPLIER, MODEL_SUPPLIER_INFO
+from odoo.addons.sol_laboratory.constants.models import MODEL_RES_PARTNER
 
 
 @tagged("post_install", "-at_install")
@@ -32,3 +33,27 @@ class TestSuppliers(CatalogCase):
         self.assertEqual(supplier.partner_id.email, "sales@labsupplies.example")
         with self.assertRaises(AccessError):
             self.env[MODEL_SUPPLIER].with_user(self.chemist.user_id).create({"name": "Other Supplies"})
+
+    def test_a_typed_supplier_code_must_be_unique(self):
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.cr.savepoint():
+            self.env[MODEL_SUPPLIER].create({"name": "Copy Chemicals", "code": self.supplier.code})
+
+    def test_a_supplier_names_the_person_the_laboratory_deals_with(self):
+        person = self.env[MODEL_RES_PARTNER].create(
+            {"name": "Tran Minh Quan", "parent_id": self.supplier.partner_id.id}
+        )
+
+        self.supplier.contact_person_id = person
+
+        self.assertEqual(self.supplier.contact_person_id.parent_id, self.supplier.partner_id)
+        self.assertFalse(self.supplier.contact_person_id.is_company)
+
+    def test_a_supplier_no_longer_used_is_archived_and_keeps_its_items(self):
+        line = self.env[MODEL_SUPPLIER_INFO].create(
+            {"partner_id": self.supplier.partner_id.id, "product_id": self.acid.id, "price": 250000}
+        )
+
+        self.supplier.action_archive()
+
+        self.assertFalse(self.supplier.active)
+        self.assertEqual(self.supplier.with_context(active_test=False).supplier_item_ids, line)

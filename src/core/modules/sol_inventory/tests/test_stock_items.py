@@ -5,6 +5,7 @@ from odoo.tests import tagged
 from odoo.tools import mute_logger
 
 from .catalog_case import CatalogCase
+from odoo.addons.sol_inventory.constants.models import MODEL_METHOD_CONSUMPTION
 
 
 @tagged("post_install", "-at_install")
@@ -73,3 +74,25 @@ class TestStockItems(CatalogCase):
         self.plates.item_tracking = "container"
 
         self.assertEqual((self.plates.tracking, self.plates.track_containers), ("lot", True))
+
+    def test_a_method_uses_an_item_on_one_line(self):
+        use = {"method_id": self.method.id, "product_id": self.acid.id, "quantity": 5}
+        self.env[MODEL_METHOD_CONSUMPTION].create(use)
+
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.cr.savepoint():
+            self.env[MODEL_METHOD_CONSUMPTION].create({**use, "quantity": 2})
+
+    def test_the_use_per_test_is_above_zero(self):
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"), self.cr.savepoint():
+            self.env[MODEL_METHOD_CONSUMPTION].create(
+                {"method_id": self.method.id, "product_id": self.acid.id, "quantity": 0}
+            )
+
+    def test_only_items_tracked_by_container_or_lot_keep_an_expiry(self):
+        self.plates.use_expiration_date = True
+
+        self.assertTrue(self.plates.use_expiration_date)
+
+        self.plates.item_tracking = "quantity"
+
+        self.assertFalse(self.plates.use_expiration_date)
