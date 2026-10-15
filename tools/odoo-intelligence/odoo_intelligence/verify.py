@@ -11,50 +11,7 @@ from mcp.client.stdio import stdio_client
 
 from .workspace import PACKAGE_ROOT, utf16_position
 
-CASES = [
-    {
-        "name": "core_model",
-        "path": "src/core/modules/sol_commerce/models/invoicing/payment_transaction.py",
-        "needle": "ir.sequence",
-        "offset": 2,
-        "target": "/odoo/addons/base/models/ir_sequence.py",
-    },
-    {
-        "name": "custom_model",
-        "path": "src/core/modules/sol_commerce/models/invoicing/payment_transaction.py",
-        "needle": "medilab.reconciliation.day",
-        "offset": 2,
-        "target": "/sol_commerce/models/invoicing/reconciliation_day.py",
-    },
-    {
-        "name": "custom_field",
-        "path": "src/core/modules/sol_laboratory/models/master_data/test_parameter.py",
-        "needle": "parameter.main_group_id",
-        "offset": 12,
-        "target": "/sol_laboratory/models/master_data/test_parameter.py",
-    },
-    {
-        "name": "inherited_core_field",
-        "path": "src/core/modules/sol_commerce/models/invoicing/account_move.py",
-        "needle": "move.amount_residual",
-        "offset": 7,
-        "target": "/addons/account/models/account_move.py",
-    },
-    {
-        "name": "xml_model",
-        "path": "src/core/modules/sol_laboratory/views/master_data/test_parameter_views.xml",
-        "needle": "medilab.test.parameter</field>",
-        "offset": 2,
-        "target": "/sol_laboratory/models/master_data/test_parameter.py",
-    },
-    {
-        "name": "xml_field",
-        "path": "src/core/modules/sol_laboratory/views/master_data/test_parameter_views.xml",
-        "needle": "main_group_id",
-        "offset": 2,
-        "target": "/sol_laboratory/models/master_data/test_parameter.py",
-    },
-]
+CASES = json.loads(Path(__file__).with_name("navigation_cases.json").read_text())
 
 
 async def check_navigation(root: Path) -> dict:

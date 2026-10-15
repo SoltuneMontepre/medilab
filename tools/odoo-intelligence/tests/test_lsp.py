@@ -3,6 +3,8 @@ from pathlib import Path
 import pytest
 
 from odoo_intelligence.lsp import LspClient
+from odoo_intelligence.verify import CASES
+from odoo_intelligence.workspace import utf16_position
 
 
 def test_unsupported_methods_are_rejected_before_server_start(tmp_path):
@@ -18,15 +20,17 @@ def test_model_references_do_not_crash_on_unopened_definition():
     client = LspClient(root)
     if not client.workspace.binary.exists():
         pytest.skip("Run task ai:setup to test the official server.")
+    case = next(case for case in CASES if case["name"] == "custom_model")
+    position = utf16_position((root / case["path"]).read_text(), case["needle"], case["offset"])
     try:
         result = client.navigate(
             "textDocument/references",
-            "src/core/modules/sol_commerce/models/invoicing/payment_transaction.py",
-            116,
-            27,
+            case["path"],
+            position["line"],
+            position["character"],
             context={"includeDeclaration": True},
         )
-        assert any(item["uri"].endswith("/invoicing/reconciliation_day.py") for item in result)
+        assert any(item["uri"].endswith(case["target"]) for item in result)
     finally:
         client.close()
 
