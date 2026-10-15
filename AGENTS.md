@@ -14,7 +14,7 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 
 | Server      | Use it to                                                                                              |
 | ----------- | ------------------------------------------------------------------------------------------------------ |
-| `odoo`      | Resolve Odoo model names, fields, inheritance and Python/XML references through official OdooLS.          |
+| `odoo`      | Resolve Odoo model names, fields, inheritance and Python/XML references through OdooLS.                |
 | `serena`    | Find symbols, references and definitions in the modules, and edit code by symbol, instead of grepping. |
 | `postgres`  | Query the local database to check records, schema and constraints after an install or upgrade.        |
 | `context7`  | Read current documentation of Odoo and other libraries before relying on an API.                       |
