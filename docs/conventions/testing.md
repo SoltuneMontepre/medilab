@@ -23,6 +23,15 @@ How tests are written, where they live and how they run.
 - `task test:uninstall` installs Laboratory, E-commerce and Inventory in a throwaway database, uninstalls E-commerce and Inventory, and checks that the Laboratory data is intact.
 - `task test:core` also writes the coverage report `src/core/modules/coverage.xml`, which is not committed.
 
+## Parallel runs
+
+`task test:core` and `task test:uninstall` can run at the same time from the main repository and from git worktrees. They share the `medilab-postgres` container.
+
+- The throwaway database is named by `MEDILAB_TEST_DB`, default `medilab_test`. Each task drops it when it starts and when it ends, so give every run that overlaps another its own name: `task test:core MEDILAB_TEST_DB=medilab_test_53`, or set the variable in the environment.
+- The tasks start Postgres only when it is not running, and run Odoo with `docker compose run --no-deps`, so a running `medilab-postgres` is never recreated and other runs keep their connections.
+- From a worktree the tasks never start Postgres; they stop with an error instead. Compose resolves the container's bind mounts inside the checkout it runs from, so starting the container from a worktree recreates it, and the next start from the main repository recreates it again. Start it with `task up` from the main repository first.
+- From a worktree, run no other task that starts containers and no `docker compose up`; use `docker compose run --rm --no-deps` for anything else that needs Odoo.
+
 ## Type checking tests
 
 - `task test:typecheck` checks that every module is linked into the Odoo source and that an import of a module's constant resolves.

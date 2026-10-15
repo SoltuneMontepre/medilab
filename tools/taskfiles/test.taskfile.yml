@@ -6,7 +6,7 @@ env:
   COMPOSE_FILE: tools/infrastructure/docker-compose.yml
 
 vars:
-  TEST_DB: medilab_test
+  TEST_DB: '{{.MEDILAB_TEST_DB | default "medilab_test"}}'
   DB_USER: '{{.MEDILAB_DB_USER | default "root"}}'
   COVERAGE_REPORT: src/core/modules/coverage.xml
   E2E_DIR: src/tests
@@ -31,11 +31,10 @@ tasks:
       MODULES: '{{.MODULES | default .ALL_MODULES}}'
       TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
     cmds:
-      - docker compose up -d --wait postgres
-      - docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
+      - task: test:database
       - defer: docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
       - |
-        docker compose run --rm -T --user root --entrypoint bash odoo -c '
+        docker compose run --rm -T --no-deps --user root --entrypoint bash odoo -c '
           pip install -q --root-user-action=ignore --break-system-packages coverage
           cd /mnt/extra-addons
           runuser -u odoo -- python3 -m coverage run --branch --source={{.MODULES}} --omit="*/tests/*" --data-file=/tmp/.coverage -m odoo             --db_host "$HOST" --db_user "$USER" --db_password "$PASSWORD"             -d {{.TEST_DB}} -i {{.MODULES}} --test-enable --test-tags "{{.TAGS}}" --stop-after-init --log-level=test
@@ -53,12 +52,11 @@ tasks:
       MODULES: sol_laboratory,sol_commerce,sol_inventory
       STANDALONE_TAG: medilab_uninstall
     cmds:
-      - docker compose up -d --wait postgres
-      - docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
+      - task: test:database
       - defer: docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
-      - docker compose run --rm -T odoo -d {{.TEST_DB}} -i {{.MODULES}} --stop-after-init --log-level=warn
+      - docker compose run --rm -T --no-deps odoo -d {{.TEST_DB}} -i {{.MODULES}} --stop-after-init --log-level=warn
       - |
-        docker compose run --rm -T --entrypoint bash odoo -c '
+        docker compose run --rm -T --no-deps --entrypoint bash odoo -c '
           set -e
           export PGHOST="$HOST" PGUSER="$USER" PGPASSWORD="$PASSWORD"
           python3 -m odoo.tests.test_module_operations -d {{.TEST_DB}} standalone {{.STANDALONE_TAG}} 2>&1 | tee /tmp/standalone.log
@@ -102,3 +100,18 @@ tasks:
           log_info "cargo not found, skipping the Rust tests. Install: winget install Rustlang.Rustup"
         fi
         log_ok "Application tests passed."
+
+  test:database:
+    internal: true
+    silent: true
+    cmds:
+      - |
+        if [ -z "$(docker compose ps --status running --quiet postgres)" ]; then
+          if [ "$(git rev-parse --git-dir)" != "$(git rev-parse --git-common-dir)" ]; then
+            . {{.LOG}}
+            log_error "Postgres is not running. Start it with task up from the main repository."
+            exit 1
+          fi
+          docker compose up -d --wait postgres
+        fi
+      - docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
