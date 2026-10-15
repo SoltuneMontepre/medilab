@@ -172,8 +172,14 @@ msgstr "Hãy chấp nhận báo giá trước"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__accepted
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_quotation__status__accepted
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__accepted
 msgid "Accepted"
 msgstr "Đã chấp nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__accepted_at
+msgid "Accepted At"
+msgstr "Thời Điểm Chấp Nhận"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_form
@@ -299,8 +305,14 @@ msgstr "Phê duyệt"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__approval_status__approved
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__approved
 msgid "Approved"
 msgstr "Đã phê duyệt"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__approved_at
+msgid "Approved At"
+msgstr "Thời Điểm Phê Duyệt"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_parameter_price_archive_all
@@ -338,6 +350,11 @@ msgstr "Đã lưu trữ"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__attachment_id
 msgid "Attachment"
 msgstr "Tệp Đính Kèm"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__awaiting_approval
+msgid "Awaiting approval"
+msgstr "Chờ phê duyệt"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
@@ -627,6 +644,21 @@ msgid ""
 msgstr "Số ngày sau khi gửi thì báo giá bị đánh dấu hết hạn. Áp dụng cho báo giá gửi đi khi chưa có hạn thanh toán."
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_approval
+msgid "Days to Approval"
+msgstr "Số Ngày Đến Phê Duyệt"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_payment
+msgid "Days to Payment"
+msgstr "Số Ngày Đến Thanh Toán"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_quote
+msgid "Days to Quote"
+msgstr "Số Ngày Đến Báo Giá"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__decided_at
 msgid "Decided At"
 msgstr "Quyết Định Lúc"
@@ -728,6 +760,7 @@ msgstr "Bỏ qua"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -739,6 +772,7 @@ msgstr "Phiên bản chứng từ"
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__draft
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__draft
 msgid "Draft"
 msgstr "Nháp"
 
@@ -884,6 +918,7 @@ msgstr "Gán mẫu cho các mục sau trước khi gửi báo giá:\n%s"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__id
 msgid "ID"
 msgstr "ID"
 
@@ -910,6 +945,11 @@ msgstr "Mục"
 #: model:ir.model,name:sol_commerce.model_account_move
 msgid "Journal Entry"
 msgstr "Bút toán"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__test_request_status
+msgid "Laboratory Status"
+msgstr "Trạng Thái Phòng Thí Nghiệm"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__write_uid
@@ -1096,6 +1136,11 @@ msgid "Order cancellation"
 msgstr "Hủy đơn hàng"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Order date"
+msgstr "Ngày đặt hàng"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "Order submitted"
 msgstr "Đã gửi đơn hàng"
@@ -1185,6 +1230,14 @@ msgid "Percentage"
 msgstr "Phần trăm"
 
 #. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_sales_performance
+#: model:ir.ui.menu,name:sol_commerce.menu_sales_performance
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_graph
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_pivot
+msgid "Performance"
+msgstr "Hiệu quả bán hàng"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 msgid "Phone"
 msgstr "Điện thoại"
@@ -1193,6 +1246,24 @@ msgstr "Điện thoại"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__physical_state
 msgid "Physical State"
 msgstr "Trạng Thái Vật Lý"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_sales_pipeline
+#: model:ir.ui.menu,name:sol_commerce.menu_sales_pipeline
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_graph
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_pivot
+msgid "Pipeline"
+msgstr "Phễu bán hàng"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__pipeline_stage
+msgid "Pipeline Stage"
+msgstr "Giai Đoạn Phễu Bán Hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Pipeline stage"
+msgstr "Giai đoạn phễu bán hàng"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__source__portal
@@ -1226,6 +1297,12 @@ msgstr "Giá bằng VND"
 #: model:ir.model,name:sol_commerce.model_product_template
 msgid "Product"
 msgstr "Sản phẩm"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Progress"
+msgstr "Tiến độ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__quantity
@@ -1282,6 +1359,26 @@ msgstr "Báo giá chưa thanh toán"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "Quotations"
 msgstr "Báo Giá"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_accepted_count
+msgid "Quotations Accepted"
+msgstr "Báo Giá Được Chấp Nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_declined_count
+msgid "Quotations Declined"
+msgstr "Báo Giá Bị Từ Chối"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_sent_count
+msgid "Quotations Sent"
+msgstr "Báo Giá Đã Gửi"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quoted_at
+msgid "Quoted At"
+msgstr "Thời Điểm Báo Giá"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__rate
@@ -1446,6 +1543,11 @@ msgid "Requested By"
 msgstr "Người Yêu Cầu"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__revenue
+msgid "Revenue"
+msgstr "Doanh Thu"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Revise quotation"
 msgstr "Sửa đổi báo giá"
@@ -1476,6 +1578,11 @@ msgstr "Đơn bán hàng"
 #: model:ir.model,name:sol_commerce.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "Dòng đơn bán hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Salesperson"
+msgstr "Nhân viên kinh doanh"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_id
@@ -1529,6 +1636,11 @@ msgstr "Đã gửi"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__sent_at
 msgid "Sent At"
 msgstr "Gửi Lúc"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__sent
+msgid "Sent and unpaid"
+msgstr "Đã gửi, chưa thanh toán"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__sequence
@@ -1640,6 +1752,11 @@ msgstr "Thuế"
 #: model:ir.model,name:sol_commerce.model_medilab_test_parameter
 msgid "Test Parameter"
 msgstr "Chỉ Tiêu"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_test_report
+msgid "Test Report"
+msgstr "Phiếu Kết Quả"
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_test_request
@@ -1769,6 +1886,14 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/test_report.py:0
+msgid ""
+"The results of order %(order)s are ready. Download report %(report)s from "
+"your portal."
+msgstr "Đã có kết quả của đơn hàng %(order)s. Hãy tải phiếu kết quả %(report)s trên cổng khách hàng."
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "These items are no longer in the catalog and were left out: %s"
 msgstr "Các mục sau không còn trong danh mục nên không được đưa vào: %s"
@@ -1860,6 +1985,7 @@ msgstr "Tổng đã gồm VAT"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__unclaimed
 msgid "Unclaimed"
 msgstr "Chưa nhận"
 

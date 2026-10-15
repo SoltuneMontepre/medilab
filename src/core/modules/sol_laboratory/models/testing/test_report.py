@@ -243,19 +243,32 @@ class TestReport(models.Model):
         reported.status = "reported"
         reported._retain(self._report_day())
         request._set_status("reported")
-        partner = request.customer_id.partner_id
+        self._notify_issued()
+
+    def _notify_issued(self):
+        """Tell the customer the results are released, once for each issued report."""
+        self.ensure_one()
+        document, partner, body = self._issued_notice()
         self.env[MODEL_MAIL_MESSAGE].raise_event(
             EVENT_TEST_REPORT_ISSUED,
-            self,
+            document,
             f"test_report:{self.id}:issued",
-            self.with_context(lang=partner.lang).env._(
-                "The results of test request %(request)s are ready. Download report %(report)s from your portal.",
-                request=request.code,
-                report=self.code,
-            ),
+            body,
             subject=self.code,
             partners=partner,
         )
+
+    def _issued_notice(self):
+        """The document the results are released on, the contact told and the text in their language. E-commerce
+        releases the results of an order on the order, to its contact."""
+        request = self.request_id
+        partner = request.customer_id.partner_id
+        body = self.with_context(lang=partner.lang).env._(
+            "The results of test request %(request)s are ready. Download report %(report)s from your portal.",
+            request=request.code,
+            report=self.code,
+        )
+        return self, partner, body
 
     @api.model
     def _portal_domain(self, user):

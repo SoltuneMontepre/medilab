@@ -139,10 +139,37 @@ Acceptance criteria:
 
 ### 6. Follow-up and analytics (US-S18, US-S19)
 
-- **Progress.** Each order shows the same four labels the customer sees (Waiting, Testing, Completed, Cancelled) plus the detail for internal use.
+- **Progress.** Each order shows the same four labels the customer sees (Waiting, Testing, Completed, Cancelled) plus the detail for internal use: the order status and the status of its test request. Issuing the test request's report completes the order.
 - **Pipeline.** Counts by stage: unclaimed, draft, sent and unpaid, accepted, awaiting approval, approved.
 - **Performance.** Per salesperson and period: quotations sent, accepted, declined, revenue, and the time between each step (claim, send, payment, approval).
 - **Visibility.** A salesperson sees their own figures; the Head of Sales sees everyone's.
+
+Both analyses are under the Reporting menu of Sales, as a graph, a pivot table and a list of the orders.
+
+| Pipeline stage    | Orders                                                                         |
+| ----------------- | ------------------------------------------------------------------------------ |
+| Unclaimed         | Submitted, waiting in the queue                                                |
+| Draft             | Claimed, with no quotation out: not sent yet, or being revised                 |
+| Sent and unpaid   | Quotation sent and not paid, including an expired one sales can extend         |
+| Accepted          | Advance paid, or confirmed while approval is not requested yet or was rejected |
+| Awaiting approval | Approval requested from the Head of Sales                                      |
+| Approved          | Approved, until the order is completed                                         |
+
+A cart, an order whose quotation was declined, and completed and cancelled orders are outside the pipeline.
+
+| Performance measure                    | Counts                                                                                                                                  |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Quotations sent                        | Every quotation sent, revisions included                                                                                                |
+| Quotations accepted, declined          | Quotations the customer accepted or declined; a declined one still counts after a revision replaces it                                 |
+| Revenue                                | Total excluding VAT of confirmed and completed orders, by order date, which Odoo sets when the order is confirmed                       |
+| Days to quote, to payment, to approval | Average days from the claim to the first quotation, from it to the customer's acceptance, and from that to the approval; an order counts once it reached the step |
+
+Every figure falls in the period of the order's date, which Odoo moves to the confirmation date; grouping by Quoted At shows quotations by when they were first sent.
+
+Acceptance criteria:
+
+- An order shows Waiting once confirmed, Testing once analysis starts, Completed when all samples are completed, Cancelled when cancelled.
+- A salesperson sees only their own pipeline and performance, and the unclaimed queue; the Head of Sales sees everyone's.
 
 ### 7. Support (US-S20)
 

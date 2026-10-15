@@ -35,6 +35,8 @@ class SaleOrderCustomer(models.Model):
 
     # The status shown to the customer: draft, submitted, quoted, then waiting, testing, completed or cancelled.
     customer_status = fields.Selection(CUSTOMER_STATUSES, compute="_compute_customer_status")
+    # The status of the order's test request: the internal detail behind the status the customer sees.
+    test_request_status = fields.Selection(related="test_request_id.status", string="Laboratory Status")
 
     @api.depends("order_status", "quotation_ids", "test_request_id.status")
     def _compute_customer_status(self):

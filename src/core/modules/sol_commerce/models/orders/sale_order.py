@@ -316,9 +316,9 @@ class SaleOrder(models.Model):
         return
 
     def _laboratory_blocks_cancellation(self):
-        """True when testing is finished or results are released. The laboratory model fills this in."""
+        """True once a test of the order's request is approved."""
         self.ensure_one()
-        return False
+        return "approved" in self.sudo().test_request_id.sample_ids.test_ids.mapped("status")
 
     def _cancellation_block_message(self):
         self.ensure_one()
@@ -326,7 +326,7 @@ class SaleOrder(models.Model):
             return self.env._(
                 "The approval is signed, so this order cannot be cancelled. The laboratory will contact you."
             )
-        if self._laboratory_blocks_cancellation():
+        if self.order_status == STATUS_COMPLETED or self._laboratory_blocks_cancellation():
             return self.env._(
                 "Testing is completed or results are released, so this order cannot be cancelled. "
                 "The laboratory will contact you."

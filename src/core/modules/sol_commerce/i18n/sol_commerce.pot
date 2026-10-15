@@ -169,7 +169,13 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__accepted
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_quotation__status__accepted
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__accepted
 msgid "Accepted"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__accepted_at
+msgid "Accepted At"
 msgstr ""
 
 #. module: sol_commerce
@@ -295,7 +301,13 @@ msgstr ""
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__approval_status__approved
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__approved
 msgid "Approved"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__approved_at
+msgid "Approved At"
 msgstr ""
 
 #. module: sol_commerce
@@ -333,6 +345,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__attachment_id
 msgid "Attachment"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__awaiting_approval
+msgid "Awaiting approval"
 msgstr ""
 
 #. module: sol_commerce
@@ -628,6 +645,21 @@ msgid ""
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_approval
+msgid "Days to Approval"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_payment
+msgid "Days to Payment"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_quote
+msgid "Days to Quote"
+msgstr ""
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__decided_at
 msgid "Decided At"
 msgstr ""
@@ -730,6 +762,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -742,6 +775,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__draft
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__draft
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__draft
 msgid "Draft"
 msgstr ""
 
@@ -887,6 +921,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__id
 msgid "ID"
 msgstr ""
 
@@ -912,6 +947,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_account_move
 msgid "Journal Entry"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__test_request_status
+msgid "Laboratory Status"
 msgstr ""
 
 #. module: sol_commerce
@@ -1103,6 +1143,11 @@ msgid "Order cancellation"
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Order date"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "Order submitted"
 msgstr ""
@@ -1193,6 +1238,14 @@ msgid "Percentage"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_sales_performance
+#: model:ir.ui.menu,name:sol_commerce.menu_sales_performance
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_graph
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_pivot
+msgid "Performance"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
@@ -1203,6 +1256,24 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__physical_state
 msgid "Physical State"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_sales_pipeline
+#: model:ir.ui.menu,name:sol_commerce.menu_sales_pipeline
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_graph
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_pivot
+msgid "Pipeline"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__pipeline_stage
+msgid "Pipeline Stage"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Pipeline stage"
 msgstr ""
 
 #. module: sol_commerce
@@ -1236,6 +1307,12 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_product_template
 msgid "Product"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Progress"
 msgstr ""
 
 #. module: sol_commerce
@@ -1292,6 +1369,26 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_ids
 #: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "Quotations"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_accepted_count
+msgid "Quotations Accepted"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_declined_count
+msgid "Quotations Declined"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_sent_count
+msgid "Quotations Sent"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quoted_at
+msgid "Quoted At"
 msgstr ""
 
 #. module: sol_commerce
@@ -1459,6 +1556,11 @@ msgid "Requested By"
 msgstr ""
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__revenue
+msgid "Revenue"
+msgstr ""
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Revise quotation"
 msgstr ""
@@ -1488,6 +1590,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_sale_order_line
 msgid "Sales Order Line"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Salesperson"
 msgstr ""
 
 #. module: sol_commerce
@@ -1541,6 +1648,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__sent_at
 msgid "Sent At"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__sent
+msgid "Sent and unpaid"
 msgstr ""
 
 #. module: sol_commerce
@@ -1654,6 +1766,11 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_test_parameter
 msgid "Test Parameter"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_test_report
+msgid "Test Report"
 msgstr ""
 
 #. module: sol_commerce
@@ -1783,6 +1900,14 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/test_report.py:0
+msgid ""
+"The results of order %(order)s are ready. Download report %(report)s from "
+"your portal."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "These items are no longer in the catalog and were left out: %s"
 msgstr ""
@@ -1875,6 +2000,7 @@ msgstr ""
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__unclaimed
 msgid "Unclaimed"
 msgstr ""
 

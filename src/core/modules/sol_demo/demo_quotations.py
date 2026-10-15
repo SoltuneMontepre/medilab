@@ -92,16 +92,25 @@ def _sales_tax(env, rate):
 
 
 def _quotable_order(
-    env, product, tax, quantity=1, discount=0.0, advance_method="online", advance_mode="percentage", advance_value=30
+    env,
+    product,
+    tax,
+    quantity=1,
+    discount=0.0,
+    advance_method="online",
+    advance_mode="percentage",
+    advance_value=30,
+    salesperson=None,
 ):
-    """A claimed order of the salesperson whose items are all tested on one bottled water sample."""
+    """A claimed order of the salesperson, the first demo one by default, whose items are all tested on one bottled
+    water sample."""
     order = env[MODEL_SALE_ORDER].create(
         {
             "partner_id": env.ref("sol_demo.demo_res_partner_hoa").id,
             "customer_id": env.ref("sol_demo.demo_res_partner_nuoc_sach").id,
             "source": "portal",
             "order_status": "claimed",
-            "user_id": env.ref("sol_demo.demo_res_users_sales").id,
+            "user_id": (salesperson or env.ref("sol_demo.demo_res_users_sales")).id,
             "advance_method": advance_method,
             "advance_mode": advance_mode,
             "advance_value": advance_value,

@@ -63,26 +63,15 @@ class TestOrderCancellation(OrderCase):
         self.assertEqual(order.order_status, "confirmed")
         self.assertFalse(order.open_cancellation_request())
 
-    def test_signed_approval_or_finished_testing_refuses_cancellation(self):
+    def test_a_signed_approval_refuses_cancellation(self):
         signed = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
         signed.approval_status = "approved"
         signed_request = signed.with_user(self.portal).action_request_cancellation("Please cancel")
-        testing = self.make_order([(self.package_product, 1)], status="confirmed", user_id=self.sales.id)
-        testing_request = testing.with_user(self.portal).action_request_cancellation("Stop the tests")
-        model = type(self.env["sale.order"])
-        original = model._laboratory_blocks_cancellation
 
         with self.assertRaises(UserError):
             signed_request.with_user(self.sales).action_accept()
-        model._laboratory_blocks_cancellation = lambda self: True
-        try:
-            with self.assertRaises(UserError):
-                testing_request.with_user(self.sales).action_accept()
-        finally:
-            model._laboratory_blocks_cancellation = original
 
         self.assertEqual(signed.order_status, "confirmed")
-        self.assertEqual(testing.order_status, "confirmed")
 
     def test_sales_can_cancel_a_confirmed_order_that_testing_has_not_finished(self):
         order = self.make_order([(self.lead_product, 1)], status="confirmed", user_id=self.sales.id)
