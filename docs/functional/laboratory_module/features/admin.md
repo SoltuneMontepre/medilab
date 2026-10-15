@@ -85,7 +85,7 @@ Acceptance criteria:
 - A certificate can be saved with several methods, and a method with several certificates.
 - A location placed on its parent's image shows as a point on the parent's map.
 - A location can be saved under a parent location, with or without a department and an image, and marked bookable or not.
-- A location a step, a sample or a booking uses cannot be deleted, only archived.
+- A location that a step, a sample, a machine, a booking or another module refers to cannot be deleted, only archived.
 - A location cannot be its own ancestor, and two locations cannot share a code; both are refused with a message.
 - A regulation cannot hold two limits for the same parameter.
 - An archived record no longer appears when choosing records on a quotation or a parameter.
@@ -100,7 +100,7 @@ Acceptance criteria:
 
 | Rule            | Description                                                                                                                                   |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Machine         | A machine has a code, name, model, manufacturer, serial number, location and status: in use, under repair or retired.                       |
+| Machine         | A machine has a code, name, model, manufacturer, serial number, location and status: in use, under repair or retired. The location is chosen from the locations, such as the bench the machine stands on.                       |
 | Service history | Each calibration, maintenance or repair is recorded with its date, who did it, its certificate or report number and when the next one is due. A record can be edited, and the changes are kept in the audit trail. |
 | Calibration     | A machine whose next calibration date has passed cannot be used until a new calibration is recorded.                                          |
 | Maintenance     | A machine can have a maintenance interval in days; its next maintenance date follows from the latest maintenance record.                      |

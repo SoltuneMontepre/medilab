@@ -273,6 +273,8 @@ model Location {
   samples       Sample[]
   /// Calendar events that book the location.
   bookings      CalendarEvent[]
+  /// Machines standing in the location.
+  machines      Machine[]
 
   @@index([parent_id])
   @@index([department_id])
@@ -582,8 +584,10 @@ model Machine {
   manufacturer          String?                @db.VarChar
   /// Serial number given by the manufacturer.
   serial_number         String?                @db.VarChar
-  /// Where the machine is, such as "Room 203, bench 2".
-  location              String?                @db.VarChar
+  /// The location the machine stands in, such as a bench.
+  location_id           Int?
+  /// The location the machine stands in.
+  location              Location?              @relation(fields: [location_id], references: [id], onDelete: Restrict)
   /// in_use, under_repair or retired.
   status                String                 @db.VarChar
   /// Date the next calibration is due, taken from the latest calibration record; the machine cannot be used after it.
@@ -604,6 +608,7 @@ model Machine {
   results               TestResult[]
 
   @@index([next_calibration_date])
+  @@index([location_id])
   @@map("medilab_machine")
 }
 
