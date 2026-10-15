@@ -19,7 +19,7 @@ The administrator maintains the master data of the Laboratory module: test param
 
 ### Machines and chemicals
 
-- **US-AD09** As an administrator, I want to maintain machines with their location, status, calibration and maintenance, so that tests only run on machines that are fit to use and people know where each machine is.
+- **US-AD09** As an administrator, I want to maintain machines with their location, status, calibration and maintenance, so that tests only run on machines that are fit to use.
 - **US-AD10** As an administrator, I want to record which parameter and method pairs each machine can run, so that a test is planned on a suitable machine.
 - **US-AD11** As an administrator, I want to maintain chemicals with their identity, storage conditions and the methods that use them, so that the laboratory knows what each method needs.
 
@@ -47,8 +47,8 @@ The administrator maintains the master data of the Laboratory module: test param
 | Sample type tree     | A sample type can have a broader parent type. Filtering by a sample type also finds the parameters of its narrower types. A type cannot be its own ancestor. |
 | Way of testing       | Each parameter is tested by one or more pairs of parameter and testing method. Each pair has a unit, LOD and LOQ, and is tested either in-house or by one subcontractor. One pair per parameter is the default. |
 | Testing method       | A method has its standard reference as its code, such as TCVN 6187-1:2009, and the title of the standard in each language. Each method belongs to one testing field, such as Chemistry or Microbiology. |
-| Method steps         | A testing method has an ordered list of steps. A step has a number, how long it takes in minutes, what to do and an optional note. Step numbers are unique within a method. The steps belong to the method, so every department and subcontractor way of testing that uses the method shows the same steps. |
-| Testing location     | A testing location is a place in the laboratory's premises, such as a room, a bench or an area, with a unique code, a name in each language and an optional image. It can have a parent location, so locations form a tree, and can name the department that uses it. The administrator defines the layout; the system ships none. |
+| Method steps         | A testing method has an ordered list of steps. A step has a number, how long it takes in minutes, what to do, an optional testing location where it is done and an optional note. Step numbers are unique within a method. The steps belong to the method, so every department and subcontractor way of testing that uses the method shows the same steps. |
+| Testing location     | A testing location is a place in the laboratory's premises, such as a room, a bench or an area, with a unique code, a name in each language and an optional image. It can have a parent location, so locations form a tree, and can name the department that uses it. The administrator defines the layout; the system ships none. A location is not tied to a machine: it names any place work is done, such as a store, a water point or a preparation room. |
 | Department           | An in-house pair of parameter and method names the department that tests it. Departments are maintained by the administrator (US-AD13). |
 | Accreditation        | Each pair of parameter and method is marked as within an ISO 17025 accreditation scope or not.                                                  |
 | Detection limits     | LOD and LOQ are recorded per parameter and method pair, in that pair's unit.                                                                     |
@@ -76,6 +76,7 @@ Acceptance criteria:
 - A method can be saved with several steps, and the form lists them by step number.
 - Saving two steps of one method with the same number, or a step without a number, how long or what to do, is refused with a message.
 - A location can be saved under a parent location, with or without a department and an image.
+- A location a step uses cannot be deleted, only archived.
 - A location cannot be its own ancestor, and two locations cannot share a code; both are refused with a message.
 - A regulation cannot hold two limits for the same parameter.
 - An archived record no longer appears when choosing records on a quotation or a parameter.
@@ -90,7 +91,7 @@ Acceptance criteria:
 
 | Rule            | Description                                                                                                                                   |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Machine         | A machine has a code, name, model, manufacturer, serial number, testing location and status: in use, under repair or retired.                       |
+| Machine         | A machine has a code, name, model, manufacturer, serial number, location and status: in use, under repair or retired.                       |
 | Service history | Each calibration, maintenance or repair is recorded with its date, who did it, its certificate or report number and when the next one is due. A record can be edited, and the changes are kept in the audit trail. |
 | Calibration     | A machine whose next calibration date has passed cannot be used until a new calibration is recorded.                                          |
 | Maintenance     | A machine can have a maintenance interval in days; its next maintenance date follows from the latest maintenance record.                      |
@@ -102,7 +103,6 @@ Acceptance criteria:
 - A machine whose next calibration date is in the past cannot be chosen to run a test.
 - Recording a calibration with a new due date makes the machine usable again.
 - A machine that is under repair or retired cannot be chosen to run a test.
-- A machine is saved with a testing location chosen from the locations; a location a machine uses cannot be deleted, only archived.
 - A testing method shows the chemicals it uses, and a chemical shows the methods that use it.
 - A machine with a queued, scheduled or running booking cannot be archived; once its bookings are done or cancelled, it can be archived.
 - A machine that is in use, has any booking or service record, or is linked to a parameter and method pair cannot be deleted.
