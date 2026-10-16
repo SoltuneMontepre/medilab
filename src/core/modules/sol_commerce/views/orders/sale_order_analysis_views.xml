@@ -57,6 +57,7 @@
     <record id="action_medilab_sales_pipeline" model="ir.actions.act_window">
         <field name="name">Pipeline</field>
         <field name="res_model">sale.order</field>
+        <field name="path">pipeline-reports</field>
         <field name="view_mode">graph,pivot,list,form</field>
         <field name="domain">[('pipeline_stage', '!=', False)]</field>
         <field name="context">{'medilab_sales_order': True}</field>
@@ -70,6 +71,7 @@
     <record id="action_medilab_sales_performance" model="ir.actions.act_window">
         <field name="name">Performance</field>
         <field name="res_model">sale.order</field>
+        <field name="path">performance-reports</field>
         <field name="view_mode">pivot,graph,list,form</field>
         <field name="domain">[('user_id', '!=', False)]</field>
         <field name="context">{'medilab_sales_order': True}</field>
