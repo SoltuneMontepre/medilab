@@ -9,7 +9,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | `ci-core`    | every pull request                                            | Lints, builds and tests the Odoo modules, then runs SonarQube Cloud.                    |
 | `ci-infra`   | every pull request                                            | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                      |
 | `ci-ai`      | every pull request                                            | Runs the AI tooling tests and Ruff when the AI tooling or a client config changes.      |
-| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile    | Publishes the release image.                                                            |
+| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile    | Publishes the release image and commits its tag to `infra/cluster/` for Argo CD.        |
 | `cd-infra`   | a push to `main` that changes `infra/`                        | Runs `terraform apply`.                                                                 |
 | `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core` | Deletes the branch, artifacts and build caches of closed pull requests, and old images. |
 
@@ -52,7 +52,7 @@ flowchart LR
 
 ## Images
 
-- `cd-core` publishes `ghcr.io/soltunemontepre/medilab`, tagged with the full commit SHA and `latest`. Deploy and roll back by the SHA tag.
+- `cd-core` publishes `ghcr.io/soltunemontepre/medilab`, tagged with the full commit SHA and `latest`, then commits the SHA tag to `infra/cluster/`, which Argo CD rolls out; see [Architecture](architecture.md#deployment). Roll back by reverting that commit.
 - Pull request images are never pushed to a registry.
 - After every `cd-core` run, `cd-cleanup` keeps the five newest tagged images and deletes the older ones and every untagged image.
 
