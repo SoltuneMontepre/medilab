@@ -1727,25 +1727,25 @@ model TestReport {
 }
 
 /// A request to change a document whose process is completed (SH-07). It is signed through the change-request chain of the document's type; when approved, a new version of the document is created.
-/// Points to its document by document_model and document_id, indexed together.
+/// Points to its document by document_model and document_id, indexed together. Results and reports keep one row per version, so document_id names the version to change.
 model ChangeRequest {
   /// Row identifier.
   id               Int       @id @default(autoincrement())
-  /// Unique code of the change request; filled from a sequence when left empty.
+  /// Unique code of the change request, such as YCTD.2026.0001; filled from a sequence.
   code             String    @unique @db.VarChar
   /// Technical name of the document to change, such as medilab.test.result.
   document_model   String    @db.VarChar
-  /// Id of the document to change.
+  /// Id of the version of the document to change.
   document_id      Int
-  /// Version of the document the change is asked for.
-  document_version Int
+  /// The version the next signature of the change request records; it grows when every signature is withdrawn.
+  document_version Int       @default(1)
   /// Person who asked for the change; when is Odoo's creation time of the row.
   requested_by_id  Int
   /// What to change.
   requested_change String    @db.Text
   /// Why the change is needed.
   reason           String    @db.Text
-  /// requested, approved, rejected or applied.
+  /// requested while its chain signs, then approved, rejected or applied. Rejected and applied are final.
   status           String    @db.VarChar
   /// Reason given when the request was rejected.
   rejection_reason String?   @db.Text

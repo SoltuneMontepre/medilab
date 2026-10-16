@@ -11,7 +11,8 @@ class InvoicingCase(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         company = cls.env.company
-        if not company.chart_template:
+        # Installing account loads Odoo's generic chart in USD when no localisation is guessed; VND has no decimals.
+        if company.chart_template != "vn":
             cls.env["account.chart.template"].try_loading("vn", company)
         cls.partner = cls.env["res.partner"].create({"name": "Nguyen Van An"})
         cls.product = cls.env["product.product"].create(

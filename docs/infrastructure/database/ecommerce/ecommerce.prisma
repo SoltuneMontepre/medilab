@@ -328,6 +328,22 @@ model SaleOrder {
   submitted_at      DateTime?
   /// When a salesperson claimed the order.
   claimed_at        DateTime?
+  /// When the first quotation of the order was sent.
+  quoted_at         DateTime?
+  /// When the customer accepted the quotation, by paying the advance or accepting one sent without.
+  accepted_at       DateTime?
+  /// When the Head of Sales approved the order; empty while it is not approved.
+  approved_at       DateTime?
+  /// unclaimed, draft, sent, accepted, awaiting_approval or approved: the order's stage in the sales pipeline; empty for a cart and for declined, completed and cancelled orders.
+  pipeline_stage    String?               @db.VarChar
+  /// Quotations sent for the order, revisions included.
+  quotation_sent_count Int?
+  /// Quotations the customer accepted.
+  quotation_accepted_count Int?
+  /// Quotations the customer declined, including those a revision replaced since.
+  quotation_declined_count Int?
+  /// Total excluding VAT once the order is confirmed; 0 before and once it is cancelled.
+  revenue           Decimal?              @db.Decimal
   /// When sales confirmed the order: Odoo's order date once confirmed.
   date_order        DateTime
   /// The date the customer expects the results.
@@ -381,6 +397,7 @@ model SaleOrder {
   @@index([order_status, submitted_at])
   @@index([user_id, order_status])
   @@index([quotation_follow_up])
+  @@index([pipeline_stage])
   @@map("sale_order")
 }
 
@@ -588,6 +605,10 @@ model Invoice {
   amount_residual Decimal       @db.Decimal
   /// not_paid, partial, in_payment or paid, from the payments reconciled with it.
   payment_state   String        @db.VarChar
+  /// True once the invoice was emailed to the customer.
+  is_move_sent    Boolean       @default(false)
+  /// When the invoice first went to the customer; collection reports count the days to payment from it.
+  sent_at         DateTime?
   /// The order invoiced.
   order           SaleOrder     @relation(fields: [order_id], references: [id], onDelete: Restrict)
   /// The contact the invoice is addressed to.

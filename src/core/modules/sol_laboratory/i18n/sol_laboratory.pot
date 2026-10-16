@@ -537,6 +537,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_reject
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_reject
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__approval_can_reject
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__approval_can_reject
 msgid "Approval Can Reject"
 msgstr ""
 
@@ -544,6 +545,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_sign
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_sign
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__approval_can_sign
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__approval_can_sign
 msgid "Approval Can Sign"
 msgstr ""
 
@@ -551,6 +553,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_withdraw
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_withdraw
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__approval_can_withdraw
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__approval_can_withdraw
 msgid "Approval Can Withdraw"
 msgstr ""
 
@@ -578,6 +581,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__approved
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__approved
 msgid "Approved"
 msgstr ""
 
@@ -1138,6 +1142,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__code
 msgid "Code"
 msgstr ""
 
@@ -1515,6 +1520,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -1567,6 +1575,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_date
 msgid "Created on"
 msgstr ""
 
@@ -1954,6 +1965,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
 msgid "Discard"
 msgstr ""
 
@@ -2046,6 +2059,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2065,11 +2081,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__document_id
 msgid "Document"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__document_model
 msgid "Document Model"
 msgstr ""
 
@@ -2080,6 +2099,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_model
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
 msgid "Document Type"
 msgstr ""
 
@@ -2088,6 +2109,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_version
 msgid "Document Version"
 msgstr ""
 
@@ -2884,6 +2906,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__id
 msgid "ID"
 msgstr ""
 
@@ -3389,6 +3414,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -3441,6 +3469,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -4328,6 +4359,10 @@ msgid "Permission: cancellation.request.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: cash.flow.report.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 msgid "Permission: cost_centre.archive.all"
 msgstr ""
 
@@ -4641,6 +4676,10 @@ msgid "Permission: quotation.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: receivable.report.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 msgid "Permission: recipe.archive.all"
 msgstr ""
 
@@ -4678,6 +4717,10 @@ msgstr ""
 
 #. module: sol_laboratory
 msgid "Permission: reconciliation.day.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: revenue.report.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5243,6 +5286,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__reason
 msgid "Reason"
 msgstr ""
 
@@ -5302,6 +5348,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__rejected
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__rejected
 msgid "Rejected"
 msgstr ""
 
@@ -5887,6 +5934,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatches
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
 msgid "Status"
 msgstr ""
 
@@ -8969,6 +9018,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 msgid "Approve"
 msgstr ""
 
@@ -9147,6 +9197,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
 msgid "Reject"
 msgstr ""
 
@@ -9247,6 +9299,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 msgid "Withdraw Signature"
 msgstr ""
 
@@ -9836,6 +9889,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__status__replaced
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__is_replaced
 msgid "Replaced"
 msgstr ""
 
@@ -10315,4 +10369,219 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_id
 msgid "Parent Document ID"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "%s already has an open change request."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "%s can no longer be changed; reject the request."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid ""
+"A change request is raised only on a document whose process is completed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_change_request_approved
+msgid "A change request you raised was approved and its new version created"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_change_request_rejected
+msgid "A change request you raised was rejected"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__applied
+msgid "Applied"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+msgid ""
+"Approve this change request? The last approval creates the new version."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__requested_change
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__requested_change
+msgid "Change"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_change_request
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__change_request_id
+msgid "Change Request"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_change_request
+#: model:ir.ui.menu,name:sol_laboratory.menu_change_request
+msgid "Change Requests"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid ""
+"Change request %(code)s was approved: %(document)s has a new version to "
+"sign."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "Change request %(code)s was rejected: %(reason)s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_change_request_approved
+msgid "Change request approved"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_change_request_rejected
+msgid "Change request rejected"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "Change requests are raised on signed documents only."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_id
+msgid "Document Id"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__new_document_id
+msgid "New Version"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "Only a person can raise a change request."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+msgid "Open Document"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+msgid "Open New Version"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_change_request_read_all
+msgid "Permission: change.request.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_change_request_sign_all
+msgid "Permission: change.request.sign.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
+msgid "Raise"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_change_request_raise
+msgid "Raise a Change Request"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+msgid "Raised by Me"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_change_request_read_all
+msgid "Read change requests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_change_request_reject
+msgid "Reject a Change Request"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_change_request_reject
+msgid "Reject the Change Request"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__rejection_reason
+msgid "Rejection Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_change_request_raise
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Request a Change"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__requested
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+msgid "Requested"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_list
+msgid "Requested At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__requested_by_id
+msgid "Requested By"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "Say what to change and why."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_change_request_sign_all
+msgid "Sign change requests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_change_request_code_unique
+msgid "The code of a change request must be unique."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "This document type has no change-request chain."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
+msgid "What to change, such as the value or the conclusion"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
+msgid "Why the change is needed"
 msgstr ""

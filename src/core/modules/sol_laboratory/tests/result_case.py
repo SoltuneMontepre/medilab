@@ -50,16 +50,16 @@ class ResultCase(SchedulingCase):
         )
 
     @classmethod
-    def approval_chain(cls, document_model, levels):
-        """The signing chain of the document type, with a level and a new role for each (name, role code, same
+    def approval_chain(cls, document_model, levels, purpose=PURPOSE_SIGNING):
+        """The chain of the document type for the purpose, with a level and a new role for each (name, role code, same
         department, can reject) in signing order; the demo data may have made it."""
         chain = cls.env[MODEL_APPROVAL_CHAIN].search(
-            [("document_model", "=", document_model), ("purpose", "=", PURPOSE_SIGNING)]
+            [("document_model", "=", document_model), ("purpose", "=", purpose)]
         )
         if chain:
             return chain
         chain = cls.env[MODEL_APPROVAL_CHAIN].create(
-            {"document_model": document_model, "purpose": PURPOSE_SIGNING, "name": f"Signing of {document_model}"}
+            {"document_model": document_model, "purpose": purpose, "name": f"{purpose} of {document_model}"}
         )
         for sequence, (name, code, same_department, can_reject) in enumerate(levels, start=1):
             cls.env[MODEL_APPROVAL_LEVEL].create(

@@ -11,7 +11,10 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN
 
 _logger = logging.getLogger(__name__)
 
-METHODS = {"online", "bank_transfer", "cash"}
+METHOD_SELECTION = [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash")]
+METHODS = {method for method, _label in METHOD_SELECTION}
+# States of a payment the accountant or the gateway confirmed; a draft is pending.
+CONFIRMED_STATES = ("paid", "reconciled")
 JOURNAL_TYPE = {"online": "bank", "bank_transfer": "bank", "cash": "cash"}
 
 
@@ -22,10 +25,7 @@ class AccountPayment(models.Model):
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_ACCOUNT_PAYMENT]
 
     # online, bank_transfer or cash.
-    method = fields.Selection(
-        [("online", "Online"), ("bank_transfer", "Bank transfer"), ("cash", "Cash")],
-        string="Collection Method",
-    )
+    method = fields.Selection(METHOD_SELECTION, string="Collection Method")
     # The accountant who confirmed or rejected the payment.
     reviewed_by_id = fields.Many2one("res.users", string="Reviewed By", readonly=True, copy=False)
     # When it was confirmed or rejected.

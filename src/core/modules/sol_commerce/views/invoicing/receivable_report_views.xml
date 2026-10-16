@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_outstanding_report_list" model="ir.ui.view">
+        <field name="name">medilab.receivable.report.list.outstanding</field>
+        <field name="model">medilab.receivable.report</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="date" />
+                <field name="date_due" />
+                <field name="currency_id" column_invisible="True" />
+                <field name="amount_total" sum="Total" />
+                <field name="amount_owed" sum="Total" />
+                <field name="days_overdue" />
+                <field name="age" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_outstanding_report_pivot" model="ir.ui.view">
+        <field name="name">medilab.receivable.report.pivot.outstanding</field>
+        <field name="model">medilab.receivable.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Outstanding">
+                <field name="partner_id" type="row" />
+                <field name="age" type="col" />
+                <field name="amount_owed" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_medilab_collection_report_list" model="ir.ui.view">
+        <field name="name">medilab.receivable.report.list.collection</field>
+        <field name="model">medilab.receivable.report</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="date" />
+                <field name="sent_date" />
+                <field name="date_due" />
+                <field name="paid_date" />
+                <field name="days_to_pay" />
+                <field name="timing" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_collection_report_pivot" model="ir.ui.view">
+        <field name="name">medilab.receivable.report.pivot.collection</field>
+        <field name="model">medilab.receivable.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Collection">
+                <field name="partner_id" type="row" />
+                <field name="date" interval="month" type="col" />
+                <field name="days_to_pay" type="measure" />
+                <field name="paid_on_time" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_medilab_receivable_report_search" model="ir.ui.view">
+        <field name="name">medilab.receivable.report.search</field>
+        <field name="model">medilab.receivable.report</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id" />
+                <field name="name" />
+                <filter name="overdue" string="Overdue" domain="[('days_overdue', '>', 0)]" />
+                <separator />
+                <filter name="late" string="Paid late" domain="[('timing', '=', 'late')]" />
+                <separator />
+                <filter name="date" string="Invoice date" date="date" />
+                <group>
+                    <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}" />
+                    <filter name="group_age" string="Age of the debt" context="{'group_by': 'age'}" />
+                    <filter name="group_date" string="Invoice date" context="{'group_by': 'date:month'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_outstanding_report" model="ir.actions.act_window">
+        <field name="name">Outstanding</field>
+        <field name="res_model">medilab.receivable.report</field>
+        <field name="path">receivable-reports</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="domain">[('amount_owed', '>', 0)]</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_outstanding_report_list')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_medilab_outstanding_report_pivot')})]" />
+    </record>
+
+    <record id="action_medilab_collection_report" model="ir.actions.act_window">
+        <field name="name">Collection</field>
+        <field name="res_model">medilab.receivable.report</field>
+        <field name="path">collection-reports</field>
+        <field name="view_mode">pivot,list</field>
+        <field name="domain">[('timing', '!=', False)]</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_medilab_collection_report_pivot')}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_collection_report_list')})]" />
+    </record>
+</odoo>

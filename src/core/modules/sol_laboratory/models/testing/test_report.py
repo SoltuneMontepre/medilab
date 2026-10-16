@@ -200,12 +200,39 @@ class TestReport(models.Model):
         return self.env.ref(TEST_REPORT_REPORT).report_action(self, config=False)
 
     def _approval_check_actor(self, rejecting=False):
-        if self.status not in OPEN_STATUSES or self.sudo().request_id.status != "completed":
+        report = self.sudo()
+        # A new version is signed once the results it prints are approved; its request stays reported.
+        ready = report.request_id.status == "completed" or (
+            report.replaces_id and all(result.status == STATE_APPROVED for result in report.result_ids)
+        )
+        if self.status not in OPEN_STATUSES or not ready:
             raise UserError(self.env._("A report is signed once every result of its test request is approved."))
         return super()._approval_check_actor(rejecting)
 
     def _approval_process_completed(self):
         return self.status in ("issued", "replaced")
+
+    def _change_request_open(self):
+        return self.status == "issued"
+
+    def _new_version(self, change_request):
+        """Replace the issued report by its next version, a draft the lab head signs and issues again; the portal offers
+        the issued version only."""
+        self.ensure_one()
+        report = self.sudo()
+        report.status = "replaced"
+        version = report.create(
+            {
+                "request_id": report.request_id.id,
+                "language": report.request_id.report_language,
+                "version": report.version + 1,
+                "replaces_id": report.id,
+            }
+        )
+        self.env[MODEL_TASK]._create_for_event(
+            REPORT_DRAFTED_TRIGGER, document=version, note=change_request.requested_change
+        )
+        return version
 
     def _approval_set_state(self, state):
         if state == STATE_APPROVED:
@@ -242,20 +269,34 @@ class TestReport(models.Model):
         reported = request.sample_ids.filtered(lambda sample: sample.status == "completed")
         reported.status = "reported"
         reported._retain(self._report_day())
-        request._set_status("reported")
-        partner = request.customer_id.partner_id
+        if request.status != "reported":
+            request._set_status("reported")
+        self._notify_issued()
+
+    def _notify_issued(self):
+        """Tell the customer the results are released, once for each issued report."""
+        self.ensure_one()
+        document, partner, body = self._issued_notice()
         self.env[MODEL_MAIL_MESSAGE].raise_event(
             EVENT_TEST_REPORT_ISSUED,
-            self,
+            document,
             f"test_report:{self.id}:issued",
-            self.with_context(lang=partner.lang).env._(
-                "The results of test request %(request)s are ready. Download report %(report)s from your portal.",
-                request=request.code,
-                report=self.code,
-            ),
+            body,
             subject=self.code,
             partners=partner,
         )
+
+    def _issued_notice(self):
+        """The document the results are released on, the contact told and the text in their language. E-commerce
+        releases the results of an order on the order, to its contact."""
+        request = self.request_id
+        partner = request.customer_id.partner_id
+        body = self.with_context(lang=partner.lang).env._(
+            "The results of test request %(request)s are ready. Download report %(report)s from your portal.",
+            request=request.code,
+            report=self.code,
+        )
+        return self, partner, body
 
     @api.model
     def _portal_domain(self, user):

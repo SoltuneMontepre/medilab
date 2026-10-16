@@ -38,6 +38,14 @@ class AccountMove(models.Model):
     amount_owed = fields.Monetary(compute="_compute_amount_owed", currency_field="currency_id")
     # Posted advance or final invoice whose due date in Vietnam has passed and that is not fully paid.
     is_overdue = fields.Boolean(compute="_compute_is_overdue", search="_search_is_overdue")
+    # When the invoice first went to the customer: by email, or with its quotation for an advance invoice.
+    sent_at = fields.Datetime(compute="_compute_sent_at", store=True, copy=False)
+
+    @api.depends("is_move_sent", "state", "invoice_kind")
+    def _compute_sent_at(self):
+        for move in self:
+            sent = move.is_move_sent or (move.invoice_kind == "advance" and move.state == "posted")
+            move.sent_at = move.sent_at or (sent and fields.Datetime.now())
 
     @api.depends(
         "amount_residual",
@@ -115,6 +123,7 @@ class AccountMove(models.Model):
                 "mimetype": "application/pdf",
             }
         )
+        self.is_move_sent = True
         return self.env["mail.message"].raise_event(
             EVENT_INVOICE_SENT,
             self,
