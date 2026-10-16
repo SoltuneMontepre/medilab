@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_template_list" model="ir.ui.view">
+        <field name="name">medilab.order.template.list</field>
+        <field name="model">medilab.order.template</field>
+        <field name="arch" type="xml">
+            <list create="0" duplicate="0">
+                <field name="name" />
+                <field name="customer_id" />
+                <field name="source_order_id" />
+            </list>
+        </field>
+    </record>
+    <record id="view_order_template_form" model="ir.ui.view">
+        <field name="name">medilab.order.template.form</field>
+        <field name="model">medilab.order.template</field>
+        <field name="arch" type="xml">
+            <form create="0" duplicate="0">
+                <header>
+                    <button name="action_create_order" type="object" string="Create order" class="btn-primary" invisible="not active or not source_customer_matches" groups="sol_laboratory.group_permission_order_create_all" />
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert" invisible="source_customer_matches">
+                        The source order's customer has changed. This template cannot be reused. Archive or delete it, then save a new template from the correct order.
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title"><label for="name" /><h1><field name="name" /></h1></div>
+                    <group>
+                        <field name="customer_id" />
+                        <field name="source_order_id" />
+                        <field name="source_customer_matches" invisible="1" />
+                        <field name="active" invisible="1" />
+                    </group>
+                    <field name="line_ids" required="1">
+                        <list editable="bottom">
+                            <field name="product_id" domain="['|', ('parameter_id', '!=', False), ('service_package_id', '!=', False)]" options="{'no_create': True}" />
+                            <field name="quantity" />
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_order_template_search" model="ir.ui.view">
+        <field name="name">medilab.order.template.search</field>
+        <field name="model">medilab.order.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="customer_id" />
+                <field name="source_order_id" />
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]" />
+                <filter name="customer_mismatch" string="Customer mismatch" domain="[('source_customer_matches', '=', False)]" groups="sol_commerce.group_all_orders" />
+            </search>
+        </field>
+    </record>
+    <record id="action_order_template" model="ir.actions.act_window">
+        <field name="name">Order templates</field>
+        <field name="res_model">medilab.order.template</field>
+        <field name="path">order-templates</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
