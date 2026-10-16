@@ -42,7 +42,11 @@
                         <page string="Ingredients" name="ingredients">
                             <field name="line_ids">
                                 <list editable="bottom">
-                                    <field name="item_id" options="{'no_create': True}" />
+                                    <field
+                                        name="item_id"
+                                        domain="[('item_kind', '!=', False), ('track_containers', '=', True), ('id', '!=', parent.solution_item_id)]"
+                                        options="{'no_create': True}"
+                                    />
                                     <field name="quantity" />
                                     <field name="uom_id" string="Unit" />
                                 </list>
