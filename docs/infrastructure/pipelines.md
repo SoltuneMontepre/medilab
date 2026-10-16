@@ -4,14 +4,14 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow     | Runs on                                                       | Does                                                                                    |
-| ------------ | ------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `ci-core`    | every pull request                                            | Lints, builds and tests the Odoo modules, then runs SonarQube Cloud.                    |
-| `ci-infra`   | every pull request                                            | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                      |
-| `ci-ai`      | every pull request                                            | Runs the AI tooling tests and Ruff when the AI tooling or a client config changes.      |
-| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile    | Publishes the release image, rolls it out through Argo CD and rolls back if it fails.   |
-| `cd-infra`   | a push to `main` that changes `infra/`                        | Runs `terraform apply`.                                                                 |
-| `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core` | Deletes the branch, artifacts and build caches of closed pull requests, and old images. |
+| Workflow     | Runs on                                                                                        | Does                                                                                                 |
+| ------------ | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `ci-core`    | every pull request                                                                             | Lints, builds and tests the Odoo modules, then runs SonarQube Cloud.                                 |
+| `ci-infra`   | every pull request                                                                             | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                                   |
+| `ci-ai`      | every pull request                                                                             | Runs the AI tooling tests and Ruff when the AI tooling or a client config changes.                   |
+| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile, and the nightly maintenance window | Publishes the image on a push; releases it through Argo CD in the window and rolls back if it fails. |
+| `cd-infra`   | a push to `main` that changes `infra/`                                                         | Runs `terraform apply`.                                                                              |
+| `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core`                                  | Deletes the branch, artifacts and build caches of closed pull requests, and old images.              |
 
 Every workflow can also be started by hand.
 
@@ -54,19 +54,25 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    publish --> release --> verify
+    push[Push to main] --> publish
+    window[Maintenance window or manual run] --> release --> verify
     verify -- fails --> rollback
 ```
 
-- `publish` builds and pushes the release image, tagged with the commit SHA.
-- `release` commits the SHA tag to `infra/cluster/` on `main`. Argo CD syncs it: a pre-sync hook takes an on-demand CloudNativePG backup, then the module upgrade Job runs, then the Odoo replicas roll out.
-- `verify` waits up to 10 minutes for the Argo CD application to be synced and healthy with `argocd app wait`, then checks that `https://lims.soltunemontepre.tech/web/health` answers 200. A failed upgrade Job or a replica that never becomes ready fails it.
-- `rollback` runs only when `verify` fails:
-  1. Commits one `[fix] Roll back <release title>` commit to `main` that reverts the release commit and sets the image tag in `infra/cluster/` back to the tag before the release. Argo CD returns to the previous image, and `main` again matches what runs.
-  2. Creates the branch `fix/redeploy-<short SHA>` from the new `main` and cherry-picks the release commit onto it, so the change is kept.
-  3. Opens a draft pull request from that branch, titled `[fix] Redeploy <release title without its type>`, assigned to the release author. Its body links the failed run and holds the Argo CD status and the logs of the failed pods.
-  4. Fails the run, so the failure shows on the commit.
-- Commits and pull requests made with `GITHUB_TOKEN` start no workflows, so the rollback commit does not start `cd-core` again. The pipelines of the redeploy pull request run once its author pushes a fix to it.
+`cd-core` publishes an image for every change, but releases only in the maintenance window.
+
+- `publish` runs on every push to `main` that changes the core. It builds and pushes the image, tagged with the commit SHA, and releases nothing.
+- `release` runs on a schedule, every night at 23:00 Asia/Ho_Chi_Minh, set by the `schedule` trigger of the workflow. A manual run with the `release` input releases outside the window, such as for a hotfix.
+  - It takes the image of the newest commit on `main` that has one. When that is the image already released, it stops.
+  - It commits the SHA tag to `infra/cluster/` on `main`, titled `[chore] Release <short SHA>`.
+  - Argo CD syncs it: a pre-sync hook takes an on-demand CloudNativePG backup, then the module upgrade Job runs, then the Odoo replicas roll out one at a time.
+- `verify` waits up to 15 minutes with `argocd app wait --sync --health` for the application to reach the release commit and become healthy. Because the rollout is rolling, the old replicas keep serving while it runs, so `/web/health` answers 200 even when the release fails; `verify` relies on Argo CD instead. Argo CD reports the release as failed when the upgrade Job fails, or as degraded when a new replica is not ready within the Deployment's `progressDeadlineSeconds` of 10 minutes.
+- `rollback` runs only when `verify` fails. The release holds every change merged since the previous release:
+  1. Commits one `[fix] Roll back release <short SHA>` commit to `main` that sets the image tag in `infra/cluster/` back to the previous release and reverts the commits of the release, so `main` again matches what runs. Argo CD returns to the previous image. When the revert conflicts with a commit merged after the release, the commit only sets the tag back, and `release` stops until the draft pull request below is merged or closed.
+  2. Creates the branch `fix/redeploy-<short SHA>` from the new `main` and cherry-picks the commits of the release onto it, so the changes are kept.
+  3. Opens a draft pull request from that branch, titled `[fix] Redeploy release <short SHA>`, assigned to the authors of the commits and labelled `failed-release`. Its body lists the commits, links the failed run, and holds the Argo CD status and the logs of the failed pods.
+  4. Fails the run, so the failure shows on the release commit.
+- Commits and pull requests made with `GITHUB_TOKEN` start no workflows, so the rollback commit does not start `cd-core` again. The pipelines of the redeploy pull request run once someone pushes a fix to it.
 - A rollback does not restore the database. When the upgrade Job failed, Odoo rolled back its own transaction and the schema is unchanged. When the upgrade succeeded and the replicas then failed, the previous image runs on the newer schema; the pre-sync backup is there to restore by hand.
 - `release` and `rollback` push to `main` as `github-actions[bot]`, which the `main` ruleset lets bypass pull requests. Terraform allows GitHub Actions to create pull requests on the repository.
 - `verify` reads Argo CD with the `ARGOCD_AUTH_TOKEN` Actions secret, a token of an Argo CD account that can only read the `medilab` application.
@@ -75,7 +81,7 @@ flowchart LR
 
 - `cd-core` publishes `ghcr.io/soltunemontepre/medilab`, tagged with the full commit SHA and `latest`, and releases it as described in [cd-core](#cd-core).
 - Pull request images are never pushed to a registry.
-- After every `cd-core` run, `cd-cleanup` keeps the five newest tagged images and deletes the older ones and every untagged image.
+- After every `cd-core` run, `cd-cleanup` keeps the five newest tagged images and the images of the current and previous release, and deletes the other images and every untagged image.
 
 ## Artifacts and caches
 

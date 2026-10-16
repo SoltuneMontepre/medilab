@@ -60,7 +60,7 @@ flowchart LR
 ## Deployment
 
 - Argo CD runs in the cluster and syncs the manifests in `infra/cluster/` on `main`.
-- `cd-core` publishes the release image and commits its SHA tag to `infra/cluster/`; Argo CD then rolls it out. When the release does not become healthy, `cd-core` rolls back to the previous image and keeps the change on a branch with a draft pull request; see [Pipelines](pipelines.md#cd-core).
+- `cd-core` publishes an image for every change to `main`, and releases the newest one in the nightly maintenance window by committing its SHA tag to `infra/cluster/`; Argo CD then rolls it out. When the release does not become healthy, `cd-core` rolls back to the previous image and keeps the changes on a branch with a draft pull request; see [Pipelines](pipelines.md#cd-core).
 - A change to the cluster is a change to `infra/cluster/`, never a `kubectl` edit; Argo CD reverts edits made by hand.
 
 ## Database
@@ -103,7 +103,8 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 
 ## Odoo
 
-- Two replicas, kept on different data sites by pod anti-affinity.
+- Two replicas, spread over the data sites by preferred pod anti-affinity.
+- A release rolls out one replica at a time (`maxSurge: 1`, `maxUnavailable: 0`): a new replica must be ready before an old one stops, so users are not interrupted. The anti-affinity is preferred rather than required so that the extra replica can be placed during a rollout.
 - Attachments are stored in object storage outside both servers, so either replica serves every file.
 - Sessions are stored on each replica's local disk; users log in again after a failover.
 - Module installs and upgrades run in a one-off Job per release, never at pod start.
