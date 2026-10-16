@@ -9,11 +9,6 @@ from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION
 
 @tagged("post_install", "-at_install")
 class TestQuotationExpiry(OrderCase):
-    def sent_order(self):
-        order = self.make_quotable_order()
-        order.with_user(self.sales).action_send_quotation()
-        return order
-
     def test_expired_quotation_does_not_cancel_the_order(self):
         order = self.sent_order()
         order.payment_deadline = fields.Datetime.now() - timedelta(days=1)

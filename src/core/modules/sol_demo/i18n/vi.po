@@ -246,6 +246,8 @@ msgstr "Bút toán"
 #. module: sol_demo
 #: model:medilab.role,name:sol_demo.demo_role_lab_head
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_signing_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_change_request_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_change_request_lab_head
 msgid "Lab head"
 msgstr "Trưởng Phòng Thí Nghiệm"
 
@@ -525,3 +527,13 @@ msgstr "Dư lượng thuốc bảo vệ thực vật"
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_signing
 msgid "Test report signing"
 msgstr "Ký phiếu kết quả"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_change_request
+msgid "Test result change request"
+msgstr "Yêu cầu thay đổi kết quả thử nghiệm"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_change_request
+msgid "Test report change request"
+msgstr "Yêu cầu thay đổi phiếu kết quả"

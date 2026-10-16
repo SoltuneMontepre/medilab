@@ -114,7 +114,12 @@ Acceptance criteria:
 | Collection performance | Time from invoice sent to payment, share of invoices paid on time       |
 
 - Reports can be filtered by period and customer and exported to a spreadsheet.
-- Reports use confirmed payments only; pending records are shown separately.
+- Reports use confirmed payments only; pending records are shown separately, in the Pending payments report.
+- Revenue excludes VAT and counts on the invoice date. A credit note and the advance deducted on a final invoice count as negative revenue. The collected amount is the share of the invoiced amount that confirmed payments have settled.
+- A package line is spread by rounding the running total of its parameters' shares, so its parts add up to the line to the dong.
+- The age of a debt counts the days since the due date: not due, 1 to 30, 31 to 60, 61 to 90 or over 90 days.
+- An invoice is sent when it is emailed; an advance invoice goes out with its quotation. It is paid on the date of its last confirmed payment: on time when that date is on or before its due date, late when it is after, or when the invoice is still open after its due date.
+- The reports are under the Reporting menu of the Sales app, for those holding the read permission of the report. Each has a pivot table that downloads as a spreadsheet with the rows and totals it shows.
 
 ## IV. Related documents
 

@@ -10,6 +10,11 @@
         <field name="email">nguyen.thi.thu@medilab.example</field>
         <field name="lang">vi_VN</field>
     </record>
+    <record id="demo_res_partner_sales_2" model="res.partner">
+        <field name="name">Le Van Nam</field>
+        <field name="email">le.van.nam@medilab.example</field>
+        <field name="lang">vi_VN</field>
+    </record>
     <record id="demo_res_partner_head_of_sales" model="res.partner">
         <field name="name">Tran Quoc Bao</field>
         <field name="email">tran.quoc.bao@medilab.example</field>

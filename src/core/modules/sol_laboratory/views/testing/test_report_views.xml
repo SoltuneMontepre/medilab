@@ -4,10 +4,11 @@
         <field name="name">medilab.test.report.list</field>
         <field name="model">medilab.test.report</field>
         <field name="arch" type="xml">
-            <list create="0" delete="0">
+            <list create="0" delete="0" decoration-muted="status == 'replaced'">
                 <field name="display_name" string="Report Number" />
                 <field name="request_id" />
                 <field name="customer_id" />
+                <field name="version" optional="show" />
                 <field name="language" />
                 <field name="issued_at" optional="show" />
                 <field name="delivered_at" optional="show" />
@@ -85,6 +86,14 @@
                         string="Print Draft"
                         invisible="status in ('issued', 'replaced')"
                     />
+                    <button
+                        name="%(action_medilab_change_request_raise)d"
+                        type="action"
+                        string="Request a Change"
+                        context="{'default_document_model': 'medilab.test.report', 'default_document_id': id}"
+                        invisible="status != 'issued'"
+                        groups="sol_laboratory.group_permission_test_report_edit_all"
+                    />
                     <field name="status" widget="statusbar" statusbar_visible="draft,signing,issued" />
                 </header>
                 <sheet>
@@ -97,6 +106,7 @@
                             <field name="customer_id" />
                             <field name="language" />
                             <field name="version" />
+                            <field name="replaces_id" invisible="not replaces_id" />
                             <field name="issued_at" invisible="not issued_at" />
                             <field name="attachment_id" invisible="not attachment_id" />
                         </group>
@@ -154,13 +164,14 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <!-- The lab head's test requests whose results are all approved and whose report waits for signature. -->
+    <!-- The lab head's test requests whose results are all approved, and new versions of issued reports, waiting for
+         signature. -->
     <record id="action_medilab_test_report_to_sign" model="ir.actions.act_window">
         <field name="name">Reports to Sign</field>
         <field name="res_model">medilab.test.report</field>
         <field name="path">reports-to-sign</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('status', 'in', ('draft', 'signing')), ('request_id.status', '=', 'completed')]</field>
+        <field name="domain">[('status', 'in', ('draft', 'signing')), '|', ('request_id.status', '=', 'completed'), ('replaces_id', '!=', False)]</field>
     </record>
 
     <record id="action_medilab_test_report_to_deliver" model="ir.actions.act_window">

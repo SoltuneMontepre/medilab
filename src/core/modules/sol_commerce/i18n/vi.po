@@ -172,8 +172,14 @@ msgstr "Hãy chấp nhận báo giá trước"
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cancellation_request__status__accepted
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_quotation__status__accepted
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__accepted
 msgid "Accepted"
 msgstr "Đã chấp nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__accepted_at
+msgid "Accepted At"
+msgstr "Thời Điểm Chấp Nhận"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_form
@@ -247,6 +253,8 @@ msgstr "Cho phép ghi nợ"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__amount
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
 msgid "Amount"
 msgstr "Thành tiền"
 
@@ -299,8 +307,14 @@ msgstr "Phê duyệt"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__approval_status__approved
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__approved
 msgid "Approved"
 msgstr "Đã phê duyệt"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__approved_at
+msgid "Approved At"
+msgstr "Thời Điểm Phê Duyệt"
 
 #. module: sol_commerce
 #: model:medilab.permission,name:sol_commerce.permission_parameter_price_archive_all
@@ -340,6 +354,11 @@ msgid "Attachment"
 msgstr "Tệp Đính Kèm"
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__awaiting_approval
+msgid "Awaiting approval"
+msgstr "Chờ phê duyệt"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "Back to the catalog"
 msgstr "Quay lại danh mục"
@@ -351,11 +370,15 @@ msgstr "Quay lại đơn hàng"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__bank_transfer
+#: model:ir.model.fields.selection,name:sol_commerce.selection__account_payment__method__bank_transfer
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__method__bank_transfer
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
 msgid "Bank transfer"
 msgstr "Chuyển khoản"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Browse the catalog"
 msgstr "Xem danh mục"
 
@@ -396,6 +419,7 @@ msgstr "Hủy:"
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__cancelled
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__cancelled
 msgid "Cancelled"
 msgstr "Đã hủy"
 
@@ -411,6 +435,8 @@ msgstr "Giỏ hàng ("
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__cash
+#: model:ir.model.fields.selection,name:sol_commerce.selection__account_payment__method__cash
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__method__cash
 msgid "Cash"
 msgstr "Tiền mặt"
 
@@ -465,6 +491,8 @@ msgstr "Nhận Lúc"
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__code
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__code
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__code
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__code
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__code
 msgid "Code"
 msgstr "Mã"
@@ -476,6 +504,7 @@ msgstr "Công ty"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__completed
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__completed
 msgid "Completed"
 msgstr "Hoàn thành"
 
@@ -492,6 +521,7 @@ msgstr "Xác nhận đơn hàng"
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__confirmed
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__status__confirmed
 msgid "Confirmed"
 msgstr "Đã xác nhận"
 
@@ -504,6 +534,7 @@ msgstr "Khách hàng"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
 msgid "Continue"
 msgstr "Tiếp tục"
 
@@ -579,6 +610,13 @@ msgstr "Tạo thuế"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__create_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__create_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__create_uid
 msgid "Created by"
 msgstr "Người tạo"
@@ -590,6 +628,13 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__create_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__create_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
@@ -599,11 +644,25 @@ msgstr "Ngày tạo"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__currency_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__currency_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__currency_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__currency_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__currency_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__currency_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__currency_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__currency_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__currency_id
 msgid "Currency"
 msgstr "Tiền tệ"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__partner_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__customer_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__partner_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__partner_id
+#: model_terms:ir.ui.view,arch_db:sol_commerce.customer_account
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_receivable_report_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_search
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__customer_id
 msgid "Customer"
 msgstr "Khách Hàng"
@@ -630,6 +689,21 @@ msgid ""
 "Days after a quotation is sent before it is flagged expired. Applies to "
 "quotations sent without a payment deadline."
 msgstr "Số ngày sau khi gửi thì báo giá bị đánh dấu hết hạn. Áp dụng cho báo giá gửi đi khi chưa có hạn thanh toán."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_approval
+msgid "Days to Approval"
+msgstr "Số Ngày Đến Phê Duyệt"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_payment
+msgid "Days to Payment"
+msgstr "Số Ngày Đến Thanh Toán"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__days_to_quote
+msgid "Days to Quote"
+msgstr "Số Ngày Đến Báo Giá"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__decided_at
@@ -721,6 +795,8 @@ msgstr "Xóa thuế"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_order_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_invoice_adjustment_form
 msgid "Discard"
 msgstr "Bỏ qua"
 
@@ -733,6 +809,29 @@ msgstr "Bỏ qua"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_audit_entry__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_request__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_product_template__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_res_company__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__display_name
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__display_name
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__display_name
 msgid "Display Name"
@@ -746,11 +845,14 @@ msgstr "Phiên bản chứng từ"
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__draft
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__draft
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__draft
 msgid "Draft"
 msgstr "Nháp"
 
 #. module: sol_commerce
 #: model:ir.ui.menu,name:sol_commerce.menu_commerce_root
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "E-commerce"
 msgstr "Thương Mại Điện Tử"
 
@@ -891,6 +993,29 @@ msgstr "Gán mẫu cho các mục sau trước khi gửi báo giá:\n%s"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_vnd_mixin__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_report__id
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__id
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_audit_entry__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_request__id
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_provider__id
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__id
+#: model:ir.model.fields,field_description:sol_commerce.field_product_template__id
+#: model:ir.model.fields,field_description:sol_commerce.field_res_company__id
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__id
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__id
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__id
 msgid "ID"
@@ -921,12 +1046,24 @@ msgid "Journal Entry"
 msgstr "Bút toán"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__test_request_status
+msgid "Laboratory Status"
+msgstr "Trạng Thái Phòng Thí Nghiệm"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__write_uid
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__write_uid
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
@@ -938,6 +1075,13 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_subcontract_cost__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_customer_sales_terms__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__write_date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__write_date
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
@@ -973,6 +1117,11 @@ msgstr "Tối thiểu"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax__name
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_search
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_tax_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
 msgid "Name"
 msgstr "Tên"
 
@@ -998,6 +1147,8 @@ msgstr "Số"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__advance_method__online
+#: model:ir.model.fields.selection,name:sol_commerce.selection__account_payment__method__online
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__method__online
 msgid "Online"
 msgstr "Trực tuyến"
 
@@ -1075,6 +1226,7 @@ msgstr "Chỉ khách hàng đã gửi yêu cầu mới có thể rút lại."
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cancellation_request_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_reconciliation_day__status__open
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_support_request__status__open
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
 msgid "Open"
@@ -1085,6 +1237,10 @@ msgstr "Mở"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__order_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__order_id
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__order_id
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__order_id
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__order_id
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__order_id
 #: model:ir.model.fields,field_description:sol_commerce.field_rating_rating__order_id
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
@@ -1113,6 +1269,11 @@ msgid "Order cancellation"
 msgstr "Hủy đơn hàng"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Order date"
+msgstr "Ngày đặt hàng"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_submitted
 msgid "Order submitted"
 msgstr "Đã gửi đơn hàng"
@@ -1122,6 +1283,7 @@ msgstr "Đã gửi đơn hàng"
 #: model:ir.ui.menu,name:sol_commerce.menu_sale_order
 #: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_customer_form_sales
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 msgid "Orders"
 msgstr "Đơn Hàng"
@@ -1144,6 +1306,7 @@ msgstr "Giá nhóm dịch vụ"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__quotation_follow_up__paid
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__paid
 msgid "Paid"
 msgstr "Đã thanh toán"
 
@@ -1151,6 +1314,10 @@ msgstr "Đã thanh toán"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_parameter_price__parameter_id
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__parameter_id
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_search
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__parameter_id
+#: model:ir.model.fields,field_description:sol_commerce.field_product_product__parameter_id
+#: model:ir.model.fields,field_description:sol_commerce.field_product_template__parameter_id
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Parameter"
 msgstr "Chỉ Tiêu"
 
@@ -1203,7 +1370,18 @@ msgid "Percentage"
 msgstr "Phần trăm"
 
 #. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_sales_performance
+#: model:ir.ui.menu,name:sol_commerce.menu_sales_performance
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_graph
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_performance_pivot
+msgid "Performance"
+msgstr "Hiệu quả bán hàng"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.signup_customer_fields
 msgid "Phone"
 msgstr "Điện thoại"
 
@@ -1211,6 +1389,24 @@ msgstr "Điện thoại"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__physical_state
 msgid "Physical State"
 msgstr "Trạng Thái Vật Lý"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_sales_pipeline
+#: model:ir.ui.menu,name:sol_commerce.menu_sales_pipeline
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_graph
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sales_pipeline_pivot
+msgid "Pipeline"
+msgstr "Phễu bán hàng"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__pipeline_stage
+msgid "Pipeline Stage"
+msgstr "Giai Đoạn Phễu Bán Hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Pipeline stage"
+msgstr "Giai đoạn phễu bán hàng"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__source__portal
@@ -1222,7 +1418,10 @@ msgstr "Cổng thông tin"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__list_price
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_test_parameter__price_ids
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_test_parameter_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.catalog_products
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Price"
 msgstr "Giá"
 
@@ -1247,8 +1446,16 @@ msgid "Product"
 msgstr "Sản phẩm"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Progress"
+msgstr "Tiến độ"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package_line__quantity
+#: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Quantity"
 msgstr "Số lượng"
 
@@ -1300,8 +1507,29 @@ msgstr "Báo giá chưa thanh toán"
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_ids
 #: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form_orders
 msgid "Quotations"
 msgstr "Báo Giá"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_accepted_count
+msgid "Quotations Accepted"
+msgstr "Báo Giá Được Chấp Nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_declined_count
+msgid "Quotations Declined"
+msgstr "Báo Giá Bị Từ Chối"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_sent_count
+msgid "Quotations Sent"
+msgstr "Báo Giá Đã Gửi"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quoted_at
+msgid "Quoted At"
+msgstr "Thời Điểm Báo Giá"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_tax_rate__rate
@@ -1373,6 +1601,7 @@ msgstr "Xem thuế"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cancellation_request__reason
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_reject__reason
 msgid "Reason"
 msgstr "Lý do"
 
@@ -1389,6 +1618,7 @@ msgstr "Quy Chuẩn"
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_order_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_payment_form
 msgid "Reject"
 msgstr "Từ chối"
 
@@ -1411,6 +1641,7 @@ msgstr "Bị từ chối"
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__reorder_ids
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Reorder"
 msgstr "Đặt lại"
 
@@ -1466,6 +1697,16 @@ msgid "Requested By"
 msgstr "Người Yêu Cầu"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__revenue
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_revenue_report
+#: model:ir.model,name:sol_commerce.model_medilab_revenue_report
+#: model:ir.ui.menu,name:sol_commerce.menu_revenue_report
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_graph
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_pivot
+msgid "Revenue"
+msgstr "Doanh Thu"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
 msgid "Revise quotation"
 msgstr "Sửa đổi báo giá"
@@ -1496,6 +1737,11 @@ msgstr "Đơn bán hàng"
 #: model:ir.model,name:sol_commerce.model_sale_order_line
 msgid "Sales Order Line"
 msgstr "Dòng đơn bán hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+msgid "Salesperson"
+msgstr "Nhân viên kinh doanh"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order_line__sample_id
@@ -1547,8 +1793,15 @@ msgstr "Đã gửi"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__sent_at
+#: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__sent_at
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__sent_at
 msgid "Sent At"
 msgstr "Gửi Lúc"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__sent
+msgid "Sent and unpaid"
+msgstr "Đã gửi, chưa thanh toán"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_sample__sequence
@@ -1557,6 +1810,8 @@ msgstr "Thứ Tự"
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_service_package
+#: model:ir.model.fields,field_description:sol_commerce.field_product_product__service_package_id
+#: model:ir.model.fields,field_description:sol_commerce.field_product_template__service_package_id
 msgid "Service Package"
 msgstr "Nhóm Dịch Vụ"
 
@@ -1601,6 +1856,9 @@ msgstr "Bắt đầu thu mẫu"
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_quotation__status
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__status
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__status
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_support_request__status
 #: model_terms:ir.ui.view,arch_db:sol_commerce.support_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_support_request_search
@@ -1632,6 +1890,7 @@ msgstr "Gửi"
 
 #. module: sol_commerce
 #: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__order_status__submitted
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__customer_status__submitted
 msgid "Submitted"
 msgstr "Đã gửi"
 
@@ -1664,6 +1923,11 @@ msgstr "Thuế"
 #: model:ir.model,name:sol_commerce.model_medilab_test_parameter
 msgid "Test Parameter"
 msgstr "Chỉ Tiêu"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_test_report
+msgid "Test Report"
+msgstr "Phiếu Kết Quả"
 
 #. module: sol_commerce
 #: model:ir.model,name:sol_commerce.model_medilab_test_request
@@ -1793,6 +2057,14 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/test_report.py:0
+msgid ""
+"The results of order %(order)s are ready. Download report %(report)s from "
+"your portal."
+msgstr "Đã có kết quả của đơn hàng %(order)s. Hãy tải phiếu kết quả %(report)s trên cổng khách hàng."
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "These items are no longer in the catalog and were left out: %s"
 msgstr "Các mục sau không còn trong danh mục nên không được đưa vào: %s"
@@ -1874,6 +2146,7 @@ msgstr "Yêu cầu này đã được quyết định."
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
+#: model_terms:ir.ui.view,arch_db:sol_commerce.order_table
 msgid "Total excluding VAT"
 msgstr "Tổng chưa gồm thuế GTGT"
 
@@ -1884,6 +2157,7 @@ msgstr "Tổng đã gồm VAT"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__pipeline_stage__unclaimed
 msgid "Unclaimed"
 msgstr "Chưa nhận"
 
@@ -1989,419 +2263,547 @@ msgid "is in the sales queue."
 msgstr "đang trong hàng đợi bán hàng."
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_invoice_document_laboratory
 msgid "<strong>Amount owed</strong>"
 msgstr "<strong>Số tiền còn nợ</strong>"
 
 #. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_payment_transaction_payos_transfer_unique
 msgid "A PayOS bank transfer is recorded once."
 msgstr "Mỗi giao dịch chuyển khoản PayOS chỉ được ghi một lần."
 
 #. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_medilab_reconciliation_day_day_unique
 msgid "A day is reconciled once."
 msgstr "Mỗi ngày chỉ được đối soát một lần."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/reconciliation_day.py:0
 msgid "A locked day stays locked."
 msgstr "Ngày đã khóa thì giữ nguyên trạng thái khóa."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "A payment cannot be more than the amount still owed."
 msgstr "Một khoản thanh toán không được lớn hơn số tiền còn nợ."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_move.py:0
 msgid "A posted invoice cannot be edited. Correct it with an adjustment invoice."
 msgstr "Hóa đơn đã phát hành không thể sửa. Hãy điều chỉnh bằng hóa đơn điều chỉnh."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "A rejected payment needs a reason."
 msgstr "Khoản thanh toán bị từ chối cần có lý do."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/reconciliation_day.py:0
 msgid "Acknowledge the amount differences before locking this day."
 msgstr "Xác nhận các khoản chênh lệch trước khi khóa ngày này."
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_invoice_form
 msgid "Adjust"
 msgstr "Điều chỉnh"
 
 #. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_invoice_adjustment
 msgid "Adjust invoice"
 msgstr "Điều chỉnh hóa đơn"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__adjusted_invoice_id
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__adjusted_invoice_id
 msgid "Adjusted Invoice"
 msgstr "Hóa Đơn Được Điều Chỉnh"
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__account_move__invoice_kind__adjustment
 msgid "Adjustment"
 msgstr "Điều chỉnh"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_move.py:0
 msgid "Adjustment of %s"
 msgstr "Điều chỉnh của %s"
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__account_move__invoice_kind__advance
 msgid "Advance"
 msgstr "Tạm ứng"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "Advance, final and adjustment invoices take their number from the sales journal sequence, which restarts each year."
 msgstr "Hóa đơn tạm ứng, hóa đơn cuối và hóa đơn điều chỉnh lấy số từ chuỗi nhật ký bán hàng, và chuỗi này bắt đầu lại mỗi năm."
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__amount_owed
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__amount_owed
 msgid "Amount Owed"
 msgstr "Số Tiền Còn Nợ"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_move.py:0
 msgid "An adjustment needs a difference."
 msgstr "Hóa đơn điều chỉnh cần có phần chênh lệch."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
 msgid "An advance is a fixed amount or a percentage, not both."
 msgstr "Tạm ứng là một số tiền cố định hoặc một tỷ lệ phần trăm, không phải cả hai."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "An online payment of a locked day cannot be changed."
 msgstr "Không thể thay đổi khoản thanh toán trực tuyến của một ngày đã khóa."
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
 msgid "Back to the invoice"
 msgstr "Quay lại hóa đơn"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__method
 msgid "Collection Method"
 msgstr "Hình Thức Thu"
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_invoice_adjustment_create_all
 msgid "Create invoice adjustments"
 msgstr "Tạo hóa đơn điều chỉnh"
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_reconciliation_day_create_all
 msgid "Create reconciliation days"
 msgstr "Tạo ngày đối soát"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "Customer invoices"
 msgstr "Hóa đơn khách hàng"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "Customers can pay with PayOS only while this is on. The keys stay in the environment."
 msgstr "Khách hàng chỉ thanh toán bằng PayOS khi mục này được bật. Khóa nằm trong môi trường."
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__day
 msgid "Day"
 msgstr "Ngày"
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_invoice_adjustment_delete_all
 msgid "Delete invoice adjustments"
 msgstr "Xóa hóa đơn điều chỉnh"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__difference
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__difference_total
 msgid "Difference"
 msgstr "Chênh lệch"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__discrepancies_acknowledged
 msgid "Discrepancies Acknowledged"
 msgstr "Đã Xác Nhận Chênh Lệch"
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_invoice_adjustment_edit_all
 msgid "Edit invoice adjustments"
 msgstr "Sửa hóa đơn điều chỉnh"
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_reconciliation_day_edit_all
 msgid "Edit reconciliation days"
 msgstr "Sửa ngày đối soát"
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__payment_transaction__payos_settlement__exact
 msgid "Exact"
 msgstr "Khớp"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__exceeds_residual
 msgid "Exceeds Residual"
 msgstr "Vượt Số Còn Nợ"
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__account_move__invoice_kind__final
 msgid "Final"
 msgstr "Cuối"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_invoice_adjustment
 msgid "Invoice Adjustment"
 msgstr "Hóa Đơn Điều Chỉnh"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__invoice_kind
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__invoice_kind
 msgid "Invoice Kind"
 msgstr "Loại Hóa Đơn"
 
 #. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_invoice
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__invoices
+#: model:ir.ui.menu,name:sol_commerce.menu_invoice
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "Invoices"
 msgstr "Hóa đơn"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_reconciliation_day_form
 msgid "Lock"
 msgstr "Khóa"
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_reconciliation_day__status__locked
 msgid "Locked"
 msgstr "Đã khóa"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__locked_at
 msgid "Locked At"
 msgstr "Khóa Lúc"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__locked_by_id
 msgid "Locked By"
 msgstr "Người Khóa"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__mismatch_count
 msgid "Mismatch Count"
 msgstr "Số Khoản Lệch"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__missing_payment_count
 msgid "Missing Payment Count"
 msgstr "Số Khoản Thanh Toán Còn Thiếu"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_invoice_adjustment__move_id
 msgid "Move"
 msgstr "Bút toán"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "Only a draft payment can be rejected."
 msgstr "Chỉ khoản thanh toán nháp mới có thể bị từ chối."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_move.py:0
 msgid "Only a posted advance or final invoice can be adjusted."
 msgstr "Chỉ hóa đơn tạm ứng hoặc hóa đơn cuối đã phát hành mới được điều chỉnh."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "Only a posted invoice can be paid."
 msgstr "Chỉ hóa đơn đã phát hành mới được thanh toán."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "Only the accountant can confirm or reject a payment."
 msgstr "Chỉ kế toán mới xác nhận hoặc từ chối một khoản thanh toán."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_move.py:0
 msgid "Only the accountant can post, adjust or print an invoice."
 msgstr "Chỉ kế toán mới phát hành, điều chỉnh hoặc in hóa đơn."
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__payment_transaction__payos_settlement__over
 msgid "Over"
 msgstr "Vượt"
 
 #. module: sol_commerce
+#: model:ir.actions.server,name:sol_commerce.ir_cron_overdue_reminders_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_commerce.scheduled_job_overdue_reminders
 msgid "Overdue reminders"
 msgstr "Nhắc quá hạn"
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__payment_transaction__payos_settlement__partial
 msgid "Partial"
 msgstr "Một phần"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__payos_enabled
+#: model:ir.model.fields.selection,name:sol_commerce.selection__payment_provider__code__payos
+#: model:payment.provider,name:sol_commerce.payment_provider_payos
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "PayOS"
 msgstr "PayOS"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__payos_qr_enabled
+#: model:payment.method,name:sol_commerce.payment_method_payos_qr
 msgid "PayOS QR"
 msgstr "PayOS QR"
 
 #. module: sol_commerce
+#: model:ir.actions.server,name:sol_commerce.ir_cron_payos_calls_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_commerce.scheduled_job_payos_calls
 msgid "PayOS calls"
 msgstr "Gọi PayOS"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_payos_pending
 msgid "PayOS is preparing the payment link. Opening this page does not confirm the payment."
 msgstr "PayOS đang tạo liên kết thanh toán. Mở trang này không xác nhận thanh toán."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/payment_transaction.py:0
 msgid "PayOS is turned off."
 msgstr "PayOS đang tắt."
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_res_config_settings__payos_expiry_hours
 msgid "PayOS link expiry (hours)"
 msgstr "Thời hạn liên kết PayOS (giờ)"
 
 #. module: sol_commerce
+#: model:ir.actions.server,name:sol_commerce.ir_cron_payos_poll_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_commerce.scheduled_job_payos_poll
 msgid "PayOS poll"
 msgstr "Kiểm tra PayOS"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_account_payment
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__timing
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Payment"
 msgstr "Thanh toán"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_payment_provider
 msgid "Payment Provider"
 msgstr "Nhà Cung Cấp Thanh Toán"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_payment_transaction
 msgid "Payment Transaction"
 msgstr "Giao Dịch Thanh Toán"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 #: model:mail.message.subtype,name:sol_commerce.event_payment_rejected
 msgid "Payment rejected"
 msgstr "Thanh toán bị từ chối"
 
 #. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_payment
+#: model:ir.ui.menu,name:sol_commerce.menu_payment
 msgid "Payments"
 msgstr "Thanh toán"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__payos_bank_reference
 msgid "Payos Bank Reference"
 msgstr "Mã Giao Dịch Ngân Hàng PayOS"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__payos_checkout_url
 msgid "Payos Checkout Url"
 msgstr "Liên Kết Thanh Toán PayOS"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__payos_settlement
 msgid "Payos Settlement"
 msgstr "Kết Quả Khớp PayOS"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__payos_transferred_at
 msgid "Payos Transferred At"
 msgstr "Thời Điểm Chuyển Khoản PayOS"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_invoice_adjustment_form
 msgid "Post adjustment"
 msgstr "Phát hành điều chỉnh"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_reconciliation_day_form
 msgid "Post missing payments"
 msgstr "Phát hành các khoản còn thiếu"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/reconciliation_day.py:0
 msgid "Post the missing payments before locking this day."
 msgstr "Phát hành các khoản thanh toán còn thiếu trước khi khóa ngày này."
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__raising_adjustment_ids
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__raising_adjustment_ids
 msgid "Raising Adjustments"
 msgstr "Hóa Đơn Điều Chỉnh Tăng"
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_invoice_adjustment_read_all
 msgid "Read invoice adjustments"
 msgstr "Xem hóa đơn điều chỉnh"
 
 #. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_reconciliation_day_read_all
 msgid "Read reconciliation days"
 msgstr "Xem ngày đối soát"
 
 #. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_reconciliation_day
+#: model:ir.ui.menu,name:sol_commerce.menu_reconciliation
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Reconciliation"
 msgstr "Đối soát"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_reconciliation_day
 msgid "Reconciliation Day"
 msgstr "Ngày Đối Soát"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_payment_transaction__recorded_after_lock
 msgid "Recorded After Lock"
 msgstr "Ghi Sau Khi Khóa"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "Rejecting a payment must leave the invoice as it was."
 msgstr "Từ chối một khoản thanh toán phải giữ nguyên hóa đơn như trước."
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__rejection_reason
 msgid "Rejection Reason"
 msgstr "Lý Do Từ Chối"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__reviewed_at
 msgid "Reviewed At"
 msgstr "Xét Duyệt Lúc"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_payment__reviewed_by_id
 msgid "Reviewed By"
 msgstr "Người Xét Duyệt"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "Sales records cash and bank transfers. Online payments come from PayOS."
 msgstr "Kinh doanh ghi nhận tiền mặt và chuyển khoản. Thanh toán trực tuyến đến từ PayOS."
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "The QR method shown on the portal."
 msgstr "Phương thức QR hiển thị trên cổng thông tin."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "The company has no journal for this payment."
 msgstr "Công ty không có nhật ký cho khoản thanh toán này."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/controllers/portal.py:0
 msgid "The payment link is not valid."
 msgstr "Liên kết thanh toán không hợp lệ."
 
 #. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_payment_provider__code
 msgid "The technical code of this payment provider."
 msgstr "Mã kỹ thuật của nhà cung cấp thanh toán này."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/reconciliation_day.py:0
 msgid "This day is already locked."
 msgstr "Ngày này đã được khóa."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "This invoice belongs to another customer."
 msgstr "Hóa đơn này thuộc về khách hàng khác."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
+#: code:addons/sol_commerce/models/invoicing/payment_transaction.py:0
 msgid "This invoice is already paid."
 msgstr "Hóa đơn này đã được thanh toán."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/sale_order.py:0
 msgid "This order has nothing left to invoice."
 msgstr "Đơn hàng này không còn gì để xuất hóa đơn."
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__transaction_ids
 msgid "Transaction"
 msgstr "Giao dịch"
 
 #. module: sol_commerce
+#: model_terms:payment.provider,auth_msg:sol_commerce.payment_provider_payos
 msgid "Your payment has been authorized."
 msgstr "Thanh toán của bạn đã được ủy quyền."
 
 #. module: sol_commerce
+#: model_terms:payment.provider,cancel_msg:sol_commerce.payment_provider_payos
 msgid "Your payment has been cancelled."
 msgstr "Thanh toán của bạn đã bị hủy."
 
 #. module: sol_commerce
+#: model_terms:payment.provider,pending_msg:sol_commerce.payment_provider_payos
 msgid "Your payment has been processed but is waiting for approval."
 msgstr "Thanh toán của bạn đã được xử lý nhưng đang chờ phê duyệt."
 
 #. module: sol_commerce
+#: model_terms:payment.provider,done_msg:sol_commerce.payment_provider_payos
 msgid "Your payment has been processed."
 msgstr "Thanh toán của bạn đã được xử lý."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_move.py:0
 msgid "invoice"
 msgstr "hóa đơn"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_invoice_pay
 msgid "<span>Amount owed: </span>"
 msgstr "<span>Số còn nợ: </span>"
 
 #. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_payment_receipt
 msgid "A payment was confirmed"
 msgstr "Một khoản thanh toán đã được xác nhận"
 
 #. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_payment_rejected
 msgid "A payment was rejected"
 msgstr "Một khoản thanh toán đã bị từ chối"
 
 #. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_invoice_sent
 msgid "A posted invoice was emailed"
 msgstr "Hóa đơn đã phát hành được gửi qua email"
 
 #. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_invoice_overdue
 msgid "An invoice is past its due date"
 msgstr "Hóa đơn đã quá hạn"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_form
+#: model_terms:ir.ui.view,arch_db:sol_commerce.contact_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_invoice_form
 msgid "Email"
 msgstr "Email"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_move.py:0
 msgid "Invoice %(name)s is attached."
 msgstr "Hóa đơn %(name)s được đính kèm."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/scheduled_job.py:0
 msgid "Invoice %(name)s is overdue."
 msgstr "Hóa đơn %(name)s đã quá hạn."
 
@@ -2416,26 +2818,33 @@ msgid "Invoice sent"
 msgstr "Hóa đơn đã gửi"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__is_overdue
+#: model:ir.model.fields,field_description:sol_commerce.field_account_move__is_overdue
 msgid "Is Overdue"
 msgstr "Quá hạn"
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__not_paid
 msgid "Not paid"
 msgstr "Chưa thanh toán"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_move.py:0
 msgid "Only a posted invoice can be emailed."
 msgstr "Chỉ hóa đơn đã phát hành mới được gửi email."
 
 #. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__sale_order__payment_status__partial
 msgid "Partially paid"
 msgstr "Thanh toán một phần"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__payment_status
 msgid "Payment Status"
 msgstr "Trạng thái thanh toán"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "Payment of %(amount)s was recorded."
 msgstr "Đã ghi nhận khoản thanh toán %(amount)s."
 
@@ -2445,6 +2854,7 @@ msgid "Payment receipt"
 msgstr "Biên lai thanh toán"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "Payment was rejected: %(reason)s"
 msgstr "Khoản thanh toán bị từ chối: %(reason)s"
 
@@ -2452,10 +2862,15 @@ msgstr "Khoản thanh toán bị từ chối: %(reason)s"
 msgid "Scheduled Job"
 msgstr "Tác vụ định kỳ"
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_scheduled_job
 msgid "Subtotal"
 msgstr "Thành tiền trước thuế"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__amount_total
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_outstanding_report_list
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_list
 msgid "Total"
 msgstr "Tổng cộng"
 
@@ -2468,90 +2883,114 @@ msgid "Payment details"
 msgstr "Chi tiết thanh toán"
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/account_payment.py:0
 msgid "Enter an amount greater than zero."
 msgstr "Nhập số tiền lớn hơn không."
 
 #. module: sol_commerce
+#: code:addons/sol_commerce/models/invoicing/payment_transaction.py:0
 msgid "A payment for this invoice is already pending."
 msgstr "Hóa đơn này đã có một khoản thanh toán đang chờ."
 
 #. module: sol_commerce
+#: model:ir.actions.report,name:sol_commerce.action_report_reconciliation_day
 msgid "Reconciliation day"
 msgstr "Ngày đối soát"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Bank reference"
 msgstr "Mã giao dịch ngân hàng"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Transfer"
 msgstr "Chuyển khoản"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__name
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__name
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Invoice"
 msgstr "Hóa đơn"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Note"
 msgstr "Ghi chú"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Missing payment"
 msgstr "Thiếu thanh toán"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Overpayment"
 msgstr "Thanh toán thừa"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "Recorded after lock"
 msgstr "Ghi nhận sau khi khóa"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__transfer_total
 msgid "Transfer total"
 msgstr "Tổng chuyển khoản"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_reconciliation_day__payment_total
 msgid "Payment total"
 msgstr "Tổng thanh toán"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__pending_amount
 msgid "Pending amount"
 msgstr "Số tiền đang chờ"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_reconciliation_day_form
 msgid "Print"
 msgstr "In"
 
 #. module: sol_commerce
+#: model:ir.actions.report,print_report_name:sol_commerce.action_report_reconciliation_day
 msgid "'Reconciliation %s' % object.day"
 msgstr "'Đối soát %s' % object.day"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "<span>Difference</span>"
 msgstr "<span>Chênh lệch</span>"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_invoice_document_laboratory
 msgid "<span>Paid</span>"
 msgstr "<span>Đã thanh toán</span>"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "<span>Payment total</span>"
 msgstr "<span>Tổng thanh toán</span>"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_invoice_document_laboratory
 msgid "<span>Subtotal</span>"
 msgstr "<span>Thành tiền trước thuế</span>"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_invoice_document_laboratory
 msgid "<span>Total</span>"
 msgstr "<span>Tổng cộng</span>"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_reconciliation_day
 msgid "<span>Transfer total</span>"
 msgstr "<span>Tổng chuyển khoản</span>"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_invoice_document_laboratory
 msgid "<strong>Payment details</strong>"
 msgstr "<strong>Chi tiết thanh toán</strong>"
 
@@ -3226,6 +3665,209 @@ msgstr "Không thể thay đổi phản hồi sau khi đã gửi."
 #: code:addons/sol_commerce/models/support/sale_order.py:0
 msgid "Feedback is given from the order's page in the portal."
 msgstr "Phản hồi được gửi từ trang đơn hàng trên cổng thông tin."
+
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_receivable_report__age__1_30
+msgid "1-30 days"
+msgstr "1-30 ngày"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_receivable_report__age__31_60
+msgid "31-60 days"
+msgstr "31-60 ngày"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_receivable_report__age__61_90
+msgid "61-90 days"
+msgstr "61-90 ngày"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__age
+msgid "Age of the Debt"
+msgstr "Tuổi nợ"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_receivable_report_search
+msgid "Age of the debt"
+msgstr "Tuổi nợ"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_cash_flow_report
+#: model:ir.model,name:sol_commerce.model_medilab_cash_flow_report
+#: model:ir.ui.menu,name:sol_commerce.menu_cash_flow_report
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_graph
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_pivot
+msgid "Cash Flow"
+msgstr "Dòng Tiền"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__collected
+msgid "Collected"
+msgstr "Đã thu"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_collection_report
+#: model:ir.ui.menu,name:sol_commerce.menu_collection_report
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_collection_report_pivot
+msgid "Collection"
+msgstr "Hiệu Quả Thu Tiền"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__date
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__date
+msgid "Date"
+msgstr "Ngày"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__days_overdue
+msgid "Days Overdue"
+msgstr "Số ngày quá hạn"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__days_to_pay
+msgid "Days To Pay"
+msgstr "Số ngày đến khi thanh toán"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__date_due
+msgid "Due Date"
+msgstr "Hạn thanh toán"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_receivable_report_search
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_search
+msgid "Invoice date"
+msgstr "Ngày hóa đơn"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__invoiced
+msgid "Invoiced"
+msgstr "Đã xuất hóa đơn"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_receivable_report__timing__late
+msgid "Late"
+msgstr "Trễ hạn"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_revenue_report__group_id
+msgid "Main Group"
+msgstr "Nhóm chỉ tiêu chính"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_revenue_report_search
+msgid "Main group"
+msgstr "Nhóm chỉ tiêu chính"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_receivable_report__age__not_due
+msgid "Not due"
+msgstr "Chưa đến hạn"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_receivable_report__timing__on_time
+msgid "On time"
+msgstr "Đúng hạn"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_outstanding_report
+#: model:ir.ui.menu,name:sol_commerce.menu_outstanding_report
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_outstanding_report_pivot
+msgid "Outstanding"
+msgstr "Công Nợ"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_receivable_report__age__over_90
+msgid "Over 90 days"
+msgstr "Trên 90 ngày"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_receivable_report_search
+msgid "Overdue"
+msgstr "Quá hạn"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__amount_owed
+msgid "Owed"
+msgstr "Còn nợ"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__paid_date
+msgid "Paid Date"
+msgstr "Ngày thanh toán xong"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_receivable_report_search
+msgid "Paid late"
+msgstr "Thanh toán trễ hạn"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__paid_on_time
+msgid "Paid on Time (%)"
+msgstr "Thanh toán đúng hạn (%)"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__method
+msgid "Payment Method"
+msgstr "Phương thức thanh toán"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_search
+msgid "Payment date"
+msgstr "Ngày thanh toán"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_cash_flow_report_search
+msgid "Payment method"
+msgstr "Phương thức thanh toán"
+
+#. module: sol_commerce
+#: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_cash_flow_report__status__pending
+msgid "Pending"
+msgstr "Chờ xác nhận"
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_medilab_pending_payment_report
+#: model:ir.ui.menu,name:sol_commerce.menu_pending_payment_report
+msgid "Pending Payments"
+msgstr "Khoản Thu Chờ Xác Nhận"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_cash_flow_report_read_all
+msgid "Read the cash flow and pending payments reports"
+msgstr "Xem báo cáo dòng tiền và khoản thu chờ xác nhận"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_receivable_report_read_all
+msgid "Read the outstanding and collection reports"
+msgstr "Xem báo cáo công nợ và hiệu quả thu tiền"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_revenue_report_read_all
+msgid "Read the revenue report"
+msgstr "Xem báo cáo doanh thu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__name
+msgid "Receipt"
+msgstr "Phiếu Thu"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_receivable_report
+msgid "Receivables"
+msgstr "Công Nợ Phải Thu"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__user_id
+msgid "Recorded By"
+msgstr "Người ghi nhận"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_receivable_report__sent_date
+msgid "Sent Date"
+msgstr "Ngày gửi"
 
 #. module: sol_commerce
 #: model:mail.message.subtype,description:sol_commerce.event_quotation_sent

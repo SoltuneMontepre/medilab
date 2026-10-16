@@ -62,10 +62,12 @@ FROZEN_SAMPLE_FIELDS = frozenset(
 
 PORTAL_LOCKED_ORDER_FIELDS = frozenset(
     {
+        "accepted_at",
         "advance_method",
         "advance_mode",
         "advance_value",
         "approval_status",
+        "approved_at",
         "claimed_at",
         "customer_id",
         "expected_result_date",

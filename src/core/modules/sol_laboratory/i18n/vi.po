@@ -548,6 +548,7 @@ msgstr "Áp dụng ngay"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_reject
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_reject
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__approval_can_reject
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__approval_can_reject
 msgid "Approval Can Reject"
 msgstr "Có Thể Từ Chối"
 
@@ -555,6 +556,7 @@ msgstr "Có Thể Từ Chối"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_sign
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_sign
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__approval_can_sign
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__approval_can_sign
 msgid "Approval Can Sign"
 msgstr "Có Thể Ký"
 
@@ -562,6 +564,7 @@ msgstr "Có Thể Ký"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_mixin__approval_can_withdraw
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_withdraw
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__approval_can_withdraw
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__approval_can_withdraw
 msgid "Approval Can Withdraw"
 msgstr "Có Thể Rút Lại"
 
@@ -589,6 +592,7 @@ msgstr "Phê duyệt bằng chữ ký"
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample_test__status__approved
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__approved
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__approved
 msgid "Approved"
 msgstr "Đã duyệt"
 
@@ -1153,6 +1157,7 @@ msgstr "Người huấn luyện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__code
 msgid "Code"
 msgstr "Mã"
 
@@ -1530,6 +1535,9 @@ msgstr "Tạo cách thử của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -1582,6 +1590,9 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -1974,6 +1985,8 @@ msgstr "Cấp dưới trực tiếp"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
 msgid "Discard"
 msgstr "Hủy"
 
@@ -2066,6 +2079,9 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2085,11 +2101,14 @@ msgstr "Đã hủy mẫu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__document_id
 msgid "Document"
 msgstr "Chứng từ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__document_model
 msgid "Document Model"
 msgstr "Model Chứng Từ"
 
@@ -2100,6 +2119,8 @@ msgstr "Model Chứng Từ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_model
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
 msgid "Document Type"
 msgstr "Loại Chứng Từ"
 
@@ -2108,6 +2129,7 @@ msgstr "Loại Chứng Từ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_version
 msgid "Document Version"
 msgstr "Phiên Bản Chứng Từ"
 
@@ -2923,6 +2945,9 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__id
 msgid "ID"
 msgstr "ID"
 
@@ -3442,6 +3467,9 @@ msgstr "Lượt Chạy Theo Lịch Cuối"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -3494,6 +3522,9 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -4387,6 +4418,10 @@ msgid "Permission: cancellation.request.read.all"
 msgstr "Quyền: cancellation.request.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: cash.flow.report.read.all"
+msgstr "Quyền: cash.flow.report.read.all"
+
+#. module: sol_laboratory
 msgid "Permission: cost_centre.archive.all"
 msgstr "Quyền: cost_centre.archive.all"
 
@@ -4700,6 +4735,10 @@ msgid "Permission: quotation.read.all"
 msgstr "Quyền: quotation.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: receivable.report.read.all"
+msgstr "Quyền: receivable.report.read.all"
+
+#. module: sol_laboratory
 msgid "Permission: reconciliation.day.create.all"
 msgstr "Quyền: reconciliation.day.create.all"
 
@@ -4710,6 +4749,10 @@ msgstr "Quyền: reconciliation.day.edit.all"
 #. module: sol_laboratory
 msgid "Permission: reconciliation.day.read.all"
 msgstr "Quyền: reconciliation.day.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: revenue.report.read.all"
+msgstr "Quyền: revenue.report.read.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_role_create_all
@@ -5290,6 +5333,9 @@ msgstr "Xem yêu cầu thử nghiệm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_reassign__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result_reject__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report_reject__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__reason
 msgid "Reason"
 msgstr "Lý do"
 
@@ -5349,6 +5395,7 @@ msgstr "Quy Chuẩn"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_result__status__rejected
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__rejected
 msgid "Rejected"
 msgstr "Từ chối"
 
@@ -5936,6 +5983,8 @@ msgstr "Thống kê"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatches
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -9054,6 +9103,7 @@ msgstr "Một kết quả thử nghiệm bạn nhập đã bị từ chối"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 msgid "Approve"
 msgstr "Phê Duyệt"
 
@@ -9232,6 +9282,8 @@ msgstr "Xem kết quả thử nghiệm"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
 msgid "Reject"
 msgstr "Từ Chối"
 
@@ -9332,6 +9384,7 @@ msgstr "Phiên bản"
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 msgid "Withdraw Signature"
 msgstr "Rút chữ ký"
 
@@ -9932,6 +9985,7 @@ msgstr "Từ chối phiếu kết quả"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_report__status__replaced
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__is_replaced
 msgid "Replaced"
 msgstr "Đã được thay thế"
 
@@ -10412,6 +10466,226 @@ msgstr "Loại Chứng Từ Cha"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__parent_id
 msgid "Parent Document ID"
 msgstr "ID Chứng Từ Cha"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "%s already has an open change request."
+msgstr "%s đã có một yêu cầu thay đổi đang chờ duyệt."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "%s can no longer be changed; reject the request."
+msgstr "%s không còn thay đổi được; hãy từ chối yêu cầu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid ""
+"A change request is raised only on a document whose process is completed."
+msgstr "Chỉ tạo yêu cầu thay đổi trên chứng từ đã hoàn tất quy trình."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_change_request_approved
+msgid "A change request you raised was approved and its new version created"
+msgstr ""
+"Yêu cầu thay đổi bạn tạo đã được phê duyệt và phiên bản mới đã được tạo"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_change_request_rejected
+msgid "A change request you raised was rejected"
+msgstr "Yêu cầu thay đổi bạn tạo đã bị từ chối"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__applied
+msgid "Applied"
+msgstr "Đã áp dụng"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+msgid ""
+"Approve this change request? The last approval creates the new version."
+msgstr ""
+"Phê duyệt yêu cầu thay đổi này? Lần phê duyệt cuối cùng sẽ tạo phiên bản "
+"mới."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__requested_change
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__requested_change
+msgid "Change"
+msgstr "Nội dung thay đổi"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_change_request
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__change_request_id
+msgid "Change Request"
+msgstr "Yêu Cầu Thay Đổi"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_change_request
+#: model:ir.ui.menu,name:sol_laboratory.menu_change_request
+msgid "Change Requests"
+msgstr "Yêu Cầu Thay Đổi"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid ""
+"Change request %(code)s was approved: %(document)s has a new version to "
+"sign."
+msgstr ""
+"Yêu cầu thay đổi %(code)s đã được phê duyệt: %(document)s có phiên bản mới "
+"cần ký."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "Change request %(code)s was rejected: %(reason)s"
+msgstr "Yêu cầu thay đổi %(code)s bị từ chối: %(reason)s"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_change_request_approved
+msgid "Change request approved"
+msgstr "Yêu cầu thay đổi được phê duyệt"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_change_request_rejected
+msgid "Change request rejected"
+msgstr "Yêu cầu thay đổi bị từ chối"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "Change requests are raised on signed documents only."
+msgstr "Chỉ tạo yêu cầu thay đổi trên chứng từ được ký."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_id
+msgid "Document Id"
+msgstr "ID Chứng Từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__new_document_id
+msgid "New Version"
+msgstr "Phiên bản mới"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "Only a person can raise a change request."
+msgstr "Chỉ nhân sự mới có thể tạo yêu cầu thay đổi."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+msgid "Open Document"
+msgstr "Mở chứng từ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+msgid "Open New Version"
+msgstr "Mở phiên bản mới"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_change_request_read_all
+msgid "Permission: change.request.read.all"
+msgstr "Quyền: change.request.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_change_request_sign_all
+msgid "Permission: change.request.sign.all"
+msgstr "Quyền: change.request.sign.all"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
+msgid "Raise"
+msgstr "Gửi yêu cầu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_change_request_raise
+msgid "Raise a Change Request"
+msgstr "Tạo Yêu Cầu Thay Đổi"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+msgid "Raised by Me"
+msgstr "Do tôi tạo"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_change_request_read_all
+msgid "Read change requests"
+msgstr "Xem yêu cầu thay đổi"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_change_request_reject
+msgid "Reject a Change Request"
+msgstr "Từ Chối Yêu Cầu Thay Đổi"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_change_request_reject
+msgid "Reject the Change Request"
+msgstr "Từ chối yêu cầu thay đổi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__rejection_reason
+msgid "Rejection Reason"
+msgstr "Lý do từ chối"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_change_request_raise
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
+msgid "Request a Change"
+msgstr "Yêu cầu thay đổi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_change_request__status__requested
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+msgid "Requested"
+msgstr "Đã yêu cầu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_list
+msgid "Requested At"
+msgstr "Thời điểm yêu cầu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__requested_by_id
+msgid "Requested By"
+msgstr "Người yêu cầu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "Say what to change and why."
+msgstr "Hãy nêu nội dung cần sửa và lý do."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_change_request_sign_all
+msgid "Sign change requests"
+msgstr "Ký yêu cầu thay đổi"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_change_request_code_unique
+msgid "The code of a change request must be unique."
+msgstr "Mã yêu cầu thay đổi phải là duy nhất."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/change_request.py:0
+msgid "This document type has no change-request chain."
+msgstr "Loại chứng từ này chưa có chuỗi phê duyệt yêu cầu thay đổi."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
+msgid "What to change, such as the value or the conclusion"
+msgstr "Nội dung cần sửa, ví dụ giá trị hoặc kết luận"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
+msgid "Why the change is needed"
+msgstr "Lý do cần sửa"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_notification_contact_create_all
