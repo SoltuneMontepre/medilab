@@ -62,6 +62,8 @@
         <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
+                <field name="can_save_order_template" invisible="1" />
+                <button name="action_save_as_template" type="object" string="Save as template" class="btn-secondary" invisible="not can_save_order_template" groups="sol_laboratory.group_permission_order_template_create_all" />
                 <field name="order_status" widget="statusbar" statusbar_visible="draft,submitted,claimed,confirmed,completed" />
                 <button
                     name="action_claim"
@@ -140,6 +142,10 @@
                 <attribute name="domain">[('id', 'child_of', customer_id)] if customer_id else []</attribute>
             </xpath>
             <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning" role="alert" invisible="not template_omission_note" groups="base.group_user">
+                    <strong>Skipped catalog selections</strong>
+                    <field name="template_omission_note" nolabel="1" readonly="1" />
+                </div>
                 <div
                     class="alert alert-warning"
                     role="alert"

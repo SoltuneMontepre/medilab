@@ -378,6 +378,10 @@ model SaleOrder {
   reordered_from    SaleOrder?            @relation("Reorders", fields: [reordered_from_id], references: [id], onDelete: SetNull)
   /// Orders reordered from this one.
   reorders          SaleOrder[]           @relation("Reorders")
+  /// Templates saved from this order.
+  templates         OrderTemplate[]
+  /// Unavailable selections and reasons recorded when an order is created from a template.
+  template_omission_note String? @db.Text
   /// Samples the customer will send.
   samples           OrderSample[]
   /// Parameters and packages in the order, with their prices.
@@ -538,16 +542,21 @@ model OrderTemplate {
   id          Int                 @id @default(autoincrement())
   /// The customer the template belongs to.
   customer_id Int
+  /// The original order whose current assignment and read access authorize this template.
+  source_order_id Int
   /// Template name, such as "Monthly water check".
   name        String              @db.VarChar
   /// False when the template is archived.
   active      Boolean             @default(true)
   /// The customer the template belongs to.
   customer    Customer            @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  /// The original order; deleting it is refused while a template refers to it.
+  source_order SaleOrder @relation(fields: [source_order_id], references: [id], onDelete: Restrict)
   /// Parameters and packages in the template.
   lines       OrderTemplateLine[]
 
   @@index([customer_id])
+  @@index([source_order_id])
   @@map("medilab_order_template")
 }
 
@@ -560,7 +569,7 @@ model OrderTemplateLine {
   /// The parameter or package product.
   product_id  Int
   /// How many times it is ordered; at least 1.
-  quantity    Int           @default(1)
+  quantity    Float         @default(1)
   /// The template.
   template    OrderTemplate @relation(fields: [template_id], references: [id], onDelete: Cascade)
   /// The parameter or package product.
