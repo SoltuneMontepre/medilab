@@ -14,6 +14,7 @@
         "data/account_analytic_plan_data.xml",
         "views/catalog/product_product_views.xml",
         "views/catalog/supplier_views.xml",
+        "views/recipes/recipe_views.xml",
         "views/stores/stock_location_views.xml",
         "views/costs/account_analytic_account_views.xml",
         "views/system/menus.xml",

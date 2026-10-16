@@ -61,6 +61,7 @@
         "data/product/product_supplierinfo.xml",
         "data/stock/stock_warehouse_orderpoint.xml",
         "data/sol_inventory/method_consumption.xml",
+        "data/sol_inventory/recipe.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

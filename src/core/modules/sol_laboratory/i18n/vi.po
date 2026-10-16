@@ -4700,6 +4700,34 @@ msgid "Permission: quotation.read.all"
 msgstr "Quyền: quotation.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: recipe.archive.all"
+msgstr "Quyền: recipe.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: recipe.create.all"
+msgstr "Quyền: recipe.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: recipe.delete.all"
+msgstr "Quyền: recipe.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: recipe.edit.all"
+msgstr "Quyền: recipe.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: recipe.line.create.all"
+msgstr "Quyền: recipe.line.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: recipe.line.delete.all"
+msgstr "Quyền: recipe.line.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: recipe.line.edit.all"
+msgstr "Quyền: recipe.line.edit.all"
+
+#. module: sol_laboratory
 msgid "Permission: reconciliation.day.create.all"
 msgstr "Quyền: reconciliation.day.create.all"
 

@@ -27,6 +27,14 @@ msgstr "# Hóa đơn mua hàng"
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/recipes/product_product.py:0
+msgid ""
+"%(items)s cannot be archived while active recipes make or use them: "
+"%(recipes)s."
+msgstr "Không thể lưu trữ %(items)s khi các công thức pha chế đang hoạt động vẫn pha ra hoặc dùng chúng: %(recipes)s."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "%(items)s cannot be archived while stock is held in: %(locations)s."
 msgstr "Không thể lưu trữ %(items)s khi vẫn còn tồn kho tại: %(locations)s."
@@ -39,9 +47,37 @@ msgstr "Không thể lưu trữ %(items)s khi vẫn còn trong định mức ti�
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/recipes/recipe.py:0
+msgid ""
+"%(items)s cannot be ingredients of %(recipe)s: an ingredient is an item "
+"tracked by container or a prepared solution."
+msgstr "%(items)s không thể là thành phần của %(recipe)s: thành phần phải là vật tư theo dõi theo chai/lọ hoặc dung dịch pha chế."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/stores/stock_location.py:0
 msgid "%(locations)s cannot be deleted while these locations are inside: %(inside)s."
 msgstr "Không thể xóa %(locations)s khi vẫn còn các vị trí kho bên trong: %(inside)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/recipe.py:0
+msgid "%(recipe)s cannot make %(item)s, which is not a prepared solution."
+msgstr "%(recipe)s không thể pha ra %(item)s vì đây không phải dung dịch pha chế."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/recipe.py:0
+msgid "%(recipe)s cannot make or use archived items: %(items)s."
+msgstr "%(recipe)s không thể pha ra hoặc dùng vật tư đã lưu trữ: %(items)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/recipe.py:0
+msgid ""
+"%(recipe)s cannot use %(ingredient)s, which is prepared from %(solution)s, "
+"the solution the recipe makes."
+msgstr "%(recipe)s không thể dùng %(ingredient)s vì %(ingredient)s được pha từ %(solution)s, chính dung dịch mà công thức này pha ra."
 
 #. module: sol_inventory
 #. odoo-python
@@ -59,6 +95,12 @@ msgstr "%(store)s do tổ %(team)s giữ nên kho cấp trên phải do %(depart
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/recipes/recipe.py:0
+msgid "%s cannot use its own solution as an ingredient."
+msgstr "%s không thể dùng chính dung dịch của nó làm thành phần."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "%s is a chemical, so it is tracked by container."
 msgstr "%s là hóa chất nên phải theo dõi theo chai/lọ."
@@ -72,6 +114,12 @@ msgstr "%s là hóa chất nên phải gắn với một hóa chất của phòn
 #. module: sol_inventory
 #. odoo-python
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
+msgid "%s is a prepared solution, so it is tracked by container."
+msgstr "%s là dung dịch pha chế nên phải theo dõi theo chai/lọ."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "%s is not a chemical, so it stocks no Laboratory chemical."
 msgstr "%s không phải hóa chất nên không gắn với hóa chất nào của phòng thí nghiệm."
 
@@ -80,6 +128,17 @@ msgstr "%s không phải hóa chất nên không gắn với hóa chất nào c�
 #: code:addons/sol_inventory/models/stores/stock_location.py:0
 msgid "%s is the central store, so no department or team holds it."
 msgstr "%s là kho tổng nên không thuộc phòng hay tổ nào."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/recipe.py:0
+msgid "%s needs at least one ingredient."
+msgstr "%s cần ít nhất một thành phần."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_shelf_life_positive
+msgid "A recipe needs a shelf life of at least one day."
+msgstr "Công thức pha chế cần hạn dùng ít nhất một ngày."
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__account_move_count
@@ -112,6 +171,7 @@ msgid "Action Needed"
 msgstr "Cần xử lý"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__active
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__active
 msgid "Active"
 msgstr "Đang hoạt động"
@@ -179,6 +239,11 @@ msgid ""
 msgstr "Tất cả email và tài liệu gửi cho liên hệ này sẽ được dịch sang ngôn ngữ này."
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__quantity
+msgid "Amount"
+msgstr "Lượng dùng"
+
+#. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_account_analytic_account
 msgid "Analytic Account"
 msgstr "Tài khoản phân tích"
@@ -192,6 +257,11 @@ msgstr "Hóa chất này đã thuộc một vật tư khác."
 #: model:ir.model.constraint,message:sol_inventory.constraint_product_product_default_code_unique
 msgid "Another product already has this code."
 msgstr "Mã này đã được dùng cho một sản phẩm khác."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_solution_unique
+msgid "Another recipe already makes this solution."
+msgstr "Đã có công thức khác pha ra dung dịch này."
 
 #. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_cost_centre_archive_all
@@ -209,6 +279,11 @@ msgid "Archive locations"
 msgstr "Lưu trữ vị trí kho"
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_recipe_archive_all
+msgid "Archive recipes"
+msgstr "Lưu trữ công thức pha chế"
+
+#. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_stock_item_archive_all
 msgid "Archive stock items"
 msgstr "Lưu trữ vật tư"
@@ -223,6 +298,8 @@ msgstr "Lưu trữ nhà cung cấp"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_search
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_form
@@ -397,6 +474,7 @@ msgid "City ID"
 msgstr "Mã thành phố"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__code
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__code
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_list
@@ -521,6 +599,16 @@ msgid "Create minimum quantities"
 msgstr "Tạo tồn tối thiểu"
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_recipe_line_create_all
+msgid "Create recipe ingredients"
+msgstr "Tạo thành phần pha chế"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_recipe_create_all
+msgid "Create recipes"
+msgstr "Tạo công thức pha chế"
+
+#. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_stock_item_create_all
 msgid "Create stock items"
 msgstr "Tạo vật tư"
@@ -537,12 +625,16 @@ msgstr "Tạo nhà cung cấp"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
@@ -599,6 +691,8 @@ msgstr "Thời gian thu hồi tiền hàng tồn đọng (DSO)"
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_method_consumption__uom_id
+#: model:ir.model.fields,help:sol_inventory.field_medilab_recipe__uom_id
+#: model:ir.model.fields,help:sol_inventory.field_medilab_recipe_line__uom_id
 msgid "Default unit of measure used for all stock operations."
 msgstr "Đơn vị tính mặc định dùng cho mọi nghiệp vụ kho."
 
@@ -643,6 +737,16 @@ msgid "Delete minimum quantities"
 msgstr "Xóa tồn tối thiểu"
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_recipe_line_delete_all
+msgid "Delete recipe ingredients"
+msgstr "Xóa thành phần pha chế"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_recipe_delete_all
+msgid "Delete recipes"
+msgstr "Xóa công thức pha chế"
+
+#. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_supplier_item_delete_all
 msgid "Delete supplier items"
 msgstr "Xóa mặt hàng của nhà cung cấp"
@@ -671,6 +775,8 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__display_name
@@ -720,6 +826,16 @@ msgstr "Sửa vị trí kho"
 #: model:medilab.permission,name:sol_inventory.permission_minimum_quantity_edit_all
 msgid "Edit minimum quantities"
 msgstr "Sửa tồn tối thiểu"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_recipe_line_edit_all
+msgid "Edit recipe ingredients"
+msgstr "Sửa thành phần pha chế"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_recipe_edit_all
+msgid "Edit recipes"
+msgstr "Sửa công thức pha chế"
 
 #. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_stock_item_edit_all
@@ -782,6 +898,7 @@ msgid ""
 msgstr "Trường lưu số điện thoại đã chuẩn hóa, giúp tìm kiếm và so sánh nhanh hơn."
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_form
 msgid "Filled from the sequence when left empty"
@@ -861,6 +978,8 @@ msgstr "Tòa nhà"
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__id
@@ -969,6 +1088,18 @@ msgstr "Cho biết số điện thoại đã chuẩn hóa bị chặn có phải
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__industry_id
 msgid "Industry"
 msgstr "Ngành"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__item_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_search
+msgid "Ingredient"
+msgstr "Thành phần"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__line_ids
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_form
+msgid "Ingredients"
+msgstr "Thành phần"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__default_code
@@ -1085,12 +1216,16 @@ msgstr "Giá gần nhất"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
@@ -1390,6 +1525,7 @@ msgstr "Sản phẩm"
 
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_product_product
+#: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__product_id
 msgid "Product Variant"
 msgstr "Biến thể sản phẩm"
 
@@ -1452,6 +1588,24 @@ msgstr "Xem vị trí kho"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__receipt_reminder_email
 msgid "Receipt Reminder"
 msgstr "Nhắc nhở nhận hàng"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_recipe
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__recipe_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_search
+msgid "Recipe"
+msgstr "Công thức pha chế"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_recipe_line
+msgid "Recipe Ingredient"
+msgstr "Thành phần pha chế"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_recipe
+#: model:ir.ui.menu,name:sol_inventory.menu_recipe
+msgid "Recipes"
+msgstr "Công thức pha chế"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__ref
@@ -1534,6 +1688,11 @@ msgid "Share Partner"
 msgstr "Đối tác chia sẻ"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__shelf_life_days
+msgid "Shelf Life (Days)"
+msgstr "Hạn dùng (ngày)"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__shelf_life_after_opening_days
 msgid "Shelf Life After Opening (Days)"
 msgstr "Hạn dùng sau khi mở (ngày)"
@@ -1547,6 +1706,11 @@ msgstr "Hiển thị hạn mức tín dụng"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__signup_type
 msgid "Signup Token Type"
 msgstr "Loại mã đăng ký"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__solution_item_id
+msgid "Solution"
+msgstr "Dung dịch"
 
 #. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__product_product__item_kind__spare_part
@@ -1734,9 +1898,19 @@ msgid ""
 msgstr "Mã quốc gia ISO gồm hai ký tự. \nBạn có thể dùng trường này để tìm kiếm nhanh."
 
 #. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_line_quantity_positive
+msgid "The amount of an ingredient must be above zero."
+msgstr "Lượng dùng của thành phần phải lớn hơn 0."
+
+#. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_account_analytic_account_code_unique
 msgid "The code of a cost centre or analytic account must be unique."
 msgstr "Mã của trung tâm chi phí hoặc tài khoản phân tích không được trùng."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_code_unique
+msgid "The code of a recipe must be unique."
+msgstr "Mã công thức pha chế không được trùng."
 
 #. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_supplier_code_unique
@@ -1771,6 +1945,12 @@ msgid "The quantity one test uses must be above zero."
 msgstr "Lượng dùng cho một lần thử nghiệm phải lớn hơn 0."
 
 #. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_line_recipe_item_unique
+msgid "The recipe already uses this ingredient; change its amount instead."
+msgstr "Công thức đã có thành phần này; hãy sửa lượng dùng ở dòng hiện có."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_product_product_shelf_life_not_negative
 #: model:ir.model.constraint,message:sol_inventory.constraint_product_product_shelf_life_positive
 msgid "The shelf life after opening cannot be negative."
 msgstr "Hạn dùng sau khi mở không được âm."
@@ -1799,6 +1979,11 @@ msgid ""
 "The tracking of %(items)s cannot change while stock is held in: "
 "%(locations)s."
 msgstr "Không thể đổi cách theo dõi của %(items)s khi vẫn còn tồn kho tại: %(locations)s."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_yield_positive
+msgid "The yield of a preparation must be above zero."
+msgstr "Lượng pha mỗi lần phải lớn hơn 0."
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__main_user_id
@@ -1882,6 +2067,10 @@ msgstr "Loại hoạt động ngoại lệ trên bản ghi."
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__uom_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__uom_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__uom_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_list
 msgid "Unit"
@@ -1962,6 +2151,11 @@ msgstr "Chưa có trung tâm chi phí"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_search
 msgid "Without Manager"
 msgstr "Chưa có người quản lý"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__yield_quantity
+msgid "Yield per Preparation"
+msgstr "Lượng pha mỗi lần"
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__vat

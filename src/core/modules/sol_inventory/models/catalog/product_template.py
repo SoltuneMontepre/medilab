@@ -21,6 +21,8 @@ class ProductTemplate(models.Model):
         tracking_before = items._item_trackings()
         result = super().write(vals)
         items._check_tracking_kept(tracking_before)
+        # The item's own constraints, such as the tracking its kind or its recipes need.
+        items._validate_fields(set(TRACKING_FIELDS) & vals.keys())
         return result
 
     @api.ondelete(at_uninstall=False)
