@@ -9,7 +9,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | `ci-core`    | every pull request                                            | Lints, builds and tests the Odoo modules, then runs SonarQube Cloud.                    |
 | `ci-infra`   | every pull request                                            | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                      |
 | `ci-ai`      | every pull request                                            | Runs the AI tooling tests and Ruff when the AI tooling or a client config changes.      |
-| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile    | Publishes the release image and commits its tag to `infra/cluster/` for Argo CD.        |
+| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile    | Publishes the release image, rolls it out through Argo CD and rolls back if it fails.   |
 | `cd-infra`   | a push to `main` that changes `infra/`                        | Runs `terraform apply`.                                                                 |
 | `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core` | Deletes the branch, artifacts and build caches of closed pull requests, and old images. |
 
@@ -50,9 +50,30 @@ flowchart LR
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
 
+## cd-core
+
+```mermaid
+flowchart LR
+    publish --> release --> verify
+    verify -- fails --> rollback
+```
+
+- `publish` builds and pushes the release image, tagged with the commit SHA.
+- `release` commits the SHA tag to `infra/cluster/` on `main`. Argo CD syncs it: a pre-sync hook takes an on-demand CloudNativePG backup, then the module upgrade Job runs, then the Odoo replicas roll out.
+- `verify` waits up to 10 minutes for the Argo CD application to be synced and healthy with `argocd app wait`, then checks that `https://lims.soltunemontepre.tech/web/health` answers 200. A failed upgrade Job or a replica that never becomes ready fails it.
+- `rollback` runs only when `verify` fails:
+  1. Commits one `[fix] Roll back <release title>` commit to `main` that reverts the release commit and sets the image tag in `infra/cluster/` back to the tag before the release. Argo CD returns to the previous image, and `main` again matches what runs.
+  2. Creates the branch `fix/redeploy-<short SHA>` from the new `main` and cherry-picks the release commit onto it, so the change is kept.
+  3. Opens a draft pull request from that branch, titled `[fix] Redeploy <release title without its type>`, assigned to the release author. Its body links the failed run and holds the Argo CD status and the logs of the failed pods.
+  4. Fails the run, so the failure shows on the commit.
+- Commits and pull requests made with `GITHUB_TOKEN` start no workflows, so the rollback commit does not start `cd-core` again. The pipelines of the redeploy pull request run once its author pushes a fix to it.
+- A rollback does not restore the database. When the upgrade Job failed, Odoo rolled back its own transaction and the schema is unchanged. When the upgrade succeeded and the replicas then failed, the previous image runs on the newer schema; the pre-sync backup is there to restore by hand.
+- `release` and `rollback` push to `main` as `github-actions[bot]`, which the `main` ruleset lets bypass pull requests. Terraform allows GitHub Actions to create pull requests on the repository.
+- `verify` reads Argo CD with the `ARGOCD_AUTH_TOKEN` Actions secret, a token of an Argo CD account that can only read the `medilab` application.
+
 ## Images
 
-- `cd-core` publishes `ghcr.io/soltunemontepre/medilab`, tagged with the full commit SHA and `latest`, then commits the SHA tag to `infra/cluster/`, which Argo CD rolls out; see [Architecture](architecture.md#deployment). Roll back by reverting that commit.
+- `cd-core` publishes `ghcr.io/soltunemontepre/medilab`, tagged with the full commit SHA and `latest`, and releases it as described in [cd-core](#cd-core).
 - Pull request images are never pushed to a registry.
 - After every `cd-core` run, `cd-cleanup` keeps the five newest tagged images and deletes the older ones and every untagged image.
 

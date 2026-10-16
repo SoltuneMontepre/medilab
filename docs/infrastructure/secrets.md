@@ -10,15 +10,16 @@ Every local program that needs a secret is started through `doppler run --projec
 
 ## Doppler config
 
-| Project   | Config | Contains                                                                                                                                                                                      | Read by                                              |
-| --------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `medilab` | `dev`  | `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`, `CLOUDFLARE_API_TOKEN`, `CONTEXT7_TOKEN`, `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN` | every `task tf:*`, the pipelines and the MCP servers |
+| Project   | Config | Contains                                                                                                                                                                                                           | Read by                                              |
+| --------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| `medilab` | `dev`  | `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`, `ARGOCD_AUTH_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CONTEXT7_TOKEN`, `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN` | every `task tf:*`, the pipelines and the MCP servers |
 
 - Seed `dev` by hand; Terraform cannot create the config it reads.
 - Set `TF_VAR_doppler_config=<config>` to read another config.
 - `DOPPLER_TOKEN` is read from the environment by Terraform's Doppler provider: injected by `doppler run` on a developer machine, the Actions secret in the pipelines. It needs read access to the config being read.
 - `GITHUB_TOKEN` needs permission to write Actions secrets on the repository.
 - `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID` and `ARM_TENANT_ID` are a service principal of the Azure for Students subscription, read from the environment by Terraform's `azurerm` provider to manage the witness VM. The principal has the Contributor role on the witness resource group only.
+- `ARGOCD_AUTH_TOKEN` is the token of a read-only Argo CD account, used by `cd-core` to check a release.
 - `CLOUDFLARE_API_TOKEN` is read from the environment by Terraform's Cloudflare provider. It edits DNS and the tunnel of the `soltunemontepre.tech` zone and creates Origin CA certificates.
 - `CONTEXT7_TOKEN` is a Context7 API key, read by the `context7` MCP server.
 - `TERRAFORM_TOKEN` is an HCP Terraform team token with write access to the workspace.
@@ -26,11 +27,12 @@ Every local program that needs a secret is started through `doppler run --projec
 
 ## Published to GitHub
 
-| Actions secret  | Doppler source    |
-| --------------- | ----------------- |
-| `SONAR_TOKEN`   | `SONARQUBE_TOKEN` |
-| `DOPPLER_TOKEN` | `DOPPLER_TOKEN`   |
-| `TF_API_TOKEN`  | `TERRAFORM_TOKEN` |
+| Actions secret      | Doppler source      |
+| ------------------- | ------------------- |
+| `SONAR_TOKEN`       | `SONARQUBE_TOKEN`   |
+| `DOPPLER_TOKEN`     | `DOPPLER_TOKEN`     |
+| `TF_API_TOKEN`      | `TERRAFORM_TOKEN`   |
+| `ARGOCD_AUTH_TOKEN` | `ARGOCD_AUTH_TOKEN` |
 
 Terraform owns these secrets: a value edited in GitHub is overwritten on the next `task tf:apply`. To change one, edit it in Doppler and apply.
 

@@ -60,7 +60,7 @@ flowchart LR
 ## Deployment
 
 - Argo CD runs in the cluster and syncs the manifests in `infra/cluster/` on `main`.
-- `cd-core` publishes the release image and commits its SHA tag to `infra/cluster/`; Argo CD then rolls it out. Roll back by reverting that commit.
+- `cd-core` publishes the release image and commits its SHA tag to `infra/cluster/`; Argo CD then rolls it out. When the release does not become healthy, `cd-core` rolls back to the previous image and keeps the change on a branch with a draft pull request; see [Pipelines](pipelines.md#cd-core).
 - A change to the cluster is a change to `infra/cluster/`, never a `kubectl` edit; Argo CD reverts edits made by hand.
 
 ## Database
@@ -85,6 +85,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 
 - CloudNativePG archives WAL continuously and takes a scheduled base backup to the `backups` bucket through the Barman Cloud plugin.
 - The base backup schedule and the retention period are parameters in `infra/cluster/`, with defaults of daily at 02:00 and 30 days.
+- Every release takes an on-demand base backup before its module upgrade Job; see [Pipelines](pipelines.md#cd-core).
 - A restore creates a new cluster from the bucket, to any point in time the archive covers.
 
 ## Ingress
