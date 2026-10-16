@@ -4,14 +4,14 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow     | Runs on                                                                                        | Does                                                                                                 |
-| ------------ | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `ci-core`    | every pull request                                                                             | Lints, builds and tests the Odoo modules, then runs SonarQube Cloud.                                 |
-| `ci-infra`   | every pull request                                                                             | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                                   |
-| `ci-ai`      | every pull request                                                                             | Runs the AI tooling tests and Ruff when the AI tooling or a client config changes.                   |
-| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile, and the nightly maintenance window | Publishes the image on a push; releases it through Argo CD in the window and rolls back if it fails. |
-| `cd-infra`   | a push to `main` that changes `infra/`                                                         | Runs `terraform apply`.                                                                              |
-| `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core`                                  | Deletes the branch, artifacts and build caches of closed pull requests, and old images.              |
+| Workflow     | Runs on                                                                                 | Does                                                                                                               |
+| ------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `ci-core`    | every pull request                                                                      | Lints, builds and tests the Odoo modules, then runs SonarQube Cloud.                                               |
+| `ci-infra`   | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                                                 |
+| `ci-ai`      | every pull request                                                                      | Runs the AI tooling tests and Ruff when the AI tooling or a client config changes.                                 |
+| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
+| `cd-infra`   | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                            |
+| `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                            |
 
 Every workflow can also be started by hand.
 
@@ -55,20 +55,30 @@ flowchart LR
 ```mermaid
 flowchart LR
     push[Push to main] --> publish
-    window[Maintenance window or manual run] --> release --> verify
+    publish -- continuous mode --> release
+    window[Maintenance window or manual run] -- window mode --> release
+    release --> verify
     verify -- fails --> rollback
 ```
 
-`cd-core` publishes an image for every change, but releases only in the maintenance window.
+`cd-core` publishes an image for every change and releases it in one of two modes, chosen by the `RELEASE_MODE` Actions variable:
 
-- `publish` runs on every push to `main` that changes the core. It builds and pushes the image, tagged with the commit SHA, and releases nothing.
-- `release` runs on a schedule, every night at 23:00 Asia/Ho_Chi_Minh, set by the `schedule` trigger of the workflow. A manual run with the `release` input releases outside the window, such as for a hotfix.
-  - It takes the image of the newest commit on `main` that has one. When that is the image already released, it stops.
-  - It commits the SHA tag to `infra/cluster/` on `main`, titled `[chore] Release <short SHA>`.
-  - Argo CD syncs it: a pre-sync hook takes an on-demand CloudNativePG backup, then the module upgrade Job runs, then the Odoo replicas roll out one at a time.
+| Mode         | Releases                                                                                   |
+| ------------ | ------------------------------------------------------------------------------------------ |
+| `continuous` | Right after `publish`, on every push to `main` that changes the core. This is the default. |
+| `window`     | Only inside the maintenance window, with every change merged since the previous release.   |
+
+- `publish` runs on every push to `main` that changes the core. It builds and pushes the image, tagged with the commit SHA.
+- In `window` mode, a `schedule` trigger starts `cd-core` every hour, and `release` runs only when the time in Asia/Ho_Chi_Minh is inside the window set by two Actions variables:
+  - `RELEASE_DAYS`: the days of the week, such as `Mon-Sun` or `Sat,Sun`. Default `Mon-Sun`.
+  - `RELEASE_HOURS`: the start and end hour, such as `23-5`, which crosses midnight. Default `23-5`.
+- A manual run with the `release` input releases at once in either mode, such as for a hotfix.
+- `release` takes the image of the newest commit on `main` that has one. When that is the image already released, it stops. Otherwise it commits the SHA tag to `infra/cluster/` on `main`, titled `[chore] Release <short SHA>`.
+- Argo CD syncs the release: a pre-sync hook takes an on-demand CloudNativePG backup, then the module upgrade Job runs, then the Odoo replicas roll out one at a time.
+- The Actions variables are set by Terraform from the `release` variable in `infra/`; change them there and apply, not in GitHub.
 - `verify` waits up to 15 minutes with `argocd app wait --sync --health` for the application to reach the release commit and become healthy. Because the rollout is rolling, the old replicas keep serving while it runs, so `/web/health` answers 200 even when the release fails; `verify` relies on Argo CD instead. Argo CD reports the release as failed when the upgrade Job fails, or as degraded when a new replica is not ready within the Deployment's `progressDeadlineSeconds` of 10 minutes.
-- `rollback` runs only when `verify` fails. The release holds every change merged since the previous release:
-  1. Commits one `[fix] Roll back release <short SHA>` commit to `main` that sets the image tag in `infra/cluster/` back to the previous release and reverts the commits of the release, so `main` again matches what runs. Argo CD returns to the previous image. When the revert conflicts with a commit merged after the release, the commit only sets the tag back, and `release` stops until the draft pull request below is merged or closed.
+- `rollback` runs only when `verify` fails:
+  1. Commits one `[fix] Roll back release <short SHA>` commit to `main` that sets the image tag in `infra/cluster/` back to the previous release and reverts the commits of the release, one in `continuous` mode and every change since the previous release in `window` mode, so `main` again matches what runs. Argo CD returns to the previous image. When the revert conflicts with a commit merged after the release, the commit only sets the tag back, and `release` stops until the draft pull request below is merged or closed.
   2. Creates the branch `fix/redeploy-<short SHA>` from the new `main` and cherry-picks the commits of the release onto it, so the changes are kept.
   3. Opens a draft pull request from that branch, titled `[fix] Redeploy release <short SHA>`, assigned to the authors of the commits and labelled `failed-release`. Its body lists the commits, links the failed run, and holds the Argo CD status and the logs of the failed pods.
   4. Fails the run, so the failure shows on the release commit.

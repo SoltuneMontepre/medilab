@@ -60,7 +60,7 @@ flowchart LR
 ## Deployment
 
 - Argo CD runs in the cluster and syncs the manifests in `infra/cluster/` on `main`.
-- `cd-core` publishes an image for every change to `main`, and releases the newest one in the nightly maintenance window by committing its SHA tag to `infra/cluster/`; Argo CD then rolls it out. When the release does not become healthy, `cd-core` rolls back to the previous image and keeps the changes on a branch with a draft pull request; see [Pipelines](pipelines.md#cd-core).
+- `cd-core` publishes an image for every change to `main`, and releases it at once or in a maintenance window, as configured, by committing its SHA tag to `infra/cluster/`; Argo CD then rolls it out. When the release does not become healthy, `cd-core` rolls back to the previous image and keeps the changes on a branch with a draft pull request; see [Pipelines](pipelines.md#cd-core).
 - A change to the cluster is a change to `infra/cluster/`, never a `kubectl` edit; Argo CD reverts edits made by hand.
 
 ## Database
