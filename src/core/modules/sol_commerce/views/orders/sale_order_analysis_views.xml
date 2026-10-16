@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_sales_pipeline_graph" model="ir.ui.view">
+        <field name="name">sale.order.graph.pipeline</field>
+        <field name="model">sale.order</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <graph string="Pipeline" type="bar">
+                <field name="pipeline_stage" />
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_medilab_sales_pipeline_pivot" model="ir.ui.view">
+        <field name="name">sale.order.pivot.pipeline</field>
+        <field name="model">sale.order</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <pivot string="Pipeline">
+                <field name="pipeline_stage" type="row" />
+                <field name="user_id" type="col" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_medilab_sales_performance_pivot" model="ir.ui.view">
+        <field name="name">sale.order.pivot.performance</field>
+        <field name="model">sale.order</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <pivot string="Performance">
+                <field name="user_id" type="row" />
+                <field name="date_order" interval="month" type="row" />
+                <field name="quotation_sent_count" type="measure" />
+                <field name="quotation_accepted_count" type="measure" />
+                <field name="quotation_declined_count" type="measure" />
+                <field name="revenue" type="measure" />
+                <field name="days_to_quote" type="measure" />
+                <field name="days_to_payment" type="measure" />
+                <field name="days_to_approval" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_medilab_sales_performance_graph" model="ir.ui.view">
+        <field name="name">sale.order.graph.performance</field>
+        <field name="model">sale.order</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <graph string="Performance" type="bar">
+                <field name="user_id" />
+                <field name="revenue" type="measure" />
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_medilab_sales_pipeline" model="ir.actions.act_window">
+        <field name="name">Pipeline</field>
+        <field name="res_model">sale.order</field>
+        <field name="path">pipeline-reports</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="domain">[('pipeline_stage', '!=', False)]</field>
+        <field name="context">{'medilab_sales_order': True}</field>
+        <field name="search_view_id" ref="view_medilab_sale_order_search" />
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_medilab_sales_pipeline_graph')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_medilab_sales_pipeline_pivot')}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_sale_order_list')})]" />
+    </record>
+
+    <record id="action_medilab_sales_performance" model="ir.actions.act_window">
+        <field name="name">Performance</field>
+        <field name="res_model">sale.order</field>
+        <field name="path">performance-reports</field>
+        <field name="view_mode">pivot,graph,list,form</field>
+        <field name="domain">[('user_id', '!=', False)]</field>
+        <field name="context">{'medilab_sales_order': True}</field>
+        <field name="search_view_id" ref="view_medilab_sale_order_search" />
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_medilab_sales_performance_pivot')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_medilab_sales_performance_graph')}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_sale_order_list')})]" />
+    </record>
+</odoo>

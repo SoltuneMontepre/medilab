@@ -34,3 +34,6 @@ access_medilab_push_delivery_user,medilab.push.delivery user,medilab.push.delive
 access_medilab_push_delivery_system,medilab.push.delivery system,medilab.push.delivery,base.group_system,crud,
 access_medilab_sample_scan_user,medilab.sample.scan user,medilab.sample.scan,base.group_user,crud,
 access_medilab_machine_booking_person,medilab.machine.booking person,medilab.machine.booking,base.group_user,r,"[('person_id.user_id', '=', user.id)]"
+access_medilab_change_request_requester,medilab.change.request requester,medilab.change.request,base.group_user,r,"[('requested_by_id.user_id', '=', user.id)]"
+access_medilab_change_request_raise_user,medilab.change.request.raise user,medilab.change.request.raise,base.group_user,crud,
+access_medilab_change_request_reject_user,medilab.change.request.reject user,medilab.change.request.reject,base.group_user,crud,

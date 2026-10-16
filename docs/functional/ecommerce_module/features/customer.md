@@ -237,6 +237,8 @@ The customer receives one notification per event, through the channels chosen in
 | Payment received                         | Payment receipt                             |
 | Results released                         | Results ready                               |
 
+The results of an order are released on the order, to the order's contact, once for each issued report. A test request the laboratory took without an order tells the customer on its report instead.
+
 ### 6. Support and feedback (US-C20, US-C21)
 
 - **Support.** The customer opens a support request from the portal, optionally linked to an order, and follows the conversation with sales until it is closed.
