@@ -11,6 +11,12 @@ from odoo.addons.sol_commerce.constants.xml_ids import ALL_ORDERS_GROUP
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION
 
 
+def _template_line_xml_ids(env, template, name):
+    for line in template.line_ids:
+        suffix = "parameter" if line.product_id.parameter_id else "package"
+        _xml_id(env, f"demo_order_template_line_{name}_{suffix}", line)
+
+
 def seed_order_templates(env):
     permissions = env[MODEL_PERMISSION].search(
         [("document_model", "in", [MODEL_ORDER_TEMPLATE, MODEL_ORDER_TEMPLATE_LINE])]
@@ -54,9 +60,7 @@ def seed_order_templates(env):
     if not template:
         template = source.with_user(sales).sudo()._save_as_template("Monthly water check")
         _xml_id(env, "demo_order_template_monthly_water", template)
-        for line in template.line_ids:
-            suffix = "parameter" if line.product_id.parameter_id else "package"
-            _xml_id(env, f"demo_order_template_line_monthly_{suffix}", line)
+        _template_line_xml_ids(env, template, "monthly")
     if not env.ref("sol_demo.demo_sale_order_from_template", raise_if_not_found=False):
         order = template.with_user(sales).sudo()._create_order()
         _xml_id(env, "demo_sale_order_from_template", order)
@@ -64,6 +68,4 @@ def seed_order_templates(env):
         archived = source.with_user(sales).sudo()._save_as_template("Previous water check")
         archived.action_archive()
         _xml_id(env, "demo_order_template_archived", archived)
-        for line in archived.line_ids:
-            suffix = "parameter" if line.product_id.parameter_id else "package"
-            _xml_id(env, f"demo_order_template_line_archived_{suffix}", line)
+        _template_line_xml_ids(env, archived, "archived")

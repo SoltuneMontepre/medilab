@@ -53,18 +53,20 @@ class TestOrderTemplateIntegrity(TemplateCase):
 
     def test_invalid_initial_quantity_rolls_back_headers_lines_and_audit(self):
         source = self.template_source()
-        before = self.record_counts()
-        with self.assertRaises(ValidationError):
-            self.env["medilab.order.template"].with_user(self.sales).create(
-                self.template_values(
-                    source,
-                    line_ids=[
-                        Command.create({"product_id": self.lead_product.id, "quantity": 1.5}),
-                        Command.create({"product_id": self.package_product.id, "quantity": 0}),
-                    ],
-                )
-            )
-        self.assertEqual(self.record_counts(), before)
+        for quantity in (0, None, "invalid", float("nan"), float("inf"), -float("inf")):
+            with self.subTest(quantity=quantity):
+                before = self.record_counts()
+                with self.assertRaises(ValidationError):
+                    self.env["medilab.order.template"].with_user(self.sales).create(
+                        self.template_values(
+                            source,
+                            line_ids=[
+                                Command.create({"product_id": self.lead_product.id, "quantity": 1.5}),
+                                Command.create({"product_id": self.package_product.id, "quantity": quantity}),
+                            ],
+                        )
+                    )
+                self.assertEqual(self.record_counts(), before)
 
     def test_parent_commands_cannot_remove_every_selection_and_roll_back_other_edits(self):
         for operation in ("clear", "set", "delete", "unlink"):

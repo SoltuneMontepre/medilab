@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
 )
 
+NOT_IN_OPERATOR = "not in"
 CREATING_TEMPLATE_IDS = ContextVar("creating_order_template_ids", default=frozenset())
 EDITING_TEMPLATE_IDS = ContextVar("editing_order_template_ids", default=frozenset())
 
@@ -51,7 +52,7 @@ class OrderTemplate(models.Model):
 
     @api.model
     def _search_source_customer_matches(self, operator, value):
-        if operator not in ("in", "not in"):
+        if operator not in ("in", NOT_IN_OPERATOR):
             return NotImplemented
         # A live join also remains correct after the customer's merge updates foreign keys in SQL.
         self.flush_model(["source_order_id", "customer_id"])
@@ -66,8 +67,8 @@ class OrderTemplate(models.Model):
             SQL.identifier(orders._table),
             SQL.identifier(customers._table),
         )
-        positive = (True in value) != (operator == "not in")
-        return Domain("id", "in" if positive else "not in", matching)
+        positive = (True in value) != (operator == NOT_IN_OPERATOR)
+        return Domain("id", "in" if positive else NOT_IN_OPERATOR, matching)
 
     @api.model
     def _check_source(self, source):

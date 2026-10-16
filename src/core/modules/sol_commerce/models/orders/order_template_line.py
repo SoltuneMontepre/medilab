@@ -44,8 +44,12 @@ class OrderTemplateLine(models.Model):
         try:
             quantity = float(quantity)
         except (TypeError, ValueError, OverflowError):
-            raise ValidationError(self.env._("A template selection needs a quantity of at least 1.")) from None
-        if not math.isfinite(quantity) or float_compare(quantity, 1, precision_digits=precision) < 0:
+            quantity = None
+        if (
+            quantity is None
+            or not math.isfinite(quantity)
+            or float_compare(quantity, 1, precision_digits=precision) < 0
+        ):
             raise ValidationError(self.env._("A template selection needs a quantity of at least 1."))
 
     @api.model

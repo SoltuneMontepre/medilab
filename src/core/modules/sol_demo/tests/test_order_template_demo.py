@@ -22,8 +22,8 @@ class TestOrderTemplateDemo(TransactionCase):
 
         template = self.env.ref("sol_demo.demo_order_template_monthly_water")
         order = self.env.ref("sol_demo.demo_sale_order_from_template")
-        template.name = "Customer-edited template"
-        order._catalog_lines()[:1].product_uom_qty = 3
+        template.write({"name": "Customer-edited template"})
+        order._catalog_lines()[:1].write({"product_uom_qty": 3})
         seed_order_templates(self.env)
         seed_order_templates(self.env)
         self.assertEqual(self.env.ref("sol_demo.demo_order_template_monthly_water"), template)
