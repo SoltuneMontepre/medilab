@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_support" model="ir.ui.view">
+        <field name="name">sale.order.form.support</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="view_order_form_medilab" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Support" name="support">
+                    <field name="support_request_ids" readonly="1">
+                        <list decoration-warning="status == 'open'" decoration-info="status == 'answered'" decoration-muted="status == 'closed'">
+                            <field name="code" />
+                            <field name="subject" />
+                            <field name="status" />
+                            <field name="handled_by_id" />
+                            <field name="create_date" string="Opened" />
+                        </list>
+                    </field>
+                </page>
+                <page string="Feedback" name="feedback" invisible="not feedback_rating">
+                    <group>
+                        <field name="feedback_rating" />
+                        <field name="feedback_comment" />
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

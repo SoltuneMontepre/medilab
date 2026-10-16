@@ -17,6 +17,7 @@ def post_init_hook(env):
     from .demo_quotations import seed_quotations
     from .demo_reports import seed_reports
     from .demo_results import seed_results
+    from .demo_support import seed_support
     from .demo_tracking import seed_tracking
 
     seed_orders(env)
@@ -28,3 +29,4 @@ def post_init_hook(env):
     seed_dispatches(env)
     seed_finance(env)
     seed_audit(env)
+    seed_support(env)

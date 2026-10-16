@@ -10,6 +10,7 @@ How tests are written, where they live and how they run.
 | Browser       | Cypress                                          | `src/tests/cypress/e2e/`              | `task test:e2e`       |
 | Applications  | `bun test` and `cargo test`                      | next to the code, in each application | `task test:apps`      |
 | Type checking | `unittest` and pyright                           | `tools/typecheck/`                    | `task test:typecheck` |
+| AI tooling    | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`      | `task ai:test`        |
 
 `task test` runs the module and application tests. Browser tests run against the running app, so start it first with `task up`.
 
@@ -19,9 +20,11 @@ How tests are written, where they live and how they run.
 - One test class per file, named after the file: `test_parameter_constraints.py` holds `TestParameterConstraints`.
 - Tag each class `@tagged("post_install", "-at_install")`.
 - Use `TransactionCase` for models and `HttpCase` for routes.
-- `task test:core` installs the modules in a throwaway database, runs only their tests with `--test-tags /<module>`, and drops the database afterwards. `task test:core MODULES=a,b` limits it to those modules; by default it runs every module in `src/core/modules.txt`.
+- `task test:core` installs the modules in a throwaway database, copies it once per shard and runs the shards at once, each with the `--test-tags /<module>:<class>` of its classes. `tools/scripts/test_shards.py` splits the classes so each shard has about the same number of test methods. The output of each shard starts with `[shard <n>]`. The task drops the databases afterwards. `MEDILAB_TEST_DB` names the test database, `medilab_test` by default; give each run its own name when two run against the same Postgres. `task test:core MODULES=a,b` limits it to those modules; by default it runs every module in `src/core/modules.txt`.
+- `task test:core RUNNER=2 RUNNERS=3` splits the classes into four shards per machine and runs the second machine's four; `ci-core` runs three machines this way. `EXCLUDE=<module>` leaves a module out, `TEST_MODULES=a,b` runs the tests of only those modules while all are installed, and `INSTALL_COVERAGE=false` installs without coverage, which is about 60% faster. With `COVERAGE_DIR=<folder>` the task saves its raw coverage data there instead of writing the report, and `task test:core:coverage COVERAGE_DIR=<folder>` combines the data of all machines into the report.
+- Tests in different classes run in different processes and databases, so a test never depends on another class having run.
 - `task test:uninstall` installs Laboratory, E-commerce and Inventory in a throwaway database, uninstalls E-commerce and Inventory, and checks that the Laboratory data is intact.
-- `task test:core` also writes the coverage report `src/core/modules/coverage.xml`, which is not committed.
+- `task test:core` also combines the coverage of the install and of every shard into the report `src/core/modules/coverage.xml`, which is not committed.
 
 ## Type checking tests
 
@@ -34,7 +37,7 @@ How tests are written, where they live and how they run.
 
 ## Pipeline
 
-[Pipelines](../infrastructure/pipelines.md) describes how `ci-core` runs the module tests and reports coverage. Locally, `task test:core` uses the stock Odoo image unless `MEDILAB_ODOO_IMAGE` names another.
+[Pipelines](../infrastructure/pipelines.md) describes how `ci-core` runs the module tests and reports coverage. Locally, `task test:core` uses the image `task up` builds from `tools/dockerfiles/prod.dockerfile` unless `MEDILAB_ODOO_IMAGE` names another.
 
 ## Browser tests
 
@@ -47,6 +50,10 @@ How tests are written, where they live and how they run.
 
 - Frontend tests are `*.test.ts` and `*.test.tsx` files next to the code they test, run by `bun test`.
 - Rust tests run with `cargo test` when `cargo` is installed; `task test:apps` skips them with a message otherwise.
+
+## AI tooling
+
+`task ai:test` runs the tooling suite and lint checks; `ci-ai` runs it on pull requests that change the AI tooling. Live OdooLS tests run when `task ai:setup` has installed the binary and source; otherwise they report skips, as they do in CI. `task ai:verify` checks the Python and XML model and field definitions in `odoo_intelligence/navigation_cases.json` through MCP, plus completion, hover, references and symbols. [Odoo intelligence](../workflows/odoo-intelligence.md) explains the client and Cursor extension-host checks. These checks do not install application modules or alter a database.
 
 ## Related documents
 

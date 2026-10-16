@@ -61,29 +61,7 @@ tasks:
     desc: "Fetch the pinned Odoo 20 source (no Docker) and link the addons and modules into it, so the editor and pyright resolve odoo imports"
     silent: true
     cmds:
-      - |
-        set -e
-        . {{.LOG}}
-        DIR="{{.ODOO_SOURCE_DIR}}"
-        REV="{{.ODOO_SOURCE_REVISION}}"
-        log_step "Odoo source"
-        if [ ! -d "$DIR" ]; then
-          log_info "Downloading Odoo 20.0 at ${REV:0:7}. This takes a minute."
-          git clone --quiet --depth 1 --filter=blob:none --sparse --branch 20.0 https://github.com/odoo/odoo.git "$DIR"
-          git -C "$DIR" fetch --quiet --depth 1 origin "$REV"
-          git -C "$DIR" -c advice.detachedHead=false checkout --quiet --detach "$REV"
-        elif [ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ]; then
-          log_info "Updating the Odoo source to ${REV:0:7}."
-          git -C "$DIR" fetch --quiet --depth 1 origin "$REV"
-          git -C "$DIR" -c advice.detachedHead=false checkout --quiet --detach "$REV"
-        fi
-        log_info "Checking out odoo and addons: {{.ODOO_ADDONS | join ", "}}"
-        git -C "$DIR" sparse-checkout set odoo {{range .ODOO_ADDONS}}addons/{{.}} {{end}}
-        if [ "$(git -C "$DIR" rev-parse HEAD)" != "$REV" ] || [ ! -f "$DIR/odoo/fields/__init__.py" ]; then
-          log_error "$DIR is not at $REV; delete it and run again."
-          exit 1
-        fi
-        log_info "Linking the addons and the modules into $DIR/odoo/addons."
+      - . tools/scripts/odoo_source.sh {{.ODOO_SOURCE_DIR}} {{.ODOO_SOURCE_REVISION}} {{.ODOO_ADDONS | join " "}}
       - task: dev:odoo-links
       - . {{.LOG}} && log_ok "Odoo source ready in {{.ODOO_SOURCE_DIR}}."
 

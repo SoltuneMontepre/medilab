@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Odoo's sale module hides its Sales app until Odoo's Sales Management is installed; MediLab's orders live in it. -->
+    <!-- Odoo shows its Sales app only once sale_management is installed; the E-commerce menus live in it. -->
     <record id="sale.sale_menu_root" model="ir.ui.menu">
         <field name="active" eval="True" />
+        <field name="web_icon">sale,static/description/icon.png</field>
     </record>
+
     <menuitem id="menu_sale_order_queue" name="Unclaimed queue" parent="sale.sale_menu_root" action="action_medilab_sale_order_queue" sequence="15" />
     <menuitem id="menu_sale_order" name="Orders" parent="sale.sale_menu_root" action="action_medilab_sale_order" sequence="16" />
     <menuitem id="menu_cancellation_request" name="Cancellation requests" parent="sale.sale_menu_root" action="action_medilab_cancellation_request" sequence="17" />
+    <menuitem id="menu_support_request" name="Support requests" parent="sale.sale_menu_root" action="action_medilab_support_request" sequence="18" />
+    <menuitem
+        id="menu_order_feedback"
+        name="Feedback"
+        parent="sale.sale_menu_root"
+        action="action_medilab_order_feedback"
+        groups="sol_laboratory.group_permission_order_read_all,group_all_orders"
+        sequence="19"
+    />
 
     <!-- Odoo shows its Reporting menu to its sales managers only; salespeople reach the pipeline and performance through
          their order permission. Odoo's own analyses under it stay hidden from users who cannot read them. -->

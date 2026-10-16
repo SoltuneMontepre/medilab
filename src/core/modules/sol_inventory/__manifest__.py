@@ -7,5 +7,16 @@
     "author": "Soltune Montepre",
     "license": "LGPL-3",
     "depends": ["sol_laboratory", "stock_account", "product_expiry", "purchase_stock"],
+    "data": [
+        "security/ir.access.csv",
+        "data/permission_data.xml",
+        "data/ir_sequence_data.xml",
+        "data/account_analytic_plan_data.xml",
+        "views/catalog/product_product_views.xml",
+        "views/catalog/supplier_views.xml",
+        "views/stores/stock_location_views.xml",
+        "views/costs/account_analytic_account_views.xml",
+        "views/system/menus.xml",
+    ],
     "application": True,
 }

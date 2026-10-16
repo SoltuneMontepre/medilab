@@ -52,6 +52,7 @@
     <record id="action_medilab_reconciliation_day" model="ir.actions.act_window">
         <field name="name">Reconciliation</field>
         <field name="res_model">medilab.reconciliation.day</field>
+        <field name="path">reconciliation-days</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

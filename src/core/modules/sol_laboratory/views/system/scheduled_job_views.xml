@@ -115,6 +115,7 @@
     <record id="action_medilab_scheduled_job" model="ir.actions.act_window">
         <field name="name">Scheduled Jobs</field>
         <field name="res_model">medilab.scheduled.job</field>
+        <field name="path">scheduled-jobs</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

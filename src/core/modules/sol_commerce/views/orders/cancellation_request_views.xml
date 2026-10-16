@@ -74,6 +74,7 @@
     <record id="action_medilab_cancellation_request" model="ir.actions.act_window">
         <field name="name">Cancellation requests</field>
         <field name="res_model">medilab.cancellation.request</field>
+        <field name="path">cancellation-requests</field>
         <field name="view_mode">list,form</field>
         <field name="context">{'search_default_open': 1}</field>
     </record>

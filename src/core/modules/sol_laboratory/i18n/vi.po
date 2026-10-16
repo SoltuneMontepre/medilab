@@ -4422,6 +4422,46 @@ msgid "Permission: cash.flow.report.read.all"
 msgstr "Quyền: cash.flow.report.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: cost_centre.archive.all"
+msgstr "Quyền: cost_centre.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.archive.own_department"
+msgstr "Quyền: cost_centre.archive.own_department"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.create.all"
+msgstr "Quyền: cost_centre.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.create.own_department"
+msgstr "Quyền: cost_centre.create.own_department"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.delete.all"
+msgstr "Quyền: cost_centre.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.delete.own_department"
+msgstr "Quyền: cost_centre.delete.own_department"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.edit.all"
+msgstr "Quyền: cost_centre.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.edit.own_department"
+msgstr "Quyền: cost_centre.edit.own_department"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.read.all"
+msgstr "Quyền: cost_centre.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: cost_centre.read.own_department"
+msgstr "Quyền: cost_centre.read.own_department"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_customer_archive_all
 msgid "Permission: customer.archive.all"
 msgstr "Quyền: customer.archive.all"
@@ -4517,6 +4557,50 @@ msgstr "Quyền: job.item.read.all"
 #: model:res.groups,name:sol_laboratory.group_permission_job_run_read_all
 msgid "Permission: job.run.read.all"
 msgstr "Quyền: job.run.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.archive.all"
+msgstr "Quyền: location.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.create.all"
+msgstr "Quyền: location.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.delete.all"
+msgstr "Quyền: location.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.edit.all"
+msgstr "Quyền: location.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: location.read.all"
+msgstr "Quyền: location.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: method.consumption.create.all"
+msgstr "Quyền: method.consumption.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: method.consumption.delete.all"
+msgstr "Quyền: method.consumption.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: method.consumption.edit.all"
+msgstr "Quyền: method.consumption.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: minimum_quantity.create.all"
+msgstr "Quyền: minimum_quantity.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: minimum_quantity.delete.all"
+msgstr "Quyền: minimum_quantity.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: minimum_quantity.edit.all"
+msgstr "Quyền: minimum_quantity.edit.all"
 
 #. module: sol_laboratory
 msgid "Permission: order.create.all"
@@ -4772,6 +4856,18 @@ msgid "Permission: signature.read.all"
 msgstr "Quyền: signature.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: stock_item.archive.all"
+msgstr "Quyền: stock_item.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: stock_item.create.all"
+msgstr "Quyền: stock_item.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: stock_item.edit.all"
+msgstr "Quyền: stock_item.edit.all"
+
+#. module: sol_laboratory
 msgid "Permission: subcontract.cost.archive.all"
 msgstr "Quyền: subcontract.cost.archive.all"
 
@@ -4790,6 +4886,46 @@ msgstr "Quyền: subcontract.cost.edit.all"
 #. module: sol_laboratory
 msgid "Permission: subcontract.cost.read.all"
 msgstr "Quyền: subcontract.cost.read.all"
+
+#. module: sol_laboratory
+msgid "Permission: supplier.archive.all"
+msgstr "Quyền: supplier.archive.all"
+
+#. module: sol_laboratory
+msgid "Permission: supplier.create.all"
+msgstr "Quyền: supplier.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: supplier.edit.all"
+msgstr "Quyền: supplier.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: supplier_item.create.all"
+msgstr "Quyền: supplier_item.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: supplier_item.delete.all"
+msgstr "Quyền: supplier_item.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: supplier_item.edit.all"
+msgstr "Quyền: supplier_item.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.create.all"
+msgstr "Quyền: support.request.create.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.delete.all"
+msgstr "Quyền: support.request.delete.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.edit.all"
+msgstr "Quyền: support.request.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: support.request.read.all"
+msgstr "Quyền: support.request.read.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_task_create_all

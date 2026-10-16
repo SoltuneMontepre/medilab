@@ -46,6 +46,11 @@ msgid "Acetonitrile"
 msgstr ""
 
 #. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_acetonitrile_product_template
+msgid "Acetonitrile, HPLC grade"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_nitric_acid
 msgid "Acid cabinet, away from organic substances"
 msgstr ""
@@ -91,6 +96,7 @@ msgid "Cadmium (Cd)"
 msgstr ""
 
 #. module: sol_demo
+#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_chemistry
 #: model:hr.department,name:sol_demo.demo_hr_department_chemistry
 #: model:medilab.testing.field,name:sol_demo.demo_testing_field_chemistry
 msgid "Chemistry"
@@ -114,6 +120,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.sample.type,sampling_requirements:sol_demo.demo_sample_type_cabbage
 msgid "Collect whole heads in clean paper bags."
+msgstr ""
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_cotton_swabs_product_template
+msgid "Cotton swabs, 15 cm"
 msgstr ""
 
 #. module: sol_demo
@@ -241,6 +252,11 @@ msgid "Lead (Pb)"
 msgstr ""
 
 #. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_aas_lamp_product_template
+msgid "Lead hollow cathode lamp for AAS"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_lead_standard
 msgid "Lead standard solution 1000 mg/L"
 msgstr ""
@@ -276,6 +292,7 @@ msgid "Microbial count per volume"
 msgstr ""
 
 #. module: sol_demo
+#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_microbiology
 #: model:hr.department,name:sol_demo.demo_hr_department_microbiology
 #: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_microbiology
 #: model:medilab.testing.field,name:sol_demo.demo_testing_field_microbiology
@@ -306,7 +323,13 @@ msgstr ""
 
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_nitric_acid
+#: model:product.template,name:sol_demo.demo_product_product_nitric_acid_product_template
 msgid "Nitric acid 65%"
+msgstr ""
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_nitrile_gloves_product_template
+msgid "Nitrile gloves, size M"
 msgstr ""
 
 #. module: sol_demo
@@ -343,6 +366,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_physicochemical
 msgid "Physicochemical"
+msgstr ""
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_agar_plates_product_template
+msgid "Plate count agar plates"
 msgstr ""
 
 #. module: sol_demo
@@ -388,6 +416,7 @@ msgstr ""
 
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_sodium_chloride
+#: model:product.template,name:sol_demo.demo_product_product_sodium_chloride_product_template
 msgid "Sodium chloride"
 msgstr ""
 
@@ -472,6 +501,7 @@ msgid "Pathogens"
 msgstr ""
 
 #. module: sol_demo
+#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_pesticide_residues
 #: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
 msgid "Pesticide residues"
 msgstr ""

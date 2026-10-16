@@ -10,9 +10,11 @@ How Python code in the Odoo modules is written. Ruff enforces formatting and mos
 | Ruff        | Formatting and linting                       | `src/core/pyproject.toml`                |
 | pylint-odoo | Odoo-specific checks                         | `src/core/.pylintrc`                     |
 | Pyright     | Type checking, `basic` mode                  | `pyrightconfig.json`, `tools/typecheck/` |
+| OdooLS      | Odoo model and field navigation              | `odools.toml`                            |
 
 - Runtime packages go in `[project.dependencies]`, developer tools in the `dev` dependency group; `uv.lock` pins every version and is committed.
 - `task dev:setup` creates `src/core/.venv`; `task lint`, `task format` and `task typecheck` run the tools through `uv run`.
+- The AI tooling in `tools/odoo-intelligence` has its own Python 3.13 environment, `pyproject.toml` and `uv.lock`; see [Odoo intelligence](../workflows/odoo-intelligence.md).
 
 - Python 3.12, 4-space indentation, double quotes, LF line endings, lines up to 120 characters.
 - Do not silence a rule inline to make code pass; fix the code or raise the rule with the owner.

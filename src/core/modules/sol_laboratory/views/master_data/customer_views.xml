@@ -125,6 +125,7 @@
     <record id="action_medilab_customer_duplicate" model="ir.actions.act_window">
         <field name="name">Possible Duplicates</field>
         <field name="res_model">medilab.customer</field>
+        <field name="path">customer-duplicates</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('duplicate_of_id', '!=', False)]</field>
     </record>

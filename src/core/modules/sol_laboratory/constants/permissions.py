@@ -13,4 +13,12 @@ SCOPE_DOMAINS = {
 # The field a document type needs for a permission limited to the scope.
 SCOPE_FIELDS = {"own_department": DEPARTMENT_FIELD, "own_team": TEAM_FIELD}
 # Document type names of the Odoo models permissions apply to, which carry no medilab. prefix.
-ODOO_DOCUMENT_TYPES = {MODEL_DEPARTMENT: "department", "sale.order": "order"}
+ODOO_DOCUMENT_TYPES = {
+    MODEL_DEPARTMENT: "department",
+    "sale.order": "order",
+    "stock.location": "location",
+    "account.analytic.account": "cost_centre",
+    "product.product": "stock_item",
+    "product.supplierinfo": "supplier_item",
+    "stock.warehouse.orderpoint": "minimum_quantity",
+}
