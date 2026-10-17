@@ -11,8 +11,10 @@ def post_init_hook(env):
         user.password = password
     from .demo_audit import seed_audit
     from .demo_change_requests import seed_change_requests
+    from .demo_cleanup import seed_cleanup
     from .demo_dispatches import seed_dispatches
     from .demo_finance import seed_finance
+    from .demo_locks import seed_locks
     from .demo_orders import seed_orders
     from .demo_quotations import seed_quotations
     from .demo_reports import seed_reports
@@ -29,4 +31,6 @@ def post_init_hook(env):
     seed_dispatches(env)
     seed_finance(env)
     seed_audit(env)
+    seed_locks(env)
+    seed_cleanup(env)
     seed_support(env)

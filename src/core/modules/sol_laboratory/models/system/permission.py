@@ -6,6 +6,7 @@ from odoo.tools import format_list
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -29,7 +30,7 @@ HOLDER_FIELDS = ("role_ids", "person_ids")
 # Quyền
 class Permission(models.Model):
     _name = MODEL_PERMISSION
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Permission"
     _order = "document_model, action, scope"
     # Permissions come with modules: they are read and renamed on the screen, never created or deleted there.

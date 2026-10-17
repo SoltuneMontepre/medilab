@@ -1822,6 +1822,7 @@ model AuditEntry {
   @@index([parent_model, parent_id])
   @@index([user_id, create_date])
   @@index([action, create_date])
+  @@index([job_run_id])
   @@map("medilab_audit_entry")
 }
 
@@ -1864,7 +1865,7 @@ model DocumentLock {
   status           String              @db.VarChar
   /// When the lock was released or expired.
   released_at      DateTime?
-  /// saved, cancelled, left, expired or released_by_administrator.
+  /// saved, cancelled, left, completed for an operation that ended, expired or released_by_administrator.
   release_reason   String?             @db.VarChar
   /// Administrator who released a stuck lock.
   released_by_id   Int?
@@ -2148,7 +2149,7 @@ model ArchiveFile {
   /// SHA-256 of the file, checked before the archived records are removed.
   checksum     String    @db.VarChar
   /// Size of the file in bytes.
-  size_bytes   BigInt
+  size_bytes   Int
   /// The cleanup run that wrote the file.
   job_run_id   Int
   /// The cleanup run that wrote the file.

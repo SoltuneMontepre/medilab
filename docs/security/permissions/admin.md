@@ -7,7 +7,7 @@ The [global rules](../readme.md#global-rules) still hold for the administrator: 
 ## System
 
 - Changes settings, including the urgency threshold, the due date safety margin and the reminder lead time, scheduled job schedules and the Brevo and Viettel Sign configuration; every change is audited.
-- Searches the audit trail, but cannot edit or remove an entry.
+- Searches the audit trail, but cannot edit or remove an entry, and lists and downloads the archive files the cleanup job writes.
 - Releases an editing lock that is stuck; this is audited.
 - Runs a scheduled job by hand and retries a failed one.
 - Cannot change a signed document.
