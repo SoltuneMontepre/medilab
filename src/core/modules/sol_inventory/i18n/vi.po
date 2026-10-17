@@ -398,6 +398,9 @@ msgstr "Mã thành phố"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__code
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
@@ -466,10 +469,10 @@ msgid "Contact Person"
 msgstr "Người liên hệ"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__cost_centre_code
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_search
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__cost_centre_code
 msgid "Cost Centre"
 msgstr "Trung tâm chi phí"
 
@@ -537,12 +540,14 @@ msgstr "Tạo nhà cung cấp"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
@@ -649,6 +654,8 @@ msgstr "Xóa mặt hàng của nhà cung cấp"
 
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_hr_department
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__department_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
 msgid "Department"
 msgstr "Phòng Ban"
 
@@ -671,12 +678,19 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_template__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order_line__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_res_partner__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
@@ -861,12 +875,19 @@ msgstr "Tòa nhà"
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_template__id
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__id
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order_line__id
 #: model:ir.model.fields,field_description:sol_inventory.field_res_partner__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_warehouse_orderpoint__id
 msgid "ID"
 msgstr "ID"
@@ -1045,6 +1066,7 @@ msgstr "Là công ty"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__product_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__item_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_search
@@ -1085,12 +1107,14 @@ msgstr "Giá gần nhất"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
@@ -1106,6 +1130,7 @@ msgid "Latitude"
 msgstr "Vĩ độ"
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_search
 msgid "Location"
@@ -1390,6 +1415,7 @@ msgstr "Sản phẩm"
 
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_product_product
+#: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__product_id
 msgid "Product Variant"
 msgstr "Biến thể sản phẩm"
 
@@ -1425,6 +1451,7 @@ msgstr "Số đơn mua hàng"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__quantity
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__quantity
 msgid "Quantity"
 msgstr "Lượng dùng"
 
@@ -1661,6 +1688,10 @@ msgstr "Mặt hàng cung cấp"
 
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_medilab_supplier
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_receipt_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 msgid "Supplier"
 msgstr "Nhà cung cấp"
@@ -1771,7 +1802,7 @@ msgid "The quantity one test uses must be above zero."
 msgstr "Lượng dùng cho một lần thử nghiệm phải lớn hơn 0."
 
 #. module: sol_inventory
-#: model:ir.model.constraint,message:sol_inventory.constraint_product_product_shelf_life_positive
+#: model:ir.model.constraint,message:sol_inventory.constraint_product_product_shelf_life_not_negative
 msgid "The shelf life after opening cannot be negative."
 msgstr "Hạn dùng sau khi mở không được âm."
 
@@ -1872,6 +1903,7 @@ msgstr "Tổng tiền bạn phải trả cho nhà cung cấp này."
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__track_containers
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__track_containers
 msgid "Track Containers"
 msgstr "Theo dõi chai/lọ"
 
@@ -1984,3 +2016,505 @@ msgstr "[(Tổng phải thu/Tổng doanh thu) * số ngày kể từ ngày lập
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__invoice_edi_format
 msgid "eInvoice format"
 msgstr "định dạng Hoá đơn điện tử"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "%s cannot be cancelled once goods were received for it."
+msgstr "Không thể hủy %s khi đã nhận hàng của đơn."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "%s cannot be sent before its approval chain has signed it."
+msgstr "Không thể gửi %s trước khi chuỗi phê duyệt ký xong."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "%s has signatures; withdraw them before cancelling the order."
+msgstr "%s đã có chữ ký; hãy rút chữ ký trước khi hủy đơn."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "%s was signed, so it cannot be reopened; duplicate it to order again."
+msgstr "%s đã được ký nên không thể mở lại; hãy nhân bản để đặt mua lại."
+
+#. module: sol_inventory
+#: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label
+#: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label_small
+msgid "'Labels %s' % (object.name if len(objects) == 1 else 'containers')"
+msgstr "'Tem %s' % (object.name if len(objects) == 1 else 'chai lọ')"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_production_lot_form_medilab
+msgid "<span class=\"o_stat_text\">Containers</span>"
+msgstr "<span class=\"o_stat_text\">Chai/Lọ</span>"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "<span>Lot</span>"
+msgstr "<span>Lô</span>"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "<span>Use by</span>"
+msgstr "<span>Hạn dùng</span>"
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_stock_move_line_container_count_positive
+msgid "A line receives at least one bottle or vial."
+msgstr "Mỗi dòng nhận ít nhất một chai/lọ."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "An order without items cannot be signed."
+msgstr "Không thể ký đơn chưa có vật tư."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_stock_package_name_unique
+msgid "Another container already has this code."
+msgstr "Mã này đã được dùng cho chai/lọ khác."
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_status
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Approval"
+msgstr "Phê duyệt"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_can_reject
+msgid "Approval Can Reject"
+msgstr "Có thể từ chối phê duyệt"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_can_sign
+msgid "Approval Can Sign"
+msgstr "Có thể ký phê duyệt"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_can_withdraw
+msgid "Approval Can Withdraw"
+msgstr "Có thể rút chữ ký"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__available
+msgid "Available"
+msgstr "Còn dùng được"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__container_count
+msgid "Bottles or Vials"
+msgstr "Số chai/lọ"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__container_count
+msgid "Container Count"
+msgstr "Số chai/lọ"
+
+#. module: sol_inventory
+#: model:ir.actions.report,name:sol_inventory.action_report_container_label_small
+msgid "Container Label 1.5 × 1 in"
+msgstr "Tem chai/lọ 1.5 × 1 in"
+
+#. module: sol_inventory
+#: model:ir.actions.report,name:sol_inventory.action_report_container_label
+msgid "Container Label 2 × 1 in"
+msgstr "Tem chai/lọ 2 × 1 in"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__container_ids
+#: model:ir.ui.menu,name:sol_inventory.menu_container
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
+msgid "Containers"
+msgstr "Chai/Lọ"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_create_all
+msgid "Create purchase orders"
+msgstr "Tạo đơn mua hàng"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_create_own_department
+msgid "Create purchase orders of their department"
+msgstr "Tạo đơn mua hàng của phòng ban mình"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_receipt_create_all
+msgid "Create receipts"
+msgstr "Tạo phiếu nhập kho"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_delete_all
+msgid "Delete purchase orders"
+msgstr "Xóa đơn mua hàng"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_delete_own_department
+msgid "Delete purchase orders of their department"
+msgstr "Xóa đơn mua hàng của phòng ban mình"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_receipt_delete_all
+msgid "Delete receipts"
+msgstr "Xóa phiếu nhập kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__depleted
+msgid "Depleted"
+msgstr "Đã dùng hết"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_reject_form
+msgid "Discard"
+msgstr "Bỏ qua"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__disposed
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__disposed
+msgid "Disposed"
+msgstr "Đã thanh lý"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__document_version
+msgid "Document Version"
+msgstr "Phiên bản chứng từ"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
+#: code:addons/sol_inventory/models/purchasing/stock_picking.py:0
+msgid "Done moves are never changed; correct a mistake with another move."
+msgstr "Không được sửa điều chuyển đã hoàn tất; hãy sửa sai bằng một điều chuyển khác."
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_lot_edit_all
+msgid "Edit lots"
+msgstr "Sửa lô"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_edit_all
+msgid "Edit purchase orders"
+msgstr "Sửa đơn mua hàng"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_edit_own_department
+msgid "Edit purchase orders of their department"
+msgstr "Sửa đơn mua hàng của phòng ban mình"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_receipt_edit_all
+msgid "Edit receipts"
+msgstr "Sửa phiếu nhập kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__expired
+msgid "Expired"
+msgstr "Hết hạn"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid ""
+"Goods can be received only into a location of the central store %(store)s, "
+"not into: %(locations)s."
+msgstr "Chỉ được nhập hàng vào vị trí thuộc kho tổng %(store)s, không được nhập vào: %(locations)s."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
+msgid "In stock"
+msgstr "Còn trong kho"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
+msgid "Labels 1.5 × 1 in"
+msgstr "Tem 1.5 × 1 in"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
+msgid "Labels 2 × 1 in"
+msgstr "Tem 2 × 1 in"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__lot_id
+msgid "Lot"
+msgstr "Lô"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_lot
+msgid "Lot/Serial"
+msgstr "Lô"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__certificate_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__certificate_id
+msgid "Manufacturer's Certificate"
+msgstr "Giấy chứng nhận của nhà sản xuất"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__missing
+msgid "Missing"
+msgstr "Thất lạc"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "My orders"
+msgstr "Đơn của tôi"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__none
+msgid "Not requested"
+msgstr "Chưa yêu cầu"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "Only an order that is not sent yet can be signed."
+msgstr "Chỉ ký được đơn chưa gửi."
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__opened
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
+msgid "Opened"
+msgstr "Đã mở nắp"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__order_id
+msgid "Order"
+msgstr "Đơn mua hàng"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_package
+msgid "Package"
+msgstr "Chai/Lọ"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Partially received"
+msgstr "Đã nhận một phần"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "Điều chuyển sản phẩm (Dòng điều chuyển tồn kho)"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_purchase_order
+msgid "Purchase Order"
+msgstr "Đơn mua hàng"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "Dòng đơn mua hàng"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_purchase_order
+#: model:ir.ui.menu,name:sol_inventory.menu_purchase_order
+msgid "Purchase orders"
+msgstr "Đơn mua hàng"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_read_all
+msgid "Read purchase orders"
+msgstr "Xem đơn mua hàng"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_read_own_department
+msgid "Read purchase orders of their department"
+msgstr "Xem đơn mua hàng của phòng ban mình"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_receipt_read_all
+msgid "Read receipts"
+msgstr "Xem phiếu nhập kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__reason
+msgid "Reason"
+msgstr "Lý do"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Receipt Status"
+msgstr "Tình trạng nhận hàng"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_receipt
+#: model:ir.ui.menu,name:sol_inventory.menu_receipt
+msgid "Receipts"
+msgstr "Phiếu nhập kho"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Received"
+msgstr "Đã nhận đủ"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_reject_form
+msgid "Reject"
+msgstr "Từ chối"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_purchase_order_reject
+msgid "Reject a Purchase Order"
+msgstr "Từ chối đơn mua hàng"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_purchase_order_reject
+msgid "Reject the purchase order"
+msgstr "Từ chối đơn mua hàng"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__rejected
+msgid "Rejected"
+msgstr "Bị từ chối"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "Request approval"
+msgstr "Yêu cầu phê duyệt"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__sealed
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
+msgid "Sealed"
+msgstr "Còn nguyên seal"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "Send to supplier"
+msgstr "Gửi nhà cung cấp"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__state__purchase
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Sent"
+msgstr "Đã gửi"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid "Set up the central store before receiving goods."
+msgstr "Hãy thiết lập kho tổng trước khi nhập hàng."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "Sign"
+msgstr "Ký"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_sign_all
+msgid "Sign purchase orders"
+msgstr "Ký đơn mua hàng"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_sign_own_department
+msgid "Sign purchase orders of their department"
+msgstr "Ký đơn mua hàng của phòng ban mình"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__approved
+msgid "Signed"
+msgstr "Đã ký"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Signed, not sent"
+msgstr "Đã ký, chưa gửi"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__state
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__status
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__status
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
+msgid "Status"
+msgstr "Trạng Thái"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "The approval of this order was already requested."
+msgstr "Đơn này đã được yêu cầu phê duyệt."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "The approval of this order was rejected: %s"
+msgstr "Phê duyệt đơn này bị từ chối: %s"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "The order has signatures; withdraw them before changing it."
+msgstr "Đơn đã có chữ ký; hãy rút chữ ký trước khi sửa."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_receipt_list
+msgid "To"
+msgstr "Nhập vào"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_list
+msgid "Total"
+msgstr "Tổng cộng"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_picking
+msgid "Transfer"
+msgstr "Lệnh chuyển hàng"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
+msgid "Type the expiry date printed on the container of: %s."
+msgstr "Hãy nhập hạn dùng in trên chai/lọ của: %s."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
+msgid "Unit Price excl. VAT"
+msgstr "Đơn giá chưa VAT"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__usable_until
+msgid "Usable Until"
+msgstr "Hạn dùng"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__requested
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Waiting for signature"
+msgstr "Chờ ký"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "Withdraw signature"
+msgstr "Rút chữ ký"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "Signed purchase orders are cancelled, never deleted: %s"
+msgstr "Đơn mua hàng đã ký chỉ được hủy, không được xóa: %s"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
+msgid ""
+"%(quantity)s %(unit)s of %(item)s cannot be shared among %(count)s bottles "
+"or vials."
+msgstr "Không thể chia %(quantity)s %(unit)s %(item)s cho %(count)s chai/lọ."
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__state__draft
+msgid "Draft"
+msgstr "Nháp"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "<span class=\"o_form_label\">Purchase Order</span>"
+msgstr "<span class=\"o_form_label\">Đơn mua hàng</span>"

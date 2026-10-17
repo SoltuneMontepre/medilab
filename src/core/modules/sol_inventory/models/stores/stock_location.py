@@ -6,7 +6,15 @@ from odoo.fields import Domain
 from odoo.tools import format_list
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
-from odoo.addons.sol_inventory.constants.models import MODEL_ANALYTIC_ACCOUNT, MODEL_STOCK_LOCATION
+from odoo.addons.sol_inventory.constants.models import (
+    MODEL_ANALYTIC_ACCOUNT,
+    MODEL_STOCK_LOCATION,
+    MODEL_STOCK_MOVE,
+    MODEL_STOCK_MOVE_LINE,
+    MODEL_STOCK_PICKING,
+    MODEL_STOCK_QUANT,
+)
+from odoo.addons.sol_inventory.constants.stock import CANCELLED, DONE
 from odoo.addons.sol_inventory.constants.xml_ids import COST_CENTRE_PLAN, STORE_VIEWS
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
@@ -88,6 +96,15 @@ class StockLocation(models.Model):
                 )
         return super(StockLocation, self.with_context(active_test=False)).unlink()
 
+    def _referrers_in_use(self, referrers):
+        # Odoo's moves and transfers are finished once done or cancelled, and its quants hold stock only while their
+        # quantity is not zero; finished ones keep their location but do not stop it being archived.
+        if referrers._name in (MODEL_STOCK_MOVE, MODEL_STOCK_MOVE_LINE, MODEL_STOCK_PICKING):
+            return Domain("state", "not in", (DONE, CANCELLED))
+        if referrers._name == MODEL_STOCK_QUANT:
+            return Domain("quantity", "!=", 0)
+        return super()._referrers_in_use(referrers)
+
     def _store_above(self):
         self.ensure_one()
         parent = self.location_id
@@ -129,12 +146,36 @@ class StockLocation(models.Model):
             return
         for store in stores:
             store._check_holder()
-        central = locations.search(Domain("is_store", "=", True)).filtered(lambda store: not store._store_above())
+        central = self._central_stores()
         if len(central) > 1:
             raise ValidationError(
                 self.env._(
                     "Only the central store has no store above it, but these stores have none: %s.",
                     format_list(self.env, central.mapped("display_name")),
+                )
+            )
+
+    def _central_stores(self):
+        """The stores with no store above them: the central store once the stores are set up."""
+        return self.sudo().search(Domain("is_store", "=", True)).filtered(lambda store: not store._store_above())
+
+    def _check_in_central_store(self):
+        """Refuse receiving goods into a location outside the central store, listing those locations."""
+        if not self:
+            return
+        central = self._central_stores()[:1]
+        if not central:
+            raise ValidationError(self.env._("Set up the central store before receiving goods."))
+        # A location inside a store below the central store belongs to that store.
+        outside = self.filtered(
+            lambda location: (location if location.is_store else location.sudo().parent_store_id) != central
+        )
+        if outside:
+            raise ValidationError(
+                self.env._(
+                    "Goods can be received only into a location of the central store %(store)s, not into: %(locations)s.",
+                    store=central.display_name,
+                    locations=format_list(self.env, outside.sudo().mapped("display_name")),
                 )
             )
 

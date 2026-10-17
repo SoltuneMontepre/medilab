@@ -102,8 +102,8 @@ stateDiagram-v2
 | Rule            | Description                                                                                                                         |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Suppliers       | A supplier is a company contact with a code, a default contact person and the items it sells, with its own references and last prices. |
-| Purchase orders | A purchase order to one supplier lists items, quantities and prices. It is signed through its approval chain before it is sent.     |
-| Receipts        | Goods that arrive are received against a purchase order, or without one, into a location of the central store, with their lot, expiry, quantity, price and certificate. A done receipt creates the lots, containers and moves. |
+| Purchase orders | A purchase order to one supplier lists items, quantities and prices, and the department that asked for them. It is signed through its approval chain before it is sent, and sending it confirms it. |
+| Receipts        | Goods that arrive are received against a purchase order, or without one, into a location of the central store, with their lot, expiry, quantity, price and the manufacturer's certificate. A done receipt creates the lots, containers and moves. |
 | Received amount | A purchase order is partially received or received from the quantities its receipts brought in.                                     |
 
 ## Costs

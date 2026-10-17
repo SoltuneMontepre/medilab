@@ -24,6 +24,8 @@ How code inside an Odoo module is laid out.
 | `stores`            | Stores and the locations inside them, with their holders and managers                                                                                                            |
 | `costs`             | Cost centres                                                                                                                                                                     |
 | `catalog`           | Stock items with their minimum quantities, suppliers and the items they sell, and how much of each item a test uses                                                              |
+| `purchasing`        | Purchase orders, their lines and signing, and receipts with what each lot line brings in                                                                                         |
+| `stock`             | Lots and containers, their statuses and QR labels                                                                                                                                |
 
 ## Files
 
@@ -59,6 +61,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/audit.py`       | How the audit trail masks values, such as `MASK_PERSONAL`                                   |
 | `constants/jobs.py`        | Context keys of scheduled jobs, such as `JOB_RUN_CONTEXT`                                   |
 | `constants/routes.py`      | Route options that `odoo.http` does not declare, such as `FRONTEND_PAGE`                    |
+| `constants/stock.py`       | Statuses of lots and containers and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
 - Python code refers to a model by its constant, never by repeating the string: `_name = MODEL_TEST_PARAMETER`, `self.env[MODEL_TEST_PARAMETER]`.

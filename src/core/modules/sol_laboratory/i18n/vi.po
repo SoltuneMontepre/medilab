@@ -10686,3 +10686,78 @@ msgstr "Nội dung cần sửa, ví dụ giá trị hoặc kết luận"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
 msgid "Why the change is needed"
 msgstr "Lý do cần sửa"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lot_edit_all
+msgid "Permission: lot.edit.all"
+msgstr "Quyền: lot.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_create_all
+msgid "Permission: purchase_order.create.all"
+msgstr "Quyền: purchase_order.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_create_own_department
+msgid "Permission: purchase_order.create.own_department"
+msgstr "Quyền: purchase_order.create.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_delete_all
+msgid "Permission: purchase_order.delete.all"
+msgstr "Quyền: purchase_order.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_delete_own_department
+msgid "Permission: purchase_order.delete.own_department"
+msgstr "Quyền: purchase_order.delete.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_edit_all
+msgid "Permission: purchase_order.edit.all"
+msgstr "Quyền: purchase_order.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_edit_own_department
+msgid "Permission: purchase_order.edit.own_department"
+msgstr "Quyền: purchase_order.edit.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_read_all
+msgid "Permission: purchase_order.read.all"
+msgstr "Quyền: purchase_order.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_read_own_department
+msgid "Permission: purchase_order.read.own_department"
+msgstr "Quyền: purchase_order.read.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_sign_all
+msgid "Permission: purchase_order.sign.all"
+msgstr "Quyền: purchase_order.sign.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_sign_own_department
+msgid "Permission: purchase_order.sign.own_department"
+msgstr "Quyền: purchase_order.sign.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_create_all
+msgid "Permission: receipt.create.all"
+msgstr "Quyền: receipt.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_delete_all
+msgid "Permission: receipt.delete.all"
+msgstr "Quyền: receipt.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_edit_all
+msgid "Permission: receipt.edit.all"
+msgstr "Quyền: receipt.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_read_all
+msgid "Permission: receipt.read.all"
+msgstr "Quyền: receipt.read.all"

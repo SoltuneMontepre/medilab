@@ -310,7 +310,7 @@ model StockLot {
   status          String           @db.VarChar
   /// Purchase price of one unit, excluding VAT, from its receipt, for an item whose lots keep their own cost.
   standard_price  Decimal?         @db.Decimal
-  /// The manufacturer's certificate of analysis, an Odoo attachment.
+  /// The manufacturer's certificate that came with the lot, an Odoo attachment; not a result the laboratory issues.
   certificate_id  Int?
   /// The item.
   item            StockItem        @relation(fields: [product_id], references: [id], onDelete: Restrict)
@@ -465,7 +465,7 @@ model StockMove {
   @@map("stock_move")
 }
 
-/// Odoo's move line (stock.move.line), shown with the columns this module uses: the part of a move from one lot and container, or into one.
+/// Odoo's move line (stock.move.line), shown with the columns this module uses and the columns it adds: the part of a move from one lot and container, or into one.
 model StockMoveLine {
   /// Row identifier.
   id                Int             @id @default(autoincrement())
@@ -481,6 +481,10 @@ model StockMoveLine {
   result_package_id Int?
   /// Quantity moved, in the item's unit.
   quantity          Decimal         @db.Decimal
+  /// Number of bottles or vials a receipt line brings in of an item tracked by container; validating the receipt splits the line evenly into one line per container. Check: 1 or more.
+  container_count   Int             @default(1)
+  /// The manufacturer's certificate that came with the lot a receipt line brings in, an Odoo attachment; validating the receipt attaches it to the lot.
+  certificate_id    Int?
   /// The move.
   move              StockMove       @relation(fields: [move_id], references: [id], onDelete: Cascade)
   /// The lot moved.
@@ -727,7 +731,7 @@ model SupplierItem {
   @@map("product_supplierinfo")
 }
 
-/// Odoo's purchase order (purchase.order), shown with the columns this module uses and the column it adds: an order for stock to one supplier, signed through its approval chain before it is sent.
+/// Odoo's purchase order (purchase.order), shown with the columns this module uses and the columns it adds: an order for stock to one supplier, signed through its approval chain before it is sent.
 model PurchaseOrder {
   /// Row identifier.
   id             Int                 @id @default(autoincrement())
@@ -737,8 +741,12 @@ model PurchaseOrder {
   partner_id     Int
   /// The department that asked for the stock.
   department_id  Int?
-  /// Odoo's state: draft while it is prepared and signed, sent once sent to the supplier, purchase once confirmed, cancel.
-  state          String              @db.VarChar
+  /// Odoo's state: draft while it is prepared and signed, purchase once it is sent to the supplier, which confirms it, or cancel.
+  state            String              @db.VarChar
+  /// none, requested, approved or rejected: where the order stands in its approval chain, kept in step with its signatures.
+  approval_status  String              @default("none") @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn.
+  document_version Int                 @default(1)
   /// pending, partial or full, from the quantities its receipts brought in.
   receipt_status String?             @db.VarChar
   /// Date the supplier is expected to deliver.
@@ -757,6 +765,7 @@ model PurchaseOrder {
   receipts       Picking[]
 
   @@index([partner_id, state])
+  @@index([department_id])
   @@map("purchase_order")
 }
 

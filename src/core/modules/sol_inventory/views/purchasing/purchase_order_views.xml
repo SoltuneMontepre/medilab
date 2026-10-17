@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_purchase_order_list" model="ir.ui.view">
+        <field name="name">purchase.order.list.medilab</field>
+        <field name="model">purchase.order</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-muted="state == 'cancel'"
+                decoration-success="receipt_status == 'full'"
+                decoration-info="state == 'purchase' and receipt_status != 'full'"
+                decoration-warning="state == 'draft' and approval_status == 'requested'"
+            >
+                <field name="name" />
+                <field name="partner_id" string="Supplier" />
+                <field name="department_id" optional="show" />
+                <field name="user_id" optional="hide" widget="many2one_avatar_user" />
+                <field name="date_planned" optional="hide" />
+                <field
+                    name="approval_status"
+                    widget="badge"
+                    decoration-success="approval_status == 'approved'"
+                    decoration-warning="approval_status == 'requested'"
+                    decoration-danger="approval_status == 'rejected'"
+                />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'purchase'"
+                    decoration-danger="state == 'cancel'"
+                />
+                <field
+                    name="receipt_status"
+                    widget="badge"
+                    decoration-success="receipt_status == 'full'"
+                    decoration-info="receipt_status == 'partial'"
+                    decoration-warning="receipt_status == 'pending'"
+                />
+                <field name="currency_id" column_invisible="1" />
+                <field name="amount_untaxed" sum="Total" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_purchase_order_search" model="ir.ui.view">
+        <field name="name">purchase.order.search.medilab</field>
+        <field name="model">purchase.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="partner_id" string="Supplier" operator="child_of" />
+                <field name="department_id" />
+                <field name="product_id" />
+                <filter
+                    name="filter_waiting_signature"
+                    string="Waiting for signature"
+                    domain="[('state', '=', 'draft'), ('approval_status', '=', 'requested')]"
+                />
+                <filter
+                    name="filter_signed"
+                    string="Signed, not sent"
+                    domain="[('state', '=', 'draft'), ('approval_status', '=', 'approved')]"
+                />
+                <filter name="filter_sent" string="Sent" domain="[('state', '=', 'purchase')]" />
+                <filter name="filter_partially_received" string="Partially received" domain="[('receipt_status', '=', 'partial')]" />
+                <filter name="filter_received" string="Received" domain="[('receipt_status', '=', 'full')]" />
+                <separator />
+                <filter name="filter_mine" string="My orders" domain="[('user_id', '=', uid)]" />
+                <group>
+                    <filter name="group_supplier" string="Supplier" context="{'group_by': 'partner_id'}" />
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}" />
+                    <filter name="group_approval" string="Approval" context="{'group_by': 'approval_status'}" />
+                    <filter name="group_receipt_status" string="Receipt Status" context="{'group_by': 'receipt_status'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="purchase_order_form_medilab" model="ir.ui.view">
+        <field name="name">purchase.order.form.medilab</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        <field name="arch" type="xml">
+            <!-- An order is signed through its approval chain, then sent to the supplier, which confirms it. -->
+            <xpath expr="//header/button[@name='action_rfq_send'][contains(@invisible, 'draft')]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='bid_confirm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='draft_confirm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/field[@name='locked']" position="after">
+                <button
+                    name="action_request_approval"
+                    type="object"
+                    string="Request approval"
+                    class="btn-primary"
+                    invisible="state != 'draft' or approval_status != 'none' or not approval_can_sign"
+                />
+                <button
+                    name="action_sign"
+                    type="object"
+                    string="Sign"
+                    class="btn-success"
+                    invisible="state != 'draft' or approval_status != 'requested' or not approval_can_sign"
+                />
+                <button
+                    name="%(action_medilab_purchase_order_reject)d"
+                    type="action"
+                    string="Reject"
+                    class="btn-danger"
+                    context="{'default_order_id': id}"
+                    invisible="state != 'draft' or approval_status != 'requested' or not approval_can_reject"
+                />
+                <button
+                    name="action_withdraw"
+                    type="object"
+                    string="Withdraw signature"
+                    class="btn-secondary"
+                    invisible="not approval_can_withdraw"
+                />
+                <button
+                    name="action_send_to_supplier"
+                    type="object"
+                    string="Send to supplier"
+                    class="btn-primary"
+                    invisible="state != 'draft' or approval_status != 'approved'"
+                />
+            </xpath>
+            <!-- MediLab has no quotation request: every order is a purchase order. -->
+            <xpath expr="//div[hasclass('oe_title')]/span[2]" position="replace" />
+            <xpath expr="//div[hasclass('oe_title')]/span[1]" position="replace">
+                <span class="o_form_label">Purchase Order</span>
+            </xpath>
+            <xpath expr="//div[hasclass('oe_title')]/h1" position="after">
+                <field
+                    name="approval_status"
+                    widget="badge"
+                    decoration-success="approval_status == 'approved'"
+                    decoration-warning="approval_status == 'requested'"
+                    decoration-danger="approval_status == 'rejected'"
+                    invisible="approval_status == 'none'"
+                />
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="string">Supplier</attribute>
+                <attribute name="readonly">state in ['cancel', 'purchase'] or approval_status != 'none'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field
+                    name="department_id"
+                    options="{'no_create': True}"
+                    readonly="state != 'draft' or approval_status != 'none'"
+                />
+            </xpath>
+            <xpath expr="//field[@name='order_line']" position="attributes">
+                <attribute name="readonly">state == 'cancel' or locked or approval_status != 'none'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="attributes">
+                <attribute name="domain">[('purchase_ok', '=', True), ('item_kind', '!=', False), '|', ('company_id', '=', False), ('company_id', 'parent_of', parent.company_id)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_medilab_purchase_order" model="ir.actions.act_window">
+        <field name="name">Purchase orders</field>
+        <field name="res_model">purchase.order</field>
+        <field name="path">lab-purchase-orders</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_medilab_purchase_order_search" />
+    </record>
+    <record id="action_medilab_purchase_order_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_medilab_purchase_order_list" />
+        <field name="act_window_id" ref="action_medilab_purchase_order" />
+    </record>
+</odoo>

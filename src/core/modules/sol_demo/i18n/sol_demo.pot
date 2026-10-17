@@ -140,6 +140,7 @@ msgstr ""
 #. module: sol_demo
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_purchase_order__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -212,6 +213,7 @@ msgid "Head of Sales of the department"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_signing_head_of_department
 #: model:medilab.role,name:sol_demo.demo_role_head_of_department
 msgid "Head of department"
 msgstr ""
@@ -222,14 +224,15 @@ msgid "Head of sales"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_heavy_metals
 #: model:hr.department,name:sol_demo.demo_hr_department_heavy_metals
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_heavy_metals
 msgid "Heavy metals"
 msgstr ""
 
 #. module: sol_demo
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__id
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_demo.field_purchase_order__id
 msgid "ID"
 msgstr ""
 
@@ -239,10 +242,11 @@ msgid "Journal Entry"
 msgstr ""
 
 #. module: sol_demo
-#: model:medilab.role,name:sol_demo.demo_role_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_purchase_order_signing_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_change_request_lab_head
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_signing_lab_head
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_change_request_lab_head
-#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_change_request_lab_head
+#: model:medilab.role,name:sol_demo.demo_role_lab_head
 msgid "Lab head"
 msgstr ""
 
@@ -335,6 +339,7 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_coliforms
 #: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_e_coli
+#: model:medilab.test.result,value_text:sol_demo.demo_test_result_retest
 msgid "Not detected"
 msgstr ""
 
@@ -426,6 +431,7 @@ msgid "Soil quality — Determination of pH"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_purchase_order_signing_storekeeper
 #: model:medilab.role,name:sol_demo.demo_role_storekeeper
 msgid "Storekeeper"
 msgstr ""
@@ -436,10 +442,12 @@ msgid "Surface water"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_signing
 msgid "Test result signing"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_signing_tester
 #: model:medilab.role,name:sol_demo.demo_role_tester
 msgid "Tester"
 msgstr ""
@@ -519,4 +527,14 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_change_request
 msgid "Test report change request"
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_purchase_order
+msgid "Purchase Order"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
+msgid "Purchase order signing"
 msgstr ""

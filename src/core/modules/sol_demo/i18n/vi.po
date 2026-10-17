@@ -141,6 +141,7 @@ msgstr "Demo: phản hồi"
 #. module: sol_demo
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_purchase_order__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -217,6 +218,7 @@ msgid "Head of Sales of the department"
 msgstr "Trưởng Phòng Kinh Doanh của phòng ban"
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_signing_head_of_department
 #: model:medilab.role,name:sol_demo.demo_role_head_of_department
 msgid "Head of department"
 msgstr "Trưởng Phòng"
@@ -227,14 +229,15 @@ msgid "Head of sales"
 msgstr "Trưởng Phòng Kinh Doanh"
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_heavy_metals
 #: model:hr.department,name:sol_demo.demo_hr_department_heavy_metals
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_heavy_metals
 msgid "Heavy metals"
 msgstr "Kim loại nặng"
 
 #. module: sol_demo
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__id
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_demo.field_purchase_order__id
 msgid "ID"
 msgstr "ID"
 
@@ -244,10 +247,11 @@ msgid "Journal Entry"
 msgstr "Bút toán"
 
 #. module: sol_demo
-#: model:medilab.role,name:sol_demo.demo_role_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_purchase_order_signing_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_change_request_lab_head
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_signing_lab_head
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_change_request_lab_head
-#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_change_request_lab_head
+#: model:medilab.role,name:sol_demo.demo_role_lab_head
 msgid "Lab head"
 msgstr "Trưởng Phòng Thí Nghiệm"
 
@@ -346,6 +350,7 @@ msgstr "Găng tay nitrile, cỡ M"
 #. module: sol_demo
 #: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_coliforms
 #: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_e_coli
+#: model:medilab.test.result,value_text:sol_demo.demo_test_result_retest
 msgid "Not detected"
 msgstr "Không phát hiện"
 
@@ -437,6 +442,7 @@ msgid "Soil quality — Determination of pH"
 msgstr "Chất lượng đất — Xác định pH"
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_purchase_order_signing_storekeeper
 #: model:medilab.role,name:sol_demo.demo_role_storekeeper
 msgid "Storekeeper"
 msgstr "Thủ Kho"
@@ -447,10 +453,12 @@ msgid "Surface water"
 msgstr "Nước mặt"
 
 #. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_signing
 msgid "Test result signing"
 msgstr "Ký kết quả thử nghiệm"
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_signing_tester
 #: model:medilab.role,name:sol_demo.demo_role_tester
 msgid "Tester"
 msgstr "Thử Nghiệm Viên"
@@ -537,3 +545,13 @@ msgstr "Yêu cầu thay đổi kết quả thử nghiệm"
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_change_request
 msgid "Test report change request"
 msgstr "Yêu cầu thay đổi phiếu kết quả"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_purchase_order
+msgid "Purchase Order"
+msgstr "Đơn mua hàng"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
+msgid "Purchase order signing"
+msgstr "Ký đơn mua hàng"
