@@ -4,15 +4,15 @@ from odoo.tests import tagged
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_PAYMENT_TRANSACTION
 from odoo.addons.sol_laboratory.constants.audit import MASK_PERSONAL
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_MAIL_MESSAGE
 from odoo.addons.sol_laboratory.tests.audit_case import AuditLookup
 
 
 @tagged("post_install", "-at_install")
 class TestAuditDocuments(AuditLookup, OrderCase):
     def test_every_commerce_document_is_audited(self):
-        # The trail itself, which E-commerce extends with the route PayOS calls.
-        self.assertEqual(self.unaudited_documents("sol_commerce"), {MODEL_AUDIT_ENTRY})
+        # The trail itself, which E-commerce extends with the route PayOS calls, and messages, which the integration entries describe.
+        self.assertEqual(self.unaudited_documents("sol_commerce"), {MODEL_AUDIT_ENTRY, MODEL_MAIL_MESSAGE})
 
     def test_the_payers_details_are_masked_in_part(self):
         transactions = self.env[MODEL_PAYMENT_TRANSACTION]

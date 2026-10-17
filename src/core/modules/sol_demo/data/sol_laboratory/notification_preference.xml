@@ -6,4 +6,22 @@
         <field name="channel">email</field>
         <field name="enabled" eval="False" />
     </record>
+    <record id="demo_notification_preference_customer_order_email_off" model="medilab.notification.preference">
+        <field name="user_id" ref="demo_res_users_customer" />
+        <field name="event_id" ref="sol_commerce.event_order_updated" />
+        <field name="channel">email</field>
+        <field name="enabled" eval="False" />
+    </record>
+    <record id="demo_notification_preference_customer_order_popup" model="medilab.notification.preference">
+        <field name="user_id" ref="demo_res_users_customer" />
+        <field name="event_id" ref="sol_commerce.event_order_updated" />
+        <field name="channel">popup</field>
+        <field name="enabled" eval="True" />
+    </record>
+    <record id="demo_notification_preference_customer_result_popup" model="medilab.notification.preference">
+        <field name="user_id" ref="demo_res_users_customer" />
+        <field name="event_id" ref="sol_commerce.event_result_released" />
+        <field name="channel">popup</field>
+        <field name="enabled" eval="True" />
+    </record>
 </odoo>

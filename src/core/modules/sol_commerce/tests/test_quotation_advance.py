@@ -6,6 +6,7 @@ from odoo.tests import tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_QUOTATION
+from odoo.addons.sol_commerce.constants.notifications import EVENT_QUOTATION_SENT
 
 
 @tagged("post_install", "-at_install")
@@ -16,7 +17,10 @@ class TestQuotationAdvance(OrderCase):
 
     def customer_notices(self, order):
         return order.message_ids.filtered(
-            lambda message: message.message_type == "comment" and message.partner_ids == self.contact
+            lambda message: (
+                message.subtype_id.code == EVENT_QUOTATION_SENT
+                and message.notification_ids.res_partner_id == self.contact
+            )
         )
 
     def test_sending_with_an_advance_creates_one_invoice_and_one_customer_notice(self):

@@ -1949,7 +1949,7 @@ model NotificationPreference {
   user_id  Int
   /// The event.
   event_id Int
-  /// popup, email, sms or push.
+  /// popup, email or push.
   channel  String            @db.VarChar
   /// False when the user turned this channel off for the event; ignored for mandatory events.
   enabled  Boolean           @default(true)
