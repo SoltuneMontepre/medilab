@@ -55,12 +55,9 @@ class StockPackage(models.Model):
             container.lot_id = quants.lot_id[:1]
             container.quantity = sum(quants.mapped("quantity"))
 
-    @api.depends("status", "quant_ids.lot_id.expiration_date")
+    @api.depends("quant_ids.lot_id.expiration_date")
     def _compute_usable_until(self):
         for container in self:
-            if container.status != CONTAINER_SEALED:
-                container.usable_until = container.usable_until
-                continue
             expiry = container.sudo().quant_ids.lot_id[:1].expiration_date
             # The day in the laboratory's time zone, whoever triggers the recompute.
             laboratory = container.with_context(tz=self.env.company.tz or "UTC")

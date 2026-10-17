@@ -54,9 +54,9 @@ class StockLot(models.Model):
         }
         if view_type == "form" and hidden:
             root = etree.fromstring(result["arch"])
-            for button in list(root.iter("button")):
+            for button in [button for button in root.iter("button") if button.get("name") in hidden]:
                 parent = button.getparent()
-                if button.get("name") in hidden and parent is not None:
+                if parent is not None:
                     parent.remove(button)
             result["arch"] = etree.tostring(root, encoding="unicode")
         return result

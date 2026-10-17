@@ -100,7 +100,7 @@ class StockLocation(models.Model):
         # Odoo's moves and transfers are finished once done or cancelled, and its quants hold stock only while their
         # quantity is not zero; finished ones keep their location but do not stop it being archived.
         if referrers._name in (MODEL_STOCK_MOVE, MODEL_STOCK_MOVE_LINE, MODEL_STOCK_PICKING):
-            return Domain("state", "not in", (DONE, CANCELLED))
+            return ~Domain("state", "in", (DONE, CANCELLED))
         if referrers._name == MODEL_STOCK_QUANT:
             return Domain("quantity", "!=", 0)
         return super()._referrers_in_use(referrers)
