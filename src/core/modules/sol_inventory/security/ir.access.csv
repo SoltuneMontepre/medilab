@@ -2,5 +2,7 @@ id,name,model_id,group_id/id,operation,domain
 access_medilab_supplier_user,medilab.supplier user,medilab.supplier,base.group_user,r,
 access_medilab_method_consumption_user,medilab.method.consumption user,medilab.method.consumption,base.group_user,r,
 access_stock_warehouse_orderpoint_user,stock.warehouse.orderpoint user,stock.warehouse.orderpoint,base.group_user,r,
+access_stock_lot_user,stock.lot user,stock.lot,base.group_user,r,
+access_medilab_purchase_order_reject_user,medilab.purchase.order.reject user,medilab.purchase.order.reject,base.group_user,crud,
 access_medilab_recipe_user,medilab.recipe user,medilab.recipe,base.group_user,r,
 access_medilab_recipe_line_user,medilab.recipe.line user,medilab.recipe.line,base.group_user,r,

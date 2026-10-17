@@ -182,6 +182,8 @@
                 ref('sol_laboratory.permission_test_report_sign_all'),
                 ref('sol_laboratory.permission_change_request_read_all'),
                 ref('sol_laboratory.permission_change_request_sign_all'),
+                ref('sol_inventory.permission_purchase_order_read_all'),
+                ref('sol_inventory.permission_purchase_order_sign_all'),
             ])]"
         />
     </record>
@@ -211,6 +213,16 @@
                 ref('sol_inventory.permission_method_consumption_create_all'),
                 ref('sol_inventory.permission_method_consumption_edit_all'),
                 ref('sol_inventory.permission_method_consumption_delete_all'),
+                ref('sol_inventory.permission_purchase_order_read_all'),
+                ref('sol_inventory.permission_purchase_order_create_all'),
+                ref('sol_inventory.permission_purchase_order_edit_all'),
+                ref('sol_inventory.permission_purchase_order_delete_all'),
+                ref('sol_inventory.permission_purchase_order_sign_all'),
+                ref('sol_inventory.permission_receipt_read_all'),
+                ref('sol_inventory.permission_receipt_create_all'),
+                ref('sol_inventory.permission_receipt_edit_all'),
+                ref('sol_inventory.permission_receipt_delete_all'),
+                ref('sol_inventory.permission_lot_edit_all'),
             ])]"
         />
     </record>

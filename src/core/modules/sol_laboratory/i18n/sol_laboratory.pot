@@ -10587,6 +10587,80 @@ msgid "Why the change is needed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lot_edit_all
+msgid "Permission: lot.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_create_all
+msgid "Permission: purchase_order.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_create_own_department
+msgid "Permission: purchase_order.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_delete_all
+msgid "Permission: purchase_order.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_delete_own_department
+msgid "Permission: purchase_order.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_edit_all
+msgid "Permission: purchase_order.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_edit_own_department
+msgid "Permission: purchase_order.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_read_all
+msgid "Permission: purchase_order.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_read_own_department
+msgid "Permission: purchase_order.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_sign_all
+msgid "Permission: purchase_order.sign.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_sign_own_department
+msgid "Permission: purchase_order.sign.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_create_all
+msgid "Permission: receipt.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_delete_all
+msgid "Permission: receipt.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_edit_all
+msgid "Permission: receipt.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_read_all
+msgid "Permission: receipt.read.all"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_notification_contact_create_all
 msgid "Permission: notification.contact.create.all"
 msgstr ""

@@ -64,4 +64,18 @@
         <field name="role_id" ref="demo_role_lab_head" />
         <field name="can_reject" eval="True" />
     </record>
+    <record id="demo_approval_level_purchase_order_signing_storekeeper" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_purchase_order_signing" />
+        <field name="sequence">10</field>
+        <field name="name">Storekeeper</field>
+        <field name="role_id" ref="demo_role_storekeeper" />
+        <field name="can_reject" eval="False" />
+    </record>
+    <record id="demo_approval_level_purchase_order_signing_lab_head" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_purchase_order_signing" />
+        <field name="sequence">20</field>
+        <field name="name">Lab head</field>
+        <field name="role_id" ref="demo_role_lab_head" />
+        <field name="can_reject" eval="True" />
+    </record>
 </odoo>

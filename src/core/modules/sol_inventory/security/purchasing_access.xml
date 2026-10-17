@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The receipt permissions are on Odoo's pickings, which also hold other operations; they give receipts only. -->
+    <record id="sol_laboratory.access_permission_receipt_read_all" model="ir.access">
+        <field name="domain">[("picking_type_code", "=", "incoming")]</field>
+    </record>
+    <record id="sol_laboratory.access_permission_receipt_create_all" model="ir.access">
+        <field name="domain">[("picking_type_code", "=", "incoming")]</field>
+    </record>
+    <record id="sol_laboratory.access_permission_receipt_edit_all" model="ir.access">
+        <field name="domain">[("picking_type_code", "=", "incoming")]</field>
+    </record>
+    <record id="sol_laboratory.access_permission_receipt_delete_all" model="ir.access">
+        <field name="domain">[("picking_type_code", "=", "incoming")]</field>
+    </record>
+
+    <!-- The lines of a purchase order follow the order. Every internal user reads the lines of the orders they can
+         read, as Odoo's stock screens read them through the moves, such as the purchases of a lot. -->
+    <record id="access_purchase_order_line_read" model="ir.access">
+        <field name="name">purchase.order.line follows the order</field>
+        <field name="model_id" ref="purchase.model_purchase_order_line" />
+        <field name="group_id" ref="base.group_user" />
+        <field name="operation">r</field>
+        <field name="domain">[("order_id", "access", "read")]</field>
+    </record>
+    <record id="access_purchase_order_line_edit" model="ir.access">
+        <field name="name">purchase.order.line follows order edit</field>
+        <field name="model_id" ref="purchase.model_purchase_order_line" />
+        <field name="group_id" ref="sol_laboratory.group_permission_purchase_order_edit_all" />
+        <field name="operation">cud</field>
+        <field name="domain">[("order_id", "access", "write")]</field>
+    </record>
+    <record id="access_purchase_order_line_edit_own_department" model="ir.access">
+        <field name="name">purchase.order.line follows order edit of their department</field>
+        <field name="model_id" ref="purchase.model_purchase_order_line" />
+        <field name="group_id" ref="sol_laboratory.group_permission_purchase_order_edit_own_department" />
+        <field name="operation">cud</field>
+        <field name="domain">[("order_id", "access", "write")]</field>
+    </record>
+
+    <!-- The moves of a receipt follow the receipt. -->
+    <record id="access_stock_move_receipt_read" model="ir.access">
+        <field name="name">stock.move follows the receipt</field>
+        <field name="model_id" ref="stock.model_stock_move" />
+        <field name="group_id" ref="sol_laboratory.group_permission_receipt_read_all" />
+        <field name="operation">r</field>
+        <field name="domain">[("picking_id", "access", "read")]</field>
+    </record>
+    <record id="access_stock_move_receipt_edit" model="ir.access">
+        <field name="name">stock.move follows receipt edit</field>
+        <field name="model_id" ref="stock.model_stock_move" />
+        <field name="group_id" ref="sol_laboratory.group_permission_receipt_edit_all" />
+        <field name="operation">cud</field>
+        <field name="domain">[("picking_id", "access", "write")]</field>
+    </record>
+
+    <!-- Whoever reads a purchase order reads its receipts and their moves, which the order's screen shows. -->
+    <record id="access_stock_picking_purchase_read" model="ir.access">
+        <field name="name">stock.picking follows the purchase order</field>
+        <field name="model_id" ref="stock.model_stock_picking" />
+        <field name="group_id" ref="base.group_user" />
+        <field name="operation">r</field>
+        <field name="domain">[("move_ids.purchase_line_id", "access", "read")]</field>
+    </record>
+    <record id="access_stock_move_purchase_read" model="ir.access">
+        <field name="name">stock.move follows the purchase order</field>
+        <field name="model_id" ref="stock.model_stock_move" />
+        <field name="group_id" ref="base.group_user" />
+        <field name="operation">r</field>
+        <field name="domain">[("purchase_line_id", "access", "read")]</field>
+    </record>
+</odoo>

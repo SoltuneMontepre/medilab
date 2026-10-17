@@ -23,4 +23,30 @@
             groups="sol_laboratory.group_permission_cost_centre_read_all,sol_laboratory.group_permission_cost_centre_read_own_department"
         />
     </menuitem>
+
+    <!-- Odoo shows its Purchase and Inventory apps to its own groups; MediLab users reach them through permissions. -->
+    <record id="purchase.menu_purchase_root" model="ir.ui.menu">
+        <field
+            name="group_ids"
+            eval="[
+                Command.link(ref('sol_laboratory.group_permission_purchase_order_read_all')),
+                Command.link(ref('sol_laboratory.group_permission_purchase_order_read_own_department')),
+            ]"
+        />
+    </record>
+    <record id="stock.menu_stock_root" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.link(ref('sol_laboratory.group_permission_receipt_read_all'))]" />
+    </record>
+    <!-- MediLab signs every order before it is sent, so Odoo's lists of quotation requests and of confirmed orders are
+         left to Odoo's purchase users. -->
+    <record id="purchase.menu_purchase_rfq" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('purchase.group_purchase_user')])]" />
+    </record>
+    <record id="purchase.menu_purchase_form_action" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('purchase.group_purchase_user')])]" />
+    </record>
+
+    <menuitem id="menu_purchase_order" parent="purchase.menu_procurement_management" action="action_medilab_purchase_order" sequence="1" />
+    <menuitem id="menu_receipt" parent="stock.menu_stock_warehouse_mgmt" action="action_medilab_receipt" sequence="0" />
+    <menuitem id="menu_container" parent="stock.menu_stock_inventory_control" action="action_medilab_container" sequence="101" />
 </odoo>
