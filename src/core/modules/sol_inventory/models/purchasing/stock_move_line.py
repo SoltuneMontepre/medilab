@@ -30,7 +30,7 @@ class StockMoveLine(models.Model):
 
     # Number of bottles or vials the line receives of an item tracked by container; its quantity is split evenly
     # among them.
-    container_count = fields.Integer(string="Bottles or Vials", default=1)
+    container_count = fields.Integer(string="Bottles or Vials", required=True, default=1)
     # True when the line's item keeps each bottle or vial as a container of its own.
     track_containers = fields.Boolean(related="product_id.track_containers")
     # The manufacturer's certificate that came with the lot the line receives; it is attached to the lot.

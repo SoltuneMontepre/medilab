@@ -34,6 +34,8 @@ class PurchaseOrderApproval(models.Model):
             raise UserError(self.env._("Only an order that is not sent yet can be signed."))
         if not self.order_line.filtered(lambda line: not line.display_type):
             raise UserError(self.env._("An order without items cannot be signed."))
+        if not self.department_id:
+            raise UserError(self.env._("Name the department that asked for the order before it is signed."))
         return super().action_sign()
 
     def action_send_to_supplier(self):

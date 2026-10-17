@@ -65,13 +65,15 @@ class PurchasingCase(CatalogCase):
 
     @classmethod
     def make_order(cls, *lines, user=None, **vals):
-        """A draft purchase order to the supplier, created by the storekeeper, with (item, quantity, price) lines."""
+        """A draft purchase order of the chemistry department to the supplier, created by the storekeeper, with
+        (item, quantity, price) lines."""
         return (
             cls.env[MODEL_PURCHASE_ORDER]
             .with_user(user or cls.buyer)
             .create(
                 {
                     "partner_id": cls.vendor.id,
+                    "department_id": cls.chemistry.id,
                     "order_line": [
                         Command.create({"product_id": item.id, "product_qty": quantity, "price_unit": price})
                         for item, quantity, price in lines

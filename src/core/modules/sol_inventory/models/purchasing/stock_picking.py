@@ -1,8 +1,9 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import format_list
 
 from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_PACKAGE, MODEL_STOCK_PICKING, MODEL_SUPPLIER_INFO
-from odoo.addons.sol_inventory.constants.stock import DONE, RECEIPT_CODE
+from odoo.addons.sol_inventory.constants.stock import CANCELLED, DONE, RECEIPT_CODE
 from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SMALL_CONTAINER_LABEL_REPORT
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
 
@@ -40,8 +41,11 @@ class StockPicking(models.Model):
 
     def _action_done(self):
         receipts = self._receipts()
-        receipts.move_line_ids._check_expiry_typed()
-        receipts.move_line_ids._put_in_containers()
+        receipts._check_ordered_items()
+        # Only picked lines arrive now; Odoo moves the others to the backorder.
+        arrived = receipts.move_line_ids.filtered("picked")
+        arrived._check_expiry_typed()
+        arrived._put_in_containers()
         # A receipt keeps what did not arrive as a backorder, so its purchase order stays partially received.
         super(StockPicking, receipts.with_context(cancel_backorder=False))._action_done()
         super(StockPicking, self - receipts)._action_done()
@@ -49,14 +53,40 @@ class StockPicking(models.Model):
         receipts._record_supplier_prices()
         return True
 
+    def _check_ordered_items(self):
+        """Refuse receiving against a purchase order an item the order does not list: Odoo would add it to the order,
+        which stays as its signers signed it."""
+        for receipt in self.filtered("purchase_id"):
+            order = receipt.purchase_id
+            extra = receipt.move_ids.filtered(
+                lambda move: (
+                    move.picked
+                    and move.state not in (DONE, CANCELLED)
+                    and not move.purchase_line_id
+                    and move.product_id not in order.order_line.product_id
+                )
+            )
+            if extra:
+                raise UserError(
+                    self.env._(
+                        "%(order)s does not list %(items)s; receive them on a receipt without a purchase order.",
+                        order=order.display_name,
+                        items=format_list(self.env, extra.product_id.mapped("display_name")),
+                    )
+                )
+
     def _record_supplier_prices(self):
-        """Keep what each received item cost as its supplier's last price for it."""
+        """Keep what each received item cost as its supplier's last price for it; an item received without a price
+        leaves the last price as it was."""
         supplier_items = self.env[MODEL_SUPPLIER_INFO]
         for receipt in self:
             supplier = receipt.partner_id.commercial_partner_id
             if not supplier.sudo().with_context(active_test=False).supplier_ids:
                 continue
-            for move in receipt.move_ids.filtered(lambda move: move.state == DONE and move.product_id.item_kind):
+            currency = receipt.company_id.currency_id
+            for move in receipt.move_ids.filtered(
+                lambda move: move.state == DONE and move.product_id.item_kind and not currency.is_zero(move.price_unit)
+            ):
                 supplier_items._record_last_price(supplier, move.product_id, move.price_unit)
 
     def _check_backorder(self):

@@ -84,6 +84,20 @@
         </field>
     </record>
 
+    <!-- Returning goods to the supplier is not covered yet. Odoo's apps that link pickings to orders set this button
+         too, so this view comes after theirs and adds to their condition. -->
+    <record id="view_picking_form_return_medilab" model="ir.ui.view">
+        <field name="name">stock.picking.form.return.medilab</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form" />
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_return']" position="attributes">
+                <attribute name="invisible" add="picking_type_code == 'incoming'" separator=" or " />
+            </xpath>
+        </field>
+    </record>
+
     <record id="view_stock_move_line_operation_tree_medilab" model="ir.ui.view">
         <field name="name">stock.move.line.operations.list.medilab</field>
         <field name="model">stock.move.line</field>

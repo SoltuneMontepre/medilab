@@ -1,10 +1,15 @@
+from lxml import etree
+
 from odoo.exceptions import UserError, ValidationError
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from .purchasing_case import PurchasingCase
 from odoo.addons.sol_inventory.constants.models import (
     MODEL_STOCK_LOCATION,
     MODEL_STOCK_LOT,
+    MODEL_STOCK_PACKAGE,
+    MODEL_STOCK_PICKING,
     MODEL_STOCK_QUANT,
     MODEL_SUPPLIER_INFO,
 )
@@ -29,6 +34,56 @@ class TestReceipts(PurchasingCase):
 
         self.assertEqual(order.receipt_status, "full")
         self.assertEqual(order.order_line.qty_received, 10)
+
+    def test_a_partial_receipt_checks_and_puts_in_containers_only_what_arrived(self):
+        salt = self.create_item(
+            "Sodium chloride, 1 kg",
+            "chemical",
+            "container",
+            chemical_id=self.sodium_chloride.id,
+            use_expiration_date=True,
+        )
+        receipt = self.make_receipt((self.acid, 1000, 1200), (salt, 1000, 380))
+        self.fill(receipt, self.acid, ("Lot123", 1000, 2, self.expiry(), None))
+        receipt.move_ids.filtered(lambda move: move.product_id == salt).move_line_ids.write(
+            {"lot_name": "Lot900", "container_count": 2}
+        )
+
+        receipt.button_validate()
+
+        self.assertEqual(receipt.state, "done")
+        self.assertEqual(receipt.container_ids.sorted("name").mapped("name"), ["Lot123-01", "Lot123-02"])
+        self.assertFalse(self.env[MODEL_STOCK_PACKAGE].search([("name", "=like", "Lot900-%")]))
+        backorder = receipt.backorder_ids
+        self.assertEqual(backorder.move_ids.product_id, salt)
+        self.assertFalse(backorder.move_line_ids.result_package_id)
+
+    def test_a_receipt_against_an_order_brings_in_only_the_items_the_order_lists(self):
+        cotton = self.create_item("Cotton wool", "consumable", "quantity")
+        order = self.sent_order((self.gloves, 10, 50000))
+        receipt = order.picking_ids.with_user(self.buyer)
+        receipt.move_ids.write({"quantity": 10, "picked": True})
+        receipt.write(
+            {
+                "move_ids": [
+                    Command.create(
+                        {
+                            "product_id": cotton.id,
+                            "product_uom_qty": 5,
+                            "quantity": 5,
+                            "picked": True,
+                            "location_id": receipt.location_id.id,
+                            "location_dest_id": receipt.location_dest_id.id,
+                        }
+                    )
+                ]
+            }
+        )
+
+        with self.assertRaisesRegex(UserError, "Cotton wool"):
+            receipt.button_validate()
+
+        self.assertEqual(order.order_line.product_id, self.gloves)
 
     def test_receiving_a_chemical_creates_its_lot_with_the_printed_expiry_and_attaches_the_certificate(self):
         order = self.sent_order((self.acid, 2500, 1200))
@@ -160,3 +215,23 @@ class TestReceipts(PurchasingCase):
             [("partner_id", "=", self.vendor.id), ("product_id", "=", self.plates.id)]
         )
         self.assertEqual(plates_line.price, 15000)
+
+    def test_an_item_received_without_a_price_keeps_its_supplier_last_price(self):
+        line = self.env[MODEL_SUPPLIER_INFO].create(
+            {"partner_id": self.vendor.id, "product_id": self.gloves.id, "price": 2000}
+        )
+        receipt = self.make_receipt((self.gloves, 100, 0))
+        receipt.move_ids.quantity = 100
+
+        receipt.button_validate()
+
+        self.assertEqual(receipt.state, "done")
+        self.assertEqual(line.price, 2000)
+
+    def test_a_receipt_offers_no_return_to_the_supplier(self):
+        root = etree.fromstring(self.env[MODEL_STOCK_PICKING].get_view(view_type="form")["arch"])
+        invisible = next(
+            button.get("invisible") for button in root.iter("button") if button.get("name") == "action_return"
+        )
+
+        self.assertTrue(str(invisible).endswith(" or (picking_type_code == 'incoming')"), invisible)

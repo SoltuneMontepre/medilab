@@ -1,16 +1,20 @@
 from odoo import api, fields, models
 from odoo.fields import Command
 
+from odoo.addons.sol_inventory.constants.models import MODEL_PURCHASE_ORDER, MODEL_STOCK_PICKING
+
 MARKER = "sol_demo.demo_purchase_order_draft"
 STOREKEEPER = "sol_demo.demo_res_users_storekeeper"
 LAB_HEAD = "sol_demo.demo_res_users_lab_head"
 NITRIC_ACID_CERTIFICATE = "sol_demo.demo_ir_attachment_certificate_nitric_acid"
 NITRIC_ACID_LOT = "K55012345"
 NITRIC_ACID_EXPIRY = "2027-09-30 00:00:00"
+REJECTION_REASON = "Acetonitrile costs more than on the last order; ask Vietnam Chemicals for a new quote."
 
 
+# Đơn Mua Hàng
 class PurchaseOrder(models.Model):
-    _inherit = "purchase.order"
+    _inherit = MODEL_PURCHASE_ORDER
 
     @api.model
     def _seed_purchasing_demo(self):
@@ -37,9 +41,15 @@ class PurchaseOrder(models.Model):
         draft = _order(orders, labware, microbiology, (gloves, 500, 2000))
         requested = _order(orders, chemicals, chemistry, (item["acetonitrile"], 4000, 450))
         requested.action_request_approval()
+        rejected = _order(orders, chemicals, chemistry, (item["acetonitrile"], 2000, 520))
+        rejected.action_request_approval()
+        rejected.with_user(lab_head).sudo().action_reject(REJECTION_REASON)
         signed = _signed(_order(orders, chemicals, chemistry, (item["sodium_chloride"], 2000, 380)), lab_head)
         sent = _signed(_order(orders, labware, microbiology, (item["agar_plates"], 200, 15000)), lab_head)
         sent.action_send_to_supplier()
+        cancelled = _signed(_order(orders, labware, microbiology, (gloves, 300, 2100)), lab_head)
+        cancelled.action_send_to_supplier()
+        cancelled.button_cancel()
         partial = _signed(_order(orders, chemicals, chemistry, (nitric_acid, 5000, 520)), lab_head)
         partial.action_send_to_supplier()
         nitric_acid_receipt = partial.picking_ids
@@ -69,7 +79,7 @@ class PurchaseOrder(models.Model):
         receipt_type = self.env.ref("stock.warehouse0").in_type_id
         room = self.env.ref("sol_demo.demo_stock_location_room_101")
         without_order = (
-            self.env["stock.picking"]
+            self.env[MODEL_STOCK_PICKING]
             .with_user(storekeeper)
             .sudo()
             .create(
@@ -102,8 +112,10 @@ class PurchaseOrder(models.Model):
                 for name, record in (
                     ("demo_purchase_order_draft", draft),
                     ("demo_purchase_order_requested", requested),
+                    ("demo_purchase_order_rejected", rejected),
                     ("demo_purchase_order_signed", signed),
                     ("demo_purchase_order_sent", sent),
+                    ("demo_purchase_order_cancelled", cancelled),
                     ("demo_purchase_order_partially_received", partial),
                     ("demo_purchase_order_received", received),
                     ("demo_stock_picking_nitric_acid", nitric_acid_receipt),

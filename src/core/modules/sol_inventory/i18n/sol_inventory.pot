@@ -2044,7 +2044,7 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label
 #: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label_small
-msgid "'Labels %s' % (object.name if len(objects) == 1 else 'containers')"
+msgid "'Labels %s' % object.name"
 msgstr ""
 
 #. module: sol_inventory
@@ -2523,4 +2523,18 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_inventory/models/purchasing/purchase_order.py:0
 msgid "%s is not an active supplier, so it cannot be ordered from."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/stock_picking.py:0
+msgid ""
+"%(order)s does not list %(items)s; receive them on a receipt without a "
+"purchase order."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "Name the department that asked for the order before it is signed."
 msgstr ""

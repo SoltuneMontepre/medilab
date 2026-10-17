@@ -563,7 +563,7 @@ model Preparation {
   @@map("medilab_preparation")
 }
 
-/// Odoo's picking (stock.picking), shown with the columns this module uses and the columns it adds: a receipt from a supplier, a requisition of stock from the store directly above, or a sideways transfer of sealed stock between two stores of the same level. Its lines are its moves. Who did each step and when is in the audit trail.
+/// Odoo's picking (stock.picking), shown with the columns this module uses and the columns it adds: a receipt from a supplier, a requisition of stock from the store directly above, or a sideways transfer of sealed stock between two stores of the same level. Its lines are its moves; a receipt reaches its purchase order through their order lines. Who did each step and when is in the audit trail.
 model Picking {
   /// Row identifier.
   id                Int            @id @default(autoincrement())
@@ -585,22 +585,17 @@ model Picking {
   over_budget       Boolean        @default(false)
   /// Why the requisition was refused.
   refusal_reason    String?        @db.Text
-  /// The purchase order a receipt receives; empty for goods received without one.
-  purchase_id       Int?
   /// The location the stock leaves.
   from_location     StockLocation  @relation("PickingFrom", fields: [location_id], references: [id], onDelete: Restrict)
   /// The location the stock enters.
   to_location       StockLocation  @relation("PickingTo", fields: [location_dest_id], references: [id], onDelete: Restrict)
   /// The supplier of a receipt.
   supplier          Contact?       @relation(fields: [partner_id], references: [id], onDelete: Restrict)
-  /// The purchase order a receipt receives.
-  purchase_order    PurchaseOrder? @relation(fields: [purchase_id], references: [id], onDelete: Restrict)
   /// Lines of the picking.
   moves             StockMove[]
 
   @@index([location_id, request_status])
   @@index([location_dest_id, request_status])
-  @@index([purchase_id])
   @@map("stock_picking")
 }
 
@@ -761,8 +756,6 @@ model PurchaseOrder {
   department     Department?         @relation(fields: [department_id], references: [id], onDelete: Restrict)
   /// Lines of the order.
   lines          PurchaseOrderLine[]
-  /// Receipts of the order.
-  receipts       Picking[]
 
   @@index([partner_id, state])
   @@index([department_id])

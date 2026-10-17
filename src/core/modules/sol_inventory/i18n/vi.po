@@ -2044,8 +2044,8 @@ msgstr "%s đã được ký nên không thể mở lại; hãy nhân bản đ�
 #. module: sol_inventory
 #: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label
 #: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label_small
-msgid "'Labels %s' % (object.name if len(objects) == 1 else 'containers')"
-msgstr "'Tem %s' % (object.name if len(objects) == 1 else 'chai lọ')"
+msgid "'Labels %s' % object.name"
+msgstr "'Tem %s' % object.name"
 
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_production_lot_form_medilab
@@ -2524,3 +2524,17 @@ msgstr "<span class=\"o_form_label\">Đơn mua hàng</span>"
 #: code:addons/sol_inventory/models/purchasing/purchase_order.py:0
 msgid "%s is not an active supplier, so it cannot be ordered from."
 msgstr "%s không phải nhà cung cấp đang hoạt động nên không thể đặt mua."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/stock_picking.py:0
+msgid ""
+"%(order)s does not list %(items)s; receive them on a receipt without a "
+"purchase order."
+msgstr "%(order)s không có %(items)s; hãy nhập chúng bằng phiếu nhập kho không theo đơn mua hàng."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "Name the department that asked for the order before it is signed."
+msgstr "Hãy chọn phòng ban đề nghị mua trước khi ký đơn."

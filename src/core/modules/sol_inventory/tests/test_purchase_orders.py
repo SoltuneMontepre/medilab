@@ -21,6 +21,17 @@ class TestPurchaseOrders(PurchasingCase):
         self.assertEqual(order.approval_status, "approved")
         self.assertEqual(order.state, "draft")
 
+    def test_an_order_names_its_department_before_its_approval_is_requested(self):
+        order = self.make_order((self.gloves, 10, 50000), department_id=False)
+
+        with self.assertRaises(UserError):
+            order.action_request_approval()
+
+        self.assertEqual(order.approval_status, "none")
+        order.department_id = self.chemistry
+        order.action_request_approval()
+        self.assertEqual(order.approval_status, "requested")
+
     def test_an_order_cannot_be_sent_before_its_approval_chain_has_signed_it(self):
         order = self.make_order((self.gloves, 10, 50000))
         order.action_request_approval()
