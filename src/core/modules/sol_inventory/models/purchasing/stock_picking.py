@@ -57,23 +57,28 @@ class StockPicking(models.Model):
         """Refuse receiving against a purchase order an item the order does not list: Odoo would add it to the order,
         which stays as its signers signed it."""
         for receipt in self.filtered("purchase_id"):
-            order = receipt.purchase_id
-            extra = receipt.move_ids.filtered(
-                lambda move: (
-                    move.picked
-                    and move.state not in (DONE, CANCELLED)
-                    and not move.purchase_line_id
-                    and move.product_id not in order.order_line.product_id
-                )
-            )
+            extra = receipt._moves_off_order()
             if extra:
                 raise UserError(
                     self.env._(
                         "%(order)s does not list %(items)s; receive them on a receipt without a purchase order.",
-                        order=order.display_name,
+                        order=receipt.purchase_id.display_name,
                         items=format_list(self.env, extra.product_id.mapped("display_name")),
                     )
                 )
+
+    def _moves_off_order(self):
+        """The picked moves of the receipt whose item its purchase order does not list."""
+        self.ensure_one()
+        ordered = self.purchase_id.order_line.product_id
+        return self.move_ids.filtered(
+            lambda move: (
+                move.picked
+                and move.state not in (DONE, CANCELLED)
+                and not move.purchase_line_id
+                and move.product_id not in ordered
+            )
+        )
 
     def _record_supplier_prices(self):
         """Keep what each received item cost as its supplier's last price for it; an item received without a price
