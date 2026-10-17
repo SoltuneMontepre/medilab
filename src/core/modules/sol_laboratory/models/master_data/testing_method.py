@@ -51,15 +51,15 @@ class TestingMethod(models.Model):
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a testing method must be unique.")
 
     def _compute_certificate_ids(self):
-        Certificate = self.env[MODEL_ACCREDITATION_CERTIFICATE].with_context(active_test=False)
-        mapping = {method.id: Certificate for method in self if method.id}
+        certificates = self.env[MODEL_ACCREDITATION_CERTIFICATE].with_context(active_test=False)
+        mapping = {method.id: certificates for method in self if method.id}
         methods = self.filtered("id")
         if methods:
-            for certificate in Certificate.search([("method_ids", "in", methods.ids)]):
+            for certificate in certificates.search([("method_ids", "in", methods.ids)]):
                 for method in certificate.method_ids & methods:
                     mapping[method.id] |= certificate
         for method in self:
-            method.certificate_ids = mapping.get(method.id, Certificate)
+            method.certificate_ids = mapping.get(method.id, certificates)
 
     def _refuse_certificate_ids(self, vals):
         if "certificate_ids" in vals:

@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 SNAPSHOT_TABLE = "medilab_is_accredited_upgrade_snapshot"
 
 
-def migrate(cr, version):
+def migrate(cr, _version):
     # Recompute under certificate rules and compare with the pre-migrate snapshot.
     # Manually assigned True values that no certificate supports become False; the
     # laboratory does not invent certificates to preserve them.

@@ -9,7 +9,7 @@ SNAPSHOT_TABLE = "medilab_is_accredited_upgrade_snapshot"
 SNAPSHOT_MARKER = "medilab_is_accredited_upgrade_snapshot_done"
 
 
-def migrate(cr, version):
+def migrate(cr, _version):
     # Snapshot hand-set is_accredited values before the field becomes a stored compute.
     # Production upgrades clear unsupported manually assigned True values in post-migrate;
     # this table keeps the evidence of True→False transitions for verification.

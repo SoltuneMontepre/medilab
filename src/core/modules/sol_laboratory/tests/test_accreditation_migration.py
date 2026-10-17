@@ -14,7 +14,8 @@ SNAPSHOT_MARKER = "medilab_is_accredited_upgrade_snapshot_done"
 def _load_migrate(name):
     path = MIGRATIONS / f"{name}.py"
     spec = importlib.util.spec_from_file_location(name.replace("-", "_"), path)
-    assert spec is not None and spec.loader is not None
+    assert spec is not None
+    assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.migrate

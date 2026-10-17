@@ -2,6 +2,7 @@ from odoo import models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
+    MODEL_IR_CONFIG_PARAMETER,
     MODEL_PARAMETER_METHOD,
     MODEL_SCHEDULED_JOB,
 )
@@ -48,7 +49,7 @@ class ScheduledJob(models.Model):
         return f"{DISCOVERY_PARAM_PREFIX}{day.isoformat()}"
 
     def _accreditation_discovery_marker(self, day=None):
-        return self.env["ir.config_parameter"].sudo().get_str(self._accreditation_discovery_param_key(day))
+        return self.env[MODEL_IR_CONFIG_PARAMETER].sudo().get_str(self._accreditation_discovery_param_key(day))
 
     def _accreditation_discovery_remaining(self):
         # Cron only needs unfinished vs DONE; an exact remaining pair count is unnecessary.
@@ -72,7 +73,7 @@ class ScheduledJob(models.Model):
         today = self.env[MODEL_ACCREDITATION_CERTIFICATE]._laboratory_today()
         date_prefix = f"date:{today.isoformat()}"
         param_key = self._accreditation_discovery_param_key(today)
-        icp = self.env["ir.config_parameter"].sudo()
+        icp = self.env[MODEL_IR_CONFIG_PARAMETER].sudo()
         marker = icp.get_str(param_key)
         if marker == DISCOVERY_DONE:
             return
@@ -93,7 +94,7 @@ class ScheduledJob(models.Model):
 
     def _queue_accreditation_refresh(self):
         """Compatibility helper for tests: run discovery pages until today's catalog is queued."""
-        icp = self.env["ir.config_parameter"].sudo()
+        icp = self.env[MODEL_IR_CONFIG_PARAMETER].sudo()
         param_key = self._accreditation_discovery_param_key()
         icp.set_str(param_key, "0")
         for _ in range(10_000):

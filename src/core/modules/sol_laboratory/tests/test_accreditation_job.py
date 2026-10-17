@@ -338,7 +338,7 @@ class TestAccreditationJob(MasterDataCase):
                 with patch.object(
                     type(self.env[MODEL_SCHEDULED_JOB]),
                     "_discover_accreditation_refresh_page",
-                    lambda job: None,
+                    return_value=None,
                 ):
                     self.job._run_batch()
             self.env.invalidate_all()
