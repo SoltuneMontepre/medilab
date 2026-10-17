@@ -774,6 +774,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_ir_attachment
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__attachment_id
 msgid "Attachment"
 msgstr ""
 
@@ -1538,6 +1539,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -1597,6 +1599,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_date
 msgid "Created on"
 msgstr ""
 
@@ -2093,6 +2096,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2964,6 +2968,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__id
 msgid "ID"
 msgstr ""
 
@@ -3301,6 +3306,7 @@ msgstr ""
 #: model:ir.model,name:sol_laboratory.model_medilab_job_run
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__job_run_id
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__job
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__job_run_id
 msgid "Job Run"
 msgstr ""
 
@@ -3334,6 +3340,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__kind
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__kind
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__kind
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_search
 msgid "Kind"
 msgstr ""
 
@@ -3479,6 +3487,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -3538,6 +3547,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -9815,6 +9825,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__download
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_list
 msgid "Download"
 msgstr ""
 
@@ -10947,4 +10959,147 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/res_config_settings.py:0
 msgid "The lock timeout must be at least 1 minute."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "A retention period must be at least 1 day."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_archive_file
+msgid "Archive File"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_archive_file
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__archive_file_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_archive_file
+msgid "Archive Files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__audit_entry_ids
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_archive_file__kind__audit_entry
+msgid "Audit Entries"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_cleanup_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_cleanup
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
+msgid "Cleanup"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__job_retention_days
+msgid ""
+"Days done and cancelled job items and ended job runs are kept before the "
+"cleanup job removes them. A run that audit entries or archive files name "
+"stays as long as they do."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__device_retention_days
+msgid ""
+"Days mobile devices that were turned off are kept before the cleanup job "
+"removes them."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__notification_retention_days
+msgid ""
+"Days read notifications are kept before the cleanup job removes them with "
+"their pushes."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__lock_retention_days
+msgid ""
+"Days released and expired document locks are kept before the cleanup job "
+"removes them."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__job_retention_days
+msgid "Job History (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__lock_retention_days
+msgid "Lock History (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__period_end
+msgid "Period End"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__period_start
+msgid "Period Start"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_archive_file_read_all
+msgid "Permission: archive.file.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__notification_retention_days
+msgid "Read Notifications (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_archive_file_read_all
+msgid "Read archive files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__row_count
+msgid "Row Count"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__checksum
+msgid "SHA-256"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__size_bytes
+msgid "Size (bytes)"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/archive_file.py:0
+msgid "The archive file of %s does not match its checksum."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_archive_file_attachment_unique
+msgid "This file already belongs to an archive."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_archive_file_period_unique
+msgid "This period of records is already archived."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__device_retention_days
+msgid "Turned-off Devices (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_list
+msgid "Written On"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "The audit retention period cannot be negative; 0 keeps entries for ever."
 msgstr ""

@@ -11,6 +11,20 @@
                         <field name="audit_retention_days" class="o_light_label" />
                     </setting>
                 </block>
+                <block title="Cleanup" name="cleanup_setting_container">
+                    <setting id="job_retention_setting">
+                        <field name="job_retention_days" class="o_light_label" />
+                    </setting>
+                    <setting id="lock_retention_setting">
+                        <field name="lock_retention_days" class="o_light_label" />
+                    </setting>
+                    <setting id="notification_retention_setting">
+                        <field name="notification_retention_days" class="o_light_label" />
+                    </setting>
+                    <setting id="device_retention_setting">
+                        <field name="device_retention_days" class="o_light_label" />
+                    </setting>
+                </block>
                 <block title="Document Locks" name="lock_setting_container">
                     <setting id="lock_timeout_setting">
                         <field name="lock_timeout_minutes" class="o_light_label" />

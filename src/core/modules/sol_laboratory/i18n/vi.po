@@ -785,6 +785,7 @@ msgstr "Người thực hiện"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_ir_attachment
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__attachment_id
 msgid "Attachment"
 msgstr "Tệp Đính Kèm"
 
@@ -1553,6 +1554,7 @@ msgstr "Tạo cách thử của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -1612,6 +1614,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2113,6 +2116,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -3003,6 +3007,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__id
 msgid "ID"
 msgstr "ID"
 
@@ -3352,6 +3357,7 @@ msgstr "Chức vụ"
 #: model:ir.model,name:sol_laboratory.model_medilab_job_run
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__job_run_id
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__job
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__job_run_id
 msgid "Job Run"
 msgstr "Lượt Chạy Tác Vụ"
 
@@ -3385,6 +3391,8 @@ msgstr "Khóa"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__kind
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__kind
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__kind
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_search
 msgid "Kind"
 msgstr "Loại"
 
@@ -3532,6 +3540,7 @@ msgstr "Lượt Chạy Theo Lịch Cuối"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -3591,6 +3600,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -9939,6 +9949,8 @@ msgstr "Không đạt %s"
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__download
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_list
 msgid "Download"
 msgstr "Tải Xuống"
 
@@ -11077,3 +11089,146 @@ msgstr "Đang chờ mở khóa"
 #: code:addons/sol_laboratory/models/system/res_config_settings.py:0
 msgid "The lock timeout must be at least 1 minute."
 msgstr "Thời gian khóa tối đa phải ít nhất 1 phút."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "A retention period must be at least 1 day."
+msgstr "Thời gian lưu giữ phải ít nhất 1 ngày."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_archive_file
+msgid "Archive File"
+msgstr "Tệp Lưu Trữ"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_archive_file
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__archive_file_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_archive_file
+msgid "Archive Files"
+msgstr "Tệp Lưu Trữ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__audit_entry_ids
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_archive_file__kind__audit_entry
+msgid "Audit Entries"
+msgstr "Mục nhật ký hoạt động"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_cleanup_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_cleanup
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
+msgid "Cleanup"
+msgstr "Dọn dẹp"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__job_retention_days
+msgid ""
+"Days done and cancelled job items and ended job runs are kept before the "
+"cleanup job removes them. A run that audit entries or archive files name "
+"stays as long as they do."
+msgstr "Số ngày giữ các mục tác vụ đã xong hoặc đã hủy và các lượt chạy đã kết thúc trước khi tác vụ dọn dẹp xóa chúng. Lượt chạy được nhật ký hoạt động hoặc tệp lưu trữ nhắc đến được giữ lại chừng nào chúng còn."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__device_retention_days
+msgid ""
+"Days mobile devices that were turned off are kept before the cleanup job "
+"removes them."
+msgstr "Số ngày giữ các thiết bị di động đã tắt trước khi tác vụ dọn dẹp xóa chúng."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__notification_retention_days
+msgid ""
+"Days read notifications are kept before the cleanup job removes them with "
+"their pushes."
+msgstr "Số ngày giữ các thông báo đã đọc trước khi tác vụ dọn dẹp xóa chúng cùng các lần đẩy thông báo."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__lock_retention_days
+msgid ""
+"Days released and expired document locks are kept before the cleanup job "
+"removes them."
+msgstr "Số ngày giữ các khóa chứng từ đã mở hoặc đã hết hạn trước khi tác vụ dọn dẹp xóa chúng."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__job_retention_days
+msgid "Job History (days)"
+msgstr "Lịch sử tác vụ (ngày)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__lock_retention_days
+msgid "Lock History (days)"
+msgstr "Lịch sử khóa (ngày)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__period_end
+msgid "Period End"
+msgstr "Cuối kỳ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__period_start
+msgid "Period Start"
+msgstr "Đầu kỳ"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_archive_file_read_all
+msgid "Permission: archive.file.read.all"
+msgstr "Quyền: archive.file.read.all"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__notification_retention_days
+msgid "Read Notifications (days)"
+msgstr "Thông báo đã đọc (ngày)"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_archive_file_read_all
+msgid "Read archive files"
+msgstr "Xem tệp lưu trữ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__row_count
+msgid "Row Count"
+msgstr "Số dòng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__checksum
+msgid "SHA-256"
+msgstr "SHA-256"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__size_bytes
+msgid "Size (bytes)"
+msgstr "Kích thước (byte)"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/archive_file.py:0
+msgid "The archive file of %s does not match its checksum."
+msgstr "Tệp lưu trữ %s không khớp với mã kiểm tra."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_archive_file_attachment_unique
+msgid "This file already belongs to an archive."
+msgstr "Tệp này đã thuộc một tệp lưu trữ."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_archive_file_period_unique
+msgid "This period of records is already archived."
+msgstr "Kỳ dữ liệu này đã được lưu trữ."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__device_retention_days
+msgid "Turned-off Devices (days)"
+msgstr "Thiết bị đã tắt (ngày)"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_list
+msgid "Written On"
+msgstr "Ghi lúc"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "The audit retention period cannot be negative; 0 keeps entries for ever."
+msgstr "Thời gian lưu giữ nhật ký hoạt động không được âm; 0 là giữ mãi mãi."

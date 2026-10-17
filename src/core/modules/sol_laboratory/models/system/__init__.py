@@ -1,6 +1,7 @@
 from . import (
     approval_chain,
     approval_level,
+    archive_file,
     audit_change,
     audit_entry,
     audit_report,

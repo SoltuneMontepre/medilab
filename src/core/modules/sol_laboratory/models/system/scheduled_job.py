@@ -8,8 +8,9 @@ from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import SQL, mute_logger
 
-from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
+from odoo.addons.sol_laboratory.constants.jobs import AUDIT_KIND, CLEANUP_KINDS, JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ARCHIVE_FILE,
     MODEL_AUDIT_MIXIN,
     MODEL_DOCUMENT_LOCK,
     MODEL_IR_CRON,
@@ -18,6 +19,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_JOB_RUN,
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
+    MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
 )
 
@@ -203,10 +205,6 @@ class ScheduledJob(models.Model):
     def _run_batch(self):
         """Do one batch of due items; under the cron, Odoo calls again while items remain."""
         self.ensure_one()
-        # A job that finds its own work, such as stale locks, queues it first in _queue_<key>.
-        finder = getattr(self, QUEUE_PREFIX + self.key.replace(".", "_"), None)
-        if finder:
-            finder()
         job = self.sudo()
         now = fields.Datetime.now()
         run = job._current_run(now)
@@ -243,6 +241,10 @@ class ScheduledJob(models.Model):
         (running - current)._close("Continued in a later pass")
         if current:
             return current
+        # A job that finds its own work, such as stale locks, queues it in _queue_<key> once, as its run starts.
+        finder = getattr(self, QUEUE_PREFIX + self.key.replace(".", "_"), None)
+        if finder:
+            finder()
         run = self.env[MODEL_JOB_RUN].create(
             {
                 "job_id": self.id,
@@ -343,6 +345,26 @@ class ScheduledJob(models.Model):
         lock = item._document()
         if lock and lock.exists() and not lock._fresh():
             lock._release("expired")
+
+    def _queue_cleanup(self):
+        # One item per kind and day, and one per month of audit entries due, so each is done once.
+        today = fields.Date.today()
+        for kind in CLEANUP_KINDS:
+            self.queue(self.key, f"{kind}:{today}", payload={"kind": kind})
+        if days := self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("audit_retention_days"):
+            for month in self.env[MODEL_ARCHIVE_FILE]._audit_months_due(days):
+                self.queue(self.key, f"{AUDIT_KIND}:{month:%Y-%m}", payload={"kind": AUDIT_KIND, "month": str(month)})
+
+    def _handle_cleanup(self, item):
+        kind = item.payload["kind"]
+        if kind == AUDIT_KIND:
+            self.env[MODEL_ARCHIVE_FILE]._archive_audit_month(fields.Date.to_date(item.payload["month"]))
+            return
+        model, retention = CLEANUP_KINDS[kind]
+        days = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter(retention)
+        records = self.env[model].sudo().with_context(active_test=False)
+        # ponytail: one unlink per kind and day; remove in chunks if a backlog makes it too long for one transaction.
+        records.search(records._cleanup_domain(fields.Datetime.now() - timedelta(days=days))).unlink()
 
     def _notify_failed_item(self, item):
         # Brevo notifications come later; the administrator gets an activity and the Jobs screen lists the item.

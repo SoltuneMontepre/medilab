@@ -1822,6 +1822,7 @@ model AuditEntry {
   @@index([parent_model, parent_id])
   @@index([user_id, create_date])
   @@index([action, create_date])
+  @@index([job_run_id])
   @@map("medilab_audit_entry")
 }
 
@@ -2148,7 +2149,7 @@ model ArchiveFile {
   /// SHA-256 of the file, checked before the archived records are removed.
   checksum     String    @db.VarChar
   /// Size of the file in bytes.
-  size_bytes   BigInt
+  size_bytes   Int
   /// The cleanup run that wrote the file.
   job_run_id   Int
   /// The cleanup run that wrote the file.

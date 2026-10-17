@@ -29,7 +29,7 @@ Stories: US-AD13, US-AD15
 - [Payments](payments.md): how cash, bank transfer and PayOS payments are confirmed, rejected, receipted and reconciled by day
 - [PayOS](payos.md): how the PayOS provider, its signed webhook, its jobs and its payment links behave
 - [Permissions](permissions.md): how permission, role and person records become Odoo groups and accesses, and how the own-department scope is applied
-- [Scheduled jobs](scheduled-jobs.md): how jobs, their item queues and runs work: handlers, claiming, retries, running by hand and the no-overlap rule
+- [Scheduled jobs](scheduled-jobs.md): how jobs, their item queues and runs work: handlers, claiming, retries, running by hand, the no-overlap rule, and the cleanup job with its archive files
 - [Settings](settings.md): how a module declares a system parameter with its default, how features read it, who changes settings and how modules install and uninstall independently
 - [Stock costing and charges](stock-costing.md): how moves are costed, stock is valued and charged to cost centres, budgets are used up and charges are exported
 

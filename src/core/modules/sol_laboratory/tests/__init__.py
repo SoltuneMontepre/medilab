@@ -22,6 +22,7 @@ from . import (
     test_change_request_raising,
     test_change_request_report,
     test_change_request_result,
+    test_cleanup,
     test_code_sequences,
     test_customer,
     test_customer_profile,

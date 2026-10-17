@@ -1,6 +1,6 @@
 import logging
 
-from odoo import fields, models
+from odoo import api, fields, models
 from odoo.exceptions import AccessError
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_NOTIFICATION
@@ -38,6 +38,16 @@ class MailNotification(models.Model):
 
     # Delivery status Brevo reported: sent, delivered, opened, bounced, failed or deferred.
     brevo_status = fields.Char(readonly=True, copy=False)
+
+    @api.model
+    def _cleanup_domain(self, cutoff):
+        """The notifications the cleanup job removes with their pushes: MediLab's own, read and posted before the
+        cutoff. Notifications of Odoo's chatter stay."""
+        return [
+            ("is_read", "=", True),
+            ("mail_message_id.notification_key", "!=", False),
+            ("mail_message_id.date", "<", cutoff),
+        ]
 
     def action_open_document(self):
         """Mark this inbox notification read and open the document it belongs to."""

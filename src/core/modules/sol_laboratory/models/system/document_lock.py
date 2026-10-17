@@ -242,6 +242,11 @@ class DocumentLock(models.Model):
         self._active(documents)._own_edits()._release(reason)
 
     @api.model
+    def _cleanup_domain(self, cutoff):
+        """The locks the cleanup job removes: released or expired before the cutoff."""
+        return [("status", "!=", "active"), ("released_at", "<", cutoff)]
+
+    @api.model
     def _stale(self):
         """The active locks whose holder was inactive for longer than the inactivity period."""
         return self.sudo().search([("status", "=", "active"), ("last_activity_at", "<", self._cutoff())])

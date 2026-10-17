@@ -3,6 +3,7 @@
 MODEL_APPROVAL_CHAIN = "medilab.approval.chain"
 MODEL_APPROVAL_LEVEL = "medilab.approval.level"
 MODEL_APPROVAL_MIXIN = "medilab.approval.mixin"
+MODEL_ARCHIVE_FILE = "medilab.archive.file"
 MODEL_ARCHIVE_MIXIN = "medilab.archive.mixin"
 MODEL_AUDIT_CHANGE = "medilab.audit.change"
 MODEL_AUDIT_ENTRY = "medilab.audit.entry"

@@ -64,6 +64,11 @@ class MobileDevice(models.Model):
         device.sudo().write({"active": False})
         return device
 
+    @api.model
+    def _cleanup_domain(self, cutoff):
+        """The devices the cleanup job removes: turned off before the cutoff."""
+        return [("active", "=", False), ("write_date", "<", cutoff)]
+
     def turn_off(self, reason):
         """Firebase reported a permanent token failure."""
         _logger.info("Mobile device turned off: %s", reason)

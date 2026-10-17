@@ -75,7 +75,7 @@ Every audited form has a **History** button in its button box, shown to those wh
 - An **Audit trail** screen lists entries, searched by document type, document, user, period, action and source, with the changes of each entry.
 - Once a document is deleted, its entries are named, and found, by the name its delete entry keeps.
 - An **Audit report** for a period, filtered the same way, prints as PDF or exports to a spreadsheet, one row per change; an entry without changes is one row.
-- The retention period, in days, is set in the Laboratory block of [Settings](settings.md) and kept in the system parameter `sol_laboratory.audit_retention_days`. It is empty by default, and empty or 0 keeps entries for ever.
+- The retention period, in days, is set in the Laboratory block of [Settings](settings.md) and kept in the system parameter `sol_laboratory.audit_retention_days`. It is empty by default, and empty or 0 keeps entries for ever. Once it is set, the [cleanup job](scheduled-jobs.md#cleanup) writes each calendar month older than the period to an archive file, which administrators list and download under Audit Trail, and then removes the month's entries.
 
 ### Document types of this feature
 

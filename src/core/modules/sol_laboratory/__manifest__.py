@@ -46,6 +46,7 @@
         "views/sample_collection/subcontract_dispatch_portal_templates.xml",
         "views/sample_collection/test_request_views.xml",
         "views/system/approval_chain_views.xml",
+        "views/system/archive_file_views.xml",
         "views/system/audit_entry_views.xml",
         "views/system/audit_report_templates.xml",
         "views/system/audit_report_views.xml",
