@@ -94,7 +94,7 @@ class ProductProduct(models.Model):
             "track_containers": item_tracking == TRACKING_CONTAINER,
         }
 
-    @api.constrains("item_kind", "chemical_id", "tracking", "track_containers")
+    @api.constrains("item_kind", "chemical_id", "tracking", "track_containers", "purchase_ok")
     def _check_kind(self):
         for item in self.filtered("item_kind"):
             if item.item_kind != KIND_CHEMICAL:
@@ -105,6 +105,13 @@ class ProductProduct(models.Model):
                 if item.item_kind == KIND_SOLUTION and item.item_tracking != TRACKING_CONTAINER:
                     raise ValidationError(
                         self.env._("%s is a prepared solution, so it is tracked by container.", item.display_name)
+                    )
+                if item.item_kind == KIND_SOLUTION and item.purchase_ok:
+                    raise ValidationError(
+                        self.env._(
+                            "%s is a prepared solution, so it is made in the laboratory and never bought.",
+                            item.display_name,
+                        )
                     )
                 continue
             if not item.chemical_id:
@@ -122,6 +129,8 @@ class ProductProduct(models.Model):
                 vals.update(self._tracking_values(vals.pop("item_tracking")))
             if vals.get("item_kind"):
                 vals.setdefault("is_storable", True)
+                if vals["item_kind"] == KIND_SOLUTION:
+                    vals["purchase_ok"] = False
                 if not vals.get("default_code"):
                     vals["default_code"] = self.env["ir.sequence"].next_by_code(STOCK_ITEM_SEQUENCE)
         if self.env.su or not all(vals.get("item_kind") for vals in vals_list):
@@ -135,6 +144,12 @@ class ProductProduct(models.Model):
         if "item_tracking" in vals:
             vals = {**vals, **self._tracking_values(vals["item_tracking"])}
             del vals["item_tracking"]
+        # A prepared solution is never bought; an item that stops being one is bought again.
+        bought_again = self.browse()
+        if vals.get("item_kind") == KIND_SOLUTION:
+            vals = {**vals, "purchase_ok": False}
+        elif "item_kind" in vals and "purchase_ok" not in vals:
+            bought_again = self.filtered(lambda item: item.item_kind == KIND_SOLUTION)
         items = self._as_items()
         if items is None:
             self._check_product_manager()
@@ -155,6 +170,8 @@ class ProductProduct(models.Model):
             if parts:
                 super().write(parts)
             result = True
+        if bought_again:
+            super(ProductProduct, bought_again.sudo()).write({"purchase_ok": True})
         if tracking_before:
             self.filtered(lambda item: item.id in tracking_before)._check_tracking_kept(tracking_before)
         return result

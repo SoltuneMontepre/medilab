@@ -2731,3 +2731,10 @@ msgstr "%(order)s không có %(items)s; hãy nhập chúng bằng phiếu nhập
 #: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
 msgid "Name the department that asked for the order before it is signed."
 msgstr "Hãy chọn phòng ban đề nghị mua trước khi ký đơn."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/product_product.py:0
+msgid ""
+"%s is a prepared solution, so it is made in the laboratory and never bought."
+msgstr "%s là dung dịch pha chế nên được pha tại phòng thí nghiệm, không bao giờ mua."

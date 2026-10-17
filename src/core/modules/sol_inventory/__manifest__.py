@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Inventory",
-    "version": "20.0.1.0.0",
+    "version": "20.0.1.1.0",
     "summary": "Manage stock, expiry, material movement and suppliers for testing centers",
     "category": "Services/Laboratory",
     "icon": "/sol_inventory/static/description/icon.svg",

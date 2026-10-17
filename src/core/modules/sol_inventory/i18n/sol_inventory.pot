@@ -2731,3 +2731,10 @@ msgstr ""
 #: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
 msgid "Name the department that asked for the order before it is signed."
 msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/product_product.py:0
+msgid ""
+"%s is a prepared solution, so it is made in the laboratory and never bought."
+msgstr ""

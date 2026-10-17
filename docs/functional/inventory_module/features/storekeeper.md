@@ -43,6 +43,7 @@ Follows [Stock](../overview.md#stock), [Stores](../overview.md#stores) and [Purc
 | --------- | ------------------------------------------------------------------------------------------------------------ |
 | Codes     | Items and suppliers get a code from a sequence when none is typed. A typed code must still be unique.        |
 | Tracking  | An item's tracking (container, lot or quantity) cannot change once it has stock. Chemicals and prepared solutions are tracked by container. |
+| Buying    | A prepared solution is made in the laboratory and never bought, so it has no suppliers and purchase orders do not offer it. A ready-made solution bought from a supplier is a chemical or reagent. An item that stops being a prepared solution can be bought again. |
 | Archiving | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Items and suppliers are archived, never deleted. An item is in use while it has stock on hand, an active testing method uses it per test, or an active [recipe](admin.md#2-recipes-us-ad23) makes or uses it. An archived supplier keeps its items and last prices, but purchases no longer suggest it. Minimum quantities, supplier items and uses per test are removed by deleting them; an item's minimum quantities are archived and restored with it. |
 
 Acceptance criteria:
@@ -52,6 +53,7 @@ Acceptance criteria:
 - An item with stock on hand cannot be archived; the message lists the locations that hold it.
 - An item that an active testing method uses per test cannot be archived; the message lists the methods.
 - A prepared solution item is tracked by container.
+- A prepared solution item cannot be bought: it has no suppliers and purchase orders do not offer it.
 - Changing the tracking of an item with stock is refused.
 - An item or a supplier cannot be deleted, only archived.
 - An archived supplier is no longer suggested when buying, and keeps its last prices.

@@ -6,7 +6,7 @@ The Inventory module keeps the laboratory's stock: chemicals and reagents, consu
 
 | Rule          | Description                                                                                                                                   |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Items         | A stock item is a chemical or reagent, a consumable, a spare part or a prepared solution, counted in one unit. A chemical item stocks one Laboratory chemical.        |
+| Items         | A stock item is a chemical or reagent, a consumable, a spare part or a prepared solution, counted in one unit. A chemical item stocks one Laboratory chemical. A prepared solution is made in the laboratory and never bought; a ready-made solution bought from a supplier is a chemical or reagent. |
 | Tracking      | Each item is tracked by container, by lot or by quantity. Chemicals and reagents, and prepared solutions, are tracked by container. Sterile or chemically treated consumables, such as swabs, special filters and culture plates, are tracked by lot for their expiry. Basic protective equipment, such as masks and gloves, and spare parts are tracked by quantity only. |
 | Lots          | Items tracked by container or lot are kept by lot, with the expiry date printed on the container and the manufacturer's certificate.          |
 | Stock on hand | The quantity of each item, lot and location is kept up to date by moves.                                                                      |
