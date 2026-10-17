@@ -102,17 +102,8 @@ class ProductProduct(models.Model):
                     raise ValidationError(
                         self.env._("%s is not a chemical, so it stocks no Laboratory chemical.", item.display_name)
                     )
-                if item.item_kind == KIND_SOLUTION and item.item_tracking != TRACKING_CONTAINER:
-                    raise ValidationError(
-                        self.env._("%s is a prepared solution, so it is tracked by container.", item.display_name)
-                    )
-                if item.item_kind == KIND_SOLUTION and item.purchase_ok:
-                    raise ValidationError(
-                        self.env._(
-                            "%s is a prepared solution, so it is made in the laboratory and never bought.",
-                            item.display_name,
-                        )
-                    )
+                if item.item_kind == KIND_SOLUTION:
+                    item._check_solution()
                 continue
             if not item.chemical_id:
                 raise ValidationError(
@@ -120,6 +111,19 @@ class ProductProduct(models.Model):
                 )
             if item.item_tracking != TRACKING_CONTAINER:
                 raise ValidationError(self.env._("%s is a chemical, so it is tracked by container.", item.display_name))
+
+    def _check_solution(self):
+        """Refuse a prepared solution that is not tracked by container or that can be bought."""
+        if self.item_tracking != TRACKING_CONTAINER:
+            raise ValidationError(
+                self.env._("%s is a prepared solution, so it is tracked by container.", self.display_name)
+            )
+        if self.purchase_ok:
+            raise ValidationError(
+                self.env._(
+                    "%s is a prepared solution, so it is made in the laboratory and never bought.", self.display_name
+                )
+            )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -144,12 +148,7 @@ class ProductProduct(models.Model):
         if "item_tracking" in vals:
             vals = {**vals, **self._tracking_values(vals["item_tracking"])}
             del vals["item_tracking"]
-        # A prepared solution is never bought; an item that stops being one is bought again.
-        bought_again = self.browse()
-        if vals.get("item_kind") == KIND_SOLUTION:
-            vals = {**vals, "purchase_ok": False}
-        elif "item_kind" in vals and "purchase_ok" not in vals:
-            bought_again = self.filtered(lambda item: item.item_kind == KIND_SOLUTION)
+        vals, bought_again = self._purchase_values(vals)
         items = self._as_items()
         if items is None:
             self._check_product_manager()
@@ -175,6 +174,15 @@ class ProductProduct(models.Model):
         if tracking_before:
             self.filtered(lambda item: item.id in tracking_before)._check_tracking_kept(tracking_before)
         return result
+
+    def _purchase_values(self, vals):
+        """The values with a prepared solution kept from being bought, and the items to buy again because they stop
+        being prepared solutions."""
+        if vals.get("item_kind") == KIND_SOLUTION:
+            return {**vals, "purchase_ok": False}, self.browse()
+        if "item_kind" in vals and "purchase_ok" not in vals:
+            return vals, self.filtered(lambda item: item.item_kind == KIND_SOLUTION)
+        return vals, self.browse()
 
     def action_archive(self):
         # Odoo archives an item through its template, which only product managers may change.
