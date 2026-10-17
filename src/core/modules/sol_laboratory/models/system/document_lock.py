@@ -101,8 +101,7 @@ class DocumentLock(models.Model):
         """The locks whose holder was active within the inactivity period."""
         if not self:
             return self
-        cutoff = self._cutoff()
-        return self.filtered(lambda lock: lock.last_activity_at >= cutoff)
+        return self.filtered_domain([("last_activity_at", ">=", self._cutoff())])
 
     @api.model
     def _active(self, documents):
