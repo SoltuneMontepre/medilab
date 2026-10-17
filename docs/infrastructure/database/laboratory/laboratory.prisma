@@ -1371,6 +1371,8 @@ model Task {
   document_id    Int?
   /// Action the task opens on the document, such as enter_result or sign.
   action         String?      @db.VarChar
+  /// True when the system created the task with its type and document and nobody changed them since; only such tasks act on their document with full rights.
+  linked_by_system Boolean    @default(false)
   /// Department whose queue holds the task until someone is assigned.
   department_id  Int?
   /// Person who does the task; empty while it waits in the department's queue.

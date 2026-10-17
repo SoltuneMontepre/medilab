@@ -20,12 +20,10 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_PARAMETER,
     MODEL_TEST_RESULT,
 )
-from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER
+from odoo.addons.sol_laboratory.constants.tasks import SAMPLE_RECEIVED_TRIGGER, TESTING_ACTION
 
 # The statuses of a test still open for work: it can be measured, scheduled or cancelled.
 OPEN_STATUSES = ("waiting", "assigned", "testing")
-# The action of the testing task a received sample creates for each of its tests.
-TESTING_ACTION = "test"
 FINISHED_STATUSES = ("approved", "cancelled")
 END_OF_DAY = time(23, 59, 59)
 
@@ -184,9 +182,7 @@ class SampleTest(models.Model):
     @api.model
     def _follow_assignment(self, tasks):
         """A test not started yet is assigned while its testing task has a person, and waits while it is in a queue."""
-        for task in tasks.sudo().filtered(
-            lambda task: task.document_model == self._name and task.action == TESTING_ACTION and task.document_id
-        ):
+        for task in tasks.sudo().filtered_domain(self.env[MODEL_TASK]._testing_domain()):
             test = self.sudo().browse(task.document_id)
             if test.status in ("waiting", "assigned"):
                 test.status = "assigned" if task.assignee_id else "waiting"
@@ -194,7 +190,7 @@ class SampleTest(models.Model):
     def _tested_by(self):
         """The department of the test's latest testing task, finished or not."""
         self.ensure_one()
-        domain = [("document_model", "=", self._name), ("document_id", "=", self.id), ("action", "=", TESTING_ACTION)]
+        domain = self.env[MODEL_TASK]._testing_domain() & Domain("document_id", "=", self.id)
         return self.env[MODEL_TASK].sudo().search(domain, order="id desc", limit=1).department_id
 
     def action_schedule(self):

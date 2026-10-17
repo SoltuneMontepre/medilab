@@ -28,6 +28,16 @@
                         <field name="field_id" />
                     </group>
                     <notebook>
+                        <page string="Steps" name="steps">
+                            <field name="step_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" />
+                                    <field name="duration_minutes" />
+                                    <field name="instruction" />
+                                    <field name="note" />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Chemicals" name="chemicals">
                             <field name="chemical_ids">
                                 <list>
