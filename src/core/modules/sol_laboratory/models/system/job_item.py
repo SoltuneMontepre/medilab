@@ -3,13 +3,18 @@ from datetime import timedelta
 from odoo import fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_PERMISSION_MIXIN, MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_JOB_ITEM,
+    MODEL_LOCK_MIXIN,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_SCHEDULED_JOB,
+)
 
 
 # Mục Tác Vụ
 class JobItem(models.Model):
     _name = MODEL_JOB_ITEM
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN]
     _description = "Job Item"
     _order = "next_attempt_at, id"
     # Items are queued by features; administrators retry or cancel them.

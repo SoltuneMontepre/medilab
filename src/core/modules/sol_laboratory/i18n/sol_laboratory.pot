@@ -346,6 +346,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__action
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__action
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__action
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__action
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 msgid "Action"
 msgstr ""
 
@@ -381,6 +385,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__active
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__active
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 msgid "Active"
 msgstr ""
 
@@ -587,6 +593,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__archive
 msgid "Archive"
 msgstr ""
 
@@ -979,6 +986,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
 msgid "Cancel"
 msgstr ""
 
@@ -1001,6 +1009,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__cancelled
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_subcontract_dispatch__status__cancelled
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__cancelled
 msgid "Cancelled"
 msgstr ""
 
@@ -1228,6 +1237,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__completed
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__completed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__completed
 msgid "Completed"
 msgstr ""
 
@@ -1323,6 +1333,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__create
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__create
 msgid "Create"
 msgstr ""
 
@@ -1523,6 +1534,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -1578,6 +1593,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_date
 msgid "Created on"
 msgstr ""
 
@@ -1757,6 +1776,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__delete
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__delete
 msgid "Delete"
 msgstr ""
 
@@ -2062,6 +2082,17 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_report__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_binary__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_mixin__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2083,6 +2114,10 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__document_id
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_name
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
 msgid "Document"
 msgstr ""
 
@@ -2101,6 +2136,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__document_model
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 msgid "Document Type"
 msgstr ""
 
@@ -2225,6 +2265,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__edit
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__edit
 msgid "Edit"
 msgstr ""
 
@@ -2552,6 +2593,9 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__expired
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__expired
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 msgid "Expired"
 msgstr ""
 
@@ -2909,6 +2953,17 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_report__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_binary__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_mixin__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
 msgid "ID"
 msgstr ""
 
@@ -3244,6 +3299,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_job_run
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__job_run_id
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__job
 msgid "Job Run"
 msgstr ""
 
@@ -3276,6 +3333,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__kind
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__kind
 msgid "Kind"
 msgstr ""
 
@@ -3417,6 +3475,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -3472,6 +3534,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -3963,6 +4029,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__note
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__note
 msgid "Note"
 msgstr ""
 
@@ -5780,6 +5848,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__sign
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__sign
 msgid "Sign"
 msgstr ""
 
@@ -5908,6 +5977,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 msgid "Status"
 msgstr ""
 
@@ -6706,6 +6777,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__user_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 msgid "User"
 msgstr ""
 
@@ -7813,6 +7888,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__error
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__error
 msgid "Error"
 msgstr ""
 
@@ -8410,6 +8486,11 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_scheduled_job
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__job_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__job_id
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__job
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Scheduled Job"
 msgstr ""
 
@@ -8991,6 +9072,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__approve
 msgid "Approve"
 msgstr ""
 
@@ -9171,6 +9253,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__reject
 msgid "Reject"
 msgstr ""
 
@@ -9731,6 +9814,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__download
 msgid "Download"
 msgstr ""
 
@@ -10149,6 +10233,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__document_id
 msgid "Document ID"
 msgstr ""
 
@@ -10556,4 +10641,310 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
 msgid "Why the change is needed"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "%(document)s is being processed by %(user)s since %(since)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "%(user)s is editing %(document)s since %(since)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "%s is free to edit."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "%s is not locked any more; you can edit it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_document_lock_released
+msgid "A document you asked to be told about is no longer being edited"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/lock_mixin.py:0
+msgid "A form releases a lock only when cancelled or left."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_document_lock
+msgid "Document Lock"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_document_lock
+#: model:ir.ui.menu,name:sol_laboratory.menu_document_lock
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
+msgid "Document Locks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_document_lock_released
+msgid "Document free to edit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__kind__edit
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+msgid "Editing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_lock_mixin
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
+msgid "Editing Lock"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_document_locks_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_document_locks_expire
+msgid "Expire document locks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+msgid "Holder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__last_activity_at
+msgid "Last Activity At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__left
+msgid "Left"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__lock_timeout_minutes
+msgid "Lock Timeout (minutes)"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "Lock of %s released"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
+msgid "Locked Since"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__lock_timeout_minutes
+msgid ""
+"Minutes without activity after which a document locked for editing is free "
+"again, so a closed browser does not block it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/lock_mixin.py:0
+msgid "Notify me when free"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "Only an active lock can be released."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__kind__operation
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+msgid "Operation"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_document_lock_edit_all
+msgid "Permission: document.lock.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_document_lock_read_all
+msgid "Permission: document.lock.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_document_lock_read_all
+msgid "Read document locks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
+msgid "Release"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__release_reason
+msgid "Release Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_document_lock_edit_all
+msgid "Release document locks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__released
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+msgid "Released"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__released_at
+msgid "Released At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__released_by_id
+msgid "Released By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__released_by_administrator
+msgid "Released by Administrator"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__saved
+msgid "Saved"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "Someone else has just locked %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_document_lock_active_unique
+msgid "Someone else has just locked this document."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "This document is already being processed; wait until it is done."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__unlock
+msgid "Unlock"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__watcher_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_form
+msgid "Watchers"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
+msgid "Watching Lock"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "The lock timeout must be at least 1 minute."
 msgstr ""

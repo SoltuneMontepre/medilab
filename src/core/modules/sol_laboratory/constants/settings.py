@@ -10,3 +10,5 @@ SAMPLE_RETENTION_REMINDER_PARAMETER = "sol_laboratory.sample_retention_reminder_
 DEFAULT_SAMPLE_RETENTION_REMINDER_DAYS = 7
 URGENCY_HOURS_PARAMETER = "sol_laboratory.urgency_hours"
 DEFAULT_URGENCY_HOURS = 24
+LOCK_TIMEOUT_PARAMETER = "sol_laboratory.lock_timeout_minutes"
+DEFAULT_LOCK_TIMEOUT_MINUTES = 15

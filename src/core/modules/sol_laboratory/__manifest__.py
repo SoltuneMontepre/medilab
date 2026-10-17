@@ -49,6 +49,7 @@
         "views/system/audit_entry_views.xml",
         "views/system/audit_report_templates.xml",
         "views/system/audit_report_views.xml",
+        "views/system/document_lock_views.xml",
         "views/system/job_item_views.xml",
         "views/system/job_run_views.xml",
         "views/system/permission_views.xml",
@@ -81,6 +82,7 @@
         "web.assets_backend": [
             "sol_laboratory/static/src/fields/*",
             "sol_laboratory/static/src/views/control_panel/*",
+            "sol_laboratory/static/src/views/form/*",
             "sol_laboratory/static/src/views/timeline/*",
             "sol_laboratory/static/src/tasks/dashboard/*",
         ],

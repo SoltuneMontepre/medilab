@@ -156,4 +156,11 @@
         parent="menu_jobs"
         sequence="70"
     />
+    <menuitem
+        id="menu_document_lock"
+        action="action_medilab_document_lock"
+        parent="menu_jobs"
+        sequence="80"
+        groups="group_permission_document_lock_read_all"
+    />
 </odoo>

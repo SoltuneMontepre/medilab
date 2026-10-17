@@ -113,7 +113,7 @@ Two users cannot change the same document at the same time.
 - The lock is released on save, on cancel, when the user leaves, or automatically after a period of inactivity, so a closed browser does not block the document.
 - An administrator can release a lock that is stuck; this is audited.
 - Long operations, such as sending a quotation or confirming a payment, lock the document for their duration so they cannot run twice.
-- A document has at most one active lock. The inactivity period is a system parameter (SH-03).
+- A document has at most one active lock. The inactivity period is a system parameter (SH-03), 15 minutes by default.
 - Others see a lock taken or released as it happens, without reloading, through Odoo's bus.
 
 Acceptance criteria:

@@ -11,10 +11,12 @@ from odoo.tools import SQL, mute_logger
 from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_DOCUMENT_LOCK,
     MODEL_IR_CRON,
     MODEL_IR_CRON_PROGRESS,
     MODEL_JOB_ITEM,
     MODEL_JOB_RUN,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_SCHEDULED_JOB,
 )
@@ -22,6 +24,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 _logger = logging.getLogger(__name__)
 
 HANDLER_PREFIX = "_handle_"
+QUEUE_PREFIX = "_queue_"
 # Context keys Odoo's cron sets: the progress record of the batch, and the end time of the pass, which is the same
 # for every batch of one pass.
 CRON_PROGRESS_KEY = "ir_cron_progress_id"
@@ -35,7 +38,7 @@ class PermanentJobError(Exception):
 # Tác Vụ Định Kỳ
 class ScheduledJob(models.Model):
     _name = MODEL_SCHEDULED_JOB
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN, "mail.thread", "mail.activity.mixin"]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN, "mail.thread", "mail.activity.mixin"]
     _description = "Scheduled Job"
     _order = "name"
     # Jobs come with modules: administrators change their schedule and limits, run them and retry their items.
@@ -200,6 +203,10 @@ class ScheduledJob(models.Model):
     def _run_batch(self):
         """Do one batch of due items; under the cron, Odoo calls again while items remain."""
         self.ensure_one()
+        # A job that finds its own work, such as stale locks, queues it first in _queue_<key>.
+        finder = getattr(self, QUEUE_PREFIX + self.key.replace(".", "_"), None)
+        if finder:
+            finder()
         job = self.sudo()
         now = fields.Datetime.now()
         run = job._current_run(now)
@@ -325,6 +332,17 @@ class ScheduledJob(models.Model):
         lines = (item.last_error or "").strip().splitlines()
         self._audit("error", f"{item.item_key}: {lines[-1]}" if lines else item.item_key)
         self._notify_failed_item(item)
+
+    def _queue_document_locks_expire(self):
+        # The item key is the lock and its last activity, so a lock is queued once for each time it goes stale.
+        for lock in self.env[MODEL_DOCUMENT_LOCK]._stale():
+            stamp = fields.Datetime.to_string(lock.last_activity_at)
+            self.queue(self.key, f"lock:{lock.id}:{stamp}", document=lock)
+
+    def _handle_document_locks_expire(self, item):
+        lock = item._document()
+        if lock and lock.exists() and not lock._fresh():
+            lock._release("expired")
 
     def _notify_failed_item(self, item):
         # Brevo notifications come later; the administrator gets an activity and the Jobs screen lists the item.

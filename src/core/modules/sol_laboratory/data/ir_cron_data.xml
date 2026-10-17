@@ -32,4 +32,12 @@
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
     </record>
+    <record id="ir_cron_document_locks_expire" model="ir.cron">
+        <field name="name">Expire document locks</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("document_locks.expire")</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+    </record>
 </odoo>

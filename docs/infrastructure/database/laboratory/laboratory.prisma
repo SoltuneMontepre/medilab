@@ -1864,7 +1864,7 @@ model DocumentLock {
   status           String              @db.VarChar
   /// When the lock was released or expired.
   released_at      DateTime?
-  /// saved, cancelled, left, expired or released_by_administrator.
+  /// saved, cancelled, left, completed for an operation that ended, expired or released_by_administrator.
   release_reason   String?             @db.VarChar
   /// Administrator who released a stuck lock.
   released_by_id   Int?

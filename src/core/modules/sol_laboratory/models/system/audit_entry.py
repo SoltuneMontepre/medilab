@@ -54,6 +54,7 @@ class AuditEntry(models.Model):
             ("sign", "Sign"),
             ("withdraw", "Withdraw"),
             ("download", "Download"),
+            ("unlock", "Unlock"),
             ("job", "Job Run"),
             ("integration", "Integration"),
             ("error", "Error"),

@@ -12,6 +12,8 @@ from odoo.addons.sol_laboratory.constants.approvals import (
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_MIXIN,
     MODEL_CUSTOMER,
+    MODEL_DOCUMENT_LOCK,
+    MODEL_LOCK_MIXIN,
     MODEL_MAIL_MESSAGE,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
@@ -40,7 +42,7 @@ UNREPORTED_SAMPLE_STATUSES = ("cancelled", "rejected")
 # Phiếu Kết Quả
 class TestReport(models.Model):
     _name = MODEL_TEST_REPORT
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_APPROVAL_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_APPROVAL_MIXIN]
     _description = "Test Report"
     _order = "id desc"
     # The system drafts and issues a report; people sign it and record its delivery, which edits it.
@@ -162,6 +164,11 @@ class TestReport(models.Model):
 
     def action_record_delivery(self):
         self._check_permission("edit")
+        # Sending the report by email is a long operation; a second click is refused while it runs.
+        with self.env[MODEL_DOCUMENT_LOCK]._operation(self):
+            self._record_delivery()
+
+    def _record_delivery(self):
         person = self.env[MODEL_PERSON]._current()
         if not person:
             raise UserError(self.env._("Only a person can record a delivery."))

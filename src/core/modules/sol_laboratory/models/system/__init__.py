@@ -4,6 +4,7 @@ from . import (
     audit_change,
     audit_entry,
     audit_report,
+    document_lock,
     hr_department,
     hr_employee,
     ir_access,

@@ -28,4 +28,11 @@
         <field name="batch_size">100</field>
         <field name="max_attempts">3</field>
     </record>
+    <record id="scheduled_job_document_locks_expire" model="medilab.scheduled.job">
+        <field name="key">document_locks.expire</field>
+        <field name="name">Expire document locks</field>
+        <field name="cron_id" ref="ir_cron_document_locks_expire" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
 </odoo>

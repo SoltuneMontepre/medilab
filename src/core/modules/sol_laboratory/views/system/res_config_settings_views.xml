@@ -11,6 +11,11 @@
                         <field name="audit_retention_days" class="o_light_label" />
                     </setting>
                 </block>
+                <block title="Document Locks" name="lock_setting_container">
+                    <setting id="lock_timeout_setting">
+                        <field name="lock_timeout_minutes" class="o_light_label" />
+                    </setting>
+                </block>
             </xpath>
         </field>
     </record>

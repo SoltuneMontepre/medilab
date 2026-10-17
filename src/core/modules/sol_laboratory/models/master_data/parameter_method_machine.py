@@ -3,6 +3,7 @@ from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_PARAMETER_METHOD,
     MODEL_PARAMETER_METHOD_MACHINE,
@@ -13,7 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Links parameter and method pairs to the machines that can run them, with the run time.
 class ParameterMethodMachine(models.Model):
     _name = MODEL_PARAMETER_METHOD_MACHINE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Machine for a Way of Testing"
     _order = "machine_id, id"
     _permission_actions = ("create", "edit", "delete")

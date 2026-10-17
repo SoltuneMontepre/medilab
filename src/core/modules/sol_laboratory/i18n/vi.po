@@ -354,6 +354,10 @@ msgstr "Được công nhận"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__action
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__action
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__action
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__action
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 msgid "Action"
 msgstr "Hành động"
 
@@ -389,6 +393,8 @@ msgstr "Giao diện của hành động cửa sổ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__active
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__active
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__active
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 msgid "Active"
 msgstr "Đang hoạt động"
 
@@ -598,6 +604,7 @@ msgstr "Đã duyệt"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__archive
 msgid "Archive"
 msgstr "Lưu trữ"
 
@@ -992,6 +999,7 @@ msgstr "Được Từ Chối"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_report_form
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -1014,6 +1022,7 @@ msgstr "Hủy yêu cầu thử nghiệm này cùng các mẫu và chỉ tiêu c�
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__cancelled
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_subcontract_dispatch__status__cancelled
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__cancelled
 msgid "Cancelled"
 msgstr "Đã hủy"
 
@@ -1243,6 +1252,7 @@ msgstr "Tên đầy đủ"
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__status__completed
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__completed
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__completed
 msgid "Completed"
 msgstr "Hoàn thành"
 
@@ -1338,6 +1348,7 @@ msgstr "Các cách thử được áp dụng"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__create
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__create
 msgid "Create"
 msgstr "Tạo"
 
@@ -1538,6 +1549,10 @@ msgstr "Tạo cách thử của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -1593,6 +1608,10 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -1777,6 +1796,7 @@ msgstr "Mức độ tin tưởng của bạn đối với khoản nợ này"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__delete
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__delete
 msgid "Delete"
 msgstr "Xóa"
 
@@ -2082,6 +2102,17 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_report__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_binary__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_mixin__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2103,6 +2134,10 @@ msgstr "Đã hủy mẫu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__document_id
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_name
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
 msgid "Document"
 msgstr "Chứng từ"
 
@@ -2121,6 +2156,11 @@ msgstr "Model Chứng Từ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_model
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__document_model
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 msgid "Document Type"
 msgstr "Loại Chứng Từ"
 
@@ -2245,6 +2285,7 @@ msgstr "Mỗi vai trò có nhóm riêng."
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__edit
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__edit
 msgid "Edit"
 msgstr "Sửa"
 
@@ -2578,6 +2619,9 @@ msgstr "Ngày hẹn trả kết quả"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__expired
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__expired
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 msgid "Expired"
 msgstr "Đã hết hạn"
 
@@ -2948,6 +2992,17 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_report__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_binary__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_mail_mail__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_mixin__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
 msgid "ID"
 msgstr "ID"
 
@@ -3295,6 +3350,8 @@ msgstr "Chức vụ"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_job_run
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__job_run_id
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__job
 msgid "Job Run"
 msgstr "Lượt Chạy Tác Vụ"
 
@@ -3327,6 +3384,7 @@ msgstr "Khóa"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__kind
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__kind
 msgid "Kind"
 msgstr "Loại"
 
@@ -3470,6 +3528,10 @@ msgstr "Lượt Chạy Theo Lịch Cuối"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -3525,6 +3587,10 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -4017,6 +4083,8 @@ msgstr "Chưa kết thúc"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__note
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__note
 msgid "Note"
 msgstr "Ghi chú"
 
@@ -5857,6 +5925,7 @@ msgstr "Xem nhiệm vụ chờ nhận"
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__sign
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__sign
 msgid "Sign"
 msgstr "Ký"
 
@@ -5985,6 +6054,8 @@ msgstr "Thống kê"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -6819,6 +6890,10 @@ msgstr "Dùng để đăng nhập vào hệ thống"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
+#: code:addons/sol_laboratory/models/system/audit_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__user_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 msgid "User"
 msgstr "Tài Khoản"
 
@@ -7613,6 +7688,7 @@ msgstr "Đang bật"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__error
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__error
 msgid "Error"
 msgstr "Lỗi"
 
@@ -8618,6 +8694,11 @@ msgstr "Quét Tem Mẫu"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_scheduled_job
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__job_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__job_id
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__source__job
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
 msgid "Scheduled Job"
 msgstr "Tác Vụ Định Kỳ"
 
@@ -9104,6 +9185,7 @@ msgstr "Một kết quả thử nghiệm bạn nhập đã bị từ chối"
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_result_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__approve
 msgid "Approve"
 msgstr "Phê Duyệt"
 
@@ -9284,6 +9366,7 @@ msgstr "Xem kết quả thử nghiệm"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_reject_form
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__reject
 msgid "Reject"
 msgstr "Từ Chối"
 
@@ -9855,6 +9938,7 @@ msgstr "Không đạt %s"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__download
 msgid "Download"
 msgstr "Tải Xuống"
 
@@ -10255,6 +10339,7 @@ msgstr "Số ngày giữ các mục nhật ký hoạt động trước khi tác 
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__document_id
 msgid "Document ID"
 msgstr "ID Chứng Từ"
 
@@ -10686,3 +10771,309 @@ msgstr "Nội dung cần sửa, ví dụ giá trị hoặc kết luận"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_raise_form
 msgid "Why the change is needed"
 msgstr "Lý do cần sửa"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "%(document)s is being processed by %(user)s since %(since)s."
+msgstr "%(document)s đang được %(user)s xử lý từ %(since)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "%(user)s is editing %(document)s since %(since)s."
+msgstr "%(user)s đang chỉnh sửa %(document)s từ %(since)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "%s is free to edit."
+msgstr "%s đã có thể chỉnh sửa."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "%s is not locked any more; you can edit it."
+msgstr "%s không còn bị khóa; bạn có thể chỉnh sửa."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_document_lock_released
+msgid "A document you asked to be told about is no longer being edited"
+msgstr "Chứng từ bạn muốn được báo không còn ai chỉnh sửa"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/lock_mixin.py:0
+msgid "A form releases a lock only when cancelled or left."
+msgstr "Biểu mẫu chỉ mở khóa khi hủy thay đổi hoặc rời đi."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_document_lock
+msgid "Document Lock"
+msgstr "Khóa Chứng Từ"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_document_lock
+#: model:ir.ui.menu,name:sol_laboratory.menu_document_lock
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_audit
+msgid "Document Locks"
+msgstr "Khóa Chứng Từ"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_document_lock_released
+msgid "Document free to edit"
+msgstr "Chứng từ đã có thể chỉnh sửa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__kind__edit
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+msgid "Editing"
+msgstr "Đang chỉnh sửa"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_lock_mixin
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
+msgid "Editing Lock"
+msgstr "Khóa chỉnh sửa"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_document_locks_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_document_locks_expire
+msgid "Expire document locks"
+msgstr "Hết hạn khóa chứng từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+msgid "Holder"
+msgstr "Người giữ khóa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__last_activity_at
+msgid "Last Activity At"
+msgstr "Hoạt động cuối lúc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__left
+msgid "Left"
+msgstr "Rời đi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__lock_timeout_minutes
+msgid "Lock Timeout (minutes)"
+msgstr "Thời gian khóa tối đa khi không hoạt động (phút)"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "Lock of %s released"
+msgstr "Đã mở khóa của %s"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
+msgid "Locked Since"
+msgstr "Khóa từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__lock_timeout_minutes
+msgid ""
+"Minutes without activity after which a document locked for editing is free "
+"again, so a closed browser does not block it."
+msgstr "Số phút không hoạt động để chứng từ đang bị khóa chỉnh sửa được mở lại, để trình duyệt bị đóng không chặn chứng từ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/lock_mixin.py:0
+msgid "Notify me when free"
+msgstr "Báo tôi khi có thể sửa"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "Only an active lock can be released."
+msgstr "Chỉ có thể mở khóa đang hiệu lực."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__kind__operation
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+msgid "Operation"
+msgstr "Thao tác"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_document_lock_edit_all
+msgid "Permission: document.lock.edit.all"
+msgstr "Quyền: document.lock.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_document_lock_read_all
+msgid "Permission: document.lock.read.all"
+msgstr "Quyền: document.lock.read.all"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_document_lock_read_all
+msgid "Read document locks"
+msgstr "Xem khóa chứng từ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
+msgid "Release"
+msgstr "Mở khóa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__release_reason
+msgid "Release Reason"
+msgstr "Lý do mở khóa"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_document_lock_edit_all
+msgid "Release document locks"
+msgstr "Mở khóa chứng từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__released
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+msgid "Released"
+msgstr "Đã mở khóa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__released_at
+msgid "Released At"
+msgstr "Mở khóa lúc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__released_by_id
+msgid "Released By"
+msgstr "Người mở khóa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__released_by_administrator
+msgid "Released by Administrator"
+msgstr "Quản trị viên mở khóa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__saved
+msgid "Saved"
+msgstr "Đã lưu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "Someone else has just locked %s."
+msgstr "Người khác vừa khóa %s."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_document_lock_active_unique
+msgid "Someone else has just locked this document."
+msgstr "Người khác vừa khóa chứng từ này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/document_lock.py:0
+msgid "This document is already being processed; wait until it is done."
+msgstr "Chứng từ này đang được xử lý; hãy chờ đến khi xong."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__unlock
+msgid "Unlock"
+msgstr "Mở khóa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__watcher_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_form
+msgid "Watchers"
+msgstr "Người chờ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record_sample__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_service__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method_machine__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_permission__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_handover__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_parameter__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
+msgid "Watching Lock"
+msgstr "Đang chờ mở khóa"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/res_config_settings.py:0
+msgid "The lock timeout must be at least 1 minute."
+msgstr "Thời gian khóa tối đa phải ít nhất 1 phút."

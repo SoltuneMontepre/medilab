@@ -58,6 +58,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/customers.py`   | Customer types and sign-up values, such as `SIGNUP_CUSTOMER_KEY`                            |
 | `constants/audit.py`       | How the audit trail masks values, such as `MASK_PERSONAL`                                   |
 | `constants/jobs.py`        | Context keys of scheduled jobs, such as `JOB_RUN_CONTEXT`                                   |
+| `constants/locks.py`       | The bus notification and release reasons of document locks, such as `LOCK_BUS_TYPE`         |
 | `constants/routes.py`      | Route options that `odoo.http` does not declare, such as `FRONTEND_PAGE`                    |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.

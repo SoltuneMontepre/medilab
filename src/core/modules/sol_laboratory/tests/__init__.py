@@ -27,6 +27,7 @@ from . import (
     test_customer_profile,
     test_customer_signup,
     test_dispatch_portal,
+    test_document_locking,
     test_handover_record,
     test_job_claim_timeout,
     test_job_queue,
