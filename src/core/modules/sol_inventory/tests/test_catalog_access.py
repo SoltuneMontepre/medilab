@@ -12,6 +12,7 @@ CATALOG_ACTIONS = (
     "sol_inventory.action_medilab_stock_item",
     "sol_inventory.action_medilab_supplier",
     "sol_inventory.action_medilab_location",
+    "sol_inventory.action_medilab_recipe",
 )
 
 

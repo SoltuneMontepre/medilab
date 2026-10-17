@@ -51,6 +51,11 @@ msgid "Acetonitrile, HPLC grade"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_sulfuric_acid
+msgid "Acid cabinet, away from bases and water"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_nitric_acid
 msgid "Acid cabinet, away from organic substances"
 msgstr ""
@@ -149,6 +154,12 @@ msgid "Dispose of as organic waste."
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.demo_chemical_distilled_water
+#: model:product.template,name:sol_demo.demo_product_product_distilled_water_product_template
+msgid "Double-distilled water"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_sodium_chloride
 msgid "Dry place, room temperature"
 msgstr ""
@@ -212,6 +223,7 @@ msgid "Head of Sales of the department"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_signing_head_of_department
 #: model:medilab.role,name:sol_demo.demo_role_head_of_department
 msgid "Head of department"
 msgstr ""
@@ -322,6 +334,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_nitric_acid_5_product_template
+msgid "Nitric acid 5%"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_nitric_acid
 #: model:product.template,name:sol_demo.demo_product_product_nitric_acid_product_template
 msgid "Nitric acid 65%"
@@ -335,6 +352,7 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_coliforms
 #: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_e_coli
+#: model:medilab.test.result,value_text:sol_demo.demo_test_result_retest
 msgid "Not detected"
 msgstr ""
 
@@ -384,6 +402,7 @@ msgid "Reseal the remaining bottles and label them with the lab code."
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_distilled_water
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_ph_buffer
 msgid "Room temperature, tightly closed"
 msgstr ""
@@ -431,15 +450,33 @@ msgid "Storekeeper"
 msgstr ""
 
 #. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_001m_product_template
+msgid "Sulfuric acid 0.01 M"
+msgstr ""
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_005m_product_template
+msgid "Sulfuric acid 0.05 M"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.demo_chemical_sulfuric_acid
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_product_template
+msgid "Sulfuric acid 97%"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_surface_water
 msgid "Surface water"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_signing
 msgid "Test result signing"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_signing_tester
 #: model:medilab.role,name:sol_demo.demo_role_tester
 msgid "Tester"
 msgstr ""
