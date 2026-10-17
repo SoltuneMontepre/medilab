@@ -23,6 +23,7 @@
         "views/stock/stock_lot_views.xml",
         "views/stock/stock_package_views.xml",
         "views/stock/container_label_report.xml",
+        "views/recipes/recipe_views.xml",
         "views/stores/stock_location_views.xml",
         "views/costs/account_analytic_account_views.xml",
         "views/system/menus.xml",

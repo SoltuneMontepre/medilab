@@ -499,11 +499,11 @@ model StockMoveLine {
   @@map("stock_move_line")
 }
 
-/// How one solution is prepared: the chemicals and amounts one preparation uses, and the solution's shelf life.
+/// How one solution is prepared: the chemicals and amounts one preparation uses, and the solution's shelf life. A trigram index on code serves search. Check: yield_quantity above 0, shelf_life_days 1 or more.
 model Recipe {
   /// Row identifier.
   id               Int           @id @default(autoincrement())
-  /// Unique code of the recipe.
+  /// Unique code of the recipe, such as CTPC.0001; filled from a sequence when left empty.
   code             String        @unique @db.VarChar
   /// The solution item the recipe makes.
   solution_item_id Int           @unique
@@ -523,7 +523,7 @@ model Recipe {
   @@map("medilab_recipe")
 }
 
-/// One ingredient of a recipe and the amount one preparation uses. Unique on (recipe_id, item_id).
+/// One ingredient of a recipe and the amount one preparation uses: an item tracked by container, such as a chemical or another recipe's solution. Unique on (recipe_id, item_id). Check: quantity above 0.
 model RecipeLine {
   /// Row identifier.
   id        Int       @id @default(autoincrement())
@@ -539,6 +539,7 @@ model RecipeLine {
   item      StockItem @relation(fields: [item_id], references: [id], onDelete: Restrict)
 
   @@unique([recipe_id, item_id])
+  @@index([item_id])
   @@map("medilab_recipe_line")
 }
 

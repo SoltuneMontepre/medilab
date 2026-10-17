@@ -53,4 +53,40 @@
         <field name="use_expiration_date" eval="True" />
         <field name="active" eval="False" />
     </record>
+    <record id="demo_product_product_sulfuric_acid" model="product.product">
+        <field name="name">Sulfuric acid 97%</field>
+        <field name="item_kind">chemical</field>
+        <field name="item_tracking">container</field>
+        <field name="uom_id" ref="uom.product_uom_milliliter" />
+        <field name="chemical_id" ref="demo_chemical_sulfuric_acid" />
+        <field name="use_expiration_date" eval="True" />
+        <field name="shelf_life_after_opening_days">180</field>
+    </record>
+    <record id="demo_product_product_distilled_water" model="product.product">
+        <field name="name">Double-distilled water</field>
+        <field name="item_kind">chemical</field>
+        <field name="item_tracking">container</field>
+        <field name="uom_id" ref="uom.product_uom_milliliter" />
+        <field name="chemical_id" ref="demo_chemical_distilled_water" />
+        <field name="use_expiration_date" eval="True" />
+        <field name="shelf_life_after_opening_days">30</field>
+    </record>
+    <record id="demo_product_product_sulfuric_acid_005m" model="product.product">
+        <field name="name">Sulfuric acid 0.05 M</field>
+        <field name="item_kind">solution</field>
+        <field name="item_tracking">container</field>
+        <field name="uom_id" ref="uom.product_uom_milliliter" />
+    </record>
+    <record id="demo_product_product_sulfuric_acid_001m" model="product.product">
+        <field name="name">Sulfuric acid 0.01 M</field>
+        <field name="item_kind">solution</field>
+        <field name="item_tracking">container</field>
+        <field name="uom_id" ref="uom.product_uom_milliliter" />
+    </record>
+    <record id="demo_product_product_nitric_acid_5" model="product.product">
+        <field name="name">Nitric acid 5%</field>
+        <field name="item_kind">solution</field>
+        <field name="item_tracking">container</field>
+        <field name="uom_id" ref="uom.product_uom_milliliter" />
+    </record>
 </odoo>

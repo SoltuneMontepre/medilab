@@ -15,6 +15,7 @@
             groups="sol_laboratory.group_permission_location_read_all"
         />
         <menuitem id="menu_supplier" action="action_medilab_supplier" sequence="40" />
+        <menuitem id="menu_recipe" action="action_medilab_recipe" sequence="45" />
         <menuitem
             id="menu_cost_centre"
             action="action_medilab_cost_centre"

@@ -12,4 +12,10 @@
         <field name="prefix">NCC.</field>
         <field name="padding">4</field>
     </record>
+    <record id="sequence_recipe" model="ir.sequence">
+        <field name="name">Recipe</field>
+        <field name="code">medilab.recipe</field>
+        <field name="prefix">CTPC.</field>
+        <field name="padding">4</field>
+    </record>
 </odoo>

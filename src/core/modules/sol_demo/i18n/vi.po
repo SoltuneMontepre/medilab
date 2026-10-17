@@ -52,6 +52,11 @@ msgid "Acetonitrile, HPLC grade"
 msgstr "Acetonitril, loại HPLC"
 
 #. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_sulfuric_acid
+msgid "Acid cabinet, away from bases and water"
+msgstr "Tủ đựng axit, tránh xa bazơ và nước"
+
+#. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_nitric_acid
 msgid "Acid cabinet, away from organic substances"
 msgstr "Tủ đựng axit, tránh xa chất hữu cơ"
@@ -149,6 +154,12 @@ msgstr "Tên hiển thị"
 #: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_cabbage
 msgid "Dispose of as organic waste."
 msgstr "Hủy như rác thải hữu cơ."
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.demo_chemical_distilled_water
+#: model:product.template,name:sol_demo.demo_product_product_distilled_water_product_template
+msgid "Double-distilled water"
+msgstr "Nước cất hai lần"
 
 #. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_sodium_chloride
@@ -337,6 +348,11 @@ msgstr ""
 "đóng chai"
 
 #. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_nitric_acid_5_product_template
+msgid "Nitric acid 5%"
+msgstr "Axit nitric 5%"
+
+#. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_nitric_acid
 #: model:product.template,name:sol_demo.demo_product_product_nitric_acid_product_template
 msgid "Nitric acid 65%"
@@ -400,6 +416,7 @@ msgid "Reseal the remaining bottles and label them with the lab code."
 msgstr "Niêm phong lại các chai còn lại và dán nhãn mã PTN."
 
 #. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_distilled_water
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_ph_buffer
 msgid "Room temperature, tightly closed"
 msgstr "Nhiệt độ phòng, đậy kín"
@@ -446,6 +463,22 @@ msgstr "Chất lượng đất — Xác định pH"
 #: model:medilab.role,name:sol_demo.demo_role_storekeeper
 msgid "Storekeeper"
 msgstr "Thủ Kho"
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_001m_product_template
+msgid "Sulfuric acid 0.01 M"
+msgstr "Axit sunfuric 0,01 M"
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_005m_product_template
+msgid "Sulfuric acid 0.05 M"
+msgstr "Axit sunfuric 0,05 M"
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.demo_chemical_sulfuric_acid
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_product_template
+msgid "Sulfuric acid 97%"
+msgstr "Axit sunfuric 97%"
 
 #. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_surface_water

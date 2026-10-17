@@ -235,4 +235,39 @@
         <field name="document_model">stock.lot</field>
         <field name="action">edit</field>
     </record>
+    <record id="permission_recipe_create_all" model="medilab.permission">
+        <field name="name">Create recipes</field>
+        <field name="document_model">medilab.recipe</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_recipe_edit_all" model="medilab.permission">
+        <field name="name">Edit recipes</field>
+        <field name="document_model">medilab.recipe</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_recipe_archive_all" model="medilab.permission">
+        <field name="name">Archive recipes</field>
+        <field name="document_model">medilab.recipe</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_recipe_delete_all" model="medilab.permission">
+        <field name="name">Delete recipes</field>
+        <field name="document_model">medilab.recipe</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_recipe_line_create_all" model="medilab.permission">
+        <field name="name">Create recipe ingredients</field>
+        <field name="document_model">medilab.recipe.line</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_recipe_line_edit_all" model="medilab.permission">
+        <field name="name">Edit recipe ingredients</field>
+        <field name="document_model">medilab.recipe.line</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_recipe_line_delete_all" model="medilab.permission">
+        <field name="name">Delete recipe ingredients</field>
+        <field name="document_model">medilab.recipe.line</field>
+        <field name="action">delete</field>
+    </record>
 </odoo>

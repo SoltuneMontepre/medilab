@@ -6,6 +6,8 @@ from . import (
     test_purchase_orders,
     test_purchasing_access,
     test_receipts,
+    test_recipe_access,
+    test_recipes,
     test_stock_items,
     test_store_cost_centres,
     test_store_setup_access,

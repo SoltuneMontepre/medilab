@@ -4680,6 +4680,34 @@ msgid "Permission: receivable.report.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: recipe.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
 msgid "Permission: reconciliation.day.create.all"
 msgstr ""
 

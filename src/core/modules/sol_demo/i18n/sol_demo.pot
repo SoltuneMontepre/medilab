@@ -51,6 +51,11 @@ msgid "Acetonitrile, HPLC grade"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_sulfuric_acid
+msgid "Acid cabinet, away from bases and water"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_nitric_acid
 msgid "Acid cabinet, away from organic substances"
 msgstr ""
@@ -147,6 +152,12 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_cabbage
 msgid "Dispose of as organic waste."
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.demo_chemical_distilled_water
+#: model:product.template,name:sol_demo.demo_product_product_distilled_water_product_template
+msgid "Double-distilled water"
 msgstr ""
 
 #. module: sol_demo
@@ -326,6 +337,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_nitric_acid_5_product_template
+msgid "Nitric acid 5%"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_nitric_acid
 #: model:product.template,name:sol_demo.demo_product_product_nitric_acid_product_template
 msgid "Nitric acid 65%"
@@ -389,6 +405,7 @@ msgid "Reseal the remaining bottles and label them with the lab code."
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_distilled_water
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_ph_buffer
 msgid "Room temperature, tightly closed"
 msgstr ""
@@ -434,6 +451,22 @@ msgstr ""
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_purchase_order_signing_storekeeper
 #: model:medilab.role,name:sol_demo.demo_role_storekeeper
 msgid "Storekeeper"
+msgstr ""
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_001m_product_template
+msgid "Sulfuric acid 0.01 M"
+msgstr ""
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_005m_product_template
+msgid "Sulfuric acid 0.05 M"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.demo_chemical_sulfuric_acid
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_product_template
+msgid "Sulfuric acid 97%"
 msgstr ""
 
 #. module: sol_demo

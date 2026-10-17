@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_recipe_sulfuric_acid_005m" model="medilab.recipe">
+        <field name="solution_item_id" ref="demo_product_product_sulfuric_acid_005m" />
+        <field name="yield_quantity">1000</field>
+        <field name="shelf_life_days">14</field>
+        <field
+            name="line_ids"
+            eval="[
+                Command.create({'item_id': ref('demo_product_product_sulfuric_acid'), 'quantity': 2.8}),
+                Command.create({'item_id': ref('demo_product_product_distilled_water'), 'quantity': 997.2}),
+            ]"
+        />
+    </record>
+    <record id="demo_recipe_sulfuric_acid_001m" model="medilab.recipe">
+        <field name="solution_item_id" ref="demo_product_product_sulfuric_acid_001m" />
+        <field name="yield_quantity">1000</field>
+        <field name="shelf_life_days">7</field>
+        <field
+            name="line_ids"
+            eval="[
+                Command.create({'item_id': ref('demo_product_product_sulfuric_acid_005m'), 'quantity': 200}),
+                Command.create({'item_id': ref('demo_product_product_distilled_water'), 'quantity': 800}),
+            ]"
+        />
+    </record>
+    <record id="demo_recipe_nitric_acid_5" model="medilab.recipe">
+        <field name="solution_item_id" ref="demo_product_product_nitric_acid_5" />
+        <field name="yield_quantity">1000</field>
+        <field name="shelf_life_days">30</field>
+        <field
+            name="line_ids"
+            eval="[
+                Command.create({'item_id': ref('demo_product_product_nitric_acid'), 'quantity': 77}),
+                Command.create({'item_id': ref('demo_product_product_distilled_water'), 'quantity': 923}),
+            ]"
+        />
+        <field name="active" eval="False" />
+    </record>
+</odoo>
