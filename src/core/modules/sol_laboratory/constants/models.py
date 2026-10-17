@@ -1,5 +1,8 @@
 """Technical names of the database models of the Laboratory module."""
 
+MODEL_ACCREDITATION_CERTIFICATE = "medilab.accreditation.certificate"
+MODEL_ACCREDITATION_CERTIFICATE_IMPORT = "medilab.accreditation.certificate.import"
+MODEL_ACCREDITATION_CERTIFICATE_IMPORT_LINE = "medilab.accreditation.certificate.import.line"
 MODEL_APPROVAL_CHAIN = "medilab.approval.chain"
 MODEL_APPROVAL_LEVEL = "medilab.approval.level"
 MODEL_APPROVAL_MIXIN = "medilab.approval.mixin"

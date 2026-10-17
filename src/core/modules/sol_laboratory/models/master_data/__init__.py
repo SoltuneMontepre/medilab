@@ -1,4 +1,6 @@
 from . import (
+    accreditation_certificate,
+    accreditation_certificate_import,
     chemical,
     customer,
     machine,
