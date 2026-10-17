@@ -118,10 +118,22 @@ class TestLegacyTaskLinks(TaskLinkCase):
         test = self.env["medilab.sample.test"].browse(task.document_id)
         self.assertFalse(test._tested_by())
 
-        task.write({"linked_by_system": True})
+        administrator = self.env.ref("base.user_admin")
+        task.with_user(administrator).sudo().write({"linked_by_system": True})
 
         self.assertEqual(test._tested_by(), self.department)
-        self.assertIn("linked_by_system", self.history(task, "edit").change_ids.mapped("field_name"))
+        [confirmation] = self.history(task, "edit")
+        self.assertEqual(confirmation.change_ids.mapped("field_name"), ["linked_by_system"])
+        self.assertEqual(confirmation.user_id, administrator)
+
+    def test_a_change_made_as_the_bare_superuser_names_nobody(self):
+        task = self.legacy_task(self.department)
+
+        task.write({"status": "cancelled"})
+        task.with_user(self.env.ref("base.user_admin")).sudo().write({"note": "Forged; cancelled after review."})
+
+        cancelled, noted = self.history(task, "edit").sorted("id")
+        self.assertEqual([cancelled.user_id, noted.user_id], [self.env["res.users"], self.env.ref("base.user_admin")])
 
     def test_changing_a_link_ends_the_trust_whatever_the_call_says(self):
         other = self.new_test()

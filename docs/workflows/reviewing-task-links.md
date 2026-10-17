@@ -24,16 +24,25 @@ The audit trail cannot clear every task. A task created before the trail existed
    | `creation_not_recorded` | The trail has no record of the task's creation. | Compare it with the archived audit files and the sample's reception. Confirm it only when it is the test's genuine testing task; otherwise cancel it. |
 
 4. **Check the sample test** a forged task names: its status and outsourcing suggestion, which department tested it, and who signed its results. Use the History of the test, its results and the task. Correct the work through the documents' own actions, such as a change request on a result.
-5. **Give the test a testing task** when it has none the system trusts and its work is not finished: open one in the department that tests it, from an Odoo shell, with `test._open_testing_task(department)`.
-6. **Confirm or cancel** from an Odoo shell, so the change is recorded in the audit trail under the administrator:
+5. **Act as yourself** in the Odoo shell for every change below. The shell runs as the superuser, whom the audit trail records as nobody, so take your own user with full rights, and commit each decision:
+
+   ```python
+   me = env["res.users"].search([("login", "=", "<your login>")])
+   task = env["medilab.task"].browse(<task id>).with_user(me).sudo()
+   ```
+
+   After each change, run `env.cr.commit()`; the shell keeps nothing otherwise.
+6. **Give the test a testing task** when it has none the system trusts and its work is not finished: open one in the department that tests it with `env["medilab.sample.test"].browse(<test id>).with_user(me).sudo()._open_testing_task(department)`.
+7. **Confirm or cancel** each task, so the audit trail records the change under your name:
    - Confirm a genuine task: `task.write({"linked_by_system": True})`.
    - Cancel a task: `task.write({"status": "cancelled"})`.
-7. **Run the list again.** The review is done when every listed task is cancelled, confirmed, or knowingly left untrusted.
+8. **Run the list again.** The review is done when every listed task is cancelled, confirmed, or knowingly left untrusted.
 
 ## Rules
 
 - Never delete a task or an audit entry, and never change a task's type, document or action. The task and its history are the evidence.
 - Never confirm a task found `not_of_its_type` or `changed_after_creation`.
+- Make every change as yourself, never as the bare superuser, so its audit entry names who decided.
 - Confirm a task in a call of its own. A change to a task's type, document or action always leaves it untrusted, even when the same call confirms it.
 - A testing task left untrusted does not move its test along, does not show the method's steps, is not closed by the system, and does not name the department that tested the test. Until the test has a trusted testing task, results waiting for that department's signature cannot be signed.
 - Production is not called secure until the review is done.
