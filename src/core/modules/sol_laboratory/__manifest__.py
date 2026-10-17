@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Laboratory",
-    "version": "20.0.1.5.0",
+    "version": "20.0.1.6.0",
     "summary": "Laboratory testing core: test catalog, parameters, samples, results and machines.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -23,6 +23,8 @@
         "data/scheduled_job_data.xml",
         "security/audit_access_data.xml",
         "data/portal_entry_data.xml",
+        "views/master_data/accreditation_certificate_views.xml",
+        "views/master_data/accreditation_certificate_import_views.xml",
         "views/master_data/chemical_views.xml",
         "views/master_data/customer_views.xml",
         "views/master_data/machine_views.xml",
@@ -86,4 +88,5 @@
         ],
     },
     "application": True,
+    "uninstall_hook": "uninstall_hook",
 }

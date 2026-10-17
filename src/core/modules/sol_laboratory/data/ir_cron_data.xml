@@ -32,4 +32,12 @@
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
     </record>
+    <record id="ir_cron_accreditation_refresh" model="ir.cron">
+        <field name="name">Accreditation refresh</field>
+        <field name="model_id" ref="model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("accreditation.refresh")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
 </odoo>

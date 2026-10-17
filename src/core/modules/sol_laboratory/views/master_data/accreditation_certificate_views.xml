@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_accreditation_certificate_list" model="ir.ui.view">
+        <field name="name">medilab.accreditation.certificate.list</field>
+        <field name="model">medilab.accreditation.certificate</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="valid_until and valid_until &lt; current_date">
+                <field name="code" />
+                <field name="issuing_body" />
+                <field name="valid_from" />
+                <field name="valid_until" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_accreditation_certificate_form" model="ir.ui.view">
+        <field name="name">medilab.accreditation.certificate.form</field>
+        <field name="model">medilab.accreditation.certificate</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_import_methods"
+                        type="object"
+                        string="Import Methods"
+                        class="btn-primary"
+                    />
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <div class="oe_title">
+                        <label for="code" />
+                        <h1><field name="code" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="issuing_body" />
+                        </group>
+                        <group>
+                            <field name="valid_from" />
+                            <field name="valid_until" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Testing Methods" name="methods">
+                            <field name="method_ids">
+                                <list>
+                                    <field name="code" />
+                                    <field name="name" />
+                                    <field name="field_id" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_accreditation_certificate_search" model="ir.ui.view">
+        <field name="name">medilab.accreditation.certificate.search</field>
+        <field name="model">medilab.accreditation.certificate</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" string="Number" />
+                <field name="issuing_body" />
+                <field name="method_ids" />
+                <filter
+                    name="expired"
+                    string="Expired"
+                    domain="[('valid_until', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_accreditation_certificate" model="ir.actions.act_window">
+        <field name="name">Accreditation Certificates</field>
+        <field name="res_model">medilab.accreditation.certificate</field>
+        <field name="path">accreditation-certificates</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

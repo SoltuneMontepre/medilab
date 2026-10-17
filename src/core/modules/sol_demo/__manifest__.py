@@ -23,6 +23,7 @@
         "data/sol_laboratory/regulation.xml",
         "data/sol_laboratory/regulation_limit.xml",
         "data/sol_laboratory/quality_registration.xml",
+        "data/sol_laboratory/accreditation_certificate.xml",
         "data/sol_laboratory/machine.xml",
         "data/sol_laboratory/machine_service.xml",
         "data/sol_laboratory/parameter_method_machine.xml",
