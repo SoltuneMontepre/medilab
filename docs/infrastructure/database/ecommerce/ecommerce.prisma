@@ -352,6 +352,10 @@ model SaleOrder {
   date_order        DateTime
   /// The date the customer expects the results.
   expected_result_date DateTime?          @db.Date
+  /// The earliest date the laboratory estimated it can return the results, worked out when the quotation's samples or parameters change.
+  estimated_result_date DateTime?         @db.Date
+  /// True when the customer asked for results earlier than the estimate and the laboratory's check said it can meet them.
+  priority          Boolean               @default(false)
   /// When the advance must be paid; 3 days after sending by default, set by sales.
   payment_deadline  DateTime?
   /// online, bank_transfer, cash, or none when the Head of Sales sends without an advance.

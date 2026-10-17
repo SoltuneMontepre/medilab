@@ -783,6 +783,8 @@ model TestRequest {
   request_date DateTime @db.Date
   /// Date sales promised the customer the results.
   expected_date DateTime? @db.Date
+  /// True for a priority request: the expected date is earlier than the estimate and the check said it can be met, so its tests are urgent.
+  priority      Boolean  @default(false)
   /// Language the customer wants the report in: vi, en or bilingual.
   report_language String @default("bilingual") @db.VarChar
   /// How the report reaches the customer: in_person, post, email or other.
@@ -918,6 +920,16 @@ model SampleTest {
   cancelled_at        DateTime?
   /// True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
   outsourcing_suggested Boolean        @default(false)
+  /// True when the test has no booking that finishes before its due date, or its booking ended without a result; its tester and head of department are told when it turns true.
+  at_risk             Boolean          @default(false)
+  /// True when a person marked the test urgent, so it is scheduled first whatever its due date.
+  marked_urgent       Boolean          @default(false)
+  /// Why the test was marked urgent.
+  urgent_reason       String?          @db.Text
+  /// Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
+  emergency_outsource_reason String?   @db.Text
+  /// Tester or head of department who marked the test urgent.
+  marked_urgent_by_id Int?
   /// The sample tested.
   sample              Sample           @relation(fields: [sample_id], references: [id], onDelete: Cascade)
   /// The parameter tested.
@@ -926,6 +938,8 @@ model SampleTest {
   parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
   /// Head of department who cancelled the test.
   cancelled_by        Person?          @relation("SampleTestCanceller", fields: [cancelled_by_id], references: [id], onDelete: Restrict)
+  /// Tester or head of department who marked the test urgent.
+  marked_urgent_by    Person?          @relation("SampleTestUrgencyMarker", fields: [marked_urgent_by_id], references: [id], onDelete: Restrict)
   /// Results of the test, one per attempt.
   results             TestResult[]
   /// Machine bookings for the test.
@@ -983,6 +997,8 @@ model TestResult {
   machine_id     Int?
   /// When the measurement started, taken from the booking's start and correctable by the lab QA.
   started_at     DateTime?
+  /// Why the sanity check found the value unusual when it was sent, shown to the approver; empty when nothing was found.
+  check_warning  String?          @db.Text
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
   /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
@@ -1040,6 +1056,8 @@ model Person {
   permissions   PersonPermission[]
   /// Sample tests the person cancelled.
   cancelled_sample_tests SampleTest[] @relation("SampleTestCanceller")
+  /// Sample tests the person marked urgent.
+  urgent_marked_sample_tests SampleTest[] @relation("SampleTestUrgencyMarker")
   /// Machine bookings the person runs.
   bookings      MachineBooking[]
   /// Samples the person received.
@@ -1510,6 +1528,8 @@ model MachineBooking {
   ends_at          DateTime?
   /// queued, scheduled, in_progress, done or cancelled.
   status           String     @db.VarChar
+  /// Why the head of department bumped the test to the earliest slot.
+  bump_reason      String?    @db.Text
   /// The calendar event showing a scheduled booking on the person's schedule, with its reminder; empty while the booking waits in the queue.
   calendar_event_id Int?     @unique
   /// The calendar event of the booking.
