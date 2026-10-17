@@ -11,3 +11,4 @@ Step-by-step procedures for recurring tasks.
 - [Reviewing a pull request](reviewing-pr.md): check a pull request against the conventions, business rules and database, and post the review
 - [Setting up](setting-up.md): install the modules and configure the company, languages, settings and code formats
 - [Odoo intelligence](odoo-intelligence.md): install and verify Odoo navigation across coding clients and isolated worktrees
+- [Reviewing task links](reviewing-task-links.md): after the upgrade that locks task links, review the tasks the audit trail cannot verify before calling production secure

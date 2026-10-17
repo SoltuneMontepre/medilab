@@ -17,6 +17,7 @@
         "data/sol_laboratory/parameter_group.xml",
         "data/sol_laboratory/testing_field.xml",
         "data/sol_laboratory/testing_method.xml",
+        "data/sol_laboratory/testing_method_step.xml",
         "data/sol_laboratory/test_parameter.xml",
         "data/sol_laboratory/subcontractor.xml",
         "data/sol_laboratory/parameter_method.xml",

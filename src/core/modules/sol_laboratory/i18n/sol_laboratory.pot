@@ -275,6 +275,16 @@ msgid "A signature is withdrawn, not deleted."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_step_sequence_positive
+msgid "A step number must be 1 or more."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_step_duration_positive
+msgid "A step takes at least one minute."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_planned_period
 msgid "A task cannot end before it starts."
 msgstr ""
@@ -283,6 +293,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "A task created by hand needs an assignee and a deadline."
+msgstr ""
+
+#. module: sol_laboratory
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "A task created by hand opens no document."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1452,6 +1467,11 @@ msgid "Create testing fields"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_step_create_all
+msgid "Create testing method steps"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_testing_method_create_all
 msgid "Create testing methods"
 msgstr ""
@@ -1858,6 +1878,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_testing_field_delete_all
 msgid "Delete testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_step_delete_all
+msgid "Delete testing method steps"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2371,6 +2396,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_testing_field_edit_all
 msgid "Edit testing fields"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_step_edit_all
+msgid "Edit testing method steps"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3087,6 +3117,11 @@ msgid "Industry"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__instruction
+msgid "Instruction"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_id
 msgid ""
 "International Commercial Terms are a series of predefined commercial "
@@ -3521,6 +3556,11 @@ msgid "Limits"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__linked_by_system
+msgid "Linked By System"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__physical_state__liquid
 msgid "Liquid"
 msgstr ""
@@ -3728,6 +3768,14 @@ msgid "Messages"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__method_step_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__method_step_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Method Steps"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__min_value
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_min
 msgid "Minimum"
@@ -3741,6 +3789,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__minimum_quantity_unit_id
 msgid "Minimum Quantity Unit"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__duration_minutes
+msgid "Minutes"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3963,6 +4016,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__note
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__note
 msgid "Note"
 msgstr ""
 
@@ -4949,6 +5003,21 @@ msgid "Permission: test.request.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_step_create_all
+msgid "Permission: testing.method.step.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_step_delete_all
+msgid "Permission: testing.method.step.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_step_edit_all
+msgid "Permission: testing.method.step.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_permission
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__permission_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_permission
@@ -5656,6 +5725,11 @@ msgid "Saturday"
 msgstr ""
 
 #. module: sol_laboratory
+#: code:addons/sol_laboratory/models/master_data/testing_method_step.py:0
+msgid "Say what to do in the step."
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
 msgid "Scale"
@@ -5924,6 +5998,17 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__sequence
+msgid "Step"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__step_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_form
+msgid "Steps"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__storage_conditions
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__storage_conditions
 msgid "Storage Conditions"
@@ -6139,7 +6224,13 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_testing_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__method_id
 msgid "Testing Method"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_testing_method_step
+msgid "Testing Method Step"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6431,6 +6522,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "The type of a task and the document it opens cannot change."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__main_user_id
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__main_user_id
 msgid ""
@@ -6628,6 +6724,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Turn the schedule of %s on before running it."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_step_method_sequence_unique
+msgid "Two steps of a testing method cannot have the same number."
 msgstr ""
 
 #. module: sol_laboratory
