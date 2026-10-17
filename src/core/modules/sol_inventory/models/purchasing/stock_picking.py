@@ -1,7 +1,7 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_PACKAGE, MODEL_STOCK_PICKING
+from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_PACKAGE, MODEL_STOCK_PICKING, MODEL_SUPPLIER_INFO
 from odoo.addons.sol_inventory.constants.stock import DONE, RECEIPT_CODE
 from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SMALL_CONTAINER_LABEL_REPORT
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
@@ -46,7 +46,18 @@ class StockPicking(models.Model):
         super(StockPicking, receipts.with_context(cancel_backorder=False))._action_done()
         super(StockPicking, self - receipts)._action_done()
         receipts.move_line_ids._attach_certificates()
+        receipts._record_supplier_prices()
         return True
+
+    def _record_supplier_prices(self):
+        """Keep what each received item cost as its supplier's last price for it."""
+        supplier_items = self.env[MODEL_SUPPLIER_INFO]
+        for receipt in self:
+            supplier = receipt.partner_id.commercial_partner_id
+            if not supplier.sudo().with_context(active_test=False).supplier_ids:
+                continue
+            for move in receipt.move_ids.filtered(lambda move: move.state == DONE and move.product_id.item_kind):
+                supplier_items._record_last_price(supplier, move.product_id, move.price_unit)
 
     def _check_backorder(self):
         return super(StockPicking, self - self._receipts())._check_backorder()

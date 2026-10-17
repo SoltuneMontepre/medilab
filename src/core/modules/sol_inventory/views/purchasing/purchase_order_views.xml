@@ -145,6 +145,7 @@
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="attributes">
                 <attribute name="string">Supplier</attribute>
+                <attribute name="domain">[('supplier_ids', '!=', False)]</attribute>
                 <attribute name="readonly">state in ['cancel', 'purchase'] or approval_status != 'none'</attribute>
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">

@@ -1,4 +1,5 @@
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo.fields import Domain
 
 from odoo.addons.sol_inventory.constants.models import MODEL_SUPPLIER_INFO
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
@@ -25,3 +26,19 @@ class ProductSupplierinfo(models.Model):
         contacts = sellers.partner_id.sudo().with_context(active_test=False)
         archived = contacts.supplier_ids.filtered(lambda supplier: not supplier.active).partner_id
         return sellers.filtered(lambda seller: seller.partner_id not in archived)
+
+    @api.model
+    def _record_last_price(self, partner, item, price):
+        """Keep the price of one unit of the item, excluding VAT, the supplier was last paid on its line for the item."""
+        line = self.sudo().search(Domain("partner_id", "=", partner.id) & Domain("product_id", "=", item.id), limit=1)
+        if line:
+            line.price = price
+        else:
+            line.create(
+                {
+                    "partner_id": partner.id,
+                    "product_id": item.id,
+                    "product_tmpl_id": item.product_tmpl_id.id,
+                    "price": price,
+                }
+            )

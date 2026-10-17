@@ -2,7 +2,12 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
 from .purchasing_case import PurchasingCase
-from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOCATION, MODEL_STOCK_LOT, MODEL_STOCK_QUANT
+from odoo.addons.sol_inventory.constants.models import (
+    MODEL_STOCK_LOCATION,
+    MODEL_STOCK_LOT,
+    MODEL_STOCK_QUANT,
+    MODEL_SUPPLIER_INFO,
+)
 
 
 @tagged("post_install", "-at_install")
@@ -140,3 +145,18 @@ class TestReceipts(PurchasingCase):
 
         with self.assertRaises(UserError):
             receipt.button_validate()
+
+    def test_a_receipt_keeps_what_each_item_cost_as_its_supplier_last_price(self):
+        line = self.env[MODEL_SUPPLIER_INFO].create(
+            {"partner_id": self.vendor.id, "product_id": self.gloves.id, "price": 2000}
+        )
+        receipt = self.make_receipt((self.gloves, 100, 2500), (self.plates, 20, 15000))
+        receipt.move_ids.filtered(lambda move: move.product_id == self.gloves).write({"quantity": 100, "picked": True})
+        self.fill(receipt, self.plates, ("Lot500", 20, 1, self.expiry(), None))
+        receipt.button_validate()
+
+        self.assertEqual(line.price, 2500)
+        plates_line = self.env[MODEL_SUPPLIER_INFO].search(
+            [("partner_id", "=", self.vendor.id), ("product_id", "=", self.plates.id)]
+        )
+        self.assertEqual(plates_line.price, 15000)

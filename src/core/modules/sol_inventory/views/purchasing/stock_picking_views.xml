@@ -69,6 +69,9 @@
                     <field name="container_count" widget="statinfo" string="Containers" />
                 </button>
             </xpath>
+            <xpath expr="//sheet//field[@name='partner_id']" position="attributes">
+                <attribute name="domain">[('supplier_ids', '!=', False)] if picking_type_code == 'incoming' else []</attribute>
+            </xpath>
             <xpath expr="//field[@name='move_ids']/list/field[@name='product_uom_qty']" position="after">
                 <field name="purchase_line_id" column_invisible="True" />
                 <field

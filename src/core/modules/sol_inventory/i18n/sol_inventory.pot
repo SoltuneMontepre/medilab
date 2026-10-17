@@ -2518,3 +2518,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
 msgid "<span class=\"o_form_label\">Purchase Order</span>"
 msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order.py:0
+msgid "%s is not an active supplier, so it cannot be ordered from."
+msgstr ""

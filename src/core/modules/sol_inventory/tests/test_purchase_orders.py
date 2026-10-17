@@ -1,4 +1,4 @@
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
 from odoo.tests import tagged
 
@@ -151,3 +151,11 @@ class TestPurchaseOrders(PurchasingCase):
         order.button_cancel()
         department.action_archive()
         self.assertFalse(department.active)
+
+    def test_an_order_goes_only_to_an_active_supplier(self):
+        self.supplier.action_archive()
+
+        with self.assertRaises(ValidationError):
+            self.make_order((self.gloves, 10, 50000))
+        with self.assertRaises(ValidationError):
+            self.make_order((self.gloves, 10, 50000), partner_id=self.chemist.work_contact_id.id)

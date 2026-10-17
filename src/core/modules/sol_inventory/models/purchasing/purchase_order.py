@@ -1,4 +1,5 @@
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 from odoo.fields import Domain
 
 from odoo.addons.sol_inventory.constants.models import MODEL_PURCHASE_ORDER
@@ -37,6 +38,15 @@ class PurchaseOrder(models.Model):
     )
 
     _partner_state_idx = models.Index("(partner_id, state)")
+
+    @api.constrains("partner_id")
+    def _check_supplier(self):
+        # An archived supplier keeps its contact for the orders that name it, but new orders do not go to it.
+        for order in self:
+            if not order.partner_id.sudo().supplier_ids:
+                raise ValidationError(
+                    self.env._("%s is not an active supplier, so it cannot be ordered from.", order.partner_id.name)
+                )
 
     @api.model
     def _in_use_domain(self):
