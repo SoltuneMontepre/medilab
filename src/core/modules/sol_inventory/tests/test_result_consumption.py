@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 from odoo import fields
 from odoo.exceptions import UserError
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from odoo.addons.sol_inventory.constants.models import (
@@ -247,3 +248,25 @@ class TestResultConsumption(ResultCase):
                 {"result_id": result.id, "container_id": extra.id, "sequence": 2}
             )
         self.assertEqual(result.container_line_ids.container_id, self.bottle)
+        with self.assertRaises(UserError):
+            result.with_user(self.tester.user_id).write(
+                {"container_line_ids": [Command.create({"container_id": extra.id, "sequence": 2})]}
+            )
+        self.assertEqual(result.container_line_ids.container_id, self.bottle)
+
+    def test_a_scanned_code_adds_the_container_in_order(self):
+        result = self.enter()
+        result.container_scan = "   "
+        result._onchange_container_scan()
+        self.assertFalse(result.container_line_ids)
+
+        result.container_scan = f"  {self.bottle.name}  "
+        result._onchange_container_scan()
+        self.assertEqual(result.container_line_ids.container_id, self.bottle)
+        self.assertEqual(result.container_line_ids.sequence, 1)
+        self.assertFalse(result.container_scan)
+
+        result.container_scan = self.bottle.name
+        with self.assertRaises(UserError) as duplicate:
+            result._onchange_container_scan()
+        self.assertIn(self.bottle.name, duplicate.exception.args[0])

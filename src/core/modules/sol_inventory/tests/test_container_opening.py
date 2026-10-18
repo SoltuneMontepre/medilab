@@ -3,7 +3,12 @@ from odoo.tests import tagged
 from odoo.tools import format_date
 
 from .containers_case import ContainersCase
-from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOT, MODEL_STOCK_PACKAGE, MODEL_STOCK_QUANT
+from odoo.addons.sol_inventory.constants.models import (
+    MODEL_CONTAINER_SCAN,
+    MODEL_STOCK_LOT,
+    MODEL_STOCK_PACKAGE,
+    MODEL_STOCK_QUANT,
+)
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_OPENED, CONTAINER_SEALED
 from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SMALL_CONTAINER_LABEL_REPORT
 
@@ -83,3 +88,16 @@ class TestContainerOpening(ContainersCase):
             self.assertIn("Opened", html)
             self.assertIn(self.tester.name, html)
             self.assertIn(format_date(self.env, container.opened_at), html)
+
+    def test_scanning_a_code_opens_that_container(self):
+        container = self.put_container(self.acid, 500, "Scan")
+        scan = self.env[MODEL_CONTAINER_SCAN].with_user(self.tester.user_id)
+
+        with self.assertRaises(UserError) as unknown:
+            scan.create({"code": "NO-SUCH"}).action_confirm()
+        self.assertIn("NO-SUCH", unknown.exception.args[0])
+
+        scan.create({"code": container.name}).action_confirm()
+
+        self.assertEqual(container.status, CONTAINER_OPENED)
+        self.assertEqual(container.opened_by_id, self.tester.user_id)

@@ -133,6 +133,21 @@ class Preparation(models.Model):
     def _check_batch(self, recipe, ingredient_lines, received, scrap_tags):
         if not recipe or not recipe.active:
             raise UserError(self.env._("Choose a recipe."))
+        self._check_received(recipe, received)
+        items = recipe.line_ids.item_id
+        given = self.env[MODEL_STOCK_PACKAGE].browse()
+        seen = self.env[MODEL_PRODUCT].browse()
+        extra = False
+        for ingredient in ingredient_lines:
+            seen, given, ingredient_extra = self._check_ingredient(recipe, ingredient, items, seen, given)
+            if ingredient_extra:
+                extra = True
+        if seen != items:
+            raise UserError(self.env._("Prepare every ingredient of %s.", recipe.display_name))
+        if extra and not scrap_tags:
+            raise UserError(self.env._("Give a reason for the extra ingredient."))
+
+    def _check_received(self, recipe, received):
         solution_uom = recipe.uom_id
         if solution_uom.compare(received, 0) <= 0:
             raise UserError(self.env._("The quantity obtained must be above zero."))
@@ -144,40 +159,34 @@ class Preparation(models.Model):
                     unit=solution_uom.name,
                 )
             )
-        items = recipe.line_ids.item_id
-        given = self.env[MODEL_STOCK_PACKAGE].browse()
-        seen = self.env[MODEL_PRODUCT].browse()
-        extra = False
-        for ingredient in ingredient_lines:
-            item = ingredient["item"]
-            if item not in items:
-                raise UserError(self.env._("%s is not an ingredient of this recipe.", item.display_name))
-            if item in seen:
-                raise UserError(self.env._("%s is already on this preparation.", item.display_name))
-            seen |= item
-            recipe_quantity = recipe.line_ids.filtered(lambda line, item=item: line.item_id == item).quantity
-            if item.uom_id.compare(ingredient["quantity"], recipe_quantity) < 0:
-                raise UserError(self.env._("The amount of %s cannot be less than the recipe.", item.display_name))
-            if item.uom_id.compare(ingredient["quantity"], recipe_quantity) > 0:
-                extra = True
-            wrong = ingredient["containers"].filtered(lambda container: container.item_id != item)
-            if wrong:
-                raise UserError(
-                    self.env._(
-                        "%(container)s holds %(held)s, not %(item)s.",
-                        container=wrong[0].display_name,
-                        held=wrong[0].item_id.display_name,
-                        item=item.display_name,
-                    )
+
+    def _check_ingredient(self, recipe, ingredient, items, seen, given):
+        item = ingredient["item"]
+        if item not in items:
+            raise UserError(self.env._("%s is not an ingredient of this recipe.", item.display_name))
+        if item in seen:
+            raise UserError(self.env._("%s is already on this preparation.", item.display_name))
+        seen |= item
+        recipe_quantity = recipe.line_ids.filtered(lambda line, item=item: line.item_id == item).quantity
+        quantity = ingredient["quantity"]
+        if item.uom_id.compare(quantity, recipe_quantity) < 0:
+            raise UserError(self.env._("The amount of %s cannot be less than the recipe.", item.display_name))
+        containers = ingredient["containers"]
+        wrong = containers.filtered(lambda container, item=item: container.item_id != item)
+        if wrong:
+            raise UserError(
+                self.env._(
+                    "%(container)s holds %(held)s, not %(item)s.",
+                    container=wrong[0].display_name,
+                    held=wrong[0].item_id.display_name,
+                    item=item.display_name,
                 )
-            for container in ingredient["containers"]:
-                if container in given:
-                    raise UserError(self.env._("%s is already used for another ingredient.", container.display_name))
-                given |= container
-        if seen != items:
-            raise UserError(self.env._("Prepare every ingredient of %s.", recipe.display_name))
-        if extra and not scrap_tags:
-            raise UserError(self.env._("Give a reason for the extra ingredient."))
+            )
+        for container in containers:
+            if container in given:
+                raise UserError(self.env._("%s is already used for another ingredient.", container.display_name))
+            given |= container
+        return seen, given, item.uom_id.compare(quantity, recipe_quantity) > 0
 
     @api.model
     def _split_recipe(self, item, takes, recipe_quantity):

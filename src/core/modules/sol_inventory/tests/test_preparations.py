@@ -1,9 +1,14 @@
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
 from odoo.tests import tagged
 
 from .containers_case import ContainersCase
-from odoo.addons.sol_inventory.constants.models import MODEL_PREPARATION, MODEL_PREPARATION_MAKE
+from odoo.addons.sol_inventory.constants.models import (
+    MODEL_PREPARATION,
+    MODEL_PREPARATION_MAKE,
+    MODEL_RECIPE,
+    MODEL_STOCK_LOT,
+)
 from odoo.addons.sol_inventory.constants.stock import (
     CONTAINER_DEPLETED,
     CONTAINER_DISPOSED,
@@ -17,8 +22,9 @@ from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, 
 @tagged("post_install", "-at_install")
 class TestPreparations(ContainersCase):
     def prepare(self, acid_quantity=77, water_quantity=923, received=1000, acid=None, water=None, tags=None):
-        acid = acid or self.put_container(self.acid, 500, "Acid", status=CONTAINER_OPENED)
-        water = water or self.put_container(self.water, 1000, "Water", status=CONTAINER_OPENED)
+        mark = self.env[MODEL_STOCK_LOT].search_count([])
+        acid = acid or self.put_container(self.acid, 500, f"Acid{mark}", status=CONTAINER_OPENED)
+        water = water or self.put_container(self.water, 1000, f"Water{mark}", status=CONTAINER_OPENED)
         wizard = (
             self.env[MODEL_PREPARATION_MAKE]
             .with_user(self.tester.user_id)
@@ -99,10 +105,12 @@ class TestPreparations(ContainersCase):
         self.assertEqual(waste.scrap_reason_tag_ids, tags)
         self.assertEqual(acid.quantity, 420)
         self.assertNotEqual(acid.status, CONTAINER_DISPOSED)
-        with self.assertRaises(UserError):
+        with self.assertRaises(UserError) as too_much:
             self.prepare(received=1001)
-        with self.assertRaises(UserError):
+        self.assertIn("recipe yield", too_much.exception.args[0])
+        with self.assertRaises(UserError) as extra:
             self.prepare(acid_quantity=80)
+        self.assertIn("reason for the extra", extra.exception.args[0])
 
     def test_a_sealed_expired_short_or_wrong_container_is_refused(self):
         sealed = self.put_container(self.acid, 500, "Sealed")
@@ -121,3 +129,109 @@ class TestPreparations(ContainersCase):
                 self.prepare(**kwargs)
         self.assertEqual(sealed.status, "sealed")
         self.assertNotEqual(short.status, CONTAINER_DEPLETED)
+
+    def batch(self, lines, received=1000, location=None, tags=None, recipe=None):
+        return (
+            self.env[MODEL_PREPARATION]
+            .with_user(self.tester.user_id)
+            .prepare(
+                self.recipe if recipe is None else recipe,
+                location or self.pesticides_store,
+                lines,
+                received,
+                tags or self.env["stock.scrap.reason.tag"],
+            )
+        )
+
+    def test_a_batch_that_does_not_follow_the_recipe_is_refused(self):
+        acid = self.put_container(self.acid, 500, "Follow", status=CONTAINER_OPENED)
+        water = self.put_container(self.water, 1000, "FollowW", status=CONTAINER_OPENED)
+        lines = [
+            {"item": self.acid, "quantity": 77, "containers": acid},
+            {"item": self.water, "quantity": 923, "containers": water},
+        ]
+        refusals = (
+            (self.env[MODEL_RECIPE].browse(), lines, 1000, "Choose a recipe."),
+            (self.recipe, lines, 0, "above zero"),
+            (self.recipe, [{"item": self.acid, "quantity": 10, "containers": acid}], 1000, "less than the recipe"),
+            (
+                self.recipe,
+                [{"item": self.gloves, "quantity": 1, "containers": self.env["stock.package"]}],
+                1000,
+                "not an ingredient",
+            ),
+            (
+                self.recipe,
+                [
+                    {"item": self.acid, "quantity": 77, "containers": acid},
+                    {"item": self.acid, "quantity": 77, "containers": acid},
+                ],
+                1000,
+                "already on this preparation",
+            ),
+            (self.recipe, [lines[0]], 1000, "Prepare every ingredient"),
+        )
+        for recipe, ingredient_lines, received, message in refusals:
+            with self.subTest(message=message), self.assertRaises(UserError) as refusal:
+                self.batch(ingredient_lines, received=received, recipe=recipe)
+            self.assertIn(message, refusal.exception.args[0])
+
+        self.recipe.active = False
+        with self.assertRaises(UserError) as inactive:
+            self.batch(lines)
+        self.assertIn("Choose a recipe.", inactive.exception.args[0])
+
+    def test_the_rest_of_a_later_container_is_wasted(self):
+        first = self.put_container(self.acid, 77, "Recipe", status=CONTAINER_OPENED)
+        rest = self.put_container(self.acid, 10, "Extra", status=CONTAINER_OPENED)
+        water = self.put_container(self.water, 1000, "RestW", status=CONTAINER_OPENED)
+
+        preparation, _container = self.batch(
+            [
+                {"item": self.acid, "quantity": 87, "containers": first | rest},
+                {"item": self.water, "quantity": 923, "containers": water},
+            ],
+            tags=self.env.ref(SCRAP_WRONGLY_PREPARED),
+        )
+
+        waste = preparation.move_ids.filtered("is_scrap")
+        self.assertEqual(waste.product_id, self.acid)
+        self.assertEqual(waste.quantity, 10)
+        self.assertEqual(first.quantity, 0)
+        self.assertEqual(first.status, CONTAINER_DEPLETED)
+        self.assertEqual(rest.quantity, 0)
+        self.assertEqual(rest.status, CONTAINER_DISPOSED)
+
+    def test_preparing_outside_the_persons_store_or_without_the_sequence_is_refused(self):
+        acid = self.put_container(self.acid, 500, "Place", status=CONTAINER_OPENED)
+        water = self.put_container(self.water, 1000, "PlaceW", status=CONTAINER_OPENED)
+        lines = [
+            {"item": self.acid, "quantity": 77, "containers": acid},
+            {"item": self.water, "quantity": 923, "containers": water},
+        ]
+        with self.assertRaises(UserError) as store:
+            self.batch(lines, location=self.chemistry_store)
+        self.assertIn("your stores", store.exception.args[0])
+
+        second = self.create_store("Second pesticide store", self.chemistry_store, self.pesticides)
+        elsewhere = self.put_container(self.acid, 500, "Elsewhere", location=second, status=CONTAINER_OPENED)
+        with self.assertRaises(UserError) as outside:
+            self.batch(
+                [
+                    {"item": self.acid, "quantity": 77, "containers": elsewhere},
+                    {"item": self.water, "quantity": 923, "containers": water},
+                ]
+            )
+        self.assertIn(elsewhere.name, outside.exception.args[0])
+
+        clerk = self.create_person("Le Thi Pha", self.chemistry, "pha.le")
+        clerk.team_id = self.pesticides
+        with self.assertRaises(AccessError):
+            self.env[MODEL_PREPARATION].with_user(clerk.user_id).prepare(
+                self.recipe, self.pesticides_store, lines, 1000, self.env["stock.scrap.reason.tag"]
+            )
+
+        self.env["ir.sequence"].search([("code", "=", "medilab.preparation.lot")]).code = "medilab.preparation.lot.away"
+        with self.assertRaises(UserError) as missing:
+            self.prepare()
+        self.assertIn("sequence", missing.exception.args[0])
