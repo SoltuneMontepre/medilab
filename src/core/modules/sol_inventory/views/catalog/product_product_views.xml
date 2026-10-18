@@ -65,7 +65,7 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Suppliers" name="suppliers">
+                        <page string="Suppliers" name="suppliers" invisible="item_kind == 'solution'">
                             <field name="supplier_item_ids" context="{'default_product_tmpl_id': product_tmpl_id}">
                                 <list editable="bottom">
                                     <field
