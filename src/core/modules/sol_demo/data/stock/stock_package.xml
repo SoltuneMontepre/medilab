@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Opening, preparing and signing need the stores, the recipes and the tester, so they are seeded in Python. -->
+    <function model="stock.package" name="_seed_container_demo" />
+</odoo>

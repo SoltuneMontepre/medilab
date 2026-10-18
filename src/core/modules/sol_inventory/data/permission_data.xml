@@ -270,4 +270,24 @@
         <field name="document_model">medilab.recipe.line</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_container_edit_all" model="medilab.permission">
+        <field name="name">Edit containers</field>
+        <field name="document_model">stock.package</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_preparation_create_all" model="medilab.permission">
+        <field name="name">Create preparations</field>
+        <field name="document_model">medilab.preparation</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_move_read_all" model="medilab.permission">
+        <field name="name">Read moves</field>
+        <field name="document_model">stock.move</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_move_create_all" model="medilab.permission">
+        <field name="name">Create moves</field>
+        <field name="document_model">stock.move</field>
+        <field name="action">create</field>
+    </record>
 </odoo>

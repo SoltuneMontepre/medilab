@@ -26,8 +26,8 @@ How code inside an Odoo module is laid out.
 | `costs`             | Cost centres                                                                                                                                                                     |
 | `catalog`           | Stock items with their minimum quantities, suppliers and the items they sell, and how much of each item a test uses                                                              |
 | `purchasing`        | Purchase orders, their lines and signing, and receipts with what each lot line brings in                                                                                         |
-| `stock`             | Lots and containers, their statuses and QR labels                                                                                                                                |
-| `recipes`           | Recipes of prepared solutions and their ingredients                                                                                                                              |
+| `stock`             | Lots and containers, opening them, their usable dates and labels, uses, waste and moves                                                                                          |
+| `recipes`           | Recipes of prepared solutions, their ingredients and the preparations made from them                                                                                             |
 
 ## Files
 

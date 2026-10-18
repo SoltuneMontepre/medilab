@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="scrap_reason_dropped" model="stock.scrap.reason.tag">
+        <field name="name">Dropped</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="scrap_reason_spilled" model="stock.scrap.reason.tag">
+        <field name="name">Spilled</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="scrap_reason_contaminated" model="stock.scrap.reason.tag">
+        <field name="name">Contaminated</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="scrap_reason_wrongly_prepared" model="stock.scrap.reason.tag">
+        <field name="name">Wrongly prepared</field>
+        <field name="sequence">40</field>
+    </record>
+</odoo>

@@ -11789,3 +11789,23 @@ msgstr "Ghi lúc"
 #: code:addons/sol_laboratory/models/system/res_config_settings.py:0
 msgid "The audit retention period cannot be negative; 0 keeps entries for ever."
 msgstr "Thời gian lưu giữ nhật ký hoạt động không được âm; 0 là giữ mãi mãi."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_container_edit_all
+msgid "Permission: container.edit.all"
+msgstr "Quyền: container.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_move_create_all
+msgid "Permission: move.create.all"
+msgstr "Quyền: move.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_move_read_all
+msgid "Permission: move.read.all"
+msgstr "Quyền: move.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_preparation_create_all
+msgid "Permission: preparation.create.all"
+msgstr "Quyền: preparation.create.all"

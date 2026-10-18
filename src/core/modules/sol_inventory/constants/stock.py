@@ -10,6 +10,13 @@ CONTAINER_DEPLETED = "depleted"
 CONTAINER_DISPOSED = "disposed"
 CONTAINER_MISSING = "missing"
 
+# What a stock move is for. Later operations add their own kinds.
+MOVE_RECEIPT = "receipt"
+MOVE_PREPARATION = "preparation"
+MOVE_CONSUMPTION = "consumption"
+MOVE_WASTE = "waste"
+OPEN_CONTAINER_STATUSES = (CONTAINER_SEALED, CONTAINER_OPENED)
+
 # Odoo's operation type code of a receipt.
 RECEIPT_CODE = "incoming"
 # Odoo's states of a purchase order: draft while it is prepared and signed, purchase once sent to the supplier.

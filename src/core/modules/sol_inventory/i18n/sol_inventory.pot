@@ -2738,3 +2738,567 @@ msgstr ""
 msgid ""
 "%s is a prepared solution, so it is made in the laboratory and never bought."
 msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%(container)s holds %(held)s, not %(item)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "%(container)s holds %(item)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%(containers)s are not in %(store)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%(containers)s are not in a store of %(person)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "%(containers)s do not hold %(item)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "%(containers)s hold %(items)s, which this method does not use."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid ""
+"%(item)s still needs %(quantity)s %(unit)s. Scan another opened container."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid ""
+"%(stores)s holds %(held)s %(unit)s of %(item)s that can be used, short of "
+"%(needed)s %(unit)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s cannot be marked empty."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "%s cannot be wasted."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/person.py:0
+msgid "%s has no person record, so they have no store."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/person.py:0
+msgid "%s has no store. Their team and department hold none."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation_make_line.py:0
+msgid "%s is already on this ingredient."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is already on this preparation."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "%s is already on this result."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is already used for another ingredient."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is not an ingredient of this recipe."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s is not sealed."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s is past its usable date."
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "<span>by</span>"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_stock_package_preparation_unique
+msgid "A preparation fills one container."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid ""
+"A sealed container is wasted whole. %(container)s holds %(quantity)s "
+"%(unit)s."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__quantity
+msgid "Amount Used"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__automatic
+msgid "Automatic"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+msgid "Cancel"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/recipes/preparation_make.py:0
+msgid "Choose a recipe."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose one of your stores."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose the lot of %s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose why it was wasted."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__consumption
+msgid "Consumption"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__container_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_list
+msgid "Container"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__code
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_scan
+msgid "Container Code"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+msgid "Containers Used"
+msgstr ""
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_contaminated
+msgid "Contaminated"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_move_create_all
+msgid "Create moves"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_preparation_create_all
+msgid "Create preparations"
+msgstr ""
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_dropped
+msgid "Dropped"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_container_edit_all
+msgid "Edit containers"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Enter an item and a quantity above zero."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "Give a reason for the extra ingredient."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Give the reason for this use."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__has_extra
+msgid "Has Extra"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__kind
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__move_kind
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Kind"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__line_id
+msgid "Line"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Mark empty"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_move
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__move_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__move_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__done_line_ids
+#: model:ir.ui.menu,name:sol_inventory.menu_stock_move
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Moves"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "No container has the code %s."
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+msgid "Open"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Open %(containers)s before using them."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_at
+msgid "Opened At"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_by_id
+msgid "Opened By"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_person
+msgid "Person"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__preparation_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__preparation_id
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__preparation
+msgid "Preparation"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_line
+msgid "Preparation Ingredient"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation
+#: model:ir.ui.menu,name:sol_inventory.menu_preparation
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Preparations"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+msgid "Prepare"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation_make
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make
+#: model:ir.ui.menu,name:sol_inventory.menu_prepare_solution
+msgid "Prepare Solution"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "Prepare every ingredient of %s."
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "Prepared"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Print label"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Print small label"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__received_quantity
+msgid "Quantity Obtained"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_move_read_all
+msgid "Read moves"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__scrap_reason_tag_ids
+msgid "Reason for the Extra"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__receipt
+msgid "Receipt"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__recipe_quantity
+msgid "Recipe Amount"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+msgid "Record"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_use
+#: model:ir.model,name:sol_inventory.model_medilab_stock_use
+#: model:ir.ui.menu,name:sol_inventory.menu_record_use
+msgid "Record Use or Waste"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__result_id
+msgid "Result"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_result_container
+msgid "Result Container"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container_scan
+#: model:ir.model,name:sol_inventory.model_medilab_container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__container_scan
+#: model:ir.ui.menu,name:sol_inventory.menu_container_scan
+msgid "Scan Container"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Scan a container of %s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "Scan an opened container of %s."
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+msgid "Scan or type the container code"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_container
+msgid "Scanned Ingredient Container"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__sequence
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Set the company's Production location before using stock."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Set the company's scrap location before wasting stock."
+msgstr ""
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_spilled
+msgid "Spilled"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_move
+msgid "Stock Move"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_test_result
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__test_result_id
+msgid "Test Result"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The amount of %s cannot be less than the recipe."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/result_container.py:0
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "The containers of a signed result stay as they were."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "The lot of %s is not available."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The prepared solution lot sequence is missing."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid ""
+"The quantity obtained cannot be more than the recipe yield of %(quantity)s "
+"%(unit)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The quantity obtained must be above zero."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_result_container_result_container_unique
+msgid "This container is already on the result."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__use
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Use"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__waste
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__waste
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Waste"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__scrap_reason_tag_ids
+msgid "Waste Reason"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__wizard_id
+msgid "Wizard"
+msgstr ""
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_wrongly_prepared
+msgid "Wrongly prepared"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "You are not allowed to prepare a solution."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "You are not allowed to record a use or a waste."
+msgstr ""

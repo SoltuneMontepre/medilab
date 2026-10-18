@@ -1,0 +1,85 @@
+from odoo.exceptions import AccessError, UserError
+from odoo.tests import tagged
+from odoo.tools import format_date
+
+from .containers_case import ContainersCase
+from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOT, MODEL_STOCK_PACKAGE, MODEL_STOCK_QUANT
+from odoo.addons.sol_inventory.constants.stock import CONTAINER_OPENED, CONTAINER_SEALED
+from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SMALL_CONTAINER_LABEL_REPORT
+
+
+@tagged("post_install", "-at_install")
+class TestContainerOpening(ContainersCase):
+    def test_opening_records_who_when_and_the_usable_date(self):
+        usable = self.day(10)
+        container = self.put_container(self.acid, 500, "Open1", self.env[MODEL_STOCK_PACKAGE]._at_utc(usable))
+
+        self.as_tester(container).action_open()
+
+        self.assertEqual(container.status, CONTAINER_OPENED)
+        self.assertEqual(container.opened_by_id, self.tester.user_id)
+        self.assertTrue(container.opened_at)
+        # The lot expires in 10 days and the shelf life after opening is 30, so the lot wins.
+        self.assertEqual(container.usable_until, usable)
+
+    def test_opening_one_of_five_leaves_the_other_four_sealed(self):
+        packages = self.env[MODEL_STOCK_PACKAGE]
+        usable = self.day(40)
+        lot = self.env[MODEL_STOCK_LOT].create(
+            {
+                "name": "Five",
+                "product_id": self.acid.id,
+                "company_id": self.env.company.id,
+                "expiration_date": packages._at_utc(usable),
+            }
+        )
+        containers = packages.create([{"name": f"Five-0{number}"} for number in range(1, 6)])
+        for container in containers:
+            self.env[MODEL_STOCK_QUANT]._update_available_quantity(
+                self.acid, self.pesticides_store, 100, lot_id=lot, package_id=container
+            )
+
+        self.as_tester(containers[0]).action_open()
+
+        self.assertEqual(containers[0].status, CONTAINER_OPENED)
+        self.assertEqual(set(containers[1:].mapped("status")), {CONTAINER_SEALED})
+        self.assertEqual(set(containers[1:].mapped("usable_until")), {usable})
+
+    def test_an_expired_container_in_another_store_or_without_permission_stays_sealed(self):
+        expired = self.put_container(self.acid, 500, "Expired", self.env[MODEL_STOCK_PACKAGE]._at_utc(self.day(-2)))
+        elsewhere = self.put_container(self.acid, 500, "Central", location=self.central)
+        own = self.put_container(self.acid, 500, "Own")
+        with self.assertRaises(UserError):
+            self.as_tester(expired).action_open()
+        with self.assertRaises(UserError):
+            self.as_tester(elsewhere).action_open()
+        with self.assertRaises(AccessError):
+            self.as_person(own, self.chemist).action_open()
+        self.assertEqual(set((expired | elsewhere | own).mapped("status")), {CONTAINER_SEALED})
+
+    def test_a_shelf_life_of_zero_lasts_the_opening_day(self):
+        self.acid.shelf_life_after_opening_days = 0
+        container = self.put_container(self.acid, 500, "Today")
+
+        self.as_tester(container).action_open()
+
+        self.assertEqual(container.usable_until, self.day(0))
+
+    def test_a_lot_without_an_expiry_is_not_expired(self):
+        container = self.put_container(self.acid, 500, "Undated", expiration=False)
+        self.assertFalse(container.usable_until)
+
+        self.as_tester(container).action_open()
+
+        self.assertEqual(container.status, CONTAINER_OPENED)
+        self.assertEqual(container.usable_until, self.day(30))
+
+    def test_the_label_names_who_opened_the_container(self):
+        container = self.put_container(self.acid, 500, "Label")
+        self.as_tester(container).action_open()
+
+        for report in (CONTAINER_LABEL_REPORT, SMALL_CONTAINER_LABEL_REPORT):
+            html = self.env["ir.actions.report"]._render_qweb_html(report, container.ids)[0].decode()
+            self.assertIn("Opened", html)
+            self.assertIn(self.tester.name, html)
+            self.assertIn(format_date(self.env, container.opened_at), html)

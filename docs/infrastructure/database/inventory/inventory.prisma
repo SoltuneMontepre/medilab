@@ -89,8 +89,30 @@ model TestResult {
   id    Int         @id @default(autoincrement())
   /// Stock used by the test, with its lots.
   moves StockMove[]
+  /// Containers scanned for the result, in the order they are used.
+  containers ResultContainer[]
 
   @@map("medilab_test_result")
+}
+
+/// A container scanned for a test result, in scan order. Not copied onto a new version of the result.
+model ResultContainer {
+  /// Row identifier.
+  id           Int            @id @default(autoincrement())
+  /// The result the container was scanned for.
+  result_id    Int
+  /// The container that was scanned.
+  container_id Int
+  /// Place in the scan order. An earlier container is used up before the next.
+  sequence     Int
+  /// The result the container was scanned for.
+  result       TestResult     @relation(fields: [result_id], references: [id], onDelete: Cascade)
+  /// The container that was scanned.
+  container    StockContainer @relation(fields: [container_id], references: [id], onDelete: Restrict)
+
+  @@unique([result_id, container_id])
+  @@index([container_id])
+  @@map("medilab_result_container")
 }
 
 /// Laboratory's machine service record, shown with the columns this module uses.
@@ -197,6 +219,8 @@ model StockItem {
   moves                         StockMove[]
   /// Methods that use the item per test.
   consumptions                  MethodConsumption[]
+  /// Containers that hold the item, including ones whose quantity has reached zero.
+  containers                    StockContainer[]
   /// Suppliers that sell the item.
   suppliers                     SupplierItem[]
   /// Purchase order lines of the item.
@@ -316,6 +340,8 @@ model StockLot {
   item            StockItem        @relation(fields: [product_id], references: [id], onDelete: Restrict)
   /// Stock of the lot per location and container.
   quants          StockQuant[]
+  /// Containers of the lot, including ones whose quantity has reached zero.
+  containers      StockContainer[]
   /// Move lines of the lot.
   move_lines      StockMoveLine[]
   /// Stock take lines of the lot.
@@ -334,6 +360,10 @@ model StockContainer {
   name           String         @unique @db.VarChar
   /// The location the container is in.
   location_id    Int?
+  /// The item in the container. Kept when the quantity reaches zero and Odoo removes the quant.
+  item_id        Int?
+  /// The lot in the container. Kept when the quantity reaches zero and Odoo removes the quant.
+  lot_id         Int?
   /// sealed, opened, depleted, disposed or missing.
   status         String         @db.VarChar
   /// When the container was opened or prepared.
@@ -346,6 +376,10 @@ model StockContainer {
   preparation_id Int?           @unique
   /// The location the container is in.
   location       StockLocation? @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// The item in the container.
+  item           StockItem?     @relation(fields: [item_id], references: [id], onDelete: Restrict)
+  /// The lot in the container.
+  lot            StockLot?      @relation(fields: [lot_id], references: [id], onDelete: Restrict)
   /// The preparation that made the solution.
   preparation    Preparation?   @relation("PreparationOutput", fields: [preparation_id], references: [id], onDelete: Restrict)
   /// The stock in the container.
@@ -356,6 +390,8 @@ model StockContainer {
   result_lines   StockMoveLine[] @relation("MoveLineToContainer")
   /// Stock take lines of the container.
   take_lines     StockTakeLine[]
+  /// Results that scanned this container.
+  result_scans   ResultContainer[]
 
   @@index([location_id, status])
   @@index([status, usable_until])
@@ -407,7 +443,7 @@ model StockMove {
   quantity                   Decimal            @db.Decimal
   /// Location the stock leaves: a supplier location for a receipt.
   location_id                Int
-  /// Location the stock enters: Odoo's consumption location for a use, its scrap location for waste and disposal.
+  /// Location the stock enters: the company's Production location for a use, its scrap location for waste and disposal.
   location_dest_id           Int
   /// draft, waiting, confirmed, assigned, done or cancel.
   state                      String             @db.VarChar

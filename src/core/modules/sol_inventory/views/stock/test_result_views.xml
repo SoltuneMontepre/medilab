@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_test_result_form_containers" model="ir.ui.view">
+        <field name="name">medilab.test.result.form.containers</field>
+        <field name="model">medilab.test.result</field>
+        <field name="inherit_id" ref="sol_laboratory.view_medilab_test_result_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Containers Used" invisible="subcontractor_id or replaces_id">
+                    <field name="container_scan" invisible="status != 'none'" placeholder="Scan or type the container code" />
+                    <field name="container_line_ids" readonly="status != 'none'">
+                        <list create="false" editable="bottom">
+                            <field name="sequence" widget="handle" />
+                            <field name="container_id" />
+                            <field name="item_id" />
+                            <field name="quantity" />
+                        </list>
+                    </field>
+                    <field name="move_ids" readonly="1">
+                        <list create="false" edit="false" delete="false">
+                            <field name="product_id" />
+                            <field name="quantity" />
+                            <field name="uom_id" />
+                            <field name="move_kind" />
+                            <field name="reason" />
+                            <field name="automatic" />
+                        </list>
+                    </field>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

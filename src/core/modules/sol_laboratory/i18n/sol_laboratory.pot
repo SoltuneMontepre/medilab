@@ -11650,3 +11650,23 @@ msgstr ""
 #: code:addons/sol_laboratory/models/system/res_config_settings.py:0
 msgid "The audit retention period cannot be negative; 0 keeps entries for ever."
 msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_container_edit_all
+msgid "Permission: container.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_move_create_all
+msgid "Permission: move.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_move_read_all
+msgid "Permission: move.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_preparation_create_all
+msgid "Permission: preparation.create.all"
+msgstr ""

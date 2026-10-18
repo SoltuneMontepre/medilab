@@ -2738,3 +2738,574 @@ msgstr "Hãy chọn phòng ban đề nghị mua trước khi ký đơn."
 msgid ""
 "%s is a prepared solution, so it is made in the laboratory and never bought."
 msgstr "%s là dung dịch pha chế nên được pha tại phòng thí nghiệm, không bao giờ mua."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%(container)s holds %(held)s, not %(item)s."
+msgstr "%(container)s đang chứa %(held)s, không phải %(item)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "%(container)s holds %(item)s."
+msgstr "%(container)s đang chứa %(item)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%(containers)s are not in %(store)s."
+msgstr "%(containers)s không ở trong %(store)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%(containers)s are not in a store of %(person)s."
+msgstr "%(containers)s không ở trong kho của %(person)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "%(containers)s do not hold %(item)s."
+msgstr "%(containers)s không chứa %(item)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "%(containers)s hold %(items)s, which this method does not use."
+msgstr "%(containers)s chứa %(items)s, mà phương pháp này không dùng."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid ""
+"%(item)s still needs %(quantity)s %(unit)s. Scan another opened container."
+msgstr ""
+"%(item)s còn thiếu %(quantity)s %(unit)s. Quét thêm một chai đã mở nắp."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid ""
+"%(stores)s holds %(held)s %(unit)s of %(item)s that can be used, short of "
+"%(needed)s %(unit)s."
+msgstr ""
+"%(stores)s còn %(held)s %(unit)s %(item)s dùng được, chưa đủ %(needed)s "
+"%(unit)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s cannot be marked empty."
+msgstr "Không thể đánh dấu hết %s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "%s cannot be wasted."
+msgstr "Không thể ghi hao hụt %s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/person.py:0
+msgid "%s has no person record, so they have no store."
+msgstr "%s chưa có hồ sơ nhân sự, nên không có kho."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/person.py:0
+msgid "%s has no store. Their team and department hold none."
+msgstr "%s không có kho. Tổ và phòng của họ không giữ kho nào."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation_make_line.py:0
+msgid "%s is already on this ingredient."
+msgstr "%s đã có trong thành phần này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is already on this preparation."
+msgstr "%s đã có trong phiếu pha chế này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "%s is already on this result."
+msgstr "%s đã có trong kết quả này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is already used for another ingredient."
+msgstr "%s đã được dùng cho thành phần khác."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is not an ingredient of this recipe."
+msgstr "%s không phải thành phần của công thức này."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s is not sealed."
+msgstr "%s không còn nguyên seal."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s is past its usable date."
+msgstr "%s đã quá hạn dùng."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "<span>by</span>"
+msgstr "<span>bởi</span>"
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_stock_package_preparation_unique
+msgid "A preparation fills one container."
+msgstr "Một phiếu pha chế cho ra một chai."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid ""
+"A sealed container is wasted whole. %(container)s holds %(quantity)s "
+"%(unit)s."
+msgstr ""
+"Chai còn nguyên seal phải hao hụt cả chai. %(container)s còn %(quantity)s "
+"%(unit)s."
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__quantity
+msgid "Amount Used"
+msgstr "Lượng đã dùng"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__automatic
+msgid "Automatic"
+msgstr "Tự động"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+msgid "Cancel"
+msgstr "Hủy"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/recipes/preparation_make.py:0
+msgid "Choose a recipe."
+msgstr "Chọn một công thức pha chế."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose one of your stores."
+msgstr "Chọn một kho của bạn."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose the lot of %s."
+msgstr "Chọn lô của %s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose why it was wasted."
+msgstr "Chọn lý do hao hụt."
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__consumption
+msgid "Consumption"
+msgstr "Tiêu hao"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__container_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_list
+msgid "Container"
+msgstr "Chai/Lọ"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__code
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_scan
+msgid "Container Code"
+msgstr "Mã chai"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+msgid "Containers Used"
+msgstr "Chai đã dùng"
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_contaminated
+msgid "Contaminated"
+msgstr "Nhiễm bẩn"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_move_create_all
+msgid "Create moves"
+msgstr "Tạo phiếu xuất kho"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_preparation_create_all
+msgid "Create preparations"
+msgstr "Tạo phiếu pha chế"
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_dropped
+msgid "Dropped"
+msgstr "Làm rơi"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_container_edit_all
+msgid "Edit containers"
+msgstr "Sửa chai/lọ"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Enter an item and a quantity above zero."
+msgstr "Nhập vật tư và lượng lớn hơn không."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "Give a reason for the extra ingredient."
+msgstr "Cho lý do phần nguyên liệu tăng thêm."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Give the reason for this use."
+msgstr "Cho lý do của lần sử dụng này."
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__has_extra
+msgid "Has Extra"
+msgstr "Có phần tăng thêm"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__kind
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__move_kind
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Kind"
+msgstr "Loại"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__line_id
+msgid "Line"
+msgstr "Dòng"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Mark empty"
+msgstr "Đánh dấu hết"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_move
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__move_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__move_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__done_line_ids
+#: model:ir.ui.menu,name:sol_inventory.menu_stock_move
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Moves"
+msgstr "Phiếu xuất kho"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "No container has the code %s."
+msgstr "Không có chai nào mang mã %s."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+msgid "Open"
+msgstr "Mở nắp"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Open %(containers)s before using them."
+msgstr "Mở nắp %(containers)s trước khi dùng."
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_at
+msgid "Opened At"
+msgstr "Lúc mở nắp"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_by_id
+msgid "Opened By"
+msgstr "Người mở nắp"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_person
+msgid "Person"
+msgstr "Nhân Sự"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__preparation_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__preparation_id
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__preparation
+msgid "Preparation"
+msgstr "Phiếu pha chế"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_line
+msgid "Preparation Ingredient"
+msgstr "Thành phần phiếu pha"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation
+#: model:ir.ui.menu,name:sol_inventory.menu_preparation
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Preparations"
+msgstr "Phiếu pha chế"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+msgid "Prepare"
+msgstr "Pha"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation_make
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make
+#: model:ir.ui.menu,name:sol_inventory.menu_prepare_solution
+msgid "Prepare Solution"
+msgstr "Pha dung dịch"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "Prepare every ingredient of %s."
+msgstr "Pha đủ mọi thành phần của %s."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "Prepared"
+msgstr "Đã pha"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Print label"
+msgstr "In tem"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Print small label"
+msgstr "In tem nhỏ"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__received_quantity
+msgid "Quantity Obtained"
+msgstr "Lượng thu được"
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_move_read_all
+msgid "Read moves"
+msgstr "Xem phiếu xuất kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__scrap_reason_tag_ids
+msgid "Reason for the Extra"
+msgstr "Lý do phần tăng thêm"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__receipt
+msgid "Receipt"
+msgstr "Phiếu nhập kho"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__recipe_quantity
+msgid "Recipe Amount"
+msgstr "Lượng theo công thức"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+msgid "Record"
+msgstr "Ghi"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_use
+#: model:ir.model,name:sol_inventory.model_medilab_stock_use
+#: model:ir.ui.menu,name:sol_inventory.menu_record_use
+msgid "Record Use or Waste"
+msgstr "Ghi sử dụng hoặc hao hụt"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__result_id
+msgid "Result"
+msgstr "Kết quả"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_result_container
+msgid "Result Container"
+msgstr "Chai đã quét"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container_scan
+#: model:ir.model,name:sol_inventory.model_medilab_container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__container_scan
+#: model:ir.ui.menu,name:sol_inventory.menu_container_scan
+msgid "Scan Container"
+msgstr "Quét chai"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Scan a container of %s."
+msgstr "Quét một chai %s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "Scan an opened container of %s."
+msgstr "Quét một chai đã mở nắp của %s."
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+msgid "Scan or type the container code"
+msgstr "Quét hoặc nhập mã chai"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_container
+msgid "Scanned Ingredient Container"
+msgstr "Chai nguyên liệu đã quét"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__sequence
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__sequence
+msgid "Sequence"
+msgstr "Thứ tự"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Set the company's Production location before using stock."
+msgstr "Thiết lập vị trí Sản xuất của công ty trước khi sử dụng vật tư."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Set the company's scrap location before wasting stock."
+msgstr "Thiết lập vị trí loại bỏ của công ty trước khi ghi hao hụt."
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_spilled
+msgid "Spilled"
+msgstr "Làm đổ"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_move
+msgid "Stock Move"
+msgstr "Phiếu xuất kho"
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_test_result
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__test_result_id
+msgid "Test Result"
+msgstr "Kết Quả Thử Nghiệm"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The amount of %s cannot be less than the recipe."
+msgstr "Lượng %s không được ít hơn công thức."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/result_container.py:0
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "The containers of a signed result stay as they were."
+msgstr "Danh sách chai của kết quả đã ký giữ nguyên."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "The lot of %s is not available."
+msgstr "Lô của %s không còn dùng được."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The prepared solution lot sequence is missing."
+msgstr "Thiếu quy tắc đánh số lô dung dịch pha chế."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid ""
+"The quantity obtained cannot be more than the recipe yield of %(quantity)s "
+"%(unit)s."
+msgstr ""
+"Lượng thu được không được nhiều hơn sản lượng công thức là %(quantity)s "
+"%(unit)s."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The quantity obtained must be above zero."
+msgstr "Lượng thu được phải lớn hơn không."
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_result_container_result_container_unique
+msgid "This container is already on the result."
+msgstr "Chai này đã có trong kết quả."
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__use
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Use"
+msgstr "Sử dụng"
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__waste
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__waste
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Waste"
+msgstr "Hao hụt"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__scrap_reason_tag_ids
+msgid "Waste Reason"
+msgstr "Lý do hao hụt"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__wizard_id
+msgid "Wizard"
+msgstr "Pha dung dịch"
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_wrongly_prepared
+msgid "Wrongly prepared"
+msgstr "Pha sai"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "You are not allowed to prepare a solution."
+msgstr "Bạn không được phép pha dung dịch."
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "You are not allowed to record a use or a waste."
+msgstr "Bạn không được phép ghi sử dụng hoặc hao hụt."
