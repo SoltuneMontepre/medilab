@@ -116,7 +116,7 @@ Two users cannot change the same document at the same time.
 - The lock is released on save, on cancel, when the user leaves, or automatically after a period of inactivity, so a closed browser does not block the document.
 - An administrator can release a lock that is stuck; this is audited.
 - Long operations, such as sending a quotation or confirming a payment, lock the document for their duration so they cannot run twice.
-- A document has at most one active lock. The inactivity period is a system parameter (SH-03).
+- A document has at most one active lock. The inactivity period is a system parameter (SH-03), 15 minutes by default.
 - Others see a lock taken or released as it happens, without reloading, through Odoo's bus.
 
 Acceptance criteria:
@@ -179,8 +179,8 @@ Typical jobs: payment reminders, quotation expiry, retention and expiry checks (
 - Jobs do not run on top of themselves: a second run waits or is skipped while the first is running.
 - **Job and queue.** Each job has a unique key and is scheduled by an Odoo cron that administrators configure. A job works through a queue of items: each item is one unit of work, such as one reminder to send, with a key unique within the job, so the same work is never queued twice. An item is retried with a growing delay up to the job's number of attempts, then marked failed. A run claims the items it takes; an item claimed longer than the job's claim timeout, such as after a crash, goes back to the queue.
 - Each run records when it started and ended, its result, its log, and who ran it by hand; how many items were done and remain comes from Odoo's cron progress.
-- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their pushes, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter. It never removes business records or signatures.
-- **Archive files.** Before it removes audit entries, the cleanup job writes them to a compressed archive file per period, stored as an Odoo attachment in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
+- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their pushes, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter, 90 days by default; the audit retention period is empty by default, which keeps entries for ever. It never removes business records or signatures.
+- **Archive files.** Only audit entries are archived; the other records are removed without one. Before it removes audit entries, the cleanup job writes them to a compressed archive file per period, stored as an Odoo attachment in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
 - Backups of the whole database and file store belong to the hosting, not to the application.
 
 Acceptance criteria:

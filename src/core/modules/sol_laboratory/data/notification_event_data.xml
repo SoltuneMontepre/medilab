@@ -88,6 +88,16 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_document_lock_released" model="mail.message.subtype">
+        <field name="name">Document free to edit</field>
+        <field name="description">A document you asked to be told about is no longer being edited</field>
+        <field name="code">document_lock.released</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_signing_certificate_alert" model="mail.message.subtype">
         <field name="name">Signing certificate alert</field>
         <field name="description">The laboratory's signing certificate expires soon, has expired or was revoked</field>

@@ -140,6 +140,12 @@
     <menuitem id="menu_audit_root" name="Audit Trail" sequence="40">
         <menuitem id="menu_audit_entry" action="action_medilab_audit_entry" sequence="10" />
         <menuitem id="menu_audit_report" action="action_medilab_audit_report" sequence="20" />
+        <menuitem
+            id="menu_archive_file"
+            action="action_medilab_archive_file"
+            sequence="30"
+            groups="group_permission_archive_file_read_all"
+        />
     </menuitem>
     <menuitem
         id="menu_notification_event"
@@ -167,5 +173,12 @@
         action="action_medilab_notification_preference"
         parent="menu_jobs"
         sequence="70"
+    />
+    <menuitem
+        id="menu_document_lock"
+        action="action_medilab_document_lock"
+        parent="menu_jobs"
+        sequence="80"
+        groups="group_permission_document_lock_read_all"
     />
 </odoo>
