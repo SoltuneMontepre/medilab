@@ -8,6 +8,13 @@
 - **Cancelling during testing.** A test request can be cancelled while testing, but the lifecycles let only expected, received and testing samples, and waiting, assigned and testing sample tests, be cancelled. What happens to a sample on hold or awaiting approval, and to a test outsourced or with a result entered, when its request is cancelled? For now they keep their status. (US-SD06, US-S17)
 - **Every test cancelled.** When the head of department cancels every sample test of a sample, nothing is left to test or report. Is the sample cancelled too, and its test request once all its samples are? For now the sample keeps its status. (US-HD09)
 - **Correcting a reported result.** A change request on a result whose report is already issued creates a new result version, but the issued report keeps the old value until someone raises a change request on the report too. Should approving the new result version reissue the report by itself, and should a change request on a result be refused while its report waits for the lab head's signature? For now the two are separate change requests. And when the lab head rejects a new report version and the results sent back are approved again, its request is already reported, so no new signing task is created: should it be? (US-T11, US-LH03)
+- **Complaints and nonconforming work.** There is no way to record a customer complaint about a result or report, or work that did not follow the method, and follow it to a correction. Is this in scope, as ISO/IEC 17025 asks?
+- **Quality control.** Blanks, control samples, reference materials and proficiency tests are not recorded. Does the laboratory track them, and does a failed control block the results of its run?
+- **Measurement uncertainty.** A result has no uncertainty. Should results carry one, and does the report print it?
+- **Staff competence.** Anyone in the department can be assigned any test. Should a person be authorised per testing method, so that assignment and the scheduler's recommendation only offer people allowed to run it?
+- **Room conditions.** The temperature and humidity of working rooms are not recorded. Does a method need conditions checked before a test runs?
+- **Turnaround reporting.** The lab head has no figures on how long tests take or how many finished late. Which figures are needed, and for whom?
+- **Sanity check thresholds.** A numeric result is flagged when at least 10 approved results exist and it lies more than 3 standard deviations from their mean, or within 10% of the regulation limit. Are these the right defaults, and do some parameters need their own?
 
 ## Related documents
 
