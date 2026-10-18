@@ -63,6 +63,18 @@
         <menuitem id="menu_dispatch_to_carry" action="action_medilab_subcontract_dispatch_carry" sequence="48" />
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
             <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
+            <menuitem
+                id="menu_signing_certificate"
+                action="action_medilab_signing_certificate"
+                sequence="10"
+                groups="group_permission_signing_certificate_read_all"
+            />
+            <menuitem
+                id="menu_digital_signature"
+                action="action_medilab_digital_signature"
+                sequence="20"
+                groups="group_permission_digital_signature_read_all"
+            />
         </menuitem>
     </menuitem>
 

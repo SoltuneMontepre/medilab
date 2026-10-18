@@ -26,6 +26,7 @@ from . import (
     test_customer,
     test_customer_profile,
     test_customer_signup,
+    test_digital_signing,
     test_dispatch_portal,
     test_handover_record,
     test_job_claim_timeout,
@@ -62,6 +63,8 @@ from . import (
     test_sample_test_cancellation,
     test_sample_test_due_date,
     test_settings,
+    test_signed_pdf_verification,
+    test_signing_certificates,
     test_subcontract_dispatch,
     test_subcontractor,
     test_subcontractor_selection,
@@ -87,5 +90,6 @@ from . import (
     test_translations,
     test_tree_filters,
     test_uninstall,
+    test_viettel_sign_client,
     test_ways_of_testing_list,
 )
