@@ -1712,6 +1712,7 @@ msgstr "Tên mẫu của khách hàng"
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_partner__customer_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users__customer_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_customer
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_customers
 msgid "Customers"
 msgstr "Khách Hàng"
 
@@ -5839,6 +5840,7 @@ msgstr "Loại Mẫu"
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_sample
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__sample_ids
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__sample_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_samples
 #: model:ir.ui.menu,name:sol_laboratory.menu_sample
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_form
@@ -5872,6 +5874,7 @@ msgstr "Tỷ lệ"
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_schedule
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Schedule"
 msgstr "Lịch"
@@ -9482,6 +9485,7 @@ msgstr "Kết quả %(result)s bị từ chối: %(reason)s"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__result_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__result_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_results
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
 msgid "Results"
 msgstr "Kết quả"
@@ -10814,6 +10818,11 @@ msgstr "Thời điểm yêu cầu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__requested_by_id
 msgid "Requested By"
 msgstr "Người yêu cầu"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_requests
+msgid "Requests"
+msgstr "Yêu Cầu"
 
 #. module: sol_laboratory
 #. odoo-python
