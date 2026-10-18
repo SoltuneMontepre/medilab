@@ -24,6 +24,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "asn1crypto>=1.5.1",
     "freezegun>=1.2.1",
     "lxml-stubs>=0.5.1",
     "pylint-odoo>=10.0.12",
