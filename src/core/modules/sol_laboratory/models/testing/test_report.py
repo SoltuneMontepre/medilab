@@ -10,8 +10,8 @@ from odoo.addons.sol_laboratory.constants.approvals import (
     STATE_REQUESTED,
 )
 from odoo.addons.sol_laboratory.constants.models import (
-    MODEL_APPROVAL_MIXIN,
     MODEL_CUSTOMER,
+    MODEL_DIGITAL_SIGNING_MIXIN,
     MODEL_DOCUMENT_LOCK,
     MODEL_LOCK_MIXIN,
     MODEL_MAIL_MESSAGE,
@@ -26,6 +26,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_RESULT,
 )
 from odoo.addons.sol_laboratory.constants.notifications import EVENT_TEST_REPORT_DELIVERED, EVENT_TEST_REPORT_ISSUED
+from odoo.addons.sol_laboratory.constants.signing import VERIFY_PATH
 from odoo.addons.sol_laboratory.constants.tasks import REPORT_DRAFTED_TRIGGER
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT, TEST_RESULT_READER_GROUP
 
@@ -42,11 +43,14 @@ UNREPORTED_SAMPLE_STATUSES = ("cancelled", "rejected")
 # Phiếu Kết Quả
 class TestReport(models.Model):
     _name = MODEL_TEST_REPORT
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_APPROVAL_MIXIN]
+    # Locked while edited. Signed through its approval chain, which the digital signing mixin brings, and issued
+    # as a signed PDF.
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_DIGITAL_SIGNING_MIXIN]
     _description = "Test Report"
     _order = "id desc"
     # The system drafts and issues a report; people sign it and record its delivery, which edits it.
     _permission_actions = ("read", "edit", "sign")
+    _digital_signing_report = TEST_REPORT_REPORT
 
     # Unique report number from a sequence, such as PKQ.2026.0001; given when the report is issued.
     code = fields.Char(string="Report Number", readonly=True, copy=False)
@@ -178,6 +182,10 @@ class TestReport(models.Model):
                 raise UserError(
                     self.env._("Only an issued report not delivered yet can be delivered: %s", report.display_name)
                 )
+            if not report.attachment_id:
+                raise UserError(
+                    self.env._("The PDF of %s waits for its digital signature; deliver it once signed.", report.code)
+                )
             recipient = report.recipient_id
             if report.delivery_method == "email" and (not recipient.email or recipient.email_bounced):
                 raise UserError(self.env._("%s has no email address to send the report to.", recipient.display_name))
@@ -252,8 +260,8 @@ class TestReport(models.Model):
             self.env[MODEL_TASK]._close_for_document(self, SIGNING_ACTION)
 
     def _issue(self):
-        """Number the report, store its PDF, mark its request and samples reported, retain the kept samples and tell
-        the customer."""
+        """Number the report, mark its request and samples reported, retain the kept samples, then store its PDF and
+        tell the customer; with digital signing on, once Viettel Sign has signed the PDF."""
         self.ensure_one()
         self.write(
             {
@@ -262,22 +270,35 @@ class TestReport(models.Model):
                 "status": "issued",
             }
         )
-        pdf, _report_type = self.env["ir.actions.report"]._render_qweb_pdf(TEST_REPORT_REPORT, self.ids)
-        self.attachment_id = self.env["ir.attachment"].create(
-            {
-                "name": f"{self.code}.pdf",
-                "raw": pdf,
-                "mimetype": "application/pdf",
-                "res_model": self._name,
-                "res_id": self.id,
-            }
-        )
         request = self.request_id
         reported = request.sample_ids.filtered(lambda sample: sample.status == "completed")
         reported.status = "reported"
         reported._retain(self._report_day())
         if request.status != "reported":
             request._set_status("reported")
+        if self._digital_signing_enabled():
+            self._digital_signing_start()
+            return
+        pdf, _report_type = self.env["ir.actions.report"]._render_qweb_pdf(TEST_REPORT_REPORT, self.ids)
+        self.attachment_id = self.env["ir.attachment"].create(
+            {
+                "name": self._digital_signing_filename(),
+                "raw": pdf,
+                "mimetype": "application/pdf",
+                "res_model": self._name,
+                "res_id": self.id,
+            }
+        )
+        self._notify_issued()
+
+    def _digital_signing_fully_signed(self):
+        return self.status in ("issued", "replaced")
+
+    def _digital_signing_filename(self):
+        return f"{self.code}.pdf"
+
+    def _digital_signing_done(self, signature):
+        self.sudo().attachment_id = signature.attachment_id
         self._notify_issued()
 
     def _notify_issued(self):
@@ -336,11 +357,14 @@ class TestReport(models.Model):
     def _print_labels(self):
         """The report's headings in its languages."""
 
+        verify_url = f"{self.get_base_url()}{VERIFY_PATH}"
+
         def labels(env):
             _ = env._
             return {
                 "title": _("Test Report"),
                 "draft": _("Draft, not digitally signed"),
+                "verify": _("Digitally signed. Verify this report at %s", verify_url),
                 "number": _("Report No."),
                 "request": _("Test Request"),
                 "customer": _("Customer"),

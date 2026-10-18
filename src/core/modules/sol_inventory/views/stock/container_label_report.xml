@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_container_label" model="report.paperformat">
+        <field name="name">Container Label 2 × 1 in</field>
+        <field name="format">custom</field>
+        <field name="page_width">51</field>
+        <field name="page_height">25</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">1.5</field>
+        <field name="margin_bottom">1.5</field>
+        <field name="margin_left">1.5</field>
+        <field name="margin_right">1.5</field>
+        <field name="header_spacing">0</field>
+        <field name="disable_shrinking" eval="True" />
+        <field name="dpi">96</field>
+    </record>
+    <record id="paperformat_container_label_small" model="report.paperformat">
+        <field name="name">Container Label 1.5 × 1 in</field>
+        <field name="format">custom</field>
+        <field name="page_width">38</field>
+        <field name="page_height">25</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">1.5</field>
+        <field name="margin_bottom">1.5</field>
+        <field name="margin_left">1.5</field>
+        <field name="margin_right">1.5</field>
+        <field name="header_spacing">0</field>
+        <field name="disable_shrinking" eval="True" />
+        <field name="dpi">96</field>
+    </record>
+
+    <record id="action_report_container_label" model="ir.actions.report">
+        <field name="name">Container Label 2 × 1 in</field>
+        <field name="model">stock.package</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sol_inventory.report_container_label</field>
+        <field name="print_report_name">'Labels %s' % object.name</field>
+        <field name="paperformat_id" ref="paperformat_container_label" />
+        <field name="binding_model_id" ref="stock.model_stock_package" />
+        <field name="binding_type">report</field>
+    </record>
+    <record id="action_report_container_label_small" model="ir.actions.report">
+        <field name="name">Container Label 1.5 × 1 in</field>
+        <field name="model">stock.package</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sol_inventory.report_container_label_small</field>
+        <field name="print_report_name">'Labels %s' % object.name</field>
+        <field name="paperformat_id" ref="paperformat_container_label_small" />
+        <field name="binding_model_id" ref="stock.model_stock_package" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- One label per container: its QR code, code, item, lot and usable date. -->
+    <template id="container_label">
+        <div
+            class="page"
+            t-attf-style="font-family: sans-serif; font-size: 10pt; line-height: 1.15; {{ '' if first else 'page-break-before: always' }}"
+        >
+            <table style="width: 100%; border-collapse: collapse; table-layout: fixed">
+                <tr>
+                    <td t-attf-style="width: {{ qr_size }}; vertical-align: top">
+                        <span
+                            t-field="container.name"
+                            t-options="{'widget': 'barcode', 'symbology': 'QR', 'width': 200, 'height': 200, 'img_style': 'width: %s; height: %s' % (qr_size, qr_size)}"
+                        />
+                    </td>
+                    <td style="vertical-align: top; padding-left: 1mm">
+                        <!-- The PDF renderer keeps a minimum font size, so the text is laid out larger and scaled down. -->
+                        <div t-attf-style="height: {{ qr_size }}; overflow: hidden">
+                            <div
+                                t-attf-style="white-space: nowrap; width: {{ 100 / text_scale }}%; -webkit-transform: scale({{ text_scale }}); -webkit-transform-origin: 0 0"
+                            >
+                                <div style="font-weight: bold" t-field="container.name" />
+                                <div t-field="container.item_id.name" />
+                                <div><span>Lot</span> <span t-field="container.lot_id.name" /></div>
+                                <div><span>Use by</span> <span t-field="container.usable_until" /></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </template>
+
+    <template id="report_container_label">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="container">
+                <t t-set="first" t-value="container_first" />
+                <t t-set="qr_size" t-value="'19mm'" />
+                <t t-set="text_scale" t-value="0.6" />
+                <t t-call="sol_inventory.container_label" />
+            </t>
+        </t>
+    </template>
+
+    <template id="report_container_label_small">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="container">
+                <t t-set="first" t-value="container_first" />
+                <t t-set="qr_size" t-value="'15mm'" />
+                <t t-set="text_scale" t-value="0.4" />
+                <t t-call="sol_inventory.container_label" />
+            </t>
+        </t>
+    </template>
+</odoo>

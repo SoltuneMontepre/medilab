@@ -544,6 +544,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_reject
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__approval_can_reject
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__approval_can_reject
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__approval_can_reject
 msgid "Approval Can Reject"
 msgstr ""
 
@@ -552,6 +553,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_sign
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__approval_can_sign
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__approval_can_sign
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__approval_can_sign
 msgid "Approval Can Sign"
 msgstr ""
 
@@ -560,6 +562,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__approval_can_withdraw
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__approval_can_withdraw
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__approval_can_withdraw
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__approval_can_withdraw
 msgid "Approval Can Withdraw"
 msgstr ""
 
@@ -1535,6 +1538,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_uid
@@ -1595,6 +1600,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_date
@@ -2085,6 +2092,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_report__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_binary__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__display_name
@@ -2118,6 +2128,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__document_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__document_name
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_name
@@ -2140,6 +2152,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_model
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__document_model
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_model
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__document_model
@@ -2154,6 +2167,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__document_version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__document_version
 msgid "Document Version"
 msgstr ""
 
@@ -2597,6 +2612,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signing_certificate__status__expired
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__expired
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__expired
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
@@ -2621,6 +2637,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_push_delivery__status__failed
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_item_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_job_run_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 msgid "Failed"
 msgstr ""
 
@@ -2957,6 +2974,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_actions_report__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_binary__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_ir_config_parameter__id
@@ -3483,6 +3503,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_uid
@@ -3543,6 +3565,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_change__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_date
@@ -3570,6 +3594,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__level_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 msgid "Level"
 msgstr ""
 
@@ -3901,6 +3926,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_parameter_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__name
 msgid "Name"
 msgstr ""
 
@@ -4758,6 +4784,34 @@ msgid "Permission: receivable.report.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+msgid "Permission: recipe.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+msgid "Permission: recipe.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
 msgid "Permission: reconciliation.day.create.all"
 msgstr ""
 
@@ -5538,6 +5592,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__role_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__role_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 msgid "Role"
 msgstr ""
 
@@ -5787,6 +5842,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__serial_number
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__serial_number
 msgid "Serial Number"
 msgstr ""
 
@@ -5873,11 +5929,13 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_handover_record__status__signed
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signature__decision__signed
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 msgid "Signed"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 msgid "Signer"
 msgstr ""
 
@@ -5987,6 +6045,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_change_request_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 msgid "Status"
@@ -6812,6 +6871,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_quality_registration__valid_from
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__valid_from
 msgid "Valid From"
 msgstr ""
 
@@ -8519,6 +8579,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_handover_record__signed_at
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__signed_at
 msgid "Signed At"
 msgstr ""
 
@@ -9832,6 +9893,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_digital_signature_form
 msgid "Download PDF"
 msgstr ""
 
@@ -10245,6 +10307,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__document_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__document_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__document_id
 msgid "Document ID"
 msgstr ""
@@ -10656,6 +10719,495 @@ msgid "Why the change is needed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lot_edit_all
+msgid "Permission: lot.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_create_all
+msgid "Permission: purchase_order.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_create_own_department
+msgid "Permission: purchase_order.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_delete_all
+msgid "Permission: purchase_order.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_delete_own_department
+msgid "Permission: purchase_order.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_edit_all
+msgid "Permission: purchase_order.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_edit_own_department
+msgid "Permission: purchase_order.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_read_all
+msgid "Permission: purchase_order.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_read_own_department
+msgid "Permission: purchase_order.read.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_sign_all
+msgid "Permission: purchase_order.sign.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_purchase_order_sign_own_department
+msgid "Permission: purchase_order.sign.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_create_all
+msgid "Permission: receipt.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_delete_all
+msgid "Permission: receipt.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_edit_all
+msgid "Permission: receipt.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_receipt_read_all
+msgid "Permission: receipt.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_create_all
+msgid "Permission: notification.contact.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_delete_all
+msgid "Permission: notification.contact.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_edit_all
+msgid "Permission: notification.contact.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_notification_contact_read_all
+msgid "Permission: notification.contact.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/digital_signing_mixin.py:0
+msgid "%s has no PDF waiting for its digital signature."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/digital_signing_mixin.py:0
+msgid ""
+"%s is approved, but Viettel Sign could not sign its PDF. It is retried "
+"automatically."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/signing/digital_signature.py:0
+msgid "A digital signature cannot be deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_digital_signature_version_unique
+msgid "A document version is digitally signed once."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Approved by"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_test_reports
+msgid "Being digitally signed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__certificate_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_digital_signature_search
+msgid "Certificate"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__signing_certificate_alert_days
+msgid "Certificate Alert (days)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__certificate_chain
+msgid "Certificate Chain"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Certificate status"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Certificate valid until"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_signing
+msgid "Certificates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__credential_id
+msgid "Credential ID"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__signing_certificate_alert_days
+msgid ""
+"Days before the laboratory's certificate expires when administrators are "
+"alerted."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_digital_signature
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__digital_signature_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__digital_signature_id
+msgid "Digital Signature"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_digital_signature
+#: model:ir.ui.menu,name:sol_laboratory.menu_digital_signature
+msgid "Digital Signatures"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_digital_signing_mixin
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__digital_signing_enabled
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_signing
+msgid "Digital Signing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__digital_signing_pending
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__digital_signing_pending
+msgid "Digital Signing Pending"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_digital_signing_sign_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_digital_signing_sign
+msgid "Digital signing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__digital_signed_at
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__digital_signed_at
+msgid "Digitally Signed At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Digitally signed"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Digitally signed. Verify this report at %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__digital_signing_enabled
+msgid ""
+"Fully signed documents print as the PDF Viettel Sign signed with the "
+"laboratory's certificate. The Viettel Sign account comes from the server's "
+"environment."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__issuer
+msgid "Issuer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__checked_at
+msgid "Last Checked"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Not valid: a check below failed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Not valid: this file has no digital signature."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/signing/signing_certificate.py:0
+msgid "Only administrators read the certificates from Viettel Sign."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Passed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_digital_signature_read_all
+msgid "Permission: digital.signature.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_signing_certificate_read_all
+msgid "Permission: signing.certificate.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/signing/ir_actions_report.py:0
+msgid "Print digitally signed documents one at a time."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_digital_signature_read_all
+msgid "Read digital signatures"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_signing_certificate_read_all
+msgid "Read signing certificates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_signing_certificate_list
+msgid "Refresh from Viettel Sign"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid "Retry Digital Signing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signing_certificate__status__revoked
+msgid "Revoked"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__file_hash
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__checksum
+msgid "SHA-256"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__fingerprint
+msgid "SHA-256 Fingerprint"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__attachment_id
+msgid "Signed PDF"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/signing/digital_signature.py:0
+msgid "Signed with %(certificate)s on %(time)s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Signed with the laboratory's certificate"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_signing_certificate
+msgid "Signing Certificate"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_signing_certificate
+#: model:ir.ui.menu,name:sol_laboratory.menu_signing_certificate
+msgid "Signing Certificates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_signing_certificate_alert
+msgid "Signing certificate alert"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_digital_signing_certificates_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_digital_signing_certificates
+msgid "Signing certificates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__subject
+msgid "Subject"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "The PDF of %s waits for its digital signature; deliver it once signed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/signing/signing_certificate.py:0
+msgid "The certificate %(name)s expired on %(date)s; it no longer signs."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/signing/signing_certificate.py:0
+msgid ""
+"The certificate %(name)s expires on %(date)s. Renew it before then, or "
+"digital signing stops."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "The digital signature verifies"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_signing_certificate_alert
+msgid ""
+"The laboratory's signing certificate expires soon, has expired or was "
+"revoked"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_digital_signature_file_hash_unique
+msgid "This signed PDF is already stored."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Unchanged since it was signed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid ""
+"Upload a PDF the laboratory digitally signed to check its signature and that"
+" it has not changed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signing_certificate__status__valid
+msgid "Valid"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__valid_to
+msgid "Valid To"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid ""
+"Valid: the laboratory digitally signed this document and it has not changed "
+"since."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Verify"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+msgid "Verify a signed document"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/signing/signing_certificate.py:0
+msgid "Viettel Sign could not be read: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/digital_signing_mixin.py:0
+msgid ""
+"Viettel Sign could not sign the PDF of %s. It is retried automatically; "
+"print it again later."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/digital_signing_mixin.py:0
+msgid "Viettel Sign could not sign the PDF. It is retried automatically."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/digital_signing_mixin.py:0
+msgid "Viettel Sign did not sign the PDF: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+msgid ""
+"Viettel Sign has not signed the PDF yet. It is retried automatically, and "
+"the customer is told once it is signed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/signing/signing_certificate.py:0
+msgid "Viettel Sign reported %s certificates"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_signing_certificate_credential_unique
+msgid "Viettel Sign reports each certificate once."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/signing/signing_certificate.py:0
+msgid ""
+"Viettel Sign reports the certificate %s as revoked; it no longer signs."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/digital_signing_mixin.py:0
+msgid "Viettel Sign signed the PDF with the certificate %s"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
 msgid "%(document)s is being processed by %(user)s since %(since)s."
@@ -11059,11 +11611,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__row_count
 msgid "Row Count"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__checksum
-msgid "SHA-256"
 msgstr ""
 
 #. module: sol_laboratory

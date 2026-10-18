@@ -23,6 +23,7 @@ Stories: US-AD13, US-AD15
 ## Specs
 
 - [Audit trail](audit-trail.md): how actions on documents are recorded, protected, gathered into a document's history and reported
+- [Digital signing](digital-signing.md): how Viettel Sign signs the PDF of a fully signed document, how the laboratory's certificate is read and watched, how outages are retried and how a signed PDF is verified
 - [Document locking](document-locking.md): how a document is locked while one user edits it or a long operation runs, how others see it, are told when it is free, and how locks are released
 - [Invoices](invoices.md): how advance, final and adjustment invoices use Odoo customer invoices, what is still owed, and who can post or correct them
 - [Odoo intelligence](odoo-intelligence.md): shared Odoo model and field navigation for editors and coding agents, with isolated worktree tooling

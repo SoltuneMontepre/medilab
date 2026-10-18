@@ -21,4 +21,7 @@ ODOO_DOCUMENT_TYPES = {
     "product.product": "stock_item",
     "product.supplierinfo": "supplier_item",
     "stock.warehouse.orderpoint": "minimum_quantity",
+    "purchase.order": "purchase_order",
+    "stock.picking": "receipt",
+    "stock.lot": "lot",
 }
