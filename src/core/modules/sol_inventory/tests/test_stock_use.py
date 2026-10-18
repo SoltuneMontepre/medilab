@@ -186,7 +186,7 @@ class TestStockUse(ContainersCase):
         domain = [("product_id", "=", item.id), ("location_id", "=", self.pesticides_store.id)]
         if lot:
             domain.append(("lot_id", "=", lot.id))
-        return sum(self.env[MODEL_STOCK_QUANT].search(domain).mapped("quantity"))
+        return sum(self.env[MODEL_STOCK_QUANT].search(domain).mapped("quantity"), 0.0)
 
     def test_recording_is_refused_without_a_container_a_store_or_permission(self):
         use = self.env[MODEL_STOCK_USE].with_user(self.tester.user_id)
