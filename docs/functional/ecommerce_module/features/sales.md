@@ -19,6 +19,8 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 - **US-S08** As a salesperson, I want to revise a quotation that has been sent, so that I can correct it without losing the earlier version.
 - **US-S09** As a salesperson, I want to save a returning customer's order as a template and create their next orders from it, so that repeat orders are faster.
 - **US-S10** As a salesperson, I want to see whether the customer has paid, declined or let the quotation expire, so that I know when to follow up.
+- **US-S21** As a salesperson, I want to see the estimated date results can be returned while preparing a quotation, so that I can tell the customer when to expect them.
+- **US-S22** As a salesperson, I want to check whether the laboratory can meet an earlier date the customer asks for, so that I only promise a priority order the laboratory can deliver.
 
 ### Payment collection
 
@@ -60,7 +62,7 @@ Acceptance criteria:
 - A salesperson sees only the orders they own and the unclaimed queue; the Head of Sales sees all.
 - Merging two profiles keeps every order and document on the remaining profile.
 
-### 2. Quotation (US-S05 to US-S10)
+### 2. Quotation (US-S05 to US-S10, US-S21, US-S22)
 
 ```mermaid
 stateDiagram-v2
@@ -85,6 +87,8 @@ stateDiagram-v2
 | Payment deadline | Default 3 days from sending, configurable by the administrator. Sales can set another date. An expired quotation is flagged, not cancelled; sales can extend it.                                  |
 | Revisions        | A revision copies the quotation into a new draft linked to the one it replaces. The old version becomes read-only and the customer sees the revision list.                                        |
 | Templates        | A returning customer's order can be saved as a template (named set of parameters and packages) to create their next orders faster. A template has no price of its own; a new order takes current catalog prices. Templates are never sent or confirmed. |
+| Return estimate  | The quotation shows the [estimated return date](../../laboratory_module/overview.md#testing-work-and-scheduling) of its samples and parameters, worked out again when they change. The expected result date defaults to it, and the customer sees it on the quotation. |
+| Priority order   | When the customer wants results earlier than the estimate, sales checks the date; the order becomes a priority order only when the laboratory can meet it, outsourcing included. Its tests are urgent once the test request is created. |
 | Acceptance       | There is no customer signature. Payment of the advance invoice means acceptance. A declined quotation carries the customer's reason and notifies sales.                                           |
 
 Acceptance criteria:
@@ -94,6 +98,9 @@ Acceptance criteria:
 - Sending a quotation with an advance request creates exactly one advance invoice and one notification to the customer.
 - A revised quotation cannot be sent or confirmed in its old version.
 - Sales sees at a glance whether a sent quotation is unpaid, paid, declined or expired.
+- Adding a parameter to a quotation updates its estimated return date.
+- An expected result date earlier than the estimate is accepted as a priority order only when the check says the laboratory can meet it; otherwise the check shows the earliest date it can.
+- The tests of a priority order's test request are urgent when they are created.
 
 ### 3. Payment collection (US-S11)
 
