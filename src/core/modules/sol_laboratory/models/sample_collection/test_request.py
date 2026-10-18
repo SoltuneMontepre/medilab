@@ -7,6 +7,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_CUSTOMER,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE,
     MODEL_SAMPLE_TEST,
@@ -33,7 +34,7 @@ FINISHED_STATUSES = ("reported", "cancelled")
 # Yêu Cầu Thử Nghiệm
 class TestRequest(models.Model):
     _name = MODEL_TEST_REQUEST
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Test Request"
     _order = "request_date desc, id desc"
     _rec_name = "code"

@@ -4,6 +4,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_CHEMICAL,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_TESTING_METHOD,
 )
@@ -12,7 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Hóa Chất
 class Chemical(models.Model):
     _name = MODEL_CHEMICAL
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Chemical"
     _order = "code"
     _rec_names_search = ("name", "code", "cas_number")

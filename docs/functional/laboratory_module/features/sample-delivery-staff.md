@@ -91,12 +91,12 @@ Follows [Reports and change requests](../overview.md#reports-and-change-requests
 
 | Rule     | Description                                                                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------- |
-| Waiting  | Issued reports not yet delivered are listed with their delivery method, note and the contact who receives them.     |
+| Waiting  | Issued reports whose PDF is ready and not yet delivered are listed with their delivery method, note and the contact who receives them. A report waiting for its digital signature is listed once it is signed. |
 | Delivery | Sample delivery staff deliver the report as the test request says and record when it was delivered; they are recorded as who delivered it. A report sent by email is emailed to its recipient from the system. |
 
 Acceptance criteria:
 
-- An issued report appears in the list waiting for delivery until its delivery is recorded.
+- An issued report appears in the list waiting for delivery once its PDF is ready, until its delivery is recorded.
 - Recording a delivery stores when and by whom.
 - A report not yet issued cannot be delivered.
 

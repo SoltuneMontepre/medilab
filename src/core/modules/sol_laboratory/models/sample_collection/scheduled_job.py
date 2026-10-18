@@ -17,11 +17,6 @@ SAMPLE_RETENTION_JOB = "sample.retention.reminders"
 class ScheduledJob(models.Model):
     _inherit = MODEL_SCHEDULED_JOB
 
-    def _run_batch(self):
-        if self.key == SAMPLE_RETENTION_JOB:
-            self._queue_sample_retention_reminders()
-        return super()._run_batch()
-
     def _queue_sample_retention_reminders(self):
         days = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("sample_retention_reminder_days")
         horizon = self.env[MODEL_SAMPLE]._company_today() + timedelta(days=days)

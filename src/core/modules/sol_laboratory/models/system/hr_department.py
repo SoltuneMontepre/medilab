@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_EMPLOYEE_VERSION,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
 )
@@ -17,7 +18,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 class HrDepartment(models.Model):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_DEPARTMENT
-    _inherit = [MODEL_AUDIT_MIXIN, MODEL_DEPARTMENT, MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_DEPARTMENT, MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN]
 
     # The department a team belongs to; empty for a department. A team cannot have teams of its own.
     parent_id = fields.Many2one(domain=DEPARTMENT_DOMAIN)

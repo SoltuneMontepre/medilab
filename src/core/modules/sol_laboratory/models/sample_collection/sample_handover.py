@@ -5,6 +5,7 @@ from odoo.tools import format_list
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
     MODEL_SAMPLE,
@@ -18,7 +19,7 @@ RECEIPT_FIELDS = frozenset({"received_at", "received_by_id"})
 # Bàn Giao Mẫu
 class SampleHandover(models.Model):
     _name = MODEL_SAMPLE_HANDOVER
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Sample Handover"
     _order = "id desc"
     _rec_name = "sample_id"

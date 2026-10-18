@@ -21,6 +21,7 @@ How code inside an Odoo module is laid out.
 | `orders`            | Sale orders, the portal cart and cancellation requests                                                                                                                           |
 | `support`           | Support requests and the customers' feedback on orders                                                                                                                           |
 | `system`            | People, departments, roles, permissions, approval chains, signatures, the audit trail, mobile devices and menus                                                                  |
+| `signing`           | Digital signing: the laboratory's signing certificates, digital signatures, their jobs and the verification page                                                                 |
 | `stores`            | Stores and the locations inside them, with their holders and managers                                                                                                            |
 | `costs`             | Cost centres                                                                                                                                                                     |
 | `catalog`           | Stock items with their minimum quantities, suppliers and the items they sell, and how much of each item a test uses                                                              |
@@ -60,9 +61,11 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/approvals.py`   | Approval chain purposes, signature decisions and approval states, such as `DECISION_SIGNED` |
 | `constants/customers.py`   | Customer types and sign-up values, such as `SIGNUP_CUSTOMER_KEY`                            |
 | `constants/audit.py`       | How the audit trail masks values, such as `MASK_PERSONAL`                                   |
-| `constants/jobs.py`        | Context keys of scheduled jobs, such as `JOB_RUN_CONTEXT`                                   |
+| `constants/jobs.py`        | Context keys of scheduled jobs and what the cleanup job removes, such as `CLEANUP_KINDS`    |
+| `constants/locks.py`       | The bus notification and release reasons of document locks, such as `LOCK_BUS_TYPE`         |
 | `constants/routes.py`      | Route options that `odoo.http` does not declare, such as `FRONTEND_PAGE`                    |
 | `constants/stock.py`       | Statuses of lots and containers and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |
+| `constants/signing.py`     | Digital signing jobs, certificate statuses, contexts and paths, such as `DIGITAL_SIGNING_JOB` |
 | `constants/items.py`       | Kinds of stock items and how they are tracked, such as `KIND_SOLUTION`                      |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
