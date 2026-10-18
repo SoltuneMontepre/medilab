@@ -5,7 +5,9 @@ import dataclasses
 import hashlib
 import io
 
-from asn1crypto import cms, pem, x509
+from asn1crypto import cms, x509
+from cryptography.hazmat.primitives.serialization import Encoding
+from cryptography.x509 import load_der_x509_certificate, load_pem_x509_certificates
 
 from odoo.tools.pdf import PdfFileReader, PdfReadError
 from odoo.tools.pdf.signature import PdfSigner, build_cms_signature, build_signed_attributes, verify_signed_attributes
@@ -25,12 +27,12 @@ class PdfCheck:
 
 def certificate_chain(pem_chain):
     """The DER certificates of a PEM chain, in its order."""
-    return [der for _type, _headers, der in pem.unarmor(pem_chain.encode(), multiple=True)]
+    return [certificate.public_bytes(Encoding.DER) for certificate in load_pem_x509_certificates(pem_chain.encode())]
 
 
 def pem_chain(chain):
     """The PEM text of DER certificates, in their order."""
-    return "".join(pem.armor("CERTIFICATE", der).decode() for der in chain)
+    return "".join(load_der_x509_certificate(der).public_bytes(Encoding.PEM).decode() for der in chain)
 
 
 def sign_pdf(pdf, chain, sign_digest):
