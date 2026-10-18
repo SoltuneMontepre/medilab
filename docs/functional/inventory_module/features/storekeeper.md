@@ -43,6 +43,7 @@ Follows [Stock](../overview.md#stock), [Stores](../overview.md#stores) and [Purc
 | --------- | ------------------------------------------------------------------------------------------------------------ |
 | Codes     | Items and suppliers get a code from a sequence when none is typed. A typed code must still be unique.        |
 | Tracking  | An item's tracking (container, lot or quantity) cannot change once it has stock. Chemicals and prepared solutions are tracked by container. |
+| Buying    | A prepared solution is made in the laboratory and never bought, so it has no suppliers and purchase orders do not offer it. A ready-made solution bought from a supplier is a chemical or reagent. An item that stops being a prepared solution can be bought again. |
 | Archiving | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). Items and suppliers are archived, never deleted. An item is in use while it has stock on hand, an active testing method uses it per test, or an active [recipe](admin.md#2-recipes-us-ad23) makes or uses it. An archived supplier keeps its items and last prices, but purchases no longer suggest it. Minimum quantities, supplier items and uses per test are removed by deleting them; an item's minimum quantities are archived and restored with it. |
 
 Acceptance criteria:
@@ -52,6 +53,7 @@ Acceptance criteria:
 - An item with stock on hand cannot be archived; the message lists the locations that hold it.
 - An item that an active testing method uses per test cannot be archived; the message lists the methods.
 - A prepared solution item is tracked by container.
+- A prepared solution item cannot be bought: it has no suppliers and purchase orders do not offer it.
 - Changing the tracking of an item with stock is refused.
 - An item or a supplier cannot be deleted, only archived.
 - An archived supplier is no longer suggested when buying, and keeps its last prices.
@@ -59,19 +61,23 @@ Acceptance criteria:
 
 ### 2. Buying (US-SK04 to US-SK06)
 
-| Rule       | Description                                                                                                                  |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Approval   | A purchase order is signed through its approval chain, which the administrator configures, before it can be sent.            |
-| Receiving  | A receipt creates the lots, containers and moves of what arrived and updates how much of each order line has been received.  |
-| Containers | Receiving an item tracked by container creates one sealed container for each bottle or vial received, numbered within its lot, and prints its QR label. |
+| Rule         | Description                                                                                                                  |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Approval     | A purchase order goes to an active supplier and is signed through its approval chain, which the administrator configures, before it can be sent. It names the department that asked for it before its approval is requested; a draft, such as one Odoo's replenishment makes, may have none yet. Odoo's own approval of large orders is not used. |
+| Sending      | Sending a signed order to the supplier confirms it, which prepares its receipt, and opens the email that sends it. A signed order cannot be changed or cancelled until its signatures are withdrawn. A sent order can be cancelled, with its receipt, only while nothing has been received for it. |
+| Receiving    | A receipt, against a purchase order or without one, brings goods into a location of the central store and creates the lots, containers and moves of what arrived. It updates how much of each order line has been received; what did not arrive stays on a receipt of its own, so the order stays partially received until it arrives or that receipt is cancelled. A receipt against a purchase order brings in only the items the order lists; another item is received on a receipt without one. The unit price of each item received, when it has one, becomes its supplier's last price for it. Returning goods to the supplier is not covered. |
+| Lots         | Each lot received states its lot number, the expiry date printed on the container, required for an item whose lots have an expiry date, the quantity and the manufacturer's certificate when it came with the goods. Its unit price excluding VAT is the one of the item's line on the receipt, which a purchase order line sets; the lots received on one line share it, and lots that came at different prices are received on separate lines. The certificate is attached to the lot and can be added to the lot later. It is the manufacturer's document of the lot, not a result the laboratory issues. |
+| Containers   | Receiving an item tracked by container creates one sealed container for each bottle or vial received. The storekeeper states how many bottles or vials each lot holds, and its quantity is split evenly among them. Containers are numbered after their lot number, following the codes that lots of the same number already have, so codes stay unique when two items share a lot number, and get a QR label of 2 × 1 inch or 1.5 × 1 inch. |
 
 Acceptance criteria:
 
 - A purchase order cannot be sent before its approval chain has signed it.
 - Receiving part of an order sets it to partially received; receiving the rest sets it to received.
-- Receiving a chemical creates its lot with the printed expiry date and attaches the certificate.
+- Receiving a chemical creates its lot with the printed expiry date and attaches the manufacturer's certificate.
+- A lot of an item with an expiry date cannot be received without the expiry date printed on its container.
 - Receiving 5 bottles of a lot creates 5 sealed containers with their own codes, such as Lot123-01 to Lot123-05.
 - Goods can be received only into a location of the central store.
+- A signed purchase order cannot be changed, and a sent one cannot be cancelled once goods were received for it.
 
 ### 3. Stock (US-SK07 to US-SK11)
 

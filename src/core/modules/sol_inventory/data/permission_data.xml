@@ -155,6 +155,86 @@
         <field name="document_model">medilab.method.consumption</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_purchase_order_read_all" model="medilab.permission">
+        <field name="name">Read purchase orders</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_purchase_order_create_all" model="medilab.permission">
+        <field name="name">Create purchase orders</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_purchase_order_edit_all" model="medilab.permission">
+        <field name="name">Edit purchase orders</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_purchase_order_delete_all" model="medilab.permission">
+        <field name="name">Delete purchase orders</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_purchase_order_sign_all" model="medilab.permission">
+        <field name="name">Sign purchase orders</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">sign</field>
+    </record>
+    <record id="permission_purchase_order_read_own_department" model="medilab.permission">
+        <field name="name">Read purchase orders of their department</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">read</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_purchase_order_create_own_department" model="medilab.permission">
+        <field name="name">Create purchase orders of their department</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_purchase_order_edit_own_department" model="medilab.permission">
+        <field name="name">Edit purchase orders of their department</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_purchase_order_delete_own_department" model="medilab.permission">
+        <field name="name">Delete purchase orders of their department</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_purchase_order_sign_own_department" model="medilab.permission">
+        <field name="name">Sign purchase orders of their department</field>
+        <field name="document_model">purchase.order</field>
+        <field name="action">sign</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_receipt_read_all" model="medilab.permission">
+        <field name="name">Read receipts</field>
+        <field name="document_model">stock.picking</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_receipt_create_all" model="medilab.permission">
+        <field name="name">Create receipts</field>
+        <field name="document_model">stock.picking</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_receipt_edit_all" model="medilab.permission">
+        <field name="name">Edit receipts</field>
+        <field name="document_model">stock.picking</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_receipt_delete_all" model="medilab.permission">
+        <field name="name">Delete receipts</field>
+        <field name="document_model">stock.picking</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_lot_edit_all" model="medilab.permission">
+        <field name="name">Edit lots</field>
+        <field name="document_model">stock.lot</field>
+        <field name="action">edit</field>
+    </record>
     <record id="permission_recipe_create_all" model="medilab.permission">
         <field name="name">Create recipes</field>
         <field name="document_model">medilab.recipe</field>
