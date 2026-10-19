@@ -4,7 +4,7 @@
     dest: /etc/ssh/sshd_config.d/00-medilab.conf
     owner: root
     group: root
-    mode: "0644"
+    mode: "0600"
     validate: /usr/sbin/sshd -t -f %s
   when: ssh_hardening_enabled
   notify: Reload SSH

@@ -35,7 +35,7 @@ spec:
                     app.kubernetes.io/name: odoo
       containers:
         - name: odoo
-          image: ghcr.io/soltunemontepre/medilab
+          image: ghcr.io/soltunemontepre/medilab:sha-8e6924723d1121f7e90a11c5074220bac4e23a62
           env:
             - name: HOST
               value: medilab-db-rw

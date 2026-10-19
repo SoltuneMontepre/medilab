@@ -6,12 +6,14 @@ tcp_ports="$1"
 udp_ports="$2"
 
 section() {
-  printf '\n== %s\n' "$1"
+  local title="$1"
+  printf '\n== %s\n' "$title"
   return 0
 }
 
 has() {
-  command -v "$1" >/dev/null 2>&1
+  local program="$1"
+  command -v "$program" >/dev/null 2>&1
   return $?
 }
 

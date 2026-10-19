@@ -4,7 +4,7 @@
     state: directory
     owner: root
     group: root
-    mode: "0755"
+    mode: "0700"
 
 - name: Write the k3s port rules
   ansible.builtin.template:
@@ -22,7 +22,7 @@
     dest: /etc/systemd/system/medilab-k3s-firewall.service
     owner: root
     group: root
-    mode: "0644"
+    mode: "0600"
   notify: Reload the k3s port rules
 
 - name: Start the rules service at boot
