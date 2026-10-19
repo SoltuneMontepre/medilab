@@ -27,3 +27,7 @@ from . import (
     scheduled_job,
     signature,
 )
+
+# Accreditation job handlers inherit medilab.scheduled.job; load after the base model.
+# isort: split
+from . import accreditation_scheduled_job

@@ -9199,10 +9199,6 @@ msgstr "Hãy hủy lịch đặt máy thay vì xóa thời gian bắt đầu."
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/customer.py:0
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/customer.py:0
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
 msgid "Address"
 msgstr "Địa chỉ"
@@ -11508,6 +11504,7 @@ msgstr "Đang chỉnh sửa"
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_lock_mixin
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__lock_message
@@ -11704,6 +11701,7 @@ msgstr "Người chờ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_hr_department__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__lock_watched
@@ -11892,6 +11890,161 @@ msgstr "Ghi lúc"
 #: code:addons/sol_laboratory/models/system/res_config_settings.py:0
 msgid "The audit retention period cannot be negative; 0 keeps entries for ever."
 msgstr "Thời gian lưu giữ nhật ký hoạt động không được âm; 0 là giữ mãi mãi."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__certificate_id
+msgid "Accreditation Certificate"
+msgstr "Giấy chứng nhận công nhận"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import_line
+msgid "Accreditation Certificate Import Line"
+msgstr "Dòng nhập phương pháp từ giấy chứng nhận"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_accreditation_certificate
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__certificate_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_accreditation_certificate
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_form
+msgid "Accreditation Certificates"
+msgstr "Giấy chứng nhận công nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/parameter_method.py:0
+msgid "Accreditation is computed from certificates; it cannot be set by hand."
+msgstr "Công nhận được tính từ giấy chứng nhận; không thể gán thủ công."
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_accreditation_refresh_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_accreditation_refresh
+msgid "Accreditation refresh"
+msgstr "Làm mới công nhận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_certificate_archive_all
+msgid "Archive accreditation certificates"
+msgstr "Lưu trữ giấy chứng nhận công nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Another transaction created testing method %s; the import will retry."
+msgstr "Giao dịch khác đã tạo phương pháp thử %s; lần nhập sẽ thử lại."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_certificate_create_all
+msgid "Create accreditation certificates"
+msgstr "Tạo giấy chứng nhận công nhận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_certificate_delete_all
+msgid "Delete accreditation certificates"
+msgstr "Xóa giấy chứng nhận công nhận"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_certificate_edit_all
+msgid "Edit accreditation certificates"
+msgstr "Sửa giấy chứng nhận công nhận"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Enter at least one method to import."
+msgstr "Nhập ít nhất một phương pháp để nhập."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__import_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+msgid "Import"
+msgstr "Nhập"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_import_form
+msgid "Import Methods"
+msgstr "Nhập phương pháp"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate_import
+msgid "Import Methods from an Accreditation Certificate"
+msgstr "Nhập phương pháp từ giấy chứng nhận công nhận"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate__issuing_body
+msgid "Issuing Body"
+msgstr "Cơ quan cấp"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/testing_method.py:0
+msgid ""
+"Link testing methods to accreditation certificates from the certificate."
+msgstr "Gắn phương pháp thử vào giấy chứng nhận từ phía giấy chứng nhận."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
+msgid "Methods"
+msgstr "Phương pháp"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+msgid "Number"
+msgstr "Số"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_certificate_archive_all
+msgid "Permission: accreditation.certificate.archive.all"
+msgstr "Quyền: accreditation.certificate.archive.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_certificate_create_all
+msgid "Permission: accreditation.certificate.create.all"
+msgstr "Quyền: accreditation.certificate.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_certificate_delete_all
+msgid "Permission: accreditation.certificate.delete.all"
+msgstr "Quyền: accreditation.certificate.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_accreditation_certificate_edit_all
+msgid "Permission: accreditation.certificate.edit.all"
+msgstr "Quyền: accreditation.certificate.edit.all"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid "Row %(row)s has no code or title. Nothing was imported."
+msgstr "Dòng %(row)s thiếu mã hoặc tiêu đề. Không nhập gì cả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid ""
+"The code %(code)s appears more than once in the list. Nothing was imported."
+msgstr "Mã %(code)s xuất hiện nhiều lần trong danh sách. Không nhập gì cả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
+msgid ""
+"The first valid day of certificate %s cannot be after its last valid day."
+msgstr ""
+"Ngày hiệu lực đầu của giấy chứng nhận %s không thể sau ngày hiệu lực cuối."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_accreditation_certificate_code_unique
+msgid "The number of an accreditation certificate must be unique."
+msgstr "Số giấy chứng nhận công nhận phải duy nhất."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__name
+msgid "Title"
+msgstr "Tiêu đề"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_order_template_read_all

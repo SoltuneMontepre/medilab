@@ -1,6 +1,8 @@
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_CHEMICAL,
@@ -40,9 +42,33 @@ class TestingMethod(models.Model):
         ondelete="restrict",
         string="Chemicals",
     )
+    # Accreditation certificates that list this method, archived ones included; linked from the certificate only.
+    certificate_ids = fields.Many2many(
+        MODEL_ACCREDITATION_CERTIFICATE,
+        "medilab_accreditation_certificate_method_rel",
+        "method_id",
+        "certificate_id",
+        copy=False,
+        context={"active_test": False},
+        string="Accreditation Certificates",
+    )
     # Steps of the procedure, in step number order.
     step_ids = fields.One2many(MODEL_TESTING_METHOD_STEP, "method_id", string="Steps")
     # False when the method is archived.
     active = fields.Boolean(default=True)
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a testing method must be unique.")
+
+    def _refuse_certificate_ids(self, vals):
+        if "certificate_ids" in vals:
+            raise UserError(self.env._("Link testing methods to accreditation certificates from the certificate."))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._refuse_certificate_ids(vals)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        self._refuse_certificate_ids(vals)
+        return super().write(vals)
