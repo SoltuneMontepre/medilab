@@ -1,4 +1,10 @@
 from . import (
+    test_accreditation_certificate,
+    test_accreditation_import,
+    test_accreditation_import_concurrency,
+    test_accreditation_job,
+    test_accreditation_migration,
+    test_accreditation_security,
     test_action_paths,
     test_administrator_person,
     test_administrator_role,
@@ -31,6 +37,7 @@ from . import (
     test_dispatch_portal,
     test_document_locking,
     test_handover_record,
+    test_is_accredited,
     test_job_claim_timeout,
     test_job_queue,
     test_job_retry,

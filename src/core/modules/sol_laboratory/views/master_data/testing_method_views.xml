@@ -47,6 +47,17 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Accreditation Certificates" name="certificates">
+                            <field name="certificate_ids" readonly="1">
+                                <list>
+                                    <field name="code" />
+                                    <field name="issuing_body" />
+                                    <field name="valid_from" />
+                                    <field name="valid_until" />
+                                    <field name="active" />
+                                </list>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
             </form>

@@ -588,6 +588,27 @@
         <field name="document_model">medilab.quality.registration</field>
         <field name="action">delete</field>
     </record>
+
+    <record id="permission_accreditation_certificate_create_all" model="medilab.permission">
+        <field name="name">Create accreditation certificates</field>
+        <field name="document_model">medilab.accreditation.certificate</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_accreditation_certificate_edit_all" model="medilab.permission">
+        <field name="name">Edit accreditation certificates</field>
+        <field name="document_model">medilab.accreditation.certificate</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_accreditation_certificate_archive_all" model="medilab.permission">
+        <field name="name">Archive accreditation certificates</field>
+        <field name="document_model">medilab.accreditation.certificate</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_accreditation_certificate_delete_all" model="medilab.permission">
+        <field name="name">Delete accreditation certificates</field>
+        <field name="document_model">medilab.accreditation.certificate</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_regulation_create_all" model="medilab.permission">
         <field name="name">Create regulations</field>
         <field name="document_model">medilab.regulation</field>

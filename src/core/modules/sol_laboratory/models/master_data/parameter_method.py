@@ -5,6 +5,7 @@ from odoo.tools import format_date, format_list
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
@@ -46,8 +47,13 @@ class ParameterMethod(models.Model):
     )
     # The department that tests it in-house; empty when a subcontractor tests it.
     department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", index=True, domain=DEPARTMENT_DOMAIN)
-    # True when this way of testing is within an ISO 17025 accreditation scope.
-    is_accredited = fields.Boolean(string="Accredited")
+    # True while this in-house way of testing's method is on an accreditation certificate valid that day.
+    is_accredited = fields.Boolean(
+        string="Accredited",
+        compute="_compute_is_accredited",
+        store=True,
+        readonly=True,
+    )
     # Limit of detection: the lowest value this method can detect, in the row's unit.
     lod = fields.Float(string="LOD", digits=0)
     # Limit of quantification: the lowest value this method can measure reliably, in the row's unit.
@@ -72,6 +78,27 @@ class ParameterMethod(models.Model):
         for pair in self:
             name = f"{pair.parameter_id.name} – {pair.method_id.code}"
             pair.display_name = f"{name} ({pair.subcontractor_id.name})" if pair.subcontractor_id else name
+
+    @api.depends("subcontractor_id", "method_id")
+    def _compute_is_accredited(self):
+        in_house = self.filtered(lambda pair: not pair.subcontractor_id)
+        covered = self.env[MODEL_ACCREDITATION_CERTIFICATE]._accredited_methods(in_house.method_id)
+        for pair in self:
+            pair.is_accredited = not pair.subcontractor_id and pair.method_id in covered
+
+    def _recompute_is_accredited(self):
+        # Certificates and the day also change the mark, and the compute cannot depend on them.
+        self.env.add_to_compute(self._fields["is_accredited"], self)
+        self.flush_recordset(["is_accredited"])
+
+    @api.model
+    def _recompute_for_methods(self, methods):
+        """Recompute pairs for these methods only (previous and new certificate links)."""
+        methods = methods.exists()
+        if not methods:
+            return
+        pairs = self.with_context(active_test=False).search([("method_id", "in", methods.ids)])
+        pairs._recompute_is_accredited()
 
     @api.constrains("department_id", "subcontractor_id")
     def _check_tester(self):
@@ -107,10 +134,15 @@ class ParameterMethod(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            if "is_accredited" in vals:
+                raise UserError(self.env._("Accreditation is computed from certificates; it cannot be set by hand."))
         self._unset_defaults([vals.get("parameter_id") for vals in vals_list if vals.get("is_default")])
         return super().create(vals_list)
 
     def write(self, vals):
+        if "is_accredited" in vals:
+            raise UserError(self.env._("Accreditation is computed from certificates; it cannot be set by hand."))
         # Removing a line from its parameter, as the parameter's unlink and clear commands do, would delete it.
         if "parameter_id" in vals and not vals["parameter_id"]:
             raise UserError(self._never_deleted_message())
