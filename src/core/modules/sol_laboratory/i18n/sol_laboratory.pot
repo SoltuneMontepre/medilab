@@ -11848,6 +11848,13 @@ msgid "Issuing Body"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/testing_method.py:0
+msgid ""
+"Link testing methods to accreditation certificates from the certificate."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
 msgid "Methods"
 msgstr ""
@@ -11891,6 +11898,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
 msgid "Row %(row)s has no code or title. Nothing was imported."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid ""
+"The code %(code)s appears more than once in the list. Nothing was imported."
 msgstr ""
 
 #. module: sol_laboratory

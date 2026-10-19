@@ -11987,6 +11987,13 @@ msgid "Issuing Body"
 msgstr "Cơ quan cấp"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/testing_method.py:0
+msgid ""
+"Link testing methods to accreditation certificates from the certificate."
+msgstr "Gắn phương pháp thử vào giấy chứng nhận từ phía giấy chứng nhận."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__line_ids
 msgid "Methods"
 msgstr "Phương pháp"
@@ -12031,6 +12038,13 @@ msgstr "Xem đơn hàng mẫu"
 #: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
 msgid "Row %(row)s has no code or title. Nothing was imported."
 msgstr "Dòng %(row)s thiếu mã hoặc tiêu đề. Không nhập gì cả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
+msgid ""
+"The code %(code)s appears more than once in the list. Nothing was imported."
+msgstr "Mã %(code)s xuất hiện nhiều lần trong danh sách. Không nhập gì cả."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_accreditation_certificate_code_unique
