@@ -1,6 +1,7 @@
 from . import (
     test_accreditation_certificate,
     test_accreditation_import,
+    test_accreditation_import_concurrency,
     test_accreditation_job,
     test_accreditation_migration,
     test_accreditation_security,

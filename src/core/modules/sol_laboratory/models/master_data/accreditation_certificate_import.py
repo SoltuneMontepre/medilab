@@ -1,5 +1,5 @@
 from psycopg2 import errorcodes
-from psycopg2.errors import IntegrityError, UniqueViolation
+from psycopg2.errors import IntegrityError
 
 from odoo import api, fields, models
 from odoo.exceptions import ConcurrencyError, ValidationError
@@ -110,16 +110,11 @@ class AccreditationCertificateImport(models.TransientModel):
                     }
                 )
         except IntegrityError as error:
-            if not isinstance(error, UniqueViolation) and error.pgcode != errorcodes.UNIQUE_VIOLATION:
+            if error.pgcode != errorcodes.UNIQUE_VIOLATION:
                 raise
-            # Same-transaction races are visible in this snapshot.
-            self.env.cr.execute(
-                "SELECT id FROM medilab_testing_method WHERE code = %s",
-                [code],
-            )
-            row = self.env.cr.fetchone()
-            if row:
-                return methods.browse(row[0])
+            existing = methods.with_context(active_test=False).search([("code", "=", code)], limit=1)
+            if existing:
+                return existing
             # Concurrent commit under REPEATABLE READ is invisible here (and cannot be linked).
             # ConcurrencyError is what odoo.http.retrying retries without needing a SQLSTATE.
             raise ConcurrencyError(
@@ -128,17 +123,3 @@ class AccreditationCertificateImport(models.TransientModel):
                     code,
                 )
             ) from error
-
-
-# Dòng Nhập Phương Pháp
-class AccreditationCertificateImportLine(models.TransientModel):
-    _name = MODEL_ACCREDITATION_CERTIFICATE_IMPORT_LINE
-    _description = "Accreditation Certificate Import Line"
-    _order = "id"
-
-    # The import wizard this row belongs to.
-    import_id = fields.Many2one(MODEL_ACCREDITATION_CERTIFICATE_IMPORT, required=True, ondelete="cascade")
-    # Standard reference of the method, such as TCVN 6187-1:2009.
-    code = fields.Char()
-    # Title of the standard in the language of the list.
-    name = fields.Char(string="Title")

@@ -1,7 +1,3 @@
-from contextvars import ContextVar
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date, format_list
@@ -22,10 +18,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
 )
 
+
 # Cách Thử
-_ALLOW_IS_ACCREDITED_WRITE = ContextVar("medilab_allow_is_accredited_write", default=False)
-
-
 class ParameterMethod(models.Model):
     _name = MODEL_PARAMETER_METHOD
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
@@ -85,52 +79,17 @@ class ParameterMethod(models.Model):
             name = f"{pair.parameter_id.name} – {pair.method_id.code}"
             pair.display_name = f"{name} ({pair.subcontractor_id.name})" if pair.subcontractor_id else name
 
-    @api.model
-    def _laboratory_today(self):
-        return datetime.now(ZoneInfo(self.env.company.tz or "UTC")).date()
-
     @api.depends("subcontractor_id", "method_id")
     def _compute_is_accredited(self):
-        today = self._laboratory_today()
         in_house = self.filtered(lambda pair: not pair.subcontractor_id)
-        covered = self.env[MODEL_ACCREDITATION_CERTIFICATE]._accredited_methods(in_house.mapped("method_id"), today)
-        covered_ids = set(covered.ids)
-        # ContextVar is not an ORM context flag clients can set over RPC.
-        token = _ALLOW_IS_ACCREDITED_WRITE.set(True)
-        try:
-            for pair in self:
-                pair.is_accredited = bool(not pair.subcontractor_id and pair.method_id.id in covered_ids)
-        finally:
-            _ALLOW_IS_ACCREDITED_WRITE.reset(token)
+        covered = self.env[MODEL_ACCREDITATION_CERTIFICATE]._accredited_methods(in_house.method_id)
+        for pair in self:
+            pair.is_accredited = not pair.subcontractor_id and pair.method_id in covered
 
     def _recompute_is_accredited(self):
-        # Stored system flag written by SQL so client create/write cannot set it.
-        if not self:
-            return
-        today = self._laboratory_today()
-        in_house = self.filtered(lambda pair: not pair.subcontractor_id)
-        covered_ids = set(
-            self.env[MODEL_ACCREDITATION_CERTIFICATE]
-            ._accredited_methods(in_house.mapped("method_id"), today)
-            .ids
-        )
-        true_ids = [
-            pair.id
-            for pair in self
-            if not pair.subcontractor_id and pair.method_id.id in covered_ids
-        ]
-        false_ids = list(set(self.ids) - set(true_ids))
-        if true_ids:
-            self.env.cr.execute(
-                "UPDATE medilab_parameter_method SET is_accredited = TRUE WHERE id IN %s",
-                [tuple(true_ids)],
-            )
-        if false_ids:
-            self.env.cr.execute(
-                "UPDATE medilab_parameter_method SET is_accredited = FALSE WHERE id IN %s",
-                [tuple(false_ids)],
-            )
-        self.invalidate_recordset(["is_accredited"])
+        # Certificates and the day also change the mark, and the compute cannot depend on them.
+        self.env.add_to_compute(self._fields["is_accredited"], self)
+        self.flush_recordset(["is_accredited"])
 
     @api.model
     def _recompute_for_methods(self, methods):
@@ -177,21 +136,13 @@ class ParameterMethod(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if "is_accredited" in vals:
-                raise UserError(
-                    self.env._(
-                        "Accreditation is computed from certificates; it cannot be set by hand."
-                    )
-                )
+                raise UserError(self.env._("Accreditation is computed from certificates; it cannot be set by hand."))
         self._unset_defaults([vals.get("parameter_id") for vals in vals_list if vals.get("is_default")])
-        pairs = super().create(vals_list)
-        pairs._recompute_is_accredited()
-        return pairs
+        return super().create(vals_list)
 
     def write(self, vals):
-        if "is_accredited" in vals and not _ALLOW_IS_ACCREDITED_WRITE.get():
-            raise UserError(
-                self.env._("Accreditation is computed from certificates; it cannot be set by hand.")
-            )
+        if "is_accredited" in vals:
+            raise UserError(self.env._("Accreditation is computed from certificates; it cannot be set by hand."))
         # Removing a line from its parameter, as the parameter's unlink and clear commands do, would delete it.
         if "parameter_id" in vals and not vals["parameter_id"]:
             raise UserError(self._never_deleted_message())
@@ -201,10 +152,7 @@ class ParameterMethod(models.Model):
         # alone is enough; the permission check would otherwise also demand edit.
         if vals.get("active") is False and not vals.get("is_default"):
             self.filtered("is_default").sudo().write({"is_default": False})
-        result = super().write(vals)
-        if {"method_id", "subcontractor_id"} & set(vals):
-            self._recompute_is_accredited()
-        return result
+        return super().write(vals)
 
     @api.ondelete(at_uninstall=False)
     def _unlink_never(self):

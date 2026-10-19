@@ -40,27 +40,20 @@ class TestingMethod(models.Model):
         ondelete="restrict",
         string="Chemicals",
     )
-    # Accreditation certificates that list this method; shown read-only, never written from the method.
+    # Accreditation certificates that list this method, archived ones included; linked from the certificate only.
     certificate_ids = fields.Many2many(
         MODEL_ACCREDITATION_CERTIFICATE,
-        compute="_compute_certificate_ids",
+        "medilab_accreditation_certificate_method_rel",
+        "method_id",
+        "certificate_id",
+        copy=False,
+        context={"active_test": False},
         string="Accreditation Certificates",
     )
     # False when the method is archived.
     active = fields.Boolean(default=True)
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a testing method must be unique.")
-
-    def _compute_certificate_ids(self):
-        certificates = self.env[MODEL_ACCREDITATION_CERTIFICATE].with_context(active_test=False)
-        mapping = {method.id: certificates for method in self if method.id}
-        methods = self.filtered("id")
-        if methods:
-            for certificate in certificates.search([("method_ids", "in", methods.ids)]):
-                for method in certificate.method_ids & methods:
-                    mapping[method.id] |= certificate
-        for method in self:
-            method.certificate_ids = mapping.get(method.id, certificates)
 
     def _refuse_certificate_ids(self, vals):
         if "certificate_ids" in vals:

@@ -92,19 +92,6 @@ class ScheduledJob(models.Model):
             return
         icp.set_str(param_key, str(pair_ids[-1]))
 
-    def _discover_accreditation_refresh_all(self):
-        """Compatibility helper for tests: run discovery pages until today's catalog is queued."""
-        icp = self.env[MODEL_IR_CONFIG_PARAMETER].sudo()
-        param_key = self._accreditation_discovery_param_key()
-        icp.set_str(param_key, "0")
-        for _ in range(10_000):
-            if icp.get_str(param_key) == DISCOVERY_DONE:
-                return
-            before = icp.get_str(param_key)
-            self._discover_accreditation_refresh_page()
-            if icp.get_str(param_key) == before:
-                return
-
     def _handle_accreditation_refresh(self, item):
         today = self.env[MODEL_ACCREDITATION_CERTIFICATE]._laboratory_today()
         expected_prefix = f"date:{today.isoformat()}:pair:"

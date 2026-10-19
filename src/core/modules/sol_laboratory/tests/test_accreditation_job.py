@@ -140,6 +140,20 @@ class TestAccreditationJob(MasterDataCase):
         self.assertTrue(self.pair.is_accredited)
         self.assertTrue(item.item_key.startswith(f"date:{yesterday.isoformat()}"))
 
+    def _queue_accreditation_refresh(self):
+        """Run discovery pages until today's catalog is queued."""
+        job = self.env[MODEL_SCHEDULED_JOB].browse(self.job.id)
+        icp = self.env["ir.config_parameter"].sudo()
+        param_key = job._accreditation_discovery_param_key()
+        icp.set_str(param_key, "0")
+        for _ in range(10_000):
+            if icp.get_str(param_key) == DISCOVERY_DONE:
+                return
+            before = icp.get_str(param_key)
+            job._discover_accreditation_refresh_page()
+            if icp.get_str(param_key) == before:
+                return
+
     def _discovery_marker(self):
         return self.env["ir.config_parameter"].sudo().get_str(
             f"{DISCOVERY_PARAM_PREFIX}{self.today.isoformat()}"
@@ -270,7 +284,7 @@ class TestAccreditationJob(MasterDataCase):
         self.assertTrue(other_pair.is_accredited)
 
         # Queue today's work, then unlink the method before the handler runs for that pair.
-        self.env[MODEL_SCHEDULED_JOB].browse(self.job.id)._discover_accreditation_refresh_all()
+        self._queue_accreditation_refresh()
         self.certificate.write({"method_ids": [Command.unlink(other.id)]})
         self.assertFalse(other_pair.is_accredited)
 

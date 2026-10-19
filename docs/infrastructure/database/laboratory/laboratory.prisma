@@ -283,7 +283,7 @@ model Location {
   @@map("medilab_location")
 }
 
-/// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận).
+/// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận). Trigram index on code serves search.
 model AccreditationCertificate {
   /// Row identifier.
   id           Int                             @id @default(autoincrement())
@@ -291,9 +291,9 @@ model AccreditationCertificate {
   code         String                          @unique @db.VarChar
   /// The body that issued the certificate.
   issuing_body String?                         @db.VarChar
-  /// First day the certificate is valid.
+  /// First day the certificate is valid; empty means valid from any date.
   valid_from   DateTime?                       @db.Date
-  /// Last day the certificate is valid.
+  /// Last day the certificate is valid; empty means valid until any date.
   valid_until  DateTime?                       @db.Date
   /// False when the certificate is archived.
   active       Boolean                         @default(true)

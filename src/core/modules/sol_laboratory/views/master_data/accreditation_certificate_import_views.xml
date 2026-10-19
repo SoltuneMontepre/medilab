@@ -17,7 +17,7 @@
                     </list>
                 </field>
                 <footer>
-                    <button name="action_import" type="object" string="Import" class="btn-primary" />
+                    <button name="action_import" type="object" string="Import" class="btn-success" />
                     <button string="Cancel" special="cancel" />
                 </footer>
             </form>

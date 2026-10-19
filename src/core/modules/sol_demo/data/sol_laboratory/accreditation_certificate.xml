@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-    <!-- Two methods already exist before this certificate's scope is linked. -->
     <record id="demo_accreditation_certificate_valid" model="medilab.accreditation.certificate">
         <field name="code">VILAS 118</field>
         <field name="issuing_body">BoA</field>

@@ -135,5 +135,6 @@ class TestIsAccredited(MasterDataCase):
             "SELECT is_accredited FROM medilab_parameter_method WHERE id = %s", [other_pair.id]
         )
         stale = self.env.cr.fetchone()
-        assert stale is not None
+        if stale is None:
+            self.fail("The unrelated pair has no row.")
         self.assertTrue(stale[0])

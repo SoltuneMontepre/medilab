@@ -6,6 +6,7 @@ from odoo.exceptions import ValidationError
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
+    MODEL_ACCREDITATION_CERTIFICATE_IMPORT,
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_LOCK_MIXIN,
@@ -21,6 +22,7 @@ class AccreditationCertificate(models.Model):
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Accreditation Certificate"
     _order = "code"
+    _rec_name = "code"
     _rec_names_search = ("code", "issuing_body")
     _permission_actions = ("create", "edit", "archive", "delete")
 
@@ -116,7 +118,7 @@ class AccreditationCertificate(models.Model):
         return {
             "type": "ir.actions.act_window",
             "name": self.env._("Import Methods"),
-            "res_model": "medilab.accreditation.certificate.import",
+            "res_model": MODEL_ACCREDITATION_CERTIFICATE_IMPORT,
             "view_mode": "form",
             "target": "new",
             "context": {
