@@ -3,6 +3,7 @@ from odoo.exceptions import ValidationError
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_TESTING_METHOD,
     MODEL_TESTING_METHOD_STEP,
@@ -12,7 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Bước Phương Pháp Thử
 class TestingMethodStep(models.Model):
     _name = MODEL_TESTING_METHOD_STEP
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Testing Method Step"
     _order = "method_id, sequence"
     _permission_actions = ("create", "edit", "delete")

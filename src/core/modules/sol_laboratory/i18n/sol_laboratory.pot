@@ -11410,6 +11410,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
 msgid "Editing Lock"
 msgstr ""
@@ -11605,6 +11606,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
 msgid "Watching Lock"
 msgstr ""
