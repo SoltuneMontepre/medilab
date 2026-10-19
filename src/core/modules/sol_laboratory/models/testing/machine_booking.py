@@ -86,6 +86,10 @@ class MachineBooking(models.Model):
     calendar_event_id = fields.Many2one("calendar.event", ondelete="set null", readonly=True, copy=False)
     # True when the due date is within the urgency threshold, so the booking goes first in the queue.
     is_urgent = fields.Boolean(related="sample_test_id.is_urgent")
+    # Steps of the testing method of the sample test's way of testing, which the person follows.
+    method_step_ids = fields.One2many(
+        related="sample_test_id.parameter_method_id.method_id.step_ids", string="Method Steps"
+    )
 
     _machine_start_idx = models.Index("(machine_id, starts_at)")
     _person_start_idx = models.Index("(person_id, starts_at)")
@@ -269,7 +273,7 @@ class MachineBooking(models.Model):
         suggest outsourcing it when none can.
         """
         released = False
-        for task in tasks.sudo().filtered(lambda task: task.document_model == MODEL_SAMPLE_TEST and task.document_id):
+        for task in tasks.sudo().filtered_domain(self.env[MODEL_TASK]._testing_domain()):
             bookings = task.booking_ids._open()
             waiting = bookings.filtered(lambda booking: booking.status != "in_progress")
             (bookings - waiting)._set({"person_id": task.assignee_id.id})

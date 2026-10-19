@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Illustrative steps that show how a procedure is laid out; they are not the text of TCVN 7602:2007. -->
+<odoo noupdate="1">
+    <record id="demo_testing_method_step_tcvn_7602_1" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="sequence">1</field>
+        <field name="duration_minutes">15</field>
+        <field name="instruction">Homogenise the sample and weigh the test portion into a clean crucible.</field>
+    </record>
+    <record id="demo_testing_method_step_tcvn_7602_2" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="sequence">2</field>
+        <field name="duration_minutes">480</field>
+        <field name="instruction">Dry and ash the test portion in the muffle furnace.</field>
+        <field name="note">Raise the furnace temperature gradually so the sample does not catch fire.</field>
+    </record>
+    <record id="demo_testing_method_step_tcvn_7602_3" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="sequence">3</field>
+        <field name="duration_minutes">30</field>
+        <field name="instruction">Dissolve the ash in acid and make the solution up to volume.</field>
+    </record>
+    <record id="demo_testing_method_step_tcvn_7602_4" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="sequence">4</field>
+        <field name="duration_minutes">45</field>
+        <field name="instruction">Calibrate the spectrophotometer with the lead standard solutions.</field>
+    </record>
+    <record id="demo_testing_method_step_tcvn_7602_5" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_tcvn_7602" />
+        <field name="sequence">5</field>
+        <field name="duration_minutes">20</field>
+        <field name="instruction">Measure the test solution and the blank, then calculate the lead content.</field>
+    </record>
+</odoo>
