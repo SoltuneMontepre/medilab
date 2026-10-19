@@ -1,0 +1,81 @@
+name: cd-ansible
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medilab-cd-ansible
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "ping, inspect, check or apply"
+        required: true
+        type: choice
+        options:
+          - ping
+          - inspect
+          - check
+          - apply
+      limit:
+        description: "Nodes or groups to run on, as for --limit; empty for every node"
+        required: false
+        type: string
+
+jobs:
+  ansible:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: ${{ inputs.action == 'apply' && 'ansible-apply' || 'ansible' }}
+    env:
+      COMPOSE_FILE: tools/infrastructure/docker-compose.yml
+      DOPPLER_TOKEN: ${{ secrets.DOPPLER_INFRA_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Build
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Ansible image
+        uses: docker/build-push-action@v7
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          context: .
+          file: tools/dockerfiles/ansible.dockerfile
+          tags: medilab-ansible:local
+          load: true
+          cache-from: type=gha,scope=ansible
+          cache-to: type=gha,mode=max,scope=ansible
+
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v4
+
+      - name: Mask Doppler secrets
+        run: |
+          doppler secrets download --no-file --format json \
+            | jq -r 'to_entries[] | select(.key | startswith("DOPPLER_") | not) | .value' \
+            | while IFS= read -r line; do
+                if [[ -n "$line" ]]; then
+                  echo "::add-mask::$line"
+                fi
+              done
+
+      - name: Run Ansible
+        env:
+          ACTION: ${{ inputs.action }}
+          LIMIT: ${{ inputs.limit }}
+        run: |
+          case "$ACTION" in
+            ping) command=(ansible all -m ansible.builtin.ping --become) ;;
+            inspect) command=(ansible-playbook inspect.yml) ;;
+            check) command=(ansible-playbook site.yml --check --diff) ;;
+            apply) command=(ansible-playbook site.yml --diff) ;;
+          esac
+          if [[ -n "$LIMIT" ]]; then
+            command+=(--limit "$LIMIT")
+          fi
+          doppler run -- docker compose run --rm -T ansible "${command[@]}"

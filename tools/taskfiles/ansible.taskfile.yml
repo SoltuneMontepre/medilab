@@ -1,0 +1,54 @@
+version: "3"
+
+env:
+  COMPOSE_FILE: tools/infrastructure/docker-compose.yml
+
+vars:
+  DOPPLER_INFRA_CONFIG: infra
+  ANSIBLE_CONTAINER: docker compose run --rm -T ansible
+  ANSIBLE_RUN: doppler run --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_INFRA_CONFIG}} -- {{.ANSIBLE_CONTAINER}}
+  LOG: tools/scripts/log.sh
+
+tasks:
+  ansible:image:
+    internal: true
+    silent: true
+    cmds:
+      - docker compose build --quiet ansible
+
+  ansible:ping:
+    desc: "Check that Ansible reaches every node over SSH and can use sudo"
+    deps: [ansible:image]
+    cmds:
+      - "{{.ANSIBLE_RUN}} ansible all -m ansible.builtin.ping --become {{.CLI_ARGS}}"
+
+  ansible:inspect:
+    desc: "Report what runs on every node without changing anything"
+    deps: [ansible:image]
+    cmds:
+      - "{{.ANSIBLE_RUN}} ansible-playbook inspect.yml {{.CLI_ARGS}}"
+
+  ansible:check:
+    aliases: [ansible:dry-run]
+    desc: "Show what provisioning would change on every node, without changing it"
+    deps: [ansible:image]
+    cmds:
+      - "{{.ANSIBLE_RUN}} ansible-playbook site.yml --check --diff {{.CLI_ARGS}}"
+
+  ansible:apply:
+    desc: "Provision every node: k3s, its firewall and Argo CD"
+    deps: [ansible:image]
+    cmds:
+      - "{{.ANSIBLE_RUN}} ansible-playbook site.yml --diff {{.CLI_ARGS}}"
+
+  ansible:kubeconfig:
+    desc: "Fetch the cluster's kubeconfig into infra/ansible/kubeconfig.yml"
+    deps: [ansible:image]
+    cmds:
+      - "{{.ANSIBLE_RUN}} ansible-playbook fetch_kubeconfig.yml"
+
+  ansible:lint:
+    desc: "Lint the Ansible playbooks and roles"
+    deps: [ansible:image]
+    cmds:
+      - "{{.ANSIBLE_CONTAINER}} ansible-lint"

@@ -66,6 +66,25 @@ services:
       - medilab-cloudbeaver:/opt/cloudbeaver/workspace
       - ./cloudbeaver/data-sources.json:/opt/cloudbeaver/workspace/GlobalConfiguration/.dbeaver/data-sources.json:z
 
+  ansible:
+    profiles: [ansible]
+    image: medilab-ansible:local
+    build:
+      context: ../..
+      dockerfile: tools/dockerfiles/ansible.dockerfile
+    entrypoint: [bash, /opt/medilab/scripts/ansible_run.sh]
+    environment:
+      - ANSIBLE_SSH_PRIVATE_KEY
+      - NODE_A_PUBLIC_ADDRESS
+      - K3S_TOKEN
+      - BUCKET_ADDRESS
+      - BUCKET_BACKUP_ACCESS_KEY
+      - BUCKET_BACKUP_SECRET_KEY
+      - CLUSTER_DOPPLER_TOKEN
+    volumes:
+      - ../..:/work:z
+      - ../scripts:/opt/medilab/scripts:ro,z
+
 volumes:
   medilab-app:
   medilab-db:

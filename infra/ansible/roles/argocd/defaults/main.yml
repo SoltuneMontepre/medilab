@@ -1,0 +1,10 @@
+argocd_chart_version: 10.10.5
+argocd_namespace: argocd
+argocd_root_application_enabled: false
+argocd_repository: https://github.com/SoltuneMontepre/medilab.git
+argocd_revision: main
+argocd_path: infra/cluster
+argocd_doppler_token: "{{ lookup('ansible.builtin.env', 'CLUSTER_DOPPLER_TOKEN') }}"
+argocd_doppler_token_namespace: external-secrets
+argocd_marker: "Managed by infra/ansible"
+argocd_manifests_dir: /var/lib/rancher/k3s/server/manifests

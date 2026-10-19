@@ -10,6 +10,7 @@ tools/
 ├── odoo-intelligence/          Shared OdooLS MCP bridge, local installer, Serena launcher and tests
 ├── taskfiles/
 │   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification and isolated Cursor setup
+│   ├── ansible.taskfile.yml    Ansible in a container: ping, inspect, check, apply, kubeconfig, lint
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint, typecheck
 │   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, apps
@@ -19,6 +20,7 @@ tools/
     ├── log.sh                  output helpers sourced by the tasks
     ├── doppler.sh              Doppler login helper sourced by the tasks
     ├── ai_setup.sh             ai:setup prerequisites and environment
+    ├── ansible_run.sh          loads the Ansible SSH key into an agent inside the ansible container
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
     ├── test_apps.sh            test:apps
     ├── test_shards.py          splits the Odoo test classes into shards for test:core
@@ -79,15 +81,15 @@ tasks:
         log_ok "Odoo source ready in .local/odoo-source."
 ```
 
-| Helper                    | Use for                                 | Prints                                     |
-| ------------------------- | --------------------------------------- | ------------------------------------------ |
-| `log_step "<title>"`      | The start of each section of a task     | Blank line, then bold cyan `==>` and title |
-| `log_info "<text>"`       | Detail about what is happening          | Dimmed, indented line                      |
-| `log_option <n> "<text>"` | One choice in a menu                    | Indented line with a cyan `n)`             |
-| `log_prompt "<question>"` | A question before `read`                | Yellow `?`, no line break                  |
-| `log_ok "<text>"`         | The result of a task that succeeded     | Green `[COMPLETED]`                        |
-| `log_error "<text>"`      | A failure, followed by `exit 1`         | Red `[ERROR]`, to stderr                   |
-| `log_link "<name>" <url>` | An address the developer opens          | Aligned name and underlined URL            |
+| Helper                    | Use for                             | Prints                                     |
+| ------------------------- | ----------------------------------- | ------------------------------------------ |
+| `log_step "<title>"`      | The start of each section of a task | Blank line, then bold cyan `==>` and title |
+| `log_info "<text>"`       | Detail about what is happening      | Dimmed, indented line                      |
+| `log_option <n> "<text>"` | One choice in a menu                | Indented line with a cyan `n)`             |
+| `log_prompt "<question>"` | A question before `read`            | Yellow `?`, no line break                  |
+| `log_ok "<text>"`         | The result of a task that succeeded | Green `[COMPLETED]`                        |
+| `log_error "<text>"`      | A failure, followed by `exit 1`     | Red `[ERROR]`, to stderr                   |
+| `log_link "<name>" <url>` | An address the developer opens      | Aligned name and underlined URL            |
 
 - A task that runs several steps or asks questions opens with `log_step`. A task that finishes something the developer waits for ends with `log_ok`. A task that only calls other tasks or one tool prints nothing itself.
 - Write messages as short sentences ending with a full stop. An error says what failed and what to do next: "doppler not found. Install: winget install Doppler.doppler".

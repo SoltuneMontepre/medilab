@@ -1,0 +1,32 @@
+# One instance while the cluster runs on Server A alone. Argo CD never prunes or deletes it.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: medilab-db
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-standard-trixie
+  bootstrap:
+    initdb:
+      database: medilab
+      owner: medilab
+  storage:
+    storageClass: local-path
+    size: 20Gi
+  postgresql:
+    parameters:
+      max_connections: "200"
+      shared_buffers: 1GB
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backups
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      memory: 4Gi

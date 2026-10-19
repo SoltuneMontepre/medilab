@@ -1,0 +1,34 @@
+- name: Create the rules folder
+  ansible.builtin.file:
+    path: /etc/medilab
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Write the k3s port rules
+  ansible.builtin.template:
+    src: k3s-firewall.nft.j2
+    dest: /etc/medilab/k3s-firewall.nft
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/nft -c -f %s
+  notify: Reload the k3s port rules
+
+- name: Install the rules service
+  ansible.builtin.template:
+    src: medilab-k3s-firewall.service.j2
+    dest: /etc/systemd/system/medilab-k3s-firewall.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload the k3s port rules
+
+- name: Start the rules service at boot
+  ansible.builtin.systemd_service:
+    name: medilab-k3s-firewall
+    enabled: true
+    state: started
+    daemon_reload: true
+  ignore_errors: "{{ ansible_check_mode }}"
