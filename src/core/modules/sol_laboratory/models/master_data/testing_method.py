@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
+    MODEL_TESTING_METHOD_STEP,
 )
 
 
@@ -22,6 +23,7 @@ class TestingMethod(models.Model):
     _order = "code"
     _rec_names_search = ("code", "name")
     _permission_actions = ("create", "edit", "archive", "delete")
+    _audit_children = ("step_ids",)
 
     # Unique standard reference of the method, such as TCVN 6187-1:2009.
     code = fields.Char(required=True, copy=False, index="trigram")
@@ -50,6 +52,8 @@ class TestingMethod(models.Model):
         context={"active_test": False},
         string="Accreditation Certificates",
     )
+    # Steps of the procedure, in step number order.
+    step_ids = fields.One2many(MODEL_TESTING_METHOD_STEP, "method_id", string="Steps")
     # False when the method is archived.
     active = fields.Boolean(default=True)
 

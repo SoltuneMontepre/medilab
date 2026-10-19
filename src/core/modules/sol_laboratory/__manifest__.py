@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Laboratory",
-    "version": "20.0.1.6.0",
+    "version": "20.0.1.7.0",
     "summary": "Laboratory testing core: test catalog, parameters, samples, results and machines.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",

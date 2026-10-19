@@ -8,6 +8,7 @@
 
     <menuitem id="menu_sale_order_queue" name="Unclaimed queue" parent="sale.sale_menu_root" action="action_medilab_sale_order_queue" sequence="15" />
     <menuitem id="menu_sale_order" name="Orders" parent="sale.sale_menu_root" action="action_medilab_sale_order" sequence="16" />
+    <menuitem id="menu_order_template" name="Order templates" parent="sale.sale_menu_root" action="action_order_template" sequence="17" />
     <menuitem id="menu_cancellation_request" name="Cancellation requests" parent="sale.sale_menu_root" action="action_medilab_cancellation_request" sequence="17" />
     <menuitem id="menu_support_request" name="Support requests" parent="sale.sale_menu_root" action="action_medilab_support_request" sequence="18" />
     <menuitem

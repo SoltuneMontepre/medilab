@@ -283,6 +283,16 @@ msgid "A signature is withdrawn, not deleted."
 msgstr "Chữ ký được rút lại, không bị xóa."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_step_sequence_positive
+msgid "A step number must be 1 or more."
+msgstr "Số bước phải từ 1 trở lên."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_step_duration_positive
+msgid "A step takes at least one minute."
+msgstr "Một bước mất ít nhất một phút."
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_planned_period
 msgid "A task cannot end before it starts."
 msgstr "Nhiệm vụ không thể kết thúc trước khi bắt đầu."
@@ -292,6 +302,11 @@ msgstr "Nhiệm vụ không thể kết thúc trước khi bắt đầu."
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "A task created by hand needs an assignee and a deadline."
 msgstr "Nhiệm vụ tạo thủ công cần có người thực hiện và hạn chót."
+
+#. module: sol_laboratory
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "A task created by hand opens no document."
+msgstr "Nhiệm vụ tạo thủ công không mở chứng từ nào."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_task_type_code_unique
@@ -1482,6 +1497,11 @@ msgid "Create testing fields"
 msgstr "Tạo lĩnh vực thử nghiệm"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_step_create_all
+msgid "Create testing method steps"
+msgstr "Tạo bước phương pháp thử"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_testing_method_create_all
 msgid "Create testing methods"
 msgstr "Tạo phương pháp thử"
@@ -1910,6 +1930,11 @@ msgstr "Xóa nhiệm vụ của phòng ban mình"
 #: model:medilab.permission,name:sol_laboratory.permission_testing_field_delete_all
 msgid "Delete testing fields"
 msgstr "Xóa lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_step_delete_all
+msgid "Delete testing method steps"
+msgstr "Xóa bước phương pháp thử"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_testing_method_delete_all
@@ -2453,6 +2478,11 @@ msgstr "Sửa yêu cầu thử nghiệm"
 #: model:medilab.permission,name:sol_laboratory.permission_testing_field_edit_all
 msgid "Edit testing fields"
 msgstr "Sửa lĩnh vực thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_testing_method_step_edit_all
+msgid "Edit testing method steps"
+msgstr "Sửa bước phương pháp thử"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_testing_method_edit_all
@@ -3217,6 +3247,11 @@ msgid "Industry"
 msgstr "Ngành"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__instruction
+msgid "Instruction"
+msgstr "Nội Dung Thực Hiện"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_id
 msgid ""
 "International Commercial Terms are a series of predefined commercial "
@@ -3676,6 +3711,11 @@ msgid "Limits"
 msgstr "Giới hạn"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__linked_by_system
+msgid "Linked By System"
+msgstr "Do Hệ Thống Liên Kết"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__physical_state__liquid
 msgid "Liquid"
 msgstr "Lỏng"
@@ -3883,6 +3923,14 @@ msgid "Messages"
 msgstr "Tin nhắn"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__method_step_ids
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__method_step_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_form
+msgid "Method Steps"
+msgstr "Các Bước Của Phương Pháp"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_regulation_limit__min_value
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__limit_min
 msgid "Minimum"
@@ -3897,6 +3945,11 @@ msgstr "Lượng mẫu tối thiểu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__minimum_quantity_unit_id
 msgid "Minimum Quantity Unit"
 msgstr "Đơn vị lượng mẫu tối thiểu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__duration_minutes
+msgid "Minutes"
+msgstr "Số Phút"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__model
@@ -4120,6 +4173,7 @@ msgstr "Chưa kết thúc"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__note
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__note
 #: code:addons/sol_laboratory/models/system/audit_report.py:0
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__note
 msgid "Note"
@@ -5157,6 +5211,21 @@ msgid "Permission: test.request.read.all"
 msgstr "Quyền: test.request.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_step_create_all
+msgid "Permission: testing.method.step.create.all"
+msgstr "Quyền: testing.method.step.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_step_delete_all
+msgid "Permission: testing.method.step.delete.all"
+msgstr "Quyền: testing.method.step.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_testing_method_step_edit_all
+msgid "Permission: testing.method.step.edit.all"
+msgstr "Quyền: testing.method.step.edit.all"
+
+#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_permission
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_role__permission_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_permission
@@ -5866,6 +5935,11 @@ msgid "Saturday"
 msgstr "Thứ Bảy"
 
 #. module: sol_laboratory
+#: code:addons/sol_laboratory/models/master_data/testing_method_step.py:0
+msgid "Say what to do in the step."
+msgstr "Hãy nhập nội dung thực hiện của bước."
+
+#. module: sol_laboratory
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/views/timeline/timeline_view.xml:0
 msgid "Scale"
@@ -6146,6 +6220,17 @@ msgstr ""
 "ra hôm nay Đã lên kế hoạch: Hoạt động trong tương lai."
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__sequence
+msgid "Step"
+msgstr "Bước"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__step_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_form
+msgid "Steps"
+msgstr "Các Bước"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__storage_conditions
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__storage_conditions
 msgid "Storage Conditions"
@@ -6368,8 +6453,14 @@ msgstr "Lĩnh Vực Thử Nghiệm"
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_testing_method
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__method_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__method_id
 msgid "Testing Method"
 msgstr "Phương Pháp Thử"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_testing_method_step
+msgid "Testing Method Step"
+msgstr "Bước Phương Pháp Thử"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_testing_method
@@ -6676,6 +6767,11 @@ msgstr ""
 "Vị trí tồn kho được sử dụng làm vị trí nguồn khi nhận hàng từ đối tác này"
 
 #. module: sol_laboratory
+#: code:addons/sol_laboratory/models/tasks/task.py:0
+msgid "The type of a task and the document it opens cannot change."
+msgstr "Không thể đổi loại nhiệm vụ và chứng từ mà nhiệm vụ mở."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__main_user_id
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__main_user_id
 msgid ""
@@ -6885,6 +6981,11 @@ msgstr "Thứ Ba"
 #: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Turn the schedule of %s on before running it."
 msgstr "Bật lịch của %s trước khi chạy."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_step_method_sequence_unique
+msgid "Two steps of a testing method cannot have the same number."
+msgstr "Hai bước của một phương pháp thử không thể trùng số."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__type_id
@@ -11444,6 +11545,7 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
 msgid "Editing Lock"
 msgstr "Khóa chỉnh sửa"
@@ -11640,6 +11742,7 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
 msgid "Watching Lock"
 msgstr "Đang chờ mở khóa"
@@ -11942,3 +12045,48 @@ msgstr "Số giấy chứng nhận công nhận phải duy nhất."
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import_line__name
 msgid "Title"
 msgstr "Tiêu đề"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_read_all
+msgid "Permission: order.template.read.all"
+msgstr "Xem đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_create_all
+msgid "Permission: order.template.create.all"
+msgstr "Tạo đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_edit_all
+msgid "Permission: order.template.edit.all"
+msgstr "Sửa đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_archive_all
+msgid "Permission: order.template.archive.all"
+msgstr "Lưu trữ đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_delete_all
+msgid "Permission: order.template.delete.all"
+msgstr "Xóa đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_read_all
+msgid "Permission: order.template.line.read.all"
+msgstr "Xem dòng đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_create_all
+msgid "Permission: order.template.line.create.all"
+msgstr "Tạo dòng đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_edit_all
+msgid "Permission: order.template.line.edit.all"
+msgstr "Sửa dòng đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_delete_all
+msgid "Permission: order.template.line.delete.all"
+msgstr "Xóa dòng đơn hàng mẫu"

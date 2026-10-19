@@ -17,6 +17,7 @@ access_medilab_subcontractor_user,medilab.subcontractor user,medilab.subcontract
 access_medilab_test_parameter_user,medilab.test.parameter user,medilab.test.parameter,base.group_user,r,
 access_medilab_testing_field_user,medilab.testing.field user,medilab.testing.field,base.group_user,r,
 access_medilab_testing_method_user,medilab.testing.method user,medilab.testing.method,base.group_user,r,
+access_medilab_testing_method_step_user,medilab.testing.method.step user,medilab.testing.method.step,base.group_user,r,
 access_medilab_unit_category_user,medilab.unit.category user,medilab.unit.category,base.group_user,r,
 access_medilab_task_type_user,medilab.task.type user,medilab.task.type,base.group_user,r,
 access_medilab_task_assignee,medilab.task assignee,medilab.task,base.group_user,r,"[('assignee_id.user_id', '=', user.id)]"

@@ -12,7 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TESTING_METHOD,
 )
 
-POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.6.0" / "post-migrate.py"
+POST_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.7.0" / "post-migrate.py"
 
 
 @tagged("post_install", "-at_install")
@@ -48,7 +48,7 @@ class TestAccreditationMigration(MasterDataCase):
         )
         self.env.invalidate_all()
 
-        load_script(str(POST_MIGRATE), "post_migrate").migrate(self.env.cr, "20.0.1.5.0")
+        load_script(str(POST_MIGRATE), "post_migrate").migrate(self.env.cr, "20.0.1.6.0")
 
         self.env.invalidate_all()
         self.assertTrue(self.pair.is_accredited)

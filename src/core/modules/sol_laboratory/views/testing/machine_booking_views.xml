@@ -67,6 +67,18 @@
                             <field name="queued_at" />
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Method Steps" name="method_steps">
+                            <field name="method_step_ids" readonly="1">
+                                <list create="0" delete="0" edit="0">
+                                    <field name="sequence" />
+                                    <field name="duration_minutes" />
+                                    <field name="instruction" />
+                                    <field name="note" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>

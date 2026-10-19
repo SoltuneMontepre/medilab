@@ -20,5 +20,6 @@ from . import (
     test_parameter,
     testing_field,
     testing_method,
+    testing_method_step,
     unit_category,
 )
