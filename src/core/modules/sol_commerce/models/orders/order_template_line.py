@@ -5,7 +5,6 @@ from odoo.exceptions import ValidationError
 from odoo.fields import Command, Domain
 from odoo.tools import float_compare
 
-from .order_template import CREATING_TEMPLATE_IDS, EDITING_TEMPLATE_IDS
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_ORDER_TEMPLATE,
     MODEL_ORDER_TEMPLATE_LINE,
@@ -58,9 +57,6 @@ class OrderTemplateLine(models.Model):
         if len(product) != 1 or not (product.parameter_id or product.service_package_id):
             raise ValidationError(self.env._("Choose a parameter or package from the catalog."))
 
-    def _check_parent_selections(self, parents):
-        parents.filtered(lambda parent: parent.id not in EDITING_TEMPLATE_IDS.get())._check_has_selections()
-
     def _serialize_selection_removals(self, parents):
         # Updating the parent makes concurrent removals conflict under Repeatable Read.
         parents.write({"write_date": fields.Datetime.now()})
@@ -68,7 +64,8 @@ class OrderTemplateLine(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         parents = self.env[MODEL_ORDER_TEMPLATE].browse([vals.get("template_id") for vals in vals_list])
-        initial = parents.filtered(lambda parent: parent.id in CREATING_TEMPLATE_IDS.get())
+        # A template has no selections only while it is being created, so its first ones need read access only.
+        initial = parents.filtered(lambda parent: not parent.sudo().line_ids)
         initial.check_access("read")
         existing = parents - initial
         if existing:
@@ -96,7 +93,7 @@ class OrderTemplateLine(models.Model):
         with self.env.cr.savepoint():
             self._serialize_selection_removals(parents)
             result = super().write(vals)
-            self._check_parent_selections(parents)
+            parents._check_selections_kept()
             return result
 
     def unlink(self):
@@ -107,7 +104,7 @@ class OrderTemplateLine(models.Model):
         with self.env.cr.savepoint():
             self._serialize_selection_removals(parents)
             result = super().unlink()
-            self._check_parent_selections(parents)
+            parents._check_selections_kept()
             return result
 
     def _in_use_domain(self):

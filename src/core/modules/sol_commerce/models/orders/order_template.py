@@ -15,7 +15,6 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 
 NOT_IN_OPERATOR = "not in"
-CREATING_TEMPLATE_IDS = ContextVar("creating_order_template_ids", default=frozenset())
 EDITING_TEMPLATE_IDS = ContextVar("editing_order_template_ids", default=frozenset())
 
 
@@ -101,23 +100,23 @@ class OrderTemplate(models.Model):
             vals["name"] = vals["name"].strip()
         with self.env.cr.savepoint():
             templates = super().create(vals_list)
-            token = CREATING_TEMPLATE_IDS.set(frozenset(templates.ids))
-            try:
-                self.env[MODEL_ORDER_TEMPLATE_LINE].create(
-                    [
-                        {**command[2], "template_id": template.id}
-                        for template, commands in zip(templates, selections, strict=True)
-                        for command in commands
-                    ]
-                )
-            finally:
-                CREATING_TEMPLATE_IDS.reset(token)
+            self.env[MODEL_ORDER_TEMPLATE_LINE].create(
+                [
+                    {**command[2], "template_id": template.id}
+                    for template, commands in zip(templates, selections, strict=True)
+                    for command in commands
+                ]
+            )
             templates._check_has_selections()
             return templates
 
     def _check_has_selections(self):
         if any(not template.line_ids for template in self):
             raise ValidationError(self.env._("An order template needs at least one selection."))
+
+    def _check_selections_kept(self):
+        # Checked when selections leave; a template replacing its own selections checks them when its write ends.
+        self.filtered(lambda template: template.id not in EDITING_TEMPLATE_IDS.get())._check_has_selections()
 
     def write(self, vals):
         self.check_access("write")
