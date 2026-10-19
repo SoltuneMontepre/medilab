@@ -89,7 +89,7 @@ How a module is laid out, from its root:
 - An Odoo addon that a module imports in Python is added to `ODOO_ADDONS`.
 - Import `SUPERUSER_ID` from `odoo.api`. Odoo 20 sets it on the `odoo` package only at startup, so `from odoo import SUPERUSER_ID` is a missing name to pyright.
 - `lxml-stubs`, in the `dev` group, gives pyright the names of the compiled `lxml.etree`.
-- `freezegun` and `xlsxwriter`, in the `dev` group, let pyright resolve the packages that the Odoo image provides and the modules import.
+- `asn1crypto`, `freezegun` and `xlsxwriter`, in the `dev` group, let pyright resolve the packages that the Odoo image provides and the modules import.
 
 ### Relaxed rules
 

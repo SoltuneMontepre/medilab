@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.approvals import (
 )
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
@@ -65,7 +66,7 @@ CONTENT_FIELDS = frozenset(
 # Kết Quả Thử Nghiệm
 class TestResult(models.Model):
     _name = MODEL_TEST_RESULT
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_APPROVAL_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_APPROVAL_MIXIN]
     _description = "Test Result"
     _order = "sample_test_id, attempt desc, version desc"
     # A result is signed, never archived or deleted.

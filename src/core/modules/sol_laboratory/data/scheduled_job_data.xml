@@ -28,6 +28,34 @@
         <field name="batch_size">100</field>
         <field name="max_attempts">3</field>
     </record>
+    <record id="scheduled_job_digital_signing_sign" model="medilab.scheduled.job">
+        <field name="key">digital_signing.sign</field>
+        <field name="name">Digital signing</field>
+        <field name="cron_id" ref="ir_cron_digital_signing_sign" />
+        <field name="batch_size">20</field>
+        <field name="max_attempts">8</field>
+    </record>
+    <record id="scheduled_job_digital_signing_certificates" model="medilab.scheduled.job">
+        <field name="key">digital_signing.certificates</field>
+        <field name="name">Signing certificates</field>
+        <field name="cron_id" ref="ir_cron_digital_signing_certificates" />
+        <field name="batch_size">1</field>
+        <field name="max_attempts">5</field>
+    </record>
+    <record id="scheduled_job_document_locks_expire" model="medilab.scheduled.job">
+        <field name="key">document_locks.expire</field>
+        <field name="name">Expire document locks</field>
+        <field name="cron_id" ref="ir_cron_document_locks_expire" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
+    <record id="scheduled_job_cleanup" model="medilab.scheduled.job">
+        <field name="key">cleanup</field>
+        <field name="name">Cleanup</field>
+        <field name="cron_id" ref="ir_cron_cleanup" />
+        <field name="batch_size">10</field>
+        <field name="max_attempts">3</field>
+    </record>
     <record id="scheduled_job_accreditation_refresh" model="medilab.scheduled.job">
         <field name="key">accreditation.refresh</field>
         <field name="name">Accreditation refresh</field>

@@ -270,7 +270,7 @@ class TestAccreditationJob(MasterDataCase):
         self.assertTrue(other_pair.is_accredited)
 
         # Queue today's work, then unlink the method before the handler runs for that pair.
-        self.env[MODEL_SCHEDULED_JOB].browse(self.job.id)._queue_accreditation_refresh()
+        self.env[MODEL_SCHEDULED_JOB].browse(self.job.id)._discover_accreditation_refresh_all()
         self.certificate.write({"method_ids": [Command.unlink(other.id)]})
         self.assertFalse(other_pair.is_accredited)
 

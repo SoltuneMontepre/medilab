@@ -1,7 +1,13 @@
 from odoo import api, fields, models
 
 from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
-from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_RUN, MODEL_PERMISSION_MIXIN, MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ARCHIVE_FILE,
+    MODEL_AUDIT_ENTRY,
+    MODEL_JOB_RUN,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_SCHEDULED_JOB,
+)
 
 
 # Lượt Chạy Tác Vụ
@@ -39,6 +45,21 @@ class JobRun(models.Model):
     failed_count = fields.Integer(default=0)
     # Seconds the run took so far.
     duration = fields.Float(compute="_compute_duration")
+    # Audit entries written by the run.
+    audit_entry_ids = fields.One2many(MODEL_AUDIT_ENTRY, "job_run_id", string="Audit Entries")
+    # Archive files the run wrote.
+    archive_file_ids = fields.One2many(MODEL_ARCHIVE_FILE, "job_run_id", string="Archive Files")
+
+    @api.model
+    def _cleanup_domain(self, cutoff):
+        """The runs the cleanup job removes: ended before the cutoff. A run that audit entries or archive files name
+        stays as long as they do."""
+        return [
+            ("status", "!=", "running"),
+            ("ended_at", "<", cutoff),
+            ("audit_entry_ids", "=", False),
+            ("archive_file_ids", "=", False),
+        ]
 
     @api.depends("started_at", "ended_at")
     def _compute_duration(self):

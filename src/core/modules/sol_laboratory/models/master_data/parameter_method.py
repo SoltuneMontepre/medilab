@@ -13,6 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_LOCK_MIXIN,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
@@ -27,7 +28,7 @@ _ALLOW_IS_ACCREDITED_WRITE = ContextVar("medilab_allow_is_accredited_write", def
 
 class ParameterMethod(models.Model):
     _name = MODEL_PARAMETER_METHOD
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Way of Testing"
     _order = "parameter_id, is_default desc, id"
     _rec_names_search = ("parameter_id", "method_id")

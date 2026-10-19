@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CODE_MIXIN,
     MODEL_CONTACT_MIXIN,
     MODEL_CUSTOMER,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import CUSTOMER_EDITOR_GROUP
@@ -31,7 +32,14 @@ CHILD_KEYS = frozenset({"type", "name", "function", "email", "phone", "street", 
 # Khách Hàng
 class Customer(models.Model):
     _name = MODEL_CUSTOMER
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_CONTACT_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [
+        MODEL_PERMISSION_MIXIN,
+        MODEL_LOCK_MIXIN,
+        MODEL_ARCHIVE_MIXIN,
+        MODEL_CODE_MIXIN,
+        MODEL_CONTACT_MIXIN,
+        MODEL_AUDIT_MIXIN,
+    ]
     _inherits = {RES_PARTNER: "partner_id"}
     _description = "Customer"
     _order = "code"

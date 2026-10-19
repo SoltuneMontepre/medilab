@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_TESTING_METHOD,
@@ -17,7 +18,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Giấy Chứng Nhận Công Nhận
 class AccreditationCertificate(models.Model):
     _name = MODEL_ACCREDITATION_CERTIFICATE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Accreditation Certificate"
     _order = "code"
     _rec_names_search = ("code", "issuing_body")

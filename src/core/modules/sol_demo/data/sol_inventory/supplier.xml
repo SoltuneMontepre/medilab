@@ -3,7 +3,7 @@
     <record id="demo_supplier_vietnam_chemicals" model="medilab.supplier">
         <field name="partner_id" ref="demo_res_partner_vietnam_chemicals" />
         <field name="contact_person_id" ref="demo_res_partner_vietnam_chemicals_contact" />
-        <field name="note">Delivers chemicals within 3 working days, with the certificate of analysis of every lot.</field>
+        <field name="note">Delivers chemicals within 3 working days, with the manufacturer's certificate of every lot.</field>
     </record>
     <record id="demo_supplier_labware_supplies" model="medilab.supplier">
         <field name="partner_id" ref="demo_res_partner_labware_supplies" />

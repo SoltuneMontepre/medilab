@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_archive_file_list" model="ir.ui.view">
+        <field name="name">medilab.archive.file.list</field>
+        <field name="model">medilab.archive.file</field>
+        <field name="arch" type="xml">
+            <list duplicate="0" create="0" edit="0" delete="0">
+                <field name="kind" />
+                <field name="period_start" />
+                <field name="period_end" />
+                <field name="row_count" />
+                <field name="size_bytes" />
+                <field name="checksum" optional="hide" />
+                <field name="create_date" string="Written On" optional="show" />
+                <button name="action_download" type="object" string="Download" icon="fa-download" class="btn-secondary" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_archive_file_form" model="ir.ui.view">
+        <field name="name">medilab.archive.file.form</field>
+        <field name="model">medilab.archive.file</field>
+        <field name="arch" type="xml">
+            <form duplicate="0" create="0" edit="0" delete="0">
+                <header>
+                    <button name="action_download" type="object" string="Download" class="btn-primary" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_name" readonly="1" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="kind" />
+                            <field name="period_start" />
+                            <field name="period_end" />
+                            <field name="row_count" />
+                        </group>
+                        <group>
+                            <field name="size_bytes" />
+                            <field name="checksum" />
+                            <field name="job_run_id" />
+                            <field name="create_date" string="Written On" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_archive_file_search" model="ir.ui.view">
+        <field name="name">medilab.archive.file.search</field>
+        <field name="model">medilab.archive.file</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="kind" />
+                <field name="period_start" />
+                <filter name="group_by_kind" string="Kind" context="{'group_by': 'kind'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_archive_file" model="ir.actions.act_window">
+        <field name="name">Archive Files</field>
+        <field name="res_model">medilab.archive.file</field>
+        <field name="path">archive-files</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

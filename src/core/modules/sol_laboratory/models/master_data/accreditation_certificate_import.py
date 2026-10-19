@@ -20,7 +20,12 @@ class AccreditationCertificateImport(models.TransientModel):
     _description = "Import Methods from an Accreditation Certificate"
 
     # The certificate that receives the imported methods.
-    certificate_id = fields.Many2one(MODEL_ACCREDITATION_CERTIFICATE, required=True, ondelete="cascade")
+    certificate_id = fields.Many2one(
+        MODEL_ACCREDITATION_CERTIFICATE,
+        required=True,
+        ondelete="cascade",
+        string="Accreditation Certificate",
+    )
     # Testing field assigned to every newly created method in the list.
     field_id = fields.Many2one(MODEL_TESTING_FIELD, required=True, string="Testing Field")
     # Language of the titles in the list.
