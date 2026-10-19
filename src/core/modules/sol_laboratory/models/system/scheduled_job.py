@@ -206,8 +206,10 @@ class ScheduledJob(models.Model):
         """Do one batch of due items; under the cron, Odoo calls again while items remain."""
         self.ensure_one()
         job = self.sudo()
+        run = job._current_run(fields.Datetime.now())
+        # The time items are due against is taken after the run queued its own work, so an item queued as the
+        # run starts is claimed in the same batch even when a second ticked over meanwhile.
         now = fields.Datetime.now()
-        run = job._current_run(now)
         # The audit entries written while the run works link it.
         job = job.with_context(**{JOB_RUN_CONTEXT: run.id})
         job._release_abandoned(run, now)
