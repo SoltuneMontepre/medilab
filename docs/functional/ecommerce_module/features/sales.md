@@ -102,6 +102,32 @@ Acceptance criteria:
 - An expected result date earlier than the estimate is accepted as a priority order only when the check says the laboratory can meet it; otherwise the check shows the earliest date it can.
 - The tests of a priority order's test request are urgent when they are created.
 
+#### Order templates (US-S09)
+
+Sales saves an accessible order as a named template from **Save as template**. Templates belong to that order's customer and retain its source order. **Sales → Order templates** lists the saved selections.
+
+| Rule | Description |
+| --- | --- |
+| Selections | Keep top-level parameters, whole packages and quantities, including fractional quantities of at least 1. Generated package components, samples, prices, discounts and taxes are not saved. |
+| Selection integrity | A template always retains at least one selection. Removing or moving its last selection is refused; replacing all selections in one saved edit is allowed. Newly entered selections must identify catalog parameters or packages. Later retirement does not prevent editing a saved template; availability is checked when it is reused. Invalid edits roll back without changing the template or its selections. |
+| Authorization | Sales needs template permissions, read access to the source order and assignment of that order. Read access to the unclaimed queue does not grant template access. Head of Sales and administrators retain their existing source-order access. |
+| Handover | Reassigning the source order transfers template access. Its customer and source references cannot be edited on the template. If the source changes customer, ordinary Sales cannot access the template. Nobody can reuse it while the customers differ. |
+| Administrative recovery | Head of Sales and administrators with source-order read access and the relevant template permissions can find inconsistent templates with the Customer mismatch filter. They can inspect, archive or delete them, and save a replacement from the correct order. The form explains the mismatch. Deletion releases the source-order reference and preserves audit history. Archived records are found with the Archived filter. |
+| Source lifecycle | A completed or signed order can be read to save, edit or reuse a template without changing the source. A source order cannot be deleted while any template refers to it. |
+| Reuse | Create a fresh Sales draft: native state draft, order status claimed, owned by the acting salesperson. Current customer contact and fiscal-position rules apply. Sales assigns samples and follows the ordinary quotation workflow. |
+| Current catalog | Use current catalog prices and current package composition. A template stores only package identity and quantity. No historical financial values, signatures, payments or laboratory documents are copied. |
+| Unavailable selections | Skip archived or unavailable products, variants, parameters, prices or packages. An unavailable required component skips its whole package. The new order permanently lists skipped names and reasons. |
+| Empty result | If every selection is unavailable, explain why and create no order. Unexpected errors roll back the complete creation. |
+| Archive | Archived templates remain available to authorized readers with the Archived filter and cannot create orders. Archiving does not change source or generated orders. |
+
+Acceptance criteria:
+
+- Saving preserves parameter and package selections and fractional quantities without rounding.
+- Reuse creates an unsent Sales draft at current prices and package contents, using the same pricing and taxes as ordinary Sales creation.
+- Sales cannot access templates belonging to another salesperson or an unclaimed order through the queue.
+- Skipped names and reasons remain visible after reopening the order; no valid selections means no new order.
+- Template operations do not send quotations, issue invoices, confirm orders or start laboratory work.
+
 ### 3. Payment collection (US-S11)
 
 When a customer pays sales directly in cash or by bank transfer, sales records the amount, date and method on the order. The record is **pending**: it does not count as paid until the accountant confirms it (see [accountant](accountant.md)). The order shows the pending amount so the same payment is not recorded twice, and the amount cannot exceed what the customer still owes.

@@ -10791,6 +10791,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_receipt_read_all
 msgid "Permission: receipt.read.all"
+msgstr ""
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_notification_contact_create_all
@@ -11649,4 +11650,49 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/res_config_settings.py:0
 msgid "The audit retention period cannot be negative; 0 keeps entries for ever."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_read_all
+msgid "Permission: order.template.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_create_all
+msgid "Permission: order.template.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_edit_all
+msgid "Permission: order.template.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_archive_all
+msgid "Permission: order.template.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_delete_all
+msgid "Permission: order.template.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_read_all
+msgid "Permission: order.template.line.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_create_all
+msgid "Permission: order.template.line.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_edit_all
+msgid "Permission: order.template.line.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_delete_all
+msgid "Permission: order.template.line.delete.all"
 msgstr ""

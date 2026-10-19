@@ -11789,3 +11789,48 @@ msgstr "Ghi lúc"
 #: code:addons/sol_laboratory/models/system/res_config_settings.py:0
 msgid "The audit retention period cannot be negative; 0 keeps entries for ever."
 msgstr "Thời gian lưu giữ nhật ký hoạt động không được âm; 0 là giữ mãi mãi."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_read_all
+msgid "Permission: order.template.read.all"
+msgstr "Xem đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_create_all
+msgid "Permission: order.template.create.all"
+msgstr "Tạo đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_edit_all
+msgid "Permission: order.template.edit.all"
+msgstr "Sửa đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_archive_all
+msgid "Permission: order.template.archive.all"
+msgstr "Lưu trữ đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_delete_all
+msgid "Permission: order.template.delete.all"
+msgstr "Xóa đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_read_all
+msgid "Permission: order.template.line.read.all"
+msgstr "Xem dòng đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_create_all
+msgid "Permission: order.template.line.create.all"
+msgstr "Tạo dòng đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_edit_all
+msgid "Permission: order.template.line.edit.all"
+msgstr "Sửa dòng đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_delete_all
+msgid "Permission: order.template.line.delete.all"
+msgstr "Xóa dòng đơn hàng mẫu"

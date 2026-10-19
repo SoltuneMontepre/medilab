@@ -315,6 +315,51 @@
         <field name="document_model">medilab.support.request</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_order_template_read_all" model="medilab.permission">
+        <field name="name">Read order template</field>
+        <field name="document_model">medilab.order.template</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_order_template_create_all" model="medilab.permission">
+        <field name="name">Create order template</field>
+        <field name="document_model">medilab.order.template</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_order_template_edit_all" model="medilab.permission">
+        <field name="name">Edit order template</field>
+        <field name="document_model">medilab.order.template</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_order_template_archive_all" model="medilab.permission">
+        <field name="name">Archive order template</field>
+        <field name="document_model">medilab.order.template</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_order_template_delete_all" model="medilab.permission">
+        <field name="name">Delete order template</field>
+        <field name="document_model">medilab.order.template</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_order_template_line_read_all" model="medilab.permission">
+        <field name="name">Read order template line</field>
+        <field name="document_model">medilab.order.template.line</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_order_template_line_create_all" model="medilab.permission">
+        <field name="name">Create order template line</field>
+        <field name="document_model">medilab.order.template.line</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_order_template_line_edit_all" model="medilab.permission">
+        <field name="name">Edit order template line</field>
+        <field name="document_model">medilab.order.template.line</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_order_template_line_delete_all" model="medilab.permission">
+        <field name="name">Delete order template line</field>
+        <field name="document_model">medilab.order.template.line</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_notification_contact_read_all" model="medilab.permission">
         <field name="name">Read customer notification contacts</field>
         <field name="document_model">medilab.notification.contact</field>
