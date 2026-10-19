@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Source access is mandatory; only existing all-orders privileges allow recovery of a customer mismatch. -->
+    <record id="access_order_template_source_restriction" model="ir.access">
+        <field name="name">Templates follow the assigned source order</field>
+        <field name="model_id" ref="model_medilab_order_template" />
+        <field name="operation">crud</field>
+        <field name="domain">[("source_order_id", "access", "read")] + ([] if user.has_group("sol_commerce.group_all_orders") else [("source_order_id.user_id", "=", user.id), ("source_customer_matches", "=", True)])</field>
+    </record>
+    <record id="access_order_template_line_source_restriction" model="ir.access">
+        <field name="name">Template selections follow their template</field>
+        <field name="model_id" ref="model_medilab_order_template_line" />
+        <field name="operation">crud</field>
+        <field name="domain">[("template_id", "access", "read")]</field>
+    </record>
+</odoo>

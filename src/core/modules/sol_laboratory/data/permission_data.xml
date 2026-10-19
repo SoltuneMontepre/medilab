@@ -798,6 +798,16 @@
         <field name="document_model">medilab.signature</field>
         <field name="action">read</field>
     </record>
+    <record id="permission_signing_certificate_read_all" model="medilab.permission">
+        <field name="name">Read signing certificates</field>
+        <field name="document_model">medilab.signing.certificate</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_digital_signature_read_all" model="medilab.permission">
+        <field name="name">Read digital signatures</field>
+        <field name="document_model">medilab.digital.signature</field>
+        <field name="action">read</field>
+    </record>
     <record id="permission_scheduled_job_read_all" model="medilab.permission">
         <field name="name">Read scheduled jobs</field>
         <field name="document_model">medilab.scheduled.job</field>
@@ -901,6 +911,21 @@
     <record id="permission_push_delivery_edit_all" model="medilab.permission">
         <field name="name">Edit push deliveries</field>
         <field name="document_model">medilab.push.delivery</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_document_lock_read_all" model="medilab.permission">
+        <field name="name">Read document locks</field>
+        <field name="document_model">medilab.document.lock</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_archive_file_read_all" model="medilab.permission">
+        <field name="name">Read archive files</field>
+        <field name="document_model">medilab.archive.file</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_document_lock_edit_all" model="medilab.permission">
+        <field name="name">Release document locks</field>
+        <field name="document_model">medilab.document.lock</field>
         <field name="action">edit</field>
     </record>
 </odoo>

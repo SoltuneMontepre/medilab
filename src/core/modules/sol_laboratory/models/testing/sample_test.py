@@ -7,6 +7,7 @@ from odoo.fields import Command, Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
     MODEL_PARAMETER_METHOD,
@@ -31,7 +32,7 @@ END_OF_DAY = time(23, 59, 59)
 # Chỉ Tiêu Của Mẫu
 class SampleTest(models.Model):
     _name = MODEL_SAMPLE_TEST
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _audit_children = ("booking_ids",)
     _description = "Sample Test"
     _order = "sample_id, id"

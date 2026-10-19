@@ -69,18 +69,21 @@ Acceptance criteria:
 | Rejection        | A signer can reject with a reason instead of signing. The reason is kept and the requester is notified.                                                                                                                  |
 | Documents        | Invoices, quotations, orders, test results and any other document type that has an approval chain.                                                                                                                       |
 
-**Digital signature is applied automatically when a document is printed.** When a signed document is printed or exported as PDF (for sending, downloading or archiving), the system sends the PDF to the signature provider (see Viettel Sign below), which applies the digital signature with the laboratory's certificate and returns the signed file. Users do not sign certificates by hand.
+**Digital signature is applied automatically when a document is printed.** When a signed document is printed or exported as PDF (for sending, downloading or archiving), the system has the signature provider (see Viettel Sign below) digitally sign the PDF with the laboratory's certificate and stores the signed file. Users do not sign certificates by hand.
 
+- One laboratory certificate signs every digitally signed document, whoever signed the approval chain.
+- The test report is the document type that is digitally signed. Another document type joins by naming the report it prints; the rules below then apply to it.
 - The signed PDF is stored with the document, together with the signature details and the time, so the same file is returned every time it is downloaded.
 - Only documents that have been fully signed (final level approved) are digitally signed on print. A document still under approval prints as a draft, clearly marked, without a digital signature.
-- Every signed PDF can be verified: it shows who approved it (from the signature records), that the digital signature is valid, and that the content has not changed. Verification is available to the customer without logging in to the back office.
-- If the provider is unavailable, the document is not printed as signed; the user is told and can retry. Nothing is shown as digitally signed unless the provider confirmed it.
+- Every signed PDF can be verified: it shows who approved it (from the signature records), that the digital signature is valid, and that the content has not changed. Verification is a public page, open to the customer without logging in: they upload the PDF and see the result. Each signed PDF prints the page's address.
+- If the provider is unavailable, the document is not printed as signed; the user is told and can retry, and the signing is retried automatically. Nothing is shown as digitally signed unless the provider confirmed it.
 
 Acceptance criteria:
 
 - Printing a fully signed document returns a digitally signed PDF without any extra step from the user.
 - Printing a document that is still under approval returns an unsigned, marked draft.
 - A signed PDF fails verification if any of its content is changed.
+- A provider outage leaves the document unsigned and retries it.
 - The signature record shows the signer, role, time and document version for every level.
 
 #### SH-05 Audit trail
@@ -113,7 +116,7 @@ Two users cannot change the same document at the same time.
 - The lock is released on save, on cancel, when the user leaves, or automatically after a period of inactivity, so a closed browser does not block the document.
 - An administrator can release a lock that is stuck; this is audited.
 - Long operations, such as sending a quotation or confirming a payment, lock the document for their duration so they cannot run twice.
-- A document has at most one active lock. The inactivity period is a system parameter (SH-03).
+- A document has at most one active lock. The inactivity period is a system parameter (SH-03), 15 minutes by default.
 - Others see a lock taken or released as it happens, without reloading, through Odoo's bus.
 
 Acceptance criteria:
@@ -176,8 +179,8 @@ Typical jobs: payment reminders, quotation expiry, retention and expiry checks (
 - Jobs do not run on top of themselves: a second run waits or is skipped while the first is running.
 - **Job and queue.** Each job has a unique key and is scheduled by an Odoo cron that administrators configure. A job works through a queue of items: each item is one unit of work, such as one reminder to send, with a key unique within the job, so the same work is never queued twice. An item is retried with a growing delay up to the job's number of attempts, then marked failed. A run claims the items it takes; an item claimed longer than the job's claim timeout, such as after a crash, goes back to the queue.
 - Each run records when it started and ended, its result, its log, and who ran it by hand; how many items were done and remain comes from Odoo's cron progress.
-- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their pushes, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter. It never removes business records or signatures.
-- **Archive files.** Before it removes audit entries, the cleanup job writes them to a compressed archive file per period, stored as an Odoo attachment in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
+- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their pushes, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter, 90 days by default; the audit retention period is empty by default, which keeps entries for ever. It never removes business records or signatures.
+- **Archive files.** Only audit entries are archived; the other records are removed without one. Before it removes audit entries, the cleanup job writes them to a compressed archive file per period, stored as an Odoo attachment in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
 - Backups of the whole database and file store belong to the hosting, not to the application.
 
 Acceptance criteria:
@@ -271,11 +274,12 @@ The system takes online payments through PayOS, added as a payment provider of O
 
 ### 3. Viettel Sign (digital signature)
 
-The system digitally signs printed documents through Viettel Sign (SH-04). It does not ask users to sign; approval in the system already did that.
+The system digitally signs printed documents through Viettel Sign's remote signing (SH-04). It does not ask users to sign; approval in the system already did that.
 
-- Administrators configure the provider account and the laboratory's certificate, and see its expiry. An expired or revoked certificate stops digital signing and alerts administrators before and when it happens.
-- When a fully signed document is printed or exported, the system sends the PDF to the provider, which applies the digital signature automatically and returns the signed file; the file is stored with the document and the signature details.
-- Verification of a signed PDF checks the digital signature against the provider and the approval records of the document, and shows the result to anyone who opens the document.
+- The laboratory holds one certificate at Viettel Sign, on an account that signs automatically, without anyone confirming each signature in the MySign app. The account's credentials come from the configuration file.
+- Administrators turn digital signing on in the settings and see the laboratory's certificate with its expiry, read from the provider. An expired or revoked certificate stops digital signing. Administrators are alerted a number of days before the certificate expires, a system parameter (SH-03) of 30 days by default, and again when it expires or is revoked.
+- When a fully signed document is printed or exported, the system has the provider sign the PDF with the laboratory's certificate; the signed file is stored with the document and the signature details.
+- Verification of a signed PDF checks its digital signature against the laboratory's certificate as the provider last reported it, that the file is the one the system stored, and the approval records of the document, and shows the result to anyone who uploads the file.
 - If the provider is unavailable, the document is not issued as signed; the user is told and can retry, and the request is retried automatically (SH-09). No document is shown as digitally signed unless the provider confirmed it.
 
 ### 4. Firebase Cloud Messaging (mobile push)

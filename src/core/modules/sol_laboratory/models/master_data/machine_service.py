@@ -4,6 +4,7 @@ from odoo.tools import format_date
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
     MODEL_MACHINE_SERVICE,
@@ -16,7 +17,7 @@ CALIBRATION_FIELDS = {"machine_id", "kind", "service_date", "next_due_date"}
 # Lịch Sử Bảo Trì Máy
 class MachineService(models.Model):
     _name = MODEL_MACHINE_SERVICE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Machine Service"
     _order = "service_date desc, id desc"
     _permission_actions = ("create", "edit", "delete")

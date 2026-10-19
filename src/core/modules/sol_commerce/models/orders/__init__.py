@@ -4,6 +4,9 @@ from . import (
     customer_sales_terms,
     order_reject,
     order_sample,
+    order_template,
+    order_template_line,
+    order_template_save,
     product_template,
     quotation,
     res_company,
@@ -16,6 +19,7 @@ from . import (
     sale_order_customer,
     sale_order_freeze,
     sale_order_line,
+    sale_order_template,
     test_report,
     test_request,
 )

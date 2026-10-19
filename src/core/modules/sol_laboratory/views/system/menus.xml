@@ -14,55 +14,77 @@
     </menuitem>
 
     <menuitem id="menu_laboratory_root" name="Laboratory" sequence="10">
-        <menuitem id="menu_test_request" action="action_medilab_test_request" sequence="10" />
-        <menuitem id="menu_sample" action="action_medilab_sample" sequence="20" />
-        <menuitem id="menu_handover_record" action="action_medilab_handover_record" sequence="25" />
-        <menuitem id="menu_sample_handover" action="action_medilab_sample_handover" sequence="26" />
-        <menuitem id="menu_sample_scan" action="action_medilab_sample_scan" sequence="27" />
-        <menuitem id="menu_customer" action="action_medilab_customer" sequence="30" />
-        <menuitem
-            id="menu_customer_duplicate"
-            action="action_medilab_customer_duplicate"
-            sequence="31"
-            groups="group_permission_customer_edit_all"
-        />
-        <menuitem id="menu_test_result" action="action_medilab_test_result" sequence="38" />
-        <menuitem id="menu_test_report" action="action_medilab_test_report" sequence="39" />
-        <menuitem
-            id="menu_test_report_to_sign"
-            action="action_medilab_test_report_to_sign"
-            sequence="39"
-            groups="group_permission_test_report_sign_all"
-        />
-        <menuitem
-            id="menu_test_report_to_deliver"
-            action="action_medilab_test_report_to_deliver"
-            sequence="39"
-            groups="group_permission_test_report_edit_all"
-        />
-        <menuitem id="menu_change_request" action="action_medilab_change_request" sequence="39" />
-        <menuitem id="menu_machine_booking" action="action_medilab_machine_booking" sequence="40" />
-        <menuitem
-            id="menu_outsourcing_suggestion"
-            action="action_medilab_sample_test_outsourcing"
-            sequence="45"
-            groups="group_permission_machine_booking_read_all,group_permission_machine_booking_read_own_department"
-        />
-        <menuitem
-            id="menu_subcontract_dispatch"
-            action="action_medilab_subcontract_dispatch"
-            sequence="46"
-            groups="group_permission_subcontract_dispatch_read_all"
-        />
-        <menuitem
-            id="menu_outsourcing_schedule"
-            action="action_medilab_subcontract_dispatch_schedule"
-            sequence="47"
-            groups="group_permission_subcontract_dispatch_read_all"
-        />
-        <menuitem id="menu_dispatch_to_carry" action="action_medilab_subcontract_dispatch_carry" sequence="48" />
+        <menuitem id="menu_laboratory_requests" name="Requests" sequence="10">
+            <menuitem id="menu_test_request" action="action_medilab_test_request" sequence="10" />
+            <menuitem id="menu_change_request" action="action_medilab_change_request" sequence="20" />
+        </menuitem>
+        <menuitem id="menu_laboratory_samples" name="Samples" sequence="20">
+            <menuitem id="menu_sample" action="action_medilab_sample" sequence="10" />
+            <menuitem id="menu_handover_record" action="action_medilab_handover_record" sequence="20" />
+            <menuitem id="menu_sample_handover" action="action_medilab_sample_handover" sequence="30" />
+            <menuitem id="menu_sample_scan" action="action_medilab_sample_scan" sequence="40" />
+        </menuitem>
+        <menuitem id="menu_laboratory_customers" name="Customers" sequence="30">
+            <menuitem id="menu_customer" action="action_medilab_customer" sequence="10" />
+            <menuitem
+                id="menu_customer_duplicate"
+                action="action_medilab_customer_duplicate"
+                sequence="20"
+                groups="group_permission_customer_edit_all"
+            />
+        </menuitem>
+        <menuitem id="menu_laboratory_results" name="Results" sequence="40">
+            <menuitem id="menu_test_result" action="action_medilab_test_result" sequence="10" />
+            <menuitem id="menu_test_report" action="action_medilab_test_report" sequence="20" />
+            <menuitem
+                id="menu_test_report_to_sign"
+                action="action_medilab_test_report_to_sign"
+                sequence="30"
+                groups="group_permission_test_report_sign_all"
+            />
+            <menuitem
+                id="menu_test_report_to_deliver"
+                action="action_medilab_test_report_to_deliver"
+                sequence="40"
+                groups="group_permission_test_report_edit_all"
+            />
+        </menuitem>
+        <menuitem id="menu_laboratory_schedule" name="Schedule" sequence="50">
+            <menuitem id="menu_machine_booking" action="action_medilab_machine_booking" sequence="10" />
+            <menuitem
+                id="menu_outsourcing_suggestion"
+                action="action_medilab_sample_test_outsourcing"
+                sequence="20"
+                groups="group_permission_machine_booking_read_all,group_permission_machine_booking_read_own_department"
+            />
+            <menuitem
+                id="menu_subcontract_dispatch"
+                action="action_medilab_subcontract_dispatch"
+                sequence="30"
+                groups="group_permission_subcontract_dispatch_read_all"
+            />
+            <menuitem
+                id="menu_outsourcing_schedule"
+                action="action_medilab_subcontract_dispatch_schedule"
+                sequence="40"
+                groups="group_permission_subcontract_dispatch_read_all"
+            />
+            <menuitem id="menu_dispatch_to_carry" action="action_medilab_subcontract_dispatch_carry" sequence="50" />
+        </menuitem>
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
             <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
+            <menuitem
+                id="menu_signing_certificate"
+                action="action_medilab_signing_certificate"
+                sequence="10"
+                groups="group_permission_signing_certificate_read_all"
+            />
+            <menuitem
+                id="menu_digital_signature"
+                action="action_medilab_digital_signature"
+                sequence="20"
+                groups="group_permission_digital_signature_read_all"
+            />
         </menuitem>
     </menuitem>
 
@@ -128,6 +150,12 @@
     <menuitem id="menu_audit_root" name="Audit Trail" sequence="40">
         <menuitem id="menu_audit_entry" action="action_medilab_audit_entry" sequence="10" />
         <menuitem id="menu_audit_report" action="action_medilab_audit_report" sequence="20" />
+        <menuitem
+            id="menu_archive_file"
+            action="action_medilab_archive_file"
+            sequence="30"
+            groups="group_permission_archive_file_read_all"
+        />
     </menuitem>
     <menuitem
         id="menu_notification_event"
@@ -155,5 +183,12 @@
         action="action_medilab_notification_preference"
         parent="menu_jobs"
         sequence="70"
+    />
+    <menuitem
+        id="menu_document_lock"
+        action="action_medilab_document_lock"
+        parent="menu_jobs"
+        sequence="80"
+        groups="group_permission_document_lock_read_all"
     />
 </odoo>

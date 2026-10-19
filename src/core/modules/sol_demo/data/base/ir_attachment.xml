@@ -37,4 +37,10 @@
         <field name="attachment_id" ref="demo_ir_attachment_handover_signed" />
         <field name="sent_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
     </record>
+    <!-- The manufacturer's certificate of the nitric acid lot a demo receipt brings in; the receipt attaches it to the lot. -->
+    <record id="demo_ir_attachment_certificate_nitric_acid" model="ir.attachment">
+        <field name="name">Certificate K55012345.pdf</field>
+        <field name="raw" type="bytes" file="sol_demo/static/demo/certificate_k55012345.pdf" />
+        <field name="mimetype">application/pdf</field>
+    </record>
 </odoo>

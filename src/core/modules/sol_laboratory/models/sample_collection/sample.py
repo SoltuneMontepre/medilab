@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_LOCK_MIXIN,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -52,7 +53,7 @@ def _progress(statuses, sent, done):
 # Mẫu
 class Sample(models.Model):
     _name = MODEL_SAMPLE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Sample"
     _order = "id desc"
     _rec_name = "code"

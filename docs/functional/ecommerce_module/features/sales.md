@@ -19,6 +19,8 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 - **US-S08** As a salesperson, I want to revise a quotation that has been sent, so that I can correct it without losing the earlier version.
 - **US-S09** As a salesperson, I want to save a returning customer's order as a template and create their next orders from it, so that repeat orders are faster.
 - **US-S10** As a salesperson, I want to see whether the customer has paid, declined or let the quotation expire, so that I know when to follow up.
+- **US-S21** As a salesperson, I want to see the estimated date results can be returned while preparing a quotation, so that I can tell the customer when to expect them.
+- **US-S22** As a salesperson, I want to check whether the laboratory can meet an earlier date the customer asks for, so that I only promise a priority order the laboratory can deliver.
 
 ### Payment collection
 
@@ -60,7 +62,7 @@ Acceptance criteria:
 - A salesperson sees only the orders they own and the unclaimed queue; the Head of Sales sees all.
 - Merging two profiles keeps every order and document on the remaining profile.
 
-### 2. Quotation (US-S05 to US-S10)
+### 2. Quotation (US-S05 to US-S10, US-S21, US-S22)
 
 ```mermaid
 stateDiagram-v2
@@ -85,6 +87,8 @@ stateDiagram-v2
 | Payment deadline | Default 3 days from sending, configurable by the administrator. Sales can set another date. An expired quotation is flagged, not cancelled; sales can extend it.                                  |
 | Revisions        | A revision copies the quotation into a new draft linked to the one it replaces. The old version becomes read-only and the customer sees the revision list.                                        |
 | Templates        | A returning customer's order can be saved as a template (named set of parameters and packages) to create their next orders faster. A template has no price of its own; a new order takes current catalog prices. Templates are never sent or confirmed. |
+| Return estimate  | The quotation shows the [estimated return date](../../laboratory_module/overview.md#testing-work-and-scheduling) of its samples and parameters, worked out again when they change. The expected result date defaults to it, and the customer sees it on the quotation. |
+| Priority order   | When the customer wants results earlier than the estimate, sales checks the date; the order becomes a priority order only when the laboratory can meet it, outsourcing included. Its tests are urgent once the test request is created. |
 | Acceptance       | There is no customer signature. Payment of the advance invoice means acceptance. A declined quotation carries the customer's reason and notifies sales.                                           |
 
 Acceptance criteria:
@@ -94,6 +98,35 @@ Acceptance criteria:
 - Sending a quotation with an advance request creates exactly one advance invoice and one notification to the customer.
 - A revised quotation cannot be sent or confirmed in its old version.
 - Sales sees at a glance whether a sent quotation is unpaid, paid, declined or expired.
+- Adding a parameter to a quotation updates its estimated return date.
+- An expected result date earlier than the estimate is accepted as a priority order only when the check says the laboratory can meet it; otherwise the check shows the earliest date it can.
+- The tests of a priority order's test request are urgent when they are created.
+
+#### Order templates (US-S09)
+
+Sales saves an accessible order as a named template from **Save as template**. Templates belong to that order's customer and retain its source order. **Sales → Order templates** lists the saved selections.
+
+| Rule | Description |
+| --- | --- |
+| Selections | Keep top-level parameters, whole packages and quantities, including fractional quantities of at least 1. Generated package components, samples, prices, discounts and taxes are not saved. |
+| Selection integrity | A template always retains at least one selection. Removing or moving its last selection is refused; replacing all selections in one saved edit is allowed. Newly entered selections must identify catalog parameters or packages. Later retirement does not prevent editing a saved template; availability is checked when it is reused. Invalid edits roll back without changing the template or its selections. |
+| Authorization | Sales needs template permissions, read access to the source order and assignment of that order. Read access to the unclaimed queue does not grant template access. Head of Sales and administrators retain their existing source-order access. |
+| Handover | Reassigning the source order transfers template access. Its customer and source references cannot be edited on the template. If the source changes customer, ordinary Sales cannot access the template. Nobody can reuse it while the customers differ. |
+| Administrative recovery | Head of Sales and administrators with source-order read access and the relevant template permissions can find inconsistent templates with the Customer mismatch filter. They can inspect, archive or delete them, and save a replacement from the correct order. The form explains the mismatch. Deletion releases the source-order reference and preserves audit history. Archived records are found with the Archived filter. |
+| Source lifecycle | A completed or signed order can be read to save, edit or reuse a template without changing the source. A source order cannot be deleted while any template refers to it. |
+| Reuse | Create a fresh Sales draft: native state draft, order status claimed, owned by the acting salesperson. Current customer contact and fiscal-position rules apply. Sales assigns samples and follows the ordinary quotation workflow. |
+| Current catalog | Use current catalog prices and current package composition. A template stores only package identity and quantity. No historical financial values, signatures, payments or laboratory documents are copied. |
+| Unavailable selections | Skip archived or unavailable products, variants, parameters, prices or packages. An unavailable required component skips its whole package. The new order permanently lists skipped names and reasons. |
+| Empty result | If every selection is unavailable, explain why and create no order. Unexpected errors roll back the complete creation. |
+| Archive | Archived templates remain available to authorized readers with the Archived filter and cannot create orders. Archiving does not change source or generated orders. |
+
+Acceptance criteria:
+
+- Saving preserves parameter and package selections and fractional quantities without rounding.
+- Reuse creates an unsent Sales draft at current prices and package contents, using the same pricing and taxes as ordinary Sales creation.
+- Sales cannot access templates belonging to another salesperson or an unclaimed order through the queue.
+- Skipped names and reasons remain visible after reopening the order; no valid selections means no new order.
+- Template operations do not send quotations, issue invoices, confirm orders or start laboratory work.
 
 ### 3. Payment collection (US-S11)
 

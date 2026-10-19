@@ -1,9 +1,11 @@
 from . import (
     approval_chain,
     approval_level,
+    archive_file,
     audit_change,
     audit_entry,
     audit_report,
+    document_lock,
     hr_department,
     hr_employee,
     ir_access,
