@@ -27,4 +27,20 @@
         <field name="group_id" ref="base.group_user" />
         <field name="operation">r</field>
     </record>
+
+    <!-- The scanned containers of a result follow the result. -->
+    <record id="access_medilab_result_container_read" model="ir.access">
+        <field name="name">medilab.result.container follows the result</field>
+        <field name="model_id" ref="model_medilab_result_container" />
+        <field name="group_id" ref="base.group_user" />
+        <field name="operation">r</field>
+        <field name="domain">[("result_id", "access", "read")]</field>
+    </record>
+    <record id="access_medilab_result_container_edit" model="ir.access">
+        <field name="name">medilab.result.container follows result edit</field>
+        <field name="model_id" ref="model_medilab_result_container" />
+        <field name="group_id" ref="base.group_user" />
+        <field name="operation">cud</field>
+        <field name="domain">[("result_id", "access", "write")]</field>
+    </record>
 </odoo>

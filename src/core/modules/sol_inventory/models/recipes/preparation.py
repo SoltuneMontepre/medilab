@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from odoo import api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.tools import format_list
@@ -12,8 +14,10 @@ from odoo.addons.sol_inventory.constants.models import (
     MODEL_STOCK_PACKAGE,
 )
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_OPENED
-from odoo.addons.sol_inventory.constants.xml_ids import PREPARATION_LOT_SEQUENCE
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN, MODEL_PERSON
+
+# The sequence that numbers the lots of prepared solutions, such as PC.0001.
+LOT_SEQUENCE = "medilab.preparation.lot"
 
 
 # Phiếu Pha Chế
@@ -24,7 +28,7 @@ class Preparation(models.Model):
     _permission_actions = ("create",)
 
     # The recipe this preparation followed, one batch of it.
-    recipe_id = fields.Many2one(MODEL_RECIPE, string="Recipe", required=True, ondelete="restrict")
+    recipe_id = fields.Many2one(MODEL_RECIPE, string="Recipe", required=True, ondelete="restrict", index=True)
     # The store the solution was prepared in and put back into.
     location_id = fields.Many2one(MODEL_STOCK_LOCATION, string="Store", required=True, ondelete="restrict")
     # The container the solution was put into.
@@ -46,9 +50,13 @@ class Preparation(models.Model):
         if not location or location._holding_store() not in person._store():
             raise UserError(self.env._("Choose one of your stores."))
         self._check_batch(recipe, ingredient_lines, received, scrap_tags)
+        lot_name = self.env["ir.sequence"].next_by_code(LOT_SEQUENCE)
+        if not lot_name:
+            raise UserError(self.env._("The prepared solution lot sequence is missing."))
         preparation = self.create({"recipe_id": recipe.id, "location_id": location.id})
         moves = self.env[MODEL_STOCK_MOVE]
         production = moves._destination(recipe.solution_item_id, scrap=False)
+        sources = self.env[MODEL_STOCK_PACKAGE]
         for ingredient in ingredient_lines:
             item = ingredient["item"]
             containers = ingredient["containers"]
@@ -62,10 +70,13 @@ class Preparation(models.Model):
                         store=location.display_name,
                     )
                 )
+            sources |= containers
             recipe_quantity = recipe.line_ids.filtered(lambda line, item=item: line.item_id == item).quantity
             takes = moves._plan_containers(item, containers, ingredient["quantity"])
             recipe_takes, waste_takes = self._split_recipe(item, takes, recipe_quantity)
-            moves |= moves._done_moves(item, recipe_takes, production, preparation_id=preparation.id)
+            moves |= moves._done_moves(
+                item, recipe_takes, production, preparation_id=preparation.id, reference=lot_name
+            )
             if waste_takes:
                 scrap = moves._destination(item, scrap=True)
                 moves |= moves._done_moves(
@@ -76,23 +87,32 @@ class Preparation(models.Model):
                     preparation_id=preparation.id,
                     scrap_reason_tag_ids=scrap_tags,
                 )
-        container = preparation._put_solution(received, moves, production)
+        container = preparation._put_solution(lot_name, received, moves, sources, production)
         return preparation, container
 
-    def _put_solution(self, received, ingredient_moves, production):
-        """Put the solution into a new opened container and value that lot at the ingredients' cost."""
+    def _put_solution(self, lot_name, received, ingredient_moves, sources, production):
+        """Put the solution into a new lot and opened container. The lot expires on the earlier of today plus the
+        recipe's shelf life and the usable dates of the containers it was made from, and costs what the ingredients
+        and their waste cost, per unit obtained."""
         self.ensure_one()
-        solution = self.recipe_id.solution_item_id.sudo()
-        if solution.tracking in ("lot", "serial") and not solution.use_expiration_date:
-            solution.use_expiration_date = True
-        if solution.tracking in ("lot", "serial") and not solution.lot_valuated:
-            solution.lot_valuated = True
-        spent = sum(abs(move.value) for move in ingredient_moves)
-        unit = spent / received
+        solution = self.recipe_id.solution_item_id
         packages = self.env[MODEL_STOCK_PACKAGE]
-        lot_name = self.env["ir.sequence"].next_by_code(PREPARATION_LOT_SEQUENCE)
-        if not lot_name:
-            raise UserError(self.env._("The prepared solution lot sequence is missing."))
+        dates = [packages._today() + timedelta(days=self.recipe_id.shelf_life_days)]
+        dates.extend(container.usable_until for container in sources if container.usable_until)
+        lot = (
+            self.env[MODEL_STOCK_LOT]
+            .sudo()
+            .create(
+                {
+                    "name": lot_name,
+                    "product_id": solution.id,
+                    "company_id": self.env.company.id,
+                    "expiration_date": packages._at_utc(min(dates)),
+                }
+            )
+        )
+        unit = sum(abs(move.value) for move in ingredient_moves) / received
+        lot.standard_price = unit
         container = packages.sudo().create(
             {
                 "name": packages._next_container_codes(lot_name, 1)[0],
@@ -102,19 +122,6 @@ class Preparation(models.Model):
                 "preparation_id": self.id,
             }
         )
-        lot = (
-            self.env[MODEL_STOCK_LOT]
-            .sudo()
-            .create(
-                {
-                    "name": lot_name,
-                    "product_id": solution.id,
-                    "company_id": self.env.company.id,
-                    "expiration_date": packages._at_utc(container.usable_until),
-                }
-            )
-        )
-        lot.standard_price = unit
         self.env[MODEL_STOCK_MOVE]._done_move(
             solution,
             production,
@@ -122,6 +129,7 @@ class Preparation(models.Model):
             [{"quantity": received, "lot": lot, "result_package": container}],
             preparation_id=self.id,
             price_unit=unit,
+            reference=lot_name,
         )
         return container
 

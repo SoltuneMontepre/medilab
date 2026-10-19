@@ -44,9 +44,9 @@ class TestResult(models.Model):
 
     def action_sign(self):
         self.ensure_one()
-        # The first signature of an in-house result deducts the method's usual use. A later signature, an outsourced
-        # result and a new version of a result do not.
-        if self.status == STATE_NONE and not self.replaces_id and not self.subcontractor_id:
+        # The first signature of an in-house result deducts the method's usual use. A later signature, a signature
+        # given again after a withdrawal, an outsourced result and a new version of a result do not.
+        if self.status == STATE_NONE and not self.replaces_id and not self.subcontractor_id and not self.move_ids:
             self._deduct_usual_use()
         return super().action_sign()
 
@@ -85,6 +85,7 @@ class TestResult(models.Model):
                     person=person,
                     automatic=True,
                     test_result_id=self.id,
+                    reference=self.display_name,
                 )
             else:
                 moves |= moves._take_quants(
@@ -93,5 +94,6 @@ class TestResult(models.Model):
                     consumption.quantity,
                     automatic=True,
                     test_result_id=self.id,
+                    reference=self.display_name,
                 )
         return moves

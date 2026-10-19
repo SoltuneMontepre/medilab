@@ -16,11 +16,13 @@
                             <field name="quantity" />
                         </list>
                     </field>
-                    <field name="move_ids" readonly="1">
+                    <field name="move_ids" readonly="1" invisible="not move_ids">
                         <list create="false" edit="false" delete="false">
                             <field name="product_id" />
                             <field name="quantity" />
                             <field name="uom_id" />
+                            <field name="lot_ids" widget="many2many_tags" string="Lots" />
+                            <field name="package_ids" widget="many2many_tags" string="Containers" />
                             <field name="move_kind" />
                             <field name="reason" />
                             <field name="automatic" />

@@ -30,7 +30,7 @@ class PreparationMakeLine(models.TransientModel):
     # Code read from a container's label; it adds the container and is not stored.
     container_scan = fields.Char(string="Scan Container", store=False)
     # Containers scanned for this ingredient, in scan order.
-    container_ids = fields.One2many(MODEL_PREPARATION_MAKE_CONTAINER, "line_id", string="Containers")
+    container_ids = fields.One2many(MODEL_PREPARATION_MAKE_CONTAINER, "line_id", string="Scanned Containers")
     # Codes of the scanned containers, in scan order.
     container_codes = fields.Char(string="Containers", compute="_compute_container_codes")
 
@@ -44,9 +44,13 @@ class PreparationMakeLine(models.TransientModel):
         code = (self.container_scan or "").strip()
         if not code:
             return
-        container = self.env[MODEL_STOCK_PACKAGE]._find_by_code(code)
+        self._add_container(self.env[MODEL_STOCK_PACKAGE]._find_by_code(code))
+        self.container_scan = False
+
+    def _add_container(self, container):
+        """Add the container after the ones scanned before it."""
+        self.ensure_one()
         if container in self.container_ids.container_id:
             raise UserError(self.env._("%s is already on this ingredient.", container.display_name))
         sequence = max(self.container_ids.mapped("sequence") or [0]) + 1
         self.container_ids = [Command.create({"container_id": container.id, "sequence": sequence})]
-        self.container_scan = False

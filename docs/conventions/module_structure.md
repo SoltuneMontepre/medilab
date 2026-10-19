@@ -64,7 +64,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/jobs.py`        | Context keys of scheduled jobs and what the cleanup job removes, such as `CLEANUP_KINDS`    |
 | `constants/locks.py`       | The bus notification and release reasons of document locks, such as `LOCK_BUS_TYPE`         |
 | `constants/routes.py`      | Route options that `odoo.http` does not declare, such as `FRONTEND_PAGE`                    |
-| `constants/stock.py`       | Statuses of lots and containers and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |
+| `constants/stock.py`       | Statuses of lots and containers, the kinds of moves and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |
 | `constants/signing.py`     | Digital signing jobs, certificate statuses, contexts and paths, such as `DIGITAL_SIGNING_JOB` |
 | `constants/items.py`       | Kinds of stock items and how they are tracked, such as `KIND_SOLUTION`                      |
 

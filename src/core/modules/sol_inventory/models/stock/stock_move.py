@@ -14,10 +14,12 @@ from odoo.addons.sol_inventory.constants.models import (
 from odoo.addons.sol_inventory.constants.stock import (
     DONE,
     LOT_AVAILABLE,
+    MOVE_ADJUSTMENT,
     MOVE_CONSUMPTION,
     MOVE_PREPARATION,
     MOVE_RECEIPT,
     MOVE_WASTE,
+    PRODUCTION_USAGE,
     RECEIPT_CODE,
 )
 from odoo.addons.sol_laboratory.constants.models import (
@@ -27,37 +29,34 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_TEST_RESULT,
 )
 
-# A done move keeps the locations given here; Odoo would clear a destination that has no transfer.
-KEEP_SRC = "medilab_keep_location_src"
-KEEP_DEST = "medilab_keep_location_dest"
 # What a done move recorded. A mistake is corrected by another move.
 DONE_MOVE_FIELDS = frozenset(
     {"product_id", "product_uom_qty", "quantity", "location_id", "location_dest_id", "move_line_ids"}
 )
 
 
-# Phiếu Xuất Kho
+# Dịch Chuyển Kho
 class StockMove(models.Model):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_MOVE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN, MODEL_STOCK_MOVE]
-    # Reading and recording a use or a waste. There is no edit permission: a done move is never changed.
+    _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_MOVE, MODEL_PERMISSION_MIXIN]
+    # Reading moves and recording a use or a waste. There is no edit permission: a done move is never changed.
     _permission_actions = ("read", "create")
 
-    # receipt, preparation, consumption or waste, from what the move itself does.
+    # receipt, preparation, consumption, waste or adjustment, from what the move itself does; empty for the
+    # operations later features add.
     move_kind = fields.Selection(
         [
             (MOVE_RECEIPT, "Receipt"),
             (MOVE_PREPARATION, "Preparation"),
             (MOVE_CONSUMPTION, "Consumption"),
             (MOVE_WASTE, "Waste"),
+            (MOVE_ADJUSTMENT, "Adjustment"),
         ],
         string="Kind",
         compute="_compute_move_kind",
         store=True,
         precompute=True,
-        readonly=False,
-        required=True,
         index=True,
     )
     # The preparation this move belongs to; empty for a use, a waste or a receipt.
@@ -75,6 +74,7 @@ class StockMove(models.Model):
 
     @api.depends(
         "is_scrap",
+        "is_inventory",
         "preparation_id",
         "location_dest_id.usage",
         "picking_id.picking_type_id.code",
@@ -90,35 +90,13 @@ class StockMove(models.Model):
             return MOVE_WASTE
         if self.preparation_id:
             return MOVE_PREPARATION
-        if self.location_dest_id.usage == "production":
+        if self.location_dest_id.usage == PRODUCTION_USAGE:
             return MOVE_CONSUMPTION
-        picking = self.picking_id
-        if self.purchase_line_id or (picking and picking.picking_type_id.code == RECEIPT_CODE):
+        if self.purchase_line_id or self.picking_id.picking_type_id.code == RECEIPT_CODE:
             return MOVE_RECEIPT
-        # Kinds added later replace this. A required kind cannot be empty on moves that already exist.
-        return MOVE_RECEIPT
-
-    def _compute_location_id(self):
-        src_id = self.env.context.get(KEEP_SRC)
-        if not src_id:
-            return super()._compute_location_id()
-        manual = self.filtered(lambda move: not move.picking_id)
-        for move in manual:
-            move.location_id = src_id
-        if rest := self - manual:
-            super(StockMove, rest)._compute_location_id()
-        return None
-
-    def _compute_location_dest_id(self):
-        dest_id = self.env.context.get(KEEP_DEST)
-        if not dest_id:
-            return super()._compute_location_dest_id()
-        manual = self.filtered(lambda move: not move.picking_id and not move.is_scrap)
-        for move in manual:
-            move.location_dest_id = dest_id
-        if rest := self - manual:
-            super(StockMove, rest)._compute_location_dest_id()
-        return None
+        if self.is_inventory:
+            return MOVE_ADJUSTMENT
+        return False
 
     def write(self, vals):
         # No move.edit permission exists. The access check still applies, then the write is sudo so the permission
@@ -138,9 +116,10 @@ class StockMove(models.Model):
         for move in self:
             move.move_line_ids.package_id._settle(move.is_scrap)
 
-    def _take_containers(self, item, containers, quantity, *, scrap=False, allow_sealed=False, person=None, **vals):
-        """Use or waste quantity of item from these containers, in order, and finish the moves."""
-        if not allow_sealed:
+    def _take_containers(self, item, containers, quantity, *, scrap=False, check_use=True, person=None, **vals):
+        """Use or waste quantity of item from these containers, in order, and finish the moves. The containers are
+        checked as opened, usable and in the person's store unless the caller checked them its own way."""
+        if check_use:
             containers._check_for_use(person or self.env[MODEL_PERSON]._for_user())
         wrong = containers.filtered(lambda container: container.item_id != item)
         if wrong:
@@ -302,17 +281,12 @@ class StockMove(models.Model):
             create_vals["scrap_reason_tag_ids"] = [Command.set(tags.ids)]
         if scrap:
             create_vals["is_scrap"] = True
-        context = {KEEP_SRC: location.id}
-        if not scrap:
-            context[KEEP_DEST] = dest.id
-        move = self.sudo().with_context(**context).create(create_vals)
-        finished = move.with_context(**{KEEP_SRC: False, KEEP_DEST: False})
+        move = self.sudo().create(create_vals)
         if scrap:
-            finished._action_scrap()
+            move._action_scrap()
         else:
-            finished.picked = True
-            finished.move_line_ids.picked = True
-            finished._action_done()
+            move.move_line_ids.picked = True
+            move._action_done()
         return move
 
     @api.model

@@ -23,8 +23,8 @@ from odoo.addons.sol_inventory.constants.stock import (
     CONTAINER_OPENED,
     CONTAINER_SEALED,
     DONE,
+    IN_STOCK_STATUSES,
     LOT_AVAILABLE,
-    OPEN_CONTAINER_STATUSES,
 )
 from odoo.addons.sol_inventory.constants.xml_ids import (
     CONTAINER_ACTION,
@@ -63,6 +63,8 @@ class StockPackage(models.Model):
     )
     # When the container was opened or the solution in it was prepared.
     opened_at = fields.Datetime(string="Opened At", copy=False)
+    # The day the container was opened or prepared, in the laboratory's time zone, for its label.
+    opened_on = fields.Date(string="Opened On", compute="_compute_opened_on")
     # Who opened the container or prepared the solution in it.
     opened_by_id = fields.Many2one(MODEL_RES_USERS, string="Opened By", copy=False, ondelete="restrict")
     # The preparation that filled this container; empty for a container that was received.
@@ -70,11 +72,11 @@ class StockPackage(models.Model):
     # Last day the container can be used. Empty when its lot has no expiry and it is still sealed.
     usable_until = fields.Date(string="Usable Until", compute="_compute_usable_until", store=True)
     # The item in the container. Kept after the stock is gone, because Odoo deletes a quant at zero.
-    item_id = fields.Many2one(MODEL_PRODUCT, string="Item", compute="_compute_content", store=True)
+    item_id = fields.Many2one(MODEL_PRODUCT, string="Item", compute="_compute_content", store=True, ondelete="restrict")
     # The lot of the stock in the container. Kept after the stock is gone.
-    lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot", compute="_compute_content", store=True)
+    lot_id = fields.Many2one(MODEL_STOCK_LOT, string="Lot", compute="_compute_content", store=True, ondelete="restrict")
     # Quantity left in the container, in its item's unit.
-    quantity = fields.Float(string="Quantity", digits="Product Unit", compute="_compute_content")
+    quantity = fields.Float(string="Quantity Left", digits="Product Unit", compute="_compute_quantity")
     # Done move lines that took stock from the container or put stock into it.
     done_line_ids = fields.Many2many(MODEL_STOCK_MOVE_LINE, string="Moves", compute="_compute_done_line_ids")
 
@@ -94,16 +96,18 @@ class StockPackage(models.Model):
                 # A quant at zero is deleted, and the container still is the item and lot it held.
                 container.item_id = container._origin.item_id
                 container.lot_id = container._origin.lot_id
+
+    @api.depends("quant_ids.quantity")
+    def _compute_quantity(self):
+        for container in self:
             container.quantity = sum(container.sudo().quant_ids.mapped("quantity"))
 
-    @api.depends(
-        "status",
-        "opened_at",
-        "lot_id.expiration_date",
-        "item_id.shelf_life_after_opening_days",
-        "preparation_id.recipe_id.shelf_life_days",
-        "preparation_id.move_ids.move_line_ids.package_id.usable_until",
-    )
+    @api.depends("opened_at")
+    def _compute_opened_on(self):
+        for container in self:
+            container.opened_on = self._as_date(container.opened_at)
+
+    @api.depends("status", "opened_at", "lot_id.expiration_date", "item_id.shelf_life_after_opening_days")
     def _compute_usable_until(self):
         for container in self:
             container.usable_until = container._usable_date()
@@ -127,31 +131,17 @@ class StockPackage(models.Model):
             )
 
     def _usable_date(self):
-        """Last day this container can be used. A solution uses the preparation; anything else uses its lot, and once
-        opened also the shelf life after opening. No date means the lot prints no expiry."""
+        """Last day this container can be used: its lot's expiry, and once opened also its opening day plus the
+        item's shelf life after opening, when that shelf life is above 0. A solution's lot expires on the date its
+        preparation worked out. No date means the lot prints no expiry."""
         self.ensure_one()
-        if self.preparation_id and self.opened_at:
-            return self._solution_usable_date()
         lot_date = self._as_date(self.lot_id.expiration_date)
-        if self.status == CONTAINER_SEALED or not self.opened_at:
-            return lot_date
         opened_on = self._as_date(self.opened_at)
-        if not opened_on:
+        shelf_life = self.item_id.shelf_life_after_opening_days
+        if self.status == CONTAINER_SEALED or not opened_on or not shelf_life:
             return lot_date
-        opened_until = opened_on + timedelta(days=self.item_id.shelf_life_after_opening_days or 0)
-        dates = [day for day in (lot_date, opened_until) if day]
-        return min(dates) if dates else False
-
-    def _solution_usable_date(self):
-        # The solution lot's own expiry is this date, so it is not an input.
-        self.ensure_one()
-        prepared_on = self._as_date(self.opened_at)
-        if not prepared_on:
-            return False
-        dates = [prepared_on + timedelta(days=self.preparation_id.recipe_id.shelf_life_days)]
-        sources = self.preparation_id.move_ids.move_line_ids.package_id
-        dates.extend(container.usable_until for container in sources if container.usable_until)
-        return min(dates)
+        opened_until = opened_on + timedelta(days=shelf_life)
+        return min(lot_date, opened_until) if lot_date else opened_until
 
     @api.model
     def _today(self):
@@ -192,11 +182,11 @@ class StockPackage(models.Model):
         return self.action_print_label()
 
     def action_mark_empty(self):
-        """Use up whatever is left and mark the container depleted. The reason on the move is Marked empty."""
+        """Use up whatever is left in an opened container and mark it depleted. The move says Marked empty."""
         self.ensure_one()
         self._check_permission("edit")
-        if self.status not in OPEN_CONTAINER_STATUSES:
-            raise UserError(self.env._("%s cannot be marked empty.", self.display_name))
+        if self.status != CONTAINER_OPENED:
+            raise UserError(self.env._("Only an opened container is marked empty: %s.", self.display_name))
         person = self.env[MODEL_PERSON]._for_user()
         self._check_in_store(person)
         if self.item_id and not self.item_id.uom_id.is_zero(self.quantity):
@@ -204,10 +194,10 @@ class StockPackage(models.Model):
                 self.item_id,
                 self,
                 self.quantity,
-                person=person,
-                allow_sealed=True,
+                check_use=False,
                 automatic=False,
                 reason=MARKED_EMPTY,
+                reference=MARKED_EMPTY,
             )
         else:
             self.status = CONTAINER_DEPLETED
@@ -272,7 +262,7 @@ class StockPackage(models.Model):
         """A source container with nothing left is depleted, or disposed when the move wasted it."""
         empty = self.filtered(
             lambda container: (
-                container.status in OPEN_CONTAINER_STATUSES
+                container.status in IN_STOCK_STATUSES
                 and (not container.item_id or container.item_id.uom_id.is_zero(container.quantity))
             )
         )

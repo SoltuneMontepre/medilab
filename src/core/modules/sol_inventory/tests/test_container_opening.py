@@ -1,3 +1,5 @@
+from datetime import date, datetime
+
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
 from odoo.tools import format_date
@@ -62,13 +64,13 @@ class TestContainerOpening(ContainersCase):
             self.as_person(own, self.chemist).action_open()
         self.assertEqual(set((expired | elsewhere | own).mapped("status")), {CONTAINER_SEALED})
 
-    def test_a_shelf_life_of_zero_lasts_the_opening_day(self):
+    def test_a_shelf_life_of_zero_keeps_the_lot_expiry(self):
         self.acid.shelf_life_after_opening_days = 0
         container = self.put_container(self.acid, 500, "Today")
 
         self.as_tester(container).action_open()
 
-        self.assertEqual(container.usable_until, self.day(0))
+        self.assertEqual(container.usable_until, self.day(30))
 
     def test_a_lot_without_an_expiry_is_not_expired(self):
         container = self.put_container(self.acid, 500, "Undated", expiration=False)
@@ -87,7 +89,19 @@ class TestContainerOpening(ContainersCase):
             html = self.env["ir.actions.report"]._render_qweb_html(report, container.ids)[0].decode()
             self.assertIn("Opened", html)
             self.assertIn(self.tester.name, html)
-            self.assertIn(format_date(self.env, container.opened_at), html)
+            self.assertIn(format_date(self.env, container.opened_on), html)
+
+    def test_the_label_dates_the_opening_in_the_laboratory_time_zone(self):
+        self.env.company.tz = "Asia/Ho_Chi_Minh"
+        container = self.put_container(self.acid, 500, "Night", status=CONTAINER_OPENED)
+        # 02:30 on the 19th in Ho Chi Minh City.
+        container.sudo().opened_at = datetime(2026, 10, 18, 19, 30)
+
+        html = self.env["ir.actions.report"]._render_qweb_html(CONTAINER_LABEL_REPORT, container.ids)[0].decode()
+
+        self.assertEqual(container.opened_on, date(2026, 10, 19))
+        self.assertIn(format_date(self.env, date(2026, 10, 19)), html)
+        self.assertNotIn(format_date(self.env, date(2026, 10, 18)), html)
 
     def test_scanning_a_code_opens_that_container(self):
         container = self.put_container(self.acid, 500, "Scan")

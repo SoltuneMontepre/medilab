@@ -5,7 +5,7 @@ from odoo import fields
 from .demo_orders import _product, _xml_id
 from .demo_quotations import _pay_advance, _quotable_order, _sales_tax
 from .demo_reports import _approve_all
-from .demo_results import _enter, _receive
+from .demo_results import _enter, receive
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT
 
 # Orders of each salesperson over the last two months: how many days ago they were claimed, how far they got, and the
@@ -40,11 +40,11 @@ def seed_tracking(env):
     tax = _sales_tax(env, 8)
 
     testing = _history_order(env, sales, head, lead_product, tax, "approved")
-    _receive(env, testing.test_request_id)
+    receive(env, testing.test_request_id)
     test = testing.test_request_id.sample_ids.test_ids[:1]
     _enter(env, env.ref("sol_demo.demo_res_users_tester"), test, value=0.003, conclusion="pass")
     released = _history_order(env, sales, head, lead_product, tax, "approved")
-    _receive(env, released.test_request_id)
+    receive(env, released.test_request_id)
     _approve_all(env, released.test_request_id)
     env[MODEL_TEST_REPORT].search([("request_id", "=", released.test_request_id.id)]).with_user(
         env.ref("sol_demo.demo_res_users_lab_head")

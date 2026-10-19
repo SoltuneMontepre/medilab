@@ -104,13 +104,14 @@ model ResultContainer {
   /// The container that was scanned.
   container_id Int
   /// Place in the scan order. An earlier container is used up before the next.
-  sequence     Int
+  sequence     Int?
   /// The result the container was scanned for.
   result       TestResult     @relation(fields: [result_id], references: [id], onDelete: Cascade)
   /// The container that was scanned.
   container    StockContainer @relation(fields: [container_id], references: [id], onDelete: Restrict)
 
   @@unique([result_id, container_id])
+  @@index([result_id])
   @@index([container_id])
   @@map("medilab_result_container")
 }
@@ -433,8 +434,8 @@ model StockQuant {
 model StockMove {
   /// Row identifier.
   id                         Int                @id @default(autoincrement())
-  /// receipt, issue, transfer, relocation, preparation, consumption, waste, disposal or adjustment.
-  move_kind                  String             @db.VarChar
+  /// receipt, preparation, consumption, waste or adjustment, from what the move does; empty for an issue, transfer, relocation or disposal until those operations are built.
+  move_kind                  String?            @db.VarChar
   /// The item moved.
   product_id                 Int
   /// Quantity asked for, in the item's unit.
@@ -466,7 +467,7 @@ model StockMove {
   /// True when the system made the move from the method's usual use, rather than a person.
   automatic                  Boolean            @default(false)
   /// Why the move was made, such as a calibration, cleaning or a spill.
-  reason                     String?            @db.Text
+  reason                     String?            @db.VarChar
   /// Cost of one unit moved, from the costing method when the move was done.
   price_unit                 Decimal?           @db.Decimal
   /// Value of the move, from Odoo's costing.
@@ -498,6 +499,8 @@ model StockMove {
 
   @@index([product_id])
   @@index([test_result_id])
+  @@index([preparation_id])
+  @@index([move_kind])
   @@map("stock_move")
 }
 

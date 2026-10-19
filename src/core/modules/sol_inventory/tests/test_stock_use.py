@@ -50,6 +50,7 @@ class TestStockUse(ContainersCase):
         self.assertEqual(container.status, CONTAINER_OPENED)
         self.assertEqual(move.move_kind, MOVE_CONSUMPTION)
         self.assertEqual(move.reason, "Calibration")
+        self.assertEqual(move.reference, "Calibration")
         self.assertFalse(move.automatic)
         self.assertEqual(move.location_dest_id.usage, "production")
 
@@ -84,6 +85,11 @@ class TestStockUse(ContainersCase):
         self.assertEqual(container.status, CONTAINER_OPENED)
 
     def test_marking_empty_uses_what_is_left(self):
+        sealed = self.put_container(self.acid, 40, "Full")
+        with self.assertRaises(UserError):
+            self.as_tester(sealed).action_mark_empty()
+        self.assertEqual((sealed.status, sealed.quantity), (CONTAINER_SEALED, 40))
+
         container = self.put_container(self.acid, 40, "Empty", status=CONTAINER_OPENED)
 
         self.as_tester(container).action_mark_empty()
@@ -91,7 +97,7 @@ class TestStockUse(ContainersCase):
         move = container.done_line_ids.move_id
         self.assertEqual(container.status, CONTAINER_DEPLETED)
         self.assertEqual(container.quantity, 0)
-        self.assertEqual(move.reason, MARKED_EMPTY)
+        self.assertEqual((move.reason, move.reference), (MARKED_EMPTY, MARKED_EMPTY))
         self.assertFalse(move.automatic)
         self.assertEqual(move.move_kind, MOVE_CONSUMPTION)
         self.assertFalse(move.is_scrap)

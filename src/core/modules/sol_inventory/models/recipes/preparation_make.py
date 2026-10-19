@@ -7,7 +7,9 @@ from odoo.addons.sol_inventory.constants.models import (
     MODEL_PREPARATION_MAKE,
     MODEL_PREPARATION_MAKE_LINE,
     MODEL_RECIPE,
+    MODEL_SCRAP_REASON_TAG,
     MODEL_STOCK_LOCATION,
+    MODEL_STOCK_PACKAGE,
 )
 from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
@@ -25,7 +27,9 @@ class PreparationMake(models.TransientModel):
         MODEL_STOCK_LOCATION, string="Store", required=True, domain="[('id', 'in', store_ids)]"
     )
     # Stores the signed-in person prepares in.
-    store_ids = fields.Many2many(MODEL_STOCK_LOCATION, compute="_compute_store_ids")
+    store_ids = fields.Many2many(MODEL_STOCK_LOCATION, string="Stores", compute="_compute_store_ids")
+    # Code read from a container's label; it adds the container to the line of its ingredient and is not stored.
+    container_scan = fields.Char(string="Scan Container", store=False)
     # One line per ingredient.
     line_ids = fields.One2many(MODEL_PREPARATION_MAKE_LINE, "wizard_id", string="Ingredients")
     # Quantity of solution obtained, in the solution's unit. Defaults to the yield and can only be lowered.
@@ -33,7 +37,7 @@ class PreparationMake(models.TransientModel):
     # The unit of the quantity obtained: the solution's.
     uom_id = fields.Many2one(related="recipe_id.uom_id")
     # Why the extra ingredient was wasted. Required when an ingredient amount is above the recipe.
-    scrap_reason_tag_ids = fields.Many2many("stock.scrap.reason.tag", string="Reason for the Extra")
+    scrap_reason_tag_ids = fields.Many2many(MODEL_SCRAP_REASON_TAG, string="Reason for the Extra")
     # True when an ingredient amount is above the recipe.
     has_extra = fields.Boolean(compute="_compute_has_extra")
 
@@ -68,6 +72,27 @@ class PreparationMake(models.TransientModel):
             Command.create({"item_id": line.item_id.id, "recipe_quantity": line.quantity, "quantity": line.quantity})
             for line in recipe.line_ids
         ]
+
+    @api.onchange("container_scan")
+    def _onchange_container_scan(self):
+        """A scanned container joins the line of the ingredient it holds, after the ones scanned before it."""
+        code = (self.container_scan or "").strip()
+        if not code:
+            return
+        container = self.env[MODEL_STOCK_PACKAGE]._find_by_code(code)
+        if container in self.line_ids.container_ids.container_id:
+            raise UserError(self.env._("%s is already on this preparation.", container.display_name))
+        line = self.line_ids.filtered(lambda line: line.item_id == container.item_id)
+        if not line:
+            raise UserError(
+                self.env._(
+                    "%(container)s holds %(item)s, which this recipe does not use.",
+                    container=container.display_name,
+                    item=container.item_id.display_name,
+                )
+            )
+        line._add_container(container)
+        self.container_scan = False
 
     def action_prepare(self):
         """Prepare one batch and print the label of the container it fills."""

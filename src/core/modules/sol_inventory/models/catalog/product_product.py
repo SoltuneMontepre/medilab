@@ -135,6 +135,8 @@ class ProductProduct(models.Model):
                 vals.setdefault("is_storable", True)
                 if vals["item_kind"] == KIND_SOLUTION:
                     vals["purchase_ok"] = False
+                    # The lot of a prepared solution expires on the date its preparation works out.
+                    vals.setdefault("use_expiration_date", True)
                 if not vals.get("default_code"):
                     vals["default_code"] = self.env["ir.sequence"].next_by_code(STOCK_ITEM_SEQUENCE)
         if self.env.su or not all(vals.get("item_kind") for vals in vals_list):

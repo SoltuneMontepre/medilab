@@ -41,7 +41,7 @@ class TestContainerLabels(PurchasingCase):
 
         self.assertIn("Opened", html)
         self.assertIn(self.buyer.name, html)
-        self.assertIn(format_date(self.env, container.opened_at), html)
+        self.assertIn(format_date(self.env, container.opened_on), html)
 
     def test_the_labels_of_one_container_are_named_after_it(self):
         # Odoo names a downloaded report only when it holds one record, and gives the name only that record.

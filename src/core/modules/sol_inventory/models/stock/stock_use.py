@@ -3,6 +3,7 @@ from odoo.exceptions import AccessError, UserError
 
 from odoo.addons.sol_inventory.constants.models import (
     MODEL_PRODUCT,
+    MODEL_SCRAP_REASON_TAG,
     MODEL_STOCK_LOCATION,
     MODEL_STOCK_LOT,
     MODEL_STOCK_MOVE,
@@ -16,7 +17,7 @@ USE = "use"
 WASTE = "waste"
 
 
-# Ghi Sử Dụng
+# Sử Dụng Vật Tư
 class StockUse(models.TransientModel):
     _name = MODEL_STOCK_USE
     _description = "Record Use or Waste"
@@ -34,13 +35,13 @@ class StockUse(models.TransientModel):
     # The store the lot or quantity is taken from. A container brings its own place.
     location_id = fields.Many2one(MODEL_STOCK_LOCATION, string="Store", domain="[('id', 'in', store_ids)]")
     # Stores the signed-in person takes stock from.
-    store_ids = fields.Many2many(MODEL_STOCK_LOCATION, compute="_compute_store_ids")
+    store_ids = fields.Many2many(MODEL_STOCK_LOCATION, string="Stores", compute="_compute_store_ids")
     # Quantity used or wasted, in the item's unit.
     quantity = fields.Float(digits="Product Unit")
     # Why the stock was used. Required for a use; a waste uses a scrap reason instead.
     reason = fields.Char()
     # Why the stock was wasted.
-    scrap_reason_tag_ids = fields.Many2many("stock.scrap.reason.tag", string="Waste Reason")
+    scrap_reason_tag_ids = fields.Many2many(MODEL_SCRAP_REASON_TAG, string="Waste Reason")
 
     @api.depends_context("uid")
     def _compute_store_ids(self):
@@ -108,16 +109,14 @@ class StockUse(models.TransientModel):
             if not self.reason:
                 raise UserError(self.env._("Give the reason for this use."))
             container._check_for_use(person)
+        # A waste may take a sealed container whole, so the checks above replace the checks of a use.
         self.env[MODEL_STOCK_MOVE]._take_containers(
             self.item_id,
             container,
             self.quantity,
-            person=person,
+            check_use=False,
             scrap=scrap,
-            allow_sealed=scrap,
-            automatic=False,
-            reason=False if scrap else self.reason,
-            scrap_reason_tag_ids=self.scrap_reason_tag_ids if scrap else False,
+            **self._move_values(scrap),
         )
         return {"type": "ir.actions.act_window_close"}
 
@@ -150,16 +149,16 @@ class StockUse(models.TransientModel):
         if not scrap and not self.reason:
             raise UserError(self.env._("Give the reason for this use."))
         self.env[MODEL_STOCK_MOVE]._take_quants(
-            self.item_id,
-            store,
-            self.quantity,
-            lot=self.lot_id,
-            scrap=scrap,
-            automatic=False,
-            reason=False if scrap else self.reason,
-            scrap_reason_tag_ids=self.scrap_reason_tag_ids if scrap else False,
+            self.item_id, store, self.quantity, lot=self.lot_id, scrap=scrap, **self._move_values(scrap)
         )
         return {"type": "ir.actions.act_window_close"}
+
+    def _move_values(self, scrap):
+        """What the move records: the reason of a use, named as its reference, or the scrap reasons of a waste, whose
+        reference Odoo numbers."""
+        if scrap:
+            return {"automatic": False, "scrap_reason_tag_ids": self.scrap_reason_tag_ids}
+        return {"automatic": False, "reason": self.reason, "reference": self.reason}
 
     def _check_can_record(self):
         moves = self.env[MODEL_STOCK_MOVE]

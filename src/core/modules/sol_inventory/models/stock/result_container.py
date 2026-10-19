@@ -16,7 +16,9 @@ class ResultContainer(models.Model):
     # The result the container was scanned for.
     result_id = fields.Many2one(MODEL_TEST_RESULT, required=True, ondelete="cascade", index=True)
     # The container that was scanned.
-    container_id = fields.Many2one(MODEL_STOCK_PACKAGE, string="Container", required=True, ondelete="restrict")
+    container_id = fields.Many2one(
+        MODEL_STOCK_PACKAGE, string="Container", required=True, ondelete="restrict", index=True
+    )
     # Place in the scan order. Earlier containers are used up first.
     sequence = fields.Integer(default=10)
     # The item in the container.

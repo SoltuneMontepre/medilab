@@ -10,6 +10,7 @@
                     <field name="has_extra" invisible="1" />
                     <field name="recipe_id" />
                     <field name="location_id" />
+                    <field name="container_scan" placeholder="Scan or type the container code" />
                     <field name="received_quantity" />
                     <field name="uom_id" />
                     <field

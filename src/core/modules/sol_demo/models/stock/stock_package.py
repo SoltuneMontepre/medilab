@@ -1,9 +1,11 @@
+import logging
 from datetime import timedelta
 
 from odoo import api, fields, models
+from odoo.exceptions import UserError
 from odoo.fields import Command
 
-from odoo.addons.sol_demo.demo_results import _receive
+from odoo.addons.sol_demo.demo_results import receive
 from odoo.addons.sol_inventory.constants.models import (
     MODEL_PREPARATION,
     MODEL_RESULT_CONTAINER,
@@ -15,7 +17,9 @@ from odoo.addons.sol_inventory.constants.models import (
 )
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_SEALED, LOT_EXPIRED
 from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_SPILLED
-from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REQUEST, MODEL_TEST_RESULT
+from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON, MODEL_TEST_REQUEST, MODEL_TEST_RESULT
+
+_logger = logging.getLogger(__name__)
 
 MARKER = "sol_demo.demo_preparation_sulfuric_acid_005m"
 TESTER = "sol_demo.demo_res_users_tester"
@@ -41,6 +45,9 @@ class StockPackage(models.Model):
             return
         tester = self.env.ref(TESTER)
         store = self.env.ref(STORE)
+        if not self._tester_holds(tester, store):
+            _logger.info("The demo tester does not hold %s, so no containers are seeded.", store.display_name)
+            return
         item = {
             name: self.env.ref(f"sol_demo.demo_product_product_{name}")
             for name in (
@@ -51,7 +58,7 @@ class StockPackage(models.Model):
                 "sulfuric_acid_005m",
             )
         }
-        # Opening dates the usable date from this. The shipped item leaves it at 0.
+        # A shelf life after opening, so opening shortens the usable date; the shipped item leaves it at 0.
         item["sodium_chloride"].shelf_life_after_opening_days = 180
         item["sulfuric_acid"].standard_price = 2
         item["distilled_water"].standard_price = 1
@@ -62,6 +69,7 @@ class StockPackage(models.Model):
         opened = _container(self.env, lot, 3, BOTTLE, store)
         emptied = _container(self.env, lot, 4, BOTTLE, store)
         opened.with_user(tester).action_open()
+        emptied.with_user(tester).action_open()
         emptied.with_user(tester).action_mark_empty()
         expired_lot = _lot(self.env, acetonitrile, EXPIRED_LOT, -1)
         expired_lot.status = LOT_EXPIRED
@@ -112,6 +120,14 @@ class StockPackage(models.Model):
         self.env["ir.model.data"]._update_xmlids(
             [{"xml_id": f"sol_demo.{name}", "record": record, "noupdate": True} for name, record in named]
         )
+
+    def _tester_holds(self, tester, store):
+        """False on a database whose demo tester does not hold the store, such as one seeded before the team had
+        one; the containers are then left out rather than refusing the upgrade."""
+        try:
+            return store in self.env[MODEL_PERSON]._for_user(tester)._store()
+        except UserError:
+            return False
 
     def _grant_demo_roles(self):
         """The tester opens, prepares and records use. The storekeeper reads every move."""
@@ -169,7 +185,7 @@ def _signed_result(env, tester, *containers):
             ],
         }
     )
-    _receive(env, request)
+    receive(env, request)
     # The tester role is not rewritten on an existing database, so it may not hold result create. The user stays the
     # tester, which is who the deduction takes stock for.
     result = (

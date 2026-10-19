@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-15 07:24+0000\n"
-"PO-Revision-Date: 2026-10-15 07:24+0000\n"
+"POT-Creation-Date: 2026-10-19 15:53+0000\n"
+"PO-Revision-Date: 2026-10-19 15:53+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -23,6 +23,55 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__supplier_invoice_count
 msgid "# Vendor Bills"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%(container)s holds %(held)s, not %(item)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation_make.py:0
+msgid "%(container)s holds %(item)s, which this recipe does not use."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "%(container)s holds %(item)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%(containers)s are not in %(store)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%(containers)s are not in a store of %(person)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "%(containers)s do not hold %(item)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "%(containers)s hold %(items)s, which this method does not use."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid ""
+"%(item)s still needs %(quantity)s %(unit)s. Scan another opened container."
 msgstr ""
 
 #. module: sol_inventory
@@ -56,7 +105,25 @@ msgstr ""
 #. module: sol_inventory
 #. odoo-python
 #: code:addons/sol_inventory/models/stores/stock_location.py:0
-msgid "%(locations)s cannot be deleted while these locations are inside: %(inside)s."
+msgid ""
+"%(locations)s cannot be deleted while these locations are inside: "
+"%(inside)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/stock_picking.py:0
+msgid ""
+"%(order)s does not list %(items)s; receive them on a receipt without a "
+"purchase order."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
+msgid ""
+"%(quantity)s %(unit)s of %(item)s cannot be shared among %(count)s bottles "
+"or vials."
 msgstr ""
 
 #. module: sol_inventory
@@ -95,8 +162,52 @@ msgstr ""
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid ""
+"%(stores)s holds %(held)s %(unit)s of %(item)s that can be used, short of "
+"%(needed)s %(unit)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "%s cannot be cancelled once goods were received for it."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "%s cannot be sent before its approval chain has signed it."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "%s cannot be wasted."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/recipes/recipe.py:0
 msgid "%s cannot use its own solution as an ingredient."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/person.py:0
+msgid "%s has no person record, so they have no store."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/person.py:0
+msgid "%s has no store. Their team and department hold none."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "%s has signatures; withdraw them before cancelling the order."
 msgstr ""
 
 #. module: sol_inventory
@@ -114,13 +225,69 @@ msgstr ""
 #. module: sol_inventory
 #. odoo-python
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
+msgid ""
+"%s is a prepared solution, so it is made in the laboratory and never bought."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "%s is a prepared solution, so it is tracked by container."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation_make_line.py:0
+msgid "%s is already on this ingredient."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/recipes/preparation_make.py:0
+msgid "%s is already on this preparation."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "%s is already on this result."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is already used for another ingredient."
 msgstr ""
 
 #. module: sol_inventory
 #. odoo-python
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "%s is not a chemical, so it stocks no Laboratory chemical."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order.py:0
+msgid "%s is not an active supplier, so it cannot be ordered from."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "%s is not an ingredient of this recipe."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s is not sealed."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "%s is past its usable date."
 msgstr ""
 
 #. module: sol_inventory
@@ -136,8 +303,63 @@ msgid "%s needs at least one ingredient."
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "%s was signed, so it cannot be reopened; duplicate it to order again."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label
+#: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label_small
+msgid "'Labels %s' % object.name"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "<span class=\"o_form_label\">Purchase Order</span>"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_production_lot_form_medilab
+msgid "<span class=\"o_stat_text\">Containers</span>"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "<span>Lot</span>"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "<span>Use by</span>"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "<span>by</span>"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_stock_move_line_container_count_positive
+msgid "A line receives at least one bottle or vial."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_stock_package_preparation_unique
+msgid "A preparation fills one container."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_shelf_life_positive
 msgid "A recipe needs a shelf life of at least one day."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid ""
+"A sealed container is wasted whole. %(container)s holds %(quantity)s "
+"%(unit)s."
 msgstr ""
 
 #. module: sol_inventory
@@ -232,6 +454,11 @@ msgid "Address inline (without name)"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__adjustment
+msgid "Adjustment"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__lang
 msgid ""
 "All the emails and documents sent to this contact will be translated in this"
@@ -244,8 +471,24 @@ msgid "Amount"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__quantity
+msgid "Amount Used"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "An order without items cannot be signed."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_account_analytic_account
 msgid "Analytic Account"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_stock_package_name_unique
+msgid "Another container already has this code."
 msgstr ""
 
 #. module: sol_inventory
@@ -261,6 +504,27 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_solution_unique
 msgid "Another recipe already makes this solution."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_status
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Approval"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_can_reject
+msgid "Approval Can Reject"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_can_sign
+msgid "Approval Can Sign"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_can_withdraw
+msgid "Approval Can Withdraw"
 msgstr ""
 
 #. module: sol_inventory
@@ -325,6 +589,11 @@ msgid "Auto-post bills"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__automatic
+msgid "Automatic"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__autopost_bills
 msgid "Automatically post bills for this trusted partner"
 msgstr ""
@@ -334,6 +603,11 @@ msgstr ""
 msgid ""
 "Automatically send a confirmation email to the vendor X days before the "
 "expected receipt date, asking him to confirm the exact date."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__available
+msgid "Available"
 msgstr ""
 
 #. module: sol_inventory
@@ -402,6 +676,11 @@ msgid "Blacklisted Phone is Phone"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__container_count
+msgid "Bottles or Vials"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__message_bounce
 msgid "Bounce"
 msgstr ""
@@ -424,6 +703,13 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__product_product__item_tracking__quantity
 msgid "By Quantity"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+msgid "Cancel"
 msgstr ""
 
 #. module: sol_inventory
@@ -461,6 +747,32 @@ msgstr ""
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_search
 msgid "Chemicals and Reagents"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/recipes/preparation_make.py:0
+msgid "Choose a recipe."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose one of your stores."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose the lot of %s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Choose why it was wasted."
 msgstr ""
 
 #. module: sol_inventory
@@ -537,6 +849,11 @@ msgid "Consumables"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__consumption
+msgid "Consumption"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_res_partner
 msgid "Contact"
 msgstr ""
@@ -544,6 +861,57 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__contact_person_id
 msgid "Contact Person"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__container_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_list
+msgid "Container"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__code
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_scan
+msgid "Container Code"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__container_count
+msgid "Container Count"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.report,name:sol_inventory.action_report_container_label_small
+msgid "Container Label 1.5 × 1 in"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.report,name:sol_inventory.action_report_container_label
+msgid "Container Label 2 × 1 in"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__container_codes
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__container_line_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__container_ids
+#: model:ir.ui.menu,name:sol_inventory.menu_container
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
+msgid "Containers"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+msgid "Containers Used"
+msgstr ""
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_contaminated
+msgid "Contaminated"
 msgstr ""
 
 #. module: sol_inventory
@@ -602,6 +970,31 @@ msgid "Create minimum quantities"
 msgstr ""
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_move_create_all
+msgid "Create moves"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_preparation_create_all
+msgid "Create preparations"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_create_all
+msgid "Create purchase orders"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_create_own_department
+msgid "Create purchase orders of their department"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_receipt_create_all
+msgid "Create receipts"
+msgstr ""
+
+#. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_recipe_line_create_all
 msgid "Create recipe ingredients"
 msgstr ""
@@ -627,19 +1020,33 @@ msgid "Create suppliers"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_date
 msgid "Created on"
 msgstr ""
@@ -696,6 +1103,8 @@ msgstr ""
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_method_consumption__uom_id
+#: model:ir.model.fields,help:sol_inventory.field_medilab_preparation_make__uom_id
+#: model:ir.model.fields,help:sol_inventory.field_medilab_preparation_make_line__uom_id
 #: model:ir.model.fields,help:sol_inventory.field_medilab_recipe__uom_id
 #: model:ir.model.fields,help:sol_inventory.field_medilab_recipe_line__uom_id
 msgid "Default unit of measure used for all stock operations."
@@ -742,6 +1151,21 @@ msgid "Delete minimum quantities"
 msgstr ""
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_delete_all
+msgid "Delete purchase orders"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_delete_own_department
+msgid "Delete purchase orders of their department"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_receipt_delete_all
+msgid "Delete receipts"
+msgstr ""
+
+#. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_recipe_line_delete_all
 msgid "Delete recipe ingredients"
 msgstr ""
@@ -769,6 +1193,16 @@ msgid "Department or Team"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__depleted
+msgid "Depleted"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_reject_form
+msgid "Discard"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__display_invoice_edi_format
 msgid "Display Invoice Edi Format"
 msgstr ""
@@ -781,11 +1215,20 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_person__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_template__display_name
@@ -794,6 +1237,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_res_partner__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__display_name
@@ -802,8 +1246,37 @@ msgid "Display Name"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__disposed
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__disposed
+msgid "Disposed"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__document_version
+msgid "Document Version"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
+#: code:addons/sol_inventory/models/purchasing/stock_picking.py:0
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Done moves are never changed; correct a mistake with another move."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__street_number2
 msgid "Door"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_dropped
+msgid "Dropped"
 msgstr ""
 
 #. module: sol_inventory
@@ -814,6 +1287,11 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__routing_identifier
 msgid "EDI Routing Address"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_container_edit_all
+msgid "Edit containers"
 msgstr ""
 
 #. module: sol_inventory
@@ -837,8 +1315,28 @@ msgid "Edit locations"
 msgstr ""
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_lot_edit_all
+msgid "Edit lots"
+msgstr ""
+
+#. module: sol_inventory
 #: model:medilab.permission,name:sol_inventory.permission_minimum_quantity_edit_all
 msgid "Edit minimum quantities"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_edit_all
+msgid "Edit purchase orders"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_edit_own_department
+msgid "Edit purchase orders of their department"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_receipt_edit_all
+msgid "Edit receipts"
 msgstr ""
 
 #. module: sol_inventory
@@ -905,6 +1403,17 @@ msgid "Enforce Cities"
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Enter an item and a quantity above zero."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__expired
+msgid "Expired"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__phone_sanitized
 msgid ""
 "Field used to store sanitized phone number. Helps speeding up searches and "
@@ -959,13 +1468,38 @@ msgid "GLN"
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "Give a reason for the extra ingredient."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Give the reason for this use."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__global_location_number
 msgid "Global Location Number"
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid ""
+"Goods can be received only into a location of the central store %(store)s, "
+"not into: %(locations)s."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__group_rfq
 msgid "Group RFQ"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__has_extra
+msgid "Has Extra"
 msgstr ""
 
 #. module: sol_inventory
@@ -991,11 +1525,20 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_person__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_template__id
@@ -1004,6 +1547,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_res_partner__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__id
@@ -1088,6 +1632,11 @@ msgid "Image 512"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
+msgid "In stock"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__incoterm_id
 msgid "Incoterm"
 msgstr ""
@@ -1111,12 +1660,14 @@ msgid "Industry"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__item_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__item_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_search
 msgid "Ingredient"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__line_ids
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__line_ids
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_form
 msgid "Ingredients"
@@ -1197,6 +1748,8 @@ msgstr ""
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__product_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__item_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__item_id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__item_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_form
@@ -1226,6 +1779,23 @@ msgid "Job Position"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__kind
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__move_kind
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Kind"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
+msgid "Labels 1.5 × 1 in"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
+msgid "Labels 2 × 1 in"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__lang
 msgid "Language"
 msgstr ""
@@ -1237,19 +1807,33 @@ msgid "Last Price"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_date
 msgid "Last Updated on"
 msgstr ""
@@ -1262,6 +1846,11 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__partner_latitude
 msgid "Latitude"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__line_id
+msgid "Line"
 msgstr ""
 
 #. module: sol_inventory
@@ -1284,6 +1873,22 @@ msgid "Longitude"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__lot_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__lot_id
+msgid "Lot"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_lot
+msgid "Lot/Serial"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+msgid "Lots"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__main_user_id
 msgid "Main User"
 msgstr ""
@@ -1297,6 +1902,17 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__manager_id
 msgid "Manager"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__certificate_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__certificate_id
+msgid "Manufacturer's Certificate"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Mark empty"
 msgstr ""
 
 #. module: sol_inventory
@@ -1365,14 +1981,40 @@ msgid "Minimums"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__missing
+msgid "Missing"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_move
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__move_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__move_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__done_line_ids
+#: model:ir.ui.menu,name:sol_inventory.menu_stock_move
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Moves"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__my_activity_date_deadline
 msgid "My Activity Deadline"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "My orders"
 msgstr ""
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__name
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_search
 msgid "Name"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "Name the department that asked for the order before it is signed."
 msgstr ""
 
 #. module: sol_inventory
@@ -1401,8 +2043,19 @@ msgid "Next Meeting"
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "No container has the code %s."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__email_normalized
 msgid "Normalized Email"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__none
+msgid "Not requested"
 msgstr ""
 
 #. module: sol_inventory
@@ -1448,10 +2101,67 @@ msgstr ""
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Only an opened container is marked empty: %s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "Only an order that is not sent yet can be signed."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/product_product.py:0
+msgid "Only product managers may change products that are not stock items."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/stores/stock_location.py:0
 msgid ""
 "Only the central store has no store above it, but these stores have none: "
 "%s."
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+msgid "Open"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Open %(containers)s before using them."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__opened
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
+msgid "Opened"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_at
+msgid "Opened At"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_by_id
+msgid "Opened By"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_on
+msgid "Opened On"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__order_id
+msgid "Order"
 msgstr ""
 
 #. module: sol_inventory
@@ -1463,14 +2173,18 @@ msgid ""
 msgstr ""
 
 #. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/catalog/product_product.py:0
-msgid "Only product managers may change products that are not stock items."
+#: model:ir.model,name:sol_inventory.model_stock_package
+msgid "Package"
 msgstr ""
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__parent_name
 msgid "Parent name"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Partially received"
 msgstr ""
 
 #. module: sol_inventory
@@ -1514,6 +2228,11 @@ msgid "Payment Tokens"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_person
+msgid "Person"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__phone
 msgid "Phone"
 msgstr ""
@@ -1526,6 +2245,49 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__phone_mobile_search
 msgid "Phone Number"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__preparation_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__preparation_id
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__preparation
+msgid "Preparation"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_line
+msgid "Preparation Ingredient"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation
+#: model:ir.ui.menu,name:sol_inventory.menu_preparation
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Preparations"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+msgid "Prepare"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation_make
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make
+#: model:ir.ui.menu,name:sol_inventory.menu_prepare_solution
+msgid "Prepare Solution"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "Prepare every ingredient of %s."
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
+msgid "Prepared"
 msgstr ""
 
 #. module: sol_inventory
@@ -1544,8 +2306,23 @@ msgid "Pricelist"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Print label"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Print small label"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_product_template
 msgid "Product"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
 msgstr ""
 
 #. module: sol_inventory
@@ -1580,14 +2357,41 @@ msgid "Purchase Lines"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_purchase_order
+msgid "Purchase Order"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__purchase_order_count
 msgid "Purchase Order Count"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_purchase_order
+#: model:ir.ui.menu,name:sol_inventory.menu_purchase_order
+msgid "Purchase orders"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__quantity
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__quantity
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__quantity
 msgid "Quantity"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__quantity
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__quantity
+msgid "Quantity Left"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__received_quantity
+msgid "Quantity Obtained"
 msgstr ""
 
 #. module: sol_inventory
@@ -1611,15 +2415,76 @@ msgid "Read locations"
 msgstr ""
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_move_read_all
+msgid "Read moves"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_read_all
+msgid "Read purchase orders"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_read_own_department
+msgid "Read purchase orders of their department"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_receipt_read_all
+msgid "Read receipts"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__reason
+msgid "Reason"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__scrap_reason_tag_ids
+msgid "Reason for the Extra"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__receipt
+msgid "Receipt"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__receipt_reminder_email
 msgid "Receipt Reminder"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Receipt Status"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_receipt
+#: model:ir.ui.menu,name:sol_inventory.menu_receipt
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Receipts"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Received"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_medilab_recipe
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__recipe_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__recipe_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__recipe_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_search
 msgid "Recipe"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__recipe_quantity
+msgid "Recipe Amount"
 msgstr ""
 
 #. module: sol_inventory
@@ -1634,8 +2499,41 @@ msgid "Recipes"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+msgid "Record"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_use
+#: model:ir.model,name:sol_inventory.model_medilab_stock_use
+#: model:ir.ui.menu,name:sol_inventory.menu_record_use
+msgid "Record Use or Waste"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__ref
 msgid "Reference"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_reject_form
+msgid "Reject"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_purchase_order_reject
+msgid "Reject a Purchase Order"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_purchase_order_reject
+msgid "Reject the purchase order"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__rejected
+msgid "Rejected"
 msgstr ""
 
 #. module: sol_inventory
@@ -1654,8 +2552,23 @@ msgid "Related employees based on their private address"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "Request approval"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__activity_user_id
 msgid "Responsible User"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__result_id
+msgid "Result"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_result_container
+msgid "Result Container"
 msgstr ""
 
 #. module: sol_inventory
@@ -1699,13 +2612,95 @@ msgid "Sanitized Number"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container_scan
+#: model:ir.model,name:sol_inventory.model_medilab_container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__container_scan
+#: model:ir.ui.menu,name:sol_inventory.menu_container_scan
+msgid "Scan Container"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "Scan a container of %s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "Scan an opened container of %s."
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
+msgid "Scan or type the container code"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__container_ids
+msgid "Scanned Containers"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_container
+msgid "Scanned Ingredient Container"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__sealed
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
+msgid "Sealed"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__self
 msgid "Self"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "Send to supplier"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__state__purchase
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Sent"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__sequence
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__use_partner_credit_limit
 msgid "Set a value greater than 0.0 to activate a credit limit check"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Set the company's Production location before using stock."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Set the company's scrap location before wasting stock."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid "Set up the central store before receiving goods."
 msgstr ""
 
 #. module: sol_inventory
@@ -1729,6 +2724,37 @@ msgid "Show Credit Limit"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "Sign"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_sign_all
+msgid "Sign purchase orders"
+msgstr ""
+
+#. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_purchase_order_sign_own_department
+msgid "Sign purchase orders of their department"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__approved
+msgid "Signed"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "Signed purchase orders are cancelled, never deleted: %s"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Signed, not sent"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__signup_type
 msgid "Signup Token Type"
 msgstr ""
@@ -1749,6 +2775,11 @@ msgid "Spare Parts"
 msgstr ""
 
 #. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_spilled
+msgid "Spilled"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__state_id
 msgid "State"
 msgstr ""
@@ -1756,6 +2787,14 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__application_statistics
 msgid "Stats"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__state
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__status
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__status
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
+msgid "Status"
 msgstr ""
 
 #. module: sol_inventory
@@ -1774,6 +2813,11 @@ msgid "Stock Items"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_move
+msgid "Stock Move"
+msgstr ""
+
+#. module: sol_inventory
 #. odoo-python
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "Stock items are archived, never deleted."
@@ -1785,6 +2829,9 @@ msgid "Storage Conditions"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__location_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__location_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__location_id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__is_store
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_list
@@ -1800,6 +2847,8 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.actions.act_window,name:sol_inventory.action_medilab_store
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__store_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__store_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__store_ids
 #: model:ir.ui.menu,name:sol_inventory.menu_store
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_search
 msgid "Stores"
@@ -1916,6 +2965,12 @@ msgid ""
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_test_result
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__test_result_id
+msgid "Test Result"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__method_id
 msgid "Testing Method"
 msgstr ""
@@ -1928,8 +2983,26 @@ msgid ""
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The amount of %s cannot be less than the recipe."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_recipe_line_quantity_positive
 msgid "The amount of an ingredient must be above zero."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "The approval of this order was already requested."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "The approval of this order was rejected: %s"
 msgstr ""
 
 #. module: sol_inventory
@@ -1945,6 +3018,13 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_supplier_code_unique
 msgid "The code of a supplier must be unique."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/result_container.py:0
+#: code:addons/sol_inventory/models/stock/test_result.py:0
+msgid "The containers of a signed result stay as they were."
 msgstr ""
 
 #. module: sol_inventory
@@ -1965,8 +3045,40 @@ msgid "The internal user in charge of this contact."
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "The lot of %s is not available."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_medilab_method_consumption_method_item_unique
 msgid "The method already uses this item; change its quantity instead."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
+msgid "The order has signatures; withdraw them before changing it."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The prepared solution lot sequence is missing."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid ""
+"The quantity obtained cannot be more than the recipe yield of %(quantity)s "
+"%(unit)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "The quantity obtained must be above zero."
 msgstr ""
 
 #. module: sol_inventory
@@ -1981,7 +3093,6 @@ msgstr ""
 
 #. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_product_product_shelf_life_not_negative
-#: model:ir.model.constraint,message:sol_inventory.constraint_product_product_shelf_life_positive
 msgid "The shelf life after opening cannot be negative."
 msgstr ""
 
@@ -2034,6 +3145,11 @@ msgid "This company is already a supplier."
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_result_container_result_container_unique
+msgid "This container is already on the result."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__property_purchase_currency_id
 msgid "This currency will be used for purchases from the current partner"
 msgstr ""
@@ -2058,6 +3174,16 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__tz_offset
 msgid "Timezone offset"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_receipt_list
+msgid "To"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_list
+msgid "Total"
 msgstr ""
 
 #. module: sol_inventory
@@ -2092,12 +3218,25 @@ msgid "Track Containers"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_picking
+msgid "Transfer"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
+msgid "Type the expiry date printed on the container of: %s."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__uom_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__uom_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__uom_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__uom_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__uom_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_form
@@ -2105,6 +3244,22 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_list
 msgid "Unit"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
+msgid "Unit Price excl. VAT"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__usable_until
+msgid "Usable Until"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__use
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Use"
 msgstr ""
 
 #. module: sol_inventory
@@ -2150,6 +3305,24 @@ msgid "Vendor Payment Terms"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__requested
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
+msgid "Waiting for signature"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__waste
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__waste
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Waste"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__scrap_reason_tag_ids
+msgid "Waste Reason"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__website
 msgid "Website Link"
 msgstr ""
@@ -2173,6 +3346,11 @@ msgid "Whether this contact is an Employee."
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
+msgid "Withdraw signature"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__cost_centre_missing
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_store_search
 msgid "Without Cost Centre"
@@ -2184,8 +3362,30 @@ msgid "Without Manager"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__wizard_id
+msgid "Wizard"
+msgstr ""
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_wrongly_prepared
+msgid "Wrongly prepared"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__yield_quantity
 msgid "Yield per Preparation"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/recipes/preparation.py:0
+msgid "You are not allowed to prepare a solution."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid "You are not allowed to record a use or a waste."
 msgstr ""
 
 #. module: sol_inventory
@@ -2208,1097 +3408,4 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__invoice_edi_format
 msgid "eInvoice format"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "%s cannot be cancelled once goods were received for it."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "%s cannot be sent before its approval chain has signed it."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "%s has signatures; withdraw them before cancelling the order."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "%s was signed, so it cannot be reopened; duplicate it to order again."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label
-#: model:ir.actions.report,print_report_name:sol_inventory.action_report_container_label_small
-msgid "'Labels %s' % object.name"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_production_lot_form_medilab
-msgid "<span class=\"o_stat_text\">Containers</span>"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
-msgid "<span>Lot</span>"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
-msgid "<span>Use by</span>"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.constraint,message:sol_inventory.constraint_stock_move_line_container_count_positive
-msgid "A line receives at least one bottle or vial."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "An order without items cannot be signed."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.constraint,message:sol_inventory.constraint_stock_package_name_unique
-msgid "Another container already has this code."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_status
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
-msgid "Approval"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_can_reject
-msgid "Approval Can Reject"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_can_sign
-msgid "Approval Can Sign"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__approval_can_withdraw
-msgid "Approval Can Withdraw"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__available
-msgid "Available"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__container_count
-msgid "Bottles or Vials"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__container_count
-msgid "Container Count"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.report,name:sol_inventory.action_report_container_label_small
-msgid "Container Label 1.5 × 1 in"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.report,name:sol_inventory.action_report_container_label
-msgid "Container Label 2 × 1 in"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__container_ids
-#: model:ir.ui.menu,name:sol_inventory.menu_container
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
-msgid "Containers"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_create_all
-msgid "Create purchase orders"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_create_own_department
-msgid "Create purchase orders of their department"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_receipt_create_all
-msgid "Create receipts"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_delete_all
-msgid "Delete purchase orders"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_delete_own_department
-msgid "Delete purchase orders of their department"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_receipt_delete_all
-msgid "Delete receipts"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__depleted
-msgid "Depleted"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_reject_form
-msgid "Discard"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__disposed
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__disposed
-msgid "Disposed"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__document_version
-msgid "Document Version"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
-#: code:addons/sol_inventory/models/purchasing/stock_picking.py:0
-msgid "Done moves are never changed; correct a mistake with another move."
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_lot_edit_all
-msgid "Edit lots"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_edit_all
-msgid "Edit purchase orders"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_edit_own_department
-msgid "Edit purchase orders of their department"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_receipt_edit_all
-msgid "Edit receipts"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__expired
-msgid "Expired"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stores/stock_location.py:0
-msgid ""
-"Goods can be received only into a location of the central store %(store)s, "
-"not into: %(locations)s."
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
-msgid "In stock"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
-msgid "Labels 1.5 × 1 in"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
-msgid "Labels 2 × 1 in"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__lot_id
-msgid "Lot"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_stock_lot
-msgid "Lot/Serial"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__certificate_id
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__certificate_id
-msgid "Manufacturer's Certificate"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__missing
-msgid "Missing"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
-msgid "My orders"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__none
-msgid "Not requested"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "Only an order that is not sent yet can be signed."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__opened
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
-msgid "Opened"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__order_id
-msgid "Order"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_stock_package
-msgid "Package"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
-msgid "Partially received"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_stock_move_line
-msgid "Product Moves (Stock Move Line)"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_purchase_order
-msgid "Purchase Order"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_purchase_order_line
-msgid "Purchase Order Line"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.act_window,name:sol_inventory.action_medilab_purchase_order
-#: model:ir.ui.menu,name:sol_inventory.menu_purchase_order
-msgid "Purchase orders"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_read_all
-msgid "Read purchase orders"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_read_own_department
-msgid "Read purchase orders of their department"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_receipt_read_all
-msgid "Read receipts"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__reason
-msgid "Reason"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
-msgid "Receipt Status"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.act_window,name:sol_inventory.action_medilab_receipt
-#: model:ir.ui.menu,name:sol_inventory.menu_receipt
-msgid "Receipts"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
-msgid "Received"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_reject_form
-msgid "Reject"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_medilab_purchase_order_reject
-msgid "Reject a Purchase Order"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.act_window,name:sol_inventory.action_medilab_purchase_order_reject
-msgid "Reject the purchase order"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__rejected
-msgid "Rejected"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
-msgid "Request approval"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_package__status__sealed
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
-msgid "Sealed"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
-msgid "Send to supplier"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__state__purchase
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
-msgid "Sent"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stores/stock_location.py:0
-msgid "Set up the central store before receiving goods."
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
-msgid "Sign"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_sign_all
-msgid "Sign purchase orders"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_purchase_order_sign_own_department
-msgid "Sign purchase orders of their department"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__approved
-msgid "Signed"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
-msgid "Signed, not sent"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__state
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__status
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__status
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
-msgid "Status"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "The approval of this order was already requested."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "The approval of this order was rejected: %s"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "The order has signatures; withdraw them before changing it."
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_receipt_list
-msgid "To"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_list
-msgid "Total"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_stock_picking
-msgid "Transfer"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
-msgid "Type the expiry date printed on the container of: %s."
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_picking_form_medilab
-msgid "Unit Price excl. VAT"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__usable_until
-msgid "Usable Until"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__requested
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_search
-msgid "Waiting for signature"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
-msgid "Withdraw signature"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "Signed purchase orders are cancelled, never deleted: %s"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/stock_move_line.py:0
-msgid ""
-"%(quantity)s %(unit)s of %(item)s cannot be shared among %(count)s bottles "
-"or vials."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__state__draft
-msgid "Draft"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
-msgid "<span class=\"o_form_label\">Purchase Order</span>"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order.py:0
-msgid "%s is not an active supplier, so it cannot be ordered from."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/stock_picking.py:0
-msgid ""
-"%(order)s does not list %(items)s; receive them on a receipt without a "
-"purchase order."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
-msgid "Name the department that asked for the order before it is signed."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/catalog/product_product.py:0
-msgid ""
-"%s is a prepared solution, so it is made in the laboratory and never bought."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "%(container)s holds %(held)s, not %(item)s."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid "%(container)s holds %(item)s."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "%(containers)s are not in %(store)s."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_package.py:0
-msgid "%(containers)s are not in a store of %(person)s."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_move.py:0
-msgid "%(containers)s do not hold %(item)s."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/test_result.py:0
-msgid "%(containers)s hold %(items)s, which this method does not use."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_move.py:0
-msgid ""
-"%(item)s still needs %(quantity)s %(unit)s. Scan another opened container."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_move.py:0
-msgid ""
-"%(stores)s holds %(held)s %(unit)s of %(item)s that can be used, short of "
-"%(needed)s %(unit)s."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_package.py:0
-msgid "%s cannot be marked empty."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid "%s cannot be wasted."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stores/person.py:0
-msgid "%s has no person record, so they have no store."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stores/person.py:0
-msgid "%s has no store. Their team and department hold none."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation_make_line.py:0
-msgid "%s is already on this ingredient."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "%s is already on this preparation."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/test_result.py:0
-msgid "%s is already on this result."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "%s is already used for another ingredient."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "%s is not an ingredient of this recipe."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_package.py:0
-msgid "%s is not sealed."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_package.py:0
-msgid "%s is past its usable date."
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
-msgid "<span>by</span>"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.constraint,message:sol_inventory.constraint_stock_package_preparation_unique
-msgid "A preparation fills one container."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid ""
-"A sealed container is wasted whole. %(container)s holds %(quantity)s "
-"%(unit)s."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__quantity
-msgid "Amount Used"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__automatic
-msgid "Automatic"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
-msgid "Cancel"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-#: code:addons/sol_inventory/models/recipes/preparation_make.py:0
-msgid "Choose a recipe."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid "Choose one of your stores."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid "Choose the lot of %s."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid "Choose why it was wasted."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__consumption
-msgid "Consumption"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__container_ids
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__container_id
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__container_id
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_id
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_list
-msgid "Container"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__code
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_scan
-msgid "Container Code"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
-msgid "Containers Used"
-msgstr ""
-
-#. module: sol_inventory
-#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_contaminated
-msgid "Contaminated"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_move_create_all
-msgid "Create moves"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_preparation_create_all
-msgid "Create preparations"
-msgstr ""
-
-#. module: sol_inventory
-#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_dropped
-msgid "Dropped"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_container_edit_all
-msgid "Edit containers"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid "Enter an item and a quantity above zero."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "Give a reason for the extra ingredient."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid "Give the reason for this use."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__has_extra
-msgid "Has Extra"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__kind
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__move_kind
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
-msgid "Kind"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__line_id
-msgid "Line"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
-msgid "Mark empty"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_move
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__move_ids
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__move_ids
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__done_line_ids
-#: model:ir.ui.menu,name:sol_inventory.menu_stock_move
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
-msgid "Moves"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_package.py:0
-msgid "No container has the code %s."
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
-msgid "Open"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_package.py:0
-msgid "Open %(containers)s before using them."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_at
-msgid "Opened At"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_by_id
-msgid "Opened By"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_medilab_person
-msgid "Person"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_medilab_preparation
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__preparation_id
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__preparation_id
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__preparation
-msgid "Preparation"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_line
-msgid "Preparation Ingredient"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation
-#: model:ir.ui.menu,name:sol_inventory.menu_preparation
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
-msgid "Preparations"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
-msgid "Prepare"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.act_window,name:sol_inventory.action_medilab_preparation_make
-#: model:ir.model,name:sol_inventory.model_medilab_preparation_make
-#: model:ir.ui.menu,name:sol_inventory.menu_prepare_solution
-msgid "Prepare Solution"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "Prepare every ingredient of %s."
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
-msgid "Prepared"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
-msgid "Print label"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
-msgid "Print small label"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__received_quantity
-msgid "Quantity Obtained"
-msgstr ""
-
-#. module: sol_inventory
-#: model:medilab.permission,name:sol_inventory.permission_move_read_all
-msgid "Read moves"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__scrap_reason_tag_ids
-msgid "Reason for the Extra"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__receipt
-msgid "Receipt"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__recipe_quantity
-msgid "Recipe Amount"
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
-msgid "Record"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_use
-#: model:ir.model,name:sol_inventory.model_medilab_stock_use
-#: model:ir.ui.menu,name:sol_inventory.menu_record_use
-msgid "Record Use or Waste"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__result_id
-msgid "Result"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_medilab_result_container
-msgid "Result Container"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container_scan
-#: model:ir.model,name:sol_inventory.model_medilab_container_scan
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__container_scan
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__container_scan
-#: model:ir.ui.menu,name:sol_inventory.menu_container_scan
-msgid "Scan Container"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_move.py:0
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid "Scan a container of %s."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/test_result.py:0
-msgid "Scan an opened container of %s."
-msgstr ""
-
-#. module: sol_inventory
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
-msgid "Scan or type the container code"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_medilab_preparation_make_container
-msgid "Scanned Ingredient Container"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__sequence
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__sequence
-msgid "Sequence"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_move.py:0
-msgid "Set the company's Production location before using stock."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_move.py:0
-msgid "Set the company's scrap location before wasting stock."
-msgstr ""
-
-#. module: sol_inventory
-#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_spilled
-msgid "Spilled"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_stock_move
-msgid "Stock Move"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model,name:sol_inventory.model_medilab_test_result
-#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__test_result_id
-msgid "Test Result"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "The amount of %s cannot be less than the recipe."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/result_container.py:0
-#: code:addons/sol_inventory/models/stock/test_result.py:0
-msgid "The containers of a signed result stay as they were."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_package.py:0
-msgid "The lot of %s is not available."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "The prepared solution lot sequence is missing."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid ""
-"The quantity obtained cannot be more than the recipe yield of %(quantity)s "
-"%(unit)s."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "The quantity obtained must be above zero."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.constraint,message:sol_inventory.constraint_medilab_result_container_result_container_unique
-msgid "This container is already on the result."
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__use
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
-msgid "Use"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields.selection,name:sol_inventory.selection__medilab_stock_use__kind__waste
-#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__waste
-#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
-msgid "Waste"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__scrap_reason_tag_ids
-msgid "Waste Reason"
-msgstr ""
-
-#. module: sol_inventory
-#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__wizard_id
-msgid "Wizard"
-msgstr ""
-
-#. module: sol_inventory
-#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_wrongly_prepared
-msgid "Wrongly prepared"
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/recipes/preparation.py:0
-msgid "You are not allowed to prepare a solution."
-msgstr ""
-
-#. module: sol_inventory
-#. odoo-python
-#: code:addons/sol_inventory/models/stock/stock_use.py:0
-msgid "You are not allowed to record a use or a waste."
 msgstr ""

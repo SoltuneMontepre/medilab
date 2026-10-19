@@ -7,7 +7,6 @@ access_medilab_purchase_order_reject_user,medilab.purchase.order.reject user,med
 access_medilab_recipe_user,medilab.recipe user,medilab.recipe,base.group_user,r,
 access_medilab_recipe_line_user,medilab.recipe.line user,medilab.recipe.line,base.group_user,r,
 access_medilab_preparation_user,medilab.preparation user,medilab.preparation,base.group_user,r,
-access_medilab_result_container_user,medilab.result.container user,medilab.result.container,base.group_user,crud,
 access_medilab_container_scan_user,medilab.container.scan user,medilab.container.scan,base.group_user,crud,
 access_medilab_stock_use_user,medilab.stock.use user,medilab.stock.use,base.group_user,crud,
 access_medilab_preparation_make_user,medilab.preparation.make user,medilab.preparation.make,base.group_user,crud,

@@ -78,9 +78,42 @@ class TestPreparations(ContainersCase):
         incoming = preparation.move_ids.filtered(lambda move: move.product_id == self.dilute_acid)
         spent = sum(abs(move.value) for move in preparation.move_ids - incoming)
         self.assertAlmostEqual(incoming.price_unit, spent / 1000, places=4)
+        self.assertEqual(set(preparation.move_ids.mapped("reference")), {container.lot_id.name})
+        self.assertTrue(self.dilute_acid.use_expiration_date)
         html = self.env["ir.actions.report"]._render_qweb_html(CONTAINER_LABEL_REPORT, container.ids)[0].decode()
         self.assertIn("Prepared", html)
         self.assertIn(self.tester.name, html)
+
+    def test_a_scan_on_the_dialog_joins_the_line_of_its_ingredient(self):
+        acid = self.put_container(self.acid, 500, "ScanA", status=CONTAINER_OPENED)
+        water = self.put_container(self.water, 1000, "ScanW", status=CONTAINER_OPENED)
+        other = self.put_container(self.rinse, 100, "ScanR", status=CONTAINER_OPENED)
+        wizard = (
+            self.env[MODEL_PREPARATION_MAKE]
+            .with_user(self.tester.user_id)
+            .create({"recipe_id": self.recipe.id, "location_id": self.pesticides_store.id})
+        )
+        wizard._onchange_recipe_id()
+
+        for code in (f" {water.name} ", acid.name):
+            wizard.container_scan = code
+            wizard._onchange_container_scan()
+
+        acid_line = wizard.line_ids.filtered(lambda line: line.item_id == self.acid)
+        water_line = wizard.line_ids.filtered(lambda line: line.item_id == self.water)
+        self.assertEqual(acid_line.container_ids.container_id, acid)
+        self.assertEqual(water_line.container_ids.container_id, water)
+        self.assertFalse(wizard.container_scan)
+        for code, message in ((acid.name, "already on this preparation"), (other.name, "does not use")):
+            wizard.container_scan = code
+            with self.assertRaises(UserError) as refused:
+                wizard._onchange_container_scan()
+            self.assertIn(message, refused.exception.args[0])
+
+        wizard.action_prepare()
+
+        self.assertEqual(acid.quantity, 423)
+        self.assertEqual(water.quantity, 77)
 
     def test_an_earlier_ingredient_date_limits_the_solution(self):
         acid = self.put_container(

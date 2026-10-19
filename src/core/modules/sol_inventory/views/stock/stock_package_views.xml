@@ -45,7 +45,7 @@
                         name="action_mark_empty"
                         type="object"
                         string="Mark empty"
-                        invisible="status not in ('sealed', 'opened')"
+                        invisible="status != 'opened'"
                         groups="sol_laboratory.group_permission_container_edit_all"
                     />
                     <button name="action_print_label" type="object" string="Print label" />
@@ -66,9 +66,9 @@
                         <group>
                             <field name="location_id" readonly="1" />
                             <field name="usable_until" />
-                            <field name="opened_at" />
-                            <field name="opened_by_id" />
-                            <field name="preparation_id" />
+                            <field name="opened_at" invisible="not opened_at" />
+                            <field name="opened_by_id" invisible="not opened_at" />
+                            <field name="preparation_id" invisible="not preparation_id" />
                         </group>
                     </group>
                     <notebook>

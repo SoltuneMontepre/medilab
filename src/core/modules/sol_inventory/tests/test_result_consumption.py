@@ -218,6 +218,27 @@ class TestResultConsumption(ResultCase):
         self.assertFalse(result.move_ids)
         self.assertEqual(self.bottle.quantity, 50)
 
+    def test_signing_again_after_a_withdrawal_does_not_deduct_again(self):
+        result = self.enter()
+        self.scan(result, self.bottle)
+        self.send(result)
+        self.assertEqual(set(result.move_ids.mapped("reference")), {result.display_name})
+
+        self.as_person(result, self.tester).action_withdraw()
+        self.assertEqual(result.status, "none")
+        self.send(result)
+
+        self.assertEqual(len(result.move_ids), 2)
+        self.assertEqual(self.bottle.quantity, 40)
+        self.assertEqual(self.salt_lot.product_qty, 4)
+
+    def test_the_scanned_containers_follow_the_result_access(self):
+        result = self.enter()
+        lines = self.scan(result, self.bottle)
+
+        self.assertEqual(lines.with_user(self.tester.user_id).search([("id", "in", lines.ids)]), lines)
+        self.assertFalse(lines.with_user(self.microbiologist.user_id).search([("id", "in", lines.ids)]))
+
     def test_a_retest_deducts_again_and_a_new_version_does_not(self):
         result = self.enter()
         self.scan(result, self.bottle)

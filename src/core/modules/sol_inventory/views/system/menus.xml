@@ -97,4 +97,18 @@
         sequence="110"
         groups="sol_laboratory.group_permission_move_read_all"
     />
+    <!-- Odoo's own overview, transfers, adjustments and procurement are for its stock users; MediLab users record
+         use, waste and preparations through the menus above. -->
+    <record id="stock.stock_picking_type_menu" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_user')])]" />
+    </record>
+    <record id="stock.menu_stock_transfers" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_user')])]" />
+    </record>
+    <record id="stock.menu_stock_adjustments" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_user')])]" />
+    </record>
+    <record id="stock.menu_stock_procurement" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_user')])]" />
+    </record>
 </odoo>
