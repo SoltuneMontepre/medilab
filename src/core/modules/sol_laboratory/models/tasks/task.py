@@ -120,7 +120,7 @@ class Task(models.Model):
         steps = self.env[MODEL_TESTING_METHOD_STEP]
         locations = self.env[MODEL_LOCATION]
         for task in self:
-            test_id = task.document_id if task in testing else None
+            test_id = task.document_id if task in testing else 0
             task.method_step_ids = steps.browse(steps_by_test.get(test_id, []))
             task.sampling_location_id = locations.browse(location_by_test.get(test_id))
 
