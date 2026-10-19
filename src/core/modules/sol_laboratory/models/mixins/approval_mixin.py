@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_DOCUMENT_LOCK,
     MODEL_PERSON,
     MODEL_SIGNATURE,
 )
@@ -52,6 +53,11 @@ class ApprovalMixin(models.AbstractModel):
 
     def action_sign(self):
         self.ensure_one()
+        # Signing may issue the document; a second click is refused while the first signature is recorded.
+        with self.env[MODEL_DOCUMENT_LOCK]._operation(self):
+            self._approval_sign()
+
+    def _approval_sign(self):
         level = self._approval_check_actor()
         self._approval_record(level, DECISION_SIGNED)
         self._audit("sign", level.name)

@@ -3870,6 +3870,147 @@ msgid "Sent Date"
 msgstr "Ngày gửi"
 
 #. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_quotation_sent
+msgid "A quotation was sent to the customer"
+msgstr "Báo giá đã được gửi đến khách hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Always sent"
+msgstr "Luôn được gửi"
+
+#. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_order_updated
+msgid "An order was submitted, claimed or cancelled"
+msgstr "Đơn hàng được gửi, tiếp nhận hoặc huỷ"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/notifications/notification_contact.py:0
+msgid "Choose a contact of the company."
+msgstr "Chọn một người liên hệ của công ty."
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_notification_contact_create_all
+msgid "Create customer notification contacts"
+msgstr "Tạo người nhận thông báo của khách hàng"
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_notification_contact
+msgid "Customer Notification Contact"
+msgstr "Người Nhận Thông Báo Của Khách Hàng"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_notification_contact_delete_all
+msgid "Delete customer notification contacts"
+msgstr "Xoá người nhận thông báo của khách hàng"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_notification_contact_edit_all
+msgid "Edit customer notification contacts"
+msgstr "Sửa người nhận thông báo của khách hàng"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_notification_contact__event_id
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Event"
+msgstr "Sự kiện"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "In the portal"
+msgstr "Trên cổng thông tin"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "No notifications yet."
+msgstr "Chưa có thông báo."
+
+#. module: sol_commerce
+#: model:portal.entry,name:sol_commerce.portal_entry_notifications
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Notification preferences"
+msgstr "Tuỳ chọn thông báo"
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Order %s was cancelled."
+msgstr "Đơn hàng %s đã bị huỷ."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Order %s was claimed by the laboratory."
+msgstr "Đơn hàng %s đã được phòng thử nghiệm tiếp nhận."
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Order %s was submitted."
+msgstr "Đơn hàng %s đã được gửi."
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_order_updated
+msgid "Order updated"
+msgstr "Đơn hàng cập nhật"
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_notification_contact__partner_id
+msgid "Partner"
+msgstr "Đối tác"
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_quotation_sent
+msgid "Quotation sent"
+msgstr "Báo giá đã gửi"
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_notification_contact_read_all
+msgid "Read customer notification contacts"
+msgstr "Xem người nhận thông báo của khách hàng"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Recent notifications"
+msgstr "Thông báo gần đây"
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_result_released
+msgid "Results released"
+msgstr "Kết quả đã trả"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Sent to"
+msgstr "Gửi đến"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "The contact of the document"
+msgstr "Người liên hệ của chứng từ"
+
+#. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_result_released
+msgid "The results of an order were released"
+msgstr "Kết quả của đơn hàng đã được trả"
+
+#. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_medilab_notification_contact_partner_event_unique
+msgid "This event already has a contact."
+msgstr "Sự kiện này đã có người nhận."
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Your preferences are saved. They apply to future notifications."
+msgstr "Đã lưu tuỳ chọn của bạn. Tuỳ chọn áp dụng cho các thông báo sau này."
+
+#. module: sol_commerce
+#: model:portal.entry,description:sol_commerce.portal_entry_notifications
+msgid "Choose which updates you receive and where"
+msgstr "Chọn cập nhật bạn nhận và nơi nhận"
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template.py:0
 msgid "%(item)s: %(reason)s"

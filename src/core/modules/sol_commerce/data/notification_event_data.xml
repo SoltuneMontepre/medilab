@@ -40,4 +40,34 @@
         <field name="mandatory" eval="True" />
         <field name="enabled" eval="True" />
     </record>
+    <record id="event_order_updated" model="mail.message.subtype">
+        <field name="name">Order updated</field>
+        <field name="description">An order was submitted, claimed or cancelled</field>
+        <field name="code">order.updated</field>
+        <field name="res_model">sale.order</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+    <record id="event_quotation_sent" model="mail.message.subtype">
+        <field name="name">Quotation sent</field>
+        <field name="description">A quotation was sent to the customer</field>
+        <field name="code">quotation.sent</field>
+        <field name="res_model">sale.order</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+    <record id="event_result_released" model="mail.message.subtype">
+        <field name="name">Results released</field>
+        <field name="description">The results of an order were released</field>
+        <field name="code">result.released</field>
+        <field name="res_model">sale.order</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
 </odoo>

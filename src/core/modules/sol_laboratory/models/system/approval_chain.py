@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_LEVEL,
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_SIGNATURE,
 )
@@ -16,7 +17,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Chuỗi Phê Duyệt
 class ApprovalChain(models.Model):
     _name = MODEL_APPROVAL_CHAIN
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Approval Chain"
     _order = "document_model, purpose"
     _permission_actions = ("read", "create", "edit", "archive", "delete")

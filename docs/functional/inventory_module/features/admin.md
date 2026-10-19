@@ -49,13 +49,18 @@ Follows [Containers](../overview.md#containers).
 
 | Rule        | Description                                                                                         |
 | ----------- | --------------------------------------------------------------------------------------------------- |
-| Content     | A recipe names the solution it makes, the quantity one preparation gives, each chemical item with its amount, and the shelf life in days. |
-| Ingredients | A recipe's ingredients are items tracked by container, or other recipes' solutions.                 |
+| Content     | A recipe names the solution it makes, the quantity one preparation gives, each chemical item with its amount, and the shelf life in days. Each prepared solution is made by at most one recipe. |
+| Shelf life  | A recipe's shelf life is at least one day; a solution prepared fresh each day has one day.          |
+| Ingredients | A recipe's ingredients are items tracked by container, or prepared solutions, whether or not a recipe makes them yet. A recipe cannot use its own solution, or a solution prepared from it through other recipes. |
+| Items       | Archived items cannot be chosen as the solution or as ingredients of an active recipe. An item that an active recipe makes or uses cannot be archived, and stays tracked by container. |
+| Archiving   | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). A recipe is deleted with its ingredients. |
 
 Acceptance criteria:
 
 - A recipe without a shelf life or without an ingredient cannot be saved.
-- A recipe cannot use its own solution as an ingredient.
+- A recipe cannot use its own solution as an ingredient, nor a solution prepared from it through other recipes.
+- An item that an active recipe makes or uses cannot be archived; the message lists the recipes.
+- An archived recipe cannot be restored while its solution or one of its ingredients is archived.
 
 ### 3. Budgets and settings (US-AD24 to US-AD25)
 

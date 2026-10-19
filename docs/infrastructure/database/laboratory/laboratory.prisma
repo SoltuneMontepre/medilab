@@ -783,6 +783,8 @@ model TestRequest {
   request_date DateTime @db.Date
   /// Date sales promised the customer the results.
   expected_date DateTime? @db.Date
+  /// True for a priority request: the expected date is earlier than the estimate and the check said it can be met, so its tests are urgent.
+  priority      Boolean  @default(false)
   /// Language the customer wants the report in: vi, en or bilingual.
   report_language String @default("bilingual") @db.VarChar
   /// How the report reaches the customer: in_person, post, email or other.
@@ -918,6 +920,16 @@ model SampleTest {
   cancelled_at        DateTime?
   /// True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
   outsourcing_suggested Boolean        @default(false)
+  /// True when the test has no booking that finishes before its due date, or its booking ended without a result; its tester and head of department are told when it turns true.
+  at_risk             Boolean          @default(false)
+  /// True when a person marked the test urgent, so it is scheduled first whatever its due date.
+  marked_urgent       Boolean          @default(false)
+  /// Why the test was marked urgent.
+  urgent_reason       String?          @db.Text
+  /// Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
+  emergency_outsource_reason String?   @db.Text
+  /// Tester or head of department who marked the test urgent.
+  marked_urgent_by_id Int?
   /// The sample tested.
   sample              Sample           @relation(fields: [sample_id], references: [id], onDelete: Cascade)
   /// The parameter tested.
@@ -926,6 +938,8 @@ model SampleTest {
   parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
   /// Head of department who cancelled the test.
   cancelled_by        Person?          @relation("SampleTestCanceller", fields: [cancelled_by_id], references: [id], onDelete: Restrict)
+  /// Tester or head of department who marked the test urgent.
+  marked_urgent_by    Person?          @relation("SampleTestUrgencyMarker", fields: [marked_urgent_by_id], references: [id], onDelete: Restrict)
   /// Results of the test, one per attempt.
   results             TestResult[]
   /// Machine bookings for the test.
@@ -983,6 +997,8 @@ model TestResult {
   machine_id     Int?
   /// When the measurement started, taken from the booking's start and correctable by the lab QA.
   started_at     DateTime?
+  /// Why the sanity check found the value unusual when it was sent, shown to the approver; empty when nothing was found.
+  check_warning  String?          @db.Text
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
   /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
@@ -1040,6 +1056,8 @@ model Person {
   permissions   PersonPermission[]
   /// Sample tests the person cancelled.
   cancelled_sample_tests SampleTest[] @relation("SampleTestCanceller")
+  /// Sample tests the person marked urgent.
+  urgent_marked_sample_tests SampleTest[] @relation("SampleTestUrgencyMarker")
   /// Machine bookings the person runs.
   bookings      MachineBooking[]
   /// Samples the person received.
@@ -1326,6 +1344,65 @@ model Signature {
   @@map("medilab_signature")
 }
 
+/// The laboratory's certificate (chứng thư số) that Viettel Sign holds and signs printed documents with. Read from Viettel Sign, never created or edited on the screen.
+model SigningCertificate {
+  /// Row identifier.
+  id                 Int                @id @default(autoincrement())
+  /// Name of the holder of the certificate, from its subject.
+  name               String             @db.VarChar
+  /// Viettel Sign's id of the certificate, which each signing names.
+  credential_id      String             @unique @db.VarChar
+  /// Serial number the certificate authority gave the certificate, in hexadecimal.
+  serial_number      String?            @db.VarChar
+  /// Whom the certificate was issued to.
+  subject            String?            @db.VarChar
+  /// The certificate authority that issued the certificate.
+  issuer             String?            @db.VarChar
+  /// When the validity of the certificate starts.
+  valid_from         DateTime?
+  /// When the validity of the certificate ends.
+  valid_to           DateTime
+  /// valid, expired or revoked as Viettel Sign reports.
+  status             String             @db.VarChar
+  /// The certificate and the authorities that issued it, in PEM, the certificate first.
+  certificate_chain  String             @db.Text
+  /// SHA-256 of the certificate itself, which finds it from the signature of a PDF.
+  fingerprint        String             @db.VarChar
+  /// When Viettel Sign last reported the certificate.
+  checked_at         DateTime?
+  /// The PDFs signed with the certificate.
+  digital_signatures DigitalSignature[]
+
+  @@index([fingerprint])
+  @@map("medilab_signing_certificate")
+}
+
+/// The digital signature (chữ ký số) Viettel Sign applied to the PDF of one version of a fully signed document. Records are never edited or deleted.
+/// Points to its document by document_model and document_id. Unique on (document_model, document_id, document_version).
+model DigitalSignature {
+  /// Row identifier.
+  id               Int                @id @default(autoincrement())
+  /// Technical name of the signed document's model, such as medilab.test.report.
+  document_model   String             @db.VarChar
+  /// Id of the signed document.
+  document_id      Int
+  /// Version of the document whose PDF was signed.
+  document_version Int
+  /// The laboratory's certificate Viettel Sign signed with.
+  certificate_id   Int
+  /// The PDF Viettel Sign signed, an Odoo attachment of the document.
+  attachment_id    Int
+  /// When Viettel Sign signed the PDF.
+  signed_at        DateTime
+  /// SHA-256 of the signed PDF, which finds it when someone verifies a file.
+  file_hash        String             @unique @db.VarChar
+  /// The laboratory's certificate Viettel Sign signed with.
+  certificate      SigningCertificate @relation(fields: [certificate_id], references: [id], onDelete: Restrict)
+
+  @@unique([document_model, document_id, document_version])
+  @@map("medilab_digital_signature")
+}
+
 /// A kind of task, such as sample collection or testing a parameter, and how its tasks are created and routed. Task types come with the modules; on the screen only their route, role and default deadline change. Trigram indexes on code and name serve search.
 model TaskType {
   /// Row identifier.
@@ -1510,6 +1587,8 @@ model MachineBooking {
   ends_at          DateTime?
   /// queued, scheduled, in_progress, done or cancelled.
   status           String     @db.VarChar
+  /// Why the head of department bumped the test to the earliest slot.
+  bump_reason      String?    @db.Text
   /// The calendar event showing a scheduled booking on the person's schedule, with its reminder; empty while the booking waits in the queue.
   calendar_event_id Int?     @unique
   /// The calendar event of the booking.
@@ -1706,7 +1785,7 @@ model TestReport {
   language        String      @db.VarChar
   /// When the report was issued.
   issued_at       DateTime?
-  /// The digitally signed PDF of the issued report.
+  /// The PDF of the issued report, the one Viettel Sign signed while digital signing is on; empty until it is signed.
   attachment_id   Int?
   /// When the report was delivered to the customer by the request's delivery method.
   delivered_at    DateTime?
@@ -1822,6 +1901,7 @@ model AuditEntry {
   @@index([parent_model, parent_id])
   @@index([user_id, create_date])
   @@index([action, create_date])
+  @@index([job_run_id])
   @@map("medilab_audit_entry")
 }
 
@@ -1864,7 +1944,7 @@ model DocumentLock {
   status           String              @db.VarChar
   /// When the lock was released or expired.
   released_at      DateTime?
-  /// saved, cancelled, left, expired or released_by_administrator.
+  /// saved, cancelled, left, completed for an operation that ended, expired or released_by_administrator.
   release_reason   String?             @db.VarChar
   /// Administrator who released a stuck lock.
   released_by_id   Int?
@@ -1949,7 +2029,7 @@ model NotificationPreference {
   user_id  Int
   /// The event.
   event_id Int
-  /// popup, email, sms or push.
+  /// popup, email or push.
   channel  String            @db.VarChar
   /// False when the user turned this channel off for the event; ignored for mandatory events.
   enabled  Boolean           @default(true)
@@ -2148,7 +2228,7 @@ model ArchiveFile {
   /// SHA-256 of the file, checked before the archived records are removed.
   checksum     String    @db.VarChar
   /// Size of the file in bytes.
-  size_bytes   BigInt
+  size_bytes   Int
   /// The cleanup run that wrote the file.
   job_run_id   Int
   /// The cleanup run that wrote the file.

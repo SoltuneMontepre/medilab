@@ -3858,9 +3858,72 @@ msgid "Transfer total"
 msgstr ""
 
 #. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_quotation_sent
+msgid "A quotation was sent to the customer"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Always sent"
+msgstr ""
+
+#. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_order_updated
+msgid "An order was submitted, claimed or cancelled"
+msgstr ""
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/order_template.py:0
 msgid "%(item)s: %(reason)s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/notifications/notification_contact.py:0
+msgid "Choose a contact of the company."
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_notification_contact_create_all
+msgid "Create customer notification contacts"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_notification_contact
+msgid "Customer Notification Contact"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_notification_contact_delete_all
+msgid "Delete customer notification contacts"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_notification_contact_edit_all
+msgid "Edit customer notification contacts"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_notification_contact__event_id
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Event"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "In the portal"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "No notifications yet."
+msgstr ""
+
+#. module: sol_commerce
+#: model:portal.entry,name:sol_commerce.portal_entry_notifications
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Notification preferences"
 msgstr ""
 
 #. module: sol_commerce
@@ -3872,8 +3935,20 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Order %s was cancelled."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_template.py:0
 msgid "Add at least one catalog selection before saving a template."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Order %s was claimed by the laboratory."
 msgstr ""
 
 #. module: sol_commerce
@@ -3890,6 +3965,72 @@ msgstr ""
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__can_save_order_template
 msgid "Can Save Order Template"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order.py:0
+msgid "Order %s was submitted."
+msgstr ""
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_order_updated
+msgid "Order updated"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_notification_contact__partner_id
+msgid "Partner"
+msgstr ""
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_quotation_sent
+msgid "Quotation sent"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_notification_contact_read_all
+msgid "Read customer notification contacts"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Recent notifications"
+msgstr ""
+
+#. module: sol_commerce
+#: model:mail.message.subtype,name:sol_commerce.event_result_released
+msgid "Results released"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Sent to"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "The contact of the document"
+msgstr ""
+
+#. module: sol_commerce
+#: model:mail.message.subtype,description:sol_commerce.event_result_released
+msgid "The results of an order were released"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.constraint,message:sol_commerce.constraint_medilab_notification_contact_partner_event_unique
+msgid "This event already has a contact."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.portal_notification_preferences
+msgid "Your preferences are saved. They apply to future notifications."
+msgstr ""
+
+#. module: sol_commerce
+#: model:portal.entry,description:sol_commerce.portal_entry_notifications
+msgid "Choose which updates you receive and where"
 msgstr ""
 
 #. module: sol_commerce

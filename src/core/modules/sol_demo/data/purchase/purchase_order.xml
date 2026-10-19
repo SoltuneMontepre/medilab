@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Signing, sending and receiving need the approval chain, the people and the stores, so they are seeded in Python. -->
+    <function model="purchase.order" name="_seed_purchasing_demo" />
+</odoo>

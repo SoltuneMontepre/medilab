@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_notification_preferences" name="Notification preferences">
+        <t t-call="portal.portal_layout">
+            <t t-set="additional_title">Notification preferences</t>
+            <div class="alert alert-success" id="notifications-saved" t-if="request.params.get('saved')">Your preferences are saved. They apply to future notifications.</div>
+            <h3>Notification preferences</h3>
+            <form action="/my/notifications" method="post" id="notification-preferences">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Email</th>
+                            <th>In the portal</th>
+                            <th t-if="is_business">Sent to</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="rows" t-as="row" t-att-id="'event-%s' % row['event'].code">
+                            <td>
+                                <span t-out="row['event'].name" />
+                                <small class="text-muted d-block" t-if="row['mandatory']">Always sent</small>
+                            </td>
+                            <td><input type="checkbox" t-att-name="'%s:email' % row['event'].code" t-att-checked="'checked' if row['email'] else None" t-att-disabled="'disabled' if row['mandatory'] else None" /></td>
+                            <td><input type="checkbox" t-att-name="'%s:popup' % row['event'].code" t-att-checked="'checked' if row['popup'] else None" t-att-disabled="'disabled' if row['mandatory'] else None" /></td>
+                            <td t-if="is_business">
+                                <select class="form-select" t-att-name="'contact:%s' % row['event'].code">
+                                    <option value="">The contact of the document</option>
+                                    <option t-foreach="contacts" t-as="contact" t-att-value="contact.id" t-att-selected="'selected' if contact.id == row['contact_id'] else None" t-out="contact.name" />
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+            <h4 class="mt-4">Recent notifications</h4>
+            <p class="text-muted" t-if="not notifications">No notifications yet.</p>
+            <ul class="list-group" id="portal-notifications" t-if="notifications">
+                <li class="list-group-item" t-foreach="notifications" t-as="message">
+                    <strong t-out="message.subject or message.subtype_id.name" />
+                    <span class="text-muted" t-field="message.date" />
+                    <div t-out="message.body" />
+                </li>
+            </ul>
+        </t>
+    </template>
+</odoo>
