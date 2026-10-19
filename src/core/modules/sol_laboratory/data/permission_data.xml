@@ -713,6 +713,21 @@
         <field name="document_model">medilab.testing.method</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_testing_method_step_create_all" model="medilab.permission">
+        <field name="name">Create testing method steps</field>
+        <field name="document_model">medilab.testing.method.step</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_testing_method_step_edit_all" model="medilab.permission">
+        <field name="name">Edit testing method steps</field>
+        <field name="document_model">medilab.testing.method.step</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_testing_method_step_delete_all" model="medilab.permission">
+        <field name="name">Delete testing method steps</field>
+        <field name="document_model">medilab.testing.method.step</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_unit_category_create_all" model="medilab.permission">
         <field name="name">Create unit categories</field>
         <field name="document_model">medilab.unit.category</field>
