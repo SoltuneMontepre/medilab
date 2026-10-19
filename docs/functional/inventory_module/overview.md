@@ -6,8 +6,8 @@ The Inventory module keeps the laboratory's stock: chemicals and reagents, consu
 
 | Rule          | Description                                                                                                                                   |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Items         | A stock item is a chemical or reagent, a consumable, a spare part or a prepared solution, counted in one unit. A chemical item stocks one Laboratory chemical.        |
-| Tracking      | Each item is tracked by container, by lot or by quantity. Chemicals and reagents are tracked by container. Sterile or chemically treated consumables, such as swabs, special filters and culture plates, are tracked by lot for their expiry. Basic protective equipment, such as masks and gloves, and spare parts are tracked by quantity only. |
+| Items         | A stock item is a chemical or reagent, a consumable, a spare part or a prepared solution, counted in one unit. A chemical item stocks one Laboratory chemical. A prepared solution is made in the laboratory and never bought; a ready-made solution bought from a supplier is a chemical or reagent. |
+| Tracking      | Each item is tracked by container, by lot or by quantity. Chemicals and reagents, and prepared solutions, are tracked by container. Sterile or chemically treated consumables, such as swabs, special filters and culture plates, are tracked by lot for their expiry. Basic protective equipment, such as masks and gloves, and spare parts are tracked by quantity only. |
 | Lots          | Items tracked by container or lot are kept by lot, with the expiry date printed on the container and the manufacturer's certificate.          |
 | Stock on hand | The quantity of each item, lot and location is kept up to date by moves.                                                                      |
 | Moves         | Every change of stock is a move: a receipt, an issue to a lower store, a transfer, a preparation, a use, waste, a disposal or a stock take correction. Moves are never edited; a mistake is corrected by another move. |
@@ -101,9 +101,9 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                                         |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Suppliers       | A supplier is a company contact with a code, a default contact person and the items it sells, with its own references and last prices. |
-| Purchase orders | A purchase order to one supplier lists items, quantities and prices. It is signed through its approval chain before it is sent.     |
-| Receipts        | Goods that arrive are received against a purchase order, or without one, into a location of the central store, with their lot, expiry, quantity, price and certificate. A done receipt creates the lots, containers and moves. |
+| Suppliers       | A supplier is a company contact with a code, a default contact person and the items it sells, with its own references and last prices; a receipt sets the last price of each item it brings in with a price. |
+| Purchase orders | A purchase order to one supplier lists items, quantities and prices, and the department that asked for them. It is signed through its approval chain before it is sent, and sending it confirms it. |
+| Receipts        | Goods that arrive are received against a purchase order, or without one, into a location of the central store, with their lot, expiry, quantity, price and the manufacturer's certificate. A done receipt creates the lots, containers and moves. |
 | Received amount | A purchase order is partially received or received from the quantities its receipts brought in.                                     |
 
 ## Costs

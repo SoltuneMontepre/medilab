@@ -22,8 +22,10 @@
         <t t-set="labels" t-value="report._print_labels()" />
         <t t-set="header" t-value="report._print_header()" />
         <div class="page" style="font-family: sans-serif; font-size: 10pt">
-            <!-- Until digital signing is built, every PDF is the marked draft. -->
-            <div style="border: 2px solid #c00; color: #c00; text-align: center; font-weight: bold; padding: 2mm">
+            <div
+                t-if="report._digital_signing_draft()"
+                style="border: 2px solid #c00; color: #c00; text-align: center; font-weight: bold; padding: 2mm"
+            >
                 <span t-out="labels['draft']" />
             </div>
             <div style="margin-top: 4mm">
@@ -72,6 +74,11 @@
                     </tr>
                 </table>
             </div>
+            <div
+                t-if="not report._digital_signing_draft() and report._digital_signing_enabled()"
+                style="margin-top: 6mm; font-size: 8pt"
+                t-out="labels['verify']"
+            />
         </div>
     </template>
 </odoo>

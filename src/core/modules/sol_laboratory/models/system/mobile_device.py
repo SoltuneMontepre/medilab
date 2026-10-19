@@ -6,7 +6,12 @@ from odoo.exceptions import AccessError, UserError
 _logger = logging.getLogger(__name__)
 
 from odoo.addons.sol_laboratory.constants.audit import MASK_SECRET
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_MOBILE_DEVICE, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
+    MODEL_MOBILE_DEVICE,
+    MODEL_PERMISSION_MIXIN,
+)
 
 PLATFORMS = {"android", "ios"}
 
@@ -14,7 +19,7 @@ PLATFORMS = {"android", "ios"}
 # Thiết Bị Di Động
 class MobileDevice(models.Model):
     _name = MODEL_MOBILE_DEVICE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Mobile Device"
     _permission_actions = ("read", "create", "edit", "archive", "delete")
     # The app refreshes it each time it starts.
@@ -58,6 +63,11 @@ class MobileDevice(models.Model):
             raise AccessError(self.env._("This device is not registered for you."))
         device.sudo().write({"active": False})
         return device
+
+    @api.model
+    def _cleanup_domain(self, cutoff):
+        """The devices the cleanup job removes: turned off before the cutoff."""
+        return [("active", "=", False), ("write_date", "<", cutoff)]
 
     def turn_off(self, reason):
         """Firebase reported a permanent token failure."""

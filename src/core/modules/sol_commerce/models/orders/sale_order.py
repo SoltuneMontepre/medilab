@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from odoo import api, fields, models
@@ -11,6 +12,7 @@ from odoo.addons.sol_commerce.constants.models import (
     MODEL_QUOTATION,
     MODEL_SALE_ORDER,
 )
+from odoo.addons.sol_commerce.constants.notifications import EVENT_ORDER_UPDATED
 from odoo.addons.sol_commerce.constants.orders import (
     ADVANCE_PAID_STATES,
     APPROVAL_APPROVED,
@@ -20,6 +22,7 @@ from odoo.addons.sol_commerce.constants.orders import (
     FOLLOW_UP_BY_QUOTATION_STATUS,
     FOLLOW_UP_PAID,
     FOLLOW_UP_UNPAID,
+    NOTIFIED_STATUSES,
     PORTAL_LOCKED_ORDER_FIELDS,
     QUOTATION_ACCEPTED,
     QUOTATION_DECLINED,
@@ -38,7 +41,9 @@ from odoo.addons.sol_commerce.constants.orders import (
 )
 from odoo.addons.sol_commerce.constants.settings import DEFAULT_PAYMENT_DEADLINE_DAYS, PAYMENT_DEADLINE_PARAMETER
 from odoo.addons.sol_commerce.constants.xml_ids import QUOTATION_REPORT
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_MAIL_MESSAGE, MODEL_PERMISSION_MIXIN
+
+_logger = logging.getLogger(__name__)
 
 
 # Đơn Hàng
@@ -194,7 +199,29 @@ class SaleOrder(models.Model):
 
     def _set_status(self, status, extra=None):
         vals = {"order_status": status, **(extra or {})}
-        return self.with_context(medilab_status_change=True).write(vals)
+        result = self.with_context(medilab_status_change=True).write(vals)
+        if status in NOTIFIED_STATUSES:
+            for order in self:
+                order._notify_status(status)
+        return result
+
+    def _notify_status(self, status):
+        """Tell the order's contact that the order was submitted, claimed or cancelled, once per status."""
+        self.ensure_one()
+        if not self.partner_id:
+            return
+        body = {
+            STATUS_SUBMITTED: self.env._("Order %s was submitted.", self.name),
+            STATUS_CLAIMED: self.env._("Order %s was claimed by the laboratory.", self.name),
+            STATUS_CANCELLED: self.env._("Order %s was cancelled.", self.name),
+        }[status]
+        try:
+            with self.env.cr.savepoint():
+                self.env[MODEL_MAIL_MESSAGE].raise_event(
+                    EVENT_ORDER_UPDATED, self.sudo(), f"order:{self.id}:{status}", body, partners=self.partner_id
+                )
+        except Exception:
+            _logger.exception("Order notice was not queued")
 
     def customer_cancel_mode(self):
         self.ensure_one()

@@ -12,6 +12,7 @@ CATALOG_ACTIONS = (
     "sol_inventory.action_medilab_stock_item",
     "sol_inventory.action_medilab_supplier",
     "sol_inventory.action_medilab_location",
+    "sol_inventory.action_medilab_recipe",
 )
 
 
@@ -55,6 +56,16 @@ class TestCatalogAccess(CatalogCase):
         item.action_archive()
 
         self.assertFalse(item.active)
+
+    def test_a_prepared_solution_the_storekeeper_keeps_is_never_bought(self):
+        items = self.env[MODEL_PRODUCT].with_user(self.storekeeper.user_id)
+
+        solution = items.create({"name": "Nitric acid 2%", "item_kind": "solution", "item_tracking": "container"})
+        buffer = items.create({"name": "Buffer pH 4", "item_kind": "consumable", "item_tracking": "container"})
+        buffer.item_kind = "solution"
+
+        self.assertFalse(solution.purchase_ok)
+        self.assertFalse(buffer.purchase_ok)
 
     def test_everyone_else_reads_the_catalog_but_cannot_change_it(self):
         chemist = self.chemist.user_id

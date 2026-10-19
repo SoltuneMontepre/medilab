@@ -1,6 +1,6 @@
 # Features of: Lab head
 
-The lab head signs the test report (certificate of analysis, CoA) of each test request once all its results are approved.
+The lab head signs the test report of each test request once all its results are approved.
 
 ## I. User stories
 

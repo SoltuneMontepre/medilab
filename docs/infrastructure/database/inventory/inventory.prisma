@@ -310,7 +310,7 @@ model StockLot {
   status          String           @db.VarChar
   /// Purchase price of one unit, excluding VAT, from its receipt, for an item whose lots keep their own cost.
   standard_price  Decimal?         @db.Decimal
-  /// The manufacturer's certificate of analysis, an Odoo attachment.
+  /// The manufacturer's certificate that came with the lot, an Odoo attachment; not a result the laboratory issues.
   certificate_id  Int?
   /// The item.
   item            StockItem        @relation(fields: [product_id], references: [id], onDelete: Restrict)
@@ -465,7 +465,7 @@ model StockMove {
   @@map("stock_move")
 }
 
-/// Odoo's move line (stock.move.line), shown with the columns this module uses: the part of a move from one lot and container, or into one.
+/// Odoo's move line (stock.move.line), shown with the columns this module uses and the columns it adds: the part of a move from one lot and container, or into one.
 model StockMoveLine {
   /// Row identifier.
   id                Int             @id @default(autoincrement())
@@ -481,6 +481,10 @@ model StockMoveLine {
   result_package_id Int?
   /// Quantity moved, in the item's unit.
   quantity          Decimal         @db.Decimal
+  /// Number of bottles or vials a receipt line brings in of an item tracked by container; validating the receipt splits the line evenly into one line per container. Check: 1 or more.
+  container_count   Int             @default(1)
+  /// The manufacturer's certificate that came with the lot a receipt line brings in, an Odoo attachment; validating the receipt attaches it to the lot.
+  certificate_id    Int?
   /// The move.
   move              StockMove       @relation(fields: [move_id], references: [id], onDelete: Cascade)
   /// The lot moved.
@@ -495,11 +499,11 @@ model StockMoveLine {
   @@map("stock_move_line")
 }
 
-/// How one solution is prepared: the chemicals and amounts one preparation uses, and the solution's shelf life.
+/// How one solution is prepared: the chemicals and amounts one preparation uses, and the solution's shelf life. A trigram index on code serves search. Check: yield_quantity above 0, shelf_life_days 1 or more.
 model Recipe {
   /// Row identifier.
   id               Int           @id @default(autoincrement())
-  /// Unique code of the recipe.
+  /// Unique code of the recipe, such as CTPC.0001; filled from a sequence when left empty.
   code             String        @unique @db.VarChar
   /// The solution item the recipe makes.
   solution_item_id Int           @unique
@@ -519,7 +523,7 @@ model Recipe {
   @@map("medilab_recipe")
 }
 
-/// One ingredient of a recipe and the amount one preparation uses. Unique on (recipe_id, item_id).
+/// One ingredient of a recipe and the amount one preparation uses: an item tracked by container, such as a chemical or another recipe's solution. Unique on (recipe_id, item_id). Check: quantity above 0.
 model RecipeLine {
   /// Row identifier.
   id        Int       @id @default(autoincrement())
@@ -535,6 +539,7 @@ model RecipeLine {
   item      StockItem @relation(fields: [item_id], references: [id], onDelete: Restrict)
 
   @@unique([recipe_id, item_id])
+  @@index([item_id])
   @@map("medilab_recipe_line")
 }
 
@@ -559,7 +564,7 @@ model Preparation {
   @@map("medilab_preparation")
 }
 
-/// Odoo's picking (stock.picking), shown with the columns this module uses and the columns it adds: a receipt from a supplier, a requisition of stock from the store directly above, or a sideways transfer of sealed stock between two stores of the same level. Its lines are its moves. Who did each step and when is in the audit trail.
+/// Odoo's picking (stock.picking), shown with the columns this module uses and the columns it adds: a receipt from a supplier, a requisition of stock from the store directly above, or a sideways transfer of sealed stock between two stores of the same level. Its lines are its moves; a receipt reaches its purchase order through their order lines. Who did each step and when is in the audit trail.
 model Picking {
   /// Row identifier.
   id                Int            @id @default(autoincrement())
@@ -581,22 +586,17 @@ model Picking {
   over_budget       Boolean        @default(false)
   /// Why the requisition was refused.
   refusal_reason    String?        @db.Text
-  /// The purchase order a receipt receives; empty for goods received without one.
-  purchase_id       Int?
   /// The location the stock leaves.
   from_location     StockLocation  @relation("PickingFrom", fields: [location_id], references: [id], onDelete: Restrict)
   /// The location the stock enters.
   to_location       StockLocation  @relation("PickingTo", fields: [location_dest_id], references: [id], onDelete: Restrict)
   /// The supplier of a receipt.
   supplier          Contact?       @relation(fields: [partner_id], references: [id], onDelete: Restrict)
-  /// The purchase order a receipt receives.
-  purchase_order    PurchaseOrder? @relation(fields: [purchase_id], references: [id], onDelete: Restrict)
   /// Lines of the picking.
   moves             StockMove[]
 
   @@index([location_id, request_status])
   @@index([location_dest_id, request_status])
-  @@index([purchase_id])
   @@map("stock_picking")
 }
 
@@ -727,7 +727,7 @@ model SupplierItem {
   @@map("product_supplierinfo")
 }
 
-/// Odoo's purchase order (purchase.order), shown with the columns this module uses and the column it adds: an order for stock to one supplier, signed through its approval chain before it is sent.
+/// Odoo's purchase order (purchase.order), shown with the columns this module uses and the columns it adds: an order for stock to one supplier, signed through its approval chain before it is sent.
 model PurchaseOrder {
   /// Row identifier.
   id             Int                 @id @default(autoincrement())
@@ -737,8 +737,12 @@ model PurchaseOrder {
   partner_id     Int
   /// The department that asked for the stock.
   department_id  Int?
-  /// Odoo's state: draft while it is prepared and signed, sent once sent to the supplier, purchase once confirmed, cancel.
-  state          String              @db.VarChar
+  /// Odoo's state: draft while it is prepared and signed, purchase once it is sent to the supplier, which confirms it, or cancel.
+  state            String              @db.VarChar
+  /// none, requested, approved or rejected: where the order stands in its approval chain, kept in step with its signatures.
+  approval_status  String              @default("none") @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn.
+  document_version Int                 @default(1)
   /// pending, partial or full, from the quantities its receipts brought in.
   receipt_status String?             @db.VarChar
   /// Date the supplier is expected to deliver.
@@ -753,10 +757,9 @@ model PurchaseOrder {
   department     Department?         @relation(fields: [department_id], references: [id], onDelete: Restrict)
   /// Lines of the order.
   lines          PurchaseOrderLine[]
-  /// Receipts of the order.
-  receipts       Picking[]
 
   @@index([partner_id, state])
+  @@index([department_id])
   @@map("purchase_order")
 }
 

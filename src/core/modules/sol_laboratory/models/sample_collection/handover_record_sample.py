@@ -5,6 +5,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_HANDOVER_RECORD,
     MODEL_HANDOVER_RECORD_SAMPLE,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_SAMPLE,
 )
@@ -14,7 +15,7 @@ from odoo.addons.sol_laboratory.models.sample_collection.sample import CONDITION
 # Links a handover record to the samples it lists, with the amount and condition handed over.
 class HandoverRecordSample(models.Model):
     _name = MODEL_HANDOVER_RECORD_SAMPLE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Handover Record Sample"
     _order = "id"
     _rec_name = "sample_id"

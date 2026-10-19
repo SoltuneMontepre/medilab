@@ -3,6 +3,7 @@ from odoo import fields, models
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_TESTING_FIELD,
 )
@@ -11,7 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Lĩnh Vực Thử Nghiệm
 class TestingField(models.Model):
     _name = MODEL_TESTING_FIELD
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Testing Field"
     _order = "code"
     _rec_names_search = ("name", "code")

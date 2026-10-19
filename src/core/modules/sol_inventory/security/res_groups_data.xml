@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Administrators configure Odoo's Inventory and Purchase, such as warehouses and operation types. -->
+    <record id="sol_laboratory.group_role_administrator" model="res.groups">
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('stock.group_stock_manager')), Command.link(ref('purchase.group_purchase_manager'))]"
+        />
+    </record>
+    <!-- Odoo's Lots and Storage Locations settings: receipts show the lot of each line and the location it goes to. -->
+    <record id="base.group_user" model="res.groups">
+        <field
+            name="implied_ids"
+            eval="[Command.link(ref('stock.group_production_lot')), Command.link(ref('stock.group_stock_multi_locations'))]"
+        />
+    </record>
+</odoo>

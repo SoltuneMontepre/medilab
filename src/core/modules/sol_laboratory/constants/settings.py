@@ -10,3 +10,14 @@ SAMPLE_RETENTION_REMINDER_PARAMETER = "sol_laboratory.sample_retention_reminder_
 DEFAULT_SAMPLE_RETENTION_REMINDER_DAYS = 7
 URGENCY_HOURS_PARAMETER = "sol_laboratory.urgency_hours"
 DEFAULT_URGENCY_HOURS = 24
+DIGITAL_SIGNING_PARAMETER = "sol_laboratory.digital_signing_enabled"
+SIGNING_CERTIFICATE_ALERT_PARAMETER = "sol_laboratory.signing_certificate_alert_days"
+DEFAULT_SIGNING_CERTIFICATE_ALERT_DAYS = 30
+LOCK_TIMEOUT_PARAMETER = "sol_laboratory.lock_timeout_minutes"
+DEFAULT_LOCK_TIMEOUT_MINUTES = 15
+JOB_RETENTION_PARAMETER = "sol_laboratory.job_retention_days"
+LOCK_RETENTION_PARAMETER = "sol_laboratory.lock_retention_days"
+NOTIFICATION_RETENTION_PARAMETER = "sol_laboratory.notification_retention_days"
+DEVICE_RETENTION_PARAMETER = "sol_laboratory.device_retention_days"
+# Days the cleanup job keeps finished job items and runs, ended locks, read notifications and turned-off devices.
+DEFAULT_RETENTION_DAYS = 90

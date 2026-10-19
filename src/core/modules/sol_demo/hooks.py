@@ -11,12 +11,15 @@ def post_init_hook(env):
         user.password = password
     from .demo_audit import seed_audit
     from .demo_change_requests import seed_change_requests
+    from .demo_cleanup import seed_cleanup
     from .demo_dispatches import seed_dispatches
     from .demo_finance import seed_finance
+    from .demo_locks import seed_locks
     from .demo_orders import seed_orders
     from .demo_quotations import seed_quotations
     from .demo_reports import seed_reports
     from .demo_results import seed_results
+    from .demo_signing import seed_signing
     from .demo_support import seed_support
     from .demo_tracking import seed_tracking
 
@@ -25,8 +28,11 @@ def post_init_hook(env):
     seed_results(env)
     seed_reports(env)
     seed_change_requests(env)
+    seed_signing(env)
     seed_tracking(env)
     seed_dispatches(env)
     seed_finance(env)
     seed_audit(env)
+    seed_locks(env)
+    seed_cleanup(env)
     seed_support(env)

@@ -10,6 +10,8 @@ from . import (
     test_finance_reports,
     test_invoice_notices,
     test_invoices,
+    test_notification_portal,
+    test_notification_preferences,
     test_order_access,
     test_order_approval,
     test_order_cancellation,
