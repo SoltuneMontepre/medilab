@@ -104,8 +104,16 @@
             <menuitem id="menu_machine" action="action_medilab_machine" sequence="10" />
             <menuitem id="menu_chemical" action="action_medilab_chemical" sequence="20" />
         </menuitem>
+        <menuitem id="menu_location" action="action_medilab_location" sequence="25" />
         <menuitem id="menu_subcontractor" action="action_medilab_subcontractor" sequence="30" />
     </menuitem>
+
+    <menuitem
+        id="menu_location_booking"
+        action="action_medilab_location_booking"
+        parent="calendar.mail_menu_calendar"
+        sequence="5"
+    />
 
     <!-- Departments are Odoo's own menu in the Employees app. -->
     <menuitem id="menu_person" action="action_medilab_person" parent="hr.menu_hr_root" sequence="4" />

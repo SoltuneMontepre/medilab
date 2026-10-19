@@ -1,8 +1,11 @@
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.fields import Domain
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCATION,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_TESTING_METHOD,
     MODEL_TESTING_METHOD_STEP,
@@ -12,7 +15,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Bước Phương Pháp Thử
 class TestingMethodStep(models.Model):
     _name = MODEL_TESTING_METHOD_STEP
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Testing Method Step"
     _order = "method_id, sequence"
     _permission_actions = ("create", "edit", "delete")
@@ -27,6 +30,8 @@ class TestingMethodStep(models.Model):
     instruction = fields.Text(required=True)
     # Remark on the step, such as a precaution.
     note = fields.Text()
+    # Where the step is done, such as a fume hood or a water point.
+    location_id = fields.Many2one(MODEL_LOCATION, string="Location", ondelete="restrict", index=True)
 
     _method_sequence_unique = models.Constraint(
         "UNIQUE(method_id, sequence)", "Two steps of a testing method cannot have the same number."
@@ -38,6 +43,10 @@ class TestingMethodStep(models.Model):
     def _compute_display_name(self):
         for step in self:
             step.display_name = f"{step.method_id.code} – {step.sequence}"
+
+    def _in_use_domain(self):
+        # A step uses its location while its method is in use.
+        return Domain("method_id.active", "=", True)
 
     @api.constrains("instruction")
     def _check_instruction(self):

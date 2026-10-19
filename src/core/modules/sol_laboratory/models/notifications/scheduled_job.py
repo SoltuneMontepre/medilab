@@ -9,7 +9,11 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_SCHEDULED_JOB,
 )
-from odoo.addons.sol_laboratory.constants.notifications import EVENT_TASK_REMINDER, VIETNAM_ZONE
+from odoo.addons.sol_laboratory.constants.notifications import (
+    EVENT_LOCATION_BOOKING_REMINDER,
+    EVENT_TASK_REMINDER,
+    VIETNAM_ZONE,
+)
 from odoo.addons.sol_laboratory.constants.settings import DEFAULT_REMINDER_LEAD_MINUTES
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 from odoo.addons.sol_laboratory.services.firebase_client import (
@@ -43,8 +47,10 @@ class ScheduledJob(models.Model):
             .search(
                 [
                     "|",
+                    "|",
                     ("medilab_task_id", "!=", False),
                     ("medilab_booking_ids", "!=", False),
+                    ("location_id", "!=", False),
                     ("start", ">", grace),
                     ("start", "<=", end),
                 ]
@@ -58,11 +64,20 @@ class ScheduledJob(models.Model):
         event = item._document()
         if not event or not event.exists() or not event.start:
             return
-        task = event.medilab_task_id or event.medilab_booking_ids.task_id[:1]
-        if not task:
-            return
         stamp = fields.Datetime.to_string(event.start)
         if item.item_key != f"{event.id}:{stamp}":
+            return
+        task = event.medilab_task_id or event.medilab_booking_ids.task_id[:1]
+        if not task:
+            if event.location_id and event.active:
+                self.env["mail.message"].raise_event(
+                    EVENT_LOCATION_BOOKING_REMINDER,
+                    event,
+                    f"calendar:{event.id}:reminder:{stamp}",
+                    self.env._("Starts at %(start)s in %(location)s.", start=stamp, location=event.location),
+                    subject=event.name,
+                    partners=event.partner_ids,
+                )
             return
         partner = event.user_id.partner_id
         if not partner:

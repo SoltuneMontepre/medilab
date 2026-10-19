@@ -34,8 +34,21 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid ""
+"%(location)s is already booked from %(start)s to %(stop)s: %(booking)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
 msgid "%(person)s is not in %(department)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "%s cannot be booked."
 msgstr ""
 
 #. module: sol_laboratory
@@ -58,6 +71,12 @@ msgstr ""
 msgid ""
 "%s has no department, so a permission on it cannot be limited to the "
 "person's department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/master_data/location_map/location_map.js:0
+msgid "%s has no map. Add its picture to place the locations inside it."
 msgstr ""
 
 #. module: sol_laboratory
@@ -171,6 +190,11 @@ msgid "'Label %s' % object.code"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_calendar_event_form_quick_create_location
+msgid "<i class=\"oi oi-filled\" data-icon=\"meeting_room\" title=\"Booked Location\"/>"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_sample_label
 msgid "<span>Due</span>"
 msgstr ""
@@ -209,6 +233,11 @@ msgid "A level with signatures cannot be deleted. Signatures: %s"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_location_booking_reminder
+msgid "A location you booked or are invited to is about to be used"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid "A login belongs to one person only."
@@ -244,6 +273,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid "A person who signed cannot be deleted; archive them instead. Signatures: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_map_point_range
+msgid "A point on a map lies between 0 and 1 of the image's width and height."
 msgstr ""
 
 #. module: sol_laboratory
@@ -402,6 +436,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__active
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__active
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__active
 msgid "Active"
 msgstr ""
 
@@ -631,6 +666,16 @@ msgid "Archive chemicals"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_archive_all
+msgid "Archive company locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_archive_own_department
+msgid "Archive company locations of their department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_archive_all
 msgid "Archive customers"
 msgstr ""
@@ -747,6 +792,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Archived"
 msgstr ""
 
@@ -952,6 +999,22 @@ msgid "Blacklisted Phone is Phone"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__is_bookable
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
+msgid "Bookable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_calendar_event_form_quick_create_location
+msgid "Bookable location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__location_id
+msgid "Booked Location"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_bounce
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_bounce
 msgid "Bounce"
@@ -1142,6 +1205,12 @@ msgid "Claimed At"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/master_data/location_map/location_map.js:0
+msgid "Click the map of %s where this location is."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
 msgid "Closed By System"
 msgstr ""
@@ -1171,6 +1240,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__code
 msgid "Code"
 msgstr ""
 
@@ -1372,6 +1442,16 @@ msgid "Create chemicals"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_create_all
+msgid "Create company locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_create_own_department
+msgid "Create company locations of their department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_create_all
 msgid "Create customers"
 msgstr ""
@@ -1565,6 +1645,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -1627,6 +1708,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_date
 msgid "Created on"
 msgstr ""
 
@@ -1826,6 +1908,16 @@ msgid "Delete chemicals"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_delete_all
+msgid "Delete company locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_delete_own_department
+msgid "Delete company locations of their department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_delete_all
 msgid "Delete customers"
 msgstr ""
@@ -1953,6 +2045,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__department_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Department"
 msgstr ""
 
@@ -2132,6 +2226,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2326,6 +2421,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_chemical_edit_all
 msgid "Edit chemicals"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_edit_all
+msgid "Edit company locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_edit_own_department
+msgid "Edit company locations of their department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2786,6 +2891,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__global_location_number
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__global_location_number
 msgid "GLN"
 msgstr ""
 
@@ -2825,6 +2931,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__global_location_number
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__global_location_number
 msgid "Global Location Number"
 msgstr ""
 
@@ -3019,6 +3126,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__id
 msgid "ID"
 msgstr ""
 
@@ -3116,6 +3224,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__image_1920
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__image_1920
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__image_1920
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__image
 msgid "Image"
 msgstr ""
 
@@ -3145,6 +3254,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__image_512
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__image_512
 msgid "Image 512"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__image_attachment_id
+msgid "Image File"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3194,6 +3308,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__industry_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__industry_id
 msgid "Industry"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__parent_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
+msgid "Inside"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3545,6 +3665,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -3607,6 +3728,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -3675,7 +3797,35 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location
+#: model:ir.model,name:sol_laboratory.model_medilab_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__location_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_location_booking
+#: model:ir.ui.menu,name:sol_laboratory.menu_location_booking
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_calendar_event_location_calendar
+msgid "Location Bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_location_booking_reminder
+msgid "Location booking reminder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_location
+#: model:ir.ui.menu,name:sol_laboratory.menu_location
+msgid "Locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__child_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "Locations Inside"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3762,6 +3912,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__manufacturer
 msgid "Manufacturer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "Map"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__map_x
+msgid "Map X"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__map_y
+msgid "Map Y"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3980,6 +4145,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__name
 msgid "Name"
 msgstr ""
 
@@ -4194,6 +4360,11 @@ msgid "On Hold"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "On the Map"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/job_item.py:0
 msgid "Only a failed item can be retried."
@@ -4233,6 +4404,18 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the assignee of %s can do this."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Only the organiser can change %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Only the organiser or an administrator can cancel %s."
 msgstr ""
 
 #. module: sol_laboratory
@@ -4341,6 +4524,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__parent_path
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__parent_path
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__parent_path
 msgid "Parent Path"
 msgstr ""
 
@@ -4658,22 +4842,67 @@ msgid "Permission: job.run.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_archive_all
+msgid "Permission: lab_location.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_archive_own_department
+msgid "Permission: lab_location.archive.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_create_all
+msgid "Permission: lab_location.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_create_own_department
+msgid "Permission: lab_location.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_delete_all
+msgid "Permission: lab_location.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_delete_own_department
+msgid "Permission: lab_location.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_edit_all
+msgid "Permission: lab_location.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_edit_own_department
+msgid "Permission: lab_location.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_archive_all
 msgid "Permission: location.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_create_all
 msgid "Permission: location.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_delete_all
 msgid "Permission: location.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_edit_all
 msgid "Permission: location.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_read_all
 msgid "Permission: location.read.all"
 msgstr ""
 
@@ -5554,6 +5783,12 @@ msgid "Related user name for the resource to manage its access."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/master_data/location_map/location_map.xml:0
+msgid "Remove from the map"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__repair
 msgid "Repair"
 msgstr ""
@@ -5841,6 +6076,12 @@ msgid "Samples"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sampling_location_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__sampling_location_id
+msgid "Sampling Location"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__sampling_requirements
 msgid "Sampling Requirements"
 msgstr ""
@@ -5872,6 +6113,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
 msgid "Schedule"
 msgstr ""
 
@@ -6079,6 +6321,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__started_at
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__started_at
 msgid "Started At"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Starts at %(start)s in %(location)s."
 msgstr ""
 
 #. module: sol_laboratory
@@ -6445,6 +6693,11 @@ msgid "The code of a customer must be unique."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_code_unique
+msgid "The code of a location must be unique."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_code_unique
 msgid "The code of a machine must be unique."
 msgstr ""
@@ -6580,6 +6833,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/regulation_limit.py:0
 msgid "The limit for %s needs a unit for its minimum or maximum."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "The location is already booked at that time."
 msgstr ""
 
 #. module: sol_laboratory
@@ -6988,6 +7247,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__purchase_incoterm_location
 msgid "Vendor Incoterm Location"
 msgstr ""
 
@@ -11410,6 +11670,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -11605,6 +11867,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_field__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_watched
 msgid "Watching Lock"
 msgstr ""
 

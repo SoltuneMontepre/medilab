@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_calendar_event_form_location" model="ir.ui.view">
+        <field name="name">calendar.event.form.location</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_form" />
+        <field name="arch" type="xml">
+            <field name="location" position="before">
+                <field name="location_id" options="{'no_create': True}" readonly="not user_can_edit" />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_calendar_event_form_quick_create_location" model="ir.ui.view">
+        <field name="name">calendar.event.form.quick_create.location</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_form_quick_create" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location']/.." position="before">
+                <div class="o_outlined d-flex align-items-baseline mb-2 gap-2">
+                    <i class="oi oi-filled" data-icon="meeting_room" title="Booked Location" />
+                    <field name="location_id" nolabel="1" class="w-100" placeholder="Bookable location" options="{'no_create': True}" />
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_calendar_event_search_location" model="ir.ui.view">
+        <field name="name">calendar.event.search.location</field>
+        <field name="model">calendar.event</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_search" />
+        <field name="arch" type="xml">
+            <field name="location" position="before">
+                <field name="location_id" operator="child_of" />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_calendar_event_location_calendar" model="ir.ui.view">
+        <field name="name">calendar.event.location.calendar</field>
+        <field name="model">calendar.event</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <calendar
+                string="Location Bookings"
+                date_start="start"
+                date_stop="stop"
+                all_day="allday"
+                color="location_id"
+                mode="week"
+                quick_create="0"
+                event_open_popup="1"
+            >
+                <field name="location_id" filters="1" />
+                <field name="user_id" />
+                <field name="partner_ids" widget="many2many_tags" />
+            </calendar>
+        </field>
+    </record>
+
+    <record id="action_medilab_location_booking" model="ir.actions.act_window">
+        <field name="name">Location Bookings</field>
+        <field name="res_model">calendar.event</field>
+        <field name="path">location-bookings</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="view_id" ref="view_calendar_event_location_calendar" />
+        <field name="domain">[('location_id', '!=', False)]</field>
+    </record>
+</odoo>
