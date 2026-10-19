@@ -1,5 +1,3 @@
-import re
-
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command, Domain
@@ -17,8 +15,6 @@ from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
 SKIP_SYNC = "medilab_skip_calendar_sync"
 # Fields that move a location booking or change the location it books.
 BOOKING_FIELDS = frozenset({"start", "stop", "start_date", "stop_date", "allday", "duration", "location_id"})
-# PostgreSQL ends the detail of an overlap with the id of the booking already there.
-OVERLAPPED_ID = re.compile(r"(\d+)\)\.?$")
 
 
 # Lịch
@@ -52,8 +48,9 @@ class CalendarEvent(models.Model):
 
     @api.model
     def _overlap_message(self, diagnostics):
-        match = OVERLAPPED_ID.search(getattr(diagnostics, "message_detail", None) or "")
-        booking = self.browse(int(match.group(1))).exists() if match else self
+        # PostgreSQL ends the detail of an overlap with the id of the booking already there, as in "..., 12).".
+        overlapped = (getattr(diagnostics, "message_detail", None) or "").rstrip(".)").rpartition(" ")[2]
+        booking = self.browse(int(overlapped)).exists() if overlapped.isdigit() else self
         if not booking:
             return self.env._("The location is already booked at that time.")
         return self.env._(
