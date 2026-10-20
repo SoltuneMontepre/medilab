@@ -60,6 +60,7 @@ class TestResultConsumption(ResultCase):
                 "item_tracking": "container",
                 "chemical_id": chemical.id,
                 "use_expiration_date": True,
+                "use_shelf_life_after_opening": True,
                 "shelf_life_after_opening_days": 90,
             }
         )
@@ -189,6 +190,7 @@ class TestResultConsumption(ResultCase):
                 "item_tracking": "container",
                 "chemical_id": chemical.id,
                 "use_expiration_date": True,
+                "use_shelf_life_after_opening": True,
                 "shelf_life_after_opening_days": 30,
             }
         )

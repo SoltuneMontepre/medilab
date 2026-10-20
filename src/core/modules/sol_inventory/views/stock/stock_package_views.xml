@@ -42,6 +42,14 @@
                         groups="sol_laboratory.group_permission_container_edit_all"
                     />
                     <button
+                        name="%(sol_inventory.action_medilab_container_opening)d"
+                        type="action"
+                        string="Record opening"
+                        invisible="status != 'sealed'"
+                        context="{'default_container_id': id}"
+                        groups="sol_laboratory.group_permission_container_edit_all"
+                    />
+                    <button
                         name="action_mark_empty"
                         type="object"
                         string="Mark empty"
@@ -68,6 +76,7 @@
                             <field name="usable_until" />
                             <field name="opened_at" invisible="not opened_at" />
                             <field name="opened_by_id" invisible="not opened_at" />
+                            <field name="opening_note" invisible="not opening_note" />
                             <field name="preparation_id" invisible="not preparation_id" />
                         </group>
                     </group>

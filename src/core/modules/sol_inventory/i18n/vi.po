@@ -69,6 +69,16 @@ msgstr "%(containers)s chứa %(items)s, mà phương pháp này không dùng."
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid ""
+"%(item)s is still open in %(opened)s. Use it up or mark it empty before "
+"opening %(container)s."
+msgstr ""
+"%(item)s vẫn đang mở ở %(opened)s. Dùng hết hoặc đánh dấu hết trước khi mở "
+"%(container)s."
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/stock/stock_move.py:0
 msgid ""
 "%(item)s still needs %(quantity)s %(unit)s. Scan another opened container."
@@ -358,6 +368,12 @@ msgstr "<span>Hạn dùng</span>"
 #: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
 msgid "<span>by</span>"
 msgstr "<span>bởi</span>"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "A container cannot be opened in the future."
+msgstr "Không thể ghi nhận chai được mở ở thời điểm trong tương lai."
 
 #. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_stock_move_line_container_count_positive
@@ -731,6 +747,7 @@ msgid "By Quantity"
 msgstr "Theo số lượng"
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_opening_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
@@ -891,6 +908,7 @@ msgid "Contact Person"
 msgstr "Người liên hệ"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__container_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__container_ids
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__container_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__container_id
@@ -1047,6 +1065,7 @@ msgid "Create suppliers"
 msgstr "Tạo nhà cung cấp"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__create_uid
@@ -1063,6 +1082,7 @@ msgid "Created by"
 msgstr "Người tạo"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__create_date
@@ -1247,6 +1267,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_person__display_name
@@ -1447,8 +1468,14 @@ msgstr "Nhập vật tư và lượng lớn hơn không."
 
 #. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__expired
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_expired
 msgid "Expired"
 msgstr "Hết hạn"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__extra_reason_needed
+msgid "Extra Reason Needed"
+msgstr "Cần ghi lý do khác"
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__phone_sanitized
@@ -1518,6 +1545,12 @@ msgid "Give the reason for this use."
 msgstr "Cho lý do của lần sử dụng này."
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Give who opened the container, when, and a note."
+msgstr "Nhập người đã mở chai, thời điểm mở và ghi chú."
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__global_location_number
 msgid "Global Location Number"
 msgstr "Mã địa điểm toàn cầu"
@@ -1563,8 +1596,14 @@ msgid "House"
 msgstr "Tòa nhà"
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_opening_form
+msgid "How the container came to be opened"
+msgstr "Chai đã được mở như thế nào"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_person__id
@@ -1857,6 +1896,7 @@ msgid "Last Price"
 msgstr "Giá gần nhất"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__write_uid
@@ -1873,6 +1913,7 @@ msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__write_date
@@ -2111,6 +2152,7 @@ msgid "Not requested"
 msgstr "Chưa yêu cầu"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__note
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__note
 msgid "Note"
 msgstr "Ghi chú"
@@ -2179,6 +2221,12 @@ msgstr ""
 "Chỉ kho tổng không có kho cấp trên, nhưng các kho sau cũng không có: %s."
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Only the storekeeper of the store that holds %s records its opening."
+msgstr "Chỉ thủ kho của kho đang giữ %s mới ghi nhận được việc mở nắp."
+
+#. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
 msgid "Open"
@@ -2198,11 +2246,13 @@ msgid "Opened"
 msgstr "Đã mở nắp"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__opened_at
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_at
 msgid "Opened At"
 msgstr "Lúc mở nắp"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__opened_by_id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_by_id
 msgid "Opened By"
 msgstr "Người mở nắp"
@@ -2213,9 +2263,24 @@ msgid "Opened On"
 msgstr "Ngày mở nắp"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opening_note
+msgid "Opening Note"
+msgstr "Ghi chú mở nắp"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__order_id
 msgid "Order"
 msgstr "Đơn mua hàng"
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_other
+msgid "Other"
+msgstr "Khác"
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__extra_reason
+msgid "Other Reason"
+msgstr "Lý do khác"
 
 #. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__on_time_rate
@@ -2497,6 +2562,11 @@ msgid "Reason"
 msgstr "Lý do"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__reason_needed
+msgid "Reason Needed"
+msgstr "Cần ghi lý do"
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__scrap_reason_tag_ids
 msgid "Reason for the Extra"
 msgstr "Lý do phần tăng thêm"
@@ -2554,9 +2624,16 @@ msgid "Recipes"
 msgstr "Công thức pha chế"
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_opening_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
 msgid "Record"
 msgstr "Ghi"
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container_opening
+#: model:ir.model,name:sol_inventory.model_medilab_container_opening
+msgid "Record Opening"
+msgstr "Ghi nhận mở nắp"
 
 #. module: sol_inventory
 #: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_use
@@ -2564,6 +2641,11 @@ msgstr "Ghi"
 #: model:ir.ui.menu,name:sol_inventory.menu_record_use
 msgid "Record Use or Waste"
 msgstr "Ghi sử dụng hoặc hao hụt"
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Record opening"
+msgstr "Ghi nhận mở nắp"
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__ref
@@ -3336,6 +3418,11 @@ msgid "Use"
 msgstr "Sử dụng"
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_product_product__use_shelf_life_after_opening
+msgid "Use Shelf Life After Opening"
+msgstr "Áp dụng hạn dùng sau khi mở"
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__barcode
 msgid "Use a barcode to identify this contact."
 msgstr "Dùng mã vạch để nhận diện liên hệ này."
@@ -3441,6 +3528,12 @@ msgstr "Chưa có người quản lý"
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__wizard_id
 msgid "Wizard"
 msgstr "Pha dung dịch"
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Write what happened, since the waste reason is Other."
+msgstr "Ghi rõ chuyện gì đã xảy ra, vì lý do hao hụt là Khác."
 
 #. module: sol_inventory
 #: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_wrongly_prepared

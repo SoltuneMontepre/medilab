@@ -194,7 +194,9 @@ model StockItem {
   uom_id                        Int
   /// True when lots of the item have an expiry date.
   use_expiration_date           Boolean             @default(false)
-  /// Days an opened container stays usable; 0 when opening does not shorten its life.
+  /// True when opening a container limits its life to the shelf life after opening; false when opening does not shorten it.
+  use_shelf_life_after_opening  Boolean             @default(false)
+  /// Days an opened container stays usable after the day it is opened; 0 when it is used on that day only.
   shelf_life_after_opening_days Int?
   /// True when each lot keeps its own cost, so first in, first out costs a container at its lot's price.
   lot_valuated                  Boolean             @default(false)
@@ -371,7 +373,9 @@ model StockContainer {
   opened_at      DateTime?
   /// The Odoo user who opened or prepared the container.
   opened_by_id   Int?
-  /// Last day the container can be used: its lot's expiry date while sealed, then the earlier of that and its opening date plus the item's shelf life after opening; for a solution, the earlier of its preparation date plus the recipe's shelf life and the usable dates of what it was made from.
+  /// How an opening the storekeeper recorded came about, such as a bottle opened outside the rules.
+  opening_note   String?        @db.VarChar
+  /// Last day the container can be used: its lot's expiry date while sealed, then the earlier of that and its opening date plus the item's shelf life after opening when the item uses one; for a solution, the earlier of its preparation date plus the recipe's shelf life and the usable dates of what it was made from.
   usable_until   DateTime?      @db.Date
   /// The preparation that made the solution.
   preparation_id Int?           @unique

@@ -14,13 +14,15 @@
                     <field name="lot_id" readonly="container_id" invisible="container_id" />
                     <field name="location_id" invisible="container_id" required="not container_id" />
                     <field name="quantity" />
-                    <field name="reason" invisible="kind != 'use'" required="kind == 'use'" />
+                    <field name="reason_needed" invisible="1" />
                     <field
                         name="scrap_reason_tag_ids"
                         widget="many2many_tags"
+                        options="{'no_create': True}"
                         invisible="kind != 'waste'"
                         required="kind == 'waste'"
                     />
+                    <field name="reason" invisible="not reason_needed" required="reason_needed" />
                 </group>
                 <footer>
                     <button name="action_confirm" type="object" string="Record" class="btn-primary" />

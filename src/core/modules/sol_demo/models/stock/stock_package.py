@@ -58,8 +58,8 @@ class StockPackage(models.Model):
                 "sulfuric_acid_005m",
             )
         }
-        # A shelf life after opening, so opening shortens the usable date; the shipped item leaves it at 0.
-        item["sodium_chloride"].shelf_life_after_opening_days = 180
+        # A shelf life after opening, so opening shortens the usable date; the shipped item does not use one.
+        item["sodium_chloride"].write({"use_shelf_life_after_opening": True, "shelf_life_after_opening_days": 180})
         item["sulfuric_acid"].standard_price = 2
         item["distilled_water"].standard_price = 1
 
@@ -68,9 +68,10 @@ class StockPackage(models.Model):
         sealed = [_container(self.env, lot, number, BOTTLE, store) for number in (1, 2)]
         opened = _container(self.env, lot, 3, BOTTLE, store)
         emptied = _container(self.env, lot, 4, BOTTLE, store)
-        opened.with_user(tester).action_open()
+        # The emptied bottle is finished before the next one is opened, as the store opens one at a time.
         emptied.with_user(tester).action_open()
         emptied.with_user(tester).action_mark_empty()
+        opened.with_user(tester).action_open()
         expired_lot = _lot(self.env, acetonitrile, EXPIRED_LOT, -1)
         expired_lot.status = LOT_EXPIRED
         expired = _container(self.env, expired_lot, 1, BOTTLE, store)
@@ -130,14 +131,22 @@ class StockPackage(models.Model):
             return False
 
     def _grant_demo_roles(self):
-        """The tester opens, prepares and records use. The storekeeper reads every move."""
+        """The tester opens, prepares and records use. The storekeeper reads every move and records the openings a
+        tester could not make."""
         tester = self.env.ref(TESTER_ROLE)
         storekeeper = self.env.ref(STOREKEEPER_ROLE)
         tester_permissions = self.env["medilab.permission"].browse()
         for code in ("container_edit_all", "preparation_create_all", "move_create_all"):
             tester_permissions |= self.env.ref(f"sol_inventory.permission_{code}")
         tester.write({"permission_ids": [Command.link(permission.id) for permission in tester_permissions]})
-        storekeeper.write({"permission_ids": [Command.link(self.env.ref("sol_inventory.permission_move_read_all").id)]})
+        storekeeper.write(
+            {
+                "permission_ids": [
+                    Command.link(self.env.ref(f"sol_inventory.permission_{code}").id)
+                    for code in ("move_read_all", "container_edit_all")
+                ]
+            }
+        )
 
 
 def _lot(env, item, name, days):

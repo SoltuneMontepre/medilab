@@ -16,4 +16,14 @@
         <field name="name">Wrongly prepared</field>
         <field name="sequence">40</field>
     </record>
+    <!-- Disposing of stock past its usable date, rather than wasting it. -->
+    <record id="scrap_reason_expired" model="stock.scrap.reason.tag">
+        <field name="name">Expired</field>
+        <field name="sequence">50</field>
+    </record>
+    <!-- Any other reason, written out on the move. -->
+    <record id="scrap_reason_other" model="stock.scrap.reason.tag">
+        <field name="name">Other</field>
+        <field name="sequence">90</field>
+    </record>
 </odoo>

@@ -22,8 +22,7 @@ class ContainersCase(RecipeCase):
         cls.grant_inventory(cls.tester, *CONTAINER_PERMISSIONS)
         cls.acid.use_expiration_date = True
         cls.water.use_expiration_date = True
-        cls.acid.shelf_life_after_opening_days = 30
-        cls.water.shelf_life_after_opening_days = 30
+        (cls.acid | cls.water).write({"use_shelf_life_after_opening": True, "shelf_life_after_opening_days": 30})
         cls.acid.standard_price = 2
         cls.water.standard_price = 1
 

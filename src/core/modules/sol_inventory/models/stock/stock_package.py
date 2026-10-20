@@ -25,10 +25,12 @@ from odoo.addons.sol_inventory.constants.stock import (
     DONE,
     IN_STOCK_STATUSES,
     LOT_AVAILABLE,
+    LOT_EXPIRED,
 )
 from odoo.addons.sol_inventory.constants.xml_ids import (
     CONTAINER_ACTION,
     CONTAINER_LABEL_REPORT,
+    SCRAP_EXPIRED,
     SMALL_CONTAINER_LABEL_REPORT,
 )
 from odoo.addons.sol_laboratory.constants.models import (
@@ -67,6 +69,8 @@ class StockPackage(models.Model):
     opened_on = fields.Date(string="Opened On", compute="_compute_opened_on")
     # Who opened the container or prepared the solution in it.
     opened_by_id = fields.Many2one(MODEL_RES_USERS, string="Opened By", copy=False, ondelete="restrict")
+    # How an opening the storekeeper recorded came about, such as a bottle opened outside the rules.
+    opening_note = fields.Char(string="Opening Note", copy=False)
     # The preparation that filled this container; empty for a container that was received.
     preparation_id = fields.Many2one(MODEL_PREPARATION, string="Preparation", copy=False, ondelete="restrict")
     # Last day the container can be used. Empty when its lot has no expiry and it is still sealed.
@@ -107,7 +111,13 @@ class StockPackage(models.Model):
         for container in self:
             container.opened_on = self._as_date(container.opened_at)
 
-    @api.depends("status", "opened_at", "lot_id.expiration_date", "item_id.shelf_life_after_opening_days")
+    @api.depends(
+        "status",
+        "opened_at",
+        "lot_id.expiration_date",
+        "item_id.use_shelf_life_after_opening",
+        "item_id.shelf_life_after_opening_days",
+    )
     def _compute_usable_until(self):
         for container in self:
             container.usable_until = container._usable_date()
@@ -132,15 +142,15 @@ class StockPackage(models.Model):
 
     def _usable_date(self):
         """Last day this container can be used: its lot's expiry, and once opened also its opening day plus the
-        item's shelf life after opening, when that shelf life is above 0. A solution's lot expires on the date its
-        preparation worked out. No date means the lot prints no expiry."""
+        item's shelf life after opening, when the item uses one; a shelf life of 0 days ends on the opening day. A
+        solution's lot expires on the date its preparation worked out. No date means the lot prints no expiry."""
         self.ensure_one()
         lot_date = self._as_date(self.lot_id.expiration_date)
         opened_on = self._as_date(self.opened_at)
-        shelf_life = self.item_id.shelf_life_after_opening_days
-        if self.status == CONTAINER_SEALED or not opened_on or not shelf_life:
+        item = self.item_id
+        if self.status == CONTAINER_SEALED or not opened_on or not item.use_shelf_life_after_opening:
             return lot_date
-        opened_until = opened_on + timedelta(days=shelf_life)
+        opened_until = opened_on + timedelta(days=item.shelf_life_after_opening_days)
         return min(lot_date, opened_until) if lot_date else opened_until
 
     @api.model
@@ -178,8 +188,45 @@ class StockPackage(models.Model):
         self._check_usable()
         person = self.env[MODEL_PERSON]._for_user()
         self._check_in_store(person)
+        self._check_none_opened(person._store())
         self.write({"status": CONTAINER_OPENED, "opened_at": fields.Datetime.now(), "opened_by_id": self.env.user.id})
         return self.action_print_label()
+
+    def _record_opening(self, opened_by, opened_at, note):
+        """Record an opening the tester could not make, as the storekeeper of the container's store or of a store
+        above it. A container then past its usable date is disposed of as expired; any other is tracked as opened
+        and its label printed."""
+        self.ensure_one()
+        self._check_permission("edit")
+        if self.status != CONTAINER_SEALED:
+            raise UserError(self.env._("%s is not sealed.", self.display_name))
+        if not self._kept_by(self.env[MODEL_PERSON]._for_user()):
+            raise UserError(
+                self.env._("Only the storekeeper of the store that holds %s records its opening.", self.display_name)
+            )
+        note = (note or "").strip()
+        if not opened_by or not opened_at or not note:
+            raise UserError(self.env._("Give who opened the container, when, and a note."))
+        if opened_at > fields.Datetime.now():
+            raise UserError(self.env._("A container cannot be opened in the future."))
+        self.write(
+            {"status": CONTAINER_OPENED, "opened_at": opened_at, "opened_by_id": opened_by.id, "opening_note": note}
+        )
+        if not self._is_expired():
+            return self.action_print_label()
+        if self.item_id and not self.item_id.uom_id.is_zero(self.quantity):
+            self.env[MODEL_STOCK_MOVE]._take_containers(
+                self.item_id,
+                self,
+                self.quantity,
+                scrap=True,
+                check_use=False,
+                automatic=False,
+                scrap_reason_tag_ids=self.env.ref(SCRAP_EXPIRED),
+            )
+        else:
+            self.status = CONTAINER_DISPOSED
+        return {"type": "ir.actions.act_window_close"}
 
     def action_mark_empty(self):
         """Use up whatever is left in an opened container and mark it depleted. The move says Marked empty."""
@@ -227,6 +274,55 @@ class StockPackage(models.Model):
                 raise UserError(self.env._("%s is past its usable date.", container.display_name))
             if not container.lot_id or container.lot_id.status != LOT_AVAILABLE:
                 raise UserError(self.env._("The lot of %s is not available.", container.display_name))
+
+    def _is_expired(self):
+        """True when the container's usable date has passed or its lot has expired."""
+        self.ensure_one()
+        return bool(self.usable_until and self.usable_until < self._today()) or self.lot_id.status == LOT_EXPIRED
+
+    def _check_none_opened(self, stores):
+        """Refuse opening while these stores hold another opened, usable container of the same item with some left:
+        that one is used up first. Another team's or department's store opens its own."""
+        self.ensure_one()
+        opened = (
+            self.sudo()
+            .search(
+                [
+                    ("id", "!=", self.id),
+                    ("status", "=", CONTAINER_OPENED),
+                    ("item_id", "=", self.item_id.id),
+                    ("location_id", "child_of", stores.ids),
+                ]
+            )
+            .filtered(
+                lambda container: (
+                    container._is_in(stores)
+                    and not container._is_expired()
+                    and not container.item_id.uom_id.is_zero(container.quantity)
+                )
+            )
+        )
+        if opened:
+            raise UserError(
+                self.env._(
+                    "%(item)s is still open in %(opened)s. Use it up or mark it empty before opening %(container)s.",
+                    item=self.item_id.display_name,
+                    opened=format_list(self.env, opened.mapped("display_name")),
+                    container=self.display_name,
+                )
+            )
+
+    def _kept_by(self, person):
+        """True when the person manages the store that holds the container, or a store above it."""
+        self.ensure_one()
+        employee = person.employee_id
+        location = self.sudo().location_id
+        store = location._holding_store() if location else location
+        while employee and store:
+            if store.manager_id == employee:
+                return True
+            store = store._store_above()
+        return False
 
     def _check_for_use(self, person):
         """The container is opened, still usable and in this person's store."""

@@ -11,6 +11,7 @@ from odoo.addons.sol_inventory.constants.models import (
     MODEL_STOCK_USE,
 )
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_OPENED, CONTAINER_SEALED
+from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_EXPIRED, SCRAP_OTHER
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
 
 USE = "use"
@@ -38,10 +39,22 @@ class StockUse(models.TransientModel):
     store_ids = fields.Many2many(MODEL_STOCK_LOCATION, string="Stores", compute="_compute_store_ids")
     # Quantity used or wasted, in the item's unit.
     quantity = fields.Float(digits="Product Unit")
-    # Why the stock was used. Required for a use; a waste uses a scrap reason instead.
+    # Why the stock was used, or what happened to wasted stock whose waste reason is Other.
     reason = fields.Char()
-    # Why the stock was wasted.
-    scrap_reason_tag_ids = fields.Many2many(MODEL_SCRAP_REASON_TAG, string="Waste Reason")
+    # Why the stock was wasted. Expired stock is disposed of, not wasted.
+    scrap_reason_tag_ids = fields.Many2many(
+        MODEL_SCRAP_REASON_TAG,
+        string="Waste Reason",
+        domain=lambda self: [("id", "!=", self.env.ref(SCRAP_EXPIRED).id)],
+    )
+    # True when the reason must be written: for a use, or for a waste whose reasons include Other.
+    reason_needed = fields.Boolean(compute="_compute_reason_needed")
+
+    @api.depends("kind", "scrap_reason_tag_ids")
+    def _compute_reason_needed(self):
+        other = self.env.ref(SCRAP_OTHER)
+        for wizard in self:
+            wizard.reason_needed = wizard.kind == USE or other in wizard.scrap_reason_tag_ids._origin
 
     @api.depends_context("uid")
     def _compute_store_ids(self):
@@ -154,10 +167,14 @@ class StockUse(models.TransientModel):
         return {"type": "ir.actions.act_window_close"}
 
     def _move_values(self, scrap):
-        """What the move records: the reason of a use, named as its reference, or the scrap reasons of a waste, whose
-        reference Odoo numbers."""
+        """What the move records: the reason of a use, named as its reference, or the scrap reasons of a waste, with
+        what happened when one is Other, whose reference Odoo numbers."""
         if scrap:
-            return {"automatic": False, "scrap_reason_tag_ids": self.scrap_reason_tag_ids}
+            return {
+                "automatic": False,
+                "scrap_reason_tag_ids": self.scrap_reason_tag_ids,
+                "reason": self.env[MODEL_STOCK_MOVE]._waste_reason(self.scrap_reason_tag_ids, self.reason),
+            }
         return {"automatic": False, "reason": self.reason, "reference": self.reason}
 
     def _check_can_record(self):
