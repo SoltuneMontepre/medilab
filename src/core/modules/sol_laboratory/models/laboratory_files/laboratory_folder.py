@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_DEVICE,
+    MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FOLDER,
     MODEL_LABORATORY_FOLDER_MEMBER,
     MODEL_LABORATORY_SYNC_RULE,
@@ -32,7 +33,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import FOLDER_ADMINISTRATION_GROUP, LABORATORY_FILES_GROUP
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
-from odoo.addons.sol_laboratory.services.laboratory_paths import is_name
+from odoo.addons.sol_laboratory.services.laboratory_paths import is_name, normal_text
 
 
 # Thư Mục Phòng Thí Nghiệm
@@ -43,7 +44,7 @@ class LaboratoryFolder(models.Model):
     _order = "name, id"
     # Folders are archived, never deleted, and archiving one is editing it: it has no active field.
     _permission_actions = ("read", "create", "edit")
-    _audit_children = ("member_ids", "rule_ids")
+    _audit_children = ("member_ids", "rule_ids", "file_ids")
 
     # Name people see.
     name = fields.Char(required=True)
@@ -76,6 +77,8 @@ class LaboratoryFolder(models.Model):
     member_ids = fields.One2many(MODEL_LABORATORY_FOLDER_MEMBER, "folder_id", string="Members")
     # Which files of a bound local folder are synced.
     rule_ids = fields.One2many(MODEL_LABORATORY_SYNC_RULE, "folder_id", string="Sync Rules")
+    # Files in the folder.
+    file_ids = fields.One2many(MODEL_LABORATORY_FILE, "folder_id", string="Files")
     # in_use, turned_off by an administrator, or archived for good.
     status = fields.Selection(
         [("in_use", "In Use"), ("turned_off", "Turned Off"), ("archived", "Archived")], compute="_compute_status"
@@ -89,6 +92,7 @@ class LaboratoryFolder(models.Model):
     def create(self, vals_list):
         administrator = self.env.su or self.env.user.has_group(FOLDER_ADMINISTRATION_GROUP)
         for vals in vals_list:
+            vals.update(self._normal_names(vals))
             vals.setdefault("root", vals.get("name"))
             # The laboratory files permission creates folders of one's own; a sample's folders come from the sample.
             if not administrator and (
@@ -117,6 +121,7 @@ class LaboratoryFolder(models.Model):
 
     def write(self, vals):
         self._check_not_archived()
+        vals = {**vals, **self._normal_names(vals)}
         if "root" in vals and any(folder.root != vals["root"] for folder in self):
             raise UserError(self.env._("The name a folder was created with never changes; rename the folder instead."))
         if vals.get("owner_id"):
@@ -146,6 +151,11 @@ class LaboratoryFolder(models.Model):
                 "retention_until": fields.Date.context_today(self) + timedelta(days=days),
             }
         )
+
+    @api.model
+    def _normal_names(self, vals):
+        # The same name typed on two computers is the same text, whatever Unicode form each one used.
+        return {name: normal_text(vals[name]) for name in ("name", "root") if vals.get(name)}
 
     def _check_not_archived(self):
         # There is no unarchiving, so an archived folder is only read; administrators still remove its members.

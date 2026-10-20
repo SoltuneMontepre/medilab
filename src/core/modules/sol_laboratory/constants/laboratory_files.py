@@ -1,5 +1,5 @@
-"""Member roles, sync modes and access levels of laboratory folders, the key scope of the computers signed in to them,
-and the codes of their refusals."""
+"""Member roles, sync modes and access levels of laboratory folders, the sources of file versions, the key scope of the
+computers signed in to them, and the codes of their refusals."""
 
 # The scope of the Odoo API keys of signed-in computers: they open the laboratory files API and nothing else.
 DEVICE_KEY_SCOPE = "sol_laboratory.device"
@@ -7,6 +7,11 @@ OWNER_ROLE = "owner"
 MEMBER_ROLE = "member"
 UPLOAD_ONLY = "upload_only"
 TWO_WAY = "two_way"
+# How a version was made: synced from a computer, kept from a conflict, restored from an earlier one, or edited online.
+SYNCED = "synced"
+CONFLICT = "conflict"
+RESTORED = "restored"
+EDITED_ONLINE = "edited_online"
 # What a person does with a folder: read it, write its files, share it and set its rules, or administer it.
 FOLDER_READ = "read"
 FOLDER_WRITE = "write"

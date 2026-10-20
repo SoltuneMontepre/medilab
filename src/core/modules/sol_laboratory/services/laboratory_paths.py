@@ -1,6 +1,8 @@
-"""Checks that the names and patterns laboratory folders receive are names, never a path on someone's computer."""
+"""Checks that the names, paths and patterns laboratory folders receive are relative, never a path on someone's
+computer, and the one form they are kept in."""
 
 import re
+import unicodedata
 
 # A separator, a drive such as C:, or a character no file name holds.
 NOT_IN_A_NAME = re.compile(r"[/\\:\x00-\x1f\x7f]")
@@ -32,3 +34,18 @@ def is_extension(text):
 def normal_extension(text):
     """An extension as rules keep it: without its dot and in lowercase, so a file matches it whatever its case."""
     return text.removeprefix(".").lower()
+
+
+def is_relative_path(text):
+    """A path relative to a folder, such as HPLC/run-01.csv: names separated by /, without a root or a drive."""
+    return bool(text) and all(is_name(name) for name in text.split("/"))
+
+
+def normal_text(text):
+    """A name, path or pattern in one Unicode form, so a Vietnamese name typed on two computers is the same text."""
+    return unicodedata.normalize("NFC", text) if text else text
+
+
+def path_key(path):
+    """What makes two paths one file: the same path in one Unicode form, whatever the letter case."""
+    return normal_text(path).casefold()

@@ -66,6 +66,7 @@ Known limitation: the back office shows a folder of a sample to its members by t
 The API never receives or stores a path on anyone's computer:
 
 - A folder's name and its root, the name it was created with, are one name each: no separator, drive, home folder or parent folder. Renaming changes the name; the root never changes, and it is unique for the owner.
+- Folder names, roots, sync rule patterns and file paths are kept in Unicode NFC, so a Vietnamese name typed on two computers is the same text.
 - A sync rule's name prefix is the start of a file name without `*`, its name pattern is a file name whose only wildcard is `*`, and its extension is letters and digits. An extension is kept without its dot and in lowercase, so `.PDF`, `.pdf` and `pdf` are one rule, and a file matches it when its own extension, in lowercase, is the same.
 
 ### Computers

@@ -34,6 +34,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "%(path)s, version %(number)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
 msgid "%(person)s is not in %(department)s."
 msgstr ""
@@ -206,6 +212,26 @@ msgid "A document type cannot have two chains for the same purpose."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_version_file_number_unique
+msgid "A file has one version of each number."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid ""
+"A file keeps its folder and its path; files are never moved or renamed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid ""
+"A file's path is relative to its folder, such as HPLC/run-01.csv, never a "
+"path on a computer: %s"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_member_folder_owner_unique
 msgid "A folder has one owner; change the folder's owner instead."
 msgstr ""
@@ -348,6 +374,29 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_one_default
 msgid "A test parameter has only one default way of testing."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_current_version_unique
+msgid "A version is the current version of one file only."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_version_sha256_format
+msgid "A version's SHA-256 is 64 lowercase hexadecimal digits."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid ""
+"A version's number, content and origin never change; save the file again "
+"instead."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_version_size_positive
+msgid "A version's size cannot be negative."
 msgstr ""
 
 #. module: sol_laboratory
@@ -1340,6 +1389,11 @@ msgid "Completed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__device_id
+msgid "Computer"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
 msgid "Computers"
@@ -1363,6 +1417,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__confirmed
 msgid "Confirmed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__conflict
+msgid "Conflict"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1659,6 +1718,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -1725,6 +1787,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_date
 msgid "Created on"
 msgstr ""
 
@@ -1776,6 +1841,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_employee_skill_ids
 msgid "Current Employee Skill"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_version_id
+msgid "Current Version"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2242,6 +2312,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2604,6 +2677,11 @@ msgid "Edit ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__edited_online
+msgid "Edited Online"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__date_version
 msgid "Effective Date"
 msgstr ""
@@ -2817,6 +2895,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__file_ids
+msgid "Files"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_customer_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_handover_record_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_parameter_group_form
@@ -2871,6 +2954,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__folder_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__folder_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__folder_id
 msgid "Folder"
 msgstr ""
 
@@ -3174,6 +3259,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__id
 msgid "ID"
 msgstr ""
 
@@ -3604,6 +3692,21 @@ msgid "Laboratory Device"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file
+msgid "Laboratory File"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file_change
+msgid "Laboratory File Change"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file_version
+msgid "Laboratory File Version"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_laboratory_files
 msgid "Laboratory Files"
 msgstr ""
@@ -3621,6 +3724,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_laboratory_sync_rule
 msgid "Laboratory Sync Rule"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "Laboratory files are never deleted."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3752,6 +3861,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -3818,6 +3930,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -4629,6 +4744,11 @@ msgid "Parent Path"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__parent_version_id
+msgid "Parent Version"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__parent_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__parent_name
 msgid "Parent name"
@@ -4679,6 +4799,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__passport_id
 msgid "Passport No"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__path
+msgid "Path"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__path_key
+msgid "Path Key"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4954,6 +5084,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_laboratory_device_read_all
 msgid "Permission: laboratory.device.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_change_read_all
+msgid "Permission: laboratory.file.change.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_read_all
+msgid "Permission: laboratory.file.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_version_read_all
+msgid "Permission: laboratory.file.version.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5748,8 +5893,18 @@ msgid "Read every computer signed in to laboratory folders"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_read_all
+msgid "Read every laboratory file"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_read_all
 msgid "Read every laboratory folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_version_read_all
+msgid "Read every version of laboratory files"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5815,6 +5970,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_read_all
 msgid "Read test requests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_change_read_all
+msgid "Read the changes of every laboratory folder"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5995,6 +6155,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_user_id
 msgid "Responsible User"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__restored
+msgid "Restored"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__restored_from_id
+msgid "Restored From"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6275,6 +6445,11 @@ msgid "Saturday"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__user_id
+msgid "Saved By"
+msgstr ""
+
+#. module: sol_laboratory
 #: code:addons/sol_laboratory/models/master_data/testing_method_step.py:0
 msgid "Say what to do in the step."
 msgstr ""
@@ -6470,6 +6645,11 @@ msgid "Signup Token Type"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__size
+msgid "Size"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__skill_ids
 msgid "Skill"
 msgstr ""
@@ -6591,6 +6771,11 @@ msgid "Storage Conditions"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__storage_key
+msgid "Storage Key"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__street
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__street
 msgid "Street"
@@ -6671,6 +6856,11 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_sync_rule
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Sync Rules"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__synced
+msgid "Synced"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6885,6 +7075,18 @@ msgid "The batch size and the attempts must be at least 1."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_change.py:0
+msgid "The changes of laboratory files are never deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_change.py:0
+msgid "The changes of laboratory files are only added, never changed."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_chemical_code_unique
 msgid "The code of a chemical must be unique."
 msgstr ""
@@ -7009,6 +7211,13 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_account_position_id
 msgid ""
 "The fiscal position determines the taxes/accounts used for this contact."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_folder_path_unique
+msgid ""
+"The folder already has a file with this path, perhaps in another letter "
+"case."
 msgstr ""
 
 #. module: sol_laboratory
@@ -7587,6 +7796,17 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__version_revision
 msgid "Version Revision"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__version_ids
+msgid "Versions"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "Versions of laboratory files are never deleted."
 msgstr ""
 
 #. module: sol_laboratory
@@ -10120,6 +10340,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__version_id
 msgid "Version"
 msgstr ""
 
@@ -11048,6 +11269,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__file
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__file_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__file_id
 msgid "File"
 msgstr ""
 
@@ -11161,6 +11384,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__source model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__source model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__source
 msgid "Source"
 msgstr ""
 
@@ -11727,6 +11951,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__file_hash
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__checksum
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__sha256
 msgid "SHA-256"
 msgstr ""
 
@@ -12466,6 +12691,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__number
 msgid "Number"
 msgstr ""
 
