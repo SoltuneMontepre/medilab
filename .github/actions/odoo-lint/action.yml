@@ -5,7 +5,7 @@ inputs:
   image:
     description: "Odoo image to lint inside. Must have the Odoo runtime importable."
     required: false
-    default: "docker.io/library/odoo:20.0-20260926@sha256:cdd83e8359b3e8c357895d476396c05021fed9975bf420f353bab25fcaed1533"
+    default: "docker.io/library/odoo@sha256:cdd83e8359b3e8c357895d476396c05021fed9975bf420f353bab25fcaed1533"
   addons-path:
     description: "Host path containing the Odoo addons to lint (one directory per module)."
     required: false
