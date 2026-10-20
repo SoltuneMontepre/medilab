@@ -15,15 +15,14 @@ env:
   SYNC_APP_DIR: src/applications/medilab-sync
 
 jobs:
-  sync-app:
+  changes:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 2
     permissions:
       contents: read
       pull-requests: read
-    defaults:
-      run:
-        working-directory: ${{ env.SYNC_APP_DIR }}
+    outputs:
+      relevant: ${{ steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -37,48 +36,91 @@ jobs:
               - "src/applications/medilab-sync/**"
               - ".github/workflows/ci.sync-app.yml"
 
+  build:
+    name: build (${{ matrix.label }})
+    needs: changes
+    if: needs.changes.outputs.relevant == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - label: Linux
+            os: ubuntu-24.04
+          - label: Windows
+            os: windows-2025
+          - label: macOS
+            os: macos-15
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.SYNC_APP_DIR }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
       - name: Set up Rust
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
 
       - name: Cache Rust build
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
+          key: ${{ matrix.label }}
 
       - name: Rust format
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: runner.os == 'Linux'
         run: cargo fmt --check --manifest-path src-tauri/Cargo.toml
 
       - name: Install Linux build dependencies
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
 
       - name: Set up Bun
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         uses: oven-sh/setup-bun@v2
 
       - name: Install frontend dependencies
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: bun install --frozen-lockfile --ignore-scripts
 
       - name: Frontend tests
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: runner.os == 'Linux'
         run: bun test
 
       - name: Build frontend
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: bun run build
 
       - name: Clippy
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings
 
       - name: Rust tests
-        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: cargo test --manifest-path src-tauri/Cargo.toml
+
+  sync-app:
+    needs: [changes, build]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check the change detection
+        env:
+          RESULT: ${{ needs.changes.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::The change detection finished with result $RESULT."
+            exit 1
+          fi
+
+      - name: Check the builds
+        if: needs.changes.outputs.relevant == 'true'
+        env:
+          RESULT: ${{ needs.build.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::The sync app builds finished with result $RESULT."
+            exit 1
+          fi

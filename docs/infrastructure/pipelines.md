@@ -61,7 +61,8 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 
 The sync app is the Tauri desktop client in `src/applications/medilab-sync`.
 
-- `sync-app` is the required check of `ci-sync-app`. When the app or the workflow changes, it runs `cargo fmt --check`, `bun test`, the frontend build, Clippy with warnings as errors, and `cargo test`, on Linux.
+- When the app or the workflow changes, `build` runs on Linux, Windows and macOS at once, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. Every runner builds the frontend and runs Clippy with warnings as errors and `cargo test`; Linux also runs `cargo fmt --check` and `bun test`. One failure stops the others.
+- `sync-app` is the required check of `ci-sync-app`: it fails unless every `build` passed, and passes at once when nothing relevant changed.
 - A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
 - `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
 - `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release.
