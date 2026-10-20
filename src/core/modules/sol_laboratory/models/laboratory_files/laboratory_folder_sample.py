@@ -1,12 +1,14 @@
 from odoo import models
 from odoo.exceptions import UserError
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER
+from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER, MODEL_LABORATORY_SAMPLE_FOLDER_MIXIN
 
 
-# Thư Mục Phòng Thí Nghiệm: a sample has one folder of each category.
+# Thư Mục Phòng Thí Nghiệm: a sample has one folder of each category, which only people who see the sample see.
 class LaboratoryFolderSample(models.Model):
-    _inherit = MODEL_LABORATORY_FOLDER
+    _name = MODEL_LABORATORY_FOLDER
+    _inherit = [MODEL_LABORATORY_FOLDER, MODEL_LABORATORY_SAMPLE_FOLDER_MIXIN]
+    _sample_field = "sample_id"
 
     _sample_category_unique = models.Constraint(
         "UNIQUE(sample_id, category)", "The sample already has a folder of this category."

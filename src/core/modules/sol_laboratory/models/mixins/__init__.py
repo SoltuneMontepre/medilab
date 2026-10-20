@@ -8,6 +8,7 @@ from . import (
     code_mixin,
     contact_mixin,
     digital_signing_mixin,
+    laboratory_sample_folder_mixin,
     lock_mixin,
     permission_mixin,
 )
