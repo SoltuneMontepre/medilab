@@ -34,6 +34,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "%(path)s, version %(number)s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
 msgid "%(person)s is not in %(department)s."
 msgstr ""
@@ -187,8 +193,65 @@ msgid "A chain with signatures cannot be deleted; archive it instead. Signatures
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"A computer signs in with its installation id and its name, never a path."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"A computer signs in with its installation id, its name and its platform."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_chain_purpose_unique
 msgid "A document type cannot have two chains for the same purpose."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_version_file_number_unique
+msgid "A file has one version of each number."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid ""
+"A file keeps its folder and its path; files are never moved or renamed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "A file's current version changes only by saving or restoring the file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "A file's current version only moves on to a newer version of the file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid ""
+"A file's path is relative to its folder, such as HPLC/run-01.csv, never a "
+"path on a computer: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_member_folder_owner_unique
+msgid "A folder has one owner; change the folder's owner instead."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "A folder is named, such as HPLC, never given a path on a computer: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -217,6 +280,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_measurement_unit_name_unique
 msgid "A measurement unit with this symbol already exists."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid ""
+"A name pattern is a file name with *, such as run-*.csv, without a path: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid ""
+"A name prefix is the start of a file name, such as run-, without * or a "
+"path: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -308,6 +386,34 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_one_default
 msgid "A test parameter has only one default way of testing."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_current_version_unique
+msgid "A version is the current version of one file only."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_version_sha256_format
+msgid "A version's SHA-256 is 64 lowercase hexadecimal digits."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid ""
+"A version's number, content and origin never change; save the file again "
+"instead."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_version_size_positive
+msgid "A version's size cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__api_key_id
+msgid "API Key"
 msgstr ""
 
 #. module: sol_laboratory
@@ -465,6 +571,16 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_member_create_all
+msgid "Add members to any laboratory folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_sync_rule_create_all
+msgid "Add sync rules to any laboratory folder"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__additional_identifiers
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__additional_identifiers
 msgid "Additional Identifiers"
@@ -505,6 +621,11 @@ msgid "Address inline (without name)"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_edit_all
+msgid "Administer laboratory folders"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.role,name:sol_laboratory.role_administrator
 msgid "Administrator"
 msgstr ""
@@ -542,6 +663,18 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__allowed_country_state_ids
 msgid "Allowed Country State"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid "An extension is letters and digits, such as csv: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "Another save created the file %s meanwhile; the save is run again."
 msgstr ""
 
 #. module: sol_laboratory
@@ -612,6 +745,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__archive
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Archive"
 msgstr ""
 
@@ -747,7 +881,19 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__archived
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
 msgid "Archived"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__archived_at
+msgid "Archived At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_folder_retention_days
+msgid "Archived Folders (days)"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1261,6 +1407,17 @@ msgid "Completed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__device_id
+msgid "Computer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+msgid "Computers"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_res_config_settings
 msgid "Config Settings"
 msgstr ""
@@ -1278,6 +1435,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__confirmed
 msgid "Confirmed"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__conflict
+msgid "Conflict"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
+msgid "Conflicts"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1507,6 +1674,11 @@ msgid "Create ways of testing of their department"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__created_by_device_id
+msgid "Created By Device"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__create_uid
@@ -1565,6 +1737,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -1627,6 +1806,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_date
 msgid "Created on"
 msgstr ""
 
@@ -1678,6 +1864,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_employee_skill_ids
 msgid "Current Employee Skill"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_number
+msgid "Current Number"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_version_id
+msgid "Current Version"
 msgstr ""
 
 #. module: sol_laboratory
@@ -1765,6 +1961,13 @@ msgid ""
 "Days a sample test is due before the date promised to the customer, "
 "kept for handling incidents. Applies to sample tests whose due date "
 "is worked out from now on."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_folder_retention_days
+msgid ""
+"Days an archived laboratory folder keeps its files and versions; archiving a"
+" folder sets its retention date this many days later."
 msgstr ""
 
 #. module: sol_laboratory
@@ -2132,6 +2335,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2195,6 +2406,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__document_version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__document_version
 msgid "Document Version"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_documents
+msgid "Documents"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2469,6 +2685,11 @@ msgid "Edit testing methods"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_sync_rule_edit_all
+msgid "Edit the sync rules of any laboratory folder"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_unit_category_edit_all
 msgid "Edit unit categories"
 msgstr ""
@@ -2481,6 +2702,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_parameter_method_edit_own_department
 msgid "Edit ways of testing of their department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__edited_online
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
+msgid "Edited Online"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2650,6 +2877,11 @@ msgid "Expired"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_sync_rule__kind__extension
+msgid "Extension"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__share
 msgid ""
 "External user with limited access, created only for the purpose of "
@@ -2689,6 +2921,20 @@ msgstr ""
 msgid ""
 "Field used to store sanitized phone number. Helps speeding up "
 "searches and comparisons."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file_version
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file_version
+msgid "File Versions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__file_ids
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Files"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2739,6 +2985,34 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__fixed_term
 msgid "Fixed Term"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__folder_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__folder_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__folder_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__folder_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_search
+msgid "Folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__category
+msgid "Folder Category"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_folder_member
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_folder_member
+msgid "Folder Members"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_folder
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_folder
+msgid "Folders"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3019,6 +3293,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__id
 msgid "ID"
 msgstr ""
 
@@ -3158,6 +3440,12 @@ msgid "In Person"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__in_use
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "In Use"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__in_progress
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
 msgid "In progress"
@@ -3166,6 +3454,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine__status__in_use
 msgid "In use"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__recursive
+msgid "Include Subfolders"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3194,6 +3487,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__industry_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__industry_id
 msgid "Industry"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__client_uid
+msgid "Installation ID"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3397,6 +3695,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__kind
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__kind
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__kind
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
 msgid "Kind"
 msgstr ""
 
@@ -3423,6 +3723,52 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_root
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Laboratory"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_device
+msgid "Laboratory Device"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file
+msgid "Laboratory File"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file_change
+msgid "Laboratory File Change"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file_version
+msgid "Laboratory File Version"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_laboratory_files
+msgid "Laboratory Files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_folder
+msgid "Laboratory Folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_folder_member
+msgid "Laboratory Folder Member"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_sync_rule
+msgid "Laboratory Sync Rule"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "Laboratory files are never deleted."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3482,8 +3828,19 @@ msgid "Last Run"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Last Saved"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lastcall
 msgid "Last Scheduled Run"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__last_seen_at
+msgid "Last Seen"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3545,6 +3902,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -3607,6 +3971,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -3659,6 +4030,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__linked_by_system
 msgid "Linked By System"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__linux
+msgid "Linux"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3833,8 +4209,22 @@ msgid "Meetings"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__user_id
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder_member__role__member
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Member"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__member_of_department
 msgid "Member of department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__member_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Members"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3928,6 +4318,11 @@ msgid "My Activity Deadline"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "My Folders"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "My Queue"
 msgstr ""
@@ -3980,7 +4375,19 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__name
 msgid "Name"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_sync_rule__kind__glob
+msgid "Name Pattern"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_sync_rule__kind__prefix
+msgid "Name Prefix"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4088,6 +4495,13 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_laboratory/static/src/tasks/dashboard/task_dashboard.xml:0
 msgid "No open tasks. Tasks you are given or claim appear here."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid ""
+"Nobody can upload to the folder until it is turned on again; its members "
+"still read it. Turn it off?"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4213,6 +4627,18 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only administrators can do this with a laboratory folder."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only administrators create a folder for someone else or for a sample."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only an assigned task can be started."
 msgstr ""
@@ -4233,6 +4659,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the assignee of %s can do this."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only the owner of a laboratory folder and administrators can do this."
 msgstr ""
 
 #. module: sol_laboratory
@@ -4272,6 +4704,18 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__own_department
 msgid "Own department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__owner_id
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder_member__role__owner
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Owner"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
+msgid "Owners"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4345,6 +4789,11 @@ msgid "Parent Path"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__parent_version_id
+msgid "Parent Version"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__parent_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__parent_name
 msgid "Parent name"
@@ -4395,6 +4844,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__passport_id
 msgid "Passport No"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__path
+msgid "Path"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__path_key
+msgid "Path Key"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__pattern
+msgid "Pattern"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4655,6 +5119,81 @@ msgstr ""
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_job_run_read_all
 msgid "Permission: job.run.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_device_edit_all
+msgid "Permission: laboratory.device.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_device_read_all
+msgid "Permission: laboratory.device.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_change_read_all
+msgid "Permission: laboratory.file.change.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_read_all
+msgid "Permission: laboratory.file.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_version_read_all
+msgid "Permission: laboratory.file.version.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_create_all
+msgid "Permission: laboratory.folder.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_edit_all
+msgid "Permission: laboratory.folder.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_member_create_all
+msgid "Permission: laboratory.folder.member.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_member_delete_all
+msgid "Permission: laboratory.folder.member.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_member_read_all
+msgid "Permission: laboratory.folder.member.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_read_all
+msgid "Permission: laboratory.folder.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_sync_rule_create_all
+msgid "Permission: laboratory.sync.rule.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_sync_rule_delete_all
+msgid "Permission: laboratory.sync.rule.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_sync_rule_edit_all
+msgid "Permission: laboratory.sync.rule.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_sync_rule_read_all
+msgid "Permission: laboratory.sync.rule.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5364,6 +5903,11 @@ msgid "Ratings"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__raw
+msgid "Raw Data"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__read
 msgid "Read"
 msgstr ""
@@ -5386,6 +5930,26 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_department_read_all
 msgid "Read departments"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_device_read_all
+msgid "Read every computer signed in to laboratory folders"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_read_all
+msgid "Read every laboratory file"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_read_all
+msgid "Read every laboratory folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_version_read_all
+msgid "Read every version of laboratory files"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5451,6 +6015,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_read_all
 msgid "Read test requests"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_change_read_all
+msgid "Read the changes of every laboratory folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_member_read_all
+msgid "Read the members of every laboratory folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_sync_rule_read_all
+msgid "Read the sync rules of every laboratory folder"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5554,6 +6133,16 @@ msgid "Related user name for the resource to manage its access."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_member_delete_all
+msgid "Remove members from any laboratory folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_sync_rule_delete_all
+msgid "Remove sync rules from any laboratory folder"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__repair
 msgid "Repair"
 msgstr ""
@@ -5591,6 +6180,11 @@ msgid "Reported"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__report
+msgid "Reports"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__request_date
 msgid "Request Date"
 msgstr ""
@@ -5606,6 +6200,17 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__activity_user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__activity_user_id
 msgid "Responsible User"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__restored
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
+msgid "Restored"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__restored_from_id
+msgid "Restored From"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5640,6 +6245,11 @@ msgid "Retention Days"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__retention_until
+msgid "Retention Until"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine__status__retired
 msgid "Retired"
 msgstr ""
@@ -5657,11 +6267,28 @@ msgid "Retry Delay Minutes"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
+msgid "Revoke"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_device_edit_all
+msgid "Revoke computers signed in to laboratory folders"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__revoked_at
+msgid "Revoked At"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_role
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__role_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__role_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__role
 msgid "Role"
 msgstr ""
 
@@ -5678,6 +6305,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_permission_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "Roles"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__root
+msgid "Root"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5785,6 +6417,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_search
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__sample_id
 msgid "Sample"
 msgstr ""
 
@@ -5855,6 +6488,20 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__saturday_location_id
 msgid "Saturday"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__user_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
+msgid "Saved By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_list
+msgid "Saved On"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5959,6 +6606,11 @@ msgid "Share User"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Shared with Me"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_public_display
 msgid "Show Birthday To Employees"
 msgstr ""
@@ -6008,6 +6660,18 @@ msgid "Signed"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__status__signed_in
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+msgid "Signed In"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__status__signed_out
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+msgid "Signed Out"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 msgid "Signer"
@@ -6033,6 +6697,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__signup_type
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__signup_type
 msgid "Signup Token Type"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__size
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_size
+msgid "Size"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6122,6 +6792,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__status
 msgid "Status"
 msgstr ""
 
@@ -6152,6 +6824,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__storage_conditions
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__storage_conditions
 msgid "Storage Conditions"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__storage_key
+msgid "Storage Key"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6221,6 +6898,25 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__supplier_rank
 msgid "Supplier Rank"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__sync_mode
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Sync Mode"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__rule_ids
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_sync_rule
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_sync_rule
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Sync Rules"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__synced
+msgid "Synced"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6435,6 +7131,18 @@ msgid "The batch size and the attempts must be at least 1."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_change.py:0
+msgid "The changes of laboratory files are never deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_change.py:0
+msgid "The changes of laboratory files are only added, never changed."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_chemical_code_unique
 msgid "The code of a chemical must be unique."
 msgstr ""
@@ -6496,6 +7204,14 @@ msgid "The code of a testing method must be unique."
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
+msgid ""
+"The computer stops at once and can never sign in again; its person keeps "
+"their folders and other computers. Revoke it?"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "The customer's contact"
 msgstr ""
@@ -6554,6 +7270,20 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_folder_path_unique
+msgid ""
+"The folder already has a file with this path, perhaps in another letter "
+"case."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid ""
+"The folder becomes read only for good and keeps its files until its "
+"retention date. Only its members can still be removed. Archive it?"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid "The group of a role cannot change."
@@ -6583,6 +7313,12 @@ msgid "The limit for %s needs a unit for its minimum or maximum."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "The login or the password is wrong."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_pair_machine_unique
 msgid "The machine is already linked to this way of testing."
 msgstr ""
@@ -6597,6 +7333,24 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/regulation_limit.py:0
 msgid "The minimum of the limit for %s is above its maximum."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid ""
+"The name a folder was created with never changes; rename the folder instead."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_owner_root_unique
+msgid "The owner already has a folder with this name; choose another name."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_member.py:0
+msgid "The owner of a folder cannot be removed from it."
 msgstr ""
 
 #. module: sol_laboratory
@@ -6639,6 +7393,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_code_unique
 msgid "The reference of a regulation must be unique."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/res_config_settings.py:0
+msgid "The retention period of archived folders must be at least 1 day."
 msgstr ""
 
 #. module: sol_laboratory
@@ -6708,6 +7468,20 @@ msgid "This company is already a subcontractor."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "This computer is not signed in."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"This computer was revoked. Install Medilab Sync again to sign it in as a new"
+" computer."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_customer_partner_unique
 msgid "This contact is already a customer."
 msgstr ""
@@ -6749,6 +7523,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_device_user_client_unique
+msgid "This installation is already signed in for this person."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__exceptional_location_id
 msgid "This is the exceptional, non-weekly, location set for today."
 msgstr ""
@@ -6762,8 +7541,37 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder does not exist or you are not a member of it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder is archived: it is read, not changed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder is turned off: its files are read, not changed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "This level cannot reject."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_member.py:0
+msgid "This person cannot be added to the folder."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_member_folder_user_unique
+msgid "This person is already a member of the folder."
 msgstr ""
 
 #. module: sol_laboratory
@@ -6861,14 +7669,36 @@ msgid "Tuesday"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Turn Off"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Turn On"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Turn the schedule of %s on before running it."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__turned_off
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
+msgid "Turned Off"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_step_method_sequence_unique
 msgid "Two steps of a testing method cannot have the same number."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__sync_mode__two_way
+msgid "Two-Way"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6926,9 +7756,19 @@ msgid "Units"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__sync_mode__upload_only
+msgid "Upload Only"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__barcode
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__barcode
 msgid "Use a barcode to identify this contact."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_create_all
+msgid "Use laboratory files"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6942,6 +7782,7 @@ msgid "Used to log into the system"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
 #: model:ir.model,name:sol_laboratory.model_res_users
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__user_id
@@ -6951,7 +7792,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "User"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_res_users_apikeys
+msgid "User API Key"
 msgstr ""
 
 #. module: sol_laboratory
@@ -7004,6 +7852,18 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__version_revision
 msgid "Version Revision"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__version_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_form
+msgid "Versions"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "Versions of laboratory files are never deleted."
 msgstr ""
 
 #. module: sol_laboratory
@@ -7110,6 +7970,11 @@ msgid "Whether this contact is an Employee."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__windows
+msgid "Windows"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "Withdraw the signatures of the higher levels first."
@@ -7182,6 +8047,11 @@ msgid "Work Phone"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__working
+msgid "Working Documents"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__resource_calendar_id
 msgid "Working Hours"
 msgstr ""
@@ -7196,6 +8066,12 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__vat
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__vat
 msgid "You can use '/' to indicate that the customer has no Tax ID."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "You do not have the laboratory files permission."
 msgstr ""
 
 #. module: sol_laboratory
@@ -8030,6 +8906,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__enabled
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__enabled
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__enabled
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__enabled
 msgid "Enabled"
 msgstr ""
 
@@ -8454,6 +9332,8 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__platform
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__platform
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "Platform"
 msgstr ""
 
@@ -9467,6 +10347,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__result_ids
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__result
 msgid "Results"
 msgstr ""
 
@@ -9516,6 +10397,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__version
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__version
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__version_id
 msgid "Version"
 msgstr ""
 
@@ -10444,6 +11326,9 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__file
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__file_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__file_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
 msgid "File"
 msgstr ""
 
@@ -10557,6 +11442,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/audit_report.py:0 model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__source model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__source model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__source
 msgid "Source"
 msgstr ""
 
@@ -11115,12 +12001,15 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signing_certificate__status__revoked
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__status__revoked
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "Revoked"
 msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signature__file_hash
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__checksum
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__sha256
 msgid "SHA-256"
 msgstr ""
 
@@ -11409,6 +12298,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -11606,6 +12498,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
@@ -11854,6 +12749,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_accreditation_certificate_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__number
 msgid "Number"
 msgstr ""
 

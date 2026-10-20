@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Holders of the laboratory files permission read the folders they are members of, with their members, sync rules,
+     files and versions, and the computers they signed in. They change them only through the checks of the laboratory files API. -->
+<odoo>
+    <record id="access_laboratory_folder_member_of" model="ir.access">
+        <field name="name">Laboratory folder: folders the user is a member of</field>
+        <field name="model_id" ref="model_medilab_laboratory_folder" />
+        <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
+        <field name="operation">r</field>
+        <field name="domain">[('member_ids.user_id', '=', user.id)]</field>
+    </record>
+    <record id="access_laboratory_folder_member_fellow" model="ir.access">
+        <field name="name">Laboratory folder member: members of the user's folders</field>
+        <field name="model_id" ref="model_medilab_laboratory_folder_member" />
+        <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
+        <field name="operation">r</field>
+        <field name="domain">[('folder_id.member_ids.user_id', '=', user.id)]</field>
+    </record>
+    <record id="access_laboratory_sync_rule_member_of" model="ir.access">
+        <field name="name">Laboratory sync rule: rules of the user's folders</field>
+        <field name="model_id" ref="model_medilab_laboratory_sync_rule" />
+        <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
+        <field name="operation">r</field>
+        <field name="domain">[('folder_id.member_ids.user_id', '=', user.id)]</field>
+    </record>
+    <record id="access_laboratory_device_own" model="ir.access">
+        <field name="name">Laboratory device: the user's computers</field>
+        <field name="model_id" ref="model_medilab_laboratory_device" />
+        <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
+        <field name="operation">r</field>
+        <field name="domain">[('user_id', '=', user.id)]</field>
+    </record>
+    <record id="access_laboratory_file_member_of" model="ir.access">
+        <field name="name">Laboratory file: files of the user's folders</field>
+        <field name="model_id" ref="model_medilab_laboratory_file" />
+        <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
+        <field name="operation">r</field>
+        <field name="domain">[('folder_id.member_ids.user_id', '=', user.id)]</field>
+    </record>
+    <record id="access_laboratory_file_version_member_of" model="ir.access">
+        <field name="name">Laboratory file version: versions of the user's folders</field>
+        <field name="model_id" ref="model_medilab_laboratory_file_version" />
+        <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
+        <field name="operation">r</field>
+        <field name="domain">[('file_id.folder_id.member_ids.user_id', '=', user.id)]</field>
+    </record>
+</odoo>

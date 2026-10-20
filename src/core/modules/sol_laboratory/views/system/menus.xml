@@ -71,6 +71,14 @@
             />
             <menuitem id="menu_dispatch_to_carry" action="action_medilab_subcontract_dispatch_carry" sequence="50" />
         </menuitem>
+        <menuitem id="menu_laboratory_documents" name="Documents" sequence="60">
+            <menuitem id="menu_laboratory_folder" action="action_medilab_laboratory_folder" sequence="10" />
+            <menuitem id="menu_laboratory_file" action="action_medilab_laboratory_file" sequence="12" />
+            <menuitem id="menu_laboratory_file_version" action="action_medilab_laboratory_file_version" sequence="14" />
+            <menuitem id="menu_laboratory_folder_member" action="action_medilab_laboratory_folder_member" sequence="20" />
+            <menuitem id="menu_laboratory_sync_rule" action="action_medilab_laboratory_sync_rule" sequence="30" />
+            <menuitem id="menu_laboratory_device" action="action_medilab_laboratory_device" sequence="40" />
+        </menuitem>
         <menuitem id="menu_laboratory_configuration" name="Configuration" sequence="100">
             <menuitem id="menu_settings" action="action_medilab_settings" sequence="0" groups="base.group_system" />
             <menuitem

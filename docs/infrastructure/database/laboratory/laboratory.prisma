@@ -2264,7 +2264,7 @@ model LaboratoryFolder {
   id               Int       @id @default(autoincrement())
   /// Name people see.
   name             String    @db.VarChar
-  /// Name of the folder, unique for its owner.
+  /// Name of the folder, in Unicode NFC, unique for its owner.
   root             String    @db.VarChar
   /// The user who owns the folder.
   owner_id         Int
@@ -2305,6 +2305,7 @@ model LaboratoryFolder {
 }
 
 /// Links a folder to a person who can read and write it.
+/// At most one owner row per folder (partial unique index on folder_id where role is owner).
 model LaboratoryFolderMember {
   /// Row identifier.
   id        Int              @id @default(autoincrement())
@@ -2344,14 +2345,16 @@ model LaboratorySyncRule {
   @@map("medilab_laboratory_sync_rule")
 }
 
-/// A file in a laboratory folder: a series of versions, one of them current.
+/// A file in a laboratory folder: a series of versions, one of them current. It is never renamed or deleted.
 model LaboratoryFile {
   /// Row identifier.
   id                 Int              @id @default(autoincrement())
   /// The folder holding the file.
   folder_id          Int
-  /// Path of the file relative to its folder, such as HPLC/run-01.csv.
+  /// Path of the file relative to its folder, such as HPLC/run-01.csv, in Unicode NFC and the letter case it was first saved with.
   path               String           @db.VarChar
+  /// The path in Unicode NFC and one letter case; unique in the folder, so paths that differ only in letter case are one file.
+  path_key           String           @db.VarChar
   /// The version people get; a restore adds a new version instead of pointing back at an old one.
   current_version_id Int?             @unique
   /// The folder holding the file.
@@ -2369,11 +2372,12 @@ model LaboratoryFile {
   /// Locks taken on the file.
   locks              LaboratoryFileLock[]
 
-  @@unique([folder_id, path])
+  @@unique([folder_id, path_key])
   @@map("medilab_laboratory_file")
 }
 
-/// One saved state of a file. Its number, content and origin never change once it is stored.
+/// One saved state of a file. Its number, content and origin never change once it is stored, and it is never deleted. When it was stored is Odoo's creation time of the row.
+/// sha256 is checked to be 64 lowercase hexadecimal digits and size to be 0 or more.
 model LaboratoryFileVersion {
   /// Row identifier.
   id                 Int            @id @default(autoincrement())
@@ -2397,8 +2401,6 @@ model LaboratoryFileVersion {
   user_id            Int
   /// The device it came from; empty for a version made online or by a restore in the back office.
   device_id          Int?
-  /// When the version was stored.
-  created_at         DateTime
   /// The file.
   file               LaboratoryFile @relation("FileVersions", fields: [file_id], references: [id], onDelete: Restrict)
   /// The file whose current version this is.
@@ -2513,7 +2515,7 @@ model LaboratoryDevice {
   @@map("medilab_laboratory_device")
 }
 
-/// A change to a file's current version, in order; a device asks for the changes after the last id it saw.
+/// A change to a file's current version, in order; a device asks for the changes after the last id it saw. When the version became current is Odoo's creation time of the row. Changes are only added, never changed or deleted.
 model LaboratoryFileChange {
   /// Row identifier and the order devices read changes in.
   id         Int                   @id @default(autoincrement())
@@ -2523,8 +2525,6 @@ model LaboratoryFileChange {
   file_id    Int
   /// The new current version.
   version_id Int
-  /// When the version became current.
-  created_at DateTime
   /// The folder of the file.
   folder     LaboratoryFolder      @relation(fields: [folder_id], references: [id], onDelete: Restrict)
   /// The file whose current version changed.
