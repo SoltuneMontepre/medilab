@@ -161,7 +161,7 @@ A signed-in computer is a `medilab.laboratory.device` of its person, one per ins
 A folder of a sample holds the files of one category of its work: raw data, working documents, results or reports.
 
 - A sample has one folder of each category, held by a unique key on the sample and the category. A folder of a sample needs a category; a folder of no sample may have one too, and several such folders may share it.
-- Once a folder holds files, its sample and its category never change, so its files keep meaning what they were saved as, such as a signed result of that sample.
+- Once a folder holds files, its sample and its category never change, so its files keep meaning what they were saved as, such as a signed result of that sample. The folder's form shows them read only then.
 - Everything of a sample's folder is seen only by people who see the sample, whoever they are, folder administrators included: the folder, its members, sync rules, files, versions, locks and changes, in lists, forms and links. Each of these models inherits `medilab.laboratory.sample.folder.mixin`, which adds to the model's access domain for every operation that the record's folder belongs to no sample or to a sample the user reads, with the sample's own access domain for the user. An access domain is evaluated with full rights, so it cannot test the sample itself; the sample's access domain, which Odoo builds for the user, can. A model a later feature adds under folders or files inherits the mixin too, naming the path to the sample in `_sample_field`.
 
 #### Creating a sample's folders
@@ -191,6 +191,7 @@ A version of a result file is approved by signing it through the [approval and s
 - The level whose signer must belong to the department that did the work is refused for versions: a sample is tested by several departments, and the chain takes one department per document. Which one counts is an open question.
 - When a version's process is completed, so that its signatures can no longer be withdrawn, is an open question; until it is answered, they can always be withdrawn.
 - Signing, approving, rejecting and withdrawing are recorded in the [audit trail](audit-trail.md) on the version.
+- In the back office, a version's form signs it, rejects it with a reason and withdraws a signature, each button shown only to the person who may use it now, and shows its signing state; its signatures are listed to people who read signatures. Lists of files and versions show the signing state of each, and filter versions that are signed, being signed or rejected.
 - Whether a signed version is also digitally signed through Viettel Sign, and whether the person who saved a version may sign it, are open questions.
 
 ## Related documents

@@ -58,6 +58,7 @@ from . import (
     test_laboratory_file_lock_saves,
     test_laboratory_file_locks,
     test_laboratory_file_records,
+    test_laboratory_file_signing_back_office,
     test_laboratory_file_version_concurrency,
     test_laboratory_file_version_immutability,
     test_laboratory_file_version_rejection,
