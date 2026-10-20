@@ -12,7 +12,7 @@ Every value a laboratory may change is a system parameter with a default, declar
 
 A parameter is a field on `res.config.settings`, declared by the module that reads it. `config_parameter` is the key `sol_<module>.<name>` in Odoo's system parameter table. `default` is the value a fresh installation uses, and the value an installation falls back to when the parameter is missing. `help` is the explanation shown on the settings screen.
 
-The Laboratory block holds the safety margin, the urgency threshold, the [audit](audit-trail.md) retention period, the [lock](document-locking.md) timeout, the retention periods of the [cleanup job](scheduled-jobs.md#cleanup), and [digital signing](digital-signing.md) with the days before the certificate expires when administrators are alerted. It opens Code formats, the `medilab.*` sequences, and the signing certificates. Each later module adds its own `<app>` block, shown only while that module is installed.
+The Laboratory block holds the safety margin, the urgency threshold, the [audit](audit-trail.md) retention period, the [lock](document-locking.md) timeout, the retention periods of the [cleanup job](scheduled-jobs.md#cleanup), and [digital signing](digital-signing.md) with the days before the certificate expires when administrators are alerted. It opens Code formats, the `medilab.*` sequences, and the signing certificates. Each later module adds its own `<app>` block, shown only while that module is installed. Inventory adds its settings to the Inventory block Odoo already shows: the costing method in a Costing block and the days before expiry with Odoo's expiry dates.
 
 ### Reading a parameter
 

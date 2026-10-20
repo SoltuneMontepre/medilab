@@ -147,6 +147,9 @@ msgstr "Demo: phản hồi"
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_purchase_order__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_stock_package__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_stock_quant__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -249,6 +252,9 @@ msgstr "Kim loại nặng"
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__id
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:sol_demo.field_purchase_order__id
+#: model:ir.model.fields,field_description:sol_demo.field_stock_package__id
+#: model:ir.model.fields,field_description:sol_demo.field_stock_quant__id
+#: model:ir.model.fields,field_description:sol_demo.field_stock_warehouse_orderpoint__id
 msgid "ID"
 msgstr "ID"
 
@@ -593,3 +599,13 @@ msgstr "Ký đơn mua hàng"
 #: model:ir.model,name:sol_demo.model_stock_package
 msgid "Package"
 msgstr "Chai/Lọ"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_stock_quant
+msgid "Quant"
+msgstr "Tồn kho"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_stock_warehouse_orderpoint
+msgid "Minimum Inventory Rule"
+msgstr "Quy tắc tồn kho tối thiểu"

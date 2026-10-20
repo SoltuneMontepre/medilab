@@ -12115,3 +12115,8 @@ msgstr "Xem đơn hàng mẫu"
 #: model:res.groups,name:sol_laboratory.group_permission_preparation_create_all
 msgid "Permission: preparation.create.all"
 msgstr "Quyền: preparation.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_stock_read_all
+msgid "Permission: stock.read.all"
+msgstr "Quyền: stock.read.all"

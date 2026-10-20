@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Project-Id-Version: Odoo Server 20.0-20261015\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 15:53+0000\n"
-"PO-Revision-Date: 2026-10-19 15:53+0000\n"
+"POT-Creation-Date: 2026-10-20 10:16+0000\n"
+"PO-Revision-Date: 2026-10-20 10:16+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -41,6 +41,22 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_inventory/models/stock/stock_use.py:0
 msgid "%(container)s holds %(item)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid ""
+"%(container)s of %(item)s is usable until %(date)s. It holds %(quantity)s "
+"%(unit)s in %(store)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid ""
+"%(container)s of %(item)s was usable until %(date)s. It holds %(quantity)s "
+"%(unit)s in %(store)s to dispose of."
 msgstr ""
 
 #. module: sol_inventory
@@ -104,6 +120,32 @@ msgstr ""
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+msgid "%(location)s already holds %(quantity)s %(unit)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "%(location)s holds no container of lot %(lot)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "%(location)s holds only %(held)s %(unit)s of %(item)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid ""
+"%(location)s is not in %(store)s. Stock goes to another store through a "
+"requisition or a transfer."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/stores/stock_location.py:0
 msgid ""
 "%(locations)s cannot be deleted while these locations are inside: "
@@ -116,6 +158,12 @@ msgstr ""
 msgid ""
 "%(order)s does not list %(items)s; receive them on a receipt without a "
 "purchase order."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/costs/stock_move.py:0
+msgid "%(quantity)s %(unit)s at %(price)s each"
 msgstr ""
 
 #. module: sol_inventory
@@ -148,6 +196,14 @@ msgstr ""
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/catalog/stock_warehouse_orderpoint.py:0
+msgid ""
+"%(store)s holds %(held)s %(unit)s of %(item)s, below its minimum of "
+"%(minimum)s %(unit)s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/stores/stock_location.py:0
 msgid "%(store)s is below %(above)s, so a department or team must hold it."
 msgstr ""
@@ -176,6 +232,12 @@ msgstr ""
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "%s cannot be moved."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
 msgid "%s cannot be sent before its approval chain has signed it."
 msgstr ""
@@ -196,6 +258,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_inventory/models/stores/person.py:0
 msgid "%s has no person record, so they have no store."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_use.py:0
+msgid ""
+"%s has no store. Their team and department hold none, and they manage none."
 msgstr ""
 
 #. module: sol_inventory
@@ -345,6 +414,16 @@ msgid "A line receives at least one bottle or vial."
 msgstr ""
 
 #. module: sol_inventory
+#: model:mail.message.subtype,description:sol_inventory.event_stock_expiring
+msgid "A lot or a container is usable for fewer days than the expiry warning"
+msgstr ""
+
+#. module: sol_inventory
+#: model:mail.message.subtype,description:sol_inventory.event_stock_expired
+msgid "A lot or a container passed its usable date and waits for disposal"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.constraint,message:sol_inventory.constraint_stock_package_preparation_unique
 msgid "A preparation fills one container."
 msgstr ""
@@ -360,6 +439,11 @@ msgstr ""
 msgid ""
 "A sealed container is wasted whole. %(container)s holds %(quantity)s "
 "%(unit)s."
+msgstr ""
+
+#. module: sol_inventory
+#: model:mail.message.subtype,description:sol_inventory.event_stock_below_minimum
+msgid "A store's stock of an item fell below its minimum quantity"
 msgstr ""
 
 #. module: sol_inventory
@@ -456,6 +540,11 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__adjustment
 msgid "Adjustment"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Adjustments"
 msgstr ""
 
 #. module: sol_inventory
@@ -708,6 +797,8 @@ msgstr ""
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_correction_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_relocation_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
 msgid "Cancel"
 msgstr ""
@@ -765,8 +856,16 @@ msgstr ""
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
 #: code:addons/sol_inventory/models/stock/stock_use.py:0
 msgid "Choose the lot of %s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "Choose where the stock goes."
 msgstr ""
 
 #. module: sol_inventory
@@ -839,6 +938,11 @@ msgid "Complete Name"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__product_product__item_kind__consumable
 msgid "Consumable"
 msgstr ""
@@ -867,13 +971,21 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__container_ids
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__container_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__container_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__container_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
 msgid "Container"
 msgstr ""
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__code
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__container_scan
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__container_scan
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__container_scan
 msgid "Container Code"
 msgstr ""
@@ -915,6 +1027,18 @@ msgid "Contaminated"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_correction_form
+msgid "Correct"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_correction
+#: model:ir.model,name:sol_inventory.model_medilab_stock_correction
+#: model:ir.ui.menu,name:sol_inventory.menu_correct_stock
+msgid "Correct Quantity"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__cost_centre_code
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_cost_centre_list
@@ -927,6 +1051,21 @@ msgstr ""
 #: model:ir.actions.act_window,name:sol_inventory.action_medilab_cost_centre
 #: model:ir.ui.menu,name:sol_inventory.menu_cost_centre
 msgid "Cost Centres"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.res_config_settings_view_form_costing
+msgid "Costing"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_res_config_settings__costing_method
+msgid "Costing Method"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__counted_quantity
+msgid "Counted Quantity"
 msgstr ""
 
 #. module: sol_inventory
@@ -1030,6 +1169,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__create_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_uid
 msgid "Created by"
@@ -1046,6 +1187,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__create_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__create_date
 msgid "Created on"
@@ -1068,6 +1211,7 @@ msgstr ""
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__currency_id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__currency_id
 msgid "Currency"
 msgstr ""
 
@@ -1226,14 +1370,20 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_product_category__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_product_template__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_purchase_order_line__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_res_partner__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__display_name
@@ -1241,8 +1391,27 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_scrap_reason_tag__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_disposal
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__disposal
+#: model:ir.ui.menu,name:sol_inventory.menu_disposal
+msgid "Disposal"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Disposals"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_disposal_list
+msgid "Dispose"
 msgstr ""
 
 #. module: sol_inventory
@@ -1404,13 +1573,39 @@ msgstr ""
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "Enter a quantity above zero."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/stock/stock_use.py:0
 msgid "Enter an item and a quantity above zero."
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__expired
 #: model:ir.model.fields.selection,name:sol_inventory.selection__stock_lot__status__expired
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_expired
 msgid "Expired"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_scrap_reason_tag.py:0
+msgid "Expired is the reason of every disposal, so it cannot be deleted."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_expiring
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__expiring_soon
+#: model:ir.ui.menu,name:sol_inventory.menu_expiring
+msgid "Expiring Soon"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_res_config_settings__expiry_warning_days
+msgid "Expiry Warning Days"
 msgstr ""
 
 #. module: sol_inventory
@@ -1425,6 +1620,19 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_form
 msgid "Filled from the sequence when left empty"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__res_config_settings__costing_method__fifo
+msgid "First In, First Out"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,help:sol_inventory.field_res_config_settings__costing_method
+msgid ""
+"First in, first out costs each container at its lot's price and other stock "
+"at its oldest receipts. Moving average costs stock at the average price of "
+"the item's stock. Moves already done keep their cost."
 msgstr ""
 
 #. module: sol_inventory
@@ -1463,6 +1671,11 @@ msgid "Formatted Email"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__location_id
+msgid "From Location"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__global_location_number
 msgid "GLN"
 msgstr ""
@@ -1477,6 +1690,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_inventory/models/stock/stock_use.py:0
 msgid "Give the reason for this use."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/mixins/stock_operation.py:0
+msgid "Give the reason."
 msgstr ""
 
 #. module: sol_inventory
@@ -1536,14 +1755,20 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__id
+#: model:ir.model.fields,field_description:sol_inventory.field_product_category__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_product__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__id
 #: model:ir.model.fields,field_description:sol_inventory.field_product_template__id
 #: model:ir.model.fields,field_description:sol_inventory.field_purchase_order__id
 #: model:ir.model.fields,field_description:sol_inventory.field_purchase_order_line__id
+#: model:ir.model.fields,field_description:sol_inventory.field_res_config_settings__id
 #: model:ir.model.fields,field_description:sol_inventory.field_res_partner__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_location__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_lot__id
@@ -1551,6 +1776,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_move_line__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_picking__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__id
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_scrap_reason_tag__id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_warehouse_orderpoint__id
 msgid "ID"
 msgstr ""
@@ -1629,6 +1856,26 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__image_512
 msgid "Image 512"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__in_my_stores
+msgid "In My Stores"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
+msgid "In Stores"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__kept_by_me
+msgid "In Stores I Keep"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
+msgid "In Transit"
 msgstr ""
 
 #. module: sol_inventory
@@ -1749,9 +1996,14 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__product_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__item_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__item_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__item_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__item_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__item_id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__item_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_search
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_supplier_search
 msgid "Item"
@@ -1817,6 +2069,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__write_uid
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_uid
 msgid "Last Updated by"
@@ -1833,6 +2087,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe_line__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__write_date
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__write_date
 msgid "Last Updated on"
@@ -1854,9 +2110,12 @@ msgid "Line"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__location_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__location_id
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_search
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_search
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
 msgid "Location"
 msgstr ""
 
@@ -1873,9 +2132,29 @@ msgid "Longitude"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__lot_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__lot_id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__lot_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__lot_id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__lot_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
 msgid "Lot"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_lot.py:0
+msgid ""
+"Lot %(lot)s of %(item)s expired on %(date)s. %(stores)s hold %(quantity)s "
+"%(unit)s to dispose of."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_lot.py:0
+msgid ""
+"Lot %(lot)s of %(item)s expires on %(date)s. %(stores)s hold %(quantity)s "
+"%(unit)s."
 msgstr ""
 
 #. module: sol_inventory
@@ -1886,6 +2165,13 @@ msgstr ""
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
 msgid "Lots"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,help:sol_inventory.field_res_config_settings__expiry_warning_days
+msgid ""
+"Lots and containers usable for fewer days than this are listed and notified "
+"as expiring soon."
 msgstr ""
 
 #. module: sol_inventory
@@ -1986,6 +2272,18 @@ msgid "Missing"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_relocation_form
+msgid "Move"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_relocation
+#: model:ir.model,name:sol_inventory.model_medilab_stock_relocation
+#: model:ir.ui.menu,name:sol_inventory.menu_move_stock
+msgid "Move Stock"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_move
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__move_ids
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_test_result__move_ids
@@ -1993,6 +2291,11 @@ msgstr ""
 #: model:ir.ui.menu,name:sol_inventory.menu_stock_move
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
 msgid "Moves"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__res_config_settings__costing_method__moving_average
+msgid "Moving Average"
 msgstr ""
 
 #. module: sol_inventory
@@ -2054,6 +2357,12 @@ msgid "Normalized Email"
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stores/stock_location.py:0
+msgid "Not in a store you keep: %s."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields.selection,name:sol_inventory.selection__purchase_order__approval_status__none
 msgid "Not requested"
 msgstr ""
@@ -2095,6 +2404,11 @@ msgid "Number of messages with delivery error"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__on_hand
+msgid "On Hand"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__on_time_rate
 msgid "On-Time Delivery Rate"
 msgstr ""
@@ -2109,6 +2423,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_inventory/models/purchasing/purchase_order_approval.py:0
 msgid "Only an order that is not sent yet can be signed."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_quant.py:0
+msgid "Only expired stock is disposed of, not: %s."
 msgstr ""
 
 #. module: sol_inventory
@@ -2321,6 +2641,11 @@ msgid "Product"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_product_category
+msgid "Product Category"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_stock_move_line
 msgid "Product Moves (Stock Move Line)"
 msgstr ""
@@ -2378,6 +2703,11 @@ msgid "Purchase orders"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_quant
+msgid "Quant"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__quantity
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__quantity
 msgid "Quantity"
@@ -2392,6 +2722,11 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__received_quantity
 msgid "Quantity Obtained"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__quantity
+msgid "Quantity to Move"
 msgstr ""
 
 #. module: sol_inventory
@@ -2435,7 +2770,15 @@ msgid "Read receipts"
 msgstr ""
 
 #. module: sol_inventory
+#: model:medilab.permission,name:sol_inventory.permission_stock_read_all
+msgid "Read stock on hand"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__reason
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__reason
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__reason
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_move__reason
 msgid "Reason"
@@ -2552,6 +2895,21 @@ msgid "Related employees based on their private address"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields.selection,name:sol_inventory.selection__stock_move__move_kind__relocation
+msgid "Relocation"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_move_search
+msgid "Relocations"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.ui.menu,name:sol_inventory.menu_replenishment
+msgid "Replenishment"
+msgstr ""
+
+#. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.purchase_order_form_medilab
 msgid "Request approval"
 msgstr ""
@@ -2623,9 +2981,21 @@ msgstr ""
 
 #. module: sol_inventory
 #. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "Scan a container of %s, or choose its lot."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
 #: code:addons/sol_inventory/models/stock/stock_move.py:0
 #: code:addons/sol_inventory/models/stock/stock_use.py:0
 msgid "Scan a container of %s."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/mixins/stock_operation.py:0
+msgid "Scan a container, or choose an item and its location."
 msgstr ""
 
 #. module: sol_inventory
@@ -2637,9 +3007,17 @@ msgstr ""
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_correction_form
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_relocation_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_test_result_form_containers
 msgid "Scan or type the container code"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+msgid "Scan the container of %s to correct."
 msgstr ""
 
 #. module: sol_inventory
@@ -2650,6 +3028,16 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model,name:sol_inventory.model_medilab_preparation_make_container
 msgid "Scanned Ingredient Container"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_stock_scrap_reason_tag
+msgid "Scrap Reason Tag"
 msgstr ""
 
 #. module: sol_inventory
@@ -2818,9 +3206,54 @@ msgid "Stock Move"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model,name:sol_inventory.model_medilab_stock_operation
+msgid "Stock Operation"
+msgstr ""
+
+#. module: sol_inventory
+#: model:mail.message.subtype,name:sol_inventory.event_stock_below_minimum
+msgid "Stock below minimum"
+msgstr ""
+
+#. module: sol_inventory
+#: model:mail.message.subtype,name:sol_inventory.event_stock_expired
+msgid "Stock expired"
+msgstr ""
+
+#. module: sol_inventory
+#: model:mail.message.subtype,name:sol_inventory.event_stock_expiring
+msgid "Stock expiring soon"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.server,name:sol_inventory.ir_cron_stock_expiry_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_inventory.scheduled_job_stock_expiry
+msgid "Stock expiry"
+msgstr ""
+
+#. module: sol_inventory
+#: model:product.category,name:sol_inventory.product_category_stock_item
+msgid "Stock items"
+msgstr ""
+
+#. module: sol_inventory
 #. odoo-python
 #: code:addons/sol_inventory/models/catalog/product_product.py:0
 msgid "Stock items are archived, never deleted."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/catalog/product_template.py:0
+msgid ""
+"Stock items stay in their own category, whose costing method follows the "
+"costing setting: %s."
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_stock_on_hand
+#: model:ir.ui.menu,name:sol_inventory.menu_stock_on_hand
+msgid "Stock on Hand"
 msgstr ""
 
 #. module: sol_inventory
@@ -2845,9 +3278,17 @@ msgid "Store Above"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_search
+msgid "Store or Location"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.actions.act_window,name:sol_inventory.action_medilab_store
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__store_ids
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__store_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_correction__store_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_operation__store_ids
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__store_ids
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__store_ids
 #: model:ir.ui.menu,name:sol_inventory.menu_store
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_location_search
@@ -2906,6 +3347,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_receipt_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 msgid "Supplier"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_product_supplierinfo__supplier_archived
+msgid "Supplier Archived"
 msgstr ""
 
 #. module: sol_inventory
@@ -3034,6 +3480,18 @@ msgid "The cost centre %s needs a code and a department or team."
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+msgid "The counted quantity cannot be negative."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/res_config_settings.py:0
+msgid "The days before expiry cannot be negative."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__property_account_position_id
 msgid ""
 "The fiscal position determines the taxes/accounts used for this contact."
@@ -3097,6 +3555,12 @@ msgid "The shelf life after opening cannot be negative."
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "The stock is already in %s."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__property_stock_customer
 msgid ""
 "The stock location used as destination when sending goods to this contact."
@@ -3131,6 +3595,12 @@ msgstr ""
 msgid ""
 "There can be several users related to the same partner. When a single user "
 "is needed, this field attempts to find the most appropriate one."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_scrap_reason_tag.py:0
+msgid "These reasons cannot be deleted while moves name them: %s"
 msgstr ""
 
 #. module: sol_inventory
@@ -3182,7 +3652,13 @@ msgid "To"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_relocation__location_dest_id
+msgid "To Location"
+msgstr ""
+
+#. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_purchase_order_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_list
 msgid "Total"
 msgstr ""
 
@@ -3243,7 +3719,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_recipe_list
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_item_list
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_on_hand_list
 msgid "Unit"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_move__unit_cost
+msgid "Unit Cost"
 msgstr ""
 
 #. module: sol_inventory
@@ -3253,6 +3735,7 @@ msgstr ""
 
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__usable_until
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__usable_until
 msgid "Usable Until"
 msgstr ""
 
@@ -3285,6 +3768,11 @@ msgid "Users"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_quant__value
+msgid "Value"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__purchase_incoterm_id
 msgid "Vendor Incoterm"
 msgstr ""
@@ -3302,6 +3790,11 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__property_supplier_payment_term_id
 msgid "Vendor Payment Terms"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_warehouse_orderpoint__supplier_id
+msgid "Vendor Pricelist"
 msgstr ""
 
 #. module: sol_inventory
@@ -3330,6 +3823,13 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__group_on
 msgid "Week Day"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_disposal_list
+msgid ""
+"What remains of the selected stock moves to the scrap location with the "
+"reason Expired. This cannot be undone."
 msgstr ""
 
 #. module: sol_inventory
@@ -3374,6 +3874,24 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_recipe__yield_quantity
 msgid "Yield per Preparation"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_correction.py:0
+msgid "You are not allowed to correct stock."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_quant.py:0
+msgid "You are not allowed to dispose of stock."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_relocation.py:0
+msgid "You are not allowed to move stock."
 msgstr ""
 
 #. module: sol_inventory

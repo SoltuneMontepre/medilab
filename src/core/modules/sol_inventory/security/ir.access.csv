@@ -12,3 +12,5 @@ access_medilab_stock_use_user,medilab.stock.use user,medilab.stock.use,base.grou
 access_medilab_preparation_make_user,medilab.preparation.make user,medilab.preparation.make,base.group_user,crud,
 access_medilab_preparation_make_line_user,medilab.preparation.make.line user,medilab.preparation.make.line,base.group_user,crud,
 access_medilab_preparation_make_container_user,medilab.preparation.make.container user,medilab.preparation.make.container,base.group_user,crud,
+access_medilab_stock_relocation_user,medilab.stock.relocation user,medilab.stock.relocation,base.group_user,crud,
+access_medilab_stock_correction_user,medilab.stock.correction user,medilab.stock.correction,base.group_user,crud,

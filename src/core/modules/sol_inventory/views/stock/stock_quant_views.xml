@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_stock_on_hand_list" model="ir.ui.view">
+        <field name="name">stock.quant.list.stock.on.hand</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false">
+                <field name="product_id" string="Item" />
+                <field name="lot_id" />
+                <field name="package_id" string="Container" />
+                <field name="location_id" />
+                <field name="usable_until" optional="show" />
+                <field name="quantity" sum="Total" />
+                <field name="uom_id" string="Unit" />
+                <field name="currency_id" column_invisible="True" />
+                <field name="value" sum="Total" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_stock_on_hand_pivot" model="ir.ui.view">
+        <field name="name">stock.quant.pivot.stock.on.hand</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="product_id" type="row" />
+                <field name="location_id" type="col" />
+                <field name="quantity" type="measure" />
+                <field name="value" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_medilab_stock_on_hand_search" model="ir.ui.view">
+        <field name="name">stock.quant.search.stock.on.hand</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id" string="Item" />
+                <field name="lot_id" />
+                <field name="package_id" string="Container" />
+                <field name="location_id" string="Store or Location" filter_domain="[('location_id', 'child_of', raw_value)]" />
+                <filter name="filter_in_stores" string="In Stores" domain="[('location_id.usage', '=', 'internal')]" />
+                <filter name="filter_in_transit" string="In Transit" domain="[('location_id.usage', '=', 'transit')]" />
+                <group>
+                    <filter name="group_item" string="Item" context="{'group_by': 'product_id'}" />
+                    <filter name="group_lot" string="Lot" context="{'group_by': 'lot_id'}" />
+                    <filter name="group_container" string="Container" context="{'group_by': 'package_id'}" />
+                    <filter name="group_location" string="Location" context="{'group_by': 'location_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_stock_on_hand" model="ir.actions.act_window">
+        <field name="name">Stock on Hand</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="search_view_id" ref="view_medilab_stock_on_hand_search" />
+        <field name="domain">["|", ("location_id.in_my_stores", "=", True), ("location_id.usage", "=", "transit")]</field>
+        <field name="context">{"search_default_filter_in_stores": 1, "search_default_group_item": 1}</field>
+        <field name="path">stock-on-hand</field>
+        <field name="group_ids" eval="[Command.link(ref('sol_laboratory.group_permission_stock_read_all'))]" />
+    </record>
+    <record id="action_medilab_stock_on_hand_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_medilab_stock_on_hand_list" />
+        <field name="act_window_id" ref="action_medilab_stock_on_hand" />
+    </record>
+    <record id="action_medilab_stock_on_hand_view_pivot" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="view_medilab_stock_on_hand_pivot" />
+        <field name="act_window_id" ref="action_medilab_stock_on_hand" />
+    </record>
+
+    <record id="action_medilab_expiring" model="ir.actions.act_window">
+        <field name="name">Expiring Soon</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_medilab_stock_on_hand_search" />
+        <field name="domain">[("expiring_soon", "=", True), ("location_id.in_my_stores", "=", True)]</field>
+        <field name="context">{"search_default_group_location": 1}</field>
+        <field name="view_id" ref="view_medilab_stock_on_hand_list" />
+        <field name="path">expiring-stock</field>
+        <field name="group_ids" eval="[Command.link(ref('sol_laboratory.group_permission_stock_read_all'))]" />
+    </record>
+
+    <record id="view_medilab_disposal_list" model="ir.ui.view">
+        <field name="name">stock.quant.list.disposal</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="view_medilab_stock_on_hand_list" />
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="product_id" position="before">
+                <header>
+                    <button
+                        name="action_dispose"
+                        type="object"
+                        string="Dispose"
+                        class="btn-primary"
+                        confirm="What remains of the selected stock moves to the scrap location with the reason Expired. This cannot be undone."
+                    />
+                </header>
+            </field>
+            <field name="usable_until" position="attributes">
+                <attribute name="optional" />
+            </field>
+        </field>
+    </record>
+
+    <record id="action_medilab_disposal" model="ir.actions.act_window">
+        <field name="name">Disposal</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_medilab_stock_on_hand_search" />
+        <field name="domain">[("expired", "=", True), ("location_id.kept_by_me", "=", True)]</field>
+        <field name="context">{"search_default_group_location": 1}</field>
+        <field name="view_id" ref="view_medilab_disposal_list" />
+        <field name="path">disposal</field>
+        <field name="group_ids" eval="[Command.link(ref('sol_laboratory.group_permission_move_create_all'))]" />
+    </record>
+</odoo>

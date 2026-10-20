@@ -12,7 +12,6 @@ from odoo.addons.sol_inventory.constants.models import (
     MODEL_STOCK_LOT,
     MODEL_STOCK_MOVE,
     MODEL_STOCK_PACKAGE,
-    MODEL_STOCK_QUANT,
     MODEL_STOCK_USE,
 )
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_SEALED, LOT_EXPIRED
@@ -30,6 +29,7 @@ ACETONITRILE_LOT = "ACN-2601"
 EXPIRED_LOT = "ACN-2501"
 # A sealed bottle of the expired lot, and four bottles of one acetonitrile lot: two sealed, one opened, one empty.
 BOTTLE = 1000
+OPENING_STOCK = "Opening stock"
 
 
 # Chai/Lọ
@@ -60,6 +60,9 @@ class StockPackage(models.Model):
         }
         # A shelf life after opening, so opening shortens the usable date; the shipped item leaves it at 0.
         item["sodium_chloride"].shelf_life_after_opening_days = 180
+        # The cost the opening stock of each item is valued at.
+        item["acetonitrile"].standard_price = 450
+        item["sodium_chloride"].standard_price = 380
         item["sulfuric_acid"].standard_price = 2
         item["distilled_water"].standard_price = 1
 
@@ -130,14 +133,19 @@ class StockPackage(models.Model):
             return False
 
     def _grant_demo_roles(self):
-        """The tester opens, prepares and records use. The storekeeper reads every move."""
-        tester = self.env.ref(TESTER_ROLE)
-        storekeeper = self.env.ref(STOREKEEPER_ROLE)
-        tester_permissions = self.env["medilab.permission"].browse()
-        for code in ("container_edit_all", "preparation_create_all", "move_create_all"):
-            tester_permissions |= self.env.ref(f"sol_inventory.permission_{code}")
-        tester.write({"permission_ids": [Command.link(permission.id) for permission in tester_permissions]})
-        storekeeper.write({"permission_ids": [Command.link(self.env.ref("sol_inventory.permission_move_read_all").id)]})
+        """The tester opens, prepares, records use and sees the stock of the team's store. The storekeeper reads every
+        move, moves, corrects and disposes of stock, and sees its value."""
+        for role, codes in (
+            (TESTER_ROLE, ("container_edit_all", "preparation_create_all", "move_create_all", "stock_read_all")),
+            (STOREKEEPER_ROLE, ("move_read_all", "move_create_all", "stock_read_all")),
+        ):
+            self.env.ref(role).write(
+                {
+                    "permission_ids": [
+                        Command.link(self.env.ref(f"sol_inventory.permission_{code}").id) for code in codes
+                    ]
+                }
+            )
 
 
 def _lot(env, item, name, days):
@@ -153,9 +161,19 @@ def _lot(env, item, name, days):
 
 
 def _container(env, lot, number, quantity, location, status=CONTAINER_SEALED):
+    """A container of the lot found in a store when the demo starts, put there by an inventory adjustment valued at
+    the item's cost. Requisitions are not built yet, so stock reaches a team store this way."""
     container = env[MODEL_STOCK_PACKAGE].create({"name": f"{lot.name}-{number:02d}", "status": status})
-    env[MODEL_STOCK_QUANT]._update_available_quantity(
-        lot.product_id, location, quantity, lot_id=lot, package_id=container
+    item = lot.product_id
+    env[MODEL_STOCK_MOVE]._done_move(
+        item,
+        item.with_company(env.company).property_stock_inventory,
+        location,
+        [{"quantity": quantity, "lot": lot, "result_package": container}],
+        is_inventory=True,
+        price_unit=item.standard_price,
+        reason=OPENING_STOCK,
+        reference=OPENING_STOCK,
     )
     return container
 

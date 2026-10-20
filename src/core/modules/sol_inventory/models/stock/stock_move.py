@@ -1,11 +1,12 @@
 from collections import defaultdict
 
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command, Domain
 from odoo.tools import format_list
 
 from odoo.addons.sol_inventory.constants.models import (
+    MODEL_ORDERPOINT,
     MODEL_PREPARATION,
     MODEL_STOCK_MOVE,
     MODEL_STOCK_PACKAGE,
@@ -13,15 +14,19 @@ from odoo.addons.sol_inventory.constants.models import (
 )
 from odoo.addons.sol_inventory.constants.stock import (
     DONE,
+    INTERNAL_USAGE,
     LOT_AVAILABLE,
     MOVE_ADJUSTMENT,
     MOVE_CONSUMPTION,
+    MOVE_DISPOSAL,
     MOVE_PREPARATION,
     MOVE_RECEIPT,
+    MOVE_RELOCATION,
     MOVE_WASTE,
     PRODUCTION_USAGE,
     RECEIPT_CODE,
 )
+from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_EXPIRED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_PERMISSION_MIXIN,
@@ -40,11 +45,12 @@ class StockMove(models.Model):
     # _name is required to add mixins to an Odoo model.
     _name = MODEL_STOCK_MOVE
     _inherit = [MODEL_AUDIT_MIXIN, MODEL_STOCK_MOVE, MODEL_PERMISSION_MIXIN]
-    # Reading moves and recording a use or a waste. There is no edit permission: a done move is never changed.
+    # Reading moves, and recording a use, a waste, a relocation, a correction or a disposal. There is no edit
+    # permission: a done move is never changed.
     _permission_actions = ("read", "create")
 
-    # receipt, preparation, consumption, waste or adjustment, from what the move itself does; empty for the
-    # operations later features add.
+    # receipt, preparation, consumption, waste, adjustment, relocation or disposal, from what the move itself does;
+    # empty for the operations later features add.
     move_kind = fields.Selection(
         [
             (MOVE_RECEIPT, "Receipt"),
@@ -52,6 +58,8 @@ class StockMove(models.Model):
             (MOVE_CONSUMPTION, "Consumption"),
             (MOVE_WASTE, "Waste"),
             (MOVE_ADJUSTMENT, "Adjustment"),
+            (MOVE_RELOCATION, "Relocation"),
+            (MOVE_DISPOSAL, "Disposal"),
         ],
         string="Kind",
         compute="_compute_move_kind",
@@ -74,20 +82,24 @@ class StockMove(models.Model):
 
     @api.depends(
         "is_scrap",
+        "scrap_reason_tag_ids",
         "is_inventory",
         "preparation_id",
+        "location_id.usage",
         "location_dest_id.usage",
+        "picking_id",
         "picking_id.picking_type_id.code",
         "purchase_line_id",
     )
     def _compute_move_kind(self):
+        expired = self.env.ref(SCRAP_EXPIRED, raise_if_not_found=False)
         for move in self:
-            move.move_kind = move._kind()
+            move.move_kind = move._kind(expired)
 
-    def _kind(self):
+    def _kind(self, expired):
         self.ensure_one()
         if self.is_scrap:
-            return MOVE_WASTE
+            return MOVE_DISPOSAL if expired and expired in self.scrap_reason_tag_ids else MOVE_WASTE
         if self.preparation_id:
             return MOVE_PREPARATION
         if self.location_dest_id.usage == PRODUCTION_USAGE:
@@ -96,6 +108,8 @@ class StockMove(models.Model):
             return MOVE_RECEIPT
         if self.is_inventory:
             return MOVE_ADJUSTMENT
+        if not self.picking_id and self.location_id.usage == self.location_dest_id.usage == INTERNAL_USAGE:
+            return MOVE_RELOCATION
         return False
 
     def write(self, vals):
@@ -109,12 +123,20 @@ class StockMove(models.Model):
 
     def _action_done(self, cancel_backorder=False):
         done = super()._action_done(cancel_backorder=cancel_backorder)
-        self.filtered(lambda move: move.state == DONE)._settle_containers()
+        finished = self.filtered(lambda move: move.state == DONE)
+        finished._settle_containers()
+        finished._warn_below_minimum()
         return done
 
     def _settle_containers(self):
         for move in self:
             move.move_line_ids.package_id._settle(move.is_scrap)
+
+    @api.model
+    def _check_can_create(self, message):
+        """Refuse a person without the permission to create moves."""
+        if not self.env.su and "all" not in self._user_scopes("create"):
+            raise AccessError(message)
 
     def _take_containers(self, item, containers, quantity, *, scrap=False, check_use=True, person=None, **vals):
         """Use or waste quantity of item from these containers, in order, and finish the moves. The containers are
@@ -292,3 +314,28 @@ class StockMove(models.Model):
     @api.model
     def _amount(self, item, quantity):
         return item.uom_id.round(quantity)
+
+    def _warn_below_minimum(self):
+        """Warn about each store whose stock of an item these moves took below its minimum quantity. Moves between the
+        locations of one store leave its stock unchanged."""
+        taken = defaultdict(float)
+        for move in self.sudo():
+            if move.location_id.usage != INTERNAL_USAGE:
+                continue
+            store = move.location_id._holding_store()
+            if store and move.location_dest_id._holding_store() != store:
+                taken[move.product_id.id, store.id] += move.product_qty
+        if not taken:
+            return
+        minimums = (
+            self.env[MODEL_ORDERPOINT]
+            .sudo()
+            .search(
+                Domain("product_id", "in", list({item for item, _store in taken}))
+                & Domain("location_id", "in", list({store for _item, store in taken}))
+            )
+        )
+        for minimum in minimums:
+            moved = taken.get((minimum.product_id.id, minimum.location_id.id))
+            if moved:
+                minimum._warn_if_below(moved, f"orderpoint:{minimum.id}:below:{self.ids[0]}")

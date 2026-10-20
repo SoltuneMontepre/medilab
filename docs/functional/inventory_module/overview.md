@@ -85,7 +85,7 @@ stateDiagram-v2
 | Destination   | A use goes to the company's Production location. Waste and disposal go to the company's scrap location. Odoo has no consumption location. |
 | Preparation   | Preparing a solution deducts the recipe's amounts from the opened bottles scanned for it. Each ingredient starts at the recipe's amount and can only be raised; the extra is waste and needs a reason. The quantity obtained starts at the recipe's yield and can only be lowered. The solution costs what those ingredients cost, waste included, divided by the quantity obtained. |
 | Waste         | Stock dropped, spilled, contaminated or wrongly prepared is deducted as waste with one of those reasons, including loss beyond its recipe during a preparation. |
-| Use by hand   | Other uses, such as calibration, cleaning or a spare part in a machine service, are recorded by hand with a reason.                      |
+| Use by hand   | Other uses, such as calibration, cleaning or a spare part in a machine service, are recorded by hand with a reason, from the person's store or a store they manage or that is under one they manage. |
 | Depleted      | A container whose remaining amount reaches zero is depleted, or disposed of when the move that emptied it was waste. Marking an opened container empty uses what remains, with the reason Marked empty, and the container is then depleted. |
 | Traceability  | The moves of a result show which containers and lots it used.                                                                             |
 | Expired       | A container whose usable date is before today, or whose lot is not available, cannot be used and is listed for disposal. A container with no usable date is not expired. Disposing of an expired container deducts what remained. |
@@ -94,10 +94,10 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                         |
 | --------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Below minimum   | When the stock of an item falls below its minimum quantity, a warning is raised and a purchase is suggested.         |
-| Expiring soon   | Containers and lots whose usable date is within a number of days, a system parameter, are listed and notified.      |
-| Expired         | Containers and lots that expire are marked expired by a scheduled job and notified.                                 |
-| Who is warned   | The roles and departments notified of each warning are configured by the administrator ([SH-11](../shared.md#sh-11-schedules-and-reminders)); by default the storekeepers. |
+| Below minimum   | When a move takes the stock a store holds itself of an item below its minimum quantity, a warning is raised, once each time it falls below. Odoo's Replenishment suggests a purchase for the minimums of the central store, from its active suppliers; its buy rule delivers to the warehouse's stock location, which is the central store. A store below it gets stock through a requisition. |
+| Expiring soon   | Containers and lots whose usable date is within a number of days, a system parameter of 30 by default, are listed and notified, once each. |
+| Expired         | A daily scheduled job marks lots expired once their expiry date has passed, and notifies each lot and container that expired, once. A container is notified apart from its lot only when its own usable date ends before the lot's expiry. |
+| Who is warned   | The manager of the store holding the stock, which for the central store is the storekeeper, and the roles and departments the administrator adds to each warning ([SH-11](../shared.md#sh-11-schedules-and-reminders)). |
 
 ## Purchasing
 

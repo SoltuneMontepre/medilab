@@ -10,21 +10,25 @@ Every move of stock carries a cost, stock on hand has a value, and stock is char
 
 ### Settings
 
-| System parameter             | Values                   | Default             |
-| ---------------------------- | ------------------------ | ------------------- |
-| `inventory.costing_method`   | `fifo`, `moving_average` | `fifo`              |
-| `inventory.charge_point`     | `on_issue`, `on_use`     | `on_issue`          |
-| `inventory.over_budget_role` | a role                   | none: no escalation |
+| System parameter                 | Values                   | Default             |
+| -------------------------------- | ------------------------ | ------------------- |
+| `sol_inventory.costing_method`   | `fifo`, `moving_average` | `fifo`              |
+| `sol_inventory.charge_point`     | `on_issue`, `on_use`     | `on_issue`          |
+| `sol_inventory.over_budget_role` | a role                   | none: no escalation |
 
-A change applies to moves done after it; moves and charges already made keep their unit cost and value.
+A change applies to moves done after it; moves and charges already made keep their unit cost and value. The costing method sits in the Costing block of Odoo's Inventory settings.
 
 ### Costing in Odoo
 
-Costing and valuation are Odoo's `stock_account`. The `inventory.costing_method` setting sets the costing method of the product category that holds every stock item: `fifo` is Odoo's first in, first out and `moving_average` is Odoo's average cost. Items tracked by container or lot keep the cost of each lot (`lot_valuated`), so first in, first out costs a container at its lot's price.
+Costing and valuation are Odoo's `stock_account`. Every stock item is in the Stock items product category, which the Inventory module ships; an item cannot be moved to another category. The `sol_inventory.costing_method` setting sets the costing method of that category: `fifo` is Odoo's first in, first out and `moving_average` is Odoo's average cost. Under first in, first out, items tracked by container or lot keep the cost of each lot (`lot_valuated`), so a container costs its lot's price; under moving average they do not, because Odoo would then average each lot apart instead of the item.
+
+Odoo only values the stock: the category's inventory valuation is periodic and the company's valuation period is manual, so no move posts a journal entry, and MediLab never closes the stock valuation. The accounting software makes the entries from the export.
+
+Changing the costing method keeps the value of every move already done. Odoo would value the moves since the last closing again under the new method, which is every move since none is closed, so MediLab skips that. Switching to moving average starts each item's average cost at the value its stock had under first in, first out; switching to first in, first out values the stock left from the remaining quantities of its incoming moves.
 
 ### Cost of a move
 
-Every move stores its unit cost (`price_unit`) and value when it is done, as Odoo computes them; the value of a move is its quantity times its unit cost. A receipt takes the unit price of its purchase order line, or the price typed on the receipt, excluding VAT, and writes it on the lot it creates. Every other move takes its unit cost from the costing method in force:
+Every move stores its value when it is done, as Odoo computes it; its unit cost is its value divided by its quantity. A receipt takes the unit price of its purchase order line, or the price typed on the receipt, excluding VAT; Odoo values stock coming in without an order line at the item's cost, so MediLab values a receipt without a purchase order, and a prepared solution, at the unit price its move carries. A correction that finds stock comes in at the item's current cost. Every other move takes its unit cost from the costing method in force:
 
 | Stock                | First in, first out                                                                                                  | Moving average          |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------- |
@@ -39,6 +43,8 @@ Every move stores its unit cost (`price_unit`) and value when it is done, as Odo
 ### Stock value
 
 Stock on hand is valued by Odoo per item, lot and location with the costing method in force: under first in, first out, each lot at its cost and an item tracked by quantity at the value of its incoming moves' remaining quantities; under moving average, every quantity at its item's average cost. Stock in transit counts in no store.
+
+The Stock on Hand screen, under the Products menu of the Inventory app next to Containers and Moves, lists the stock and its value per item, lot, container and location, in the stores the person keeps, with every store under them, or that their team or department holds; administrators see every store. Stock in transit is listed apart. The `stock.read` permission opens it and shows the value.
 
 ### Cost centre of a store
 
@@ -94,6 +100,7 @@ The same rows are served by a REST endpoint, `GET /api/medilab/inventory/charges
 
 | Document type      | Actions                    | Scopes                        |
 | ------------------ | -------------------------- | ----------------------------- |
+| Stock on hand      | read                       | all                           |
 | Stock charge       | read                       | all, own_department, own_team |
 | Budget             | read, create, edit, delete | all                           |
 | Accounting API key | read, create, edit         | all                           |

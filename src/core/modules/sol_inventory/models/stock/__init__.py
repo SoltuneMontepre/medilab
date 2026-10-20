@@ -1,1 +1,15 @@
-from . import container_scan, result_container, stock_lot, stock_move, stock_package, stock_use, test_result
+from . import (
+    container_scan,
+    res_config_settings,
+    result_container,
+    scheduled_job,
+    stock_correction,
+    stock_lot,
+    stock_move,
+    stock_package,
+    stock_quant,
+    stock_relocation,
+    stock_scrap_reason_tag,
+    stock_use,
+    test_result,
+)

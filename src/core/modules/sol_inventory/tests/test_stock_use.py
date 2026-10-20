@@ -240,3 +240,19 @@ class TestStockUse(ContainersCase):
                     "reason": "Training",
                 }
             ).action_confirm()
+
+    def test_a_store_manager_records_a_use_from_the_stores_they_keep(self):
+        self.grant_inventory(self.storekeeper, "move.create.all")
+        self.put_stock(self.gloves, self.central, 10)
+
+        self.env[MODEL_STOCK_USE].with_user(self.storekeeper.user_id).create(
+            {
+                "kind": "use",
+                "item_id": self.gloves.id,
+                "location_id": self.central.id,
+                "quantity": 4,
+                "reason": "Cleaning",
+            }
+        ).action_confirm()
+
+        self.assertEqual(self.gloves.with_context(location=self.central.id).qty_available, 6)

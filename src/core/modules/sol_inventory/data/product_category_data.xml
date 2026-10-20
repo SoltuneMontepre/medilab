@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Every stock item. Its costing method follows the costing method setting; Odoo values the stock without journal
+         entries, which the accounting software makes from the export. -->
+    <record id="product_category_stock_item" model="product.category">
+        <field name="name">Stock items</field>
+        <field name="property_cost_method">fifo</field>
+        <field name="property_valuation">periodic</field>
+    </record>
+</odoo>

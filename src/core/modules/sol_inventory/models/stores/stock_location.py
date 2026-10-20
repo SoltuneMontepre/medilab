@@ -22,6 +22,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DEPARTMENT,
     MODEL_EMPLOYEE,
     MODEL_PERMISSION_MIXIN,
+    MODEL_PERSON,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
 
@@ -51,6 +52,10 @@ class StockLocation(models.Model):
     cost_centre_missing = fields.Boolean(
         string="Without Cost Centre", compute="_compute_cost_centre", search="_search_cost_centre_missing"
     )
+    # True for the locations of the stores the signed-in person keeps: the stores they manage and every store under them.
+    kept_by_me = fields.Boolean(string="In Stores I Keep", compute="_compute_my_stores", search="_search_kept_by_me")
+    # True for the locations of the stores the signed-in person keeps, or that their team or department holds.
+    in_my_stores = fields.Boolean(string="In My Stores", compute="_compute_my_stores", search="_search_in_my_stores")
 
     @api.depends("location_id")
     def _compute_parent_store_id(self):
@@ -63,6 +68,25 @@ class StockLocation(models.Model):
         for location in self:
             location.cost_centre_code = codes.get(location.holder_id.id, False)
             location.cost_centre_missing = bool(location.holder_id) and not location.cost_centre_code
+
+    @api.depends_context("uid")
+    def _compute_my_stores(self):
+        kept, held = self._stores_of_user()
+        mine = kept | held
+        for location in self:
+            store = location._holding_store()
+            location.kept_by_me = bool(store) and store in kept
+            location.in_my_stores = bool(store) and store in mine
+
+    def _search_kept_by_me(self, operator, value):
+        if operator != "in" or True not in value:
+            return NotImplemented
+        return Domain("id", "child_of", self._kept_by_user().ids)
+
+    def _search_in_my_stores(self, operator, value):
+        if operator != "in" or True not in value:
+            return NotImplemented
+        return Domain("id", "child_of", self._kept_by_user(include_held=True).ids)
 
     def _search_cost_centre_missing(self, operator, value):
         if operator != "in" or True not in value:
@@ -163,6 +187,53 @@ class StockLocation(models.Model):
                     format_list(self.env, central.mapped("display_name")),
                 )
             )
+
+    def _holding_stores(self):
+        """The stores these locations are in."""
+        stores = self.browse()
+        for location in self:
+            stores |= location._holding_store()
+        return stores
+
+    def _stores_below(self):
+        """The stores inside these stores, at any depth."""
+        if not self:
+            return self.browse()
+        return self.sudo().search(
+            Domain("is_store", "=", True) & Domain("id", "child_of", self.ids) & Domain("id", "not in", self.ids)
+        )
+
+    @api.model
+    def _kept_by_user(self, include_held=False):
+        """The stores the signed-in user keeps, and with include_held also the stores their team or department holds,
+        each with every store under them."""
+        kept, held = self._stores_of_user()
+        return kept | held if include_held else kept
+
+    @api.model
+    def _stores_of_user(self):
+        """The stores the signed-in user keeps: every store for an administrator, otherwise the stores they manage and
+        every store under them; and the stores their team or department holds, with every store under them."""
+        if self.env.su or self.env.user.has_group(ADMINISTRATOR_GROUP):
+            return self.sudo().search([("is_store", "=", True)]), self.browse()
+        person = self.env[MODEL_PERSON]._for_user(missing_ok=True)
+        if not person:
+            return self.browse(), self.browse()
+        held = person._held_stores()
+        return person._kept_stores(), held | held._stores_below()
+
+    def _check_kept_by_user(self):
+        """Refuse locations outside the stores the signed-in user keeps."""
+        kept = self._kept_by_user()
+        outside = self.filtered(lambda location: location._holding_store() not in kept)
+        if outside:
+            raise UserError(
+                self.env._("Not in a store you keep: %s.", format_list(self.env, outside.sudo().mapped("display_name")))
+            )
+
+    def _manager_partners(self):
+        """The contacts of the people who manage these stores, whom their stock alerts go to."""
+        return self.sudo().manager_id.user_id.partner_id
 
     def _central_stores(self):
         """The stores with no store above them: the central store once the stores are set up."""

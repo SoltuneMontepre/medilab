@@ -23,10 +23,10 @@ How code inside an Odoo module is laid out.
 | `system`            | People, departments, roles, permissions, approval chains, signatures, the audit trail, mobile devices and menus                                                                  |
 | `signing`           | Digital signing: the laboratory's signing certificates, digital signatures, their jobs and the verification page                                                                 |
 | `stores`            | Stores and the locations inside them, with their holders and managers                                                                                                            |
-| `costs`             | Cost centres                                                                                                                                                                     |
+| `costs`             | Cost centres, the costing method and how moves are valued                                                                                                                        |
 | `catalog`           | Stock items with their minimum quantities, suppliers and the items they sell, and how much of each item a test uses                                                              |
 | `purchasing`        | Purchase orders, their lines and signing, and receipts with what each lot line brings in                                                                                         |
-| `stock`             | Lots and containers, opening them, their usable dates and labels, uses, waste and moves                                                                                          |
+| `stock`             | Lots and containers, opening them, their usable dates and labels, uses, waste, moves inside a store, corrections, disposal, expiry alerts and stock on hand                       |
 | `recipes`           | Recipes of prepared solutions, their ingredients and the preparations made from them                                                                                             |
 
 ## Files
@@ -61,7 +61,8 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/approvals.py`   | Approval chain purposes, signature decisions and approval states, such as `DECISION_SIGNED` |
 | `constants/customers.py`   | Customer types and sign-up values, such as `SIGNUP_CUSTOMER_KEY`                            |
 | `constants/audit.py`       | How the audit trail masks values, such as `MASK_PERSONAL`                                   |
-| `constants/jobs.py`        | Context keys of scheduled jobs and what the cleanup job removes, such as `CLEANUP_KINDS`    |
+| `constants/jobs.py`        | Keys and context keys of scheduled jobs and what the cleanup job removes, such as `CLEANUP_KINDS` |
+| `constants/notifications.py` | Channels and event codes of notifications, such as `EVENT_STOCK_EXPIRED`                   |
 | `constants/locks.py`       | The bus notification and release reasons of document locks, such as `LOCK_BUS_TYPE`         |
 | `constants/routes.py`      | Route options that `odoo.http` does not declare, such as `FRONTEND_PAGE`                    |
 | `constants/stock.py`       | Statuses of lots and containers, the kinds of moves and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |

@@ -16,7 +16,14 @@ from odoo.addons.sol_inventory.constants.models import (
     MODEL_STOCK_QUANT,
     MODEL_SUPPLIER_INFO,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_CHEMICAL, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_inventory.constants.settings import COSTING_FIFO
+from odoo.addons.sol_inventory.constants.xml_ids import STOCK_ITEM_CATEGORY
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_CHEMICAL,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_RES_CONFIG_SETTINGS,
+)
 
 STOCK_ITEM_SEQUENCE = "medilab.stock.item"
 PRODUCT_MANAGER_GROUP = "product.group_product_manager"
@@ -127,6 +134,7 @@ class ProductProduct(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        item_values = None
         for vals in vals_list:
             # Set before the constraints run, which an inverse is not.
             if "item_tracking" in vals:
@@ -139,6 +147,12 @@ class ProductProduct(models.Model):
                     vals.setdefault("use_expiration_date", True)
                 if not vals.get("default_code"):
                     vals["default_code"] = self.env["ir.sequence"].next_by_code(STOCK_ITEM_SEQUENCE)
+                item_values = item_values or self._stock_item_values()
+                vals.update(
+                    categ_id=item_values["categ_id"],
+                    alert_time=item_values["alert_time"],
+                    lot_valuated=self._keeps_lot_cost(vals.get("tracking"), item_values["fifo"]),
+                )
         if self.env.su or not all(vals.get("item_kind") for vals in vals_list):
             self._check_product_manager()
             return super().create(vals_list)
@@ -150,6 +164,8 @@ class ProductProduct(models.Model):
         if "item_tracking" in vals:
             vals = {**vals, **self._tracking_values(vals["item_tracking"])}
             del vals["item_tracking"]
+        if vals.get("item_kind"):
+            vals = {**vals, "categ_id": self.env.ref(STOCK_ITEM_CATEGORY).id}
         vals, bought_again = self._purchase_values(vals)
         items = self._as_items()
         if items is None:
@@ -176,6 +192,36 @@ class ProductProduct(models.Model):
         if tracking_before:
             self.filtered(lambda item: item.id in tracking_before)._check_tracking_kept(tracking_before)
         return result
+
+    @api.model
+    def _stock_item_values(self):
+        """The category every stock item is in, whose costing method follows the costing setting, whether stock is
+        costed first in, first out, and the days before expiry lots are listed as expiring soon."""
+        settings = self.env[MODEL_RES_CONFIG_SETTINGS]
+        return {
+            "categ_id": self.env.ref(STOCK_ITEM_CATEGORY).id,
+            "fifo": settings._get_parameter("costing_method") == COSTING_FIFO,
+            "alert_time": settings._get_parameter("expiry_warning_days"),
+        }
+
+    @api.model
+    def _keeps_lot_cost(self, tracking, fifo):
+        """Whether each lot of an item tracked this way keeps its own cost: an item tracked by container or lot under
+        first in, first out."""
+        return fifo and tracking == TRACKING_LOT
+
+    def _sync_lot_valuation(self):
+        """Keep the cost of each lot of the items tracked by container or lot under first in, first out. Odoo refuses to
+        do so while an item holds stock without a lot, as one changing to lot tracking does until the tracking check
+        refuses the change."""
+        fifo = self._stock_item_values()["fifo"]
+        for item in self:
+            lot_valuated = self._keeps_lot_cost(item.tracking, fifo)
+            if item.lot_valuated == lot_valuated:
+                continue
+            if lot_valuated and item._held_stock().filtered(lambda quant: not quant.lot_id):
+                continue
+            item.product_tmpl_id.sudo().lot_valuated = lot_valuated
 
     def _purchase_values(self, vals):
         """The values with a prepared solution kept from being bought, and the items to buy again because they stop

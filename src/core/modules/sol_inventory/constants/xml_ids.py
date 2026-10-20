@@ -13,3 +13,13 @@ SCRAP_DROPPED = "sol_inventory.scrap_reason_dropped"
 SCRAP_SPILLED = "sol_inventory.scrap_reason_spilled"
 SCRAP_CONTAMINATED = "sol_inventory.scrap_reason_contaminated"
 SCRAP_WRONGLY_PREPARED = "sol_inventory.scrap_reason_wrongly_prepared"
+# Why expired stock was disposed of.
+SCRAP_EXPIRED = "sol_inventory.scrap_reason_expired"
+# The product category of every stock item, whose costing method follows the costing method setting.
+STOCK_ITEM_CATEGORY = "sol_inventory.product_category_stock_item"
+# The Stock on Hand screen, the stock expiring soon and the expired stock waiting for disposal.
+STOCK_ON_HAND_ACTION = "sol_inventory.action_medilab_stock_on_hand"
+EXPIRING_ACTION = "sol_inventory.action_medilab_expiring"
+DISPOSAL_ACTION = "sol_inventory.action_medilab_disposal"
+# Who sees the value of stock: Odoo's stock managers and the holders of the stock read permission.
+VALUE_GROUPS = "stock.group_stock_manager,sol_laboratory.group_permission_stock_read_all"

@@ -43,6 +43,7 @@
                 Command.link(ref('sol_laboratory.group_permission_preparation_create_all')),
                 Command.link(ref('sol_laboratory.group_permission_move_create_all')),
                 Command.link(ref('sol_laboratory.group_permission_move_read_all')),
+                Command.link(ref('sol_laboratory.group_permission_stock_read_all')),
             ]"
         />
     </record>
@@ -82,11 +83,60 @@
         groups="sol_laboratory.group_permission_move_create_all"
     />
     <menuitem
+        id="menu_move_stock"
+        name="Move Stock"
+        parent="stock.menu_stock_warehouse_mgmt"
+        action="action_medilab_stock_relocation"
+        sequence="42"
+        groups="sol_laboratory.group_permission_move_create_all"
+    />
+    <menuitem
+        id="menu_correct_stock"
+        name="Correct Quantity"
+        parent="stock.menu_stock_warehouse_mgmt"
+        action="action_medilab_stock_correction"
+        sequence="44"
+        groups="sol_laboratory.group_permission_move_create_all"
+    />
+    <menuitem
+        id="menu_disposal"
+        name="Disposal"
+        parent="stock.menu_stock_warehouse_mgmt"
+        action="action_medilab_disposal"
+        sequence="46"
+        groups="sol_laboratory.group_permission_move_create_all"
+    />
+    <menuitem
         id="menu_preparation"
         name="Preparations"
         parent="stock.menu_stock_warehouse_mgmt"
         action="action_medilab_preparation"
         sequence="50"
+    />
+    <!-- Odoo's Replenishment suggests what to buy for the minimum quantities of the central store. -->
+    <menuitem
+        id="menu_replenishment"
+        name="Replenishment"
+        parent="stock.menu_stock_warehouse_mgmt"
+        action="stock.action_replenishment"
+        sequence="60"
+        groups="sol_laboratory.group_permission_purchase_order_create_all"
+    />
+    <menuitem
+        id="menu_stock_on_hand"
+        name="Stock on Hand"
+        parent="stock.menu_stock_inventory_control"
+        action="action_medilab_stock_on_hand"
+        sequence="99"
+        groups="sol_laboratory.group_permission_stock_read_all"
+    />
+    <menuitem
+        id="menu_expiring"
+        name="Expiring Soon"
+        parent="stock.menu_stock_inventory_control"
+        action="action_medilab_expiring"
+        sequence="100"
+        groups="sol_laboratory.group_permission_stock_read_all"
     />
     <menuitem id="menu_container" parent="stock.menu_stock_inventory_control" action="action_medilab_container" sequence="101" />
     <menuitem
