@@ -54,6 +54,7 @@
         "views/laboratory_files/laboratory_device_views.xml",
         "views/laboratory_files/laboratory_file_views.xml",
         "views/laboratory_files/laboratory_file_version_views.xml",
+        "views/laboratory_files/laboratory_file_lock_views.xml",
         "views/laboratory_files/laboratory_folder_views.xml",
         "views/laboratory_files/laboratory_folder_member_views.xml",
         "views/laboratory_files/laboratory_sync_rule_views.xml",
