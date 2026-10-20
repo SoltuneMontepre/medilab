@@ -8,6 +8,7 @@ from . import (
     laboratory_file_version,
     laboratory_folder,
     laboratory_folder_member,
+    laboratory_folder_sample,
     laboratory_sync_rule,
     res_config_settings,
     res_users_apikeys,

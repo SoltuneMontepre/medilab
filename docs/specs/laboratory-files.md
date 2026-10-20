@@ -156,6 +156,13 @@ A signed-in computer is a `medilab.laboratory.device` of its person, one per ins
 
 - Odoo's only brake on guessing passwords is its login cooldown, which counts failures per Odoo worker. Signing in is not rate limited otherwise, so many attempts against one login can reach Odoo; the route needs a rate limit in front of Odoo, as the webhooks have.
 
+### Sample folders
+
+A folder of a sample holds the files of one category of its work: raw data, working documents, results or reports.
+
+- A sample has one folder of each category, held by a unique key on the sample and the category. A folder of a sample needs a category; a folder of no sample may have one too, and several such folders may share it.
+- Once a folder holds files, its sample and its category never change, so its files keep meaning what they were saved as, such as a signed result of that sample.
+
 ## Related documents
 
 - [Laboratory overview](../functional/laboratory_module/overview.md#laboratory-files)

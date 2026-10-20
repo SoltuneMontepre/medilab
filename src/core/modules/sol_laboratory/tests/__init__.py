@@ -69,6 +69,7 @@ from . import (
     test_laboratory_folder_ownership,
     test_laboratory_paths,
     test_laboratory_sample_folder_access,
+    test_laboratory_sample_folder_records,
     test_languages,
     test_legacy_task_links,
     test_machine_scheduling,

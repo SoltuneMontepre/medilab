@@ -2259,6 +2259,8 @@ model ArchiveFile {
 }
 
 /// A folder of laboratory files: files under paths relative to it, owned by a person, with members who read and write it. It never stores a path on anyone's computer.
+/// A folder of a sample is checked to have a category, and a sample has one folder of each category.
+/// A folder of no sample is not yet checked to have no category, because the tests of laboratory files create raw-data folders without a sample.
 model LaboratoryFolder {
   /// Row identifier.
   id               Int       @id @default(autoincrement())
@@ -2300,6 +2302,7 @@ model LaboratoryFolder {
   changes          LaboratoryFileChange[]
 
   @@unique([owner_id, root])
+  @@unique([sample_id, category])
   @@index([sample_id])
   @@map("medilab_laboratory_folder")
 }
