@@ -5,12 +5,16 @@ Cypress.on("window:before:load", (win) => {
   }
 });
 
-// Signs in as a demo user. Demo users share the password of MEDILAB_DEMO_PASSWORD, which the demo module sets.
+// Signs in as a demo user once, and restores that session in later tests: a late response of the previous test's page
+// can set its session cookie again, which a new sign-in would then reject as a CSRF failure. Demo users share the
+// password of MEDILAB_DEMO_PASSWORD, which the demo module sets.
 export function signIn(login) {
-  cy.env(["demoPassword"]).then(({ demoPassword }) => {
-    cy.visit("/web/login");
-    cy.get("input[name=login]").type(login);
-    cy.get("input[name=password]").type(`${demoPassword}{enter}`, { log: false });
-    cy.location("pathname").should("match", /^\/odoo/);
+  cy.session(login, () => {
+    cy.env(["demoPassword"]).then(({ demoPassword }) => {
+      cy.visit("/web/login");
+      cy.get("input[name=login]").type(login);
+      cy.get("input[name=password]").type(`${demoPassword}{enter}`, { log: false });
+      cy.location("pathname").should("match", /^\/odoo/);
+    });
   });
 }
