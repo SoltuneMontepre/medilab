@@ -1,0 +1,33 @@
+#!/usr/sbin/nft -f
+# {{ ansible_managed }}
+# Drops traffic to the k3s ports from anywhere but the nodes, the cluster networks and the admin sources.
+# Lives in its own table, so the host's other firewall rules are left untouched.
+{% set sources = ['127.0.0.0/8'] + node_firewall_cluster_networks + node_firewall_peers + node_firewall_admin_sources %}
+
+table inet medilab_k3s
+delete table inet medilab_k3s
+
+table inet medilab_k3s {
+  set allowed_v4 {
+    type ipv4_addr
+    flags interval
+    auto-merge
+    elements = { {{ sources | select('search', '^[0-9.]+(/[0-9]+)?$') | unique | join(', ') }} }
+  }
+
+  set allowed_v6 {
+    type ipv6_addr
+    flags interval
+    auto-merge
+    elements = { {{ (['::1/128'] + (sources | select('search', ':') | list)) | unique | join(', ') }} }
+  }
+
+  chain input {
+    type filter hook input priority filter - 10; policy accept;
+    iifname "lo" return
+    meta nfproto ipv4 ip saddr @allowed_v4 return
+    meta nfproto ipv6 ip6 saddr @allowed_v6 return
+    tcp dport { {{ k3s_tcp_ports | join(', ') }} } drop
+    udp dport { {{ k3s_udp_ports | join(', ') }} } drop
+  }
+}

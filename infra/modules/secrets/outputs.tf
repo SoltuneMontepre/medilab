@@ -21,3 +21,9 @@ output "tf_api_token" {
   value       = data.doppler_secrets.this.map["TERRAFORM_TOKEN"]
   sensitive   = true
 }
+
+output "doppler_infra_token" {
+  description = "Doppler token that reads the infra config, published as the DOPPLER_INFRA_TOKEN secret of the Ansible environments"
+  value       = data.doppler_secrets.this.map["DOPPLER_INFRA_TOKEN"]
+  sensitive   = true
+}

@@ -1,0 +1,32 @@
+# WAL archive and base backups in the backups bucket, kept for 30 days.
+# The endpoint reaches barman-cloud through AWS_ENDPOINT_URL, since endpointURL cannot be read from a Secret.
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backups
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  retentionPolicy: 30d
+  configuration:
+    destinationPath: s3://backups/postgres
+    s3Credentials:
+      accessKeyId:
+        name: backup-bucket
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: backup-bucket
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+      maxParallel: 2
+    data:
+      compression: gzip
+      jobs: 2
+  instanceSidecarConfiguration:
+    env:
+      - name: AWS_ENDPOINT_URL
+        valueFrom:
+          secretKeyRef:
+            name: backup-bucket
+            key: ENDPOINT
