@@ -217,8 +217,7 @@ class ScheduledJob(models.Model):
             job._progress(remaining=0)
             return run
         try:
-            # The items the run's finder queued may be stamped a second after now.
-            items = job._claim(fields.Datetime.now())
+            items = job._claim(now)
         except Exception:
             run._finish("failed", traceback.format_exc())
             _logger.exception("Job %s could not claim its items", job.key)

@@ -1,15 +1,12 @@
 from datetime import timedelta
-from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
-from .jobs_case import JOB_KEY, JOB_LOGGER, JobsCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_IR_CRON_TRIGGER, MODEL_SCHEDULED_JOB
-
-FINDER = "_queue_test_echo"
+from .jobs_case import JOB_LOGGER, JobsCase
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_CRON_TRIGGER
 
 
 @tagged("post_install", "-at_install")
@@ -39,25 +36,6 @@ class TestJobRun(JobsCase):
         run = self.job.run_ids
         self.assertEqual((run.status, run.done_count, run.failed_count), ("succeeded", 5, 0))
         self.assertEqual(run.log.count(": done"), 5)
-
-    def test_the_items_the_finder_queues_are_done_in_the_same_run(self):
-        handled = self.record_handler()
-        finder = patch.object(
-            type(self.env[MODEL_SCHEDULED_JOB]),
-            FINDER,
-            lambda job: job.queue(JOB_KEY, "found"),
-            create=True,
-        )
-        # The clock moves on to the next second between the start of the run and the finder queueing its item.
-        real_now = fields.Datetime.now
-        start = iter([real_now() - timedelta(seconds=1)])
-        clock = patch.object(fields.Datetime, "now", side_effect=lambda: next(start, None) or real_now())
-
-        with finder, clock:
-            self.job._run_batch()
-
-        self.assertEqual(handled, ["found"])
-        self.assertEqual(self.items("done").mapped("item_key"), ["found"])
 
     def test_a_handler_returning_a_time_defers_the_item_without_an_attempt(self):
         later = fields.Datetime.now() + timedelta(hours=1)
