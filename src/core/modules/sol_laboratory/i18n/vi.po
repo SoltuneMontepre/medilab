@@ -4538,6 +4538,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only administrators create a folder for someone else or for a sample."
+msgstr "Chỉ quản trị viên được tạo thư mục cho người khác hoặc cho một mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only an assigned task can be started."
 msgstr "Chỉ nhiệm vụ đã giao mới có thể bắt đầu."

@@ -56,7 +56,18 @@
                     </div>
                     <group>
                         <group>
-                            <field name="owner_id" widget="many2one_avatar_user" readonly="status == 'archived'" />
+                            <field
+                                name="owner_id"
+                                widget="many2one_avatar_user"
+                                readonly="status == 'archived'"
+                                groups="sol_laboratory.group_permission_laboratory_folder_edit_all"
+                            />
+                            <field
+                                name="owner_id"
+                                widget="many2one_avatar_user"
+                                readonly="1"
+                                groups="!sol_laboratory.group_permission_laboratory_folder_edit_all"
+                            />
                             <field name="root" />
                             <field name="sync_mode" readonly="status == 'archived'" />
                         </group>

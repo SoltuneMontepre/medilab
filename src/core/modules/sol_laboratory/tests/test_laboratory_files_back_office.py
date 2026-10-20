@@ -2,6 +2,7 @@ from odoo.exceptions import AccessError
 from odoo.tests import tagged
 
 from .laboratory_files_case import LaboratoryFilesCase
+from odoo.addons.sol_laboratory.constants.laboratory_files import PERMISSION_DENIED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_UI_MENU,
     MODEL_LABORATORY_DEVICE,
@@ -47,6 +48,19 @@ class TestLaboratoryFilesBackOffice(LaboratoryFilesCase):
             self.env[MODEL_LABORATORY_FOLDER_MEMBER].with_user(self.tester).create(
                 {"folder_id": self.folder.id, "user_id": self.outsider.id}
             )
+
+    def test_a_tester_creates_only_folders_of_their_own(self):
+        folders = self.env[MODEL_LABORATORY_FOLDER].with_user(self.tester)
+
+        self.assertEqual(folders.create({"name": "AAS"}).owner_id, self.tester)
+        self.assertRefused(PERMISSION_DENIED, folders.create, {"name": "GC", "owner_id": self.member.id})
+        self.assertRefused(PERMISSION_DENIED, folders.create, {"name": "Raw data", "category": "raw"})
+        folder = (
+            self.env[MODEL_LABORATORY_FOLDER]
+            .with_user(self.administrator)
+            .create({"name": "GC", "owner_id": self.member.id})
+        )
+        self.assertEqual(folder.owner_id, self.member)
 
     def test_a_folder_shows_whether_it_is_in_use_turned_off_or_archived(self):
         folder = self.folder.with_user(self.administrator)

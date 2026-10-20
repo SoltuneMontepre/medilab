@@ -86,8 +86,17 @@ class LaboratoryFolder(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        administrator = self.env.su or self.env.user.has_group(FOLDER_ADMINISTRATION_GROUP)
         for vals in vals_list:
             vals.setdefault("root", vals.get("name"))
+            # The laboratory files permission creates folders of one's own; a sample's folders come from the sample.
+            if not administrator and (
+                vals.get("owner_id", self.env.uid) != self.env.uid or vals.get("sample_id") or vals.get("category")
+            ):
+                raise LaboratoryFileError(
+                    PERMISSION_DENIED,
+                    self.env._("Only administrators create a folder for someone else or for a sample."),
+                )
         self.env[MODEL_LABORATORY_FOLDER_MEMBER]._check_eligible(
             {vals.get("owner_id") or self.env.uid for vals in vals_list}
         )

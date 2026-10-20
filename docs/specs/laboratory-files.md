@@ -52,7 +52,7 @@ Administrators administer folders in the back office; each action checks `admini
 
 ### Back office
 
-The Documents menu of the Laboratory app lists Folders, Folder Members, Sync Rules and Computers. People with the laboratory files permission see their folders, with their members and rules, and their own computers there, and change nothing: owners manage their folders from Medilab Sync. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
+The Documents menu of the Laboratory app lists Folders, Folder Members, Sync Rules and Computers. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and change nothing else: owners manage their folders from Medilab Sync. Only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
 
 Known limitation: the back office shows a folder of a sample to its members by their membership only, because an access domain cannot test whether the person sees the sample. The laboratory files API refuses such a folder to a member who does not see its sample. Only administrators set a folder's sample until US-HD15 creates sample folders, which must also limit their back office to people who see the sample.
 
