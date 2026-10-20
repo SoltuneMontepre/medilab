@@ -1443,6 +1443,11 @@ msgid "Conflict"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
+msgid "Conflicts"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_res_partner
 msgid "Contact"
 msgstr ""
@@ -1859,6 +1864,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_employee_skill_ids
 msgid "Current Employee Skill"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_number
+msgid "Current Number"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2696,6 +2706,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__edited_online
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
 msgid "Edited Online"
 msgstr ""
 
@@ -2913,7 +2924,16 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file_version
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file_version
+msgid "File Versions"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__file_ids
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Files"
 msgstr ""
 
@@ -2974,6 +2994,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__folder_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_search
 msgid "Folder"
 msgstr ""
 
@@ -3804,6 +3825,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Last Run"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Last Saved"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6177,6 +6204,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__restored
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
 msgid "Restored"
 msgstr ""
 
@@ -6464,7 +6492,16 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__user_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
 msgid "Saved By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_list
+msgid "Saved On"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6664,6 +6701,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__size
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_size
 msgid "Size"
 msgstr ""
 
@@ -7818,6 +7856,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__version_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_form
 msgid "Versions"
 msgstr ""
 
@@ -11289,6 +11328,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__file
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__file_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__file_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
 msgid "File"
 msgstr ""
 

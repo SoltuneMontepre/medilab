@@ -27,6 +27,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_FOLDER,
     MODEL_PERMISSION_MIXIN,
 )
+from odoo.addons.sol_laboratory.fields.big_integer import BigInteger
 from odoo.addons.sol_laboratory.services.laboratory_paths import is_relative_path, normal_text, path_key
 
 # A file is found by its folder and path, which never change.
@@ -61,6 +62,12 @@ class LaboratoryFile(models.Model):
     )
     # Every version of the file.
     version_ids = fields.One2many(MODEL_LABORATORY_FILE_VERSION, "file_id", string="Versions")
+    # Number of the current version.
+    current_number = fields.Integer(related="current_version_id.number", string="Current Number")
+    # Size of the current version in bytes.
+    current_size = BigInteger(related="current_version_id.size", string="Size")
+    # The user who saved the current version.
+    current_user_id = fields.Many2one(related="current_version_id.user_id", string="Saved By")
 
     _folder_path_unique = models.Constraint(
         "UNIQUE(folder_id, path_key)", "The folder already has a file with this path, perhaps in another letter case."

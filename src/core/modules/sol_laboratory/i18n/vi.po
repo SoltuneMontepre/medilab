@@ -1472,6 +1472,11 @@ msgid "Conflict"
 msgstr "Xung đột"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
+msgid "Conflicts"
+msgstr "Xung đột"
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_res_partner
 msgid "Contact"
 msgstr "Liên Hệ"
@@ -1889,6 +1894,11 @@ msgstr "Hồ sơ nhân viên hiện tại"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__current_employee_skill_ids
 msgid "Current Employee Skill"
 msgstr "Kỹ năng hiện tại của nhân viên"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_number
+msgid "Current Number"
+msgstr "Số phiên bản hiện hành"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_version_id
@@ -2733,6 +2743,7 @@ msgstr "Sửa cách thử của phòng ban mình"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__edited_online
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
 msgid "Edited Online"
 msgstr "Chỉnh sửa trực tuyến"
 
@@ -2959,7 +2970,16 @@ msgstr ""
 "Trường lưu số điện thoại đã chuẩn hóa, giúp tìm kiếm và so sánh nhanh hơn."
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file_version
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file_version
+msgid "File Versions"
+msgstr "Phiên bản tệp"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__file_ids
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Files"
 msgstr "Tệp"
 
@@ -3020,6 +3040,7 @@ msgstr "Có thời hạn"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__folder_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_search
 msgid "Folder"
 msgstr "Thư mục"
 
@@ -3875,6 +3896,12 @@ msgstr "Chỉnh sửa lần cuối vào"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
 msgid "Last Run"
 msgstr "Lượt Chạy Cuối"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Last Saved"
+msgstr "Lưu lần cuối"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__lastcall
@@ -6274,6 +6301,7 @@ msgstr "Người phụ trách"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__restored
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
 msgid "Restored"
 msgstr "Khôi phục"
 
@@ -6562,8 +6590,17 @@ msgstr "Thứ Bảy"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__user_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
 msgid "Saved By"
 msgstr "Người lưu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_list
+msgid "Saved On"
+msgstr "Lưu lúc"
 
 #. module: sol_laboratory
 #: code:addons/sol_laboratory/models/master_data/testing_method_step.py:0
@@ -6765,6 +6802,7 @@ msgstr "Loại mã đăng ký"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__size
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__current_size
 msgid "Size"
 msgstr "Kích thước"
 
@@ -7970,6 +8008,7 @@ msgstr "Phiên bản hồ sơ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__version_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_form
 msgid "Versions"
 msgstr "Phiên bản"
 
@@ -11423,6 +11462,7 @@ msgstr "Tên Trường"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__file
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__file_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__file_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
 msgid "File"
 msgstr "Tệp"
 
