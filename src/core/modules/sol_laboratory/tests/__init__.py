@@ -47,6 +47,8 @@ from . import (
     test_laboratory_device_audit,
     test_laboratory_device_revocation,
     test_laboratory_device_sign_in,
+    test_laboratory_file_access,
+    test_laboratory_file_kinds,
     test_laboratory_file_records,
     test_laboratory_file_version_concurrency,
     test_laboratory_file_version_immutability,

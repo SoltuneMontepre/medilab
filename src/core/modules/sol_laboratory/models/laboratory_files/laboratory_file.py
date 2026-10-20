@@ -1,3 +1,5 @@
+import posixpath
+
 from psycopg2 import IntegrityError, errorcodes
 
 from odoo import api, fields, models
@@ -7,7 +9,13 @@ from odoo.tools import SQL, mute_logger
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     CONFLICT,
     EDITED_ONLINE,
+    FILE_READ,
+    FILE_WRITE,
+    FOLDER_READ,
+    FOLDER_WRITE,
     MOVE_CURRENT_CONTEXT,
+    OFFICE_EXTENSIONS,
+    RAW_DATA,
     RESTORED,
     SYNCED,
 )
@@ -23,6 +31,8 @@ from odoo.addons.sol_laboratory.services.laboratory_paths import is_relative_pat
 
 # A file is found by its folder and path, which never change.
 IDENTITY_FIELDS = ("folder_id", "path", "path_key")
+# What reading and writing a file need of its folder.
+FOLDER_ACCESS = {FILE_READ: FOLDER_READ, FILE_WRITE: FOLDER_WRITE}
 
 
 # Tệp Phòng Thí Nghiệm
@@ -92,6 +102,23 @@ class LaboratoryFile(models.Model):
                         file.path or "",
                     )
                 )
+
+    def _check_file_access(self, access):
+        """Refuse the user what they may not do with these files: read their versions, or write a new one. Their
+        folders decide, with _check_folder_access(): membership, the sample of a sample folder, and whether the folder
+        is archived or turned off. Callers check it before they act with full rights; versions check their file."""
+        self.sudo().folder_id.with_env(self.env)._check_folder_access(FOLDER_ACCESS[access])
+
+    def _is_raw_data(self):
+        """Raw data from instruments: the file is in a folder of a sample's raw data. A folder without a category holds
+        no raw data; what applies to its files is decided by the features built on them."""
+        self.ensure_one()
+        return self.sudo().folder_id.category == RAW_DATA
+
+    def _is_office_document(self):
+        """A Word, Excel or PowerPoint document, whatever the letter case of its extension."""
+        self.ensure_one()
+        return posixpath.splitext(self.path)[1].removeprefix(".").lower() in OFFICE_EXTENSIONS
 
     @api.model
     def _get_or_create(self, folder, path):

@@ -15,6 +15,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     NOT_FOUND,
     OWNER_ROLE,
     PERMISSION_DENIED,
+    RAW_DATA,
     TWO_WAY,
     UPLOAD_ONLY,
 )
@@ -58,7 +59,7 @@ class LaboratoryFolder(models.Model):
     sample_id = fields.Many2one(MODEL_SAMPLE, ondelete="restrict", index=True)
     # raw, working, result or report; empty for a folder of no sample.
     category = fields.Selection(
-        [("raw", "Raw Data"), ("working", "Working Documents"), ("result", "Results"), ("report", "Reports")],
+        [(RAW_DATA, "Raw Data"), ("working", "Working Documents"), ("result", "Results"), ("report", "Reports")],
         string="Folder Category",
     )
     # upload_only sends local changes and never writes to the computer; two_way also downloads others' versions.
