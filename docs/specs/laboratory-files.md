@@ -163,7 +163,7 @@ An editing session (`medilab.laboratory.editing.session`) is the editing of one 
 - When the file has an open session with activity in the idle period, the person joins it, even when the file has a newer version than the session's base; the session's save then becomes a conflict.
 - Otherwise an open session past the idle period expires, and a new session opens on the file's current version, with a new document key and a new callback token. A file with no version yet is not opened.
 - Two people opening a file at once make one session: the second one's creation fails on the partial unique index, which becomes a `ConcurrencyError`, and Odoo runs the request again, when it joins the session.
-- The callback token is in the address the editing service calls back on. Only its SHA-256 is stored, the session is found by it, and the hash is compared in constant time.
+- The callback token is in the address the editing service calls back on. It is derived from the document key with the database's secret, so everyone in the session gets the same address, as the editing service calls back on the address of whoever changed the document last. Only its SHA-256 is stored; the session is found by it, and the hash is compared in constant time.
 
 Opening, joining and every call of the editing service are the session's activity. The idle period is the system parameter `sol_laboratory.laboratory_editing_idle_hours`, in the Laboratory Files block of [Settings](settings.md), at least 1 hour and 12 hours by default.
 
