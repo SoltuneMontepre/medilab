@@ -75,6 +75,10 @@ class LaboratoryFolder(models.Model):
     member_ids = fields.One2many(MODEL_LABORATORY_FOLDER_MEMBER, "folder_id", string="Members")
     # Which files of a bound local folder are synced.
     rule_ids = fields.One2many(MODEL_LABORATORY_SYNC_RULE, "folder_id", string="Sync Rules")
+    # in_use, turned_off by an administrator, or archived for good.
+    status = fields.Selection(
+        [("in_use", "In Use"), ("turned_off", "Turned Off"), ("archived", "Archived")], compute="_compute_status"
+    )
 
     _owner_root_unique = models.Constraint(
         "UNIQUE(owner_id, root)", "The owner already has a folder with this name; choose another name."
@@ -90,6 +94,11 @@ class LaboratoryFolder(models.Model):
         folders = super().create(vals_list)
         folders._add_owner_rows()
         return folders
+
+    @api.depends("enabled", "archived_at")
+    def _compute_status(self):
+        for folder in self:
+            folder.status = "archived" if folder.archived_at else "in_use" if folder.enabled else "turned_off"
 
     def write(self, vals):
         self._check_not_archived()

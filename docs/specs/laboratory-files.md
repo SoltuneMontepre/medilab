@@ -50,6 +50,12 @@ Administrators administer folders in the back office; each action checks `admini
 - An archived folder is read only, for its owner and members too: it refuses `write` and `share`, and the folder, its rules and its members cannot be changed. Administrators still remove its members in the back office, so access to it can always be withdrawn. It is no longer turned off or on, archived again or given another owner.
 - The retention period of archived folders is the system parameter `sol_laboratory.laboratory_folder_retention_days`, in the Laboratory Files block of [Settings](settings.md), at least 1 day. It is 1825 days by default, an assumption until the laboratory gives one. What happens once a folder's retention date has passed is an open question.
 
+### Back office
+
+The Documents menu of the Laboratory app lists Folders, Folder Members, Sync Rules and Computers. People with the laboratory files permission see their folders, with their members and rules, and their own computers there, and change nothing: owners manage their folders from Medilab Sync. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
+
+Known limitation: the back office shows a folder of a sample to its members by their membership only, because an access domain cannot test whether the person sees the sample. The laboratory files API refuses such a folder to a member who does not see its sample. Only administrators set a folder's sample until US-HD15 creates sample folders, which must also limit their back office to people who see the sample.
+
 ### Members
 
 - Creating a folder adds its owner as a member with the role `owner`. A folder has one owner row, held by a partial unique index, and the owner row cannot be removed.
