@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Moving, using, correcting and disposing of stock need the receipts and the containers, so they are seeded in
+         Python. -->
+    <function model="stock.quant" name="_seed_stock_demo" />
+</odoo>

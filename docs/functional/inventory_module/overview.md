@@ -78,14 +78,14 @@ stateDiagram-v2
 
 | Rule          | Description                                                                                                                              |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Tester's store | A person takes stock from every store their team holds. When they have no team, or the team holds no store, they take it from every store their department holds. When neither holds a store, the use is refused. A container counts as in one of those stores when the nearest store at or above its location is one of them. |
+| Tester's store | A person takes stock from every store their team holds. When they have no team, or the team holds no store, they take it from every store their department holds. A store's manager also takes stock from the stores they keep: the store they manage and every store under it. When the person neither holds nor keeps a store, the use is refused. A container counts as in one of those stores when the nearest store at or above its location is one of them. |
 | Opened only   | Stock tracked by container is deducted only from opened containers. A sealed container can be wasted only as a whole bottle.                |
 | Usual use     | Each testing method states how much of each item one test uses.                                                                           |
 | Automatic use | The first signature of an in-house result, while it is still a draft, deducts the method's usual use from the store of the person who entered it. An item tracked by container is taken from the opened containers scanned for the result, in that order, emptying an earlier container before the next. An item kept by lot or by quantity is taken from the lot with the earliest usable date, and a lot with no usable date after the dated ones. A missing scan or a shortage is refused, and the result is not signed. An outsourced result is not deducted and needs no scan. A retest is deducted again; a new version of a result is not, and it does not keep the scanned containers. After that first signature the scanned containers stay as they are. A move is never edited: correcting a mistake is another move. |
 | Destination   | A use goes to the company's Production location. Waste and disposal go to the company's scrap location. Odoo has no consumption location. |
 | Preparation   | Preparing a solution deducts the recipe's amounts from the opened bottles scanned for it. Each ingredient starts at the recipe's amount and can only be raised; the extra is waste and needs a reason. The quantity obtained starts at the recipe's yield and can only be lowered. The solution costs what those ingredients cost, waste included, divided by the quantity obtained. |
 | Waste         | Stock dropped, spilled, contaminated or wrongly prepared is deducted as waste with one of those reasons, including loss beyond its recipe during a preparation. Waste for another reason is recorded as Other, with what happened written out. |
-| Use by hand   | Other uses, such as calibration, cleaning or a spare part in a machine service, are recorded by hand with a reason.                      |
+| Use by hand   | Other uses, such as calibration, cleaning or a spare part in a machine service, are recorded by hand with a reason, from the person's store or a store they manage or that is under one they manage. |
 | Depleted      | A container whose remaining amount reaches zero is depleted, or disposed of when the move that emptied it was waste. Marking an opened container empty uses what remains, with the reason Marked empty, and the container is then depleted. |
 | Traceability  | The moves of a result show which containers and lots it used.                                                                             |
 | Expired       | A container whose usable date is before today, or whose lot is not available, cannot be used and is listed for disposal. A container with no usable date is not expired. Disposing of an expired container deducts what remained. |
@@ -94,10 +94,10 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                         |
 | --------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Below minimum   | When the stock of an item falls below its minimum quantity, a warning is raised and a purchase is suggested.         |
-| Expiring soon   | Containers and lots whose usable date is within a number of days, a system parameter, are listed and notified.      |
-| Expired         | Containers and lots that expire are marked expired by a scheduled job and notified.                                 |
-| Who is warned   | The roles and departments notified of each warning are configured by the administrator ([SH-11](../shared.md#sh-11-schedules-and-reminders)); by default the storekeepers. |
+| Below minimum   | When a move takes the stock a store holds itself of an item below its minimum quantity, a warning is raised, once each time it falls below. Odoo's Replenishment suggests a purchase for the minimums of the central store, from its active suppliers; its buy rule delivers to the warehouse's stock location, which is the central store. A store below it gets stock through a requisition. |
+| Expiring soon   | Containers and lots whose usable date is within a number of days, a system parameter of 30 by default, are listed and notified, once each. |
+| Expired         | A daily scheduled job marks lots expired once their expiry date has passed, and notifies each lot and container that expired, once. A container has no expired status: it is expired when its usable date has passed or its lot has expired. The daily job marks lots only. A container is notified apart from its lot only when its own usable date ends before the lot's expiry. |
+| Who is warned   | Stock alerts go to the manager of the store holding the stock, or of the nearest store above it that has one, so the central store's alerts reach the storekeeper, plus the roles and departments the administrator adds to each warning ([SH-11](../shared.md#sh-11-schedules-and-reminders)). The manager cannot be removed from them. |
 
 ## Purchasing
 
@@ -112,7 +112,7 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                                                  |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit cost       | Each lot records the purchase price of one unit, excluding VAT, from its receipt.                                                           |
+| Unit cost       | Each lot records the purchase price of one unit, excluding VAT, from its receipt. Under first in, first out, the lots of an item tracked by container or lot keep that price as their cost; under moving average, the item's average cost applies to every lot. |
 | Costing method  | A [system parameter](../shared.md#sh-03-configuration-through-settings-and-system-parameters) sets how stock is costed, to match the laboratory's accounting policy: first in, first out, which costs each container at its lot's price, or moving average, which costs at the average price of the item's stock at the time. First in, first out is the default. |
 | Value           | Stock on hand is valued with the costing method. Accounting entries are made in the laboratory's accounting software from the export.       |
 | Cost centre     | Each department and each team is a cost centre, with a code that matches the one in the laboratory's accounting software. Stock is charged to the team or department that holds its store. |

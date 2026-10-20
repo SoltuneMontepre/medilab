@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Project-Id-Version: Odoo Server 20.0-20261015\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 17:56+0000\n"
-"PO-Revision-Date: 2026-10-13 17:56+0000\n"
+"POT-Creation-Date: 2026-10-20 09:56+0000\n"
+"PO-Revision-Date: 2026-10-20 09:56+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -146,6 +146,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_purchase_order__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_stock_package__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_stock_quant__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -244,6 +247,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__id
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
 #: model:ir.model.fields,field_description:sol_demo.field_purchase_order__id
+#: model:ir.model.fields,field_description:sol_demo.field_stock_package__id
+#: model:ir.model.fields,field_description:sol_demo.field_stock_quant__id
+#: model:ir.model.fields,field_description:sol_demo.field_stock_warehouse_orderpoint__id
 msgid "ID"
 msgstr ""
 
@@ -330,6 +336,11 @@ msgid ""
 msgstr ""
 
 #. module: sol_demo
+#: model:ir.model,name:sol_demo.model_stock_warehouse_orderpoint
+msgid "Minimum Inventory Rule"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.regulation,name:sol_demo.demo_regulation_qcvn_6_1
 msgid ""
 "National technical regulation on natural mineral waters and bottled drinking"
@@ -380,6 +391,22 @@ msgid "Organophosphates"
 msgstr ""
 
 #. module: sol_demo
+#: model:ir.model,name:sol_demo.model_stock_package
+msgid "Package"
+msgstr ""
+
+#. module: sol_demo
+#: model:hr.department,name:sol_demo.demo_hr_department_pathogens
+msgid "Pathogens"
+msgstr ""
+
+#. module: sol_demo
+#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_pesticide_residues
+#: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
+msgid "Pesticide residues"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_pesticides
 msgid "Pesticides"
 msgstr ""
@@ -397,6 +424,21 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_bottled_water
 msgid "Pour into the drain and recycle the bottles."
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_purchase_order
+msgid "Purchase Order"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
+msgid "Purchase order signing"
+msgstr ""
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_stock_quant
+msgid "Quant"
 msgstr ""
 
 #. module: sol_demo
@@ -475,6 +517,21 @@ msgid "Surface water"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_change_request
+msgid "Test report change request"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_signing
+msgid "Test report signing"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_change_request
+msgid "Test result change request"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_signing
 msgid "Test result signing"
 msgstr ""
@@ -534,45 +591,4 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_ph_buffer
 msgid "pH buffer solution 7.00"
-msgstr ""
-
-#. module: sol_demo
-#: model:hr.department,name:sol_demo.demo_hr_department_pathogens
-msgid "Pathogens"
-msgstr ""
-
-#. module: sol_demo
-#: model:account.analytic.account,name:sol_demo.demo_account_analytic_account_pesticide_residues
-#: model:hr.department,name:sol_demo.demo_hr_department_pesticide_residues
-msgid "Pesticide residues"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_signing
-msgid "Test report signing"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_change_request
-msgid "Test result change request"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_change_request
-msgid "Test report change request"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model,name:sol_demo.model_purchase_order
-msgid "Purchase Order"
-msgstr ""
-
-#. module: sol_demo
-#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
-msgid "Purchase order signing"
-msgstr ""
-
-#. module: sol_demo
-#: model:ir.model,name:sol_demo.model_stock_package
-msgid "Package"
 msgstr ""

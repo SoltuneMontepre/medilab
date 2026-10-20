@@ -113,7 +113,8 @@ class Preparation(models.Model):
                 }
             )
         )
-        unit = sum(abs(move.value) for move in ingredient_moves) / received
+        # The value of moves is for those who see the value of stock; the person preparing may not.
+        unit = sum(abs(move.value) for move in ingredient_moves.sudo()) / received
         lot.standard_price = unit
         container = packages.sudo().create(
             {

@@ -8,6 +8,7 @@ from .containers_case import ContainersCase
 from odoo.addons.sol_inventory.constants.models import MODEL_CONTAINER_OPENING, MODEL_STOCK_PACKAGE
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_DISPOSED, CONTAINER_OPENED, CONTAINER_SEALED
 from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_EXPIRED
+from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_ROLE
 
 NOTE = "Opened on the bench without a scan"
 
@@ -84,3 +85,13 @@ class TestRecordedOpenings(ContainersCase):
 
         with self.assertRaises(UserError):
             self.record(container)
+
+    def test_an_administrator_records_an_opening_in_any_store(self):
+        administrator = self.create_person(
+            "Le Van Quan", self.chemistry, "quan.le", roles=self.env.ref(ADMINISTRATOR_ROLE)
+        )
+        container = self.put_container(self.acid, 500, "Administered")
+
+        self.record(container, person=administrator)
+
+        self.assertEqual(container.status, CONTAINER_OPENED)

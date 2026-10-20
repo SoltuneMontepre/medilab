@@ -5,17 +5,20 @@ from zoneinfo import ZoneInfo
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Domain
-from odoo.tools import format_list
+from odoo.tools import format_date, format_list
 from odoo.tools.sql import escape_like_value
 
+from odoo.addons.sol_inventory.constants.jobs import EXPIRED
 from odoo.addons.sol_inventory.constants.models import (
     MODEL_PREPARATION,
     MODEL_PRODUCT,
+    MODEL_STOCK_LOCATION,
     MODEL_STOCK_LOT,
     MODEL_STOCK_MOVE,
     MODEL_STOCK_MOVE_LINE,
     MODEL_STOCK_PACKAGE,
 )
+from odoo.addons.sol_inventory.constants.notifications import EVENT_STOCK_EXPIRED, EVENT_STOCK_EXPIRING
 from odoo.addons.sol_inventory.constants.stock import (
     CONTAINER_DEPLETED,
     CONTAINER_DISPOSED,
@@ -36,8 +39,10 @@ from odoo.addons.sol_inventory.constants.xml_ids import (
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
+    MODEL_MAIL_MESSAGE,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
+    MODEL_RES_CONFIG_SETTINGS,
     MODEL_RES_USERS,
 )
 
@@ -200,7 +205,7 @@ class StockPackage(models.Model):
         self._check_permission("edit")
         if self.status != CONTAINER_SEALED:
             raise UserError(self.env._("%s is not sealed.", self.display_name))
-        if not self._kept_by(self.env[MODEL_PERSON]._for_user()):
+        if not self._kept_by_user():
             raise UserError(
                 self.env._("Only the storekeeper of the store that holds %s records its opening.", self.display_name)
             )
@@ -312,20 +317,15 @@ class StockPackage(models.Model):
                 )
             )
 
-    def _kept_by(self, person):
-        """True when the person manages the store that holds the container, or a store above it."""
+    def _kept_by_user(self):
+        """True when the signed-in user keeps the store that holds the container: they manage it or a store above it,
+        or they are an administrator."""
         self.ensure_one()
-        employee = person.employee_id
         location = self.sudo().location_id
-        store = location._holding_store() if location else location
-        while employee and store:
-            if store.manager_id == employee:
-                return True
-            store = store._store_above()
-        return False
+        return bool(location) and location._holding_store() in self.env[MODEL_STOCK_LOCATION]._kept_by_user()
 
-    def _check_for_use(self, person):
-        """The container is opened, still usable and in this person's store."""
+    def _check_for_use(self, person, stores=None):
+        """The container is opened, still usable and in this person's store, or in one of these stores."""
         sealed = self.filtered(lambda container: container.status != CONTAINER_OPENED)
         if sealed:
             raise UserError(
@@ -335,7 +335,7 @@ class StockPackage(models.Model):
                 )
             )
         self._check_usable()
-        self._check_in_store(person)
+        self._check_in_store(person, stores)
 
     def _check_in_store(self, person, stores=None):
         stores = stores or person._store()
@@ -353,6 +353,70 @@ class StockPackage(models.Model):
         self.ensure_one()
         location = self.sudo().location_id
         return bool(location) and location._holding_store() in stores
+
+    @api.model
+    def _to_warn(self):
+        """The containers with stock left whose own usable date, shortened by opening, has passed or comes within the
+        warning. Their lot warns about the containers that are usable until it expires."""
+        today = self._today()
+        days = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("expiry_warning_days")
+        containers = self.sudo().search(
+            [
+                ("status", "in", IN_STOCK_STATUSES),
+                ("usable_until", "!=", False),
+                ("usable_until", "<=", today + timedelta(days=days)),
+                ("quant_ids.quantity", ">", 0),
+            ]
+        )
+        own = containers.filtered(lambda container: container._expires_before_lot())
+        expired = own.filtered(lambda container: container._usable_date_before(today))
+        return expired, own - expired
+
+    def _expires_before_lot(self):
+        self.ensure_one()
+        lot_date = self._as_date(self.lot_id.expiration_date)
+        return bool(self.usable_until) and (not lot_date or self._usable_date_before(lot_date))
+
+    def _usable_date_before(self, day):
+        self.ensure_one()
+        return bool(self.usable_until) and self.usable_until < day
+
+    def _warn_expiry(self, kind):
+        """Notify the manager of the store holding this container that its own usable date has passed or comes soon."""
+        self.ensure_one()
+        container = self.sudo()
+        if container.status not in IN_STOCK_STATUSES or not container._expires_before_lot():
+            return
+        if container._usable_date_before(self._today()) != (kind == EXPIRED):
+            return
+        item = container.item_id
+        if not item or item.uom_id.is_zero(container.quantity):
+            return
+        store = container.location_id._holding_store()
+        values = {
+            "container": container.name,
+            "item": item.display_name,
+            "date": format_date(self.env, container.usable_until),
+            "quantity": item.uom_id.round(container.quantity),
+            "unit": item.uom_id.name,
+            "store": store.display_name or container.location_id.display_name,
+        }
+        if kind == EXPIRED:
+            event = EVENT_STOCK_EXPIRED
+            body = self.env._(
+                "%(container)s of %(item)s was usable until %(date)s. It holds %(quantity)s %(unit)s in %(store)s to "
+                "dispose of.",
+                **values,
+            )
+        else:
+            event = EVENT_STOCK_EXPIRING
+            body = self.env._(
+                "%(container)s of %(item)s is usable until %(date)s. It holds %(quantity)s %(unit)s in %(store)s.",
+                **values,
+            )
+        self.env[MODEL_MAIL_MESSAGE].raise_event(
+            event, container, f"stock.{kind}:container:{container.id}", body, partners=store._manager_partners()
+        )
 
     def _settle(self, wasted):
         """A source container with nothing left is depleted, or disposed when the move wasted it."""

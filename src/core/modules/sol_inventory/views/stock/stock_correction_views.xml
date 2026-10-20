@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_stock_correction_form" model="ir.ui.view">
+        <field name="name">medilab.stock.correction.form</field>
+        <field name="model">medilab.stock.correction</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="store_ids" invisible="1" />
+                    <field name="container_scan" placeholder="Scan or type the container code" />
+                    <field name="container_id" options="{'no_create': True}" />
+                    <field name="item_id" readonly="container_id" options="{'no_create': True}" />
+                    <field name="lot_id" readonly="container_id" options="{'no_create': True}" />
+                    <field name="container_location_id" invisible="1" />
+                    <field name="location_id" readonly="container_location_id" required="not container_location_id" options="{'no_create': True}" />
+                    <field name="on_hand" />
+                    <field name="counted_quantity" />
+                    <field name="reason" required="1" />
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Correct" class="btn-success" />
+                    <button string="Cancel" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_stock_correction" model="ir.actions.act_window">
+        <field name="name">Correct Quantity</field>
+        <field name="res_model">medilab.stock.correction</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="path">correct-stock</field>
+    </record>
+</odoo>
