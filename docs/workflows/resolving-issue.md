@@ -16,7 +16,7 @@ How an open feature issue is implemented, checked in the browser and opened as a
 5. **Plan.** Turn each checklist item and acceptance criterion into the models, views, data and tests to write. Ask the owner when the documents do not answer something; add what stays undecided to `questions/<topic>.md`. Do not guess.
 6. **Implement**, following the [module structure](../conventions/module_structure.md), [database](../conventions/database.md), [Python](../conventions/python.md), [translation and menus](../conventions/translation.md), [styling](../conventions/styling.md) and [UX and UI](../conventions/ux-ui.md) conventions: one model per file in its concern folder, a `MODEL_*` constant per model, a comment with the Vietnamese term above each model class and a comment above each field, access rules, sequences, views, menus and Vietnamese translations.
    Add the feature's demo data to the `sol_demo` module ([demo data](../conventions/demo_data.md)).
-7. **Test.** Write a test for each acceptance criterion ([testing](../conventions/testing.md)), then run `task lint`, `task typecheck` and `task test:core`. Fix everything they report.
+7. **Test.** Write a test for each acceptance criterion and a [browser test](../conventions/testing.md#browser-tests) of the feature's main path ([testing](../conventions/testing.md)), then run `task lint`, `task typecheck`, `task test:core`, `task test:e2e:app` and `task test:e2e`. Fix everything they report.
 8. **Check in the browser.**
    - Start the app with `task up`, then `task upgrade MODULES=<module>`.
    - Open `http://localhost:8069` in the browser and sign in with the local development account.
