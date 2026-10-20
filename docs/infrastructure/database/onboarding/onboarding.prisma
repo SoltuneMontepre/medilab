@@ -5,7 +5,7 @@ datasource db {
   provider = "postgresql"
 }
 
-/// A site the administrator trusts to collect master data from (Nguồn tin cậy).
+/// A site the developers trust to collect master data from, shipped as module data (Nguồn tin cậy). No group has access to it; code reads it with sudo.
 model OnboardingSource {
   /// Row identifier.
   id                Int                      @id @default(autoincrement())
@@ -21,18 +21,18 @@ model OnboardingSource {
   delay_seconds     Int                      @default(2)
   /// Most pages one run fetches.
   page_limit        Int                      @default(500)
-  /// True when the administrator allows runs on the source.
+  /// True when the developers turned the source on; runs read only turned-on sources.
   enabled           Boolean                  @default(false)
   /// Time of the last request to the source, read and written under a row lock to keep the delay across workers.
   last_request_at   DateTime?                @db.Timestamp(6)
   /// Time the organisations of the source were last refreshed.
   organisations_refreshed_at DateTime?       @db.Timestamp(6)
-  /// False when the source is archived.
+  /// False when the developers retired the source; its snapshots and staged records keep it.
   active            Boolean                  @default(true)
   /// Organisations the source lists.
   organisations     OnboardingOrganisation[]
-  /// Runs on the source.
-  runs              OnboardingRun[]
+  /// Documents fetched from the source.
+  snapshots         OnboardingSnapshot[]
   /// Records staged from the source.
   staged_records    OnboardingStagedRecord[]
 
@@ -85,14 +85,12 @@ model OnboardingSector {
   @@map("medilab_onboarding_sector")
 }
 
-/// One collection from one source, for an organisation, sectors or both (Lượt thu thập).
+/// One collection from the trusted sources, for an organisation, sectors or both (Lượt thu thập).
 model OnboardingRun {
   /// Row identifier.
   id              Int                      @id @default(autoincrement())
   /// Unique reference of the run, such as THU.2026.0001.
   name            String                   @unique @db.VarChar
-  /// The source the run reads.
-  source_id       Int
   /// The organisation whose accreditation scope the run collects.
   organisation_id Int?
   /// Status: draft, running, done, failed or cancelled.
@@ -111,8 +109,6 @@ model OnboardingRun {
   staged_count    Int                      @default(0)
   /// One line per page: fetched, skipped with its reason, or failed with its error.
   log             String?
-  /// The source.
-  source          OnboardingSource         @relation(fields: [source_id], references: [id], onDelete: Restrict)
   /// The organisation.
   organisation    OnboardingOrganisation?  @relation(fields: [organisation_id], references: [id], onDelete: Restrict)
   /// The user who started the run.
@@ -124,7 +120,7 @@ model OnboardingRun {
   /// Records the run staged.
   staged_records  OnboardingStagedRecord[]
 
-  @@index([source_id, state])
+  @@index([state])
   @@map("medilab_onboarding_run")
 }
 
@@ -150,6 +146,8 @@ model OnboardingSnapshot {
   id             Int                      @id @default(autoincrement())
   /// The run that fetched it.
   run_id         Int
+  /// The source it was fetched from.
+  source_id      Int
   /// Address the document was fetched from.
   url            String                   @db.VarChar
   /// Time it was fetched.
@@ -162,6 +160,8 @@ model OnboardingSnapshot {
   attachment_id  Int
   /// The run.
   run            OnboardingRun            @relation(fields: [run_id], references: [id], onDelete: Cascade)
+  /// The source.
+  source         OnboardingSource         @relation(fields: [source_id], references: [id], onDelete: Restrict)
   /// The attachment.
   attachment     Attachment               @relation(fields: [attachment_id], references: [id], onDelete: Restrict)
   /// Records staged from the document.

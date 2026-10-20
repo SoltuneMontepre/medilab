@@ -295,10 +295,10 @@ The system pushes reminders and notifications to the Medilab Mobile app through 
 
 ### 5. Trusted sources (master data)
 
-The Onboarding module reads public pages of the sources the administrator trusts, such as the organisation search of the Bureau of Accreditation, and stages what it finds as master data to review.
+The Onboarding module reads public pages of trusted sources that the developers ship with it, such as the organisation search of the Bureau of Accreditation, and stages what it finds as master data to review.
 
 - Used for: filling the Laboratory master data of a new installation from the laboratory's accreditation scope and the sectors it tests in.
-- Sources are public: no credentials are kept. Each source is read only from its own host, at its own pace and following its `robots.txt`.
+- Sources are public: no credentials are kept. Each source is read only from its own host, at its own pace and following its `robots.txt`. Administrators do not see or change the sources.
 - Collections run as scheduled jobs (SH-09); a page that fails is retried, and what was staged is kept.
 - Nothing becomes master data until an administrator accepts it. [Onboarding crawler](../specs/onboarding-crawler.md) specifies the design.
 

@@ -6,7 +6,7 @@ The module is optional. It depends on Laboratory, no MediLab module depends on i
 
 ## How it works
 
-The input is raw public data that the module collects from the sources the administrator trusts. The output is staged records: proposed master data that waits in the module until an administrator accepts it. Only an accepted staged record becomes Laboratory master data.
+The input is raw public data that the module collects from trusted sources. The developers choose and configure the sources and ship them with the module; administrators do not see them. The output is staged records: proposed master data that waits in the module until an administrator accepts it. Only an accepted staged record becomes Laboratory master data.
 
 ```mermaid
 flowchart LR
@@ -16,18 +16,17 @@ flowchart LR
     staged -->|reject| rejected[Rejected]
 ```
 
-1. The administrator chooses the sources the system may read (US-AD32).
-2. The administrator picks the laboratory's own organisation from those a source lists; the system suggests it from the company's tax ID and name (US-AD33).
-3. The administrator chooses the sectors the laboratory tests in, such as food (US-AD34).
-4. A collection run reads the organisation's accreditation scope and what the sources list for the sectors, and stages what it finds (US-AD36).
-5. The administrator reviews the staged records, edits them, and accepts or rejects them (US-AD35).
+1. The administrator picks the laboratory's own organisation from those the sources list; the system suggests it from the company's tax ID and name (US-AD32).
+2. The administrator chooses the sectors the laboratory tests in, such as food (US-AD33).
+3. A collection run reads the organisation's accreditation scope and what the sources list for the sectors, and stages what it finds (US-AD35).
+4. The administrator reviews the staged records, edits them, and accepts or rejects them (US-AD34).
 
 ## Core entities
 
 ```mermaid
 erDiagram
     SOURCE ||--o{ ORGANISATION : lists
-    SOURCE ||--o{ RUN : "is read by"
+    SOURCE ||--o{ SNAPSHOT : serves
     RUN }o--o| ORGANISATION : "collects for"
     RUN ||--o{ SNAPSHOT : fetches
     RUN ||--o{ STAGED_RECORD : stages
@@ -38,9 +37,9 @@ erDiagram
 
 | Entity        | Description                                                                                                                                     |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Source        | A site the administrator trusts, read by an adapter that knows its pages, such as the BoA adapter.                                              |
+| Source        | A site the developers trust and ship with the module, read by an adapter that knows its pages, such as the BoA adapter. Administrators do not see it. |
 | Organisation  | An organisation a source lists, such as an accredited laboratory with its accreditation number. It is what the administrator picks the laboratory from. |
-| Run           | One collection from one source, for an organisation, sectors or both.                                                                           |
+| Run           | One collection from the sources, for an organisation, sectors or both.                                                                          |
 | Snapshot      | One document a run fetched, kept unchanged, so every staged record can be traced to the page it came from.                                       |
 | Staged record | One proposed master data record, such as a testing method or an accreditation certificate, with the values the source gives and what accepting it does. |
 
