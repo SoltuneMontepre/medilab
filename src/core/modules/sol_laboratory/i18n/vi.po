@@ -1138,7 +1138,6 @@ msgstr "Danh mục thử nghiệm"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__category_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_measurement_unit_search
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__category
 msgid "Category"
 msgstr "Nhóm Đơn Vị"
 
@@ -2912,6 +2911,11 @@ msgstr "Có thời hạn"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
 msgid "Folder"
 msgstr "Thư mục"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__category
+msgid "Folder Category"
+msgstr "Loại thư mục"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_folder_member

@@ -19,7 +19,8 @@ class LaboratoryFolderMember(models.Model):
     _name = MODEL_LABORATORY_FOLDER_MEMBER
     _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Laboratory Folder Member"
-    _order = "folder_id, role desc, id"
+    # Odoo orders a selection by its declared values, so the owner comes first.
+    _order = "folder_id, role, id"
     _rec_name = "user_id"
     # Members are added and removed; a role changes only with the folder's owner.
     _permission_actions = ("read", "create", "delete")

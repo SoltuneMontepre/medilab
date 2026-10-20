@@ -1119,7 +1119,6 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_measurement_unit__category_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_measurement_unit_search
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__category
 msgid "Category"
 msgstr ""
 
@@ -2873,6 +2872,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
 msgid "Folder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__category
+msgid "Folder Category"
 msgstr ""
 
 #. module: sol_laboratory
