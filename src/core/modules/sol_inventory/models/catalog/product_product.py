@@ -164,13 +164,7 @@ class ProductProduct(models.Model):
         return super(ProductProduct, self.sudo()).create(vals_list).with_env(self.env)
 
     def write(self, vals):
-        if "item_tracking" in vals:
-            vals = {**vals, **self._tracking_values(vals["item_tracking"])}
-            del vals["item_tracking"]
-        if vals.get("item_kind"):
-            item_values = self._stock_item_values()
-            vals = {**vals, "categ_id": item_values["categ_id"], "alert_time": item_values["alert_time"]}
-        vals, bought_again = self._purchase_values(vals)
+        vals, bought_again = self._purchase_values(self._item_values(vals))
         items = self._as_items()
         if items is None:
             self._check_product_manager()
@@ -198,6 +192,17 @@ class ProductProduct(models.Model):
         if vals.get("item_kind"):
             self._sync_lot_valuation()
         return result
+
+    def _item_values(self, vals):
+        """The values with the item's tracking written in Odoo's fields, and what a product made a stock item takes: the
+        Stock items category and the expiry warning."""
+        if "item_tracking" in vals:
+            vals = {**vals, **self._tracking_values(vals["item_tracking"])}
+            del vals["item_tracking"]
+        if vals.get("item_kind"):
+            item_values = self._stock_item_values()
+            vals = {**vals, "categ_id": item_values["categ_id"], "alert_time": item_values["alert_time"]}
+        return vals
 
     @api.model
     def _stock_item_values(self):
