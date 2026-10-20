@@ -7,7 +7,7 @@ env:
 
 vars:
   ALL_MODULES:
-    sh: grep -v '^base$' src/core/modules.txt | tr -d '\r' | tr '\n' ',' | sed 's/,$//'
+    sh: 'out=; while IFS= read -r m || [ -n "$m" ]; do m=${m%$''\r''}; [ -z "$m" ] || [ "$m" = base ] || out=${out:+$out,}$m; done < src/core/modules.txt; echo "$out"'
   EXCLUDE: '{{.EXCLUDE | default ""}}'
   MODULES: '{{.MODULES | default (without (splitList "," .ALL_MODULES) .EXCLUDE | join ",")}}'
   TEST_MODULES: '{{.TEST_MODULES | default .MODULES}}'
