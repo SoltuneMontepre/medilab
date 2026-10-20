@@ -1,0 +1,11 @@
+- name: Run the inspection script
+  ansible.builtin.script:
+    cmd: inspect.sh "{{ inspect_k3s_tcp_ports | join(' ') }}" "{{ inspect_k3s_udp_ports | join(' ') }}"
+    executable: /bin/bash
+  register: inspect_report
+  changed_when: false
+  check_mode: false
+
+- name: Show the report
+  ansible.builtin.debug:
+    msg: "{{ inspect_report.stdout_lines }}"

@@ -10,31 +10,49 @@ Every local program that needs a secret is started through `doppler run --projec
 
 ## Doppler config
 
-| Project   | Config | Contains                                                                                | Read by                                              |
-| --------- | ------ | --------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `medilab` | `dev`  | `CONTEXT7_TOKEN`, `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN` | every `task tf:*`, the pipelines and the MCP servers |
+| Project   | Config  | Contains                                                                                                                                                                                                                                                                                          | Read by                                                                         |
+| --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `medilab` | `dev`   | `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID`, `ARM_TENANT_ID`, `ARGOCD_AUTH_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CONTEXT7_TOKEN`, `DOPPLER_INFRA_TOKEN`, `DOPPLER_TOKEN`, `GITHUB_TOKEN`, `SONARQUBE_TOKEN`, `TERRAFORM_TOKEN`                                                         | every `task tf:*`, the pipelines and the MCP servers                            |
+| `medilab` | `infra` | `ANSIBLE_SSH_PRIVATE_KEY`, `BUCKET_ADDRESS`, `BUCKET_BACKUP_ACCESS_KEY`, `BUCKET_BACKUP_SECRET_KEY`, `BUCKET_MAIN_ACCESS_KEY`, `BUCKET_MAIN_SECRET_KEY`, `CLOUDFLARE_TUNNEL_TOKEN`, `CLUSTER_DOPPLER_TOKEN`, `K3S_TOKEN`, `NODE_A_PUBLIC_ADDRESS`, `NODE_B_PUBLIC_ADDRESS`, `ODOO_ADMIN_PASSWORD` | `cd-ansible`, the `task ansible:*` commands and External Secrets in the cluster |
 
-- Seed `dev` by hand; Terraform cannot create the config it reads.
+- Seed `dev` and `infra` by hand; Terraform cannot create the config it reads.
 - Set `TF_VAR_doppler_config=<config>` to read another config.
 - `DOPPLER_TOKEN` is read from the environment by Terraform's Doppler provider: injected by `doppler run` on a developer machine, the Actions secret in the pipelines. It needs read access to the config being read.
-- `GITHUB_TOKEN` needs permission to write Actions secrets on the repository.
+- `DOPPLER_INFRA_TOKEN` is a Doppler service token with read access to `infra` only, published to the Ansible environments for `cd-ansible`.
+- `GITHUB_TOKEN` needs permission to write Actions secrets and environments on the repository.
+- `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID` and `ARM_TENANT_ID` are a service principal of the Azure for Students subscription, read from the environment by Terraform's `azurerm` provider to manage the witness VM. The principal has the Contributor role on the witness resource group only.
+- `ARGOCD_AUTH_TOKEN` is the token of a read-only Argo CD account, used by `cd-core` to check a release.
+- `CLOUDFLARE_API_TOKEN` is read from the environment by Terraform's Cloudflare provider. It edits DNS and the tunnel of the `soltunemontepre.tech` zone and creates Origin CA certificates.
 - `CONTEXT7_TOKEN` is a Context7 API key, read by the `context7` MCP server.
 - `TERRAFORM_TOKEN` is an HCP Terraform team token with write access to the workspace.
+- `ANSIBLE_SSH_PRIVATE_KEY` is the private key of the `ansible` user on every node; see [Provisioning a node](../workflows/provisioning-node.md).
+- `K3S_TOKEN` is the k3s cluster token. It is set once: joining nodes and etcd snapshot restores need the same value.
+- `BUCKET_ADDRESS` is the endpoint of the object storage. `BUCKET_MAIN_ACCESS_KEY` and `BUCKET_MAIN_SECRET_KEY` reach the `filestore` bucket; `BUCKET_BACKUP_ACCESS_KEY` and `BUCKET_BACKUP_SECRET_KEY` reach the `backups` bucket.
+- `NODE_A_PUBLIC_ADDRESS` and `NODE_B_PUBLIC_ADDRESS` are the public IPs of Server A and Server B, the addresses Ansible connects to.
+- `CLUSTER_DOPPLER_TOKEN` is a Doppler service token with read access to `infra`. Ansible stores it in the cluster as the `doppler-token` Secret, through which External Secrets reads the secrets below; see [Cluster](cluster.md#secrets).
+- `CLOUDFLARE_TUNNEL_TOKEN` is the token of the Cloudflare Tunnel that `cloudflared` connects.
+- `ODOO_ADMIN_PASSWORD` is Odoo's master password, written into the production `odoo.conf`.
 - Every token has the least access it needs, an expiry, and is entered through a prompt or a pipe, never printed or pasted into chat.
 
 ## Published to GitHub
 
-| Actions secret  | Doppler source    |
-| --------------- | ----------------- |
-| `SONAR_TOKEN`   | `SONARQUBE_TOKEN` |
-| `DOPPLER_TOKEN` | `DOPPLER_TOKEN`   |
-| `TF_API_TOKEN`  | `TERRAFORM_TOKEN` |
+| Actions secret      | Doppler source      |
+| ------------------- | ------------------- |
+| `SONAR_TOKEN`       | `SONARQUBE_TOKEN`   |
+| `DOPPLER_TOKEN`     | `DOPPLER_TOKEN`     |
+| `TF_API_TOKEN`      | `TERRAFORM_TOKEN`   |
+| `ARGOCD_AUTH_TOKEN` | `ARGOCD_AUTH_TOKEN` |
 
-Terraform owns these secrets: a value edited in GitHub is overwritten on the next `task tf:apply`. To change one, edit it in Doppler and apply.
+| Environment secret    | Environments               | Doppler source        |
+| --------------------- | -------------------------- | --------------------- |
+| `DOPPLER_INFRA_TOKEN` | `ansible`, `ansible-apply` | `DOPPLER_INFRA_TOKEN` |
+
+Terraform owns these secrets: a value edited in GitHub is overwritten on the next `task tf:apply`. To change one, edit it in Doppler and apply. `DOPPLER_INFRA_TOKEN` must exist in `dev` before Terraform reads it, including in the `ci-infra` plan of the pull request that adds it.
 
 ## Pipelines
 
 - `ci-infra` and `cd-infra`, described in [Pipelines](pipelines.md), read the `dev` config through the `DOPPLER_TOKEN` Actions secret, a Doppler service token with read access to `dev`. Terraform publishes it; the first run that creates it needs the value in the Actions secrets already, so set it by hand once to bootstrap the pipelines.
+- `cd-ansible` reads the `infra` config through the `DOPPLER_INFRA_TOKEN` secret of the `ansible` and `ansible-apply` environments, which only `main` can use; see [Pipelines](pipelines.md#cd-ansible).
 
 ## Commands
 
@@ -49,5 +67,7 @@ State is stored in the HCP Terraform workspace `medilab` of the organization `so
 
 ## Related documents
 
+- [Provisioning](provisioning.md)
+- [Cluster](cluster.md)
 - [Taskfiles](../conventions/taskfiles.md)
 - [Terraform](../conventions/terraform.md)

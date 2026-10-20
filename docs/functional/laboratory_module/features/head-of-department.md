@@ -27,6 +27,11 @@ The head of department runs the testing work of one department: they assign its 
 - **US-HD11** As a head of department, I want to record when a dispatch is sent, who or which delivery service takes it, and when its results are expected back, so that the outsourcing schedule shows where every outsourced test is.
 - **US-HD13** As a head of department, I want to outsource a test of my department straight away with a reason, without waiting for an outsourcing suggestion, so that an emergency is handled when no machine is free in time.
 
+### Laboratory files
+
+- **US-HD15** As a head of department, I want to create the raw-data and result folders of a sample, so that its testers save their files in the right place.
+- **US-HD16** As a head of department, I want to sign or reject a version of a result file with a reason, so that the file a report relies on is approved.
+
 ## II. Feature details
 
 ### 1. Work and schedule (US-HD01 to US-HD05, US-HD12, US-HD14)
@@ -96,6 +101,21 @@ Acceptance criteria:
 - A sent dispatch appears on the outsourcing schedule with its expected date.
 - A dispatch records either the sample delivery staff who took it or the delivery service and tracking number.
 - Outsourcing a test straight away without a reason is refused; a test already in testing cannot be outsourced straight away.
+
+### 4. Laboratory files (US-HD15, US-HD16)
+
+Follows [Laboratory files](../overview.md#laboratory-files).
+
+| Rule          | Description |
+| ------------- | ----------- |
+| Sample folders | Creating a sample's folders adds the raw-data and result folders it does not have yet, owned by the person who creates them, syncing every file upload-only; the owner adds the members. |
+| Signing       | A version of a result file is signed through the approval chain of laboratory files; the signature belongs to that version and its hash. |
+
+Acceptance criteria:
+
+- Creating a sample's folders twice adds no second folder of the same category.
+- Signing a file version records the signer, the version and its hash; a newer version of the file shows as not signed.
+- Rejecting a version without a reason is refused.
 
 ## III. Related documents
 

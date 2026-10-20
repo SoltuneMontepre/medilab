@@ -9,6 +9,9 @@ concurrency:
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 env:
@@ -21,10 +24,10 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+      actions: write
     outputs:
       relevant: ${{ steps.result.outputs.relevant }}
       scan: ${{ steps.result.outputs.relevant == 'true' || steps.filter.outputs.ai == 'true' }}
-      tooling: ${{ steps.filter.outputs.tooling }}
       e2e: ${{ steps.result.outputs.relevant == 'true' || steps.filter.outputs.e2e == 'true' }}
     steps:
       - name: Checkout
@@ -47,15 +50,12 @@ jobs:
               - "pyrightconfig.json"
               - ".github/actions/odoo-lint/**"
               - ".github/workflows/ci.core.yml"
-            tooling:
-              - "tools/typecheck/**"
-              - ".github/workflows/ci.core.yml"
             e2e:
               - "src/tests/**"
             ai:
               - "tools/odoo-intelligence/**"
               - "tools/taskfiles/ai.taskfile.yml"
-              - ".github/workflows/ci.ai.yml"
+              - ".github/workflows/ci.tools.yml"
 
       - name: Ignore Markdown under src/core
         id: result
@@ -71,9 +71,18 @@ jobs:
           done
           echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
 
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
   lint:
     needs: changes
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     timeout-minutes: 10
     steps:
       - name: Checkout
@@ -88,70 +97,49 @@ jobs:
             tools/typecheck
 
       - name: Set up uv
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         uses: astral-sh/setup-uv@v10.3.0
 
       - name: Set up Task
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         uses: arduino/setup-task@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Python environment and Odoo source
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         run: task dev:setup
 
       - name: Typecheck
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         run: task typecheck
 
       - name: Typecheck tests
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         run: task test:typecheck
 
       - name: Odoo lint
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         uses: ./.github/actions/odoo-lint
         with:
           addons-path: src/core/modules
 
-  tooling:
-    name: tooling (${{ matrix.label }})
-    needs: changes
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-24.04
-            label: Linux
-          - os: windows-2025
-            label: Windows
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Set up Python
-        if: needs.changes.outputs.tooling == 'true' || github.event_name == 'workflow_dispatch'
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-
-      - name: Addon link safety tests
-        if: needs.changes.outputs.tooling == 'true' || github.event_name == 'workflow_dispatch'
-        run: python -m unittest discover -s tools/typecheck -p test_link_addons.py
-
-      - name: Pyright report tests
-        if: needs.changes.outputs.tooling == 'true' || github.event_name == 'workflow_dispatch'
-        run: python -m unittest discover -s tools/typecheck -p test_pyright_report.py
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
 
   build:
     needs: changes
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     timeout-minutes: 10
     steps:
       - name: Check out repository
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         uses: actions/checkout@v7
         with:
           sparse-checkout: |
@@ -159,11 +147,11 @@ jobs:
             tools/dockerfiles
 
       - name: Set up Docker Build
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         uses: docker/setup-buildx-action@v4
 
       - name: Build image
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
@@ -176,11 +164,20 @@ jobs:
           provenance: false
           sbom: false
 
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
   test-runner:
     name: test (${{ matrix.part }})
     needs: [changes, build]
-    if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+    if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -232,34 +229,43 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
   e2e:
     needs: [changes, build]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     timeout-minutes: 20
     env:
       COMPOSE_FILE: tools/infrastructure/docker-compose.yml
       NO_COLOR: 1
     steps:
       - name: Checkout
-        if: needs.changes.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
         uses: actions/checkout@v7
 
       - name: Set up Task
-        if: needs.changes.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
         uses: arduino/setup-task@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Bun
-        if: needs.changes.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
         uses: oven-sh/setup-bun@v2
 
       - name: Set up Docker Build
-        if: needs.changes.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
         uses: docker/setup-buildx-action@v4
 
       - name: Build image from cache
-        if: needs.changes.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
         uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
@@ -273,16 +279,22 @@ jobs:
           sbom: false
 
       - name: Start Odoo with demo data
-        if: needs.changes.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
         run: task test:e2e:app
 
       - name: Browser tests
-        if: needs.changes.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request'
         run: task test:e2e
 
       - name: Odoo log
-        if: failure() && (needs.changes.outputs.e2e == 'true' || github.event_name == 'workflow_dispatch')
+        if: failure() && (needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request')
         run: docker compose logs --no-color odoo
+
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
 
   test:
     needs: [changes, test-runner, e2e]
@@ -291,7 +303,7 @@ jobs:
     timeout-minutes: 2
     steps:
       - name: Check the test runners
-        if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         env:
           RESULT: ${{ needs.test-runner.result }}
         run: |
@@ -311,8 +323,11 @@ jobs:
 
   coverage:
     needs: [changes, test-runner]
-    if: needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+    if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     timeout-minutes: 5
     steps:
       - name: Checkout
@@ -340,10 +355,19 @@ jobs:
           path: src/core/modules/coverage.xml
           retention-days: 1
 
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
   sonarqube:
     needs: [changes, test, coverage]
     if: ${{ !cancelled() && needs.test.result == 'success' }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     timeout-minutes: 5
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -355,20 +379,20 @@ jobs:
           exit 1
 
       - name: Checkout
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.scan == 'true' || github.event_name == 'workflow_dispatch')
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.scan == 'true' || github.event_name != 'pull_request')
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Download coverage report
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch')
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request')
         uses: actions/download-artifact@v8
         with:
           name: coverage
           path: src/core/modules
 
       - name: SonarQube Cloud scan
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.scan == 'true' || github.event_name == 'workflow_dispatch')
+        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.scan == 'true' || github.event_name != 'pull_request')
         uses: SonarSource/sonarqube-scan-action@v8.3.0
         env:
           SONAR_HOST_URL: https://sonarcloud.io
@@ -376,3 +400,9 @@ jobs:
           args: >
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
+
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}

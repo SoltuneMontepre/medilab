@@ -1,0 +1,4 @@
+k3s_server_url: "https://{{ hostvars['soltune-xoha'].ansible_host }}:6443"
+k3s_etcd_s3_bucket: ""
+
+node_firewall_peers: "{{ groups['k3s_servers'] | map('extract', hostvars, 'ansible_host') | list }}"

@@ -1,0 +1,65 @@
+# Installs the missing modules and upgrades every installed one before the replicas roll out. A failure fails the sync.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: odoo-upgrade
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 1800
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: odoo-upgrade
+    spec:
+      restartPolicy: Never
+      enableServiceLinks: false
+      containers:
+        - name: upgrade
+          image: ghcr.io/soltunemontepre/medilab:sha-8e6924723d1121f7e90a11c5074220bac4e23a62
+          args:
+            - odoo
+            - --database=medilab
+            - --init=sol_laboratory,sol_commerce,sol_inventory,sol_theme
+            - --update=all
+            - --max-cron-threads=0
+            - --stop-after-init
+          env:
+            - name: HOST
+              value: medilab-db-rw
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: password
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              memory: 3Gi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/odoo
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/odoo
+            - name: filestore
+              mountPath: /var/lib/odoo/filestore
+      volumes:
+        - name: config
+          secret:
+            secretName: odoo-config
+        - name: data
+          emptyDir: {}
+        - name: filestore
+          persistentVolumeClaim:
+            claimName: filestore

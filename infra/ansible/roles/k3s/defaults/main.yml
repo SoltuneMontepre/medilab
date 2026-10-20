@@ -1,0 +1,18 @@
+k3s_version: v1.36.5+k3s1
+k3s_upgrade: false
+k3s_cluster_init: false
+k3s_server_url: ""
+k3s_token: "{{ lookup('ansible.builtin.env', 'K3S_TOKEN') }}"
+k3s_node_labels: []
+k3s_node_taints: []
+k3s_system_reserved: cpu=500m,memory=1Gi
+k3s_kube_reserved: cpu=500m,memory=1Gi
+k3s_etcd_snapshot_cron: "0 */6 * * *"
+k3s_etcd_snapshot_retention: 28
+k3s_etcd_s3_bucket: ""
+k3s_etcd_s3_endpoint: "{{ lookup('ansible.builtin.env', 'BUCKET_ADDRESS') | regex_replace('^https?://', '') | regex_replace('/+$', '') }}"
+k3s_etcd_s3_access_key: "{{ lookup('ansible.builtin.env', 'BUCKET_BACKUP_ACCESS_KEY') }}"
+k3s_etcd_s3_secret_key: "{{ lookup('ansible.builtin.env', 'BUCKET_BACKUP_SECRET_KEY') }}"
+k3s_etcd_s3_folder: k3s-etcd
+k3s_marker: "Managed by infra/ansible"
+k3s_manifests_dir: /var/lib/rancher/k3s/server/manifests

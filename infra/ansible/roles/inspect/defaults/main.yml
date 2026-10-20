@@ -1,0 +1,2 @@
+inspect_k3s_tcp_ports: "{{ k3s_tcp_ports }}"
+inspect_k3s_udp_ports: "{{ k3s_udp_ports }}"
