@@ -67,15 +67,15 @@ When the app or the workflow changes, its jobs run at once after `changes`:
 flowchart LR
     changes --> lint
     changes --> compile["compile (Linux), (Windows), (macOS)"] --> build
-    changes --> test
+    changes --> runners["test (frontend), (backend)"] --> test
 ```
 
 `lint`, `build` and `test` are the required checks, the same names as in `ci-core`. When nothing relevant changed, they pass at once.
 
-- `lint` runs `cargo fmt --check`, the frontend type check and build, and Clippy with warnings as errors.
-- `compile` builds the frontend and compiles the app and its tests on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. `build` fails unless every `compile` passed.
-- `test` runs the frontend tests with `bun test` and the Rust tests with `cargo test`.
-- Every job that compiles Rust builds the frontend first, because the app embeds the built frontend when it compiles.
+- `lint` runs `cargo fmt --check`, the frontend type check with `tsc`, and Clippy with warnings as errors.
+- `compile` builds the frontend and then the app on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. Only these jobs build the frontend. `build` fails unless every `compile` passed.
+- `test (frontend)` runs `bun test` and `test (backend)` runs `cargo test`, side by side. `test` fails unless both passed.
+- The app embeds the built frontend when it compiles, so `lint` and `test (backend)` compile against an empty stand-in `dist/index.html` instead of building the frontend.
 - When any job fails, its last step cancels the whole run, as in `ci-core`; each job has `actions: write` for this.
 - A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
 - `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
