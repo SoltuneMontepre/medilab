@@ -51,6 +51,7 @@ from . import (
     test_laboratory_file_back_office,
     test_laboratory_file_kinds,
     test_laboratory_file_lock_concurrency,
+    test_laboratory_file_lock_expiry_job,
     test_laboratory_file_lock_saves,
     test_laboratory_file_locks,
     test_laboratory_file_records,
