@@ -98,7 +98,7 @@ The installer downloads the official platform-specific 1.6.0 VSIX, verifies its 
 
 ## Verification
 
-`ci-ai` runs `task ai:test` on pull requests that change the AI tooling or a client configuration; it installs no OdooLS, so the live tests skip there and `task ai:verify` runs only locally. `task ai:verify` writes `.local/verification/mcp-navigation.json`: the asserted definitions, relation hover, field completion, references, document symbols and diagnostic freshness. `task ai:test` includes framed JSON-RPC, path and archive safety, error/timeout propagation, a references crash regression and concurrent-worktree tests. Live tests report skips when OdooLS is absent; inspect the summary before claiming integration passed.
+`ci-tools` runs `task ai:test` on pull requests that change the AI tooling or a client configuration; it installs no OdooLS, so the live tests skip there and `task ai:verify` runs only locally. `task ai:verify` writes `.local/verification/mcp-navigation.json`: the asserted definitions, relation hover, field completion, references, document symbols and diagnostic freshness. `task ai:test` includes framed JSON-RPC, path and archive safety, error/timeout propagation, a references crash regression and concurrent-worktree tests. Live tests report skips when OdooLS is absent; inspect the summary before claiming integration passed.
 
 For the native Cursor check, install the isolated profile and run:
 
