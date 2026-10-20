@@ -78,7 +78,7 @@ People see the Odoo apps with their own menus, and MediLab adds its menus to the
 | Odoo's Employees | People, departments, teams, roles and permissions                                                                                                                                                                                                                                                             |
 | Odoo's Sales     | E-commerce orders, quotations, order templates, invoices, payments, support and sales analysis under its Reporting menu                                                                                                                                                                                       |
 | Odoo's Purchase  | Purchase orders                                                                                                                                                                                                                                                                                               |
-| Odoo's Inventory | Stock, lots, containers, moves, requisitions, transfers, receipts, preparations, stock takes, charges and stock analysis under its Reporting menu                                                                                                                                                             |
+| Odoo's Inventory | Stock, lots, containers, moves inside a store, corrections, disposal, replenishment, requisitions, transfers, receipts, preparations, stock takes, charges, and stock analysis under its Reporting menu: the stock on hand and the stock expiring soon                                                        |
 
 ## Related documents
 

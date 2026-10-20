@@ -1,7 +1,8 @@
 from odoo import api, models
 
+from odoo.addons.sol_inventory.constants.costs import KEEP_DONE_VALUES
 from odoo.addons.sol_inventory.constants.models import MODEL_PRODUCT, MODEL_PRODUCT_CATEGORY
-from odoo.addons.sol_inventory.constants.settings import COSTING_FIFO, KEEP_DONE_VALUES, ODOO_COST_METHODS
+from odoo.addons.sol_inventory.constants.settings import COSTING_FIFO, ODOO_COST_METHODS
 from odoo.addons.sol_inventory.constants.xml_ids import STOCK_ITEM_CATEGORY
 from odoo.addons.sol_laboratory.constants.models import MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN
 
@@ -26,9 +27,15 @@ class ProductCategory(models.Model):
             .with_context(active_test=False)
             .search([("categ_id", "=", category.id), ("is_storable", "=", True)])
         )
-        values = {} if method == COSTING_FIFO else {item: (item.total_value, item.qty_available) for item in items}
+        costs = {}
+        if method != COSTING_FIFO:
+            # Odoo's average of the stock it values, stock in transit included.
+            costs = {
+                item: item.avg_cost
+                for item in items
+                if item.uom_id.compare(item._with_valuation_context().qty_available, 0) > 0
+            }
         category.property_cost_method = cost_method
         items._sync_lot_valuation()
-        for item, (value, quantity) in values.items():
-            if item.uom_id.compare(quantity, 0) > 0:
-                item.standard_price = value / quantity
+        for item, cost in costs.items():
+            item.standard_price = cost

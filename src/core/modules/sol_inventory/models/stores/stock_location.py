@@ -199,9 +199,8 @@ class StockLocation(models.Model):
         """The stores inside these stores, at any depth."""
         if not self:
             return self.browse()
-        return self.sudo().search(
-            Domain("is_store", "=", True) & Domain("id", "child_of", self.ids) & Domain("id", "not in", self.ids)
-        )
+        stores = self.sudo()
+        return stores.search(Domain("is_store", "=", True) & Domain("id", "child_of", self.ids)) - stores
 
     @api.model
     def _kept_by_user(self, include_held=False):
@@ -232,8 +231,14 @@ class StockLocation(models.Model):
             )
 
     def _manager_partners(self):
-        """The contacts of the people who manage these stores, whom their stock alerts go to."""
-        return self.sudo().manager_id.user_id.partner_id
+        """The contacts of the people who manage these stores, whom their stock alerts go to. A store without a manager
+        passes its alerts to the nearest store above it that has one, up to the central store's storekeeper."""
+        managed = self.sudo().browse()
+        for store in self.sudo():
+            while store and not store.manager_id:
+                store = store._store_above()
+            managed |= store
+        return managed.manager_id.user_id.partner_id
 
     def _central_stores(self):
         """The stores with no store above them: the central store once the stores are set up."""

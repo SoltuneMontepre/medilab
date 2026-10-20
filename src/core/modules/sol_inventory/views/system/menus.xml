@@ -122,22 +122,6 @@
         sequence="60"
         groups="sol_laboratory.group_permission_purchase_order_create_all"
     />
-    <menuitem
-        id="menu_stock_on_hand"
-        name="Stock on Hand"
-        parent="stock.menu_stock_inventory_control"
-        action="action_medilab_stock_on_hand"
-        sequence="99"
-        groups="sol_laboratory.group_permission_stock_read_all"
-    />
-    <menuitem
-        id="menu_expiring"
-        name="Expiring Soon"
-        parent="stock.menu_stock_inventory_control"
-        action="action_medilab_expiring"
-        sequence="100"
-        groups="sol_laboratory.group_permission_stock_read_all"
-    />
     <menuitem id="menu_container" parent="stock.menu_stock_inventory_control" action="action_medilab_container" sequence="101" />
     <menuitem
         id="menu_stock_move"
@@ -160,5 +144,40 @@
     </record>
     <record id="stock.menu_stock_procurement" model="ir.ui.menu">
         <field name="group_ids" eval="[Command.set([ref('stock.group_stock_user')])]" />
+    </record>
+
+    <!-- Odoo shows its Reporting menu to its stock managers only; the holders of the stock read permission reach the
+         stock on hand and the stock expiring soon through it. Odoo's own reports under it see every store, so they stay
+         with its stock managers. -->
+    <record id="stock.menu_warehouse_report" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.link(ref('sol_laboratory.group_permission_stock_read_all'))]" />
+    </record>
+    <menuitem
+        id="menu_stock_on_hand"
+        name="Stock on Hand"
+        parent="stock.menu_warehouse_report"
+        action="action_medilab_stock_on_hand"
+        sequence="1"
+        groups="sol_laboratory.group_permission_stock_read_all"
+    />
+    <menuitem
+        id="menu_expiring"
+        name="Expiring Soon"
+        parent="stock.menu_warehouse_report"
+        action="action_medilab_expiring"
+        sequence="2"
+        groups="sol_laboratory.group_permission_stock_read_all"
+    />
+    <record id="stock.menu_product_stock" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_manager')])]" />
+    </record>
+    <record id="stock.menu_valuation" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_manager')])]" />
+    </record>
+    <record id="stock.stock_move_line_menu" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_manager')])]" />
+    </record>
+    <record id="stock.stock_move_menu" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_manager')])]" />
     </record>
 </odoo>

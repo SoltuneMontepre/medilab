@@ -12,6 +12,7 @@ from odoo.addons.sol_inventory.constants.jobs import EXPIRED
 from odoo.addons.sol_inventory.constants.models import (
     MODEL_PREPARATION,
     MODEL_PRODUCT,
+    MODEL_STOCK_LOCATION,
     MODEL_STOCK_LOT,
     MODEL_STOCK_MOVE,
     MODEL_STOCK_MOVE_LINE,
@@ -204,7 +205,7 @@ class StockPackage(models.Model):
         self._check_permission("edit")
         if self.status != CONTAINER_SEALED:
             raise UserError(self.env._("%s is not sealed.", self.display_name))
-        if not self._kept_by(self.env[MODEL_PERSON]._for_user()):
+        if not self._kept_by_user():
             raise UserError(
                 self.env._("Only the storekeeper of the store that holds %s records its opening.", self.display_name)
             )
@@ -316,11 +317,12 @@ class StockPackage(models.Model):
                 )
             )
 
-    def _kept_by(self, person):
-        """True when the person manages the store that holds the container, or a store above it."""
+    def _kept_by_user(self):
+        """True when the signed-in user keeps the store that holds the container: they manage it or a store above it,
+        or they are an administrator."""
         self.ensure_one()
         location = self.sudo().location_id
-        return bool(location) and location._holding_store() in person._kept_stores()
+        return bool(location) and location._holding_store() in self.env[MODEL_STOCK_LOCATION]._kept_by_user()
 
     def _check_for_use(self, person, stores=None):
         """The container is opened, still usable and in this person's store, or in one of these stores."""

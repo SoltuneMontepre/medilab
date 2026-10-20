@@ -8,7 +8,9 @@ from odoo.addons.sol_inventory.constants.xml_ids import VALUE_GROUPS
 class StockMove(models.Model):
     _inherit = MODEL_STOCK_MOVE
 
-    # Cost of one unit moved, from the move's value; the value is Odoo's costing of the move.
+    # Value of the move from Odoo's costing, seen by those who see the value of stock.
+    value = fields.Monetary(groups=VALUE_GROUPS)
+    # Cost of one unit of the item moved, from the move's value.
     unit_cost = fields.Monetary(
         string="Unit Cost", currency_field="company_currency_id", compute="_compute_unit_cost", groups=VALUE_GROUPS
     )
@@ -16,7 +18,8 @@ class StockMove(models.Model):
     @api.depends("value", "quantity")
     def _compute_unit_cost(self):
         for move in self:
-            move.unit_cost = abs(move.value) / move.quantity if move.quantity else 0.0
+            quantity = move._get_valued_qty()
+            move.unit_cost = abs(move.value) / quantity if quantity else 0.0
 
     def _get_value_from_quotation(self, quantity):
         # Odoo values stock that comes in without an order line at the item's cost. A receipt without a purchase order

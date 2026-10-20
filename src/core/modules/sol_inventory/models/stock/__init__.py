@@ -1,3 +1,7 @@
+# The operation the dialogs below inherit is loaded first.
+from . import stock_operation
+
+# isort: split
 from . import (
     container_opening,
     container_scan,

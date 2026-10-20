@@ -24,19 +24,19 @@ Costing and valuation are Odoo's `stock_account`. Every stock item is in the Sto
 
 Odoo only values the stock: the category's inventory valuation is periodic and the company's valuation period is manual, so no move posts a journal entry, and MediLab never closes the stock valuation. The accounting software makes the entries from the export.
 
-Changing the costing method keeps the value of every move already done. Odoo would value the moves since the last closing again under the new method, which is every move since none is closed, so MediLab skips that. Switching to moving average starts each item's average cost at the value its stock had under first in, first out; switching to first in, first out values the stock left from the remaining quantities of its incoming moves.
+Changing the costing method never changes the cost of past moves. Odoo would value the moves since the last closing again under the new method, which is every move since none is closed, so MediLab skips that. Switching to first in, first out values the stock on hand by its lots' costs and the remaining quantities of its incoming moves, so its value can change without a move; switching to moving average starts each item's average cost at the stock's current value, so the value stays the same. Neither switch creates a charge.
 
 ### Cost of a move
 
 Every move stores its value when it is done, as Odoo computes it; its unit cost is its value divided by its quantity. A receipt takes the unit price of its purchase order line, or the price typed on the receipt, excluding VAT; Odoo values stock coming in without an order line at the item's cost, so MediLab values a receipt without a purchase order, and a prepared solution, at the unit price its move carries. A correction that finds stock comes in at the item's current cost. Every other move takes its unit cost from the costing method in force:
 
-| Stock                | First in, first out                                                                                                  | Moving average          |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| Tracked by container | The cost of the container's lot; for a prepared solution, the cost of its preparation                                | The item's average cost |
-| Tracked by lot       | The cost of the lot                                                                                                  | The item's average cost |
-| Tracked by quantity  | The incoming moves of the item still holding stock, oldest first, each at its own unit cost (Odoo's `remaining_qty`) | The item's average cost |
+| Stock                | First in, first out                                                                         | Moving average          |
+| -------------------- | ------------------------------------------------------------------------------------------- | ----------------------- |
+| Tracked by container | The cost of the container's lot; for a prepared solution, the cost of its preparation       | The item's average cost |
+| Tracked by lot       | The cost of the lot                                                                         | The item's average cost |
+| Tracked by quantity  | The incoming moves of the item still holding stock, oldest first, each at its own unit cost | The item's average cost |
 
-- **Average cost.** Every receipt updates the item's average cost (`standard_price`) to the value of the stock on hand plus the value received, divided by the quantity on hand plus the quantity received. Moves other than receipts do not change it. When the method changes to moving average, Odoo revalues the stock of each item at its value under first in, first out.
+- **Average cost.** Every receipt updates the item's average cost (`standard_price`) to the value of the stock on hand plus the value received, divided by the quantity on hand plus the quantity received. Moves other than receipts do not change it. When the method changes to moving average, the average cost starts at the stock's current value.
 - **Remaining quantity.** Moves that take stock out of the laboratory (consumption, waste, disposal, a missing quantity) use up the oldest incoming moves first; moves between locations and stores do not. A quantity found at a stock take is a new incoming move at the item's current cost.
 - **Prepared solution.** A preparation's cost is the value of the moves that deducted its ingredients and waste, divided by the quantity made; the move that puts the solution into its container carries that cost.
 
@@ -44,7 +44,7 @@ Every move stores its value when it is done, as Odoo computes it; its unit cost 
 
 Stock on hand is valued by Odoo per item, lot and location with the costing method in force: under first in, first out, each lot at its cost and an item tracked by quantity at the value of its incoming moves' remaining quantities; under moving average, every quantity at its item's average cost. Stock in transit counts in no store.
 
-The Stock on Hand screen, under the Products menu of the Inventory app next to Containers and Moves, lists the stock and its value per item, lot, container and location, in the stores the person keeps, with every store under them, or that their team or department holds; administrators see every store. Stock in transit is listed apart. The `stock.read` permission opens it and shows the value.
+The Stock on Hand screen, under the Reporting menu of the Inventory app with the Expiring Soon screen, lists the stock and its value per item, lot, container and location, in the stores the person keeps, with every store under them, or that their team or department holds; administrators see every store. Stock in transit is listed apart. The `stock.read` permission opens it and shows the value.
 
 ### Cost centre of a store
 

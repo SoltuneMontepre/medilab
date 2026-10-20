@@ -16,6 +16,8 @@ class StockCorrection(models.TransientModel):
     on_hand = fields.Float(string="On Hand", digits="Product Unit", compute="_compute_on_hand")
     # Quantity actually there, in the item's unit.
     counted_quantity = fields.Float(string="Counted Quantity", digits="Product Unit")
+    # Where the container is; empty once its stock ran out, and the location is then chosen.
+    container_location_id = fields.Many2one(related="container_id.location_id", string="Container Location")
 
     @api.depends("container_id", "item_id", "lot_id", "location_id")
     def _compute_on_hand(self):
@@ -65,10 +67,17 @@ class StockCorrection(models.TransientModel):
         return self.env[MODEL_STOCK_QUANT].sudo().search(domain)
 
     def _new_quant(self, location):
-        """A quant for stock found where none is on record."""
+        """A quant for stock found where none is on record, in the container counted."""
         return (
             self.env[MODEL_STOCK_QUANT]
             .sudo()
             .with_context(inventory_mode=True)
-            .create({"product_id": self.item_id.id, "location_id": location.id, "lot_id": self.lot_id.id})
+            .create(
+                {
+                    "product_id": self.item_id.id,
+                    "location_id": location.id,
+                    "lot_id": self.lot_id.id,
+                    "package_id": self.container_id.id,
+                }
+            )
         )

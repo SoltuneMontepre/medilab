@@ -4,9 +4,9 @@ from datetime import timedelta
 from odoo import api, fields, models
 from odoo.fields import Command
 
+from odoo.addons.sol_demo.models.catalog.stock_warehouse_orderpoint import CENTRAL
 from odoo.addons.sol_demo.models.purchasing.purchase_order import LAB_HEAD, STOREKEEPER, _order, _signed
 from odoo.addons.sol_demo.models.stock.stock_package import STORE, TESTER, _container, _lot
-from odoo.addons.sol_demo.models.stock.stock_warehouse_orderpoint import CENTRAL
 from odoo.addons.sol_inventory.constants.models import (
     MODEL_PURCHASE_ORDER,
     MODEL_STOCK_CORRECTION,

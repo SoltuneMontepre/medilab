@@ -74,8 +74,7 @@ class StockLot(models.Model):
             self.env[MODEL_PRODUCT]
             .sudo()
             .with_context(active_test=False)
-            .search([("item_kind", "!=", False)])
-            .filtered(lambda item: item.alert_time != days)
+            .search([("item_kind", "!=", False), ("alert_time", "!=", days)])
         )
         if not items:
             return
@@ -90,11 +89,13 @@ class StockLot(models.Model):
 
     @api.model
     def _to_warn(self):
-        """The available lots past their expiry date, and those with stock left that expire within the warning."""
+        """The available lots past their expiry date, those a disposal elsewhere already marked expired that still have
+        stock left, and those with stock left that expire within the warning."""
         packages = self.env[MODEL_STOCK_PACKAGE]
         today = packages._today()
         start = packages._at_utc(today)
         expired = self.sudo().search([("status", "=", LOT_AVAILABLE), ("expiration_date", "<", start)])
+        expired |= self.sudo().search([("status", "=", LOT_EXPIRED)])._held_quants().lot_id
         expiring = self.sudo().search(
             [
                 ("status", "=", LOT_AVAILABLE),
@@ -123,10 +124,12 @@ class StockLot(models.Model):
 
     def _warn_expiry(self, kind):
         """Mark an expired lot expired, and notify the managers of the stores holding what is left of it that it
-        expired or expires soon. A lot whose expiry was corrected meanwhile is left as it is."""
+        expired or expires soon. A lot whose expiry was corrected meanwhile is left as it is; a lot a disposal already
+        marked expired is still notified once."""
         self.ensure_one()
         lot = self.sudo()
-        if lot.status != LOT_AVAILABLE or lot._is_expired() != (kind == EXPIRED):
+        statuses = (LOT_AVAILABLE, LOT_EXPIRED) if kind == EXPIRED else (LOT_AVAILABLE,)
+        if lot.status not in statuses or lot._is_expired() != (kind == EXPIRED):
             return
         if kind == EXPIRED:
             lot.status = LOT_EXPIRED

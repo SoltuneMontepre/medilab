@@ -168,7 +168,8 @@ class ProductProduct(models.Model):
             vals = {**vals, **self._tracking_values(vals["item_tracking"])}
             del vals["item_tracking"]
         if vals.get("item_kind"):
-            vals = {**vals, "categ_id": self.env.ref(STOCK_ITEM_CATEGORY).id}
+            item_values = self._stock_item_values()
+            vals = {**vals, "categ_id": item_values["categ_id"], "alert_time": item_values["alert_time"]}
         vals, bought_again = self._purchase_values(vals)
         items = self._as_items()
         if items is None:
@@ -194,6 +195,8 @@ class ProductProduct(models.Model):
             super(ProductProduct, bought_again.sudo()).write({"purchase_ok": True})
         if tracking_before:
             self.filtered(lambda item: item.id in tracking_before)._check_tracking_kept(tracking_before)
+        if vals.get("item_kind"):
+            self._sync_lot_valuation()
         return result
 
     @api.model
@@ -215,14 +218,21 @@ class ProductProduct(models.Model):
 
     def _sync_lot_valuation(self):
         """Keep the cost of each lot of the items tracked by container or lot under first in, first out. Odoo refuses to
-        do so while an item holds stock without a lot, as one changing to lot tracking does until the tracking check
-        refuses the change."""
+        do so while an item holds stock without a lot where stock is valued, as one changing to lot tracking does until
+        the tracking check refuses the change."""
         fifo = self._stock_item_values()["fifo"]
+        quants = self.env[MODEL_STOCK_QUANT].sudo()
         for item in self:
             lot_valuated = self._keeps_lot_cost(item.tracking, fifo)
             if item.lot_valuated == lot_valuated:
                 continue
-            if lot_valuated and item._held_stock().filtered(lambda quant: not quant.lot_id):
+            if lot_valuated and quants.search_count(
+                Domain("product_id", "=", item.id)
+                & Domain("lot_id", "=", False)
+                & Domain("quantity", "!=", 0)
+                & Domain("location_id.is_valued", "=", True),
+                limit=1,
+            ):
                 continue
             item.product_tmpl_id.sudo().lot_valuated = lot_valuated
 

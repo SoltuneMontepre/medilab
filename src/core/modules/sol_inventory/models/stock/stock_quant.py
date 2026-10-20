@@ -17,6 +17,8 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, 
 
 # Odoo's own access each action stands for; quants change with every move under Odoo's accesses.
 ODOO_OPERATIONS = {"read": "read", "create": "create", "edit": "write", "archive": "write", "delete": "unlink"}
+# The last day the quant's container can be used.
+CONTAINER_USABLE_UNTIL = "package_id.usable_until"
 
 
 # Tồn Kho
@@ -38,7 +40,7 @@ class StockQuant(models.Model):
     # True for stock usable for fewer days than the expiry warning.
     expiring_soon = fields.Boolean(string="Expiring Soon", compute="_compute_expiry", search="_search_expiring_soon")
 
-    @api.depends("package_id.usable_until", "lot_id.expiration_date")
+    @api.depends(CONTAINER_USABLE_UNTIL, "lot_id.expiration_date")
     def _compute_usable_until(self):
         packages = self.env[MODEL_STOCK_PACKAGE]
         for quant in self:
@@ -89,7 +91,7 @@ class StockQuant(models.Model):
             & (
                 Domain("lot_id.status", "=", LOT_EXPIRED)
                 | Domain("lot_id.expiration_date", "<", packages._at_utc(today))
-                | Domain("package_id.usable_until", "<", today)
+                | Domain(CONTAINER_USABLE_UNTIL, "<", today)
             )
         )
 
@@ -103,8 +105,8 @@ class StockQuant(models.Model):
             & Domain("lot_id.alert_date", "<", packages._at_utc(today + timedelta(days=1)))
             & Domain("lot_id.expiration_date", ">=", packages._at_utc(today))
         )
-        container_expiring = Domain("package_id.usable_until", ">=", today) & Domain(
-            "package_id.usable_until", "<=", today + timedelta(days=days)
+        container_expiring = Domain(CONTAINER_USABLE_UNTIL, ">=", today) & Domain(
+            CONTAINER_USABLE_UNTIL, "<=", today + timedelta(days=days)
         )
         return (
             Domain("location_id.usage", "=", INTERNAL_USAGE)

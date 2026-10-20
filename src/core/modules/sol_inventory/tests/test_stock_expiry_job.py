@@ -4,7 +4,7 @@ from odoo.tests import tagged
 
 from .stock_case import StockCase
 from odoo.addons.sol_inventory.constants.jobs import STOCK_EXPIRY_JOB
-from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOT, MODEL_STOCK_PACKAGE
+from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOT, MODEL_STOCK_PACKAGE, MODEL_STOCK_QUANT
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_OPENED, LOT_AVAILABLE, LOT_EXPIRED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_MAIL_MESSAGE,
@@ -46,6 +46,30 @@ class TestStockExpiryJob(StockCase):
         self.assertEqual(notice.notification_key, f"stock.expired:lot:{lot.id}")
         self.assertIn(self.tester.user_id.partner_id, notice.notification_ids.res_partner_id)
         self.assertIn("Pesticide residues store", notice.body)
+
+    def test_a_lot_a_disposal_already_marked_expired_is_notified_to_the_stores_still_holding_it(self):
+        lot = self.container("Split", -1).lot_id
+        quants = self.env[MODEL_STOCK_QUANT]
+        quants._update_available_quantity(self.acid, self.central, 100, lot_id=lot)
+        quants.search([("lot_id", "=", lot.id), ("location_id", "=", self.central.id)]).with_user(
+            self.storekeeper.user_id
+        ).action_dispose()
+        self.assertEqual(lot.status, LOT_EXPIRED)
+
+        self.job._run_batch()
+
+        notice = self.notices(lot)
+        self.assertEqual(notice.notification_key, f"stock.expired:lot:{lot.id}")
+        self.assertIn(self.tester.user_id.partner_id, notice.notification_ids.res_partner_id)
+
+    def test_a_store_without_a_manager_passes_its_alerts_to_the_store_above_that_has_one(self):
+        self.pesticides_store.manager_id = False
+        self.storekeeper.user_id.notification_type = "inbox"
+        lot = self.container("Unmanaged", -1).lot_id
+
+        self.job._run_batch()
+
+        self.assertIn(self.storekeeper.user_id.partner_id, self.notices(lot).notification_ids.res_partner_id)
 
     def test_a_lot_expiring_within_the_warning_is_notified(self):
         soon = self.container("Soon", 10).lot_id

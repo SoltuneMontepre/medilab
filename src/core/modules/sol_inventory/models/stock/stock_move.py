@@ -50,7 +50,7 @@ class StockMove(models.Model):
     _permission_actions = ("read", "create")
 
     # receipt, preparation, consumption, waste, adjustment, relocation or disposal, from what the move itself does;
-    # empty for the operations later features add.
+    # empty for any other move.
     move_kind = fields.Selection(
         [
             (MOVE_RECEIPT, "Receipt"),
@@ -337,13 +337,11 @@ class StockMove(models.Model):
                 taken[move.product_id.id, store.id] += move.product_qty
         if not taken:
             return
+        items, stores = zip(*taken)
         minimums = (
             self.env[MODEL_ORDERPOINT]
             .sudo()
-            .search(
-                Domain("product_id", "in", list({item for item, _store in taken}))
-                & Domain("location_id", "in", list({store for _item, store in taken}))
-            )
+            .search(Domain("product_id", "in", list(set(items))) & Domain("location_id", "in", list(set(stores))))
         )
         for minimum in minimums:
             moved = taken.get((minimum.product_id.id, minimum.location_id.id))

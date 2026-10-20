@@ -24,3 +24,8 @@ EXPIRING_ACTION = "sol_inventory.action_medilab_expiring"
 DISPOSAL_ACTION = "sol_inventory.action_medilab_disposal"
 # Who sees the value of stock: Odoo's stock managers and the holders of the stock read permission.
 VALUE_GROUPS = "stock.group_stock_manager,sol_laboratory.group_permission_stock_read_all"
+# Odoo's stock managers, who keep Odoo's own Inventory reports.
+STOCK_MANAGER_GROUP = "stock.group_stock_manager"
+# Odoo's Reporting menu of its Inventory app, and the MediLab screens under it.
+STOCK_REPORTING_MENU = "stock.menu_warehouse_report"
+STOCK_SCREEN_MENUS = ("sol_inventory.menu_stock_on_hand", "sol_inventory.menu_expiring")

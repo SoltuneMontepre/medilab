@@ -99,7 +99,7 @@
                         name="action_dispose"
                         type="object"
                         string="Dispose"
-                        class="btn-primary"
+                        class="btn-danger"
                         confirm="What remains of the selected stock moves to the scrap location with the reason Expired. This cannot be undone."
                     />
                 </header>
@@ -118,7 +118,7 @@
         <field name="domain">[("expired", "=", True), ("location_id.kept_by_me", "=", True)]</field>
         <field name="context">{"search_default_group_location": 1}</field>
         <field name="view_id" ref="view_medilab_disposal_list" />
-        <field name="path">disposal</field>
+        <field name="path">expired-stock</field>
         <field name="group_ids" eval="[Command.link(ref('sol_laboratory.group_permission_move_create_all'))]" />
     </record>
 </odoo>

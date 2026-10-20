@@ -1,7 +1,7 @@
 from odoo import models
 
+from odoo.addons.sol_inventory.constants.costs import KEEP_DONE_VALUES
 from odoo.addons.sol_inventory.constants.models import MODEL_PRODUCT
-from odoo.addons.sol_inventory.constants.settings import KEEP_DONE_VALUES
 
 
 # Vật Tư

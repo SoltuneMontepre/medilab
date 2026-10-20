@@ -1,3 +1,4 @@
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .stock_case import StockCase
@@ -83,6 +84,31 @@ class TestBelowMinimum(StockCase):
         self.put_stock(self.gloves, self.chemistry_store, 500)
 
         self.assertEqual(self.minimum.qty_on_hand, 60)
+
+    def test_the_quantity_to_order_brings_the_stores_own_stock_up_to_its_maximum(self):
+        self.put_stock(self.gloves, self.central, 30)
+        self.put_stock(self.gloves, self.chemistry_store, 500)
+
+        self.assertEqual(self.minimum._get_qty_to_order(), 170)
+
+    def test_replenishment_buys_for_no_store_below_the_central_store(self):
+        below = self.env[MODEL_ORDERPOINT].create(
+            {
+                "product_id": self.gloves.id,
+                "location_id": self.chemistry_store.id,
+                "product_min_qty": 10,
+                "product_max_qty": 50,
+                "trigger": "manual",
+            }
+        )
+
+        action = self.env[MODEL_ORDERPOINT]._get_orderpoint_action()
+        listed = self.env[MODEL_ORDERPOINT].search(action["domain"])
+
+        self.assertIn(self.minimum, listed)
+        self.assertNotIn(below, listed)
+        with self.assertRaisesRegex(UserError, "requisition"):
+            below.action_replenish()
 
     def test_the_suggested_purchase_offers_no_archived_supplier(self):
         archived = self.env[MODEL_SUPPLIER].create({"name": "Old Gloves Co."})

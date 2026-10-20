@@ -4,7 +4,8 @@ from odoo.tests import tagged
 from .stock_case import StockCase
 from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOCATION, MODEL_STOCK_PACKAGE, MODEL_STOCK_QUANT
 from odoo.addons.sol_inventory.constants.stock import TRANSIT_USAGE
-from odoo.addons.sol_inventory.constants.xml_ids import EXPIRING_ACTION, STOCK_ON_HAND_ACTION
+from odoo.addons.sol_inventory.constants.xml_ids import EXPIRING_ACTION, STOCK_ON_HAND_ACTION, STOCK_SCREEN_MENUS
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_UI_MENU
 
 
 @tagged("post_install", "-at_install")
@@ -50,6 +51,28 @@ class TestStockOnHand(StockCase):
         self.assertEqual(quant.with_user(self.storekeeper.user_id).value, 1000)
         with self.assertRaises(AccessError):
             quant.with_user(self.tester.user_id).read(["value"])
+
+    def test_the_value_of_moves_is_shown_with_the_stock_permission(self):
+        move = self.receive(self.gloves, 100, 10)
+        self.grant_inventory(self.storekeeper, "move.read.all")
+        self.grant_inventory(self.tester, "move.read.all")
+
+        self.assertEqual(move.with_user(self.storekeeper.user_id).read(["value"])[0]["value"], 1000)
+        with self.assertRaises(AccessError):
+            move.with_user(self.tester.user_id).read(["value"])
+
+    def test_the_stock_screens_sit_under_reporting_without_odoo_reports(self):
+        menus = self.env[MODEL_IR_UI_MENU].with_user(self.storekeeper.user_id)._visible_menu_ids()
+
+        self.assertIn(self.env.ref("stock.menu_warehouse_report").id, menus)
+        self.assertIn(self.env.ref("sol_inventory.menu_stock_on_hand").id, menus)
+        self.assertIn(self.env.ref("sol_inventory.menu_expiring").id, menus)
+        for odoo_report in ("stock.menu_product_stock", "stock.stock_move_line_menu", "stock.stock_move_menu"):
+            self.assertNotIn(self.env.ref(odoo_report).id, menus)
+        # Reports other apps add under Reporting are left out of the storekeeper's menus too.
+        hidden = self.env[MODEL_IR_UI_MENU].with_user(self.storekeeper.user_id)._load_menus_blacklist()
+        reports = self.env.ref("stock.menu_warehouse_report").child_id
+        self.assertEqual(set(reports.ids) - set(hidden), {self.env.ref(xml_id).id for xml_id in STOCK_SCREEN_MENUS})
 
     def test_the_expiring_soon_screen_lists_stock_within_the_warning(self):
         packages = self.env[MODEL_STOCK_PACKAGE]

@@ -33,7 +33,7 @@ describe("Stock moves, disposal and value", () => {
   });
 
   it("disposes of the expired sodium chloride bottle", () => {
-    cy.visit("/odoo/disposal");
+    cy.visit("/odoo/expired-stock");
     cy.contains(".o_group_header", "Pesticide residues store").click();
     cy.contains(".o_data_row", "NaCl-2509").find(".o_list_record_selector input").check();
     cy.get("button[name=action_dispose]").click();

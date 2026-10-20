@@ -163,7 +163,7 @@ def _lot(env, item, name, days):
 
 def _container(env, lot, number, quantity, location, status=CONTAINER_SEALED):
     """A container of the lot found in a store when the demo starts, put there by an inventory adjustment valued at
-    the item's cost. Requisitions are not built yet, so stock reaches a team store this way."""
+    the item's cost."""
     container = env[MODEL_STOCK_PACKAGE].create({"name": f"{lot.name}-{number:02d}", "status": status})
     item = lot.product_id
     env[MODEL_STOCK_MOVE]._done_move(

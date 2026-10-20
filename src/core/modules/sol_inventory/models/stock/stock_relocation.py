@@ -70,7 +70,7 @@ class StockRelocation(models.TransientModel):
             return self._quantity_takes(source)
         if not self.lot_id:
             raise UserError(self.env._("Scan a container of %s, or choose its lot.", item.display_name))
-        containers = self._quants(source).filtered("package_id").package_id
+        containers = self._quants(source, in_containers=True).package_id
         if not containers:
             raise UserError(
                 self.env._(
@@ -100,7 +100,7 @@ class StockRelocation(models.TransientModel):
             raise UserError(self.env._("Choose the lot of %s.", item.display_name))
         remaining = self.quantity
         takes = []
-        for quant in self._quants(source).filtered(lambda quant: not quant.package_id):
+        for quant in self._quants(source, in_containers=False):
             if item.uom_id.compare(remaining, 0) <= 0:
                 break
             taken = min(remaining, quant.quantity)
@@ -118,12 +118,13 @@ class StockRelocation(models.TransientModel):
             )
         return takes
 
-    def _quants(self, location):
-        """The stock of the item, of the lot when one is chosen, kept right at this location."""
+    def _quants(self, location, in_containers):
+        """The stock of the item, of the lot when one is chosen, kept right at this location, in containers or not."""
         domain = (
             Domain("product_id", "=", self.item_id.id)
             & Domain("location_id", "=", location.id)
             & Domain("quantity", ">", 0)
+            & Domain("package_id", "!=" if in_containers else "=", False)
         )
         if self.lot_id:
             domain &= Domain("lot_id", "=", self.lot_id.id)

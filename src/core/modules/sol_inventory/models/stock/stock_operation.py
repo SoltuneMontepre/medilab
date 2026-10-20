@@ -58,7 +58,8 @@ class StockOperation(models.AbstractModel):
             self.location_id = self._location()
 
     def _location(self):
-        return self.container_id.sudo().location_id if self.container_id else self.location_id
+        # A container whose stock ran out has no location left; the one chosen applies then.
+        return self.container_id.sudo().location_id or self.location_id
 
     def _check_operation(self, denied):
         """Refuse a person who may not create moves, a missing item, location or reason, and a location outside the

@@ -2,7 +2,7 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .stock_case import StockCase
-from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOT, MODEL_STOCK_MOVE
+from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOT, MODEL_STOCK_MOVE, MODEL_STOCK_QUANT
 from odoo.addons.sol_inventory.constants.stock import CONTAINER_DEPLETED, CONTAINER_OPENED, MOVE_ADJUSTMENT
 
 
@@ -53,6 +53,25 @@ class TestStockCorrection(StockCase):
 
         self.assertEqual(container.status, CONTAINER_DEPLETED)
         self.assertEqual(self.move("Bottle is dry").move_kind, MOVE_ADJUSTMENT)
+
+    def test_stock_counted_in_a_container_that_ran_out_goes_back_into_it(self):
+        container = self.put_container(self.acid, 400, "Ran out", status=CONTAINER_OPENED)
+        quants = self.env[MODEL_STOCK_QUANT]
+        quants._update_available_quantity(
+            self.acid, self.pesticides_store, -400, lot_id=container.lot_id, package_id=container
+        )
+        quants._unlink_zero_quants()
+
+        self.correct(
+            self.storekeeper.user_id,
+            container_id=container.id,
+            location_id=self.pesticides_store.id,
+            counted_quantity=150,
+            reason="Some left at the bottom",
+        )
+
+        self.assertEqual(container.quantity, 150)
+        self.assertEqual(container.location_id, self.pesticides_store)
 
     def test_a_correction_changes_the_quantity(self):
         self.put_stock(self.gloves, self.central, 100)
