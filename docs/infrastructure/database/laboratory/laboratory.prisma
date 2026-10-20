@@ -1337,6 +1337,8 @@ model Signature {
   document_id      Int
   /// Version of the document that was signed.
   document_version Int
+  /// SHA-256 of the content signed, for a document type whose content has one, such as a laboratory file version.
+  document_hash    String?       @db.VarChar
   /// The level signed at.
   level_id         Int
   /// The person who signed.
