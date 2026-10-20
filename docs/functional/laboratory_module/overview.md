@@ -129,6 +129,23 @@ stateDiagram-v2
 
 - A rejected report stays in draft until the results sent back are approved again; its request is then completed again and the lab head gets a new signing task.
 
+### Machine booking
+
+```mermaid
+stateDiagram-v2
+    [*] --> queued: a test joins the machine's queue
+    queued --> scheduled: the scheduler gives it the next free slot
+    scheduled --> queued: moved, bumped, or its machine became unfit
+    scheduled --> in_progress: the test is started
+    scheduled --> done: the result is entered
+    in_progress --> done: the result is entered
+    queued --> cancelled: cancelled, or the result entered while it waits
+    scheduled --> cancelled: cancelled by the tester or the head of department
+    in_progress --> cancelled: its sample test is cancelled
+```
+
+- Urgent tests get the next free slot first, then the rest in the order they joined the queue. A running booking is never moved.
+
 ## Reception
 
 | Rule            | Description                                                                                                                          |

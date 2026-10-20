@@ -2,7 +2,7 @@
 
 The business flows of MediLab from the start of each one to its business result, with the actors who take part. Each flow lists the user stories it walks through, the states it moves, and an activity diagram with one lane per actor. The diagrams show who does what and leave out how the system works inside.
 
-The core flows WF-01 to WF-06 carry a test request from order to report, and WF-07 keeps the laboratory files the testing work produces. The supporting flows SF-01 to SF-09 run beside them. Each path of a flow, its main path, alternative paths and exceptions, belongs to that flow alone; a flow that also touches a path names the flow that holds it. Each path starts from the state the flow names, so no path repeats the steps of the flows before it.
+The core flows WF-01 to WF-06 carry a test request from order to report, and WF-07 keeps the laboratory files the testing work produces. The supporting flows SF-01 to SF-10 run beside them. An alternative path is another normal way to the flow's result. An exception starts when something goes wrong and shows how another actor or extra steps still bring the flow to its result; refusing invalid input is an acceptance criterion of a feature, not a path. Each path belongs to one flow alone; a flow that also touches a path names the flow that holds it. Each path starts from the state the flow names, so no path repeats the steps of the flows before it.
 
 | Flow  | Name                                    | Actors                                                          |
 | ----- | --------------------------------------- | --------------------------------------------------------------- |
@@ -19,36 +19,31 @@ The core flows WF-01 to WF-06 carry a test request from order to report, and WF-
 | SF-04 | Sample retention and disposal           | Tester                                                          |
 | SF-05 | Machine calibration and unavailability  | Administrator, Head of department, Tester                       |
 | SF-06 | Accreditation and registration renewal  | Administrator                                                   |
-| SF-07 | Priority order and urgent tests         | Customer, Sales, Head of department, Tester                     |
+| SF-07 | Result dates and priority orders        | Customer, Sales, Head of department, Administrator              |
 | SF-08 | Laboratory setup                        | Administrator                                                   |
 | SF-09 | Customer support and feedback           | Customer, Sales                                                 |
+| SF-10 | Machine queue and rescheduling          | Tester, Head of department                                      |
 
 ## WF-01 Order to approved test request
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
 - **Result:** the order is approved and its test request is confirmed, with one expected sample for each sample on the quotation.
 - **Stories:** US-C08, US-C09, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S10, US-S12, US-S13, US-S14, US-S15, US-A03, US-A06, US-A08.
+- **States:** quotation draft → sent → accepted; order submitted → claimed → confirmed, approval requested → approved; test request draft → confirmed → paid.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
 - **Main path:** A customer orders on the portal; sales claims it, puts the lines on samples and sends the quotation with an advance; the customer pays online; sales confirms and requests approval; the Head of Sales signs.
 - **Alternative paths:**
   - WF-01-A1: Sales creates the order for a customer who called, instead of the customer ordering on the portal.
-  - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
+  - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address, and becomes a customer.
   - WF-01-A3: A returning customer reorders a completed order, or sales creates the order from the customer's template.
   - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it and the accountant confirms it.
-  - WF-01-A5: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.
-  - WF-01-A6: The quotation passes its payment deadline and is flagged expired; sales extends it.
-  - WF-01-A7: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the order goes ahead unpaid.
-  - WF-01-A8: The Head of Sales rejects the approval with a reason; sales is told, corrects the order and requests approval again.
-  - WF-01-A9: Sales withdraws the approval request to change the order, then requests it again.
+  - WF-01-A5: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the order goes ahead unpaid.
 - **Exceptions:**
-  - WF-01-E1: A quotation with a line not on a sample cannot be sent.
-  - WF-01-E2: Submitting a cart without an e-mail address is refused.
-  - WF-01-E3: The salesperson who requested approval cannot approve the order.
-  - WF-01-E4: The old version of a revised quotation cannot be sent or confirmed.
-  - WF-01-E5: The test request of an unpaid order whose customer may not order on credit cannot be confirmed.
-  - WF-01-E6: Another customer opening the quotation, invoice or result is denied.
+  - WF-01-E1: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.
+  - WF-01-E2: The quotation passes its payment deadline unpaid and is flagged expired; sales extends it and the customer pays.
+  - WF-01-E3: The Head of Sales rejects the approval with a reason; sales is told, corrects the order and requests approval again, and the Head of Sales signs.
+  - WF-01-E4: Sales needs to change an order under approval; they withdraw the request, change it and request approval again.
 - **Paths in other flows:** SF-02 for cancelling an order; SF-07 for the estimated date and priority orders.
-- **States:** quotation draft → sent → accepted; order submitted → claimed → confirmed, approval requested → approved; test request draft → confirmed → paid.
 
 ```mermaid
 flowchart TD
@@ -85,20 +80,17 @@ flowchart TD
 - **Trigger:** samples arrive at the laboratory, or sample delivery staff collect them from the customer.
 - **Result:** every sample is coded, labelled and received, and its testing tasks wait in the queue of each department that tests it.
 - **Stories:** US-SD01, US-SD02, US-SD03, US-SD04, US-SD05, US-SD06, US-SD07, US-SD08, US-SD09, US-SD10, US-SD11, US-SD12, US-HD06, US-HD07.
+- **States:** sample expected → received, or → on hold → received, or → rejected; test request paid → sample received.
 - **Starts from:** an approved order whose test request expects its samples.
 - **Main path:** The customer brings the samples; sample delivery staff record each receipt in good condition, print its label, the customer signs the handover record and the department scans the label.
 - **Alternative paths:**
   - WF-02-A1: Sample delivery staff collect the samples at the customer's site from their collection task, take photos and have the customer sign on the phone.
   - WF-02-A2: Sample delivery staff create a test request at reception for a customer without an order; it skips the paid step.
   - WF-02-A3: A sample tested by two departments is handed to both, and each records its own receipt.
-  - WF-02-A4: An insufficient sample goes on hold; the head of department asks for more; the collection task brings it back to received.
-  - WF-02-A5: A mistake in a signed handover record is corrected with a new record; the old one is kept.
 - **Exceptions:**
-  - WF-02-E1: An unusable sample is rejected with its condition note and gets no testing task.
-  - WF-02-E2: A person outside the department scanning the label is refused.
-  - WF-02-E3: Confirming a test request without a sample, or a sample without a parameter, is refused.
-  - WF-02-E4: A signed handover record cannot be edited.
-- **States:** sample expected → received, or → on hold → received, or → rejected; test request paid → sample received.
+  - WF-02-E1: A sample arrives insufficient; it goes on hold, the head of department asks for more, sample delivery staff collect it through a collection task, and it is received.
+  - WF-02-E2: A sample arrives unusable; it is rejected with its condition note and the request goes on with its other samples.
+  - WF-02-E3: A signed handover record holds a mistake; staff make a corrected record for the customer to sign, and the old one is kept.
 
 ```mermaid
 flowchart TD
@@ -126,47 +118,37 @@ flowchart TD
 ## WF-03 Testing assignment and scheduling
 
 - **Trigger:** a testing task enters the queue of its department.
-- **Result:** the test is assigned and booked on a fit machine, and the rooms of its method's steps, before its due date.
-- **Stories:** US-HD01, US-HD02, US-HD03, US-HD04, US-HD05, US-HD12, US-HD14, US-T01, US-T02, US-T03, US-T04, US-T19, US-T20, US-T21.
+- **Result:** the test is assigned and booked on the fit machine, and the rooms of its method's steps, that finish it soonest before its due date.
+- **Stories:** US-HD01, US-HD02, US-HD03, US-HD05, US-T01, US-T02, US-T04, US-T21.
+- **States:** sample test waiting → assigned → testing; machine booking queued → scheduled.
 - **Starts from:** received samples whose testing tasks wait in the department queue, and fit machines.
-- **Main path:** The head of department assigns a sample to a tester; the tester books the recommended machine and slot, which shows on the schedule with a reminder.
+- **Main path:** The head of department assigns a sample to a tester; the scheduler recommends the way of testing and machine that finish soonest within the due date; the tester books it and it shows on the schedule with a reminder.
 - **Alternative paths:**
   - WF-03-A1: A tester claims an unassigned task of their department instead of waiting to be assigned.
-  - WF-03-A2: The head of department moves a task to another person or department with a reason.
-  - WF-03-A3: The tester moves or cancels a booking; the slot goes back to the queue.
-  - WF-03-A4: A sample test's due date is changed by hand; the scheduler says whether the new date can be met.
-  - WF-03-A5: A test with a step in a bookable room books the machine and the room together.
-  - WF-03-A6: A tester marks a test urgent with a reason; it takes the next free slot first.
-  - WF-03-A7: The head of department bumps an urgent test and decides what happens to the tests it would make late.
-  - WF-03-A8: A booking that ends after its due date makes the test at risk; its tester and head are told once.
+  - WF-03-A2: A test with a step in a bookable room books the machine and the room together.
 - **Exceptions:**
-  - WF-03-E1: A second tester claiming the same task is told it is already claimed.
-  - WF-03-E2: Claiming a task of another department is refused.
-  - WF-03-E3: Moving a task without a reason is refused.
-  - WF-03-E4: Bumping without a reason, or bumping a test that is not urgent, is refused.
-- **Paths in other flows:** WF-05 when no machine can finish a test in time; SF-05 for machines past calibration or under repair.
-- **States:** sample test waiting → assigned → testing; machine booking queued → scheduled → in progress → done.
+  - WF-03-E1: The assigned tester cannot do the work; the head of department moves the task to another person or department with a reason, and that person books it.
+  - WF-03-E2: No fit machine can finish the test before its due date; the scheduler suggests outsourcing it, and the head of department accepts the suggestion.
+- **Paths in other flows:** SF-07 for how due dates are set; SF-10 for the booking once it is in the machine's queue; WF-05 for the outsourcing that follows.
 
 ```mermaid
 flowchart TD
     subgraph lane8 ["Head of department"]
-        h1[Assign the sample's tasks to a person] 
-        h2[Bump an urgent test with a reason]
+        h1[Assign the sample's tasks to a person]
+        h2[Move a task to another person with a reason]
         h3[Decide on the outsourcing suggestion]
     end
     subgraph lane9 ["Tester"]
         t1[Claim an unassigned task]
-        t2[Open the recommendation] --> t3{Fit machine and slot before the due date?}
-        t3 -->|yes| t4[Book the slot]
-        t4 --> t5[Get the reminder and start the test]
-        t6["Warned: test at risk or machine due for calibration"]
+        t2[Open the scheduler's recommendation] --> t3{"Fit machine, and rooms, free before the due date?"}
+        t3 -->|yes| t4[Book the recommended way of testing, machine and slot]
+        t4 --> t5[Booking on the schedule and to-do list, with a reminder]
     end
     queue([Task in the department queue]) --> h1 --> t2
     queue --> t1 --> t2
+    h1 -.-> h2 -.-> t2
     t3 -->|no| h3 --> wf05([WF-05 Outsourced testing])
-    t4 -.-> t6
-    t6 -.-> h2 --> t4
-    t5 --> wf04([WF-04 Result entry and approval])
+    t5 --> sf10([SF-10 the booking in the machine's queue])
 ```
 
 ## WF-04 Result entry and approval
@@ -174,20 +156,17 @@ flowchart TD
 - **Trigger:** a booked test is run.
 - **Result:** the reported result is approved against the sample's regulation limit, and the sample is completed once all its tests are.
 - **Stories:** US-T05, US-T06, US-T07, US-T08, US-T17, US-T22, US-HD08, US-HD09.
+- **States:** sample test testing → result entered → approved, or → testing when rejected; sample testing → awaiting approval → completed.
 - **Starts from:** sample tests in testing with their bookings, on samples with and without a regulation.
 - **Main path:** The tester follows the method's steps, enters a number and its conclusion, sends and signs it; the head approves it and the sample is completed.
 - **Alternative paths:**
   - WF-04-A1: The tester enters a text result, such as Not detected.
-  - WF-04-A2: The head rejects the result with a reason; the tester retests, the rejected result stays on record and the new one is approved.
-  - WF-04-A3: The tester withdraws a result they sent before the head acts.
-  - WF-04-A4: An unusual result warns before sending; the tester sends it anyway and the head sees the warning.
-  - WF-04-A5: The head cancels a test that cannot be done, with a reason; the sample completes with its other tests approved.
+  - WF-04-A2: The tester withdraws a result they sent, corrects it and sends it again before the head acts.
 - **Exceptions:**
-  - WF-04-E1: The person who entered a result cannot approve it.
-  - WF-04-E2: A result on a sample with a regulation cannot be sent without a conclusion.
-  - WF-04-E3: Cancelling a test without a reason, or a test with an approved result, is refused.
-- **Paths in other flows:** SF-03 for changing a result whose process is completed.
-- **States:** sample test testing → result entered → approved, or → testing when rejected; sample testing → awaiting approval → completed.
+  - WF-04-E1: The head rejects the result with a reason; the tester retests, the rejected result stays on record and the new one is approved.
+  - WF-04-E2: An unusual result warns before sending; the tester checks it, sends it anyway and the head sees the warning before approving.
+  - WF-04-E3: A test cannot be done on the sample; the head cancels it with a reason and the sample completes with its other tests approved.
+- **Paths in other flows:** SF-03 for changing a result whose process is completed; WF-06 for results the lab head sends back.
 
 ```mermaid
 flowchart TD
@@ -214,20 +193,17 @@ flowchart TD
 - **Trigger:** no fit machine can finish a test before its due date, or the head of department outsources it straight away in an emergency.
 - **Result:** the subcontractor's result is approved like any other result.
 - **Stories:** US-HD05, US-HD10, US-HD11, US-HD13, US-SD13, US-SUB01, US-SUB02, US-T09, US-HD08.
+- **States:** sample test waiting → outsourced → result entered → approved; dispatch draft → sent → received.
 - **Starts from:** sample tests with an outsourcing suggestion, and accredited subcontractors.
 - **Main path:** The head accepts the suggestion; sample delivery staff carry the dispatch; the subcontractor enters the result; the head approves it.
 - **Alternative paths:**
   - WF-05-A1: A dispatch goes by a delivery service with its tracking number.
-  - WF-05-A2: A lab QA enters the results the subcontractor sent back.
+  - WF-05-A2: The subcontractor sends its results back on paper; a lab QA enters them.
   - WF-05-A3: The head outsources a test straight away in an emergency, with a reason.
-  - WF-05-A4: The head rejects the subcontractor's result; the test goes back to outsourced and a new result is entered.
-  - WF-05-A5: A dispatch is cancelled before any result; its tests stay outsourced for another dispatch.
 - **Exceptions:**
-  - WF-05-E1: A dispatch whose tests have results cannot be cancelled.
-  - WF-05-E2: A subcontractor user sees only its own dispatches and never a sample's customer.
-  - WF-05-E3: Outsourcing straight away without a reason, or a test already in testing, is refused.
+  - WF-05-E1: The head rejects the subcontractor's result; the test goes back to outsourced and the subcontractor enters a new result, which is approved.
+  - WF-05-E2: A dispatch cannot go out; it is cancelled before any result and its tests go in another dispatch.
 - **Paths in other flows:** SF-06 for subcontractor accreditation expiry.
-- **States:** sample test waiting → outsourced → result entered → approved; dispatch draft → sent → received.
 
 ```mermaid
 flowchart TD
@@ -254,20 +230,18 @@ flowchart TD
 - **Trigger:** every sample test of a test request is approved or cancelled, and the system creates the draft report and a signing task for the lab head.
 - **Result:** the signed report is issued, delivered to the customer and downloadable on the portal.
 - **Stories:** US-LH01, US-LH02, US-SD14, US-C07, US-C18, US-C19.
+- **States:** test report draft → signing → issued; test request completed → reported; order completed.
 - **Starts from:** test requests whose sample tests are all approved or cancelled, with their draft reports.
 - **Main path:** The lab head signs the report; it gets a number and a signed PDF; staff record an e-mail delivery; the customer is notified and downloads it.
 - **Alternative paths:**
   - WF-06-A1: The report is delivered in person or by post; recording it sends no e-mail.
   - WF-06-A2: The request asks for an English, a Vietnamese or a bilingual report.
-  - WF-06-A3: The lab head rejects the report naming results and a reason; the results go back to the head of department's queue, are approved again and the lab head signs the new task.
-  - WF-06-A4: A request with a cancelled test issues a report without it.
-  - WF-06-A5: The lifecycle test: one order runs from the portal through reception, testing and approval to the issued report.
+  - WF-06-A3: A request with a cancelled test issues a report without it.
+  - WF-06-A4: The lifecycle test: one order runs from the portal through reception, testing and approval to the issued report.
 - **Exceptions:**
-  - WF-06-E1: With Viettel Sign unavailable the report is not marked signed, and signing is retried.
-  - WF-06-E2: Rejecting a report without a reason or without naming a result is refused.
-  - WF-06-E3: An unissued report cannot be delivered, and a customer downloads only their own reports.
+  - WF-06-E1: The lab head rejects the report naming results and a reason; the results go back to the head of department's queue, are approved again, and the lab head signs the new task.
+  - WF-06-E2: Viettel Sign is unavailable when the lab head signs; the report is not marked signed, signing is retried and the report is issued once it succeeds.
 - **Paths in other flows:** SF-03 for a change request on an issued report; SF-04 for the samples after the report.
-- **States:** test report draft → signing → issued; test request completed → reported; order completed.
 
 ```mermaid
 flowchart TD
@@ -301,20 +275,19 @@ flowchart TD
 - **Alternative paths:**
   - WF-07-A1: The head of department creates a sample's raw-data and result folders, and the owner adds the testers as members.
   - WF-07-A2: A colleague's new version downloads to a two-way folder on another computer.
-  - WF-07-A3: Two testers change the same file from one version; the second upload is kept as a conflict, and the tester takes the server's version with a backup of their own.
-  - WF-07-A4: A tester restores an earlier version, which becomes the new current version.
-  - WF-07-A5: Two testers edit a result spreadsheet together in the browser; saving adds a version.
-  - WF-07-A6: A tester locks a working file, edits and unlocks it; an administrator releases a lock someone left.
-  - WF-07-A7: A tester browses and downloads a sample's files in the back office.
-  - WF-07-A8: An administrator archives a folder; it keeps every version until its retention date.
+  - WF-07-A3: A tester restores an earlier version, which becomes the new current version.
+  - WF-07-A4: Two testers edit a result spreadsheet together in the browser; saving adds a version.
+  - WF-07-A5: A tester locks a working file, edits and unlocks it.
+  - WF-07-A6: A tester browses and downloads a sample's files in the back office.
+  - WF-07-A7: An administrator archives a folder; it keeps every version until its retention date.
 - **Exceptions:**
-  - WF-07-E1: A file outside the folder's sync rules is not uploaded.
-  - WF-07-E2: Uploading a file someone else has locked is refused.
-  - WF-07-E3: A revoked device can no longer sync, and the person's other devices keep working.
-  - WF-07-E4: A removed member's pending files are paused and nothing on their computer is deleted.
-  - WF-07-E5: A turned-off folder refuses uploads and still allows downloads.
-  - WF-07-E6: With the editing service down, syncing, history and restore keep working.
-  - WF-07-E7: Rejecting a file version without a reason is refused.
+  - WF-07-E1: Two testers change the same file from one version; the second upload is kept as a conflict, and that tester takes the server's version with a backup of their own.
+  - WF-07-E2: A file stays locked by someone who left; uploads are refused until an administrator releases the lock.
+  - WF-07-E3: A tester's computer is lost; an administrator revokes its device and the tester signs in on another computer and goes on.
+  - WF-07-E4: A member loses access to a folder; their pending files pause, nothing on the computer is deleted, and they upload once access is given back.
+  - WF-07-E5: An administrator turns a folder off; new files wait and upload once it is turned on again.
+  - WF-07-E6: The editing service is down; the tester saves the file in its own program, Medilab Sync uploads it, and history and restore keep working.
+  - WF-07-E7: The head rejects a result file version with a reason; the tester saves a corrected version, which the head signs.
 
 ```mermaid
 flowchart TD
@@ -349,21 +322,17 @@ flowchart TD
 - **Trigger:** an order needs its final invoice, or a payment arrives.
 - **Result:** every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
+- **States:** invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
 - **Starts from:** orders with a paid advance whose testing is completed.
 - **Main path:** The accountant creates and e-mails the final invoice; the customer pays it online; a receipt is issued and the order is paid.
 - **Alternative paths:**
   - SF-01-A1: The customer pays part online, then the rest; the invoice is partially paid, then paid.
   - SF-01-A2: Sales records a cash payment; the accountant confirms it.
-  - SF-01-A3: The accountant rejects a payment sales recorded; the salesperson is told the reason and the invoice returns to its previous status.
-  - SF-01-A4: An adjustment invoice lowers or raises what is owed; the original invoice is unchanged.
-  - SF-01-A5: An invoice unpaid after its due date reminds the customer at each interval.
-  - SF-01-A6: A PayOS transaction with no payment is flagged; the accountant creates its payment, the flag clears and the day is locked.
+  - SF-01-A3: An adjustment invoice lowers or raises what is owed; the original invoice is unchanged.
 - **Exceptions:**
-  - SF-01-E1: A payment above the amount still owed is refused.
-  - SF-01-E2: A posted invoice cannot be edited.
-  - SF-01-E3: An online payment of a locked day cannot be changed.
-  - SF-01-E4: A repeated PayOS notification records no second payment.
-- **States:** invoice posted → partially paid → paid; payment pending → confirmed or rejected; reconciliation day open → locked.
+  - SF-01-E1: The accountant rejects a payment sales recorded; the salesperson is told the reason, records the correct one, and the accountant confirms it.
+  - SF-01-E2: An invoice is still unpaid after its due date; the customer is reminded at each interval until they pay.
+  - SF-01-E3: A PayOS transaction has no payment in MediLab; it is flagged, the accountant creates its payment, the flag clears and the day is locked.
 
 ```mermaid
 flowchart TD
@@ -396,17 +365,15 @@ flowchart TD
 - **Trigger:** a customer wants to cancel an order.
 - **Result:** the order and everything the laboratory created for it are cancelled, or the request is declined with a reply.
 - **Stories:** US-C11, US-C12, US-S16, US-S17.
+- **States:** cancellation request open → accepted or declined; order → cancelled.
 - **Starts from:** orders in each status, some with completed tests.
 - **Main path:** A customer requests the cancellation of a confirmed order with a reason; sales accepts; the order and its test request are cancelled.
 - **Alternative paths:**
   - SF-02-A1: The customer cancels an order that is not confirmed yet, without asking.
-  - SF-02-A2: Sales declines the request with a reply the customer sees on the order.
-  - SF-02-A3: Sales cancels an order on their own while no testing is completed.
-  - SF-02-A4: An approved order is cancelled through a change request the Head of Sales approves.
+  - SF-02-A2: Sales cancels an order on their own while no testing is completed.
 - **Exceptions:**
-  - SF-02-E1: A request without a reason is refused.
-  - SF-02-E2: Cancelling an order with a completed test is blocked.
-- **States:** cancellation request open → accepted or declined; order → cancelled.
+  - SF-02-E1: Sales declines the request with a reply the customer sees on the order, and the order goes on.
+  - SF-02-E2: The order is already approved; it is cancelled through a change request the Head of Sales approves.
 
 ```mermaid
 flowchart TD
@@ -433,16 +400,14 @@ flowchart TD
 - **Trigger:** a person who can edit a type of document finds a mistake in one whose process is completed, such as a result or a report.
 - **Result:** a new version replaces the signed one, which is kept unchanged, or the request is rejected and the document stays as it is.
 - **Stories:** US-T11, US-LH03, SH-07.
+- **States:** change request requested → approved → applied, or → rejected; document version → replaced.
 - **Starts from:** completed results and issued reports, and signed documents still in process.
 - **Main path:** A tester raises a change request on a completed result; the change-request chain signs it; a new version replaces the old one, which stays readable.
 - **Alternative paths:**
   - SF-03-A1: A change request on an issued report is approved by the lab head and creates a new report version.
-  - SF-03-A2: The chain rejects a change request; the signed document stays unchanged and the reason is kept.
-  - SF-03-A3: Before the process is completed, signers withdraw from the top level down and the document can be edited again.
+  - SF-03-A2: Before the process is completed, signers withdraw from the top level down, the document is corrected and signed again.
 - **Exceptions:**
-  - SF-03-E1: A change request without what to change or why is refused.
-  - SF-03-E2: Withdrawing a signature while a higher level still has one, or after the process is completed, is refused.
-- **States:** change request requested → approved → applied, or → rejected; document version → replaced.
+  - SF-03-E1: The chain rejects the change request with a reason; the signed document stays unchanged and the requester sees why.
 
 ```mermaid
 flowchart TD
@@ -466,15 +431,12 @@ flowchart TD
 - **Trigger:** the report of a sample's test request is issued.
 - **Result:** every sample that is not kept, or whose retention period is over, is disposed of with a record of when, by whom and how.
 - **Stories:** US-T10.
+- **States:** sample reported → retained → disposed, or reported → disposed.
 - **Starts from:** reported samples, kept and not kept, and samples of cancelled requests.
 - **Main path:** A kept sample's retention period ends; it appears on the tester's daily to-do and the tester records its disposal.
 - **Alternative paths:**
   - SF-04-A1: A sample that is not kept is disposed of right after its report.
   - SF-04-A2: A sample of a cancelled request is disposed of.
-- **Exceptions:**
-  - SF-04-E1: Disposing of a sample with no method on it or its sample type is refused.
-  - SF-04-E2: A disposed sample cannot be disposed of again or changed back.
-- **States:** sample reported → retained → disposed, or reported → disposed.
 
 ```mermaid
 flowchart TD
@@ -494,15 +456,14 @@ flowchart TD
 - **Trigger:** a machine's calibration falls due, or a machine is under repair.
 - **Result:** no test runs on an unfit machine; its bookings move to other machines or are suggested for outsourcing, and the machine returns to use once serviced.
 - **Stories:** US-AD09, US-AD10, US-T21, US-HD03, US-HD05.
+- **States:** machine in use → under repair → in use; booking scheduled → queued → scheduled on another machine.
 - **Starts from:** machines with scheduled bookings, calibration dates and service records.
 - **Main path:** The administrator sets a machine under repair; its bookings move to another fit machine and their testers are told; recording the repair makes it usable again.
 - **Alternative paths:**
   - SF-05-A1: A machine passes its calibration date; it gets no new booking until a calibration is recorded.
   - SF-05-A2: Booking a machine whose calibration is due soon, or that was repaired recently, warns and still books.
 - **Exceptions:**
-  - SF-05-E1: A moved booking that no other machine can finish in time gets an outsourcing suggestion.
-  - SF-05-E2: A machine with queued, scheduled or running bookings cannot be archived.
-- **States:** machine in use → under repair → in use; booking scheduled → queued → scheduled on another machine.
+  - SF-05-E1: No other machine can finish a moved booking in time; it gets an outsourcing suggestion, which the head of department accepts.
 
 ```mermaid
 flowchart TD
@@ -530,16 +491,13 @@ flowchart TD
 - **Trigger:** the laboratory receives an accreditation certificate or registers a quality dossier, or one of them, or a subcontractor's accreditation, nears its expiry.
 - **Result:** reports carry the accredited and registered marks only while they are valid, and renewed dates restore them.
 - **Stories:** US-AD08, US-AD12, US-AD28.
+- **States:** certificate, dossier or subcontractor accreditation valid → expired → valid again when renewed.
 - **Starts from:** accreditation certificates, quality dossiers and subcontractors near and past their expiry.
 - **Main path:** The administrator imports a certificate's methods; the ways of testing are accredited while it is valid and lose it the day after its last valid day.
 - **Alternative paths:**
   - SF-06-A1: A quality dossier warns before and on its expiry day; after it, its mark is no longer printed; renewing it prints the mark again.
-  - SF-06-A2: A subcontractor whose accreditation expired cannot be chosen; renewing the date makes it selectable again.
+  - SF-06-A2: A subcontractor's accreditation expires; it cannot be chosen until its renewed date is recorded.
   - SF-06-A3: Archiving a certificate removes the accreditation of its methods; restoring it gives it back.
-- **Exceptions:**
-  - SF-06-E1: Importing a row without a code or title is refused and creates nothing.
-  - SF-06-E2: A subcontracted way of testing is never accredited.
-- **States:** certificate, dossier or subcontractor accreditation valid → expired → valid again when renewed.
 
 ```mermaid
 flowchart TD
@@ -558,42 +516,53 @@ flowchart TD
     off --> a4 --> valid([Valid again])
 ```
 
-## SF-07 Priority order and urgent tests
+## SF-07 Result dates and priority orders
 
-- **Trigger:** a customer asks for results earlier than the laboratory's estimate, or a test must go ahead of others.
-- **Result:** an order the laboratory can meet is accepted as a priority order, and its urgent tests are scheduled first.
-- **Stories:** US-S21, US-S22, US-T19, US-HD12, US-HD13, US-HD14.
-- **Starts from:** quotations in preparation and a laboratory schedule with free and busy machines.
-- **Main path:** The customer asks for an earlier date the laboratory can meet; sales accepts it as a priority order and its tests are urgent when created.
+- **Trigger:** sales prepares a quotation, a customer asks when results can be ready, or a due date is set or changed.
+- **Result:** every sample test has a due date the laboratory can meet, the customer knows the earliest date results can be returned, and a priority order the laboratory can meet makes its tests urgent.
+- **Stories:** US-S21, US-S22, US-HD05, SH-03.
+- **States:** test request expected date set; sample test due date worked out, or changed by hand; priority order → urgent sample tests.
+- **Starts from:** a catalog with ways of testing and machines, machine queues with free and busy slots, and quotations in preparation.
+- **Main path:** Sales adds parameters to a quotation, which shows the estimated return date; the customer's expected date is at or after it; when the order is confirmed, each sample test is due at the end of the day the safety margin before that date.
 - **Alternative paths:**
-  - SF-07-A1: Adding a parameter to the quotation updates the estimated return date.
+  - SF-07-A1: The customer asks for an earlier date the laboratory can meet; sales accepts it as a priority order and its tests are urgent when created.
+  - SF-07-A2: A parameter only a subcontractor tests is named and left out of the estimate.
+  - SF-07-A3: The expected date on a test request changes; the due dates of its sample tests are worked out again.
+  - SF-07-A4: An administrator changes the safety margin; due dates already worked out stay, new ones use the new margin.
 - **Exceptions:**
-  - SF-07-E1: A date the laboratory cannot meet is not accepted, and the earliest possible date is shown.
-- **Paths in other flows:** WF-03 for marking tests urgent and bumping; WF-05 for outsourcing straight away.
-- **States:** sample test created urgent; booking queued ahead of tests that are not urgent; bumped bookings planned again.
+  - SF-07-E1: The customer's earlier date can be met only by outsourcing named parameters; sales tells the customer, who accepts, and those parameters are outsourced.
+  - SF-07-E2: The customer's earlier date cannot be met; the check suggests the earliest date that can, and sales offers it.
+  - SF-07-E3: The head of department changes a sample test's due date by hand to a date that cannot be met; the scheduler reports it with the earliest possible date, and the head moves other bookings or outsources.
+- **Paths in other flows:** SF-10 for how urgent tests are queued.
 
 ```mermaid
 flowchart TD
-    subgraph lane31 ["Customer"]
-        c1[Ask for an earlier result date]
+    subgraph lane60 ["Customer"]
+        c1[Ask when results can be ready, or for an earlier date]
     end
-    subgraph lane32 ["Sales"]
-        s1[See the estimated return date while quoting] --> s2{Can the laboratory meet the earlier date?}
-        s2 -->|no| s3[Offer the earliest date it can]
+    subgraph lane61 ["Sales"]
+        s1[Add parameters to the quotation] --> s2[See the estimated return date]
+        s3{Check the earlier date}
+        s4[Offer the earliest possible date]
+        s5[Name the parameters that must be outsourced]
+        s6[Accept it as a priority order]
     end
-    subgraph lane33 ["Head of department"]
-        h1[Bump an urgent test ahead of bookings not started]
-        h2[Outsource straight away with a reason]
+    subgraph lane62 ["Head of department"]
+        h1[Change a sample test's due date by hand]
     end
-    subgraph lane34 ["Tester"]
-        t1[Mark one of their tests urgent with a reason]
+    subgraph lane63 ["Administrator"]
+        a1[Set the safety margin and urgency threshold]
     end
     c1 --> s1
-    s2 -->|yes| urgent["Priority order: its tests are urgent when created"]
-    urgent --> queue[Urgent tests take the next free slots first]
-    t1 --> queue
-    queue --> h1
-    queue --> h2
+    s2 --> confirm[Order confirmed: each due date is the margin before the expected date]
+    c1 -->|earlier date| s3
+    s3 -->|can be met| s6 --> urgent([Its tests are urgent when created])
+    s3 -->|only by outsourcing| s5
+    s3 -->|cannot be met| s4
+    h1 --> check{"Free slot, or others can move in time?"}
+    check -->|no| report([Reported as not possible, with the earliest date])
+    check -->|yes| kept([New due date kept])
+    a1 -.->|new dates only| confirm
 ```
 
 ## SF-08 Laboratory setup
@@ -608,10 +577,6 @@ flowchart TD
   - SF-08-A2: The administrator gives a person a role; the person sees the menus of that role and no others.
   - SF-08-A3: A VAT rate changes from a date; quotations dated after it use the new rate.
   - SF-08-A4: The administrator sets the approval chain of a document type; its documents are signed level by level.
-- **Exceptions:**
-  - SF-08-E1: A parameter without a price and tax cannot be added to a cart.
-  - SF-08-E2: Archiving a record still in use is refused with the list of what uses it.
-  - SF-08-E3: A code that already exists is refused.
 
 ```mermaid
 flowchart TD
@@ -635,6 +600,7 @@ flowchart TD
 - **Trigger:** a customer registers, or contacts the laboratory through the portal.
 - **Result:** the customer's account and contacts are kept, their questions are answered, and a completed order can be rated.
 - **Stories:** US-C01, US-C02, US-C03, US-C04, US-C05, US-C06, US-C20, US-C21, US-S03, US-S04, US-S20.
+- **States:** support request open → answered → closed; order completed → rated.
 - **Starts from:** registered customers with completed and open orders.
 - **Main path:** A customer opens a support request about an order; the order's salesperson answers; the request is answered and the customer notified.
 - **Alternative paths:**
@@ -642,10 +608,6 @@ flowchart TD
   - SF-09-A2: A customer registers, keeps their profile and contacts, and uploads a logo.
   - SF-09-A3: Sales invites a customer to the portal and merges a duplicate profile.
   - SF-09-A4: The customer rates a completed order.
-- **Exceptions:**
-  - SF-09-E1: Rating an order that is not completed, or rating it twice, is refused.
-  - SF-09-E2: Another customer never sees the customer's support requests or feedback.
-- **States:** support request open → answered → closed; order completed → rated.
 
 ```mermaid
 flowchart TD
@@ -664,6 +626,52 @@ flowchart TD
     c3 --> s2 --> s3 --> c4
     c4 --> closed([Request closed])
     c5 --> rated([Feedback visible to sales and management])
+```
+
+## SF-10 Machine queue and rescheduling
+
+- **Trigger:** a test joins a machine's queue, or something changes the queue: a move, an urgent test, a bump, a result or a cancellation.
+- **Result:** every booking runs in order on a fit machine, urgent tests first, and tests that will miss their due date are seen in time.
+- **Stories:** US-T03, US-T19, US-T20, US-HD04, US-HD12, US-HD14.
+- **States:** machine booking queued → scheduled → in progress → done, or → cancelled; scheduled → queued when moved or bumped.
+- **Starts from:** machines with queued, scheduled and running bookings for urgent and ordinary tests.
+- **Main path:** A booking joins the machine's queue, gets the next free slot, starts when the tester starts the test, and is done when the result is entered.
+- **Alternative paths:**
+  - SF-10-A1: Urgent tests, marked with a reason or due within the urgency threshold, get the next free slot before ordinary tests; the rest follow the order they joined the queue.
+  - SF-10-A2: The tester moves their booking; the slot goes back to the queue and the booking is planned again.
+  - SF-10-A3: The head of department moves or cancels a booking of someone in the department.
+  - SF-10-A4: A result is entered while a booking still waits in the queue; that booking is cancelled.
+  - SF-10-A5: The head of department cancels the sample test; its bookings, running ones included, are cancelled.
+- **Exceptions:**
+  - SF-10-E1: An urgent test cannot wait for its slot; the head of department bumps it to the earliest fit slot, and the bookings that had not started go back to the queue, are planned again and their people are told.
+  - SF-10-E2: A bump would make other tests late; the head chooses to let them run late or to outsource them straight away, and the bump goes ahead.
+  - SF-10-E3: A booking ends without a result, or after the due date; the test is at risk, its tester and head are told once, and the head bumps it, moves it or outsources it.
+- **Paths in other flows:** SF-05 for setting a machine under repair or recording its calibration; WF-05 for outsourcing a test the queue cannot finish in time.
+
+```mermaid
+flowchart TD
+    subgraph lane64 ["Tester"]
+        t1[Start the test] --> t2[Enter the result]
+        t3[Move or cancel their booking]
+        t4[Mark a test urgent with a reason]
+    end
+    subgraph lane65 ["Head of department"]
+        h1[Move or cancel a booking in the department]
+        h2[Bump an urgent test with a reason]
+        h3{Tests the bump makes late?}
+        h4[See tests at risk]
+    end
+    q([Booking queued]) --> slot[Next free slot: urgent first, then first in]
+    slot --> sch[Booking scheduled]
+    sch --> t1
+    t2 --> done([Booking done])
+    t3 --> q
+    h1 --> q
+    t4 --> slot
+    h2 --> h3
+    h3 -->|none, or run late or outsource| moved[Bookings not started go back to the queue; their people told] --> q
+    h3 -->|do not bump| sch
+    sch -.->|ends after the due date, or ended without a result| h4
 ```
 
 ## Related documents
