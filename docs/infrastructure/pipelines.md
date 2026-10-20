@@ -40,6 +40,7 @@ flowchart LR
 - `test` is the required check for the tests: it fails unless every runner and `e2e` passed.
 - `coverage` combines the coverage data of the four runners with `task test:core:coverage` and uploads the report as the `coverage` artifact.
 - `sonarqube` downloads the coverage report, scans with SonarQube Cloud and waits for the quality gate. A failed gate, including on coverage, fails the pipeline. A pull request that changes only the AI tooling skips `lint`, `build`, the test runners and `coverage`; `sonarqube` then scans without a coverage report, which is enough because `tools/**` is excluded from coverage.
+- When any job fails, its last step cancels the whole run, so the remaining jobs stop instead of running to the end. The failed job shows the cause; the others show as cancelled. Every job that can cancel the run has `actions: write` for this.
 - A pull request from a fork cannot read secrets, so `sonarqube` fails on it with a message. Contributors push a branch to the repository instead.
 - Static assets, the applications, the tests, the tools, module manifests and migration scripts are excluded from SonarQube coverage in `sonar-project.properties`, because no coverage report exists for them; Odoo reads manifests as data, and the tests install the modules fresh, so they never run the lines of either. SonarQube's coverage figure therefore does not include the typecheck scripts in `tools/typecheck`; `task test:typecheck` tests them in `lint`, and SonarQube still reports issues and security hotspots in `tools/`.
 
@@ -97,6 +98,7 @@ flowchart LR
 - `compile` builds the frontend and then the app on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. Only these jobs build the frontend. `build` fails unless every `compile` passed.
 - `test (frontend)` runs `bun test` and `test (backend)` runs `cargo test`, side by side. `test` fails unless both passed.
 - The app embeds the built frontend when it compiles, so `lint` and `test (backend)` compile against an empty stand-in `dist/index.html` instead of building the frontend.
+- When any job fails, its last step cancels the whole run, as in `ci-core`; each job has `actions: write` for this.
 - A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
 - `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
 - `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release.

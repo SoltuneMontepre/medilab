@@ -40,6 +40,9 @@ jobs:
     needs: changes
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: write
     defaults:
       run:
         working-directory: ${{ env.SYNC_APP_DIR }}
@@ -91,12 +94,21 @@ jobs:
         if: needs.changes.outputs.relevant == 'true'
         run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings
 
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
   compile:
     name: compile (${{ matrix.label }})
     needs: changes
     if: needs.changes.outputs.relevant == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: write
     strategy:
       fail-fast: true
       matrix:
@@ -142,6 +154,12 @@ jobs:
       - name: Build the app
         run: cargo build --manifest-path src-tauri/Cargo.toml
 
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
   build:
     needs: [changes, compile]
     if: ${{ !cancelled() }}
@@ -173,6 +191,9 @@ jobs:
     if: needs.changes.outputs.relevant == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: write
     strategy:
       fail-fast: true
       matrix:
@@ -220,6 +241,12 @@ jobs:
       - name: Rust tests
         if: matrix.part == 'backend'
         run: cargo test --manifest-path src-tauri/Cargo.toml
+
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
 
   test:
     needs: [changes, test-runner]
