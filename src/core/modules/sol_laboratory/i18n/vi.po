@@ -195,6 +195,22 @@ msgid "A chain with signatures cannot be deleted; archive it instead. Signatures
 msgstr "Không thể xóa chuỗi đã có chữ ký; hãy lưu trữ chuỗi. Chữ ký: %s"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"A computer signs in with its installation id and its name, never a path."
+msgstr ""
+"Máy tính đăng nhập bằng mã cài đặt và tên của nó, không bao giờ là một đường"
+" dẫn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"A computer signs in with its installation id, its name and its platform."
+msgstr "Máy tính đăng nhập bằng mã cài đặt, tên và hệ điều hành của nó."
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_chain_purpose_unique
 msgid "A document type cannot have two chains for the same purpose."
 msgstr "Một loại chứng từ không thể có hai chuỗi cho cùng một mục đích."
@@ -6407,6 +6423,16 @@ msgid "Signed"
 msgstr "Đã ký"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__status__signed_in
+msgid "Signed In"
+msgstr "Đã đăng nhập"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__status__signed_out
+msgid "Signed Out"
+msgstr "Đã đăng xuất"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 msgid "Signer"
@@ -6521,6 +6547,7 @@ msgstr "Thống kê"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__status
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -7010,6 +7037,12 @@ msgid "The limit for %s needs a unit for its minimum or maximum."
 msgstr "Giới hạn của %s cần đơn vị cho giá trị tối thiểu hoặc tối đa."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "The login or the password is wrong."
+msgstr "Tên đăng nhập hoặc mật khẩu không đúng."
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_pair_machine_unique
 msgid "The machine is already linked to this way of testing."
 msgstr "Máy đã được gắn với cách thử này."
@@ -7166,6 +7199,22 @@ msgstr ""
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_subcontractor_partner_unique
 msgid "This company is already a subcontractor."
 msgstr "Công ty này đã là thầu phụ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "This computer is not signed in."
+msgstr "Máy tính này chưa đăng nhập."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"This computer was revoked. Install Medilab Sync again to sign it in as a new"
+" computer."
+msgstr ""
+"Máy tính này đã bị thu hồi. Hãy cài lại Medilab Sync để đăng nhập như một "
+"máy tính mới."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_customer_partner_unique
@@ -11678,6 +11727,7 @@ msgstr "Thử ký số lại"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signing_certificate__status__revoked
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__status__revoked
 msgid "Revoked"
 msgstr "Đã thu hồi"
 

@@ -5,7 +5,6 @@ from .laboratory_files_case import LaboratoryFilesCase
 from .request_case import RequestCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import FOLDER_READ, NOT_FOUND
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER
-from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
 SAMPLE_READER_GROUP = "sol_laboratory.group_permission_sample_read_all"
 
@@ -20,10 +19,7 @@ class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
         )
 
     def test_a_member_who_cannot_see_the_sample_gets_nothing_from_its_folder(self):
-        with self.assertRaises(LaboratoryFileError) as caught:
-            self.raw_data.with_user(self.tester)._check_folder_access(FOLDER_READ)
-
-        self.assertEqual(caught.exception.code, NOT_FOUND)
+        self.assertRefused(NOT_FOUND, self.raw_data.with_user(self.tester)._check_folder_access, FOLDER_READ)
 
     def test_a_member_who_can_see_the_sample_reads_its_folder(self):
         self.tester.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]

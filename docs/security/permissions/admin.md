@@ -13,6 +13,10 @@ The [global rules](../readme.md#global-rules) still hold for the administrator: 
 - Turns digital signing on, refreshes the laboratory's certificate from Viettel Sign and receives its expiry and revocation alerts.
 - Cannot change a signed document.
 
+## Laboratory files
+
+- Sees every computer signed in to the laboratory folders and revokes one; its person keeps their folders and other computers.
+
 ## Related documents
 
 - [Security](../readme.md)

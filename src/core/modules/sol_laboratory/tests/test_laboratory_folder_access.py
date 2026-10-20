@@ -22,16 +22,10 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_SYNC_RULE,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
-from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
 
 @tagged("post_install", "-at_install")
 class TestLaboratoryFolderAccess(LaboratoryFilesCase):
-    def assertRefused(self, code, folders, access):
-        with self.assertRaises(LaboratoryFileError) as caught:
-            folders._check_folder_access(access)
-        self.assertEqual(caught.exception.code, code)
-
     def test_members_read_their_folders_and_nobody_else_sees_them(self):
         folders = self.env[MODEL_LABORATORY_FOLDER]
 
@@ -73,46 +67,47 @@ class TestLaboratoryFolderAccess(LaboratoryFilesCase):
         for user in (self.outsider, self.administrator):
             for access in (FOLDER_READ, FOLDER_WRITE):
                 with self.subTest(user=user.login, access=access):
-                    self.assertRefused(NOT_FOUND, self.folder.with_user(user), access)
-        self.assertRefused(NOT_FOUND, self.folder.with_user(self.outsider), FOLDER_SHARE)
+                    self.assertRefused(NOT_FOUND, self.folder.with_user(user)._check_folder_access, access)
+        self.assertRefused(NOT_FOUND, self.folder.with_user(self.outsider)._check_folder_access, FOLDER_SHARE)
 
     def test_losing_the_permission_stops_a_member_and_keeps_the_membership(self):
         self.member.group_ids = [Command.unlink(self.env.ref(LABORATORY_FILES_GROUP).id)]
 
-        self.assertRefused(PERMISSION_DENIED, self.folder.with_user(self.member), FOLDER_READ)
+        self.assertRefused(PERMISSION_DENIED, self.folder.with_user(self.member)._check_folder_access, FOLDER_READ)
         self.assertIn(self.member, self.folder.member_ids.user_id)
 
     def test_a_turned_off_folder_is_read_but_its_files_are_not_written(self):
         self.folder.enabled = False
 
         self.folder.with_user(self.member)._check_folder_access(FOLDER_READ)
-        self.assertRefused(FOLDER_DISABLED, self.folder.with_user(self.member), FOLDER_WRITE)
+        self.assertRefused(FOLDER_DISABLED, self.folder.with_user(self.member)._check_folder_access, FOLDER_WRITE)
 
     def test_an_archived_folder_is_read_but_its_files_are_not_written(self):
         self.folder.archived_at = "2026-10-20 08:00:00"
 
         self.folder.with_user(self.member)._check_folder_access(FOLDER_READ)
-        self.assertRefused(FOLDER_ARCHIVED, self.folder.with_user(self.member), FOLDER_WRITE)
+        self.assertRefused(FOLDER_ARCHIVED, self.folder.with_user(self.member)._check_folder_access, FOLDER_WRITE)
 
     def test_only_the_owner_and_administrators_share_a_folder(self):
         self.folder.with_user(self.tester)._check_folder_access(FOLDER_SHARE)
         self.folder.with_user(self.administrator)._check_folder_access(FOLDER_SHARE)
-        self.assertRefused(PERMISSION_DENIED, self.folder.with_user(self.member), FOLDER_SHARE)
+        self.assertRefused(PERMISSION_DENIED, self.folder.with_user(self.member)._check_folder_access, FOLDER_SHARE)
 
     def test_only_administrators_administer_a_folder(self):
         self.folder.with_user(self.administrator)._check_folder_access(FOLDER_ADMINISTER)
-        self.assertRefused(PERMISSION_DENIED, self.folder.with_user(self.tester), FOLDER_ADMINISTER)
+        self.assertRefused(
+            PERMISSION_DENIED, self.folder.with_user(self.tester)._check_folder_access, FOLDER_ADMINISTER
+        )
 
     def test_a_folder_someone_else_is_editing_is_not_shared_meanwhile(self):
         self.folder.with_user(self.administrator).lock_take()
 
-        self.assertRefused(LOCKED, self.folder.with_user(self.tester), FOLDER_SHARE)
+        self.assertRefused(LOCKED, self.folder.with_user(self.tester)._check_folder_access, FOLDER_SHARE)
 
     def test_only_people_with_the_permission_can_be_added_to_a_folder(self):
         self.outsider.active = False
         members = self.env[MODEL_LABORATORY_FOLDER_MEMBER]
 
         for user in (self.colleague, self.outsider):
-            with self.subTest(user=user.login), self.assertRaises(LaboratoryFileError) as caught:
-                members.create({"folder_id": self.folder.id, "user_id": user.id})
-            self.assertEqual(caught.exception.code, NOT_ELIGIBLE)
+            with self.subTest(user=user.login):
+                self.assertRefused(NOT_ELIGIBLE, members.create, {"folder_id": self.folder.id, "user_id": user.id})

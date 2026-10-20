@@ -1,9 +1,16 @@
 from odoo.fields import Command
 from odoo.tests import TransactionCase, new_test_user
 
-from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER
+from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_KEY_SCOPE, MEMBER_ROLE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LABORATORY_DEVICE,
+    MODEL_LABORATORY_FOLDER,
+    MODEL_RES_USERS_APIKEYS,
+)
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+
+PASSWORD = "Phong-thi-nghiem-2026"
 
 
 class LaboratoryFilesCase(TransactionCase):
@@ -28,4 +35,21 @@ class LaboratoryFilesCase(TransactionCase):
 
     @classmethod
     def create_user(cls, login, *groups):
-        return new_test_user(cls.env, login=login, password=login, groups=",".join(("base.group_user", *groups)))
+        return new_test_user(cls.env, login=login, password=PASSWORD, groups=",".join(("base.group_user", *groups)))
+
+    def sign_in(self, user, client_uid, name="HPLC-PC", platform="windows"):
+        """Sign a computer of the user in, as Medilab Sync does: the device and its key."""
+        return self.env[MODEL_LABORATORY_DEVICE]._sign_in(user.login, PASSWORD, client_uid, name, platform)
+
+    def device_of(self, key):
+        """The computer a call with the key comes from, as the laboratory files API finds it after Odoo verified the
+        key."""
+        uid = self.env[MODEL_RES_USERS_APIKEYS]._check_credentials(scope=DEVICE_KEY_SCOPE, key=key)
+        if not uid:
+            self.fail("Odoo refused the key.")
+        return self.env[MODEL_LABORATORY_DEVICE].with_user(uid)._from_key(key)
+
+    def assertRefused(self, code, call, *args):
+        with self.assertRaises(LaboratoryFileError) as caught:
+            call(*args)
+        self.assertEqual(caught.exception.code, code)

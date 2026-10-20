@@ -59,7 +59,7 @@ The user is the signed-in Odoo user, also when Odoo acts as the superuser for th
 
 ### Settings
 
-Signing in and out is not recorded: the trail holds what is done to documents. Settings are audited by auditing writes to Odoo's system parameter table, so each changed setting records its key and its old and new value; secrets never reach that table.
+Signing in to and out of Odoo is not recorded: the trail holds what is done to documents. A computer signing in to the laboratory folders, signing out and being revoked are recorded, as the creation and edits of its [laboratory device](laboratory-files.md#computers). Settings are audited by auditing writes to Odoo's system parameter table, so each changed setting records its key and its old and new value; secrets never reach that table.
 
 ### Protection
 
