@@ -1,10 +1,13 @@
 import hashlib
 import hmac
 import secrets
+from datetime import timedelta
+
+from psycopg2 import IntegrityError, errorcodes
 
 from odoo import api, fields, models
-from odoo.exceptions import UserError, ValidationError
-from odoo.tools import SQL
+from odoo.exceptions import ConcurrencyError, UserError, ValidationError
+from odoo.tools import SQL, mute_logger
 from odoo.tools.misc import hmac as database_hmac
 
 from odoo.addons.sol_laboratory.constants.audit import MASK_SECRET
@@ -17,15 +20,18 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
     EXPIRED,
     NEXT_STATUSES,
     OPEN,
+    OPEN_STATUSES,
     SAVING,
     SESSION_CONFLICT,
 )
+from odoo.addons.sol_laboratory.constants.laboratory_files import FILE_WRITE
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_EDITING_SESSION,
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FILE_VERSION,
     MODEL_PERMISSION_MIXIN,
+    MODEL_RES_CONFIG_SETTINGS,
     MODEL_RES_USERS,
 )
 
@@ -163,6 +169,68 @@ class LaboratoryEditingSession(models.Model):
             return session
         return self.browse()
 
+    @api.model
+    def _open_for(self, file):
+        """Open the file online for the user and return its session: the file's open session, which the user joins
+        even when the file has a newer version, or a new session on its current version when it has none or that one
+        was idle for the idle period. Two people opening the file at once make one session: the second one's creation
+        fails on the unique index, and Odoo runs its request again, when it joins the session."""
+        file._check_file_access(FILE_WRITE)
+        file._check_can_edit_online()
+        sessions = self.sudo()
+        session = sessions.search([("file_id", "=", file.id), ("status", "in", OPEN_STATUSES)], limit=1)
+        if session and not session._is_idle():
+            session._join(self.env.user)
+            return session.with_env(self.env)
+        session._expire()
+        document_key, token_hash = sessions._new_keys()
+        try:
+            with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
+                session = sessions.create(
+                    {
+                        "file_id": file.id,
+                        "base_version_id": file.sudo().current_version_id.id,
+                        "document_key": document_key,
+                        "callback_token": token_hash,
+                        "opened_by_id": self.env.uid,
+                    }
+                )
+        except IntegrityError as error:
+            if error.pgcode != errorcodes.UNIQUE_VIOLATION:
+                raise
+            # Committed by a transaction this one cannot see; ConcurrencyError is what Odoo's request retrying retries.
+            raise ConcurrencyError(
+                self.env._("Someone else opened %s online meanwhile; it is opened again.", file.sudo().path)
+            ) from error
+        return session.with_env(self.env)
+
+    def _join(self, user):
+        self.ensure_one()
+        self._touch()
+        self._audit("edit", self.env._("%s joined the session.", user.name))
+
+    def _touch(self):
+        """Record activity in the sessions, which keeps them from expiring."""
+        self.sudo().write({"last_activity_at": fields.Datetime.now()})
+
+    @api.model
+    def _idle_cutoff(self):
+        hours = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("laboratory_editing_idle_hours")
+        return fields.Datetime.now() - timedelta(hours=hours)
+
+    def _is_idle(self):
+        self.ensure_one()
+        return bool(self.last_activity_at and self.last_activity_at < self._idle_cutoff())
+
+    def _expire(self):
+        """Expire the sessions still open and idle: nobody joins them any more, and their save is still stored when
+        it arrives."""
+        for session in self.sudo():
+            session._lock()
+            if session.status in OPEN_STATUSES and session._is_idle():
+                session.status = EXPIRED
+                session.flush_recordset(["status"])
+
     def _lock(self):
         # Updating the row locks it, as a file's row is locked for a new version: a concurrent call for the session
         # waits, then fails with a serialization error and Odoo runs its request again, when it sees what this one did.
@@ -171,9 +239,7 @@ class LaboratoryEditingSession(models.Model):
         self.flush_recordset()
         self.env.cr.execute(
             SQL(
-                "UPDATE medilab_laboratory_editing_session SET last_activity_at = %s, write_date = %s, write_uid = %s"
-                " WHERE id = %s",
-                fields.Datetime.now(),
+                "UPDATE medilab_laboratory_editing_session SET write_date = %s, write_uid = %s WHERE id = %s",
                 fields.Datetime.now(),
                 self.env.uid,
                 self.id,

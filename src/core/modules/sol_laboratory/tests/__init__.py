@@ -48,6 +48,7 @@ from . import (
     test_laboratory_device_revocation,
     test_laboratory_device_sign_in,
     test_laboratory_editing_session_records,
+    test_laboratory_editing_sessions,
     test_laboratory_file_access,
     test_laboratory_file_back_office,
     test_laboratory_file_kinds,
