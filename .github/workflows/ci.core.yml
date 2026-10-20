@@ -91,6 +91,7 @@ jobs:
           sparse-checkout: |
             src/core
             .github/actions/odoo-lint
+            tools/dockerfiles
             tools/lint
             tools/scripts
             tools/taskfiles
@@ -118,10 +119,16 @@ jobs:
         if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         run: task test:typecheck
 
+      - name: Read the Odoo image
+        id: odoo
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        run: echo "image=$(sed -n 's/^ARG ODOO_IMAGE=//p' tools/dockerfiles/prod.dockerfile)" >> "$GITHUB_OUTPUT"
+
       - name: Odoo lint
         if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         uses: ./.github/actions/odoo-lint
         with:
+          image: ${{ steps.odoo.outputs.image }}
           addons-path: src/core/modules
 
       - name: Stop the run

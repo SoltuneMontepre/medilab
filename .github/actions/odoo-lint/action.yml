@@ -4,8 +4,7 @@ description: "Run pylint-odoo and core pylint against Odoo addons inside the Odo
 inputs:
   image:
     description: "Odoo image to lint inside. Must have the Odoo runtime importable."
-    required: false
-    default: "docker.io/library/odoo@sha256:cdd83e8359b3e8c357895d476396c05021fed9975bf420f353bab25fcaed1533"
+    required: true
   addons-path:
     description: "Host path containing the Odoo addons to lint (one directory per module)."
     required: false
