@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="support_list" name="Support requests">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1>Support requests</h1>
+                    <div>
+                        <a class="btn btn-secondary me-2" href="/orders">Orders</a>
+                        <a class="btn btn-primary" href="/support/new">New request</a>
+                    </div>
+                </div>
+                <p t-if="not requests">You have not asked for help yet.</p>
+                <table t-if="requests" class="table">
+                    <thead>
+                        <tr>
+                            <th>Request</th>
+                            <th>Subject</th>
+                            <th>Order</th>
+                            <th>Status</th>
+                            <th>Opened</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="statuses" t-value="dict(requests._fields['status']._description_selection(requests.env))" />
+                        <tr t-foreach="requests" t-as="support_request">
+                            <td><a t-att-href="'/support/%s' % support_request.id" t-out="support_request.code" /></td>
+                            <td t-out="support_request.subject" />
+                            <td>
+                                <a t-if="support_request.order_id" t-att-href="'/orders/%s' % support_request.order_id.id" t-out="support_request.order_id.name" />
+                            </td>
+                            <td t-out="statuses[support_request.status]" />
+                            <td t-out="support_request.create_date" t-options="{'widget': 'datetime'}" />
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <template id="support_new" name="New support request">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <p><a href="/support">Back to the support requests</a></p>
+                <h1>New support request</h1>
+                <p t-if="error" class="text-danger" t-out="error" />
+                <form action="/support/open" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <div class="mb-3">
+                        <label class="form-label" for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" class="form-control" required="required" t-att-value="subject" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="order_id">Order</label>
+                        <select id="order_id" name="order_id" class="form-select">
+                            <option value="">No order</option>
+                            <t t-foreach="orders" t-as="order">
+                                <option t-att-value="order.id" t-att-selected="order.id == order_id" t-out="order.name" />
+                            </t>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="body">Your question</label>
+                        <textarea id="body" name="body" class="form-control" rows="6" required="required" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="attachments">Files</label>
+                        <input type="file" id="attachments" name="attachments" class="form-control" multiple="multiple" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                    <a class="btn btn-secondary" href="/support">Cancel</a>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="support_page" name="Support request">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4">
+                <p><a href="/support">Back to the support requests</a></p>
+                <h1><t t-out="support_request.code" /> <t t-out="support_request.subject" /></h1>
+                <p>Status: <t t-out="dict(support_request._fields['status']._description_selection(support_request.env))[support_request.status]" /></p>
+                <p t-if="support_request.order_id">
+                    Order: <a t-att-href="'/orders/%s' % support_request.order_id.id" t-out="support_request.order_id.name" />
+                </p>
+                <p t-if="support_request.handled_by_id">Handled by: <t t-out="support_request.handled_by_id.name" /></p>
+                <div t-if="support_request.status == 'closed'" class="alert alert-secondary" role="alert">
+                    This request is closed. <a href="/support/new">Open a new request</a> if you need more help.
+                </div>
+                <h2>Conversation</h2>
+                <t t-call="portal.message_thread" hide_header="True" />
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ argocd_doppler_token_namespace }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: doppler-token
+  namespace: {{ argocd_doppler_token_namespace }}
+type: Opaque
+data:
+  dopplerToken: {{ argocd_doppler_token | b64encode }}

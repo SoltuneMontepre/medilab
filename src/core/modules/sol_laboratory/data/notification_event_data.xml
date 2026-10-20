@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="event_task_reminder" model="mail.message.subtype">
+        <field name="name">Task reminder</field>
+        <field name="description">A planned task is about to start</field>
+        <field name="code">task.reminder</field>
+        <field name="res_model">medilab.task</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_sample_insufficient" model="mail.message.subtype">
+        <field name="name">Sample insufficient</field>
+        <field name="description">A sample arrived insufficient and is on hold</field>
+        <field name="code">sample.insufficient</field>
+        <field name="res_model">medilab.sample</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_handover_record_signed" model="mail.message.subtype">
+        <field name="name">Handover record signed</field>
+        <field name="description">The customer signed a handover record</field>
+        <field name="code">handover_record.signed</field>
+        <field name="res_model">medilab.handover.record</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_test_result_rejected" model="mail.message.subtype">
+        <field name="name">Test result rejected</field>
+        <field name="description">A test result you entered was rejected</field>
+        <field name="code">test_result.rejected</field>
+        <field name="res_model">medilab.test.result</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_test_report_issued" model="mail.message.subtype">
+        <field name="name">Results released</field>
+        <field name="description">The test report of your request is issued and ready to download</field>
+        <field name="code">test_report.issued</field>
+        <field name="res_model">medilab.test.report</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_test_report_delivered" model="mail.message.subtype">
+        <field name="name">Test report sent</field>
+        <field name="description">A test report is emailed to its recipient</field>
+        <field name="code">test_report.delivered</field>
+        <field name="res_model">medilab.test.report</field>
+        <field name="internal" eval="False" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_change_request_approved" model="mail.message.subtype">
+        <field name="name">Change request approved</field>
+        <field name="description">A change request you raised was approved and its new version created</field>
+        <field name="code">change_request.approved</field>
+        <field name="res_model">medilab.change.request</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_change_request_rejected" model="mail.message.subtype">
+        <field name="name">Change request rejected</field>
+        <field name="description">A change request you raised was rejected</field>
+        <field name="code">change_request.rejected</field>
+        <field name="res_model">medilab.change.request</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_document_lock_released" model="mail.message.subtype">
+        <field name="name">Document free to edit</field>
+        <field name="description">A document you asked to be told about is no longer being edited</field>
+        <field name="code">document_lock.released</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_signing_certificate_alert" model="mail.message.subtype">
+        <field name="name">Signing certificate alert</field>
+        <field name="description">The laboratory's signing certificate expires soon, has expired or was revoked</field>
+        <field name="code">signing_certificate.alert</field>
+        <field name="res_model">medilab.signing.certificate</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <!-- Administrators are alerted out of the box; they choose other recipients afterwards. -->
+    <data noupdate="1">
+        <record id="event_recipient_signing_certificate_alert" model="medilab.notification.event.recipient">
+            <field name="event_id" ref="event_signing_certificate_alert" />
+            <field name="role_id" ref="role_administrator" />
+        </record>
+    </data>
+
+    <record id="mail_template_task_reminder" model="mail.template">
+        <field name="name">Task reminder</field>
+        <field name="model_id" ref="model_medilab_task" />
+        <field name="subject">{{ object.name }}</field>
+        <field name="body_html" type="html">
+            <p>Your task <t t-out="object.name"/> is about to start.</p>
+        </field>
+    </record>
+</odoo>

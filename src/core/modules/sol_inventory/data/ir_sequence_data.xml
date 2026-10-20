@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="sequence_stock_item" model="ir.sequence">
+        <field name="name">Stock item</field>
+        <field name="code">medilab.stock.item</field>
+        <field name="prefix">VT.</field>
+        <field name="padding">4</field>
+    </record>
+    <record id="sequence_supplier" model="ir.sequence">
+        <field name="name">Supplier</field>
+        <field name="code">medilab.supplier</field>
+        <field name="prefix">NCC.</field>
+        <field name="padding">4</field>
+    </record>
+    <record id="sequence_recipe" model="ir.sequence">
+        <field name="name">Recipe</field>
+        <field name="code">medilab.recipe</field>
+        <field name="prefix">CTPC.</field>
+        <field name="padding">4</field>
+    </record>
+</odoo>

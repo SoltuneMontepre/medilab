@@ -9,3 +9,8 @@ Step-by-step procedures for recurring tasks.
 - [Creating a pull request](creating-pr.md): open a pull request, wait for the pipelines and fix what SonarQube reports
 - [Syncing the database diagram](syncing-database-diagram.md): bring a module's Prisma diagram in line with the tables Odoo creates
 - [Reviewing a pull request](reviewing-pr.md): check a pull request against the conventions, business rules and database, and post the review
+- [Setting up](setting-up.md): install the modules and configure the company, languages, settings and code formats
+- [Provisioning a node](provisioning-node.md): give Ansible access to a machine from the VPS web console and Doppler, then check, inspect, preview and apply k3s and Argo CD with `cd-ansible`
+- [Moving a node](moving-node.md): replace a production node, such as the Azure witness, with another machine without stopping the system
+- [Odoo intelligence](odoo-intelligence.md): install and verify Odoo navigation across coding clients and isolated worktrees
+- [Reviewing task links](reviewing-task-links.md): after the upgrade that locks task links, review the tasks the audit trail cannot verify before calling production secure

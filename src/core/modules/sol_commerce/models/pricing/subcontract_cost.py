@@ -2,13 +2,17 @@ from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SUBCONTRACT_COST, MODEL_VND_MIXIN
-from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_PARAMETER_METHOD,
+    MODEL_PERMISSION_MIXIN,
+)
 
 
 # Chi Phí Thầu Phụ
 class SubcontractCost(models.Model):
     _name = MODEL_SUBCONTRACT_COST
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_VND_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_VND_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Subcontract Cost"
     _order = "parameter_method_id"
     _rec_name = "parameter_method_id"
@@ -17,7 +21,8 @@ class SubcontractCost(models.Model):
     parameter_method_id = fields.Many2one(
         MODEL_PARAMETER_METHOD,
         required=True,
-        ondelete="cascade",
+        ondelete="restrict",
+        index=True,
         domain=[("subcontractor_id", "!=", False)],
         string="Way of Testing",
     )

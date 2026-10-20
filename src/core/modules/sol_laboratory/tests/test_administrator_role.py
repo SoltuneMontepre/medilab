@@ -20,6 +20,9 @@ class TestAdministratorRole(TransactionCase):
             self.env, login="administrator", groups="base.group_user,sol_laboratory.group_role_administrator"
         )
 
+        parameters = type(self.env[MODEL_TEST_PARAMETER])
+        # Test parameters are never signed, so no module ships the permission this test adds.
+        self.patch(parameters, "_permission_actions", (*parameters._permission_actions, "sign"))
         permission = self.env[MODEL_PERMISSION].create(
             {"name": "Sign parameters", "document_model": MODEL_TEST_PARAMETER, "action": "sign"}
         )
@@ -56,3 +59,9 @@ class TestAdministratorRole(TransactionCase):
             shipped = self.env[MODEL_PERMISSION].search([("document_model", "=", model_name), ("scope", "=", "all")])
             with self.subTest(model=model_name):
                 self.assertFalse(actions - set(shipped.mapped("action")))
+
+    def test_no_permission_names_an_action_its_document_type_does_not_have(self):
+        # Such as deleting ways of testing, which are archived, never deleted.
+        for permission in self.env[MODEL_PERMISSION].search([]):
+            with self.subTest(permission=permission.code):
+                self.assertIn(permission.action, self.env[permission.document_model]._supported_permission_actions())

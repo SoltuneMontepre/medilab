@@ -4,17 +4,18 @@ from odoo.tools import format_list
 
 from odoo.addons.sol_commerce.constants.models import (
     MODEL_PARAMETER_PRICE,
+    MODEL_PRODUCT_TEMPLATE,
     MODEL_SERVICE_PACKAGE_LINE,
     MODEL_TAX,
     MODEL_VND_MIXIN,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN, MODEL_TEST_PARAMETER
 
 
 # Giá Chỉ Tiêu
 class ParameterPrice(models.Model):
     _name = MODEL_PARAMETER_PRICE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_VND_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_VND_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Parameter Price"
     _order = "parameter_id"
     _rec_name = "parameter_id"
@@ -56,3 +57,26 @@ class ParameterPrice(models.Model):
                 ),
             }
         }
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        prices = super().create(vals_list)
+        prices._sync_catalog_product()
+        return prices
+
+    def write(self, vals):
+        if vals.get("active") is False:
+            products = self._catalog_products()
+            products._refuse_if_on_open_orders()
+            products.write({"sale_ok": False})
+        result = super().write(vals)
+        self._sync_catalog_product()
+        return result
+
+    def _catalog_products(self):
+        return self.env[MODEL_PRODUCT_TEMPLATE].sudo().search([("parameter_id", "in", self.parameter_id.ids)])
+
+    def _sync_catalog_product(self):
+        products = self.env[MODEL_PRODUCT_TEMPLATE]
+        for price in self:
+            products._sync_parameter_product(price)

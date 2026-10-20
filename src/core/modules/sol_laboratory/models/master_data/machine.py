@@ -1,33 +1,40 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from odoo import api, fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
+    MODEL_MACHINE_BOOKING,
     MODEL_MACHINE_SERVICE,
     MODEL_PARAMETER_METHOD_MACHINE,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_SAMPLE,
 )
 
 
 # Máy
 class Machine(models.Model):
     _name = MODEL_MACHINE
-    _inherit = [MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Machine"
     _order = "code"
     _rec_names_search = ("name", "code", "serial_number")
+    _permission_actions = ("create", "edit", "archive", "delete")
+    _audit_children = ("service_ids", "parameter_method_ids")
 
     # Unique code of the machine.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Name of the machine, such as "HPLC 1".
-    name = fields.Char(required=True)
+    name = fields.Char(required=True, index="trigram")
     # Model of the machine, as named by the manufacturer.
     model = fields.Char()
     # Company that made the machine.
     manufacturer = fields.Char()
     # Serial number given by the manufacturer.
-    serial_number = fields.Char()
+    serial_number = fields.Char(index="trigram")
     # Where the machine is, such as "Room 203, bench 2".
     location = fields.Char()
     # Whether the machine is in use, under repair or retired.
@@ -46,6 +53,8 @@ class Machine(models.Model):
     service_ids = fields.One2many(MODEL_MACHINE_SERVICE, "machine_id", string="Service History")
     # Parameter and method pairs the machine can run, with the run time of each.
     parameter_method_ids = fields.One2many(MODEL_PARAMETER_METHOD_MACHINE, "machine_id", string="Ways of Testing")
+    # Bookings of the machine.
+    booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "machine_id", string="Bookings")
     # False when the machine is archived.
     active = fields.Boolean(default=True)
 
@@ -65,3 +74,21 @@ class Machine(models.Model):
                 if maintenance and machine.maintenance_interval_days
                 else False
             )
+
+    def write(self, vals):
+        result = super().write(vals)
+        if {"status", "active"} & set(vals):
+            self.env[MODEL_MACHINE_BOOKING]._requeue(self)
+        return result
+
+    def _usable_until(self):
+        """When the machine stops being fit to use, as naive UTC: at the end of its calibration due date.
+
+        A machine under repair, retired or archived is not fit to use at all.
+        """
+        self.ensure_one()
+        if self.status != "in_use" or not self.active:
+            return datetime.min
+        if not self.next_calibration_date:
+            return datetime.max
+        return self.env[MODEL_SAMPLE]._company_datetime(self.next_calibration_date + timedelta(days=1), 0)

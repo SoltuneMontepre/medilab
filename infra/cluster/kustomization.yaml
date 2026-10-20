@@ -1,0 +1,13 @@
+# The medilab root application: one Argo CD Application per component, synced in sync-wave order.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - applications/cert-manager.yaml
+  - applications/external-secrets.yaml
+  - applications/csi-s3.yaml
+  - applications/secret-store.yaml
+  - applications/cloudnative-pg.yaml
+  - applications/plugin-barman-cloud.yaml
+  - applications/database.yaml
+  - applications/cloudflared.yaml
+  - applications/odoo.yaml

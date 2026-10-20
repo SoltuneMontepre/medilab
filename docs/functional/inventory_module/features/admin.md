@@ -30,8 +30,10 @@ Follows [Stores](../overview.md#stores) and [Costs](../overview.md#costs).
 | ------------ | ------------------------------------------------------------------------------------------------------------------- |
 | Central store | Exactly one store has no store above it: the central store.                                                       |
 | Holder       | A department store is held by a department, a team store by a team of the department whose store is above it.       |
-| Manager      | Each store names the person who manages it. The manager of the central store holds the storekeeper role.            |
-| Cost centre  | Each department and each team that holds a store has a cost centre code, unique across the laboratory.              |
+| Manager      | Each store names the person who manages it; until it does, it receives no requisitions. The manager of the central store holds the storekeeper role. |
+| Setup        | Only administrators mark a location as a store and set its holder and manager. The storekeeper maintains the locations inside the stores. |
+| Deleting     | A location with locations inside it cannot be deleted; the message lists them, so deleting never removes the stores and locations under it. |
+| Cost centre  | Each department and each team that holds a store has a cost centre code, unique across the laboratory. The Stores screen marks a store whose department or team has no cost centre yet, without refusing it, so stores and cost centres can be set up in any order. |
 
 Acceptance criteria:
 
@@ -39,6 +41,7 @@ Acceptance criteria:
 - A team store whose team does not belong to the department above it is refused.
 - A store without a manager cannot receive requisitions.
 - Two cost centres with the same code are refused.
+- A location with locations inside it cannot be deleted; the message lists them.
 
 ### 2. Recipes (US-AD23)
 
@@ -46,13 +49,18 @@ Follows [Containers](../overview.md#containers).
 
 | Rule        | Description                                                                                         |
 | ----------- | --------------------------------------------------------------------------------------------------- |
-| Content     | A recipe names the solution it makes, the quantity one preparation gives, each chemical item with its amount, and the shelf life in days. |
-| Ingredients | A recipe's ingredients are items tracked by container, or other recipes' solutions.                 |
+| Content     | A recipe names the solution it makes, the quantity one preparation gives, each chemical item with its amount, and the shelf life in days. Each prepared solution is made by at most one recipe. |
+| Shelf life  | A recipe's shelf life is at least one day; a solution prepared fresh each day has one day.          |
+| Ingredients | A recipe's ingredients are items tracked by container, or prepared solutions, whether or not a recipe makes them yet. A recipe cannot use its own solution, or a solution prepared from it through other recipes. |
+| Items       | Archived items cannot be chosen as the solution or as ingredients of an active recipe. An item that an active recipe makes or uses cannot be archived, and stays tracked by container. |
+| Archiving   | Follows [Archiving and deleting](../../../business/archiving-and-deleting.md). A recipe is deleted with its ingredients. |
 
 Acceptance criteria:
 
 - A recipe without a shelf life or without an ingredient cannot be saved.
-- A recipe cannot use its own solution as an ingredient.
+- A recipe cannot use its own solution as an ingredient, nor a solution prepared from it through other recipes.
+- An item that an active recipe makes or uses cannot be archived; the message lists the recipes.
+- An archived recipe cannot be restored while its solution or one of its ingredients is archived.
 
 ### 3. Budgets and settings (US-AD24 to US-AD25)
 

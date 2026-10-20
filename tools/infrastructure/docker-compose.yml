@@ -3,7 +3,10 @@ name: medilab
 services:
   odoo:
     container_name: medilab-odoo
-    image: ${MEDILAB_ODOO_IMAGE:-docker.io/library/odoo:20.0}
+    image: ${MEDILAB_ODOO_IMAGE:-medilab-odoo:local}
+    build:
+      context: ../..
+      dockerfile: tools/dockerfiles/prod.dockerfile
     restart: unless-stopped
     environment:
       HOST: postgres
@@ -19,6 +22,7 @@ services:
       - medilab-app:/var/lib/odoo
       - ../../src/core/config:/etc/odoo:z
       - ../../src/core/modules:/mnt/extra-addons:z
+      - ../scripts:/opt/medilab/scripts:ro,z
 
   postgres:
     container_name: medilab-postgres
@@ -40,6 +44,7 @@ services:
       retries: 15
     volumes:
       - medilab-db:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:z
     ports:
       - "15432:5432"
 

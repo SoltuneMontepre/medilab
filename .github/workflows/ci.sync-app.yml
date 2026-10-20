@@ -1,0 +1,274 @@
+name: ci-sync-app
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medilab-ci-sync-app-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  SYNC_APP_DIR: src/applications/medilab-sync
+
+jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      relevant: ${{ steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "src/applications/medilab-sync/**"
+              - ".github/workflows/ci.sync-app.yml"
+
+  lint:
+    needs: changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: write
+    defaults:
+      run:
+        working-directory: ${{ env.SYNC_APP_DIR }}
+    steps:
+      - name: Checkout
+        if: needs.changes.outputs.relevant == 'true'
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        if: needs.changes.outputs.relevant == 'true'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust format
+        if: needs.changes.outputs.relevant == 'true'
+        run: cargo fmt --check --manifest-path src-tauri/Cargo.toml
+
+      - name: Set up Bun
+        if: needs.changes.outputs.relevant == 'true'
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install frontend dependencies
+        if: needs.changes.outputs.relevant == 'true'
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Frontend type check
+        if: needs.changes.outputs.relevant == 'true'
+        run: bunx tsc
+
+      - name: Cache Rust build
+        if: needs.changes.outputs.relevant == 'true'
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
+          key: lint
+
+      - name: Install Linux build dependencies
+        if: needs.changes.outputs.relevant == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
+      - name: Stand in for the built frontend
+        if: needs.changes.outputs.relevant == 'true'
+        run: mkdir -p dist && touch dist/index.html
+
+      - name: Clippy
+        if: needs.changes.outputs.relevant == 'true'
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings
+
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
+  compile:
+    name: compile (${{ matrix.label }})
+    needs: changes
+    if: needs.changes.outputs.relevant == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: write
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - label: Linux
+            os: ubuntu-24.04
+          - label: Windows
+            os: windows-2025
+          - label: macOS
+            os: macos-15
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.SYNC_APP_DIR }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
+          key: compile-${{ matrix.label }}
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Build the frontend
+        run: bun run build
+
+      - name: Build the app
+        run: cargo build --manifest-path src-tauri/Cargo.toml
+
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
+  build:
+    needs: [changes, compile]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check the change detection
+        env:
+          RESULT: ${{ needs.changes.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::The change detection finished with result $RESULT."
+            exit 1
+          fi
+
+      - name: Check the platform builds
+        if: needs.changes.outputs.relevant == 'true'
+        env:
+          RESULT: ${{ needs.compile.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::The platform builds finished with result $RESULT."
+            exit 1
+          fi
+
+  test-runner:
+    name: test (${{ matrix.part }})
+    needs: changes
+    if: needs.changes.outputs.relevant == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: write
+    strategy:
+      fail-fast: true
+      matrix:
+        part: [frontend, backend]
+    defaults:
+      run:
+        working-directory: ${{ env.SYNC_APP_DIR }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Bun
+        if: matrix.part == 'frontend'
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install frontend dependencies
+        if: matrix.part == 'frontend'
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Frontend tests
+        if: matrix.part == 'frontend'
+        run: bun test
+
+      - name: Set up Rust
+        if: matrix.part == 'backend'
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        if: matrix.part == 'backend'
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
+          key: test
+
+      - name: Install Linux build dependencies
+        if: matrix.part == 'backend'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
+      - name: Stand in for the built frontend
+        if: matrix.part == 'backend'
+        run: mkdir -p dist && touch dist/index.html
+
+      - name: Rust tests
+        if: matrix.part == 'backend'
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
+  test:
+    needs: [changes, test-runner]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check the change detection
+        env:
+          RESULT: ${{ needs.changes.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::The change detection finished with result $RESULT."
+            exit 1
+          fi
+
+      - name: Check the tests
+        if: needs.changes.outputs.relevant == 'true'
+        env:
+          RESULT: ${{ needs.test-runner.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::The tests finished with result $RESULT."
+            exit 1
+          fi

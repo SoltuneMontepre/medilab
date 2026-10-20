@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_laboratory" inherit_id="account.report_invoice_document">
+        <xpath expr="//t[@t-set='layout_document_title']" position="after">
+            <div t-if="o.invoice_kind" class="medilab_laboratory_invoice" name="medilab_laboratory_invoice">
+                <div class="medilab_laboratory_header">
+                    <strong t-field="o.company_id.name" />
+                    <div t-field="o.company_id.partner_id" t-options='{"widget": "contact", "fields": ["address", "vat", "phone", "email"], "no_marker": true}' />
+                </div>
+                <div class="medilab_invoice_identity">
+                    <span class="medilab_invoice_number" t-field="o.name" />
+                    <span class="medilab_invoice_date" t-field="o.invoice_date" />
+                    <span class="medilab_invoice_customer" t-field="o.partner_id.name" />
+                </div>
+                <div class="medilab_invoice_kind" name="medilab_invoice_kind">
+                    <span t-field="o.invoice_kind" />
+                </div>
+                <div class="medilab_invoice_totals">
+                    <div class="medilab_subtotal">
+                        <span>Subtotal</span>
+                        <span t-field="o.amount_untaxed" />
+                    </div>
+                    <t t-foreach="o._report_tax_amounts()" t-as="tax_amount">
+                        <div class="medilab_tax_rate">
+                            <span t-out="tax_amount[0]" />
+                            <span t-out="tax_amount[1]" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                        </div>
+                    </t>
+                    <div class="medilab_grand_total">
+                        <span>Total</span>
+                        <span t-field="o.amount_total" />
+                    </div>
+                    <div class="medilab_paid_amount">
+                        <span>Paid</span>
+                        <span t-out="o._report_paid_amount()" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                    </div>
+                    <div t-if="o.invoice_kind in ('advance', 'final')" class="medilab_amount_owed">
+                        <strong>Amount owed</strong>
+                        <span t-field="o.amount_owed" />
+                    </div>
+                </div>
+                <div class="medilab_payment_details">
+                    <strong>Payment details</strong>
+                    <t t-foreach="o.company_id.partner_id.bank_ids" t-as="bank">
+                        <div class="medilab_payment_account">
+                            <span t-field="bank.bank_id.name" />
+                            <span t-field="bank.acc_number" />
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//t[@t-set='address']/*[1]" position="before">
+            <img
+                t-if="o.partner_id.commercial_partner_id.image_128"
+                t-att-src="image_data_uri(o.partner_id.commercial_partner_id.image_128)"
+                class="mb-2"
+                style="max-height: 60px"
+                alt="Logo"
+            />
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_test_parameter_lead" model="medilab.test.parameter">
+        <field name="name">Lead (Pb)</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_heavy_metals')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_heavy_metals" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('demo_sample_type_bottled_water'), ref('demo_sample_type_cabbage'), ref('demo_sample_type_surface_water')])]"
+        />
+    </record>
+    <record id="demo_test_parameter_coliforms" model="medilab.test.parameter">
+        <field name="name">Coliforms</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_microbiology')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_microbiology" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('demo_sample_type_bottled_water'), ref('demo_sample_type_surface_water')])]"
+        />
+    </record>
+    <record id="demo_test_parameter_e_coli" model="medilab.test.parameter">
+        <field name="name">E. coli</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_microbiology')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_microbiology" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('demo_sample_type_bottled_water'), ref('demo_sample_type_surface_water')])]"
+        />
+    </record>
+    <record id="demo_test_parameter_ph" model="medilab.test.parameter">
+        <field name="name">pH</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_physicochemical')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_physicochemical" />
+        <field
+            name="sample_type_ids"
+            eval="[Command.set([ref('demo_sample_type_bottled_water'), ref('demo_sample_type_surface_water')])]"
+        />
+    </record>
+    <record id="demo_test_parameter_chlorpyrifos" model="medilab.test.parameter">
+        <field name="name">Chlorpyrifos</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_organophosphates')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_organophosphates" />
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_cabbage')])]" />
+    </record>
+    <!-- No longer offered: the demo archives it. -->
+    <record id="demo_test_parameter_cadmium" model="medilab.test.parameter">
+        <field name="name">Cadmium (Cd)</field>
+        <field name="group_ids" eval="[Command.set([ref('demo_parameter_group_heavy_metals')])]" />
+        <field name="main_group_id" ref="demo_parameter_group_heavy_metals" />
+    </record>
+</odoo>

@@ -3,28 +3,37 @@ from zoneinfo import ZoneInfo
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.fields import Domain
+from odoo.fields import Command, Domain
 
+from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_LOCK_MIXIN,
+    MODEL_MACHINE_BOOKING,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
+    MODEL_SAMPLE_TEST,
     MODEL_TASK,
     MODEL_TASK_TYPE,
+    MODEL_TESTING_METHOD_STEP,
 )
-from odoo.addons.sol_laboratory.constants.tasks import FINAL_STATUSES, MANUAL_TRIGGER
+from odoo.addons.sol_laboratory.constants.tasks import FINAL_STATUSES, MANUAL_TRIGGER, TESTING_ACTION
 
 TASK_ACTION_CONTEXT = "medilab_task_action"
 OPEN_STATUSES = ("assigned", "in_progress")
 NEXT_UP_LIMIT = 6
 NOT_IN = "not in"
 CLAIMABLE_LIMIT = 3
+# Fields that say what a task is and which document it opens; only the system sets them.
+DOCUMENT_LINK_FIELDS = {"type_id", "document_model", "document_id", "action"}
+LINKED_BY_SYSTEM = "linked_by_system"
 
 
 # Nhiệm Vụ
 class Task(models.Model):
     _name = MODEL_TASK
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Task"
     _order = "deadline, id"
     _permission_actions = ("read", "create", "edit", "delete")
@@ -41,8 +50,11 @@ class Task(models.Model):
     document_id = fields.Many2oneReference(model_field="document_model", string="Document")
     # Action the task opens on the document, such as enter_result or sign.
     action = fields.Char()
+    # True when the system created the task with its type and document and nobody changed them since; only such tasks
+    # act on their document with full rights.
+    linked_by_system = fields.Boolean(readonly=True, copy=False)
     # Department whose queue holds the task until someone is assigned.
-    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict")
+    department_id = fields.Many2one(MODEL_DEPARTMENT, ondelete="restrict", domain=DEPARTMENT_DOMAIN)
     # Person who does the task; empty while it waits in a queue.
     assignee_id = fields.Many2one(MODEL_PERSON, string="Assignee", ondelete="restrict")
     # Person who assigned the task; the assignee themselves when they claimed it.
@@ -70,6 +82,12 @@ class Task(models.Model):
     )
     # When the task was done.
     done_at = fields.Datetime(readonly=True)
+    # Machine bookings made for the task.
+    booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "task_id", string="Bookings")
+    # Steps of the testing method of a testing task's sample test; empty for any other task.
+    method_step_ids = fields.Many2many(
+        MODEL_TESTING_METHOD_STEP, compute="_compute_method_step_ids", string="Method Steps"
+    )
     # True when the system closes the task once its work is done, rather than the assignee.
     closed_by_system = fields.Boolean(compute="_compute_closed_by_system")
     # True when the current user is the assignee.
@@ -84,6 +102,33 @@ class Task(models.Model):
         "CHECK(planned_end IS NULL OR planned_start IS NULL OR planned_end >= planned_start)",
         "A task cannot end before it starts.",
     )
+
+    @api.depends("document_model", "document_id", "action", "type_id", "linked_by_system")
+    def _compute_method_step_ids(self):
+        # A person reads the tasks assigned to them or queued for their department without reading the sample
+        # test, so only the hop to its method runs as superuser; the steps are master data every internal user
+        # reads, and nothing else of the test is returned.
+        testing = self.filtered_domain(self._testing_domain())
+        tests = self.env[MODEL_SAMPLE_TEST].sudo().browse(testing.mapped("document_id")).exists()
+        steps_by_test = {test.id: test.parameter_method_id.method_id.step_ids.ids for test in tests}
+        steps = self.env[MODEL_TESTING_METHOD_STEP]
+        for task in self:
+            task.method_step_ids = steps.browse(steps_by_test.get(task.document_id, []) if task in testing else [])
+
+    @api.model
+    def _testing_domain(self):
+        """Testing tasks the system opened on sample tests: only these reach their test as superuser. A task made by
+        hand never counts, whatever document it names, nor does one whose type or document changed after it was
+        created or that predates linked_by_system and was not verified."""
+        return (
+            Domain("document_model", "=", MODEL_SAMPLE_TEST)
+            & Domain("action", "=", TESTING_ACTION)
+            & Domain("document_id", "!=", False)
+            & Domain("type_id.trigger", "!=", MANUAL_TRIGGER)
+            & Domain("type_id.document_model", "=", MODEL_SAMPLE_TEST)
+            & Domain("type_id.action", "=", TESTING_ACTION)
+            & Domain(LINKED_BY_SYSTEM, "=", True)
+        )
 
     @api.depends("type_id.trigger")
     def _compute_closed_by_system(self):
@@ -137,6 +182,8 @@ class Task(models.Model):
             task_type = task_types.browse(vals.get("type_id"))
             if not self.env.su:
                 self._check_created_by_hand(task_type, vals)
+            else:
+                vals.setdefault(LINKED_BY_SYSTEM, True)
             vals.setdefault("document_model", task_type.document_model)
             vals.setdefault("action", task_type.action)
             if not vals.get("deadline") and task_type.deadline_hours:
@@ -145,18 +192,45 @@ class Task(models.Model):
                 vals.setdefault("status", "assigned")
                 if not self.env.su:
                     vals.setdefault("assigned_by_id", person.id)
-        return super().create(vals_list)
+        tasks = super().create(vals_list)
+        tasks._sync_calendar_event()
+        return tasks
 
     def write(self, vals):
+        if not self.env.su and (DOCUMENT_LINK_FIELDS | {LINKED_BY_SYSTEM}) & set(vals):
+            raise UserError(self.env._("The type of a task and the document it opens cannot change."))
+        if DOCUMENT_LINK_FIELDS & set(vals):
+            # A task whose type or document changes is no longer the one the system linked, whatever the call says;
+            # only a separate confirmation trusts it again.
+            vals = {**vals, LINKED_BY_SYSTEM: False}
         if {"assignee_id", "department_id"} & set(vals):
             self._check_reassign(vals)
-        return super().write(vals)
+        result = super().write(vals)
+        if "assignee_id" in vals:
+            self.env[MODEL_SAMPLE_TEST]._follow_assignment(self)
+            self.env[MODEL_MACHINE_BOOKING]._follow_assignment(self)
+        if not self.env.context.get("medilab_skip_calendar_sync") and {
+            "planned_start",
+            "planned_end",
+            "assignee_id",
+            "name",
+            "status",
+        } & set(vals):
+            self._sync_calendar_event()
+        return result
 
     def _check_created_by_hand(self, task_type, vals):
         if task_type.trigger != MANUAL_TRIGGER:
             raise UserError(self.env._("Tasks of %s are created by the system.", task_type.name))
         if not vals.get("assignee_id") or not vals.get("deadline"):
             raise UserError(self.env._("A task created by hand needs an assignee and a deadline."))
+        # Only the system links a document, so a task never opens a document its creator could not.
+        if (
+            vals.get("document_id")
+            or vals.get(LINKED_BY_SYSTEM)
+            or any(vals.get(name) not in (None, False, task_type[name]) for name in ("document_model", "action"))
+        ):
+            raise UserError(self.env._("A task created by hand opens no document."))
         assignee = self.env[MODEL_PERSON].browse(vals["assignee_id"]).sudo()
         if vals.get("department_id") and assignee.department_id.id != vals["department_id"]:
             raise UserError(self.env._("%s is not in the task's department.", assignee.name))
@@ -211,6 +285,49 @@ class Task(models.Model):
             if task.status in FINAL_STATUSES:
                 raise UserError(self.env._("%s is already finished.", task.name))
         self.write({"status": "cancelled"})
+
+    def _sync_calendar_event(self):
+        """Keep one calendar event on a planned task. The event has no alarm, so Odoo does not also remind."""
+        if self.env.context.get("medilab_skip_calendar_sync"):
+            return
+        events = self.env["calendar.event"].sudo()
+        for task in self:
+            event = events.search([("medilab_task_id", "=", task.id)], limit=1)
+            user = task.assignee_id.sudo().user_id
+            # A testing task planned by its bookings shows on the calendar through the bookings' events.
+            planned_by_bookings = task.sudo().booking_ids.calendar_event_id
+            if task.status in FINAL_STATUSES or not task.planned_start or not user or planned_by_bookings:
+                if event:
+                    event.with_context(medilab_skip_calendar_sync=True).unlink()
+                continue
+            stop = task.planned_end or task.planned_start + timedelta(hours=1)
+            values = {
+                "name": task.name,
+                "start": task.planned_start,
+                "stop": stop,
+                "user_id": user.id,
+                "partner_ids": [Command.set([user.partner_id.id])],
+                "alarm_ids": [Command.clear()],
+            }
+            if event:
+                event.with_context(medilab_skip_calendar_sync=True).write(values)
+            else:
+                events.with_context(medilab_skip_calendar_sync=True).create({**values, "medilab_task_id": task.id})
+
+    def action_assign_sample(self):
+        """Open the assign wizard on every unfinished testing task of the task's sample in its department."""
+        self.ensure_one()
+        testing = self._testing_domain()
+        sample = self.env[MODEL_SAMPLE_TEST].sudo().browse(self.filtered_domain(testing).document_id).sample_id
+        tasks = self.search(
+            testing
+            & Domain("document_id", "in", sample.test_ids.ids)
+            & Domain("department_id", "=", self.department_id.id)
+            & Domain("status", NOT_IN, FINAL_STATUSES)
+        )
+        action = self.env["ir.actions.actions"]._for_xml_id("sol_laboratory.action_medilab_task_reassign")
+        action["context"] = {"active_ids": (tasks or self).ids}
+        return action
 
     def action_open_document(self):
         self.ensure_one()
@@ -270,6 +387,7 @@ class Task(models.Model):
             & Domain("document_id", "in", document.ids)
             & Domain("status", NOT_IN, FINAL_STATUSES)
             & Domain("type_id.trigger", "!=", MANUAL_TRIGGER)
+            & Domain(LINKED_BY_SYSTEM, "=", True)
         )
         if action:
             domain &= Domain("action", "=", action)

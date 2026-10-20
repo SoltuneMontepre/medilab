@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_unit_category_liquid_concentration" model="medilab.unit.category">
+        <field name="name">Mass concentration in liquid</field>
+    </record>
+    <record id="demo_unit_category_mass_fraction" model="medilab.unit.category">
+        <field name="name">Mass fraction</field>
+    </record>
+    <record id="demo_unit_category_count_per_mass" model="medilab.unit.category">
+        <field name="name">Microbial count per mass</field>
+    </record>
+    <record id="demo_unit_category_count_per_volume" model="medilab.unit.category">
+        <field name="name">Microbial count per volume</field>
+    </record>
+    <record id="demo_unit_category_acidity" model="medilab.unit.category">
+        <field name="name">Acidity</field>
+    </record>
+    <record id="demo_unit_category_volume" model="medilab.unit.category">
+        <field name="name">Volume</field>
+    </record>
+    <record id="demo_unit_category_mass" model="medilab.unit.category">
+        <field name="name">Mass</field>
+    </record>
+</odoo>

@@ -43,10 +43,12 @@
       "type": "stdio",
       "command": "uvx",
       "args": [
+        "--python",
+        "3.13",
         "--with",
         "mcp<2",
-        "postgres-mcp",
-        "--access-mode=unrestricted",
+        "postgres-mcp==0.3.0",
+        "--access-mode=restricted",
         "postgresql://root:root@localhost:15432/medilab"
       ]
     },
@@ -60,20 +62,33 @@
         "--config",
         "dev",
         "--",
-        "sh",
-        "-c",
-        "CONTEXT7_API_KEY=$CONTEXT7_TOKEN exec npx -y @upstash/context7-mcp"
+        "node",
+        "-e",
+        "process.env.CONTEXT7_API_KEY = process.env.CONTEXT7_TOKEN; require('child_process').spawn('npx -y @upstash/context7-mcp', { stdio: 'inherit', shell: true }).on('exit', process.exit)"
       ]
     },
     "serena": {
       "type": "stdio",
-      "command": "serena",
+      "command": "uv",
       "args": [
-        "start-mcp-server",
-        "--context",
-        "claude-code",
-        "--project",
-        "."
+        "run",
+        "--no-project",
+        "python",
+        "-c",
+        "import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')",
+        "serena-claude-code"
+      ]
+    },
+    "odoo": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--no-project",
+        "python",
+        "-c",
+        "import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')",
+        "mcp"
       ]
     }
   }

@@ -15,4 +15,18 @@ module "github_actions" {
     DOPPLER_TOKEN = module.secrets.doppler_token
     TF_API_TOKEN  = module.secrets.tf_api_token
   }
+
+  environments = {
+    ansible = {
+      branch = "main"
+    }
+    ansible-apply = {
+      branch    = "main"
+      reviewers = var.ansible_apply_reviewers
+    }
+  }
+
+  environment_secrets = {
+    DOPPLER_INFRA_TOKEN = module.secrets.doppler_infra_token
+  }
 }

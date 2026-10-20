@@ -1,0 +1,15 @@
+# cd-core releases an image by committing its tag to newTag.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: medilab
+resources:
+  - config.yaml
+  - filestore.yaml
+  - pre-sync-backup.yaml
+  - upgrade-job.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress-route.yaml
+images:
+  - name: ghcr.io/soltunemontepre/medilab
+    newTag: sha-8e6924723d1121f7e90a11c5074220bac4e23a62

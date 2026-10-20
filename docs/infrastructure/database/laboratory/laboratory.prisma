@@ -1,4 +1,4 @@
-// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, audit, locks, notifications and scheduled jobs. Tables of the Odoo apps the module builds on (hr, resource, calendar, mail and base) appear with the columns the module uses and the columns it adds, under their Odoo table names. System parameters are Odoo settings stored in ir.config_parameter. Odoo owns the schema; this file only draws it.
+// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, audit, locks, notifications, scheduled jobs and laboratory files. Tables of the Odoo apps the module builds on (hr, resource, calendar, mail and base) appear with the columns the module uses and the columns it adds, under their Odoo table names. System parameters are Odoo settings stored in ir.config_parameter. Odoo owns the schema; this file only draws it.
 
 datasource db {
   provider = "postgresql"
@@ -34,7 +34,7 @@ model TestParameter {
   @@map("medilab_test_parameter")
 }
 
-/// A kind of analysis that organises the catalog, such as Pesticides with the sub-group Organophosphates. Sets no price.
+/// A kind of analysis that organises the catalog, such as Pesticides with the sub-group Organophosphates. Sets no price. Trigram indexes on code and name serve search.
 model ParameterGroup {
   /// Row identifier.
   id          Int                  @id @default(autoincrement())
@@ -62,7 +62,7 @@ model ParameterGroup {
   @@map("medilab_parameter_group")
 }
 
-/// The kind of material a sample is, such as Vegetables with the child Cabbage; filters the catalog.
+/// The kind of material a sample is, such as Vegetables with the child Cabbage; filters the catalog. Trigram indexes on code and name serve search.
 model SampleType {
   /// Row identifier.
   id          Int                       @id @default(autoincrement())
@@ -107,10 +107,11 @@ model SampleType {
 
   @@index([parent_id])
   @@index([parent_path])
+  @@index([minimum_quantity_unit_id])
   @@map("medilab_sample_type")
 }
 
-/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter.
+/// A regulation the results are compared against, such as QCVN 6-1:2010/BYT, with a limit per parameter. Trigram indexes on code and name serve search.
 model Regulation {
   /// Row identifier.
   id                Int                    @id @default(autoincrement())
@@ -133,7 +134,8 @@ model Regulation {
 }
 
 /// The limit a regulation sets for one parameter. Unique on (regulation_id, parameter_id).
-/// At least one of min_value, max_value and limit_text is set; unit_id is set when min_value or max_value is.
+/// A minimum or maximum may be empty or any number, including 0. min_set and max_set say which are set.
+/// At least one of those and limit_text is set; unit_id is set when a minimum or maximum is set.
 model RegulationLimit {
   /// Row identifier.
   id            Int             @id @default(autoincrement())
@@ -143,9 +145,13 @@ model RegulationLimit {
   parameter_id  Int
   /// The unit of min_value and max_value; empty for a text-only limit.
   unit_id       Int?
-  /// Lowest allowed value; 0 when there is no lower limit, since Odoo stores an empty number as 0.
+  /// True when a minimum is set. The minimum may be 0.
+  min_set       Boolean         @default(false)
+  /// Lowest allowed value, including 0. Meaningful when min_set is set.
   min_value     Decimal? @db.Decimal
-  /// Highest allowed value; 0 when there is no upper limit, since Odoo stores an empty number as 0.
+  /// True when a maximum is set. The maximum may be 0.
+  max_set       Boolean         @default(false)
+  /// Highest allowed value, including 0. Meaningful when max_set is set.
   max_value     Decimal? @db.Decimal
   /// Decimals the limit shows on the report, such as 2 for 0.50.
   decimals      Int?
@@ -160,6 +166,7 @@ model RegulationLimit {
 
   @@unique([regulation_id, parameter_id])
   @@index([parameter_id])
+  @@index([unit_id])
   @@map("medilab_regulation_limit")
 }
 
@@ -179,7 +186,7 @@ model RegulationSampleType {
   @@map("medilab_regulation_sample_type_rel")
 }
 
-/// The procedure the laboratory follows to test a parameter.
+/// The procedure the laboratory follows to test a parameter. Trigram indexes on code and name serve search.
 model TestingMethod {
   /// Row identifier.
   id         Int               @id @default(autoincrement())
@@ -197,12 +204,122 @@ model TestingMethod {
   parameters ParameterMethod[]
   /// Chemicals the method uses.
   chemicals  ChemicalMethod[]
+  /// Steps of the procedure, in step number order.
+  steps      TestingMethodStep[]
+  /// Accreditation certificates whose scope lists the method.
+  certificates AccreditationCertificateMethod[]
 
   @@index([field_id])
   @@map("medilab_testing_method")
 }
 
-/// A field of testing that classifies methods, such as Chemistry or Microbiology.
+/// A step of a testing method's procedure.
+model TestingMethodStep {
+  /// Row identifier.
+  id               Int           @id @default(autoincrement())
+  /// The testing method the step belongs to.
+  method_id        Int
+  /// Step number; steps are shown in this order.
+  sequence         Int
+  /// Minutes the step takes.
+  duration_minutes Int
+  /// What to do in the step.
+  instruction      String
+  /// Remark on the step, such as a precaution.
+  note             String?
+  /// Where the step is done.
+  location_id      Int?
+  /// Where the step is done.
+  location         Location? @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// Location bookings the scheduler made for the step.
+  room_events      CalendarEvent[]
+  /// The testing method the step belongs to.
+  method           TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
+
+  @@index([location_id])
+  @@unique([method_id, sequence])
+  @@map("medilab_testing_method_step")
+}
+
+/// A place in the company's premises (Vị trí), such as a room, a bench, an area or a sampling point. Every module uses it.
+model Location {
+  /// Row identifier.
+  id            Int               @id @default(autoincrement())
+  /// Unique code of the location.
+  code          String            @unique @db.VarChar
+  /// Name of the location in each language.
+  name          Json
+  /// The broader location this one is in; empty for a top-level location.
+  parent_id     Int?
+  /// The department that uses the location.
+  department_id Int?
+  /// Picture of the location, such as a floor plan, an Odoo attachment; the map the locations inside it are placed on.
+  image_attachment_id Int?
+  /// Horizontal position on the parent location's image, as a share of its width from 0 to 1; empty when not placed.
+  map_x         Float?
+  /// Vertical position on the parent location's image, as a share of its height from 0 to 1; empty when not placed.
+  map_y         Float?
+  /// True when people can book the location on their calendar.
+  is_bookable   Boolean           @default(false)
+  /// False when the location is archived.
+  active        Boolean           @default(true)
+  /// The broader location this one is in.
+  parent        Location?  @relation("LocationTree", fields: [parent_id], references: [id], onDelete: Restrict)
+  /// Locations inside this one.
+  children      Location[] @relation("LocationTree")
+  /// The department that uses the location.
+  department    Department?       @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  /// Steps done in the location.
+  steps         TestingMethodStep[]
+  /// Samples taken from the location.
+  samples       Sample[]
+  /// Calendar events that book the location.
+  bookings      CalendarEvent[]
+  /// Machines standing in the location.
+  machines      Machine[]
+
+  @@index([parent_id])
+  @@index([department_id])
+  @@map("medilab_location")
+}
+
+/// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận). Trigram index on code serves search.
+model AccreditationCertificate {
+  /// Row identifier.
+  id           Int                             @id @default(autoincrement())
+  /// Certificate number, such as VILAS 123.
+  code         String                          @unique @db.VarChar
+  /// The body that issued the certificate.
+  issuing_body String?                         @db.VarChar
+  /// First day the certificate is valid; empty means valid from any date.
+  valid_from   DateTime?                       @db.Date
+  /// Last day the certificate is valid; empty means valid until any date.
+  valid_until  DateTime?                       @db.Date
+  /// False when the certificate is archived.
+  active       Boolean                         @default(true)
+  /// Testing methods in the scope of the certificate.
+  methods      AccreditationCertificateMethod[]
+
+  @@map("medilab_accreditation_certificate")
+}
+
+/// Links an accreditation certificate to the testing methods in its scope.
+model AccreditationCertificateMethod {
+  /// The certificate.
+  certificate_id Int
+  /// A method in its scope.
+  method_id      Int
+  /// The certificate.
+  certificate    AccreditationCertificate @relation(fields: [certificate_id], references: [id], onDelete: Cascade)
+  /// The testing method.
+  method         TestingMethod            @relation(fields: [method_id], references: [id], onDelete: Restrict)
+
+  @@id([certificate_id, method_id])
+  @@index([method_id])
+  @@map("medilab_accreditation_certificate_method_rel")
+}
+
+/// A field of testing that classifies methods, such as Chemistry or Microbiology. Trigram indexes on code and name serve search.
 model TestingField {
   /// Row identifier.
   id      Int             @id @default(autoincrement())
@@ -240,14 +357,20 @@ model Department {
   parameter_methods ParameterMethod[]
   /// Employees in the department.
   employees         Employee[]        @relation("EmployeeDepartment")
-  /// People in the team.
+  /// People of the team.
   team_people       Person[]          @relation("PersonTeam")
   /// Notification events whose notifications go to the department.
   notification_recipients NotificationEventRecipient[]
   /// Tasks in the department's queue.
   tasks             Task[]
+  /// Wizards that move tasks into this department's queue.
+  task_reassigns    TaskReassign[]
   /// Samples handed over to the department.
   handovers         SampleHandover[]
+  /// Machine bookings of the department's testing tasks.
+  bookings          MachineBooking[]
+  /// Locations the department uses.
+  locations         Location[]
 
   @@index([parent_id])
   @@map("hr_department")
@@ -297,7 +420,7 @@ model UnitCategory {
 }
 
 /// How one parameter is tested with one method, by the laboratory or by a subcontractor, and the unit of its result.
-/// Unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)).
+/// Active rows are unique on (parameter_id, method_id, COALESCE(subcontractor_id, 0)) WHERE active.
 /// At most one row per parameter is the default (partial unique index on parameter_id where is_default).
 model ParameterMethod {
   /// Row identifier.
@@ -312,7 +435,7 @@ model ParameterMethod {
   subcontractor_id Int?
   /// The department that tests it in-house; empty when a subcontractor tests it.
   department_id    Int?
-  /// True when this way of testing is within an ISO 17025 accreditation scope.
+  /// True while this in-house way of testing's method is on an accreditation certificate valid that day; worked out, never set by hand.
   is_accredited    Boolean         @default(false)
   /// Limit of detection: the lowest value this method can detect, in the row's unit.
   lod              Decimal? @db.Decimal
@@ -325,7 +448,7 @@ model ParameterMethod {
   /// False when this way of testing is archived.
   active           Boolean         @default(true)
   /// The parameter being tested.
-  parameter        TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Cascade)
+  parameter        TestParameter   @relation(fields: [parameter_id], references: [id], onDelete: Restrict)
   /// The method used to test it.
   method           TestingMethod   @relation(fields: [method_id], references: [id], onDelete: Restrict)
   /// The unit the result is expressed in.
@@ -342,12 +465,13 @@ model ParameterMethod {
   sample_tests     SampleTest[]
 
   @@index([method_id])
+  @@index([unit_id])
   @@index([subcontractor_id])
   @@index([department_id])
   @@map("medilab_parameter_method")
 }
 
-/// An outside laboratory that tests parameters for the laboratory. Its name, address and people are its contact.
+/// An outside laboratory that tests parameters for the laboratory. Its name, address and people are its contact. A trigram index on code serves search; the name is the contact's.
 model Subcontractor {
   /// Row identifier.
   id                    Int               @id @default(autoincrement())
@@ -380,7 +504,7 @@ model Subcontractor {
   @@map("medilab_subcontractor")
 }
 
-/// Odoo's contact table for companies and people, shown with the columns this schema uses.
+/// Odoo's contact table for companies and people, shown with the columns this schema uses. A trigram index on name serves search.
 model Contact {
   /// Row identifier.
   id                         Int             @id @default(autoincrement())
@@ -410,6 +534,8 @@ model Contact {
   employee                   Employee?
   /// Odoo users whose details this contact holds.
   users                      User[]          @relation("UserPartner")
+  /// True when Brevo reported a hard bounce or an invalid address for this contact.
+  email_bounced              Boolean         @default(false)
 
   @@map("res_partner")
 }
@@ -446,7 +572,7 @@ model TestParameterSampleType {
   @@map("medilab_test_parameter_sample_type_rel")
 }
 
-/// Laboratory equipment used to run tests.
+/// Laboratory equipment used to run tests. Trigram indexes on code, name and serial number serve search.
 model Machine {
   /// Row identifier.
   id                    Int                    @id @default(autoincrement())
@@ -460,8 +586,10 @@ model Machine {
   manufacturer          String?                @db.VarChar
   /// Serial number given by the manufacturer.
   serial_number         String?                @db.VarChar
-  /// Where the machine is, such as "Room 203, bench 2".
-  location              String?                @db.VarChar
+  /// The location the machine stands in, such as a bench.
+  location_id           Int?
+  /// The location the machine stands in.
+  location              Location?              @relation(fields: [location_id], references: [id], onDelete: Restrict)
   /// in_use, under_repair or retired.
   status                String                 @db.VarChar
   /// Date the next calibration is due, taken from the latest calibration record; the machine cannot be used after it.
@@ -482,6 +610,7 @@ model Machine {
   results               TestResult[]
 
   @@index([next_calibration_date])
+  @@index([location_id])
   @@map("medilab_machine")
 }
 
@@ -530,7 +659,7 @@ model ParameterMethodMachine {
   @@map("medilab_parameter_method_machine")
 }
 
-/// A chemical substance the laboratory keeps and uses for testing. Stock, expiry and suppliers are kept by Inventory.
+/// A chemical substance the laboratory keeps and uses for testing. Stock, expiry and suppliers are kept by Inventory. Trigram indexes on code, name and CAS number serve search.
 model Chemical {
   /// Row identifier.
   id                 Int              @id @default(autoincrement())
@@ -564,14 +693,14 @@ model ChemicalMethod {
   /// The chemical.
   chemical    Chemical      @relation(fields: [chemical_id], references: [id], onDelete: Restrict)
   /// The testing method.
-  method      TestingMethod @relation(fields: [method_id], references: [id], onDelete: Cascade)
+  method      TestingMethod @relation(fields: [method_id], references: [id], onDelete: Restrict)
 
   @@id([chemical_id, method_id])
   @@index([method_id])
   @@map("medilab_chemical_method_rel")
 }
 
-/// A quality registration dossier with an authority that covers some ways of testing; its mark is printed after the parameter name on the report.
+/// A quality registration dossier with an authority that covers some ways of testing; its mark is printed after the parameter name on the report. Trigram indexes on code and name serve search.
 model QualityRegistration {
   /// Row identifier.
   id                Int                                  @id @default(autoincrement())
@@ -605,7 +734,7 @@ model QualityRegistrationParameterMethod {
   /// The dossier.
   registration        QualityRegistration @relation(fields: [registration_id], references: [id], onDelete: Cascade)
   /// The parameter and method pair.
-  parameter_method    ParameterMethod     @relation(fields: [parameter_method_id], references: [id], onDelete: Cascade)
+  parameter_method    ParameterMethod     @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
 
   @@id([registration_id, parameter_method_id])
   @@index([parameter_method_id])
@@ -646,7 +775,7 @@ model Customer {
 model TestRequest {
   /// Row identifier.
   id           Int      @id @default(autoincrement())
-  /// Unique code of the request; filled from a sequence when left empty.
+  /// Unique code of the request, such as YC.2026.0001, numbered again each year; filled from a sequence when left empty.
   code         String   @unique @db.VarChar
   /// The customer who asks for the tests.
   customer_id  Int
@@ -654,6 +783,8 @@ model TestRequest {
   request_date DateTime @db.Date
   /// Date sales promised the customer the results.
   expected_date DateTime? @db.Date
+  /// True for a priority request: the expected date is earlier than the estimate and the check said it can be met, so its tests are urgent.
+  priority      Boolean  @default(false)
   /// Language the customer wants the report in: vi, en or bilingual.
   report_language String @default("bilingual") @db.VarChar
   /// How the report reaches the customer: in_person, post, email or other.
@@ -678,6 +809,9 @@ model TestRequest {
   handover_records HandoverRecord[]
 
   @@index([customer_id])
+  @@index([request_date])
+  @@index([status])
+  @@index([report_recipient_id])
   @@map("medilab_test_request")
 }
 
@@ -685,11 +819,11 @@ model TestRequest {
 model Sample {
   /// Row identifier.
   id                   Int          @id @default(autoincrement())
-  /// Unique laboratory code (mã PTN) from a sequence; the only name testers see.
+  /// Unique laboratory code (mã PTN) from a sequence, such as PTN.2026.0001, numbered again each year; the only name testers see.
   code                 String       @unique @db.VarChar
   /// The test request the sample belongs to.
   request_id           Int
-  /// Name the customer gives the sample, such as "Lavie bottled water 1 L"; hidden from testers.
+  /// Name the customer gives the sample, such as "Lavie bottled water 1 L"; only people who can read test requests see it. A trigram index serves search.
   customer_sample_name String       @db.VarChar
   /// The sample type (nền mẫu), such as bottled drinking water.
   sample_type_id       Int
@@ -717,6 +851,10 @@ model Sample {
   condition_note       String?      @db.Text
   /// Where the sample is stored, such as "Fridge 2, shelf B".
   storage_location     String?      @db.VarChar
+  /// The location the sample was taken from, such as a sampling point.
+  sampling_location_id Int?
+  /// The location the sample was taken from.
+  sampling_location    Location? @relation(fields: [sampling_location_id], references: [id], onDelete: Restrict)
   /// When the head of department asked for the sample to be collected again because it arrived insufficient.
   recollection_requested_at DateTime?
   /// Head of department who asked for the sample to be collected again.
@@ -747,9 +885,16 @@ model Sample {
   handovers            SampleHandover[]
   /// Handover records that list the sample.
   handover_lines       HandoverRecordSample[]
+  /// Photos of the sample taken when it was collected or received.
+  photos               SamplePhoto[]
+  /// Laboratory folders of the sample.
+  folders              LaboratoryFolder[]
 
   @@index([request_id])
   @@index([sample_type_id])
+  @@index([regulation_id])
+  @@index([status])
+  @@index([sampling_location_id])
   @@map("medilab_sample")
 }
 
@@ -767,7 +912,7 @@ model SampleTest {
   quantity            Int              @default(1)
   /// waiting, assigned, testing, outsourced, result_entered, approved or cancelled.
   status              String           @db.VarChar
-  /// When the laboratory plans to finish the test: the request's expected date minus the safety margin. A test whose due date is close is scheduled first.
+  /// When the laboratory plans to finish the test: the end of the day, in the company's time zone, the safety margin before the request's expected date, worked out when the sample test is created or that date changes and changeable afterwards. Changing the safety margin does not change due dates already worked out. A test whose due date is close is scheduled first.
   due_date            DateTime?
   /// Why the test was cancelled, such as the parameter cannot be tested on this sample.
   cancel_reason       String?          @db.Text
@@ -775,6 +920,18 @@ model SampleTest {
   cancelled_by_id     Int?
   /// When the test was cancelled.
   cancelled_at        DateTime?
+  /// True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
+  outsourcing_suggested Boolean        @default(false)
+  /// True when the test has no booking that finishes before its due date, or its booking ended without a result; its tester and head of department are told when it turns true.
+  at_risk             Boolean          @default(false)
+  /// True when a person marked the test urgent, so it is scheduled first whatever its due date.
+  marked_urgent       Boolean          @default(false)
+  /// Why the test was marked urgent.
+  urgent_reason       String?          @db.Text
+  /// Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
+  emergency_outsource_reason String?   @db.Text
+  /// Tester or head of department who marked the test urgent.
+  marked_urgent_by_id Int?
   /// The sample tested.
   sample              Sample           @relation(fields: [sample_id], references: [id], onDelete: Cascade)
   /// The parameter tested.
@@ -783,6 +940,8 @@ model SampleTest {
   parameter_method    ParameterMethod? @relation(fields: [parameter_method_id], references: [id], onDelete: Restrict)
   /// Head of department who cancelled the test.
   cancelled_by        Person?          @relation("SampleTestCanceller", fields: [cancelled_by_id], references: [id], onDelete: Restrict)
+  /// Tester or head of department who marked the test urgent.
+  marked_urgent_by    Person?          @relation("SampleTestUrgencyMarker", fields: [marked_urgent_by_id], references: [id], onDelete: Restrict)
   /// Results of the test, one per attempt.
   results             TestResult[]
   /// Machine bookings for the test.
@@ -793,6 +952,8 @@ model SampleTest {
   @@index([sample_id])
   @@index([parameter_id])
   @@index([parameter_method_id])
+  @@index([status])
+  @@index([outsourcing_suggested])
   @@map("medilab_sample_test")
 }
 
@@ -806,11 +967,11 @@ model TestResult {
   sample_test_id Int
   /// Attempt number, 1 for the first measurement and higher for retests.
   attempt        Int              @default(1)
-  /// True for the result reported to the customer.
+  /// True for the result reported to the customer: the latest one entered for the sample test.
   is_reported    Boolean          @default(false)
-  /// Measured value, in unit_id; empty for a text result.
+  /// Measured value, in unit_id, stored exactly; 0 for a text result, whose text is the result.
   value          Decimal? @db.Decimal
-  /// Decimals the value shows, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
+  /// Decimals the value shows, between 0 and 15, such as 2 for 0.50, copied from the way of testing and correctable by the lab QA.
   value_decimals Int?
   /// Result as text when it is not a number, such as "Not detected", in each language.
   value_text     Json?
@@ -818,10 +979,16 @@ model TestResult {
   unit_id        Int?
   /// The unit of limit_min and limit_max, copied from the sample's regulation.
   limit_unit_id  Int?
-  /// Lowest allowed value, copied from the sample's regulation when the result is created.
+  /// True when the copied limit has a minimum, which may be 0.
+  limit_min_set  Boolean          @default(false)
+  /// Lowest allowed value, copied from the sample's regulation when the result is created. Meaningful when limit_min_set is set.
   limit_min      Decimal? @db.Decimal
-  /// Highest allowed value, copied from the sample's regulation when the result is created.
+  /// True when the copied limit has a maximum, which may be 0.
+  limit_max_set  Boolean          @default(false)
+  /// Highest allowed value, copied from the sample's regulation when the result is created. Meaningful when limit_max_set is set.
   limit_max      Decimal? @db.Decimal
+  /// Decimals the copied minimum and maximum show on the report, such as 2 for 0.50, copied from the sample's regulation.
+  limit_decimals Int?
   /// Limit as text, copied from the sample's regulation, in each language.
   limit_text     Json?
   /// The Odoo user who entered the result: a lab QA, or a subcontractor's user for an outsourced test.
@@ -832,8 +999,14 @@ model TestResult {
   machine_id     Int?
   /// When the measurement started, taken from the booking's start and correctable by the lab QA.
   started_at     DateTime?
+  /// Why the sanity check found the value unusual when it was sent, shown to the approver; empty when nothing was found.
+  check_warning  String?          @db.Text
   /// pass or fail, set by the tester; empty when the sample has no regulation.
   conclusion     String?          @db.VarChar
+  /// none, requested, approved or rejected: where the result stands in its approval chain, kept in step with its signatures. Approved and rejected are final; only the lab head's rejection of the report sends an approved result back to none. Only the system writes it, with attempt, is_reported, entered_by_id, entered_at and the version fields.
+  status         String           @default("none") @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn.
+  document_version Int            @default(1)
   /// Version of the result, 1 for the first and one higher for each version a change request creates.
   version        Int              @default(1)
   /// The version this row replaces; empty for version 1.
@@ -856,16 +1029,18 @@ model TestResult {
   replaced_by    TestResult?      @relation("ResultVersions")
 
   @@unique([sample_test_id, attempt, version])
+  @@index([sample_test_id])
+  @@index([status])
   @@map("medilab_test_result")
 }
 
-/// Someone who works for the laboratory (medilab.person). It delegates to their Odoo employee with _inherits: this table holds the team, roles and direct permissions, and the employee their name, user, work contact and department.
+/// Someone who works for the laboratory (medilab.person). It delegates to their Odoo employee with _inherits: this table holds the employee link, and the employee their name, user, work contact and department.
 model Person {
   /// Row identifier.
   id            Int          @id @default(autoincrement())
   /// The Odoo employee the person delegates to.
   employee_id   Int          @unique
-  /// Team of the person: a department whose parent is the person's department.
+  /// Team of the person, one of the teams of their department; empty when they belong to no team.
   team_id       Int?
   /// False when the person is archived.
   active        Boolean      @default(true)
@@ -883,6 +1058,8 @@ model Person {
   permissions   PersonPermission[]
   /// Sample tests the person cancelled.
   cancelled_sample_tests SampleTest[] @relation("SampleTestCanceller")
+  /// Sample tests the person marked urgent.
+  urgent_marked_sample_tests SampleTest[] @relation("SampleTestUrgencyMarker")
   /// Machine bookings the person runs.
   bookings      MachineBooking[]
   /// Samples the person received.
@@ -903,12 +1080,14 @@ model Person {
   change_requests ChangeRequest[] @relation("ChangeRequester")
   /// Signatures the person gave.
   signatures    Signature[]
+  /// Wizards that assign tasks to the person.
+  task_reassigns TaskReassign[]
 
   @@index([team_id])
   @@map("medilab_person")
 }
 
-/// Odoo's employee (hr.employee), shown with the columns this schema uses: the Odoo record a person delegates to.
+/// Odoo's employee (hr.employee), shown with the columns this schema uses: the Odoo record a person delegates to. Trigram indexes on name and work email serve search.
 model Employee {
   /// Row identifier.
   id              Int          @id @default(autoincrement())
@@ -963,6 +1142,22 @@ model User {
   triggered_runs JobRun[]     @relation("JobTrigger")
   /// Mobile devices the user receives reminders on.
   devices    MobileDevice[]
+  /// Laboratory folders the user owns.
+  owned_folders      LaboratoryFolder[]         @relation("FolderOwner")
+  /// Laboratory folders the user is a member of.
+  folder_memberships LaboratoryFolderMember[]   @relation("FolderMember")
+  /// Laboratory file versions the user saved.
+  file_versions      LaboratoryFileVersion[]    @relation("VersionAuthor")
+  /// Laboratory file uploads the user made.
+  file_uploads       LaboratoryUpload[]         @relation("UploadUser")
+  /// Computers the user signs in to the laboratory folders from.
+  laboratory_devices LaboratoryDevice[]         @relation("LaboratoryDeviceUser")
+  /// Online editing sessions the user opened.
+  editing_sessions   LaboratoryEditingSession[] @relation("EditingOpener")
+  /// Laboratory file locks the user holds or held.
+  file_locks         LaboratoryFileLock[]       @relation("FileLockHolder")
+  /// Laboratory file locks the user released as an administrator.
+  released_file_locks LaboratoryFileLock[]      @relation("FileLockReleaser")
 
   @@map("res_users")
 }
@@ -981,7 +1176,7 @@ model Group {
   @@map("res_groups")
 }
 
-/// A role the administrator defines, such as Tester or Head of department: a set of permissions. Signing levels are given to roles.
+/// A role the administrator defines, such as Tester or Head of department: a set of permissions. Signing levels are given to roles. Trigram indexes on code and name serve search.
 model Role {
   /// Row identifier.
   id              Int              @id @default(autoincrement())
@@ -1167,7 +1362,66 @@ model Signature {
   @@map("medilab_signature")
 }
 
-/// A kind of task, such as sample collection or testing a parameter, and how its tasks are created and routed. Task types come with the modules; on the screen only their route, role and default deadline change.
+/// The laboratory's certificate (chứng thư số) that Viettel Sign holds and signs printed documents with. Read from Viettel Sign, never created or edited on the screen.
+model SigningCertificate {
+  /// Row identifier.
+  id                 Int                @id @default(autoincrement())
+  /// Name of the holder of the certificate, from its subject.
+  name               String             @db.VarChar
+  /// Viettel Sign's id of the certificate, which each signing names.
+  credential_id      String             @unique @db.VarChar
+  /// Serial number the certificate authority gave the certificate, in hexadecimal.
+  serial_number      String?            @db.VarChar
+  /// Whom the certificate was issued to.
+  subject            String?            @db.VarChar
+  /// The certificate authority that issued the certificate.
+  issuer             String?            @db.VarChar
+  /// When the validity of the certificate starts.
+  valid_from         DateTime?
+  /// When the validity of the certificate ends.
+  valid_to           DateTime
+  /// valid, expired or revoked as Viettel Sign reports.
+  status             String             @db.VarChar
+  /// The certificate and the authorities that issued it, in PEM, the certificate first.
+  certificate_chain  String             @db.Text
+  /// SHA-256 of the certificate itself, which finds it from the signature of a PDF.
+  fingerprint        String             @db.VarChar
+  /// When Viettel Sign last reported the certificate.
+  checked_at         DateTime?
+  /// The PDFs signed with the certificate.
+  digital_signatures DigitalSignature[]
+
+  @@index([fingerprint])
+  @@map("medilab_signing_certificate")
+}
+
+/// The digital signature (chữ ký số) Viettel Sign applied to the PDF of one version of a fully signed document. Records are never edited or deleted.
+/// Points to its document by document_model and document_id. Unique on (document_model, document_id, document_version).
+model DigitalSignature {
+  /// Row identifier.
+  id               Int                @id @default(autoincrement())
+  /// Technical name of the signed document's model, such as medilab.test.report.
+  document_model   String             @db.VarChar
+  /// Id of the signed document.
+  document_id      Int
+  /// Version of the document whose PDF was signed.
+  document_version Int
+  /// The laboratory's certificate Viettel Sign signed with.
+  certificate_id   Int
+  /// The PDF Viettel Sign signed, an Odoo attachment of the document.
+  attachment_id    Int
+  /// When Viettel Sign signed the PDF.
+  signed_at        DateTime
+  /// SHA-256 of the signed PDF, which finds it when someone verifies a file.
+  file_hash        String             @unique @db.VarChar
+  /// The laboratory's certificate Viettel Sign signed with.
+  certificate      SigningCertificate @relation(fields: [certificate_id], references: [id], onDelete: Restrict)
+
+  @@unique([document_model, document_id, document_version])
+  @@map("medilab_digital_signature")
+}
+
+/// A kind of task, such as sample collection or testing a parameter, and how its tasks are created and routed. Task types come with the modules; on the screen only their route, role and default deadline change. Trigram indexes on code and name serve search.
 model TaskType {
   /// Row identifier.
   id             Int      @id @default(autoincrement())
@@ -1212,6 +1466,8 @@ model Task {
   document_id    Int?
   /// Action the task opens on the document, such as enter_result or sign.
   action         String?      @db.VarChar
+  /// True when the system created the task with its type and document and nobody changed them since; only such tasks act on their document with full rights.
+  linked_by_system Boolean    @default(false)
   /// Department whose queue holds the task until someone is assigned.
   department_id  Int?
   /// Person who does the task; empty while it waits in the department's queue.
@@ -1244,6 +1500,8 @@ model Task {
   calendar_event CalendarEvent? @relation("TaskEvent", fields: [calendar_event_id], references: [id], onDelete: SetNull)
   /// Machine bookings made for the task.
   bookings       MachineBooking[]
+  /// Assign-task wizards that include this task.
+  reassign_wizards TaskReassignTask[]
 
   @@index([assignee_id, status])
   @@index([department_id, status])
@@ -1252,7 +1510,44 @@ model Task {
   @@map("medilab_task")
 }
 
-/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task or a machine booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+/// Assigns tasks to a person or moves them to another department's queue. Odoo keeps the wizard only while it is open.
+model TaskReassign {
+  /// Row identifier.
+  id            Int      @id @default(autoincrement())
+  /// Department whose queue holds the tasks.
+  department_id Int?
+  /// Person who does the tasks; empty to leave them in the department's queue.
+  assignee_id   Int?
+  /// Why the tasks move to another person or department.
+  reason        String?  @db.Text
+  /// Department whose queue holds the tasks.
+  department    Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
+  /// Person who does the tasks.
+  assignee      Person?     @relation(fields: [assignee_id], references: [id], onDelete: SetNull)
+  /// The tasks to assign or move.
+  tasks         TaskReassignTask[]
+
+  @@map("medilab_task_reassign")
+}
+
+/// Links an assign-task wizard to the tasks it assigns.
+model TaskReassignTask {
+  /// The wizard.
+  medilab_task_reassign_id Int
+  /// A task the wizard assigns.
+  medilab_task_id          Int
+  /// The wizard.
+  wizard                   TaskReassign @relation(fields: [medilab_task_reassign_id], references: [id], onDelete: Cascade)
+  /// The task.
+  task                     Task         @relation(fields: [medilab_task_id], references: [id], onDelete: Cascade)
+
+  @@id([medilab_task_reassign_id, medilab_task_id])
+  @@index([medilab_task_id])
+  @@map("medilab_task_medilab_task_reassign_rel")
+}
+
+/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task, a machine booking or a location booking on the attendees' calendars. Its alarm sends the reminder before it starts.
+/// Events that book one location do not overlap: an exclusion constraint on (location_id, time range) where location_id is set, using btree_gist.
 model CalendarEvent {
   /// Row identifier.
   id        Int             @id @default(autoincrement())
@@ -1264,12 +1559,26 @@ model CalendarEvent {
   stop      DateTime
   /// User who organises the event.
   user_id   Int?
+  /// The bookable location the event books.
+  location_id Int?
+  /// The bookable location the event books.
+  booked_location Location?     @relation(fields: [location_id], references: [id], onDelete: Restrict)
+  /// The machine booking whose step the location booking is for; empty for a booking people made.
+  machine_booking_id Int?
+  /// The method step the location booking is for.
+  step_id   Int?
+  /// The machine booking whose step the location booking is for.
+  machine_booking MachineBooking? @relation("BookingRoomEvents", fields: [machine_booking_id], references: [id], onDelete: Cascade)
+  /// The method step the location booking is for.
+  step      TestingMethodStep? @relation(fields: [step_id], references: [id], onDelete: Restrict)
   /// The task whose planned time the event shows.
   task      Task?           @relation("TaskEvent")
   /// The machine booking the event shows.
   booking   MachineBooking? @relation("BookingEvent")
 
   @@index([start])
+  @@index([location_id])
+  @@index([machine_booking_id])
   @@map("calendar_event")
 }
 
@@ -1284,6 +1593,8 @@ model MachineBooking {
   sample_test_id   Int
   /// The testing task the booking belongs to.
   task_id          Int?
+  /// The department of the testing task, whose head sees and adjusts the booking.
+  department_id    Int?
   /// Person who runs the test.
   person_id        Int?
   /// Due date of the sample test, copied so the queue is ordered without a join.
@@ -1296,6 +1607,8 @@ model MachineBooking {
   ends_at          DateTime?
   /// queued, scheduled, in_progress, done or cancelled.
   status           String     @db.VarChar
+  /// Why the head of department bumped the test to the earliest slot.
+  bump_reason      String?    @db.Text
   /// The calendar event showing a scheduled booking on the person's schedule, with its reminder; empty while the booking waits in the queue.
   calendar_event_id Int?     @unique
   /// The calendar event of the booking.
@@ -1306,12 +1619,17 @@ model MachineBooking {
   sample_test      SampleTest @relation(fields: [sample_test_id], references: [id], onDelete: Restrict)
   /// The testing task the booking belongs to.
   task             Task?      @relation(fields: [task_id], references: [id], onDelete: Restrict)
+  /// The department of the testing task.
+  department       Department? @relation(fields: [department_id], references: [id], onDelete: SetNull)
   /// Person who runs the test.
   person           Person?    @relation(fields: [person_id], references: [id], onDelete: Restrict)
+  /// Calendar events booking the locations of the method's steps for this booking.
+  room_events      CalendarEvent[] @relation("BookingRoomEvents")
 
   @@index([machine_id, starts_at])
   @@index([person_id, starts_at])
   @@index([machine_id, status, due_date, queued_at])
+  @@index([department_id])
   @@map("medilab_machine_booking")
 }
 
@@ -1387,6 +1705,20 @@ model SampleHandover {
   @@unique([sample_id, department_id])
   @@index([department_id, received_at])
   @@map("medilab_sample_handover")
+}
+
+/// Links samples to their photos, Odoo attachments on the sample that only people who can read test requests see.
+model SamplePhoto {
+  /// The sample.
+  sample_id     Int
+  /// The photo's attachment.
+  attachment_id Int
+  /// The sample.
+  sample        Sample @relation(fields: [sample_id], references: [id], onDelete: Cascade)
+
+  @@id([sample_id, attachment_id])
+  @@index([attachment_id])
+  @@map("medilab_sample_photo_rel")
 }
 
 /// Handover record (biên bản giao nhận mẫu): the samples a customer hands to the laboratory, signed by the customer by hand on the mobile app. A signed record is never edited; a correction is a new record.
@@ -1467,11 +1799,13 @@ model TestReport {
   replaces_id     Int?        @unique
   /// draft, signing, issued or replaced.
   status          String      @db.VarChar
+  /// The version the next signature records; it grows when every signature is withdrawn or the report is signed again after a rejection.
+  document_version Int         @default(1)
   /// Language the report is issued in, taken from the request: vi, en or bilingual for Vietnamese and English side by side.
   language        String      @db.VarChar
   /// When the report was issued.
   issued_at       DateTime?
-  /// The digitally signed PDF of the issued report.
+  /// The PDF of the issued report, the one Viettel Sign signed while digital signing is on; empty until it is signed.
   attachment_id   Int?
   /// When the report was delivered to the customer by the request's delivery method.
   delivered_at    DateTime?
@@ -1487,29 +1821,30 @@ model TestReport {
   delivered_by    Person?     @relation("ReportDeliverer", fields: [delivered_by_id], references: [id], onDelete: Restrict)
 
   @@unique([request_id, version])
+  @@index([status])
   @@map("medilab_test_report")
 }
 
 /// A request to change a document whose process is completed (SH-07). It is signed through the change-request chain of the document's type; when approved, a new version of the document is created.
-/// Points to its document by document_model and document_id, indexed together.
+/// Points to its document by document_model and document_id, indexed together. Results and reports keep one row per version, so document_id names the version to change.
 model ChangeRequest {
   /// Row identifier.
   id               Int       @id @default(autoincrement())
-  /// Unique code of the change request; filled from a sequence when left empty.
+  /// Unique code of the change request, such as YCTD.2026.0001; filled from a sequence.
   code             String    @unique @db.VarChar
   /// Technical name of the document to change, such as medilab.test.result.
   document_model   String    @db.VarChar
-  /// Id of the document to change.
+  /// Id of the version of the document to change.
   document_id      Int
-  /// Version of the document the change is asked for.
-  document_version Int
+  /// The version the next signature of the change request records; it grows when every signature is withdrawn.
+  document_version Int       @default(1)
   /// Person who asked for the change; when is Odoo's creation time of the row.
   requested_by_id  Int
   /// What to change.
   requested_change String    @db.Text
   /// Why the change is needed.
   reason           String    @db.Text
-  /// requested, approved, rejected or applied.
+  /// requested while its chain signs, then approved, rejected or applied. Rejected and applied are final.
   status           String    @db.VarChar
   /// Reason given when the request was rejected.
   rejection_reason String?   @db.Text
@@ -1551,23 +1886,27 @@ model MobileDevice {
 
 /// One recorded action or event (SH-05). Entries are never edited; only the cleanup job removes them after the audit retention period, once they are in an archive file.
 /// Points to its document by document_model and document_id, indexed together. A BRIN index on create_date serves period reports.
-/// Logins are read from Odoo's login log (res.users.log), not written here.
+/// An entry on a part of a document, such as a sample of a test request or a file attached to it, names that document in parent_model and parent_id, indexed together.
 model AuditEntry {
   /// Row identifier.
   id             Int           @id @default(autoincrement())
   /// When it happened: Odoo's creation time of the entry.
   create_date    DateTime
-  /// The Odoo user who acted; empty when the system acted.
+  /// The Odoo user who acted; empty when the system or someone not signed in acted.
   user_id        Int?
-  /// screen, api or job.
+  /// screen, api, job or system.
   source         String        @db.VarChar
-  /// login, logout, create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
+  /// create, edit, delete, archive, approve, reject, sign, withdraw, download, job, integration or error.
   action         String        @db.VarChar
-  /// Technical name of the document acted on.
+  /// Technical name of the document acted on; empty for an event without one, such as a refused webhook.
   document_model String?       @db.VarChar
   /// Id of the document acted on.
   document_id    Int?
-  /// The job run that acted, when the source is a job.
+  /// Technical name of the document the one acted on is a part of.
+  parent_model   String?       @db.VarChar
+  /// Id of the document the one acted on is a part of.
+  parent_id      Int?
+  /// The job run that acted, when a MediLab job acted; empty for another Odoo cron.
   job_run_id     Int?
   /// What happened, for actions without field changes, such as an integration error.
   note           String?       @db.Text
@@ -1579,8 +1918,10 @@ model AuditEntry {
   changes        AuditChange[]
 
   @@index([document_model, document_id])
+  @@index([parent_model, parent_id])
   @@index([user_id, create_date])
   @@index([action, create_date])
+  @@index([job_run_id])
   @@map("medilab_audit_entry")
 }
 
@@ -1623,7 +1964,7 @@ model DocumentLock {
   status           String              @db.VarChar
   /// When the lock was released or expired.
   released_at      DateTime?
-  /// saved, cancelled, left, expired or released_by_administrator.
+  /// saved, cancelled, left, completed for an operation that ended, expired or released_by_administrator.
   release_reason   String?             @db.VarChar
   /// Administrator who released a stuck lock.
   released_by_id   Int?
@@ -1708,7 +2049,7 @@ model NotificationPreference {
   user_id  Int
   /// The event.
   event_id Int
-  /// popup, email, sms or push.
+  /// popup, email or push.
   channel  String            @db.VarChar
   /// False when the user turned this channel off for the event; ignored for mandatory events.
   enabled  Boolean           @default(true)
@@ -1907,7 +2248,7 @@ model ArchiveFile {
   /// SHA-256 of the file, checked before the archived records are removed.
   checksum     String    @db.VarChar
   /// Size of the file in bytes.
-  size_bytes   BigInt
+  size_bytes   Int
   /// The cleanup run that wrote the file.
   job_run_id   Int
   /// The cleanup run that wrote the file.
@@ -1915,4 +2256,346 @@ model ArchiveFile {
 
   @@unique([kind, period_start, period_end])
   @@map("medilab_archive_file")
+}
+
+/// A folder of laboratory files: files under paths relative to it, owned by a person, with members who read and write it. It never stores a path on anyone's computer.
+model LaboratoryFolder {
+  /// Row identifier.
+  id               Int       @id @default(autoincrement())
+  /// Name people see.
+  name             String    @db.VarChar
+  /// Name of the folder, unique for its owner.
+  root             String    @db.VarChar
+  /// The user who owns the folder.
+  owner_id         Int
+  /// The sample the folder belongs to; empty for a folder of no sample.
+  sample_id        Int?
+  /// raw, working, result or report; empty for a folder of no sample.
+  category         String?   @db.VarChar
+  /// upload_only or two_way.
+  sync_mode        String    @db.VarChar
+  /// False when an administrator turned the folder off; uploads are refused and reading goes on.
+  enabled          Boolean   @default(true)
+  /// When the folder was archived; empty while in use.
+  archived_at      DateTime?
+  /// Date until which an archived folder keeps its files.
+  retention_until  DateTime? @db.Date
+  /// The device the folder was created from, for the audit.
+  created_by_device_id Int?
+  /// The user who owns the folder.
+  owner            User      @relation("FolderOwner", fields: [owner_id], references: [id], onDelete: Restrict)
+  /// The sample the folder belongs to.
+  sample           Sample?   @relation(fields: [sample_id], references: [id], onDelete: Restrict)
+  /// The device the folder was created from.
+  created_by_device LaboratoryDevice? @relation(fields: [created_by_device_id], references: [id], onDelete: SetNull)
+  /// People who can read and write the folder, the owner included.
+  members          LaboratoryFolderMember[]
+  /// Which files of a bound local folder are synced.
+  rules            LaboratorySyncRule[]
+  /// Files in the folder.
+  files            LaboratoryFile[]
+  /// Uploads into the folder.
+  uploads          LaboratoryUpload[]
+  /// Changes to the current versions of the folder's files, in order.
+  changes          LaboratoryFileChange[]
+
+  @@unique([owner_id, root])
+  @@index([sample_id])
+  @@map("medilab_laboratory_folder")
+}
+
+/// Links a folder to a person who can read and write it.
+model LaboratoryFolderMember {
+  /// Row identifier.
+  id        Int              @id @default(autoincrement())
+  /// The folder.
+  folder_id Int
+  /// The member.
+  user_id   Int
+  /// owner or member; the owner's row cannot be removed.
+  role      String           @db.VarChar
+  /// The folder.
+  folder    LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Cascade)
+  /// The member.
+  user      User             @relation("FolderMember", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([folder_id, user_id])
+  @@map("medilab_laboratory_folder_member")
+}
+
+/// A rule limiting which files of a bound local folder are synced.
+model LaboratorySyncRule {
+  /// Row identifier.
+  id        Int              @id @default(autoincrement())
+  /// The folder the rule limits.
+  folder_id Int
+  /// prefix, glob or extension.
+  kind      String           @db.VarChar
+  /// The name prefix, pattern with * or extension the file must match.
+  pattern   String           @db.VarChar
+  /// True when files in subfolders count too.
+  recursive Boolean          @default(true)
+  /// False when the rule is turned off.
+  enabled   Boolean          @default(true)
+  /// The folder the rule limits.
+  folder    LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Cascade)
+
+  @@index([folder_id])
+  @@map("medilab_laboratory_sync_rule")
+}
+
+/// A file in a laboratory folder: a series of versions, one of them current.
+model LaboratoryFile {
+  /// Row identifier.
+  id                 Int              @id @default(autoincrement())
+  /// The folder holding the file.
+  folder_id          Int
+  /// Path of the file relative to its folder, such as HPLC/run-01.csv.
+  path               String           @db.VarChar
+  /// The version people get; a restore adds a new version instead of pointing back at an old one.
+  current_version_id Int?             @unique
+  /// The folder holding the file.
+  folder             LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Restrict)
+  /// The version people get.
+  current_version    LaboratoryFileVersion? @relation("CurrentVersion", fields: [current_version_id], references: [id], onDelete: Restrict)
+  /// Every version of the file.
+  versions           LaboratoryFileVersion[] @relation("FileVersions")
+  /// Uploads of the file.
+  uploads            LaboratoryUpload[]
+  /// Changes to the file's current version.
+  changes            LaboratoryFileChange[]
+  /// Online editing sessions of the file.
+  editing_sessions   LaboratoryEditingSession[]
+  /// Locks taken on the file.
+  locks              LaboratoryFileLock[]
+
+  @@unique([folder_id, path])
+  @@map("medilab_laboratory_file")
+}
+
+/// One saved state of a file. Its number, content and origin never change once it is stored.
+model LaboratoryFileVersion {
+  /// Row identifier.
+  id                 Int            @id @default(autoincrement())
+  /// The file.
+  file_id            Int
+  /// Version number within the file, never reused.
+  number             Int
+  /// The version that was current when this one was made.
+  parent_version_id  Int?
+  /// The version a restore copied.
+  restored_from_id   Int?
+  /// synced, conflict, restored or edited_online.
+  source             String         @db.VarChar
+  /// Size of the content in bytes.
+  size               BigInt
+  /// SHA-256 of the content, in hexadecimal.
+  sha256             String         @db.VarChar
+  /// Key of the content in the bucket; versions with the same content share it.
+  storage_key        String         @db.VarChar
+  /// The user who saved the version.
+  user_id            Int
+  /// The device it came from; empty for a version made online or by a restore in the back office.
+  device_id          Int?
+  /// When the version was stored.
+  created_at         DateTime
+  /// The file.
+  file               LaboratoryFile @relation("FileVersions", fields: [file_id], references: [id], onDelete: Restrict)
+  /// The file whose current version this is.
+  current_of         LaboratoryFile? @relation("CurrentVersion")
+  /// The version that was current when this one was made.
+  parent_version     LaboratoryFileVersion? @relation("VersionParent", fields: [parent_version_id], references: [id], onDelete: Restrict)
+  /// Versions made from this one.
+  child_versions     LaboratoryFileVersion[] @relation("VersionParent")
+  /// The version a restore copied.
+  restored_from      LaboratoryFileVersion? @relation("VersionRestore", fields: [restored_from_id], references: [id], onDelete: Restrict)
+  /// Versions restored from this one.
+  restores           LaboratoryFileVersion[] @relation("VersionRestore")
+  /// The user who saved the version.
+  user               User           @relation("VersionAuthor", fields: [user_id], references: [id], onDelete: Restrict)
+  /// The device it came from.
+  device             LaboratoryDevice? @relation(fields: [device_id], references: [id], onDelete: Restrict)
+  /// Uploads based on this version.
+  based_uploads      LaboratoryUpload[] @relation("UploadBase")
+  /// The upload that stored this version.
+  upload             LaboratoryUpload? @relation("UploadResult")
+  /// Change rows announcing this version.
+  changes            LaboratoryFileChange[]
+  /// Editing sessions opened on this version.
+  editing_sessions   LaboratoryEditingSession[] @relation("EditingBase")
+  /// The editing session that saved this version.
+  saved_by_session   LaboratoryEditingSession? @relation("EditingResult")
+
+  @@unique([file_id, number])
+  @@index([storage_key])
+  @@map("medilab_laboratory_file_version")
+}
+
+/// An upload of a file's content straight to the bucket in parts, from the version it was based on.
+model LaboratoryUpload {
+  /// Row identifier.
+  id              Int              @id @default(autoincrement())
+  /// The folder uploaded to.
+  folder_id       Int
+  /// The file, once known; empty for a new path until it is finalized.
+  file_id         Int?
+  /// Path of the file relative to the folder.
+  path            String           @db.VarChar
+  /// The version the device's file was based on; empty for a new file.
+  base_version_id Int?
+  /// Size of the content in bytes.
+  size            BigInt
+  /// SHA-256 the device computed.
+  sha256          String           @db.VarChar
+  /// Key the content is uploaded to in the bucket.
+  storage_key     String           @db.VarChar
+  /// The bucket's id of the multipart upload; empty when the content was already stored.
+  multipart_id    String?          @db.VarChar
+  /// prepared, uploading, finalizing, completed, conflict, expired, aborted or failed.
+  status          String           @db.VarChar
+  /// True when the content already existed and no part was uploaded.
+  reused          Boolean          @default(false)
+  /// The version the upload stored.
+  version_id      Int?             @unique
+  /// The user uploading.
+  user_id         Int
+  /// The device uploading.
+  device_id       Int
+  /// When an unfinished upload expires and its parts are removed.
+  expires_at      DateTime
+  /// The folder uploaded to.
+  folder          LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Restrict)
+  /// The file.
+  file            LaboratoryFile?  @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// The version the device's file was based on.
+  base_version    LaboratoryFileVersion? @relation("UploadBase", fields: [base_version_id], references: [id], onDelete: Restrict)
+  /// The version the upload stored.
+  version         LaboratoryFileVersion? @relation("UploadResult", fields: [version_id], references: [id], onDelete: Restrict)
+  /// The user uploading.
+  user            User             @relation("UploadUser", fields: [user_id], references: [id], onDelete: Restrict)
+  /// The device uploading.
+  device          LaboratoryDevice @relation(fields: [device_id], references: [id], onDelete: Restrict)
+
+  @@index([status, expires_at])
+  @@map("medilab_laboratory_upload")
+}
+
+/// A computer signed in to the laboratory folders with its own key.
+model LaboratoryDevice {
+  /// Row identifier.
+  id           Int       @id @default(autoincrement())
+  /// The user the device signs in as.
+  user_id      Int
+  /// Id the application generates once per installation.
+  client_uid   String    @db.VarChar
+  /// Name of the computer.
+  name         String    @db.VarChar
+  /// linux or windows.
+  platform     String    @db.VarChar
+  /// The Odoo API key of the device, in res_users_apikeys; the key itself is never stored here.
+  api_key_id   Int?
+  /// When the device last called the API.
+  last_seen_at DateTime?
+  /// When an administrator revoked the device; empty while it can sign in.
+  revoked_at   DateTime?
+  /// The user the device signs in as.
+  user         User      @relation("LaboratoryDeviceUser", fields: [user_id], references: [id], onDelete: Cascade)
+  /// Folders created from the device.
+  created_folders LaboratoryFolder[]
+  /// Versions uploaded from the device.
+  versions     LaboratoryFileVersion[]
+  /// Uploads from the device.
+  uploads      LaboratoryUpload[]
+  /// Locks taken from the device.
+  locks        LaboratoryFileLock[]
+
+  @@unique([user_id, client_uid])
+  @@map("medilab_laboratory_device")
+}
+
+/// A change to a file's current version, in order; a device asks for the changes after the last id it saw.
+model LaboratoryFileChange {
+  /// Row identifier and the order devices read changes in.
+  id         Int                   @id @default(autoincrement())
+  /// The folder of the file.
+  folder_id  Int
+  /// The file whose current version changed.
+  file_id    Int
+  /// The new current version.
+  version_id Int
+  /// When the version became current.
+  created_at DateTime
+  /// The folder of the file.
+  folder     LaboratoryFolder      @relation(fields: [folder_id], references: [id], onDelete: Restrict)
+  /// The file whose current version changed.
+  file       LaboratoryFile        @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// The new current version.
+  version    LaboratoryFileVersion @relation(fields: [version_id], references: [id], onDelete: Restrict)
+
+  @@index([folder_id, id])
+  @@map("medilab_laboratory_file_change")
+}
+
+/// A session editing an Office file together in the browser; one is open per file at a time.
+model LaboratoryEditingSession {
+  /// Row identifier.
+  id                   Int            @id @default(autoincrement())
+  /// The file edited.
+  file_id              Int
+  /// The version the session opened.
+  base_version_id      Int
+  /// Key the editing service identifies the document by.
+  document_key         String         @unique @db.VarChar
+  /// Secret token in the address the editing service calls back on save.
+  callback_token       String         @unique @db.VarChar
+  /// open, saving, committed, conflict, closed, expired or error.
+  status               String         @db.VarChar
+  /// The user who opened the session.
+  opened_by_id         Int
+  /// The version the session saved.
+  committed_version_id Int?           @unique
+  /// When someone last worked in the session; a session idle for 12 hours expires.
+  last_activity_at     DateTime
+  /// The file edited.
+  file                 LaboratoryFile @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// The version the session opened.
+  base_version         LaboratoryFileVersion @relation("EditingBase", fields: [base_version_id], references: [id], onDelete: Restrict)
+  /// The version the session saved.
+  committed_version    LaboratoryFileVersion? @relation("EditingResult", fields: [committed_version_id], references: [id], onDelete: Restrict)
+  /// The user who opened the session.
+  opened_by            User           @relation("EditingOpener", fields: [opened_by_id], references: [id], onDelete: Restrict)
+
+  @@index([file_id, status])
+  @@map("medilab_laboratory_editing_session")
+}
+
+/// A lock one person holds on a working or result file while they edit it, for 30 minutes unless renewed.
+model LaboratoryFileLock {
+  /// Row identifier.
+  id             Int            @id @default(autoincrement())
+  /// The file locked.
+  file_id        Int
+  /// The user holding the lock.
+  user_id        Int
+  /// The device the lock was taken from.
+  device_id      Int?
+  /// active, released or expired; a file has at most one active lock.
+  status         String         @db.VarChar
+  /// When the lock expires unless renewed.
+  expires_at     DateTime
+  /// When the lock was released or expired.
+  released_at    DateTime?
+  /// The administrator who released a lock someone left; empty when its holder released it.
+  released_by_id Int?
+  /// The file locked.
+  file           LaboratoryFile @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// The user holding the lock.
+  user           User           @relation("FileLockHolder", fields: [user_id], references: [id], onDelete: Restrict)
+  /// The device the lock was taken from.
+  device         LaboratoryDevice? @relation(fields: [device_id], references: [id], onDelete: SetNull)
+  /// The administrator who released it.
+  released_by    User?          @relation("FileLockReleaser", fields: [released_by_id], references: [id], onDelete: Restrict)
+
+  @@index([file_id, status])
+  @@map("medilab_laboratory_file_lock")
 }

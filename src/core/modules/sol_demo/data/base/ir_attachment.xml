@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_ir_attachment_sample_photo_collected" model="ir.attachment">
+        <field name="name">an-phu-collected.png</field>
+        <field name="raw">iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGNwa9qCFTEMLQkAA3NfAQ/ZfWEAAAAASUVORK5CYII=</field>
+        <field name="mimetype">image/png</field>
+    </record>
+    <record id="demo_ir_attachment_sample_photo_received" model="ir.attachment">
+        <field name="name">an-phu-received.png</field>
+        <field name="raw">iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGOwWRCFFTEMLQkAQQpNgcbvKH4AAAAASUVORK5CYII=</field>
+        <field name="mimetype">image/png</field>
+    </record>
+    <!-- Photos are set on their sample once they exist. -->
+    <record id="demo_sample_reception_good" model="medilab.sample">
+        <field name="photo_ids" eval="[Command.set([ref('demo_ir_attachment_sample_photo_collected'), ref('demo_ir_attachment_sample_photo_received')])]" />
+    </record>
+    <record id="demo_ir_attachment_handover_signature" model="ir.attachment">
+        <field name="name">BBGN-signature.png</field>
+        <field name="raw">iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAD0lEQVR4nGMQwQEYhpYEAN0TDwGnz5/SAAAAAElFTkSuQmCC</field>
+        <field name="mimetype">image/png</field>
+        <field name="res_model">medilab.handover.record</field>
+        <field name="res_id" eval="ref('demo_handover_record_signed')" />
+    </record>
+    <record id="demo_ir_attachment_handover_signed" model="ir.attachment">
+        <field name="name">BBGN-signed.pdf</field>
+        <field name="raw">JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA1OTUgODQyXSAvQ29udGVudHMgNCAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNSAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL0xlbmd0aCA3MyA+PgpzdHJlYW0KQlQgL0YxIDE0IFRmIDcyIDc2MCBUZCAoSGFuZG92ZXIgcmVjb3JkIC0gc2lnbmVkIGJ5IE5ndXllbiBUaGkgTGFuKSBUaiBFVAplbmRzdHJlYW0KZW5kb2JqCjUgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCjAwMDAwMDAyNDEgMDAwMDAgbiAKMDAwMDAwMDM2NCAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjQzNAolJUVPRgo=</field>
+        <field name="mimetype">application/pdf</field>
+        <field name="res_model">medilab.handover.record</field>
+        <field name="res_id" eval="ref('demo_handover_record_signed')" />
+    </record>
+    <!-- The handover record is signed once its attachments exist. -->
+    <record id="demo_handover_record_signed" model="medilab.handover.record">
+        <field name="status">signed</field>
+        <field name="signed_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+        <field name="signed_device_id" ref="demo_mobile_device_sample_delivery_staff" />
+        <field name="signature_attachment_id" ref="demo_ir_attachment_handover_signature" />
+        <field name="attachment_id" ref="demo_ir_attachment_handover_signed" />
+        <field name="sent_at" eval="DateTime.now().strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <!-- The manufacturer's certificate of the nitric acid lot a demo receipt brings in; the receipt attaches it to the lot. -->
+    <record id="demo_ir_attachment_certificate_nitric_acid" model="ir.attachment">
+        <field name="name">Certificate K55012345.pdf</field>
+        <field name="raw" type="bytes" file="sol_demo/static/demo/certificate_k55012345.pdf" />
+        <field name="mimetype">application/pdf</field>
+    </record>
+</odoo>

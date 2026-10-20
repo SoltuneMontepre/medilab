@@ -1,0 +1,115 @@
+name: ci-tools
+
+permissions:
+  contents: read
+
+concurrency:
+  group: medilab-ci-tools-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ai:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "tools/odoo-intelligence/**"
+              - "tools/taskfiles/ai.taskfile.yml"
+              - "tools/taskfiles/dev.taskfile.yml"
+              - "infra/terraform.tf"
+              - "odools.toml"
+              - ".mcp.json"
+              - ".cursor/mcp.json"
+              - ".codex/config.toml"
+              - ".serena/project.yml"
+              - ".claude/settings.json"
+              - ".github/workflows/ci.tools.yml"
+
+      - name: Set up uv
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: tools/odoo-intelligence/uv.lock
+
+      - name: Set up Task
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: AI tooling tests and lint
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: task ai:test
+
+  typecheck:
+    name: typecheck (${{ matrix.label }})
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            label: Linux
+          - os: windows-2025
+            label: Windows
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "tools/typecheck/**"
+              - ".github/workflows/ci.tools.yml"
+
+      - name: Set up Python
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Addon link safety tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/typecheck -p test_link_addons.py
+
+      - name: Pyright report tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m unittest discover -s tools/typecheck -p test_pyright_report.py
+
+  tools:
+    needs: [ai, typecheck]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check the tooling jobs
+        env:
+          AI: ${{ needs.ai.result }}
+          TYPECHECK: ${{ needs.typecheck.result }}
+        run: |
+          if [ "$AI" != success ] || [ "$TYPECHECK" != success ]; then
+            echo "::error::ai finished with result $AI and typecheck with result $TYPECHECK."
+            exit 1
+          fi

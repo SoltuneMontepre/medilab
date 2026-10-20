@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_testing_method_tcvn_6187_1" model="medilab.testing.method">
+        <field name="code">TCVN 6187-1:2009</field>
+        <field name="name">Water quality — Enumeration of Escherichia coli and coliform bacteria — Part 1: Membrane filtration method</field>
+        <field name="field_id" ref="demo_testing_field_microbiology" />
+    </record>
+    <record id="demo_testing_method_tcvn_6187_2" model="medilab.testing.method">
+        <field name="code">TCVN 6187-2:1996</field>
+        <field name="name">Water quality — Detection and enumeration of coliform organisms — Part 2: Multiple tube (most probable number) method</field>
+        <field name="field_id" ref="demo_testing_field_microbiology" />
+    </record>
+    <record id="demo_testing_method_iso_4832" model="medilab.testing.method">
+        <field name="code">ISO 4832:2006</field>
+        <field name="name">Microbiology of food and animal feeding stuffs — Enumeration of coliforms — Colony-count technique</field>
+        <field name="field_id" ref="demo_testing_field_microbiology" />
+    </record>
+    <record id="demo_testing_method_iso_16649_2" model="medilab.testing.method">
+        <field name="code">ISO 16649-2:2001</field>
+        <field name="name">Microbiology of food and animal feeding stuffs — Enumeration of β-glucuronidase-positive Escherichia coli — Part 2: Colony-count technique at 44 °C</field>
+        <field name="field_id" ref="demo_testing_field_microbiology" />
+    </record>
+    <record id="demo_testing_method_tcvn_7602" model="medilab.testing.method">
+        <field name="code">TCVN 7602:2007</field>
+        <field name="name">Foodstuffs — Determination of lead content by atomic absorption spectrophotometry</field>
+        <field name="field_id" ref="demo_testing_field_chemistry" />
+    </record>
+    <record id="demo_testing_method_iso_17294_2" model="medilab.testing.method">
+        <field name="code">ISO 17294-2:2016</field>
+        <field name="name">Water quality — Application of inductively coupled plasma mass spectrometry — Part 2: Determination of selected elements</field>
+        <field name="field_id" ref="demo_testing_field_chemistry" />
+    </record>
+    <record id="demo_testing_method_tcvn_6492" model="medilab.testing.method">
+        <field name="code">TCVN 6492:2011</field>
+        <field name="name">Water quality — Determination of pH</field>
+        <field name="field_id" ref="demo_testing_field_chemistry" />
+    </record>
+    <record id="demo_testing_method_tcvn_5979" model="medilab.testing.method">
+        <field name="code">TCVN 5979:2007</field>
+        <field name="name">Soil quality — Determination of pH</field>
+        <field name="field_id" ref="demo_testing_field_chemistry" />
+    </record>
+    <record id="demo_testing_method_en_15662" model="medilab.testing.method">
+        <field name="code">EN 15662:2018</field>
+        <field name="name">Foods of plant origin — Multimethod for the determination of pesticide residues using GC- and LC-based analysis following acetonitrile extraction (QuEChERS)</field>
+        <field name="field_id" ref="demo_testing_field_chemistry" />
+    </record>
+</odoo>

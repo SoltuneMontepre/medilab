@@ -4,8 +4,11 @@ from odoo.tools import format_list
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PARAMETER_GROUP,
+    MODEL_PERMISSION_MIXIN,
     MODEL_TEST_PARAMETER,
 )
 
@@ -13,16 +16,17 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Nhóm Chỉ Tiêu
 class ParameterGroup(models.Model):
     _name = MODEL_PARAMETER_GROUP
-    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Parameter Group"
     _parent_store = True
     _order = "code"
     _rec_names_search = ("name", "code")
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique code of the group, such as NCT.0001; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Group name in each language.
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # The group this one is a sub-group of; empty for a top-level group.
     parent_id = fields.Many2one(MODEL_PARAMETER_GROUP, ondelete="restrict", index=True)
     # Ids of the group and all its ancestors, such as 1/4/9/, so filtering by a group finds its sub-groups in one query.

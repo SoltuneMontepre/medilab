@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_sample_handover_list" model="ir.ui.view">
+        <field name="name">medilab.sample.handover.list</field>
+        <field name="model">medilab.sample.handover</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sample_id" />
+                <field name="department_id" />
+                <field name="received_at" />
+                <field name="received_by_id" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_sample_handover_form" model="ir.ui.view">
+        <field name="name">medilab.sample.handover.form</field>
+        <field name="model">medilab.sample.handover</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="sample_id" />
+                        <field name="department_id" />
+                        <field name="received_at" />
+                        <field name="received_by_id" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_sample_handover_search" model="ir.ui.view">
+        <field name="name">medilab.sample.handover.search</field>
+        <field name="model">medilab.sample.handover</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="sample_id" />
+                <field name="department_id" />
+                <filter name="to_receive" string="To Receive" domain="[('received_at', '=', False)]" />
+                <filter name="received" string="Received" domain="[('received_at', '!=', False)]" />
+                <group>
+                    <filter name="group_by_department" string="Department" context="{'group_by': 'department_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_sample_handover" model="ir.actions.act_window">
+        <field name="name">Sample Handovers</field>
+        <field name="res_model">medilab.sample.handover</field>
+        <field name="path">sample-handovers</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_to_receive': 1}</field>
+    </record>
+</odoo>

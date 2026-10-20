@@ -46,9 +46,11 @@ The customer is an external user of the laboratory. A customer has an account li
 
 - A customer can **self-register** or be **invited** by sales. Self-registration creates an account and a new customer profile; a business is identified by tax code and an individual by citizen ID plus tax code.
 - Self-registration asks for the name, address, phone and email, and the tax code of a business or the citizen ID and tax code of an individual. Registration with any of them missing is refused.
+- A business also gives its company name. The company becomes the customer, and the person who registers becomes its contact, who logs in and is its default contact. An individual is their own contact.
 - If the identity matches an existing profile, the account is flagged for sales to review instead of being merged automatically.
 - The account page shows contact details, tax and identity information, and additional addresses.
-- Order history is a single list of every quotation and order of the customer, with a customer-facing status.
+- Order history is a single list of every quotation and order of the customer, with a customer-facing status: Draft for the cart, Submitted once sent to sales, Quoted once a quotation is sent, then the labels of [Tracking and results](#4-tracking-and-results-us-c18-us-c19).
+- Tax and identity information already submitted is shown, not asked again; a missing citizen ID is asked once.
 
 #### Password reset (US-C04)
 
@@ -67,7 +69,7 @@ A business customer can register the people of their company as **contacts** on 
 
 #### Logo (US-C06)
 
-- The customer uploads a logo image from the account page and can remove it again. Accepted formats are image files up to a size limit, shown before upload.
+- The customer uploads a logo image from the account page and can remove it again. Accepted formats are PNG and JPEG images up to 2 MB, shown before upload.
 - The logo appears on the portal and on documents addressed to the customer, such as the quotation and the result report. After removal, documents show the customer name only.
 - Replacing the logo does not alter documents already issued.
 
@@ -78,12 +80,14 @@ The customer decides **what** they are told about and **where**.
 | Choice        | Options                                                                                                               |
 | ------------- | --------------------------------------------------------------------------------------------------------------------- |
 | What          | Per event type: order updates (submitted, claimed, cancelled), quotation sent, invoice and payment, results released. |
-| Where         | Per event type: email, SMS, in-portal notification. Each event can use one or several channels.                       |
+| Where         | Per event type: email and in-portal notification. Each event can use one or several channels.                         |
 | Which contact | For a business, the contact who receives the notification (see Company contacts).                                     |
 
 Rules:
 
-- Every event has a sensible default so a new customer is notified without configuring anything.
+- A new customer is notified by email without configuring anything.
+- The preferences page lists the invoice and payment events one by one. An event the customer must receive is shown, switched on and locked.
+- A business sends each event to one of its contacts, or to the contact the document names when it chooses none. That contact is notified by email. An event the customer must receive also reaches the contact the document names.
 - Notifications the customer must receive, such as password reset and payment receipts, cannot be turned off.
 - Preferences apply to future notifications only.
 
@@ -97,6 +101,9 @@ Acceptance criteria:
 - A business customer can add, edit and remove contacts, and pick one as the contact of an order from a dropdown.
 - A customer can upload a logo, see it on their documents, and remove it.
 - A customer can choose which events they are notified about and through which channel, and a changed preference applies to the next notification.
+- A notification the customer must receive cannot be turned off.
+- A new customer is notified by email without configuring anything.
+- A business can choose which of its contacts receives an event.
 - Identity fields already submitted are not asked again.
 
 ### 2. Placing an order (US-C08 to US-C12)
@@ -235,23 +242,36 @@ The customer receives one notification per event, through the channels chosen in
 | Payment received                         | Payment receipt                             |
 | Results released                         | Results ready                               |
 
+The results of an order are released on the order, to the order's contact, once for each issued report. A test request the laboratory took without an order tells the customer on its report instead.
+
 ### 6. Support and feedback (US-C20, US-C21)
 
 - **Support.** The customer opens a support request from the portal, optionally linked to an order, and follows the conversation with sales until it is closed.
 - **Feedback.** After an order is completed the customer can rate the service and leave a comment. Feedback is visible to sales and management and is not shown to other customers.
 
+```mermaid
+stateDiagram-v2
+    [*] --> open: customer opens request
+    open --> answered: sales replies
+    answered --> open: customer writes again
+    open --> closed: sales closes
+    answered --> closed: sales closes
+```
+
 | Rule         | Description                                                                                                                  |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | Request      | A support request has a subject and can be linked to one of the customer's orders. Files can be attached to its messages.     |
 | Status       | A request is open, answered once support has replied and the customer has not written since, or closed. Writing on an answered request opens it again. |
+| Closed       | A closed request cannot be written on from the portal; the customer opens a new request for a new question.                   |
 | One feedback | An order has at most one feedback: a rating from 1 to 5 and an optional comment, given once the order is completed.          |
+| Feedback kept | Feedback cannot be changed once given. Only those who can read the order see it, and only an administrator can delete it.  |
 
 Acceptance criteria:
 
 - A support request linked to an order shows on that order for the customer and for sales.
 - A reply from support sets the request to answered and notifies the customer.
 - Feedback can be given only on a completed order, once.
-- Another customer never sees a customer's feedback.
+- Another customer never sees a customer's support requests or feedback.
 
 ## IV. Related documents
 

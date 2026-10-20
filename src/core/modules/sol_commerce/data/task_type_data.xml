@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="task_type_order_cancellation" model="medilab.task.type">
+        <field name="code">order_cancellation</field>
+        <field name="name">Order cancellation</field>
+        <field name="trigger">order_cancellation_requested</field>
+        <field name="document_model">medilab.cancellation.request</field>
+        <field name="action">decide</field>
+        <field name="route">person</field>
+    </record>
+    <record id="task_type_support_request" model="medilab.task.type">
+        <field name="code">support_request</field>
+        <field name="name">Support request</field>
+        <field name="trigger">support_request_opened</field>
+        <field name="document_model">medilab.support.request</field>
+        <field name="action">answer</field>
+        <field name="route">person</field>
+        <field name="deadline_hours">24</field>
+    </record>
+</odoo>

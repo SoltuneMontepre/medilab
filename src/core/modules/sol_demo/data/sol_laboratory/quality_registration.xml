@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_quality_registration_valid" model="medilab.quality.registration">
+        <field name="name">Food testing registration with the Ministry of Health</field>
+        <field name="issuing_authority">Ministry of Health</field>
+        <field name="valid_from" eval="(DateTime.today() - relativedelta(years=1)).strftime('%Y-%m-%d')" />
+        <field name="valid_until" eval="(DateTime.today() + relativedelta(years=2)).strftime('%Y-%m-%d')" />
+        <field name="report_mark">(*)</field>
+        <field
+            name="parameter_method_ids"
+            eval="[Command.set([ref('demo_parameter_method_lead_aas'), ref('demo_parameter_method_coliforms_mpn')])]"
+        />
+    </record>
+    <record id="demo_quality_registration_expired" model="medilab.quality.registration">
+        <field name="name">Environmental monitoring registration with the Ministry of Natural Resources and Environment</field>
+        <field name="issuing_authority">Ministry of Natural Resources and Environment</field>
+        <field name="valid_from" eval="(DateTime.today() - relativedelta(years=4)).strftime('%Y-%m-%d')" />
+        <field name="valid_until" eval="(DateTime.today() - relativedelta(months=2)).strftime('%Y-%m-%d')" />
+        <field name="report_mark">(**)</field>
+        <field
+            name="parameter_method_ids"
+            eval="[Command.set([ref('demo_parameter_method_e_coli_membrane'), ref('demo_parameter_method_ph_water')])]"
+        />
+    </record>
+</odoo>

@@ -6,6 +6,8 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
@@ -19,15 +21,15 @@ CODE_PATTERN = re.compile(r"[a-z][a-z0-9_]*")
 # Vai Trò
 class Role(models.Model):
     _name = MODEL_ROLE
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Role"
     _order = "code"
     _rec_names_search = ("name", "code")
 
     # Unique code of the role: lowercase letters, digits and underscores; cannot change once the role exists.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Role name in each language.
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # The Odoo group generated for the role, which implies the groups of its permissions.
     group_id = fields.Many2one("res.groups", required=True, readonly=True, ondelete="restrict", copy=False)
     # Permissions the role contains.
@@ -75,7 +77,8 @@ class Role(models.Model):
         permissions_before = administrator.permission_ids
         result = super().write(vals)
         if "permission_ids" in vals:
-            if permissions_before - administrator.permission_ids:
+            # Uninstall removes the permissions that came with the module.
+            if not self.env.context.get(MODULE_UNINSTALL_FLAG) and permissions_before - administrator.permission_ids:
                 raise UserError(self.env._("The administrator role holds every permission; none can be removed."))
             self._sync_groups()
         return result

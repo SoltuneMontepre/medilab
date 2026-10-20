@@ -6,11 +6,31 @@ env:
   COMPOSE_FILE: tools/infrastructure/docker-compose.yml
 
 vars:
-  TEST_DB: medilab_test
+  ALL_MODULES:
+    sh: grep -v '^base$' src/core/modules.txt | tr -d '\r' | tr '\n' ',' | sed 's/,$//'
+  EXCLUDE: '{{.EXCLUDE | default ""}}'
+  MODULES: '{{.MODULES | default (without (splitList "," .ALL_MODULES) .EXCLUDE | join ",")}}'
+  TEST_MODULES: '{{.TEST_MODULES | default .MODULES}}'
+  TAGS: '{{range $i, $m := splitList "," .TEST_MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
+  INSTALL_COVERAGE: '{{.INSTALL_COVERAGE | default "true"}}'
+  TEST_DB: '{{.MEDILAB_TEST_DB | default "medilab_test"}}'
+  RUNNER: "{{.RUNNER | default 1}}"
+  RUNNERS: "{{.RUNNERS | default 1}}"
+  TEST_SHARDS: 4
+  TOTAL_SHARDS: "{{mul .RUNNERS .TEST_SHARDS}}"
+  SHARD_NUMBERS: "{{range $i := until .TEST_SHARDS}}{{add (mul (sub $.RUNNER 1) $.TEST_SHARDS) $i 1}} {{end}}"
+  TEST_RUN_DIR: /var/lib/odoo/{{.TEST_DB}}-run
+  ODOO_SCRIPTS: /opt/medilab/scripts
+  TEST_ENV: -e TEST_DB={{.TEST_DB}} -e TEST_RUN_DIR={{.TEST_RUN_DIR}} -e MODULES={{.MODULES}} -e "SHARD_NUMBERS={{.SHARD_NUMBERS}}"
+  COVERAGE_IMAGE: docker.io/library/python:3.12-slim
+  COVERAGE_DIR: "{{.COVERAGE_DIR}}"
   DB_USER: '{{.MEDILAB_DB_USER | default "root"}}'
   COVERAGE_REPORT: src/core/modules/coverage.xml
   E2E_DIR: src/tests
+  E2E_URL: '{{.MEDILAB_URL | default "http://localhost:8069"}}'
   SYNC_APP_DIR: src/applications/medilab-sync
+  TYPECHECK_DIR: tools/typecheck
+  UV: uv --project src/core
   LOG: tools/scripts/log.sh
 
 tasks:
@@ -21,28 +41,98 @@ tasks:
       - task: test:apps
 
   test:core:
-    desc: "Run the tests of every module in src/core/modules.txt with coverage in a throwaway database; task test:core MODULES=a,b limits them"
+    desc: "Run the tests of every module in src/core/modules.txt with coverage, split over parallel shards in throwaway databases; task test:core MODULES=a,b or EXCLUDE=a limits the modules, TEST_MODULES=a runs the tests of only some of them, RUNNER=2 RUNNERS=3 runs this machine's share of the shards, INSTALL_COVERAGE=false installs without coverage"
+    silent: true
+    cmds:
+      - docker compose up -d --wait postgres
+      - task: test:core:clean
+      - defer: { task: test:core:clean }
+      - . {{.LOG}} && log_step "Splitting the test classes into {{.TOTAL_SHARDS}} shards"
+      - docker compose run --rm -T --entrypoint python3 odoo {{.ODOO_SCRIPTS}}/test_shards.py {{.TEST_MODULES}} {{.TOTAL_SHARDS}} {{.TEST_RUN_DIR}}/shards
+      - . {{.LOG}} && log_step "Installing {{.MODULES}}"
+      - docker compose run --rm -T --user root {{.TEST_ENV}} -e TAGS={{.TAGS}} -e INSTALL_COVERAGE={{.INSTALL_COVERAGE}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_install.sh
+      - docker compose exec -T postgres bash -c 'set -e; for n in {{.SHARD_NUMBERS}}; do createdb -U {{.DB_USER}} -T {{.TEST_DB}} {{.TEST_DB}}_$n; done'
+      - . {{.LOG}} && log_step "Running shards {{trim .SHARD_NUMBERS}} of {{.TOTAL_SHARDS}}"
+      - task: test:core:shards
+      - task: test:core:report
+
+  test:core:shards:
+    internal: true
+    deps:
+      - for: { var: SHARD_NUMBERS }
+        task: test:core:shard
+        vars: { SHARD: "{{.ITEM}}" }
+
+  test:core:shard:
+    internal: true
+    silent: true
+    cmds:
+      - docker compose run --rm -T --user root {{.TEST_ENV}} -e SHARD={{.SHARD}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_shard.sh
+
+  test:core:report:
+    internal: true
+    silent: true
+    cmds:
+      - cmd: mkdir -p {{.COVERAGE_DIR}}
+        if: '[ -n "{{.COVERAGE_DIR}}" ]'
+      - cmd: docker compose run --rm -T --user root -v "{{.ROOT_DIR}}/{{.COVERAGE_DIR}}:/export" --entrypoint cp odoo -a {{.TEST_RUN_DIR}}/coverage/. /export/
+        if: '[ -n "{{.COVERAGE_DIR}}" ]'
+      - cmd: docker compose run --rm -T --user root {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_coverage.sh {{.TEST_RUN_DIR}}/coverage
+        if: '[ -z "{{.COVERAGE_DIR}}" ]'
+      - cmd: sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
+        if: '[ -z "{{.COVERAGE_DIR}}" ]'
+      - |
+        set -e
+        . {{.LOG}}
+        failed=$(docker compose run --rm -T {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_status.sh)
+        if [ -n "$failed" ]; then
+          log_error "Odoo module tests failed in shard $failed. Search the output for [shard N]."
+          exit 1
+        fi
+        log_ok "Odoo module tests passed in shards {{trim .SHARD_NUMBERS}}. {{if .COVERAGE_DIR}}Coverage data in {{.COVERAGE_DIR}}{{else}}Coverage report in {{.COVERAGE_REPORT}}{{end}}."
+
+  test:core:coverage:
+    desc: "Combine the coverage data that test:core runners saved in COVERAGE_DIR into the coverage report"
+    silent: true
+    preconditions:
+      - sh: '[ -n "{{.COVERAGE_DIR}}" ]'
+        msg: "Set COVERAGE_DIR to the folder with the coverage data: task test:core:coverage COVERAGE_DIR=.local/coverage"
+    cmds:
+      - docker run --rm -v "{{.ROOT_DIR}}/src/core/modules:/mnt/extra-addons" -v "{{.ROOT_DIR}}/tools/scripts:{{.ODOO_SCRIPTS}}:ro" -v "{{.ROOT_DIR}}/{{.COVERAGE_DIR}}:/coverage" {{.COVERAGE_IMAGE}} bash {{.ODOO_SCRIPTS}}/test_core_coverage.sh /coverage
+      - sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
+      - . {{.LOG}} && log_ok "Coverage report in {{.COVERAGE_REPORT}}."
+
+  test:core:clean:
+    internal: true
+    silent: true
+    cmds:
+      - docker compose exec -T postgres bash -c 'set -e; for db in {{.TEST_DB}} $(for n in {{.SHARD_NUMBERS}}; do echo {{.TEST_DB}}_$n; done); do dropdb -U {{.DB_USER}} --if-exists $db; done'
+      - docker compose run --rm -T --user root --entrypoint rm odoo -rf {{.TEST_RUN_DIR}}
+
+  test:uninstall:
+    desc: "Install the modules in a throwaway database, uninstall commerce and inventory and check that the Laboratory data is intact"
     silent: true
     vars:
-      ALL_MODULES:
-        sh: grep -v '^base$' src/core/modules.txt | tr -d '\r' | tr '\n' ',' | sed 's/,$//'
-      MODULES: '{{.MODULES | default .ALL_MODULES}}'
-      TAGS: '{{range $i, $m := splitList "," .MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
+      MODULES: sol_laboratory,sol_commerce,sol_inventory
+      STANDALONE_TAG: medilab_uninstall
     cmds:
       - docker compose up -d --wait postgres
       - docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
       - defer: docker compose exec -T postgres dropdb -U {{.DB_USER}} --if-exists {{.TEST_DB}}
+      - docker compose run --rm -T odoo -d {{.TEST_DB}} -i {{.MODULES}} --stop-after-init --log-level=warn
       - |
-        docker compose run --rm -T --user root --entrypoint bash odoo -c '
-          pip install -q --root-user-action=ignore --break-system-packages coverage
-          cd /mnt/extra-addons
-          runuser -u odoo -- python3 -m coverage run --branch --source={{.MODULES}} --omit="*/tests/*" --data-file=/tmp/.coverage -m odoo             --db_host "$HOST" --db_user "$USER" --db_password "$PASSWORD"             -d {{.TEST_DB}} -i {{.MODULES}} --test-enable --test-tags "{{.TAGS}}" --stop-after-init --log-level=test
-          status=$?
-          python3 -m coverage xml --data-file=/tmp/.coverage -o coverage.xml
-          exit $status'
-      - |
-        sed -i 's|filename=.|&src/core/modules/|' {{.COVERAGE_REPORT}}
-      - . {{.LOG}} && log_ok "Odoo module tests passed ({{.MODULES}}). Coverage report in {{.COVERAGE_REPORT}}."
+        docker compose run --rm -T --entrypoint bash odoo -c '
+          set -e
+          export PGHOST="$HOST" PGUSER="$USER" PGPASSWORD="$PASSWORD"
+          python3 -m odoo.tests.test_module_operations -d {{.TEST_DB}} standalone {{.STANDALONE_TAG}} 2>&1 | tee /tmp/standalone.log
+          ! grep -q "Standalone script .* failed" /tmp/standalone.log'
+      - . {{.LOG}} && log_ok "Uninstall test passed."
+
+  test:typecheck:
+    desc: "Check that task typecheck resolves the module imports and still fails on missing names and type errors"
+    cmds:
+      - task: dev:odoo-links
+      - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
 
   test:e2e:
     desc: "Run the browser tests against the running Odoo; task test:e2e needs task up first"
@@ -57,21 +147,26 @@ tasks:
         . {{.ROOT_DIR}}/{{.LOG}}
         log_ok "Browser tests passed."
 
+  test:e2e:app:
+    desc: "Install every module with the demo data and start Odoo for the browser tests, as ci-core does"
+    silent: true
+    cmds:
+      - . {{.LOG}} && log_step "Installing {{.ALL_MODULES}}"
+      - docker compose up -d --wait postgres
+      - docker compose run --rm -T odoo -i {{.ALL_MODULES}} --stop-after-init --log-level=warn
+      - . {{.LOG}} && log_step "Starting Odoo"
+      - docker compose up -d odoo
+      - |
+        set -e
+        . {{.LOG}}
+        if ! curl -fsS --retry 30 --retry-delay 2 --retry-all-errors -o /dev/null {{.E2E_URL}}/web/health; then
+          log_error "Odoo did not answer at {{.E2E_URL}}. Read its log with task logs."
+          exit 1
+        fi
+        log_ok "Odoo is ready at {{.E2E_URL}}."
+
   test:apps:
     desc: "Run the application tests"
     silent: true
     cmds:
-      - |
-        set -e
-        . {{.LOG}}
-        cd {{.SYNC_APP_DIR}}
-        log_step "Medilab Sync frontend"
-        bun install --frozen-lockfile
-        bun test
-        if command -v cargo >/dev/null 2>&1; then
-          log_step "Medilab Sync backend"
-          cargo test --manifest-path src-tauri/Cargo.toml
-        else
-          log_info "cargo not found, skipping the Rust tests. Install: winget install Rustlang.Rustup"
-        fi
-        log_ok "Application tests passed."
+      - . tools/scripts/test_apps.sh {{.SYNC_APP_DIR}}

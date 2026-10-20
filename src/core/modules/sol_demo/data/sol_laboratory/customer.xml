@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_customer_an_phu" model="medilab.customer">
+        <field name="partner_id" ref="demo_res_partner_an_phu" />
+    </record>
+    <record id="demo_customer_green_farm" model="medilab.customer">
+        <field name="partner_id" ref="demo_res_partner_green_farm" />
+    </record>
+    <record id="demo_customer_pham_van_long" model="medilab.customer">
+        <field name="partner_id" ref="demo_res_partner_pham_van_long" />
+        <field name="citizen_id">079085001234</field>
+    </record>
+    <record id="demo_customer_nuoc_sach" model="medilab.customer">
+        <field name="partner_id" ref="demo_res_partner_nuoc_sach" />
+        <field name="default_contact_id" ref="demo_res_partner_hoa" />
+    </record>
+    <record id="demo_customer_minh" model="medilab.customer">
+        <field name="partner_id" ref="demo_res_partner_minh" />
+    </record>
+    <!-- Self-registered with the tax code of Nông Sản Xanh Lâm Đồng, waiting for sales to review it. -->
+    <record id="demo_customer_nong_san_registered" model="medilab.customer">
+        <field name="partner_id" ref="demo_res_partner_nong_san_registered" />
+        <field name="default_contact_id" ref="demo_res_partner_tai" />
+        <field name="duplicate_of_id" ref="demo_customer_green_farm" />
+    </record>
+</odoo>

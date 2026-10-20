@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_sample_list" model="ir.ui.view">
+        <field name="name">medilab.sample.list</field>
+        <field name="model">medilab.sample</field>
+        <field name="arch" type="xml">
+            <list duplicate="0" decoration-muted="status in ('cancelled', 'disposed')">
+                <field name="code" />
+                <field name="request_id" />
+                <field name="customer_sample_name" />
+                <field name="sample_type_id" />
+                <field name="physical_state" optional="show" />
+                <field name="regulation_id" optional="show" />
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-info="status in ('received', 'testing')"
+                    decoration-warning="status in ('expected', 'on_hold', 'awaiting_approval')"
+                    decoration-success="status in ('completed', 'reported', 'retained')"
+                    decoration-danger="status in ('rejected', 'cancelled')"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_sample_form" model="ir.ui.view">
+        <field name="name">medilab.sample.form</field>
+        <field name="model">medilab.sample</field>
+        <field name="arch" type="xml">
+            <form duplicate="0">
+                <header>
+                    <button
+                        name="action_receive_entered"
+                        type="object"
+                        string="Receive"
+                        class="btn-primary"
+                        invisible="status != 'expected'"
+                        groups="sol_laboratory.group_permission_sample_edit_all"
+                    />
+                    <button
+                        name="action_receive_more_entered"
+                        type="object"
+                        string="Receive More"
+                        class="btn-primary"
+                        invisible="status != 'on_hold'"
+                        groups="sol_laboratory.group_permission_sample_edit_all"
+                    />
+                    <button
+                        name="action_request_recollection"
+                        type="object"
+                        string="Collect Again"
+                        class="btn-primary"
+                        invisible="status != 'on_hold'"
+                        groups="sol_laboratory.group_permission_sample_edit_all"
+                    />
+                    <button
+                        name="action_dispose"
+                        type="object"
+                        string="Dispose"
+                        class="btn-danger"
+                        invisible="status not in ('reported', 'retained', 'cancelled')"
+                        confirm="Dispose of this sample? This cannot be undone."
+                        groups="sol_laboratory.group_permission_sample_edit_all"
+                    />
+                    <field
+                        name="status"
+                        widget="statusbar"
+                        statusbar_visible="expected,received,testing,awaiting_approval,completed,reported"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="code" />
+                        <h1><field name="code" placeholder="Given when the sample is saved" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="request_id" />
+                            <field name="customer_sample_name" />
+                            <field name="sample_type_id" />
+                            <field name="physical_state" />
+                        </group>
+                        <group>
+                            <field name="sample_form" />
+                            <field name="container_type" />
+                            <field name="regulation_id" />
+                        </group>
+                    </group>
+                    <group string="Receipt">
+                        <group>
+                            <field name="received_quantity" readonly="status not in ('expected', 'on_hold')" />
+                            <field name="condition" readonly="status != 'expected'" />
+                            <field name="condition_note" readonly="status != 'expected'" />
+                            <field name="storage_location" readonly="status not in ('expected', 'on_hold')" />
+                        </group>
+                        <group>
+                            <field name="received_at" />
+                            <field name="received_by_id" />
+                            <field name="recollection_requested_at" />
+                            <field name="recollection_requested_by_id" />
+                        </group>
+                    </group>
+                    <group string="Retention">
+                        <group>
+                            <field name="retained_until" />
+                            <field name="disposal_note" readonly="status == 'disposed'" />
+                        </group>
+                        <group>
+                            <field name="disposed_at" />
+                            <field name="disposed_by_id" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tests" name="tests">
+                            <field name="test_ids">
+                                <list editable="bottom">
+                                    <field name="parameter_id" />
+                                    <field name="quantity" />
+                                    <field name="due_date" />
+                                    <field name="status" widget="badge" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Handovers" name="handovers">
+                            <field name="handover_ids">
+                                <list editable="bottom">
+                                    <field name="department_id" />
+                                    <field name="received_at" />
+                                    <field name="received_by_id" />
+                                </list>
+                            </field>
+                        </page>
+                        <page
+                            string="Photos"
+                            name="photos"
+                            groups="sol_laboratory.group_permission_test_request_read_all"
+                        >
+                            <field name="photo_ids" widget="many2many_binary" />
+                        </page>
+                        <page string="Note" name="note">
+                            <field name="note" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_sample_search" model="ir.ui.view">
+        <field name="name">medilab.sample.search</field>
+        <field name="model">medilab.sample</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code" />
+                <field name="request_id" />
+                <field name="customer_sample_name" />
+                <field name="sample_type_id" />
+                <filter name="expected" string="Expected" domain="[('status', '=', 'expected')]" />
+                <filter name="on_hold" string="On Hold" domain="[('status', '=', 'on_hold')]" />
+                <filter name="rejected" string="Rejected" domain="[('status', '=', 'rejected')]" />
+                <filter name="retained" string="Retained" domain="[('status', '=', 'retained')]" />
+                <filter
+                    name="open"
+                    string="Open"
+                    domain="[('status', 'not in', ('rejected', 'reported', 'retained', 'disposed', 'cancelled'))]"
+                />
+                <group>
+                    <filter name="group_by_request" string="Test Request" context="{'group_by': 'request_id'}" />
+                    <filter name="group_by_status" string="Status" context="{'group_by': 'status'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_sample" model="ir.actions.act_window">
+        <field name="name">Samples</field>
+        <field name="res_model">medilab.sample</field>
+        <field name="path">samples</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

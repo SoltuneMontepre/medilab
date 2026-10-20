@@ -1,0 +1,7 @@
+# Reports what runs on each node without changing it.
+- name: Inspect nodes
+  hosts: all
+  become: true
+  gather_facts: false
+  roles:
+    - inspect

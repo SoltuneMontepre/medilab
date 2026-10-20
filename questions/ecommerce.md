@@ -7,6 +7,9 @@
 - **Sales data retention.** Orders, quotations and invoices older than a year could be archived and removed, keeping the last year in the system for trends. Which records, after how long, and does Vietnamese accounting law require keeping invoices longer in the system?
 - **Discounts.** Odoo discounts an order line by a percentage, and the whole order by a discount line. The documents also allow a fixed amount off a line. Is a percentage per line enough? (blocks US-S06)
 - **Tax rates over time.** An Odoo tax has one rate. A change of rate for a period, such as VAT going from 10% to 8%, is a new tax put on the products for that period, and lines already priced keep their tax. Is that enough, or must the rate follow the quotation date by itself? (blocks US-AD18)
+- **Package revenue over time.** The revenue report spreads a package line over its parameters by the package's parameters and prices of today, so a later change to a package or a parameter price moves past revenue between groups. Is that acceptable, or must each invoice line keep the spread of the day it was invoiced? (US-A14)
+- **Support request deadline.** A support request's task is due 24 elapsed hours after it reaches the salesperson, nights and weekends included, and the administrator can change the default on the task type. This is the provisional default; it awaits formal confirmation, including whether only working hours should count. (blocks US-S20)
+- **Priority surcharge.** A priority order makes its tests urgent. Does it cost more, and is the surcharge a line on the quotation?
 
 ## Related documents
 

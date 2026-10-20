@@ -1,7 +1,14 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION_MIXIN, MODEL_ROLE, MODEL_TASK, MODEL_TASK_TYPE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_ROLE,
+    MODEL_TASK,
+    MODEL_TASK_TYPE,
+)
 from odoo.addons.sol_laboratory.constants.tasks import MANUAL_TRIGGER
 
 EDITABLE_FIELDS = {"route", "role_id", "deadline_hours"}
@@ -10,16 +17,16 @@ EDITABLE_FIELDS = {"route", "role_id", "deadline_hours"}
 # Loại Nhiệm Vụ
 class TaskType(models.Model):
     _name = MODEL_TASK_TYPE
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Task Type"
     _order = "name"
     _rec_names_search = ("name", "code")
     _permission_actions = ("edit",)
 
     # Unique code of the task type.
-    code = fields.Char(required=True, readonly=True, copy=False)
+    code = fields.Char(required=True, readonly=True, copy=False, index="trigram")
     # Task type name in each language.
-    name = fields.Char(required=True, readonly=True, translate=True)
+    name = fields.Char(required=True, readonly=True, translate=True, index="trigram")
     # Event that creates its tasks, such as sample_received; manual for tasks people create.
     trigger = fields.Char(required=True, readonly=True, default=MANUAL_TRIGGER)
     # Technical name of the document its tasks open, such as medilab.sample.test.

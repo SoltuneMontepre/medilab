@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_test_request_draft" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_green_farm" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=13)).strftime('%Y-%m-%d')" />
+    </record>
+    <record id="demo_test_request_confirmed" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_pham_van_long" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=2)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=12)).strftime('%Y-%m-%d')" />
+        <field name="report_language">vi</field>
+        <field name="delivery_method">post</field>
+        <field name="delivery_note">48 Lê Văn Sỹ, Phường 13, Quận 3, Hồ Chí Minh</field>
+        <field name="status">confirmed</field>
+    </record>
+    <record id="demo_test_request_paid" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=3)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=11)).strftime('%Y-%m-%d')" />
+        <field name="status">paid</field>
+    </record>
+    <record id="demo_test_request_sample_received" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_green_farm" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=6)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=8)).strftime('%Y-%m-%d')" />
+        <field name="status">sample_received</field>
+    </record>
+    <record id="demo_test_request_testing" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=10)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=4)).strftime('%Y-%m-%d')" />
+        <field name="status">testing</field>
+    </record>
+    <record id="demo_test_request_awaiting_approval" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_pham_van_long" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=13)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=1)).strftime('%Y-%m-%d')" />
+        <field name="status">awaiting_approval</field>
+    </record>
+    <record id="demo_test_request_completed" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_green_farm" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=21)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() - relativedelta(days=7)).strftime('%Y-%m-%d')" />
+        <field name="status">completed</field>
+    </record>
+    <record id="demo_test_request_reported" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=31)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() - relativedelta(days=17)).strftime('%Y-%m-%d')" />
+        <field name="report_language">en</field>
+        <field name="delivery_method">email</field>
+        <field name="report_recipient_id" ref="demo_res_partner_an_phu_quality" />
+        <field name="status">reported</field>
+    </record>
+    <record id="demo_test_request_order" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=10)).strftime('%Y-%m-%d')" />
+        <field name="report_language">vi</field>
+        <field name="delivery_method">email</field>
+        <field name="report_recipient_id" ref="demo_res_partner_an_phu_quality" />
+    </record>
+    <record id="demo_test_request_cancelled" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_pham_van_long" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=26)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() - relativedelta(days=12)).strftime('%Y-%m-%d')" />
+        <field name="note">The customer sold the property before the samples were collected.</field>
+        <field name="status">cancelled</field>
+    </record>
+    <record id="demo_test_request_reception" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() + relativedelta(days=7)).strftime('%Y-%m-%d')" />
+        <field name="status">sample_received</field>
+    </record>
+    <record id="demo_test_request_retention" model="medilab.test.request">
+        <field name="customer_id" ref="demo_customer_an_phu" />
+        <field name="request_date" eval="(DateTime.today() - relativedelta(days=40)).strftime('%Y-%m-%d')" />
+        <field name="expected_date" eval="(DateTime.today() - relativedelta(days=20)).strftime('%Y-%m-%d')" />
+        <field name="status">reported</field>
+    </record>
+</odoo>

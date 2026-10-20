@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="scheduled_job_notifications_remind" model="medilab.scheduled.job">
+        <field name="key">notifications.remind</field>
+        <field name="name">Notification reminders</field>
+        <field name="cron_id" ref="ir_cron_notifications_remind" />
+        <field name="batch_size">50</field>
+        <field name="max_attempts">5</field>
+    </record>
+    <record id="scheduled_job_notifications_email" model="medilab.scheduled.job">
+        <field name="key">notifications.email</field>
+        <field name="name">Notification email</field>
+        <field name="cron_id" ref="ir_cron_notifications_email" />
+        <field name="batch_size">50</field>
+        <field name="max_attempts">5</field>
+    </record>
+    <record id="scheduled_job_notifications_push" model="medilab.scheduled.job">
+        <field name="key">notifications.push</field>
+        <field name="name">Notification push</field>
+        <field name="cron_id" ref="ir_cron_notifications_push" />
+        <field name="batch_size">50</field>
+        <field name="max_attempts">5</field>
+    </record>
+    <record id="scheduled_job_sample_retention_reminders" model="medilab.scheduled.job">
+        <field name="key">sample.retention.reminders</field>
+        <field name="name">Sample retention reminders</field>
+        <field name="cron_id" ref="ir_cron_sample_retention_reminders" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
+    <record id="scheduled_job_digital_signing_sign" model="medilab.scheduled.job">
+        <field name="key">digital_signing.sign</field>
+        <field name="name">Digital signing</field>
+        <field name="cron_id" ref="ir_cron_digital_signing_sign" />
+        <field name="batch_size">20</field>
+        <field name="max_attempts">8</field>
+    </record>
+    <record id="scheduled_job_digital_signing_certificates" model="medilab.scheduled.job">
+        <field name="key">digital_signing.certificates</field>
+        <field name="name">Signing certificates</field>
+        <field name="cron_id" ref="ir_cron_digital_signing_certificates" />
+        <field name="batch_size">1</field>
+        <field name="max_attempts">5</field>
+    </record>
+    <record id="scheduled_job_document_locks_expire" model="medilab.scheduled.job">
+        <field name="key">document_locks.expire</field>
+        <field name="name">Expire document locks</field>
+        <field name="cron_id" ref="ir_cron_document_locks_expire" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
+    <record id="scheduled_job_cleanup" model="medilab.scheduled.job">
+        <field name="key">cleanup</field>
+        <field name="name">Cleanup</field>
+        <field name="cron_id" ref="ir_cron_cleanup" />
+        <field name="batch_size">10</field>
+        <field name="max_attempts">3</field>
+    </record>
+    <record id="scheduled_job_accreditation_refresh" model="medilab.scheduled.job">
+        <field name="key">accreditation.refresh</field>
+        <field name="name">Accreditation refresh</field>
+        <field name="cron_id" ref="ir_cron_accreditation_refresh" />
+        <field name="batch_size">100</field>
+        <field name="max_attempts">3</field>
+    </record>
+</odoo>

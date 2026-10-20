@@ -9,3 +9,19 @@ variable "secrets" {
   default     = {}
   sensitive   = true
 }
+
+variable "environments" {
+  description = "Deployment environments to create, as name => the only branch that may deploy and the GitHub usernames that must approve"
+  type = map(object({
+    branch    = string
+    reviewers = optional(list(string), [])
+  }))
+  default = {}
+}
+
+variable "environment_secrets" {
+  description = "Secrets to publish to every environment, as name => value"
+  type        = map(string)
+  default     = {}
+  sensitive   = true
+}

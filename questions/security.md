@@ -5,6 +5,7 @@
 - **Archived people.** Archiving a person archives their Odoo user, so they can no longer sign in. Is that wanted, or should an archived person keep signing in? (blocks US-AD13)
 - **Passwords.** Only Odoo administrators set a person's password, from the user form. May someone allowed to edit people set it too? (blocks US-AD13)
 - **Role terms.** The requirements give no Vietnamese names for the roles, so the glossary proposes them. Are they right? Lab head (Trưởng Phòng Thí Nghiệm) and head of department (Trưởng Phòng) read very close. (blocks US-AD15)
+- **Subcontractor contact people.** The subcontractor permissions create and change the subcontractor's company contact, but creating a new contact person from the subcontractor form still needs Odoo's contact rights, which only administrators hold. Should the subcontractor permissions let people create its contact people too? (blocks US-AD12)
 - **Records without a department.** A permission limited to the person's department does not show records that have no department. Should such records be visible to everyone with that permission instead? (blocks US-AD15)
 
 ## Related documents

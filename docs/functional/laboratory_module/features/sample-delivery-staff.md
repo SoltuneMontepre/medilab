@@ -41,6 +41,7 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 | Scheduled task | Sales schedules a sample collection task on an order. A head of department's request to collect a sample again schedules one too. |
 | Done by hand   | The task is marked done once the samples are collected.                                                           |
 | Photos         | Photos of a sample are attached when it is collected or received, on the web or the mobile app. Testers never see them. |
+| Sampling location | When a sample is collected or received, the location it was taken from, such as sampling point RO-01, can be chosen from the locations. |
 | Handover record | The handover record lists each sample with the amount and condition handed over, who handed it over for the customer and who took it. The customer signs by hand on the mobile app; the signed PDF is emailed to the customer. A signed record cannot be edited; a correction is a new record. |
 
 Acceptance criteria:
@@ -59,6 +60,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | Test request  | Without an order, sample delivery staff create the test request: customer, samples with their sample type, physical state and regulation, the parameters of each sample, expected date, report language, delivery method and report recipient. |
+| Return estimate | The test request shows the estimated return date of its samples and parameters, and an earlier expected date is checked as a [priority request](../overview.md#testing-work-and-scheduling) before it is accepted. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
 | Receipt       | Receipt records when and by whom the sample was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
 | Testing tasks | Receiving a sample creates a testing task for each of its sample tests in the queue of the department that does the work.   |
@@ -89,12 +91,12 @@ Follows [Reports and change requests](../overview.md#reports-and-change-requests
 
 | Rule     | Description                                                                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------- |
-| Waiting  | Issued reports not yet delivered are listed with their delivery method, note and the contact who receives them.     |
+| Waiting  | Issued reports whose PDF is ready and not yet delivered are listed with their delivery method, note and the contact who receives them. A report waiting for its digital signature is listed once it is signed. |
 | Delivery | Sample delivery staff deliver the report as the test request says and record when it was delivered; they are recorded as who delivered it. A report sent by email is emailed to its recipient from the system. |
 
 Acceptance criteria:
 
-- An issued report appears in the list waiting for delivery until its delivery is recorded.
+- An issued report appears in the list waiting for delivery once its PDF is ready, until its delivery is recorded.
 - Recording a delivery stores when and by whom.
 - A report not yet issued cannot be delivered.
 

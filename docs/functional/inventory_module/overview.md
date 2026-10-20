@@ -6,8 +6,8 @@ The Inventory module keeps the laboratory's stock: chemicals and reagents, consu
 
 | Rule          | Description                                                                                                                                   |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Items         | A stock item is a chemical or reagent, a consumable or a spare part, counted in one unit. A chemical item stocks one Laboratory chemical.        |
-| Tracking      | Each item is tracked by container, by lot or by quantity. Chemicals and reagents are tracked by container. Sterile or chemically treated consumables, such as swabs, special filters and culture plates, are tracked by lot for their expiry. Basic protective equipment, such as masks and gloves, and spare parts are tracked by quantity only. |
+| Items         | A stock item is a chemical or reagent, a consumable, a spare part or a prepared solution, counted in one unit. A chemical item stocks one Laboratory chemical. A prepared solution is made in the laboratory and never bought; a ready-made solution bought from a supplier is a chemical or reagent. |
+| Tracking      | Each item is tracked by container, by lot or by quantity. Chemicals and reagents, and prepared solutions, are tracked by container. Sterile or chemically treated consumables, such as swabs, special filters and culture plates, are tracked by lot for their expiry. Basic protective equipment, such as masks and gloves, and spare parts are tracked by quantity only. |
 | Lots          | Items tracked by container or lot are kept by lot, with the expiry date printed on the container and the manufacturer's certificate.          |
 | Stock on hand | The quantity of each item, lot and location is kept up to date by moves.                                                                      |
 | Moves         | Every change of stock is a move: a receipt, an issue to a lower store, a transfer, a preparation, a use, waste, a disposal or a stock take correction. Moves are never edited; a mistake is corrected by another move. |
@@ -30,6 +30,7 @@ flowchart LR
 | Rule        | Description                                                                                                                                         |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Locations   | Stock is kept in a tree of locations, such as a store, a room and a fridge. A location states its storage conditions.                             |
+| Place       | A stock location can name the [location](../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) of the company's premises it is in, such as the room a store is in or the bench a fridge stands on. Choosing a location of the premises, such as a floor, shows the stock of every stock location in it or in the locations under it. |
 | Stores      | Some locations are stores. The administrator sets up the stores to suit the laboratory's size: one central store for the whole laboratory, or a central store with a store for each department under it and, in a large centre, a store for each team under its department. Stores can be nested to any depth, and the locations inside a store belong to it. |
 | Holder      | A store below the central store is held by a department or a team.                                                                                  |
 | Manager     | Each store names the person who manages it. The central store is managed by a storekeeper; a team store is usually managed by its team lead.       |
@@ -100,9 +101,9 @@ stateDiagram-v2
 
 | Rule            | Description                                                                                                                         |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Suppliers       | A supplier is a company contact with a code, a default contact person and the items it sells, with its own references and last prices. |
-| Purchase orders | A purchase order to one supplier lists items, quantities and prices. It is signed through its approval chain before it is sent.     |
-| Receipts        | Goods that arrive are received against a purchase order, or without one, into a location of the central store, with their lot, expiry, quantity, price and certificate. A done receipt creates the lots, containers and moves. |
+| Suppliers       | A supplier is a company contact with a code, a default contact person and the items it sells, with its own references and last prices; a receipt sets the last price of each item it brings in with a price. |
+| Purchase orders | A purchase order to one supplier lists items, quantities and prices, and the department that asked for them. It is signed through its approval chain before it is sent, and sending it confirms it. |
+| Receipts        | Goods that arrive are received against a purchase order, or without one, into a location of the central store, with their lot, expiry, quantity, price and the manufacturer's certificate. A done receipt creates the lots, containers and moves. |
 | Received amount | A purchase order is partially received or received from the quantities its receipts brought in.                                     |
 
 ## Costs

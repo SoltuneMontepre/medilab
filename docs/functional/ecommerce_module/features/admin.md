@@ -61,6 +61,12 @@ Acceptance criteria:
 - A package that nothing refers to can be deleted, together with its lines.
 - A package on an unfinished quotation cannot be archived; the message lists the quotations.
 
+### 3. Order templates
+
+Order templates are archived when no longer offered for reuse. Deleting a template removes its selections and leaves its source and generated orders intact. Its product references restrict product deletion, and its source order cannot be deleted while it is referenced. Existing catalog retirement rules still apply; unavailable selections are reported when a template is reused.
+
+When a source order changes customer, Head of Sales and administrators with access to that source and the relevant template permissions can inspect the template with the **Customer mismatch** filter. They may archive it or delete it and save a replacement from the correct order. The customer and source references remain immutable. Deleting the template releases its source-order reference; existing source-order deletion rules still apply. Audit history remains available after deletion. Inconsistent templates cannot create orders, even with administrative privileges.
+
 ## III. Related documents
 
 - [Admin Core](../../laboratory_module/features/admin.md)

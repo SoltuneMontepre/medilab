@@ -2,8 +2,11 @@ from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
+    MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PARAMETER_METHOD,
+    MODEL_PERMISSION_MIXIN,
     MODEL_QUALITY_REGISTRATION,
 )
 
@@ -11,15 +14,16 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Hồ Sơ Đăng Ký Chất Lượng
 class QualityRegistration(models.Model):
     _name = MODEL_QUALITY_REGISTRATION
-    _inherit = [MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Quality Registration"
     _order = "code"
     _rec_names_search = ("name", "code")
+    _permission_actions = ("create", "edit", "archive", "delete")
 
     # Unique code of the dossier; filled from a sequence when left empty.
-    code = fields.Char(required=True, copy=False)
+    code = fields.Char(required=True, copy=False, index="trigram")
     # Dossier name in each language.
-    name = fields.Char(required=True, translate=True)
+    name = fields.Char(required=True, translate=True, index="trigram")
     # The ministry or body the dossier is registered with.
     issuing_authority = fields.Char()
     # First day the registration is valid.
@@ -34,6 +38,7 @@ class QualityRegistration(models.Model):
         "medilab_quality_registration_parameter_method_rel",
         "registration_id",
         "parameter_method_id",
+        ondelete="restrict",
         string="Covered Ways of Testing",
     )
     # False when the dossier is archived.

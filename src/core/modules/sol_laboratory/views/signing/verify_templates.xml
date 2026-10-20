@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="verify_page" name="Verify a Signed Document">
+        <t t-call="portal.frontend_layout">
+            <div class="container py-4" style="max-width: 48rem">
+                <h1>Verify a signed document</h1>
+                <p class="text-muted">
+                    Upload a PDF the laboratory digitally signed to check its signature and that it has not changed.
+                </p>
+                <form method="post" action="/verify" enctype="multipart/form-data" class="d-flex gap-2 mb-4">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <input type="file" name="document" accept="application/pdf" class="form-control" required="required" />
+                    <button type="submit" class="btn btn-primary">Verify</button>
+                </form>
+                <t t-if="result">
+                    <div t-if="result['valid']" class="alert alert-success" role="status">
+                        Valid: the laboratory digitally signed this document and it has not changed since.
+                    </div>
+                    <div t-elif="not result['signed']" class="alert alert-danger" role="status">
+                        Not valid: this file has no digital signature.
+                    </div>
+                    <div t-else="" class="alert alert-danger" role="status">Not valid: a check below failed.</div>
+                    <table t-if="result['signed']" class="table">
+                        <tbody>
+                            <tr>
+                                <td>The digital signature verifies</td>
+                                <td class="text-end">
+                                    <span t-if="result['signature_valid']" class="badge text-bg-success">Passed</span>
+                                    <span t-else="" class="badge text-bg-danger">Failed</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Signed with the laboratory's certificate</td>
+                                <td class="text-end">
+                                    <span t-if="result['laboratory_certificate']" class="badge text-bg-success">Passed</span>
+                                    <span t-else="" class="badge text-bg-danger">Failed</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Unchanged since it was signed</td>
+                                <td class="text-end">
+                                    <span t-if="result['unchanged']" class="badge text-bg-success">Passed</span>
+                                    <span t-else="" class="badge text-bg-danger">Failed</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <t t-if="result['valid']">
+                        <t t-set="signature" t-value="result['signature']" />
+                        <h2 class="h4 mt-4">Document</h2>
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>Document</td>
+                                    <td t-out="signature.document_name" />
+                                </tr>
+                                <tr>
+                                    <td>Digitally signed</td>
+                                    <td><span t-field="signature.signed_at" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Certificate</td>
+                                    <td t-out="signature.certificate_id.name" />
+                                </tr>
+                                <tr>
+                                    <td>Certificate status</td>
+                                    <td><span t-field="signature.certificate_id.status" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Certificate valid until</td>
+                                    <td><span t-field="signature.certificate_id.valid_to" t-options="{'widget': 'date'}" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2 class="h4 mt-4">Approved by</h2>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Signer</th>
+                                    <th>Role</th>
+                                    <th>Level</th>
+                                    <th>Signed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="signature._approvals()" t-as="approval">
+                                    <td t-out="approval.signer_name" />
+                                    <td t-out="approval.signer_role" />
+                                    <td t-out="approval.level_name" />
+                                    <td><span t-field="approval.create_date" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

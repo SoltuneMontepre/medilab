@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_regulation_qcvn_6_1" model="medilab.regulation">
+        <field name="code">QCVN 6-1:2010/BYT</field>
+        <field name="name">National technical regulation on natural mineral waters and bottled drinking waters</field>
+        <field name="issuing_authority">Ministry of Health</field>
+        <field name="sample_type_ids" eval="[Command.set([ref('demo_sample_type_bottled_water')])]" />
+    </record>
+</odoo>

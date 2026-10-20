@@ -1,0 +1,15 @@
+from . import (
+    account_move,
+    account_payment,
+    audit_entry,
+    cash_flow_report,
+    invoice_adjustment,
+    payment_provider,
+    payment_transaction,
+    receivable_report,
+    reconciliation_day,
+    res_config_settings,
+    revenue_report,
+    sale_order,
+    scheduled_job,
+)

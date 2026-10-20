@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_product_supplierinfo_nitric_acid_vietnam_chemicals" model="product.supplierinfo">
+        <field name="partner_id" ref="demo_res_partner_vietnam_chemicals" />
+        <field name="product_id" ref="demo_product_product_nitric_acid" />
+        <field name="product_code">VLC-HNO3-500</field>
+        <field name="price">370</field>
+    </record>
+    <record id="demo_product_supplierinfo_sodium_chloride_vietnam_chemicals" model="product.supplierinfo">
+        <field name="partner_id" ref="demo_res_partner_vietnam_chemicals" />
+        <field name="product_id" ref="demo_product_product_sodium_chloride" />
+        <field name="product_code">VLC-NACL-500</field>
+        <field name="price">500</field>
+    </record>
+    <record id="demo_product_supplierinfo_acetonitrile_vietnam_chemicals" model="product.supplierinfo">
+        <field name="partner_id" ref="demo_res_partner_vietnam_chemicals" />
+        <field name="product_id" ref="demo_product_product_acetonitrile" />
+        <field name="product_code">VLC-ACN-2500</field>
+        <field name="price">260</field>
+    </record>
+    <record id="demo_product_supplierinfo_nitric_acid_labware_supplies" model="product.supplierinfo">
+        <field name="partner_id" ref="demo_res_partner_labware_supplies" />
+        <field name="product_id" ref="demo_product_product_nitric_acid" />
+        <field name="product_code">LS-HNO3</field>
+        <field name="price">390</field>
+    </record>
+    <record id="demo_product_supplierinfo_agar_plates_labware_supplies" model="product.supplierinfo">
+        <field name="partner_id" ref="demo_res_partner_labware_supplies" />
+        <field name="product_id" ref="demo_product_product_agar_plates" />
+        <field name="product_code">LS-PCA-90</field>
+        <field name="price">15000</field>
+    </record>
+    <record id="demo_product_supplierinfo_nitrile_gloves_labware_supplies" model="product.supplierinfo">
+        <field name="partner_id" ref="demo_res_partner_labware_supplies" />
+        <field name="product_id" ref="demo_product_product_nitrile_gloves" />
+        <field name="product_code">LS-GLV-M</field>
+        <field name="price">2500</field>
+    </record>
+    <record id="demo_product_supplierinfo_nitrile_gloves_saigon_glassware" model="product.supplierinfo">
+        <field name="partner_id" ref="demo_res_partner_saigon_glassware" />
+        <field name="product_id" ref="demo_product_product_nitrile_gloves" />
+        <field name="product_code">SG-NG-M</field>
+        <field name="price">2300</field>
+    </record>
+</odoo>

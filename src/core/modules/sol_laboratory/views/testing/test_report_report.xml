@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_test_report" model="ir.actions.report">
+        <field name="name">Test Report</field>
+        <field name="model">medilab.test.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sol_laboratory.report_test_report</field>
+        <field name="print_report_name">'Test report %s' % (object.code or object.request_id.code)</field>
+        <field name="group_ids" eval="[Command.set([ref('group_permission_test_report_read_all')])]" />
+    </record>
+
+    <template id="report_test_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="report">
+                <t t-call="sol_laboratory.report_test_report_document" t-lang="report._print_langs()[0]" />
+            </t>
+        </t>
+    </template>
+
+    <!-- Headings and values come in the report's languages from the model, so a bilingual report shows both. -->
+    <template id="report_test_report_document">
+        <t t-set="labels" t-value="report._print_labels()" />
+        <t t-set="header" t-value="report._print_header()" />
+        <div class="page" style="font-family: sans-serif; font-size: 10pt">
+            <div
+                t-if="report._digital_signing_draft()"
+                style="border: 2px solid #c00; color: #c00; text-align: center; font-weight: bold; padding: 2mm"
+            >
+                <span t-out="labels['draft']" />
+            </div>
+            <div style="margin-top: 4mm">
+                <strong t-out="report.env.company.name" />
+            </div>
+            <h2 style="text-align: center" t-out="labels['title']" />
+            <table style="width: 100%; margin-top: 4mm">
+                <tr t-foreach="header" t-as="key">
+                    <td style="width: 30%"><strong t-out="labels[key]" /></td>
+                    <td t-out="header[key]" />
+                </tr>
+            </table>
+            <t t-foreach="report._print_samples()" t-as="sample">
+                <div style="margin-top: 6mm; page-break-inside: avoid">
+                    <div t-out="labels['sample'] + ': ' + sample['name']" style="font-weight: bold" />
+                    <div t-out="labels['lab_code'] + ': ' + sample['code']" />
+                    <div t-if="sample['conclusion']" t-out="labels['conclusion'] + ': ' + sample['conclusion']" />
+                    <div style="height: 2mm" />
+                    <table style="width: 100%; border-collapse: collapse">
+                        <thead>
+                            <tr>
+                                <th
+                                    t-foreach="sample['rows'][0]"
+                                    t-as="column"
+                                    style="text-align: left; border-bottom: 1px solid #000"
+                                    t-out="labels[column]"
+                                />
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="sample['rows']" t-as="row">
+                                <td t-foreach="row" t-as="column" style="padding-top: 1mm" t-out="row[column]" />
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+            <div style="margin-top: 10mm; page-break-inside: avoid">
+                <strong t-out="labels['signatures']" />
+                <table style="width: 100%; margin-top: 2mm">
+                    <tr>
+                        <td t-foreach="report._print_signers()" t-as="signer" style="vertical-align: top">
+                            <div t-out="signer['level']" />
+                            <div style="margin-top: 12mm; font-weight: bold" t-out="signer['name']" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div
+                t-if="not report._digital_signing_draft() and report._digital_signing_enabled()"
+                style="margin-top: 6mm; font-size: 8pt"
+                t-out="labels['verify']"
+            />
+        </div>
+    </template>
+</odoo>

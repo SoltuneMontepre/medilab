@@ -2,14 +2,15 @@ from psycopg2 import IntegrityError
 
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
-from odoo.tests import TransactionCase, new_test_user, tagged
+from odoo.tests import new_test_user, tagged
 from odoo.tools import mute_logger
 
+from .common import UnshippedPermissionCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERMISSION, MODEL_ROLE, MODEL_TEST_PARAMETER
 
 
 @tagged("post_install", "-at_install")
-class TestRoleLifecycle(TransactionCase):
+class TestRoleLifecycle(UnshippedPermissionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

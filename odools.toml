@@ -1,4 +1,7 @@
 [[config]]
 name = "default"
-odoo_path = "${workspaceFolder}/.local/odoo-source"
-addons_paths = ["${workspaceFolder}/.local/odoo-source/addons", "${workspaceFolder}/src/core/modules"]
+odoo_path = "${workspaceFolder}/.local/odoo-intelligence/odoo-source"
+addons_paths = ["${workspaceFolder}/.local/odoo-intelligence/odoo-source/addons", "${workspaceFolder}/src/core/modules"]
+python_path = "python3"
+file_cache = false
+disable_javascript = true

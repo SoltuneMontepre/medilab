@@ -69,32 +69,35 @@ Acceptance criteria:
 | Rejection        | A signer can reject with a reason instead of signing. The reason is kept and the requester is notified.                                                                                                                  |
 | Documents        | Invoices, quotations, orders, test results and any other document type that has an approval chain.                                                                                                                       |
 
-**Digital signature is applied automatically when a document is printed.** When a signed document is printed or exported as PDF (for sending, downloading or archiving), the system sends the PDF to the signature provider (see Viettel Sign below), which applies the digital signature with the laboratory's certificate and returns the signed file. Users do not sign certificates by hand.
+**Digital signature is applied automatically when a document is printed.** When a signed document is printed or exported as PDF (for sending, downloading or archiving), the system has the signature provider (see Viettel Sign below) digitally sign the PDF with the laboratory's certificate and stores the signed file. Users do not sign certificates by hand.
 
+- One laboratory certificate signs every digitally signed document, whoever signed the approval chain.
+- The test report is the document type that is digitally signed. Another document type joins by naming the report it prints; the rules below then apply to it.
 - The signed PDF is stored with the document, together with the signature details and the time, so the same file is returned every time it is downloaded.
 - Only documents that have been fully signed (final level approved) are digitally signed on print. A document still under approval prints as a draft, clearly marked, without a digital signature.
-- Every signed PDF can be verified: it shows who approved it (from the signature records), that the digital signature is valid, and that the content has not changed. Verification is available to the customer without logging in to the back office.
-- If the provider is unavailable, the document is not printed as signed; the user is told and can retry. Nothing is shown as digitally signed unless the provider confirmed it.
+- Every signed PDF can be verified: it shows who approved it (from the signature records), that the digital signature is valid, and that the content has not changed. Verification is a public page, open to the customer without logging in: they upload the PDF and see the result. Each signed PDF prints the page's address.
+- If the provider is unavailable, the document is not printed as signed; the user is told and can retry, and the signing is retried automatically. Nothing is shown as digitally signed unless the provider confirmed it.
 
 Acceptance criteria:
 
 - Printing a fully signed document returns a digitally signed PDF without any extra step from the user.
 - Printing a document that is still under approval returns an unsigned, marked draft.
 - A signed PDF fails verification if any of its content is changed.
+- A provider outage leaves the document unsigned and retries it.
 - The signature record shows the signer, role, time and document version for every level.
 
 #### SH-05 Audit trail
 
 Every action in the system is recorded and can be reported on.
 
-- **What is recorded:** user actions (login, create, edit, delete, approve, sign, download), system events (scheduled jobs, integrations, errors) and data changes with the old and the new value.
-- **Each entry has:** who (user or system), when, what (document and field), the old and new value, and the source (screen, API or job).
+- **What is recorded:** user actions (create, edit, delete, approve, sign, download), system events (scheduled jobs, integrations, errors) and data changes with the old and the new value.
+- **Each entry has:** who (user or system), when, what (document and field), the old and new value, and the source (screen, API, job, or the system installing or upgrading a module).
 - Audit entries cannot be edited or deleted by any user, including administrators. Only the cleanup job removes them, once they are older than the audit retention period and written to an archive file (SH-09).
 - The audit retention period is a system parameter. Until an administrator sets it, entries are kept for ever.
-- Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document. The history of a document includes the entries of the documents under it, such as the samples and sample tests of a test request.
+- Authorised users (administrators and auditors) can search the trail by document, user, period and action, and open the full history of one document. The history of a document includes the entries of the documents under it, such as the samples and sample tests of a test request, also once a sample is deleted.
 - **Audit reports** can be generated for a period and exported for compliance purposes.
-- Personal data in the trail is limited to what is needed to identify who acted.
-- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. Logins come from Odoo's own login log.
+- Personal data in the trail is limited to what is needed to identify who acted. Personal data in a changed field, such as an email, a phone or an address, is masked so its value is never shown in full.
+- An entry records one action; an edit lists each changed field with its old and new value. An entry written by a scheduled job links to the job run. Signing in and out is not recorded.
 - Odoo's field tracking shows the changes of a document in its chatter to everyone who reads it; the audit trail is the record that no one can edit or remove, kept apart from the chatter.
 
 Acceptance criteria:
@@ -113,7 +116,7 @@ Two users cannot change the same document at the same time.
 - The lock is released on save, on cancel, when the user leaves, or automatically after a period of inactivity, so a closed browser does not block the document.
 - An administrator can release a lock that is stuck; this is audited.
 - Long operations, such as sending a quotation or confirming a payment, lock the document for their duration so they cannot run twice.
-- A document has at most one active lock. The inactivity period is a system parameter (SH-03).
+- A document has at most one active lock. The inactivity period is a system parameter (SH-03), 15 minutes by default.
 - Others see a lock taken or released as it happens, without reloading, through Odoo's bus.
 
 Acceptance criteria:
@@ -153,7 +156,9 @@ All user-facing text can be translated, and users choose their language.
 - A new language is added by installing it and translating the texts; no code change is needed.
 - Fall back to the default language when a text is not translated yet.
 - Dates, numbers and currency follow the language's format.
-- Languages and translations are Odoo's own: a language is installed from the settings, and every text is translated through Odoo's translation files.
+- Languages and translations are Odoo's own: a language is installed from the settings, and every text is translated through Odoo's translation files. English and Vietnamese are installed with the Laboratory module.
+- E-mails, document templates and reports render in the recipient's language: the customer's contact language for customers, the user's language for staff.
+- A check in CI fails, listing them, when a user-facing string of a MediLab module has no Vietnamese translation.
 
 Acceptance criteria:
 
@@ -174,8 +179,8 @@ Typical jobs: payment reminders, quotation expiry, retention and expiry checks (
 - Jobs do not run on top of themselves: a second run waits or is skipped while the first is running.
 - **Job and queue.** Each job has a unique key and is scheduled by an Odoo cron that administrators configure. A job works through a queue of items: each item is one unit of work, such as one reminder to send, with a key unique within the job, so the same work is never queued twice. An item is retried with a growing delay up to the job's number of attempts, then marked failed. A run claims the items it takes; an item claimed longer than the job's claim timeout, such as after a crash, goes back to the queue.
 - Each run records when it started and ended, its result, its log, and who ran it by hand; how many items were done and remain comes from Odoo's cron progress.
-- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their pushes, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter. It never removes business records or signatures.
-- **Archive files.** Before it removes audit entries, the cleanup job writes them to a compressed archive file per period, stored as an Odoo attachment in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
+- **Cleanup job.** A cleanup job removes housekeeping records older than their retention period: finished job items and job runs, released and expired locks, read notifications and their pushes, mobile devices turned off, and audit entries older than the audit retention period. Each retention period is a system parameter, 90 days by default; the audit retention period is empty by default, which keeps entries for ever. It never removes business records or signatures.
+- **Archive files.** Only audit entries are archived; the other records are removed without one. Before it removes audit entries, the cleanup job writes them to a compressed archive file per period, stored as an Odoo attachment in object storage, checks the file, and only then removes the entries. Administrators can list and download archive files; an archive is never loaded back into the system.
 - Backups of the whole database and file store belong to the hosting, not to the application.
 
 Acceptance criteria:
@@ -190,6 +195,7 @@ Work waiting for someone is a task with a deadline, and every person sees their 
 - **Tasks are MediLab's own.** A task has its chatter and attachments. Tasks are internal: a task is assigned to one internal Odoo user, so everyone who does tasks has a login.
 - **Task types.** Each kind of task, such as sample collection, testing a parameter or signing a document, is a task type. Task types come with the modules that create their tasks; administrators neither create nor remove them. A task type says what creates its tasks (an event, or people by hand), where new tasks go (the queue of the department the event names, the holders of a role, or the person the event names), and the deadline when the document gives none. Administrators choose where new tasks go and the default deadline.
 - **Created by the system or by people.** The system creates a task when its event happens, such as a sample being received. People can also create a task and assign it with a deadline, such as sales scheduling a sample collection on an order.
+- **Linked documents.** Only the system links a task to the document it opens and sets its type. Nobody changes a task's type or document afterwards. A task acts on its document, such as a testing task showing its method's steps or moving its test along as it is assigned, only while the system linked it. A task stored before this rule is trusted only when its audit trail shows it was created that way and never changed; an administrator reviews the others.
 - **Department queue.** A task routed to a department waits in that department's queue until the head of department assigns it to a person or a person of the department claims it. When two people claim the same task at once, the second is told it is already claimed. A task routed to a role waits the same way until one of the role's holders claims it.
 - **Access.** Every person sees the tasks assigned to them and the queues they can claim from without any permission. Creating tasks by hand, assigning, reassigning and cancelling them, and seeing other tasks need the task permissions, such as those of the person's department for a head of department.
 - **Reassigning.** Moving a task to another department, or an assigned task to another person, needs a reason, which is kept on the task and in the audit trail.
@@ -203,23 +209,26 @@ Acceptance criteria:
 - A task assigned to a person appears in their to-do list with its deadline.
 - A person can claim an unassigned task of their own department, not of another; a task already claimed cannot be claimed again.
 - Reassigning a task without a reason is refused.
+- A task created by hand that names a document, or a change to a task's type or document, is refused; a task changed that way before the rule never acts on its document.
 - Clicking a task opens its document at its action.
 - A testing task is done when its result is approved, without anyone marking it.
 - Changing where a task type's tasks go routes its new tasks there; existing tasks stay where they are.
 
 #### SH-11 Schedules and reminders
 
-Tasks with a planned time and machine bookings appear on schedules, and people are reminded before they start.
+Tasks with a planned time, machine bookings and location bookings appear on schedules, and people are reminded before they start.
 
 | Schedule              | Shows                                                                                     |
 | --------------------- | ----------------------------------------------------------------------------------------- |
 | Personal schedule     | A person's planned tasks and machine bookings                                             |
 | Machine schedule      | A machine's bookings and its queue                                                        |
+| Location schedule     | The bookings of a bookable location, such as a meeting room or a shared working room     |
 | Test request schedule | The tasks, bookings and due dates of the samples of one test request                     |
 | Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
 
 - **Built on Odoo Calendar.** A planned task and a machine booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a machine booking's event can only be moved where the scheduler finds the slot free. Working hours come from the person's working time (`resource.calendar`).
-- A reminder is sent a number of minutes before a task or booking starts, 15 by default, set by an administrator. It is the alarm of the calendar event.
+- **Booking a location.** Anyone who works for the company can book a bookable [location](laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) for a time: the booking is an Odoo calendar event that names the location, with its organiser and attendees, so it shows on their calendars and on the location's schedule. Bookings of one location do not overlap; a location that is not bookable, or is archived, cannot be booked. The organiser moves or cancels the booking; an administrator can cancel any booking. Booking a location shows the free times of the locations under a chosen location, such as the rooms of a floor.
+- A reminder is sent a number of minutes before a planned task or a machine booking starts, 15 by default, set by an administrator. It is raised once from the calendar event of the task or the booking, on the task the work belongs to, and that event has no second Odoo alarm.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
 - **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.
 - **Recipients.** For each event, the administrator chooses who is notified: the holders of one or more roles, the people of one or more departments, or both, on top of the person the event concerns directly, such as the assignee of a task.
@@ -230,6 +239,9 @@ Tasks with a planned time and machine bookings appear on schedules, and people a
 Acceptance criteria:
 
 - A booking appears on the personal schedule of the person who runs it and on the machine's schedule.
+- A location booking appears on the calendars of its organiser and attendees and on the location's schedule.
+- Booking a location for a time that overlaps another of its bookings is refused with a message naming the existing booking.
+- A location that is not bookable cannot be chosen for a booking.
 - A reminder arrives 15 minutes before a booking starts, once on each channel.
 - An event the administrator turned off notifies nobody; turning it on again notifies the next occurrence.
 
@@ -244,6 +256,7 @@ The system sends all e-mail through Brevo's SMTP relay, set as Odoo's outgoing m
 - Used for: notifications, alerts, quotations and invoices with attachments, reminders and reports.
 - Administrators configure the sender and the templates. Templates are Odoo e-mail templates (`mail.template`), translatable (SH-08), and use the customer's contact (Sales documents) and notification preferences.
 - Delivery status (sent, delivered, opened, bounced, failed) is recorded against the message from Brevo's webhooks, on Odoo's notification of each recipient, so staff can see whether a customer received a quotation.
+- The webhook is accepted only when `Authorization: Bearer` matches `BREVO_WEBHOOK_TOKEN`. Brevo's create-webhook call can set that bearer token. A missing or wrong token is rejected before any event is stored. The event is matched by the `X-Mailin-custom` header `notification:<id>` or by the message id together with the recipient address. A later weaker event does not replace a bounce or a failure. A hard bounce flags `email_bounced` only on the partner of that notification whose address is the event address.
 - Bounced or invalid addresses are flagged on the customer's contact so that they are not used again.
 - If Brevo is unavailable the message stays queued and is retried; the business action that triggered it is not rolled back.
 
@@ -261,11 +274,12 @@ The system takes online payments through PayOS, added as a payment provider of O
 
 ### 3. Viettel Sign (digital signature)
 
-The system digitally signs printed documents through Viettel Sign (SH-04). It does not ask users to sign; approval in the system already did that.
+The system digitally signs printed documents through Viettel Sign's remote signing (SH-04). It does not ask users to sign; approval in the system already did that.
 
-- Administrators configure the provider account and the laboratory's certificate, and see its expiry. An expired or revoked certificate stops digital signing and alerts administrators before and when it happens.
-- When a fully signed document is printed or exported, the system sends the PDF to the provider, which applies the digital signature automatically and returns the signed file; the file is stored with the document and the signature details.
-- Verification of a signed PDF checks the digital signature against the provider and the approval records of the document, and shows the result to anyone who opens the document.
+- The laboratory holds one certificate at Viettel Sign, on an account that signs automatically, without anyone confirming each signature in the MySign app. The account's credentials come from the configuration file.
+- Administrators turn digital signing on in the settings and see the laboratory's certificate with its expiry, read from the provider. An expired or revoked certificate stops digital signing. Administrators are alerted a number of days before the certificate expires, a system parameter (SH-03) of 30 days by default, and again when it expires or is revoked.
+- When a fully signed document is printed or exported, the system has the provider sign the PDF with the laboratory's certificate; the signed file is stored with the document and the signature details.
+- Verification of a signed PDF checks its digital signature against the laboratory's certificate as the provider last reported it, that the file is the one the system stored, and the approval records of the document, and shows the result to anyone who uploads the file.
 - If the provider is unavailable, the document is not issued as signed; the user is told and can retry, and the request is retried automatically (SH-09). No document is shown as digitally signed unless the provider confirmed it.
 
 ### 4. Firebase Cloud Messaging (mobile push)
@@ -273,8 +287,9 @@ The system digitally signs printed documents through Viettel Sign (SH-04). It do
 The system pushes reminders and notifications to the Medilab Mobile app through Firebase Cloud Messaging (SH-11).
 
 - When a person signs in on the app, the app registers the device's token for their user; signing out turns the token off. Odoo's own push devices serve web browsers only, so mobile devices are MediLab's own records.
-- A push sent to a token Firebase rejects turns that token off.
-- The Firebase credentials are configuration, not data (SH-03).
+- A push sent to a token Firebase reports as permanently invalid (`UNREGISTERED`, `SENDER_ID_MISMATCH`, or `INVALID_ARGUMENT` about the token) turns that token off. A timeout or a temporary error leaves the token on and the delivery is retried.
+- The access token is an OAuth token from Google Application Default Credentials or a service-account JSON in the environment, refreshed by `google-auth`. The credential value is not stored on a record and is not written to the log.
+- The Firebase credentials are configuration, not data (SH-03). SMTP and FCM do not provide exactly-once delivery. The records and the jobs are created once; a retry sends again only while the earlier attempt did not succeed.
 
 ## III. Related documents
 
