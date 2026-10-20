@@ -12,6 +12,10 @@ TEST_REQUEST_READER_GROUP = "sol_laboratory.group_permission_test_request_read_a
 TEST_RESULT_READER_GROUP = "sol_laboratory.group_permission_test_result_read_all"
 # Only people who can read test reports see the reports of a test request.
 TEST_REPORT_READER_GROUP = "sol_laboratory.group_permission_test_report_read_all"
+# The laboratory files permission: its holders sign computers in and work in the folders they are members of.
+LABORATORY_FILES_GROUP = "sol_laboratory.group_permission_laboratory_folder_create_all"
+# Folder administration: every folder, its owner, members and rules, turning it off and archiving it.
+FOLDER_ADMINISTRATION_GROUP = "sol_laboratory.group_permission_laboratory_folder_edit_all"
 # Only people who maintain customers read a customer's citizen ID.
 CUSTOMER_EDITOR_GROUP = "sol_laboratory.group_permission_customer_edit_all"
 SAMPLE_LABEL_REPORT = "sol_laboratory.action_report_sample_label"
