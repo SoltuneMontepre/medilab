@@ -1,0 +1,103 @@
+- name: Check the cluster token
+  ansible.builtin.assert:
+    that: k3s_token | length >= 32
+    fail_msg: K3S_TOKEN is missing or shorter than 32 characters in the Doppler infra config.
+    quiet: true
+
+- name: Look for an existing k3s
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: Read the installed k3s version
+  ansible.builtin.command: /usr/local/bin/k3s --version
+  register: k3s_installed
+  changed_when: false
+  check_mode: false
+  when: k3s_binary.stat.exists
+
+- name: Decide whether to install k3s
+  ansible.builtin.set_fact:
+    k3s_needs_install: >-
+      {{ not k3s_binary.stat.exists
+         or (k3s_upgrade and k3s_version not in k3s_installed.stdout) }}
+
+- name: Report a k3s version that differs from the pin
+  ansible.builtin.debug:
+    msg: >-
+      k3s {{ k3s_installed.stdout_lines[0] }} is installed and {{ k3s_version }} is pinned.
+      It was left as it is; run with -e k3s_upgrade=true to upgrade.
+  when: k3s_binary.stat.exists and not k3s_upgrade and k3s_version not in k3s_installed.stdout
+
+- name: Create the k3s folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  loop:
+    - /etc/rancher/k3s
+    - "{{ k3s_manifests_dir }}"
+    - /usr/local/lib/medilab
+
+- name: Write the cluster token
+  ansible.builtin.copy:
+    content: "{{ k3s_token }}\n"
+    dest: /etc/rancher/k3s/token
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  notify: Restart k3s
+
+- name: Write the k3s config
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/rancher/k3s/config.yaml
+    owner: root
+    group: root
+    mode: "0600"
+  diff: false
+  notify: Restart k3s
+
+- name: Keep Traefik off the host ports
+  ansible.builtin.template:
+    src: traefik-config.yaml.j2
+    dest: "{{ k3s_manifests_dir }}/medilab-traefik-config.yaml"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Install k3s
+  when: k3s_needs_install
+  block:
+    - name: Download the install script of the pinned version
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/k3s-io/k3s/{{ k3s_version | urlencode }}/install.sh"
+        dest: /usr/local/lib/medilab/k3s-install.sh
+        owner: root
+        group: root
+        mode: "0700"
+        force: true
+
+    - name: Run the install script
+      ansible.builtin.command: /usr/local/lib/medilab/k3s-install.sh
+      environment:
+        INSTALL_K3S_VERSION: "{{ k3s_version }}"
+        INSTALL_K3S_EXEC: server
+      changed_when: true
+
+- name: Apply a changed config before going on
+  ansible.builtin.meta: flush_handlers
+
+- name: Wait until the node is ready
+  ansible.builtin.command: >-
+    /usr/local/bin/k3s kubectl get node {{ inventory_hostname }}
+    -o jsonpath={.status.conditions[?(@.type=="Ready")].status}
+  register: k3s_node_ready
+  until: k3s_node_ready.stdout == "True"
+  retries: 30
+  delay: 10
+  changed_when: false
+  when: not ansible_check_mode

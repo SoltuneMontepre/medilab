@@ -21,3 +21,9 @@ variable "github_repository" {
   type        = string
   default     = "medilab"
 }
+
+variable "ansible_apply_reviewers" {
+  description = "GitHub usernames that must approve every cd-ansible apply"
+  type        = list(string)
+  default     = ["hatohui"]
+}

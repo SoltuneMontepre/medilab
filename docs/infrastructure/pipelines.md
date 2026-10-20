@@ -4,14 +4,15 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow     | Runs on                                                                                 | Does                                                                                                               |
-| ------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `ci-core`    | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                            |
-| `ci-infra`   | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                                                 |
-| `ci-tools`   | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                         |
-| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
-| `cd-infra`   | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                            |
-| `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                            |
+| Workflow     | Runs on                                                                                 | Does                                                                                                                 |
+| ------------ | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `ci-core`    | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
+| `ci-infra`   | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and `ansible-lint` when the Ansible code changes. |
+| `ci-tools`   | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
+| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
+| `cd-infra`   | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
+| `cd-ansible` | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
+| `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                              |
 
 Every workflow can also be started by hand.
 
@@ -54,6 +55,27 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
+- The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image, when `infra/ansible/` or `tools/ansible/` changes. It uses no secrets and never reaches a node.
+- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform` and `ansible` both passed.
+
+## cd-ansible
+
+`cd-ansible` is the control node of [Provisioning](provisioning.md): it runs the same container and commands as the `task ansible:*` tasks.
+
+- It starts only by hand, from the Actions page, with two inputs:
+  - `action`: `ping` runs `ansible all -m ansible.builtin.ping --become`, `inspect` runs `inspect.yml`, `check` runs `site.yml --check --diff`, and `apply` runs `site.yml --diff`.
+  - `limit`: the nodes or groups to run on, passed to `--limit`. Empty runs on every node.
+- It builds the Ansible image from `tools/ansible/ansible.dockerfile`, then runs it through `doppler run` with the `DOPPLER_INFRA_TOKEN` environment secret, a Doppler service token that reads only the `infra` config. Every value of `infra` is masked in the log before Ansible starts.
+- The job runs in a GitHub environment that only `main` may deploy from, so a run from any other branch gets no secret and fails before it starts:
+
+  | Environment     | Used by                    | Protection                                       |
+  | --------------- | -------------------------- | ------------------------------------------------ |
+  | `ansible`       | `ping`, `inspect`, `check` | `main` only                                      |
+  | `ansible-apply` | `apply`                    | `main` only, and approval by a required reviewer |
+
+- Terraform creates both environments, their branch policy, their reviewers from the `ansible_apply_reviewers` variable in `infra/`, and their `DOPPLER_INFRA_TOKEN` secret; change them there and apply, not in GitHub.
+- No pull request trigger starts it, so a pull request never reaches the nodes or the `infra` secrets.
+- The kubeconfig is never printed in its log; see [Provisioning a node](../workflows/provisioning-node.md).
 
 ## cd-core
 
@@ -78,8 +100,8 @@ flowchart LR
   - `RELEASE_DAYS`: the days of the week, such as `Mon-Sun` or `Sat,Sun`. Default `Mon-Sun`.
   - `RELEASE_HOURS`: the start and end hour, such as `23-5`, which crosses midnight. Default `23-5`.
 - A manual run with the `release` input releases at once in either mode, such as for a hotfix.
-- `release` takes the image of the newest commit on `main` that has one. When that is the image already released, it stops. Otherwise it commits the SHA tag to `infra/cluster/` on `main`, titled `[chore] Release <short SHA>`.
-- Argo CD syncs the release: a pre-sync hook takes an on-demand CloudNativePG backup, then the module upgrade Job runs, then the Odoo replicas roll out one at a time.
+- `release` takes the image of the newest commit on `main` that has one. When that is the image already released, it stops. Otherwise it commits the SHA tag to `newTag` in `infra/cluster/odoo/kustomization.yaml` on `main`, titled `[chore] Release <short SHA>`.
+- Argo CD syncs the release: a pre-sync hook takes an on-demand CloudNativePG backup, then the module upgrade Job runs, then the Odoo replicas roll out one at a time; see [Cluster](cluster.md#odoo).
 - The Actions variables are set by Terraform from the `release` variable in `infra/`; change them there and apply, not in GitHub.
 - `verify` waits up to 15 minutes with `argocd app wait --sync --health` for the application to reach the release commit and become healthy. Because the rollout is rolling, the old replicas keep serving while it runs, so `/web/health` answers 200 even when the release fails; `verify` relies on Argo CD instead. Argo CD reports the release as failed when the upgrade Job fails, or as degraded when a new replica is not ready within the Deployment's `progressDeadlineSeconds` of 10 minutes.
 - `rollback` runs only when `verify` fails:
@@ -110,5 +132,6 @@ flowchart LR
 ## Related documents
 
 - [Pipelines conventions](../conventions/pipeline.md)
+- [Cluster](cluster.md)
 - [Secrets](secrets.md)
 - [Testing](../conventions/testing.md)

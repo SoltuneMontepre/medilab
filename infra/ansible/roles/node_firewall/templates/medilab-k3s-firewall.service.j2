@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+[Unit]
+Description=MediLab k3s port firewall
+Wants=network-pre.target
+Before=network-pre.target k3s.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/medilab/k3s-firewall.nft
+ExecReload=/usr/sbin/nft -f /etc/medilab/k3s-firewall.nft
+ExecStop=/usr/sbin/nft delete table inet medilab_k3s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,3 @@
+*
+!infra/ansible/requirements.yml
+!tools/ansible/entrypoint.sh

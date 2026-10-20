@@ -35,6 +35,7 @@ dist-ssr
 !.env.example
 !.env.*.example
 infra/ansible/kubeconfig.yml
+infra/ansible/.ansible/
 
 # --- Python ---
 __pycache__/

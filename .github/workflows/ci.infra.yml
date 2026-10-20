@@ -58,3 +58,60 @@ jobs:
         run: terraform plan
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+
+  ansible:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "infra/ansible/**"
+              - "tools/ansible/**"
+              - ".github/workflows/ci.infra.yml"
+
+      - name: Set up Docker Build
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Ansible image
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: docker/build-push-action@v7
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          context: .
+          file: tools/ansible/ansible.dockerfile
+          tags: medilab-ansible:local
+          load: true
+          cache-from: type=gha,scope=ansible
+          cache-to: type=gha,mode=max,scope=ansible
+
+      - name: Ansible lint
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: docker run --rm -v "$PWD:/work" medilab-ansible:local ansible-lint
+
+  infrastructure:
+    needs: [terraform, ansible]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check the infrastructure jobs
+        env:
+          TERRAFORM: ${{ needs.terraform.result }}
+          ANSIBLE: ${{ needs.ansible.result }}
+        run: |
+          if [ "$TERRAFORM" != success ] || [ "$ANSIBLE" != success ]; then
+            echo "::error::terraform finished with result $TERRAFORM and ansible with result $ANSIBLE."
+            exit 1
+          fi
