@@ -2,7 +2,7 @@
 
 The business flows of MediLab from the start of each one to its business result, with the actors who take part. Each flow lists the user stories it walks through, the states it moves, and an activity diagram with one lane per actor. The diagrams show who does what and leave out how the system works inside.
 
-The core flows WF-01 to WF-06 carry a test request from order to report, and WF-07 keeps the laboratory files the testing work produces. The supporting flows SF-01 to SF-10 run beside them. An alternative path is another normal way to the flow's result. An exception starts when something goes wrong and shows how another actor or extra steps still bring the flow to its result; refusing invalid input is an acceptance criterion of a feature, not a path. Each path belongs to one flow alone; a flow that also touches a path names the flow that holds it. Each path starts from the state the flow names, so no path repeats the steps of the flows before it.
+The core flows WF-01 to WF-06 carry a test request from order to report. The supporting flows SF-01 to SF-11 run beside them. An alternative path is another normal way to the flow's result. An exception starts when something goes wrong and shows how another actor or extra steps still bring the flow to its result; refusing invalid input is an acceptance criterion of a feature, not a path. Each path belongs to one flow alone; a flow that also touches a path names the flow that holds it. Each path starts from the state the flow names, so no path repeats the steps of the flows before it.
 
 | Flow  | Name                                    | Actors                                                          |
 | ----- | --------------------------------------- | --------------------------------------------------------------- |
@@ -12,7 +12,6 @@ The core flows WF-01 to WF-06 carry a test request from order to report, and WF-
 | WF-04 | Result entry and approval               | Tester, Head of department                                      |
 | WF-05 | Outsourced testing                      | Head of department, Sample delivery staff, Subcontractor        |
 | WF-06 | Report signing, release and delivery    | Lab head, Head of department, Sample delivery staff, Customer   |
-| WF-07 | Laboratory files                        | Tester, Head of department, Administrator                       |
 | SF-01 | Invoicing and payment collection        | Accountant, Sales, Customer                                     |
 | SF-02 | Order cancellation                      | Customer, Sales                                                 |
 | SF-03 | Change request on a signed document     | Requester, signers of the change-request chain                  |
@@ -23,6 +22,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report, and WF-
 | SF-08 | Laboratory setup                        | Administrator                                                   |
 | SF-09 | Customer support and feedback           | Customer, Sales                                                 |
 | SF-10 | Machine queue and rescheduling          | Tester, Head of department                                      |
+| SF-11 | Laboratory file administration          | Head of department, Tester, Administrator                       |
 
 ## WF-01 Order to approved test request
 
@@ -154,37 +154,51 @@ flowchart TD
 ## WF-04 Result entry and approval
 
 - **Trigger:** a booked test is run.
-- **Result:** the reported result is approved against the sample's regulation limit, and the sample is completed once all its tests are.
-- **Stories:** US-T05, US-T06, US-T07, US-T08, US-T17, US-T22, US-HD08, US-HD09.
-- **States:** sample test testing → result entered → approved, or → testing when rejected; sample testing → awaiting approval → completed.
-- **Starts from:** sample tests in testing with their bookings, on samples with and without a regulation.
-- **Main path:** The tester follows the method's steps, enters a number and its conclusion, sends and signs it; the head approves it and the sample is completed.
+- **Result:** the reported result is approved against the sample's regulation limit, the result file it came from is kept as a signed version, and the sample is completed once all its tests are.
+- **Stories:** US-T05, US-T06, US-T07, US-T08, US-T17, US-T22, US-T23, US-T24, US-T25, US-T26, US-T27, US-HD08, US-HD09, US-HD16.
+- **States:** sample test testing → result entered → approved, or → testing when rejected; sample testing → awaiting approval → completed; result file version uploaded as current, or kept as a conflict, then signed.
+- **Starts from:** sample tests in testing with their bookings, on samples with and without a regulation, and each sample's result folder bound in Medilab Sync on the tester's computer.
+- **Main path:** The tester follows the method's steps and saves the instrument's result file in the sample's folder, which Medilab Sync uploads as a new version; the tester enters the number and its conclusion against the copied limit, sends and signs it; the head approves the result and signs the file version, and the sample is completed.
 - **Alternative paths:**
   - WF-04-A1: The tester enters a text result, such as Not detected.
   - WF-04-A2: The tester withdraws a result they sent, corrects it and sends it again before the head acts.
+  - WF-04-A3: A colleague's new version of a result file downloads to a two-way folder on another computer.
+  - WF-04-A4: The tester restores an earlier version of a result file, which becomes the new current version.
+  - WF-04-A5: Two testers edit a result spreadsheet together in the browser; saving adds a version.
+  - WF-04-A6: The tester locks a working file that is not an Office document, edits it and unlocks it.
 - **Exceptions:**
   - WF-04-E1: The head rejects the result with a reason; the tester retests, the rejected result stays on record and the new one is approved.
   - WF-04-E2: An unusual result warns before sending; the tester checks it, sends it anyway and the head sees the warning before approving.
   - WF-04-E3: A test cannot be done on the sample; the head cancels it with a reason and the sample completes with its other tests approved.
-- **Paths in other flows:** SF-03 for changing a result whose process is completed; WF-06 for results the lab head sends back.
+  - WF-04-E4: Two testers change the same result file from one version; the second upload is kept as a conflict, and that tester takes the server's version with a backup of their own.
+  - WF-04-E5: The head rejects a result file version with a reason; the tester saves a corrected version, which the head signs.
+  - WF-04-E6: The editing service is down; the tester saves the result file in its own program, Medilab Sync uploads it, and history and restore keep working.
+- **Paths in other flows:** SF-03 for changing a result whose process is completed; WF-06 for results the lab head sends back; SF-11 for the folders, members and devices.
 
 ```mermaid
 flowchart TD
     subgraph lane10 ["Tester"]
-        t1[Follow the method's steps] --> t2[Enter the result in the method's unit]
+        t1[Follow the method's steps] --> t0[Save the instrument's result file in the sample's folder]
+        t0 --> t2[Enter the result in the method's unit]
         t2 --> t3[Set the conclusion against the copied limit]
         t3 --> t4{Unusual or near the limit?}
         t4 -->|warned, check and send| t5[Send and sign]
         t4 -->|no| t5
-        t6["Retest; the rejected result stays on record"]
+        t6[Retest; the rejected result stays on record]
+        t7["Conflict: keep own file or take the server's"]
     end
     subgraph lane11 ["Head of department"]
         h1{Approve the result?}
-        h2[Cancel a test that cannot be done, with a reason]
+        h2{Sign the result file version?}
+        h3[Cancel a test that cannot be done, with a reason]
     end
+    t0 --> sync{Made from the current version?}
+    sync -->|yes| v[New current version, uploaded straight to the bucket] --> h2
+    sync -->|no| t7 --> v
+    h2 -->|reject with a reason| t0
     t5 --> h1
     h1 -->|reject with a reason| t6 --> t2
-    h1 -->|approve| done(["Task done; sample completed when all its tests are"])
+    h1 -->|approve| done([Task done; sample completed when all its tests are])
     done --> wf06([WF-06 when every test of the request is approved or cancelled])
 ```
 
@@ -264,59 +278,6 @@ flowchart TD
     issued -.->|Viettel Sign unavailable| retry["Not marked signed; signing retried"] -.-> issued
 ```
 
-## WF-07 Laboratory files
-
-- **Trigger:** a tester saves a file in a folder bound in Medilab Sync, or a head of department creates a sample's folders.
-- **Result:** every version of every laboratory file is kept and traceable, conflicts keep both versions, and the version a report relies on is signed.
-- **Stories:** US-T23, US-T24, US-T25, US-T26, US-T27, US-T28, US-T29, US-HD15, US-HD16, US-AD29, US-AD30, US-AD31.
-- **States:** upload prepared → uploading → finalizing → completed or conflict; editing session open → saving → committed; lock active → released or expired.
-- **Starts from:** sample folders with members, bound on two testers' computers, and the editing service running.
-- **Main path:** A tester saves a result file in a bound folder; Medilab Sync uploads it as a new version; the head of department signs that version.
-- **Alternative paths:**
-  - WF-07-A1: The head of department creates a sample's raw-data and result folders, and the owner adds the testers as members.
-  - WF-07-A2: A colleague's new version downloads to a two-way folder on another computer.
-  - WF-07-A3: A tester restores an earlier version, which becomes the new current version.
-  - WF-07-A4: Two testers edit a result spreadsheet together in the browser; saving adds a version.
-  - WF-07-A5: A tester locks a working file, edits and unlocks it.
-  - WF-07-A6: A tester browses and downloads a sample's files in the back office.
-  - WF-07-A7: An administrator archives a folder; it keeps every version until its retention date.
-- **Exceptions:**
-  - WF-07-E1: Two testers change the same file from one version; the second upload is kept as a conflict, and that tester takes the server's version with a backup of their own.
-  - WF-07-E2: A file stays locked by someone who left; uploads are refused until an administrator releases the lock.
-  - WF-07-E3: A tester's computer is lost; an administrator revokes its device and the tester signs in on another computer and goes on.
-  - WF-07-E4: A member loses access to a folder; their pending files pause, nothing on the computer is deleted, and they upload once access is given back.
-  - WF-07-E5: An administrator turns a folder off; new files wait and upload once it is turned on again.
-  - WF-07-E6: The editing service is down; the tester saves the file in its own program, Medilab Sync uploads it, and history and restore keep working.
-  - WF-07-E7: The head rejects a result file version with a reason; the tester saves a corrected version, which the head signs.
-
-```mermaid
-flowchart TD
-    subgraph lane40 ["Tester"]
-        t1[Save the file in the bound local folder] --> t2{Made from the current version?}
-        t2 -->|no| t3["Conflict: keep own file or take the server's"]
-        t4[Restore an earlier version]
-        t5[Edit an Office file online with colleagues]
-        t6[Lock a working file while editing it]
-    end
-    subgraph lane41 ["Head of department"]
-        h1[Create the sample's raw-data and result folders]
-        h2{Sign the result version?}
-    end
-    subgraph lane42 ["Administrator"]
-        a1[Revoke a device, turn a folder off, archive it]
-        a2[Release a lock someone left]
-    end
-    h1 --> t1
-    t2 -->|yes| v[New current version, uploaded straight to the bucket]
-    t4 --> v
-    t5 --> v
-    t6 --> t1
-    v --> others([Two-way folders on other computers download it])
-    v --> h2
-    h2 -->|reject with a reason| t1
-    h2 -->|sign| signed([Version signed with its hash])
-    a2 --> t1
-```
 ## SF-01 Invoicing and payment collection
 
 - **Trigger:** an order needs its final invoice, or a payment arrives.
@@ -672,6 +633,49 @@ flowchart TD
     h3 -->|none, or run late or outsource| moved[Bookings not started go back to the queue; their people told] --> q
     h3 -->|do not bump| sch
     sch -.->|ends after the due date, or ended without a result| h4
+```
+
+## SF-11 Laboratory file administration
+
+- **Trigger:** a sample needs its folders, or a folder, device or lock needs looking after.
+- **Result:** every sample has its folders, the right people can use them from their own computers, and a lost computer, an abandoned lock or a closed folder never stops the work for long.
+- **Stories:** US-HD15, US-T28, US-T29, US-AD29, US-AD30, US-AD31.
+- **States:** folder in use → turned off → in use, or → archived; device signed in → revoked; lock active → released.
+- **Starts from:** samples without folders, laboratory folders with members, and testers' computers signed in to them.
+- **Main path:** The head of department creates a sample's raw-data and result folders, and the owner adds the testers as members.
+- **Alternative paths:**
+  - SF-11-A1: A tester shares a folder they own with colleagues.
+  - SF-11-A2: A tester browses and downloads a sample's files in the back office.
+  - SF-11-A3: An administrator archives a folder; it keeps every version until its retention date.
+- **Exceptions:**
+  - SF-11-E1: A file stays locked by someone who left; uploads are refused until an administrator releases the lock.
+  - SF-11-E2: A tester's computer is lost; an administrator revokes its device and the tester signs in on another computer and goes on.
+  - SF-11-E3: A member loses access to a folder; their pending files pause, nothing on the computer is deleted, and they upload once access is given back.
+  - SF-11-E4: An administrator turns a folder off; new files wait and upload once it is turned on again.
+- **Paths in other flows:** WF-04 for saving, versioning and signing result files.
+
+```mermaid
+flowchart TD
+    subgraph lane70 ["Head of department"]
+        h1[Create the sample's raw-data and result folders]
+    end
+    subgraph lane71 ["Tester"]
+        t1[Add colleagues to a folder they own]
+        t2[Browse and download a sample's files in the back office]
+        t3[Sign in on another computer]
+    end
+    subgraph lane72 ["Administrator"]
+        a1[Revoke a lost computer's device]
+        a2[Release a lock someone left]
+        a3[Turn a folder off, then on]
+        a4[Archive a folder]
+    end
+    h1 --> t1
+    a1 --> t3
+    a2 --> go([Uploads go on])
+    a3 --> go
+    t3 --> go
+    a4 --> kept([Versions kept until the retention date])
 ```
 
 ## Related documents
