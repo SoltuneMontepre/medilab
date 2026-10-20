@@ -571,3 +571,8 @@ msgstr ""
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
 msgid "Purchase order signing"
 msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_laboratory_file_version_signing
+msgid "Laboratory file signing"
+msgstr ""
