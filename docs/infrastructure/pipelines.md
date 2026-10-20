@@ -4,14 +4,16 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow     | Runs on                                                       | Does                                                                                    |
-| ------------ | ------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `ci-core`    | every pull request and every push to `main`                   | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud. |
-| `ci-infra`   | every pull request                                            | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                      |
-| `ci-ai`      | every pull request                                            | Runs the AI tooling tests and Ruff when the AI tooling or a client config changes.      |
-| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile    | Publishes the release image.                                                            |
-| `cd-infra`   | a push to `main` that changes `infra/`                        | Runs `terraform apply`.                                                                 |
-| `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core` | Deletes the branch, artifacts and build caches of closed pull requests, and old images. |
+| Workflow      | Runs on                                                       | Does                                                                                            |
+| ------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `ci-core`     | every pull request and every push to `main`                   | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.         |
+| `ci-infra`    | every pull request                                            | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                              |
+| `ci-ai`       | every pull request                                            | Runs the AI tooling tests and Ruff when the AI tooling or a client config changes.              |
+| `ci-sync-app` | every pull request                                            | Checks the format, lints, tests and builds the sync app when it changes.                        |
+| `cd-core`     | a push to `main` that changes `src/core` or the Dockerfile    | Publishes the release image.                                                                    |
+| `cd-infra`    | a push to `main` that changes `infra/`                        | Runs `terraform apply`.                                                                         |
+| `cd-sync-app` | a `filesync-v*` tag                                           | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release. |
+| `cd-cleanup`  | a closed pull request, merged or not, or a finished `cd-core` | Deletes the branch, artifacts and build caches of closed pull requests, and old images.         |
 
 Every workflow can also be started by hand.
 
@@ -52,6 +54,18 @@ flowchart LR
 
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
+
+## ci-sync-app and cd-sync-app
+
+The sync app is the Tauri desktop client in `src/applications/medilab-sync`.
+
+- `sync-app` is the required check of `ci-sync-app`. When the app or the workflow changes, it runs `cargo fmt --check`, `bun test`, the frontend build, Clippy with warnings as errors, and `cargo test`, on Linux.
+- A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
+- `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
+- `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release.
+- The production Odoo address is built into the app from the `MEDILAB_SYNC_ODOO_URL` Actions variable. A tag build fails when it is not set or does not start with `https://`.
+- A manual run builds the packages without releasing them, to check a build before tagging.
+- The packages are not signed for automatic updates and are not uploaded to a bucket: the app checks for updates through an Odoo endpoint that does not exist yet.
 
 ## Images
 
