@@ -86,7 +86,7 @@ class TestLaboratoryFileVersionImmutability(LaboratoryFilesCase):
             "WHERE table_name = 'medilab_laboratory_file_version' AND column_name = 'size'"
         )
 
-        self.assertEqual(self.env.cr.fetchone()[0], "bigint")
+        self.assertEqual(self.env.cr.fetchall(), [("bigint",)])
         self.assertEqual(version.size, FIVE_GIB)
         self.assertEqual(version.read(["size"])[0]["size"], FIVE_GIB)
         versions = self.env[MODEL_LABORATORY_FILE_VERSION]

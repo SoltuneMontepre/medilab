@@ -125,7 +125,7 @@ class LaboratoryFile(models.Model):
     def _is_office_document(self):
         """A Word, Excel or PowerPoint document, whatever the letter case of its extension."""
         self.ensure_one()
-        return posixpath.splitext(self.path)[1].removeprefix(".").lower() in OFFICE_EXTENSIONS
+        return posixpath.splitext(self.path or "")[1].removeprefix(".").lower() in OFFICE_EXTENSIONS
 
     @api.model
     def _get_or_create(self, folder, path):

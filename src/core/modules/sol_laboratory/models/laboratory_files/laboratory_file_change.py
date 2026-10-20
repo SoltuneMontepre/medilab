@@ -34,7 +34,9 @@ class LaboratoryFileChange(models.Model):
     _folder_change_index = models.Index("(folder_id, id)")
 
     def write(self, vals):
-        raise UserError(self.env._("The changes of laboratory files are only added, never changed."))
+        if vals:
+            raise UserError(self.env._("The changes of laboratory files are only added, never changed."))
+        return super().write(vals)
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_change(self):
