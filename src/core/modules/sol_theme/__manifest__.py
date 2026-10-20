@@ -7,6 +7,7 @@
     "license": "LGPL-3",
     "icon": "/sol_theme/static/description/icon.svg",
     "depends": ["web"],
+    "application": True,
     "data": [
         "views/favicon_templates.xml",
         "views/login_templates.xml",
