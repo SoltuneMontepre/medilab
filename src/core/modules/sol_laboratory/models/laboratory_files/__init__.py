@@ -10,6 +10,7 @@ from . import (
     laboratory_file_sample,
     laboratory_file_signing,
     laboratory_file_version,
+    laboratory_file_version_reject,
     laboratory_file_version_sample,
     laboratory_file_version_signing,
     laboratory_folder,

@@ -11,8 +11,10 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import FILE_READ, RES
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_MIXIN,
     MODEL_LABORATORY_FILE_VERSION,
+    MODEL_MAIL_MESSAGE,
     MODEL_SIGNATURE,
 )
+from odoo.addons.sol_laboratory.constants.notifications import EVENT_LABORATORY_FILE_VERSION_REJECTED
 
 
 # Phiên Bản Tệp: a version of a result file is signed through the approval chain of laboratory file versions.
@@ -82,3 +84,15 @@ class LaboratoryFileVersionSigning(models.Model):
 
     def _approval_set_state(self, state):
         self.approval_state = state
+
+    def _approval_notify_rejected(self, reason):
+        self.ensure_one()
+        # A version can be rejected again once its rejection is withdrawn, so each round is told once.
+        self.env[MODEL_MAIL_MESSAGE].raise_event(
+            EVENT_LABORATORY_FILE_VERSION_REJECTED,
+            self,
+            f"laboratory_file_version:{self.id}:{self.document_version}:rejected",
+            self.env._("%(version)s was rejected: %(reason)s", version=self.display_name, reason=reason),
+            subject=self.display_name,
+            partners=self.sudo().user_id.partner_id,
+        )

@@ -60,6 +60,7 @@ from . import (
     test_laboratory_file_records,
     test_laboratory_file_version_concurrency,
     test_laboratory_file_version_immutability,
+    test_laboratory_file_version_rejection,
     test_laboratory_file_version_signing,
     test_laboratory_file_versions,
     test_laboratory_files_audit,
