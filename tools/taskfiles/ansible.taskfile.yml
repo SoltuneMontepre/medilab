@@ -1,11 +1,9 @@
 version: "3"
 
-env:
-  COMPOSE_FILE: tools/ansible/compose.yml
-
 vars:
   DOPPLER_INFRA_CONFIG: infra
-  ANSIBLE_CONTAINER: docker compose run --rm -T ansible
+  ANSIBLE_COMPOSE: docker compose -f tools/ansible/compose.yml
+  ANSIBLE_CONTAINER: "{{.ANSIBLE_COMPOSE}} run --rm -T ansible"
   ANSIBLE_RUN: doppler run --project {{.DOPPLER_PROJECT}} --config {{.DOPPLER_INFRA_CONFIG}} -- {{.ANSIBLE_CONTAINER}}
   LOG: tools/scripts/log.sh
 
@@ -14,7 +12,7 @@ tasks:
     internal: true
     silent: true
     cmds:
-      - docker compose build --quiet ansible
+      - "{{.ANSIBLE_COMPOSE}} build --quiet ansible"
 
   ansible:ping:
     desc: "Check that Ansible reaches every node over SSH and can use sudo"
