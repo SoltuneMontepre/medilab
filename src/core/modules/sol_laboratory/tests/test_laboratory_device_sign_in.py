@@ -14,6 +14,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_ENTRY,
     MODEL_LABORATORY_DEVICE,
+    MODEL_RES_USERS,
     MODEL_RES_USERS_APIKEYS,
 )
 
@@ -58,6 +59,23 @@ class TestLaboratoryDeviceSignIn(LaboratoryFilesCase):
         devices = self.env[MODEL_LABORATORY_DEVICE]
 
         self.assertRefused(INVALID_CREDENTIALS, devices._sign_in, self.tester.login, "wrong", "pc", "HPLC-PC", "linux")
+
+    def test_a_person_with_two_factor_authentication_signs_in_with_an_api_key(self):
+        if "totp_secret" not in self.env[MODEL_RES_USERS]._fields:
+            self.skipTest("Odoo's two-factor authentication is not installed.")
+        self.tester.sudo().totp_secret = "JBSWY3DPEHPK3PXP"
+        api_key = self.env[MODEL_RES_USERS_APIKEYS].with_user(self.tester).sudo()._generate("rpc", "Sign-in", None)
+        devices = self.env[MODEL_LABORATORY_DEVICE]
+
+        self.assertRefused(INVALID_CREDENTIALS, self.sign_in, self.tester, "installation")
+        device, key = devices._sign_in(self.tester.login, api_key, "installation", "HPLC-PC", "windows")
+        self.assertEqual(self.device_of(key), device)
+
+    def test_a_computer_key_does_not_sign_another_computer_in(self):
+        _device, key = self.sign_in(self.tester, "installation")
+        devices = self.env[MODEL_LABORATORY_DEVICE]
+
+        self.assertRefused(INVALID_CREDENTIALS, devices._sign_in, self.tester.login, key, "other", "AAS-PC", "linux")
 
     def test_a_person_without_the_laboratory_files_permission_cannot_sign_in(self):
         self.assertRefused(PERMISSION_DENIED, self.sign_in, self.colleague, "installation")

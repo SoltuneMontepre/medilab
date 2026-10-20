@@ -6,8 +6,8 @@ import re
 NOT_IN_A_NAME = re.compile(r"[/\\:\x00-\x1f\x7f]")
 # The wildcards of a name pattern other than *, which sync rules do not support.
 OTHER_WILDCARDS = re.compile(r"[?\[\]{}]")
-# An extension with or without its dot, such as csv, .csv or tar.gz.
-EXTENSION = re.compile(r"\.?[A-Za-z0-9]+(\.[A-Za-z0-9]+)*")
+# An extension as rules keep it, such as csv or tar.gz.
+EXTENSION = re.compile(r"[a-z0-9]+(\.[a-z0-9]+)*")
 
 
 def is_name(text):
@@ -27,3 +27,8 @@ def is_name_pattern(text):
 
 def is_extension(text):
     return bool(EXTENSION.fullmatch(text))
+
+
+def normal_extension(text):
+    """An extension as rules keep it: without its dot and in lowercase, so a file matches it whatever its case."""
+    return text.removeprefix(".").lower()

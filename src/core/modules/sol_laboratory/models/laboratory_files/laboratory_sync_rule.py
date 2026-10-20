@@ -8,7 +8,12 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
 )
-from odoo.addons.sol_laboratory.services.laboratory_paths import is_extension, is_name_pattern, is_name_prefix
+from odoo.addons.sol_laboratory.services.laboratory_paths import (
+    is_extension,
+    is_name_pattern,
+    is_name_prefix,
+    normal_extension,
+)
 
 PATTERN_CHECKS = {"prefix": is_name_prefix, "glob": is_name_pattern, "extension": is_extension}
 
@@ -31,12 +36,30 @@ class LaboratorySyncRule(models.Model):
         required=True,
         default="prefix",
     )
-    # The name prefix, pattern with * or extension the file must match.
+    # The name prefix, pattern with * or extension the file must match; an extension without its dot, in lowercase.
     pattern = fields.Char(required=True)
     # True when files in subfolders count too.
     recursive = fields.Boolean(string="Include Subfolders", default=True)
     # False when the rule is turned off.
     enabled = fields.Boolean(default=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("kind", "prefix") == "extension" and vals.get("pattern"):
+                vals["pattern"] = normal_extension(vals["pattern"])
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if "pattern" not in vals and vals.get("kind") != "extension":
+            return super().write(vals)
+        # Each rule keeps its own pattern when only its kind changes, so an extension is made normal rule by rule.
+        for rule in self:
+            rule_vals = dict(vals)
+            if vals.get("kind", rule.kind) == "extension":
+                rule_vals["pattern"] = normal_extension(vals.get("pattern", rule.pattern) or "")
+            super(LaboratorySyncRule, rule).write(rule_vals)
+        return True
 
     @api.constrains("kind", "pattern")
     def _check_pattern(self):

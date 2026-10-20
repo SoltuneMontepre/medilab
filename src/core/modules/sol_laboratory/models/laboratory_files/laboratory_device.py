@@ -65,12 +65,10 @@ class LaboratoryDevice(models.Model):
 
     @api.depends("api_key_id", "revoked_at")
     def _compute_status(self):
-        # Odoo makes no foreign key to its API keys, so a key removed from the person's preferences leaves its id here.
-        keys = self.sudo().api_key_id.exists()
         for device in self:
             if device.revoked_at:
                 device.status = "revoked"
-            elif device.sudo().api_key_id & keys:
+            elif device.sudo().api_key_id:
                 device.status = "signed_in"
             else:
                 device.status = "signed_out"
@@ -109,7 +107,7 @@ class LaboratoryDevice(models.Model):
         # it by its name.
         key, key_id = devices._new_key(name)
         if device:
-            old_keys = device._current_keys()
+            old_keys = device.api_key_id
             device.write({"name": name, "api_key_id": key_id})
             old_keys._remove()
         else:
@@ -119,33 +117,18 @@ class LaboratoryDevice(models.Model):
         return device.with_user(uid), key
 
     def _sign_out(self):
-        """The computer signs out: its key stops, and it can sign in again."""
-        keys = self._current_keys()
-        self.sudo().api_key_id = False
-        keys._remove()
+        """The computer signs out: its key is removed, which empties the computer's key, and it can sign in again."""
+        self.sudo().api_key_id._remove()
 
     def action_revoke(self):
         """Revoke the computers for good: their keys stop at once, and their people keep their folders and other
         computers. A person revokes their own computers; revoking someone else's needs the edit permission."""
         self.filtered(lambda device: device.user_id != self.env.user)._check_permission("edit")
-        devices = self.filtered(lambda device: not device.revoked_at)
-        keys = devices._current_keys()
-        devices.sudo().write({"api_key_id": False, "revoked_at": fields.Datetime.now()})
+        devices = self.filtered(lambda device: not device.revoked_at).sudo()
+        keys = devices.api_key_id
+        # One write, so revoking is one entry of the audit trail; the keys go after it, which records them by name.
+        devices.write({"api_key_id": False, "revoked_at": fields.Datetime.now()})
         keys._remove()
-
-    def _current_keys(self):
-        """The keys of the computers that still exist. Odoo makes no foreign key to its API keys, so a key removed
-        elsewhere, such as from the person's preferences, leaves its id here; the id is cleared without an entry of the
-        audit trail, which could not name the removed key."""
-        devices = self.sudo()
-        removed = devices.filtered(lambda device: device.api_key_id and not device.api_key_id.exists())
-        if removed:
-            removed.flush_recordset(["api_key_id"])
-            self.env.cr.execute(
-                SQL("UPDATE medilab_laboratory_device SET api_key_id = NULL WHERE id IN %s", tuple(removed.ids))
-            )
-            removed.invalidate_recordset(["api_key_id"])
-        return devices.api_key_id
 
     @api.model
     def _from_key(self, key):

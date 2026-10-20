@@ -2248,6 +2248,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -3174,6 +3175,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
 msgid "ID"
 msgstr "ID"
 
@@ -7523,6 +7525,11 @@ msgstr "Dùng để đăng nhập vào hệ thống"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__user_id
 msgid "User"
 msgstr "Tài Khoản"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_res_users_apikeys
+msgid "User API Key"
+msgstr "Khóa API người dùng"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_state

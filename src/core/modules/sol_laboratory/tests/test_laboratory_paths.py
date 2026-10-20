@@ -38,3 +38,21 @@ class TestLaboratoryPaths(LaboratoryFilesCase):
             for pattern in patterns:
                 with self.subTest(kind=kind, pattern=pattern), self.assertRaises(ValidationError):
                     rules.create({"folder_id": self.folder.id, "kind": kind, "pattern": pattern})
+
+    def test_an_extension_is_kept_without_its_dot_and_in_lowercase(self):
+        rules = self.env[MODEL_LABORATORY_SYNC_RULE]
+        created = rules.create(
+            [
+                {"folder_id": self.folder.id, "kind": "extension", "pattern": pattern}
+                for pattern in (".PDF", "Pdf", "pdf")
+            ]
+        )
+        prefix = rules.create({"folder_id": self.folder.id, "kind": "prefix", "pattern": "XLSX"})
+
+        self.assertEqual(created.mapped("pattern"), ["pdf", "pdf", "pdf"])
+        created[0].pattern = ".Tar.GZ"
+        self.assertEqual(created[0].pattern, "tar.gz")
+        prefix.kind = "extension"
+        self.assertEqual(prefix.pattern, "xlsx")
+        (created[1] | prefix).write({"kind": "extension", "pattern": ".CSV"})
+        self.assertEqual((created[1] | prefix).mapped("pattern"), ["csv", "csv"])

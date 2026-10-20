@@ -2221,6 +2221,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -3128,6 +3129,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
 msgid "ID"
 msgstr ""
 
@@ -7388,6 +7390,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__user_id
 msgid "User"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_res_users_apikeys
+msgid "User API Key"
 msgstr ""
 
 #. module: sol_laboratory

@@ -3,7 +3,11 @@ from odoo.tests import tagged
 
 from .laboratory_files_case import LaboratoryFilesCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_KEY_SCOPE, DEVICE_REVOKED, INVALID_KEY
-from odoo.addons.sol_laboratory.constants.models import MODEL_RES_USERS_APIKEYS
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_AUDIT_ENTRY,
+    MODEL_LABORATORY_DEVICE,
+    MODEL_RES_USERS_APIKEYS,
+)
 
 
 @tagged("post_install", "-at_install")
@@ -45,12 +49,20 @@ class TestLaboratoryDeviceRevocation(LaboratoryFilesCase):
         self.assertEqual(self.lost.status, "signed_in")
 
     def test_a_key_removed_from_the_preferences_signs_the_computer_out(self):
+        key = self.lost.api_key_id
         self.lost.api_key_id._remove()
 
         self.assertEqual(self.lost.status, "signed_out")
+        self.assertFalse(self.lost.api_key_id)
         self.assertRefused(INVALID_KEY, self.lost.with_user(self.tester)._from_key, self.lost_key)
-        device, key = self.sign_in(self.tester, "lost-laptop")
-        self.assertEqual(self.device_of(key), device)
+        sign_out = self.env[MODEL_AUDIT_ENTRY].search(
+            [("document_model", "=", MODEL_LABORATORY_DEVICE), ("document_id", "=", self.lost.id)], limit=1
+        )
+        self.assertEqual((sign_out.action, sign_out.user_id), ("edit", self.tester))
+        self.assertEqual(sign_out.change_ids.mapped("field_name"), ["api_key_id"])
+        self.assertIn(f"#{key.id}", sign_out.change_ids.old_value)
+        device, new_key = self.sign_in(self.tester, "lost-laptop")
+        self.assertEqual(self.device_of(new_key), device)
 
     def test_a_computer_whose_key_was_removed_elsewhere_is_still_revoked(self):
         self.lost.api_key_id._remove()
