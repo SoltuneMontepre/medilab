@@ -1,0 +1,4 @@
+preflight_min_available_memory_mb: 4096
+preflight_min_free_disk_gb: 30
+preflight_k3s_marker: "Managed by infra/ansible"
+preflight_k3s_route_prefixes: ["10.42.", "10.43."]

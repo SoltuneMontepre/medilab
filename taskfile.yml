@@ -14,6 +14,10 @@ includes:
     taskfile: tools/taskfiles/ai.taskfile.yml
     dir: .
     flatten: true
+  ansible:
+    taskfile: tools/taskfiles/ansible.taskfile.yml
+    dir: .
+    flatten: true
   app:
     taskfile: tools/taskfiles/app.taskfile.yml
     dir: .

@@ -1,0 +1,24 @@
+- name: Install the missing packages
+  ansible.builtin.apt:
+    name: "{{ base_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Read the current kernel limits
+  ansible.builtin.command: sysctl -n {{ item }}
+  loop: "{{ base_sysctl_minimums.keys() | list }}"
+  register: base_sysctl_current
+  changed_when: false
+  check_mode: false
+
+- name: Raise the kernel limits that are below the minimum
+  ansible.posix.sysctl:
+    name: "{{ item.item }}"
+    value: "{{ base_sysctl_minimums[item.item] }}"
+    sysctl_file: /etc/sysctl.d/90-medilab.conf
+    reload: true
+  loop: "{{ base_sysctl_current.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.stdout | int < base_sysctl_minimums[item.item]

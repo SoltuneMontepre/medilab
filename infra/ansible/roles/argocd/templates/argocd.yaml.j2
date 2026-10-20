@@ -1,0 +1,45 @@
+# {{ argocd_marker }}
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: argocd
+  namespace: kube-system
+spec:
+  repo: https://argoproj.github.io/argo-helm
+  chart: argo-cd
+  version: {{ argocd_chart_version }}
+  targetNamespace: {{ argocd_namespace }}
+  createNamespace: true
+  valuesContent: |-
+    dex:
+      enabled: false
+    configs:
+      cm:
+        # The root application waits for each sync wave of applications to be healthy.
+        resource.customizations.health.argoproj.io_Application: |
+          hs = {}
+          hs.status = "Progressing"
+          hs.message = ""
+          if obj.status ~= nil and obj.status.health ~= nil then
+            hs.status = obj.status.health.status
+            if obj.status.health.message ~= nil then
+              hs.message = obj.status.health.message
+            end
+          end
+          return hs
+        # The pre-sync backup hook finishes when the backup completes.
+        resource.customizations.health.postgresql.cnpg.io_Backup: |
+          hs = { status = "Progressing", message = "Waiting for the backup" }
+          if obj.status ~= nil and obj.status.phase ~= nil and obj.status.phase ~= "" then
+            local phase = obj.status.phase
+            if phase == "completed" then
+              hs.status = "Healthy"
+              hs.message = "Backup completed"
+            elseif phase == "failed" or phase == "walArchivingFailing" or phase == "invalid backup definition" then
+              hs.status = "Degraded"
+              hs.message = obj.status.error or phase
+            else
+              hs.message = phase
+            end
+          end
+          return hs
