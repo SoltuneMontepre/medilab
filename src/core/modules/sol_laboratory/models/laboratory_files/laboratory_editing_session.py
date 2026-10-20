@@ -303,6 +303,11 @@ class LaboratoryEditingSession(models.Model):
         )
 
     @api.model
+    def _idle(self):
+        """The open sessions with no activity in the idle period."""
+        return self.sudo().search([("status", "in", OPEN_STATUSES), ("last_activity_at", "<", self._idle_cutoff())])
+
+    @api.model
     def _idle_cutoff(self):
         hours = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("laboratory_editing_idle_hours")
         return fields.Datetime.now() - timedelta(hours=hours)

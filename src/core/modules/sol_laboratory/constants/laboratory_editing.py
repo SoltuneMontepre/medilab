@@ -32,5 +32,7 @@ CALLBACK_TOKEN_SCOPE = "sol_laboratory.editing_callback"
 INTERNAL_URL_VARIABLE = "ONLYOFFICE_INTERNAL_URL"
 # Context key of the audit note of a session's write, such as the editors of its save.
 AUDIT_NOTE_CONTEXT = "laboratory_editing_note"
+# The key of the job that expires idle sessions.
+EXPIRE_JOB = "laboratory_editing_sessions.expire"
 # Code of the refusal of a file that is not edited online.
 NOT_EDITABLE = "not_editable"

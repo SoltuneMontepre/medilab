@@ -49,6 +49,7 @@ from . import (
     test_laboratory_device_revocation,
     test_laboratory_device_sign_in,
     test_laboratory_editing_concurrency,
+    test_laboratory_editing_expiry,
     test_laboratory_editing_saves,
     test_laboratory_editing_service_down,
     test_laboratory_editing_session_records,

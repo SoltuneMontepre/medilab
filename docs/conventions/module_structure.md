@@ -8,6 +8,7 @@ How code inside an Odoo module is laid out.
 - Folder names are snake_case, because model folders are Python packages.
 - A new concern adds a folder in both `models/` and `views/` and a row to this table.
 - Mixins that models of several concerns inherit, such as the permission mixin, live in `models/mixins/`, which has no views. `models/__init__.py` imports it before the concerns, because Odoo registers models in the order their classes are defined.
+- Extensions of system models, such as job handlers, live in `models/system/`.
 
 | Concern             | Contains                                                                                                                                                                         |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
