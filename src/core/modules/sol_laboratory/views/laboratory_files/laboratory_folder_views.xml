@@ -98,6 +98,17 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Files" name="files">
+                            <field name="file_ids" readonly="1">
+                                <list>
+                                    <field name="path" />
+                                    <field name="current_number" />
+                                    <field name="current_size" />
+                                    <field name="current_user_id" widget="many2one_avatar_user" />
+                                    <field name="write_date" string="Last Saved" />
+                                </list>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
             </form>
