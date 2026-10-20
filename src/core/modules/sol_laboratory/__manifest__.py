@@ -60,6 +60,7 @@
         "views/laboratory_files/laboratory_file_lock_views.xml",
         "views/laboratory_files/laboratory_file_version_reject_views.xml",
         "views/laboratory_files/laboratory_file_version_signing_views.xml",
+        "views/laboratory_files/laboratory_editing_session_views.xml",
         "views/laboratory_files/laboratory_folder_views.xml",
         "views/laboratory_files/laboratory_folder_sample_views.xml",
         "views/laboratory_files/laboratory_folder_member_views.xml",
