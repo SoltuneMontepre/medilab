@@ -13,6 +13,7 @@ from odoo.addons.sol_laboratory.services.laboratory_paths import (
     is_name_pattern,
     is_name_prefix,
     normal_extension,
+    normal_text,
 )
 
 PATTERN_CHECKS = {"prefix": is_name_prefix, "glob": is_name_pattern, "extension": is_extension}
@@ -49,12 +50,16 @@ class LaboratorySyncRule(models.Model):
             {vals["folder_id"] for vals in vals_list if vals.get("folder_id")}
         )._check_not_archived()
         for vals in vals_list:
+            if vals.get("pattern"):
+                vals["pattern"] = normal_text(vals["pattern"])
             if vals.get("kind", "prefix") == "extension" and vals.get("pattern"):
                 vals["pattern"] = normal_extension(vals["pattern"])
         return super().create(vals_list)
 
     def write(self, vals):
         (self.folder_id | self.folder_id.browse(vals.get("folder_id") or []))._check_not_archived()
+        if vals.get("pattern"):
+            vals = {**vals, "pattern": normal_text(vals["pattern"])}
         if "pattern" not in vals and vals.get("kind") != "extension":
             return super().write(vals)
         # Each rule keeps its own pattern when only its kind changes, so an extension is made normal rule by rule.

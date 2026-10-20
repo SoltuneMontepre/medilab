@@ -1,4 +1,7 @@
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE
+import hashlib
+
+from odoo.addons.sol_laboratory.constants.laboratory_files import SYNCED
+from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_LABORATORY_FILE
 
 COMPUTERS = (
     (
@@ -47,3 +50,53 @@ def seed_laboratory_files(env):
     env["ir.model.data"]._update_xmlids(
         [{"xml_id": f"sol_demo.{xml_id}", "record": record, "noupdate": True} for xml_id, record in computers.items()]
     )
+
+
+# The demo files: the folder each one is in and its path.
+FILES = {
+    "hplc_results": ("demo_laboratory_folder_hplc_results", "2026/HPLC-ket-qua-thang-10.xlsx"),
+    "aas_run": ("demo_laboratory_folder_aas_raw_data", "run-0412.csv"),
+}
+# The saves of the demo files, in order: the file, who saved it from which computer, its content and the number of the
+# version it was made from. The bytes are not in the bucket; the upload flow adds them.
+SAVES = (
+    ("hplc_results", "tester", "hplc_pc", "Kết quả HPLC, bản 1", None),
+    ("hplc_results", "chemistry_tester", "aas_pc", "Kết quả HPLC, bản 2", None),
+    ("hplc_results", "tester", "hplc_pc", "Kết quả HPLC, bản 3", None),
+    # Saved on the AAS computer from version 2, after the tester had saved version 3: kept as a conflict.
+    ("hplc_results", "chemistry_tester", "aas_pc", "Kết quả HPLC, bản AAS", 2),
+    ("aas_run", "chemistry_tester", "aas_pc", "mau,Pb\nLAB-26-0412,0.012", None),
+)
+
+
+def seed_laboratory_file_versions(env):
+    """A results spreadsheet the two testers saved three times from their computers, with a fourth save kept as a
+    conflict, and a run file of the AAS computer."""
+    if env.ref("sol_demo.demo_laboratory_file_hplc_results", raise_if_not_found=False):
+        return
+    files = {}
+    xml_ids = []
+    for key, user_name, computer_name, content, base_number in SAVES:
+        if key not in files:
+            folder_xml_id, path = FILES[key]
+            files[key] = env[MODEL_LABORATORY_FILE]._get_or_create(env.ref(f"sol_demo.{folder_xml_id}"), path)
+            xml_ids.append({"xml_id": f"sol_demo.demo_laboratory_file_{key}", "record": files[key], "noupdate": True})
+        file = files[key]
+        sha256 = hashlib.sha256(content.encode()).hexdigest()
+        version = file._add_version(
+            sha256=sha256,
+            size=len(content.encode()),
+            storage_key=f"demo/{sha256}",
+            source=SYNCED,
+            user=env.ref(f"sol_demo.demo_res_users_{user_name}"),
+            device=env.ref(f"sol_demo.demo_laboratory_device_{computer_name}"),
+            base_version=file.version_ids.filtered(lambda version, number=base_number: version.number == number),
+        )
+        xml_ids.append(
+            {
+                "xml_id": f"sol_demo.demo_laboratory_file_version_{key}_{version.number}",
+                "record": version,
+                "noupdate": True,
+            }
+        )
+    env["ir.model.data"]._update_xmlids(xml_ids)
