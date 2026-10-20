@@ -1,0 +1,11 @@
+# {{ k3s_marker }}
+# Traffic reaches Traefik through cloudflared inside the cluster, so it binds no host port.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    service:
+      type: ClusterIP

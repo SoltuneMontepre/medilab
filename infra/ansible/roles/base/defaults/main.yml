@@ -1,0 +1,8 @@
+base_packages:
+  - ca-certificates
+  - curl
+  - iproute2
+  - nftables
+base_sysctl_minimums:
+  fs.inotify.max_user_instances: 8192
+  fs.inotify.max_user_watches: 524288

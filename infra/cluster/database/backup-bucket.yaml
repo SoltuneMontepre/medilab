@@ -1,0 +1,30 @@
+# Credentials and endpoint of the backups bucket. The endpoint gets https:// when Doppler holds it without a scheme.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: backup-bucket
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: doppler
+  target:
+    name: backup-bucket
+    template:
+      engineVersion: v2
+      data:
+        ACCESS_KEY_ID: "{{ .accessKey }}"
+        ACCESS_SECRET_KEY: "{{ .secretKey }}"
+        ENDPOINT: '{{ if hasPrefix "http" .address }}{{ .address }}{{ else }}https://{{ .address }}{{ end }}'
+  data:
+    - secretKey: accessKey
+      remoteRef:
+        key: BUCKET_BACKUP_ACCESS_KEY
+    - secretKey: secretKey
+      remoteRef:
+        key: BUCKET_BACKUP_SECRET_KEY
+    - secretKey: address
+      remoteRef:
+        key: BUCKET_ADDRESS

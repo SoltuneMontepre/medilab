@@ -7,9 +7,11 @@ How the [Task](https://taskfile.dev) commands in this repository are written, an
 ```text
 taskfile.yml                    entrypoint: includes the taskfiles, defines setup
 tools/
+├── ansible/                    Ansible image, its compose file and the entrypoint that loads the SSH key
 ├── odoo-intelligence/          Shared OdooLS MCP bridge, local installer, Serena launcher and tests
 ├── taskfiles/
 │   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification and isolated Cursor setup
+│   ├── ansible.taskfile.yml    Ansible in a container: ping, inspect, check, apply, kubeconfig, lint
 │   ├── app.taskfile.yml        run the app: up, stop, restart, logs, upgrade, reset
 │   ├── dev.taskfile.yml        developer setup and checks: doppler, venv, Odoo source, lint, typecheck
 │   ├── test.taskfile.yml       tests: core, uninstall, typecheck, e2e, apps
@@ -27,6 +29,7 @@ tools/
 
 - `taskfile.yml` includes each taskfile with `dir: .` and `flatten: true`, so every task runs from the repository root and is called without a prefix: `task up`, not `task app:up`.
 - A new group of tasks gets its own `tools/taskfiles/<group>.taskfile.yml`, included the same way.
+- The `env:` block of an included taskfile applies to the tasks of every taskfile, and when two taskfiles set the same variable, which value a task gets changes from run to run. Set a variable there only to the value every taskfile uses, such as `COMPOSE_FILE` for the local infrastructure; a task that needs another compose file names it with `docker compose -f`, as the Ansible tasks do.
 - Shell code shared by several tasks goes in `tools/scripts/`, not copied between tasks.
 
 ## Tasks
@@ -79,15 +82,15 @@ tasks:
         log_ok "Odoo source ready in .local/odoo-source."
 ```
 
-| Helper                    | Use for                                 | Prints                                     |
-| ------------------------- | --------------------------------------- | ------------------------------------------ |
-| `log_step "<title>"`      | The start of each section of a task     | Blank line, then bold cyan `==>` and title |
-| `log_info "<text>"`       | Detail about what is happening          | Dimmed, indented line                      |
-| `log_option <n> "<text>"` | One choice in a menu                    | Indented line with a cyan `n)`             |
-| `log_prompt "<question>"` | A question before `read`                | Yellow `?`, no line break                  |
-| `log_ok "<text>"`         | The result of a task that succeeded     | Green `[COMPLETED]`                        |
-| `log_error "<text>"`      | A failure, followed by `exit 1`         | Red `[ERROR]`, to stderr                   |
-| `log_link "<name>" <url>` | An address the developer opens          | Aligned name and underlined URL            |
+| Helper                    | Use for                             | Prints                                     |
+| ------------------------- | ----------------------------------- | ------------------------------------------ |
+| `log_step "<title>"`      | The start of each section of a task | Blank line, then bold cyan `==>` and title |
+| `log_info "<text>"`       | Detail about what is happening      | Dimmed, indented line                      |
+| `log_option <n> "<text>"` | One choice in a menu                | Indented line with a cyan `n)`             |
+| `log_prompt "<question>"` | A question before `read`            | Yellow `?`, no line break                  |
+| `log_ok "<text>"`         | The result of a task that succeeded | Green `[COMPLETED]`                        |
+| `log_error "<text>"`      | A failure, followed by `exit 1`     | Red `[ERROR]`, to stderr                   |
+| `log_link "<name>" <url>` | An address the developer opens      | Aligned name and underlined URL            |
 
 - A task that runs several steps or asks questions opens with `log_step`. A task that finishes something the developer waits for ends with `log_ok`. A task that only calls other tasks or one tool prints nothing itself.
 - Write messages as short sentences ending with a full stop. An error says what failed and what to do next: "doppler not found. Install: winget install Doppler.doppler".

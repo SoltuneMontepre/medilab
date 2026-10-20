@@ -1,0 +1,4 @@
+ansible_user: ansible
+
+k3s_tcp_ports: [6443, 2379, 2380, 10250]
+k3s_udp_ports: [51820]

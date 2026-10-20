@@ -1,0 +1,46 @@
+# {{ k3s_marker }}
+{% if k3s_cluster_init %}
+cluster-init: true
+{% else %}
+server: {{ k3s_server_url }}
+{% endif %}
+token-file: /etc/rancher/k3s/token
+node-name: {{ inventory_hostname }}
+node-external-ip: {{ ansible_host }}
+tls-san:
+  - {{ ansible_host }}
+flannel-backend: wireguard-native
+write-kubeconfig-mode: "0600"
+secrets-encryption: true
+disable:
+  - servicelb
+{% if k3s_node_labels %}
+node-label:
+{% for label in k3s_node_labels %}
+  - {{ label }}
+{% endfor %}
+{% endif %}
+{% if k3s_node_taints %}
+node-taint:
+{% for taint in k3s_node_taints %}
+  - {{ taint }}
+{% endfor %}
+{% endif %}
+kubelet-arg:
+  - system-reserved={{ k3s_system_reserved }}
+  - kube-reserved={{ k3s_kube_reserved }}
+kube-apiserver-arg:
+  - default-unreachable-toleration-seconds=20
+  - default-not-ready-toleration-seconds=20
+kube-controller-manager-arg:
+  - node-monitor-grace-period=20s
+etcd-snapshot-schedule-cron: "{{ k3s_etcd_snapshot_cron }}"
+etcd-snapshot-retention: {{ k3s_etcd_snapshot_retention }}
+{% if k3s_etcd_s3_bucket %}
+etcd-s3: true
+etcd-s3-endpoint: {{ k3s_etcd_s3_endpoint }}
+etcd-s3-access-key: {{ k3s_etcd_s3_access_key }}
+etcd-s3-secret-key: {{ k3s_etcd_s3_secret_key }}
+etcd-s3-bucket: {{ k3s_etcd_s3_bucket }}
+etcd-s3-folder: {{ k3s_etcd_s3_folder }}
+{% endif %}

@@ -1,0 +1,14 @@
+# An on-demand base backup before every sync, so a release can be restored by hand. Retention on the ObjectStore removes it.
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: medilab-db-pre-sync
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  cluster:
+    name: medilab-db
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

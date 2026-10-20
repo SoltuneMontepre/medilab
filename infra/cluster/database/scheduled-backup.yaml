@@ -1,0 +1,15 @@
+# Daily base backup at 02:00 Asia/Ho_Chi_Minh; the operator reads the schedule in UTC, with seconds first.
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: medilab-db-daily
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  schedule: "0 0 19 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: medilab-db
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

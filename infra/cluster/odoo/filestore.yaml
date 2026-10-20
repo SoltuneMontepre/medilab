@@ -1,0 +1,78 @@
+# The filestore bucket, mounted by the S3 CSI driver at Odoo's filestore path in every replica and in the upgrade Job.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: filestore-bucket
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: doppler
+  target:
+    name: filestore-bucket
+    template:
+      engineVersion: v2
+      data:
+        accessKeyID: "{{ .accessKey }}"
+        secretAccessKey: "{{ .secretKey }}"
+        endpoint: '{{ if hasPrefix "http" .address }}{{ .address }}{{ else }}https://{{ .address }}{{ end }}'
+  data:
+    - secretKey: accessKey
+      remoteRef:
+        key: BUCKET_MAIN_ACCESS_KEY
+    - secretKey: secretKey
+      remoteRef:
+        key: BUCKET_MAIN_SECRET_KEY
+    - secretKey: address
+      remoteRef:
+        key: BUCKET_ADDRESS
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: medilab-filestore
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: medilab
+    name: filestore
+  csi:
+    driver: ru.yandex.s3.csi
+    volumeHandle: filestore
+    controllerPublishSecretRef:
+      name: filestore-bucket
+      namespace: medilab
+    nodePublishSecretRef:
+      name: filestore-bucket
+      namespace: medilab
+    nodeStageSecretRef:
+      name: filestore-bucket
+      namespace: medilab
+    volumeAttributes:
+      capacity: 100Gi
+      mounter: geesefs
+      options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: filestore
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  storageClassName: ""
+  volumeName: medilab-filestore
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi

@@ -1,0 +1,20 @@
+# {{ argocd_marker }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: medilab
+  namespace: {{ argocd_namespace }}
+spec:
+  project: default
+  source:
+    repoURL: {{ argocd_repository }}
+    targetRevision: {{ argocd_revision }}
+    path: {{ argocd_path }}
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

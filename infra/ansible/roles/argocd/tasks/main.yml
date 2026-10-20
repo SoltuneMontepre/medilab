@@ -1,0 +1,76 @@
+- name: Look for the Argo CD chart manifest
+  ansible.builtin.stat:
+    path: "{{ argocd_manifests_dir }}/medilab-argocd.yaml"
+  register: argocd_manifest
+
+- name: Look for an existing Argo CD
+  ansible.builtin.command: /usr/local/bin/k3s kubectl get namespace {{ argocd_namespace }} --ignore-not-found -o name
+  register: argocd_existing
+  changed_when: false
+  check_mode: false
+  failed_when: false
+
+- name: Report an Argo CD installed outside Ansible
+  ansible.builtin.debug:
+    msg: The {{ argocd_namespace }} namespace exists but Argo CD was not installed by infra/ansible; it was left as it is.
+  when: not argocd_manifest.stat.exists and argocd_existing.stdout | length > 0
+
+- name: Install Argo CD
+  when: argocd_manifest.stat.exists or argocd_existing.stdout | length == 0
+  block:
+    - name: Write the Argo CD chart
+      ansible.builtin.template:
+        src: argocd.yaml.j2
+        dest: "{{ argocd_manifests_dir }}/medilab-argocd.yaml"
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: Wait until Argo CD is available
+      ansible.builtin.command: >-
+        /usr/local/bin/k3s kubectl -n {{ argocd_namespace }}
+        wait deployment/argocd-server --for=condition=Available --timeout=30s
+      register: argocd_ready
+      until: argocd_ready.rc == 0
+      retries: 20
+      delay: 15
+      changed_when: false
+      when: not ansible_check_mode
+
+    - name: Check the Doppler token for External Secrets
+      ansible.builtin.assert:
+        that: argocd_doppler_token | length > 0
+        fail_msg: CLUSTER_DOPPLER_TOKEN is missing in the Doppler infra config; External Secrets needs it to read Doppler.
+        quiet: true
+      when: argocd_root_application_enabled
+
+    - name: Read the stored Doppler token
+      ansible.builtin.command: >-
+        /usr/local/bin/k3s kubectl -n {{ argocd_doppler_token_namespace }}
+        get secret doppler-token --ignore-not-found -o jsonpath={.data.dopplerToken}
+      register: argocd_doppler_secret
+      changed_when: false
+      check_mode: false
+      failed_when: false
+      no_log: true
+      when: argocd_root_application_enabled
+
+    # Applied server-side, so the token is not copied into a last-applied annotation.
+    - name: Store the Doppler token for External Secrets
+      ansible.builtin.command:
+        cmd: /usr/local/bin/k3s kubectl apply --server-side --field-manager=infra-ansible -f -
+        stdin: "{{ lookup('ansible.builtin.template', 'doppler-token.yaml.j2') }}"
+      changed_when: true
+      no_log: true
+      when:
+        - argocd_root_application_enabled
+        - argocd_doppler_secret.stdout | default('') != argocd_doppler_token | b64encode
+
+    - name: Write the root application
+      ansible.builtin.template:
+        src: medilab-application.yaml.j2
+        dest: "{{ argocd_manifests_dir }}/medilab-application.yaml"
+        owner: root
+        group: root
+        mode: "0600"
+      when: argocd_root_application_enabled
