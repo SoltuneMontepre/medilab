@@ -36,12 +36,53 @@ jobs:
               - "src/applications/medilab-sync/**"
               - ".github/workflows/ci.sync-app.yml"
 
+  lint:
+    needs: changes
+    if: needs.changes.outputs.relevant == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: write
+    defaults:
+      run:
+        working-directory: ${{ env.SYNC_APP_DIR }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Rust format
+        run: cargo fmt --check --manifest-path src-tauri/Cargo.toml
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Frontend tests
+        run: bun test
+
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
   build:
     name: build (${{ matrix.label }})
     needs: changes
     if: needs.changes.outputs.relevant == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: write
     strategy:
       fail-fast: true
       matrix:
@@ -63,17 +104,13 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt, clippy
+          components: clippy
 
       - name: Cache Rust build
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
           key: ${{ matrix.label }}
-
-      - name: Rust format
-        if: runner.os == 'Linux'
-        run: cargo fmt --check --manifest-path src-tauri/Cargo.toml
 
       - name: Install Linux build dependencies
         if: runner.os == 'Linux'
@@ -87,10 +124,6 @@ jobs:
       - name: Install frontend dependencies
         run: bun install --frozen-lockfile --ignore-scripts
 
-      - name: Frontend tests
-        if: runner.os == 'Linux'
-        run: bun test
-
       - name: Build frontend
         run: bun run build
 
@@ -100,8 +133,14 @@ jobs:
       - name: Rust tests
         run: cargo test --manifest-path src-tauri/Cargo.toml
 
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
   sync-app:
-    needs: [changes, build]
+    needs: [changes, lint, build]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
@@ -115,12 +154,13 @@ jobs:
             exit 1
           fi
 
-      - name: Check the builds
+      - name: Check the lint and builds
         if: needs.changes.outputs.relevant == 'true'
         env:
-          RESULT: ${{ needs.build.result }}
+          LINT: ${{ needs.lint.result }}
+          BUILD: ${{ needs.build.result }}
         run: |
-          if [ "$RESULT" != success ]; then
-            echo "::error::The sync app builds finished with result $RESULT."
+          if [ "$LINT" != success ] || [ "$BUILD" != success ]; then
+            echo "::error::lint finished with result $LINT and build with result $BUILD."
             exit 1
           fi

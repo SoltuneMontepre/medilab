@@ -61,7 +61,17 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 
 The sync app is the Tauri desktop client in `src/applications/medilab-sync`.
 
-- When the app or the workflow changes, `build` runs on Linux, Windows and macOS at once, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. Every runner builds the frontend and runs Clippy with warnings as errors and `cargo test`; Linux also runs `cargo fmt --check` and `bun test`. One failure stops the others.
+When the app or the workflow changes, four jobs run at once after `changes`:
+
+```mermaid
+flowchart LR
+    changes --> lint --> sync-app
+    changes --> build["build (Linux), (Windows), (macOS)"] --> sync-app
+```
+
+- `lint` runs `cargo fmt --check` and the frontend tests with `bun test`. It needs no Rust build, so it reports in about a minute.
+- `build` runs on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. Every runner builds the frontend, then runs Clippy with warnings as errors and `cargo test`.
+- When any job fails, its last step cancels the whole run, as in `ci-core`; each job has `actions: write` for this.
 - `sync-app` is the required check of `ci-sync-app`: it fails unless every `build` passed, and passes at once when nothing relevant changed.
 - A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
 - `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
