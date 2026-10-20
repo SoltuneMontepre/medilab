@@ -1,6 +1,6 @@
 # Laboratory files
 
-Stories: US-T23, US-T24, US-T25, US-T27, US-T28, US-AD29, US-AD30, US-AD31
+Stories: US-T23, US-T24, US-T25, US-T27, US-T28, US-AD29, US-AD30, US-AD31, US-HD15, US-HD16
 
 ## Goal
 
@@ -17,13 +17,13 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 | Laboratory sync rule     | read, create, edit, delete | all    |
 | Laboratory device        | read, edit                 | all    |
 | Laboratory file          | read                       | all    |
-| Laboratory file version  | read                       | all    |
+| Laboratory file version  | read, sign                 | all    |
 | Laboratory file change   | read                       | all    |
 | Laboratory file lock     | read                       | all    |
 
 - **The create permission on laboratory folders, `laboratory_folder.create.all`, is the laboratory files permission.** Its holders sign computers in and create folders they own. Its group also carries accesses of its own: its holders read the folders they are members of, the members and sync rules of those folders, and their own computers. They change them only through the laboratory files API, which checks them and then writes with full rights.
 - Folder administration is `laboratory_folder.edit.all`. With the read permissions of every folder, member, sync rule and computer, and the other permissions above, administrators see and change them all in the back office.
-- Files, versions and changes have only `read`: they are made by saving files, through the method below, and never changed or deleted. The laboratory files permission also reads the files and versions of its holder's folders.
+- Files, versions and changes have only `read`: they are made by saving files, through the method below, and never changed or deleted. The laboratory files permission also reads the files and versions of its holder's folders. Versions also have `sign`, for [signing them](#signing-versions).
 - Locks have only `read` too: they are taken, renewed and unlocked through the laboratory files API, and administrators release one as folder administrators. The laboratory files permission reads the locks of its holder's folders.
 - Folders have no archive or delete action: archiving a folder is editing it, and folders are never deleted. Members change their role only with the folder's owner, so they have no edit action. Computers are created by signing in and revoked by editing; they are never deleted.
 
@@ -172,6 +172,26 @@ A folder of a sample holds the files of one category of its work: raw data, work
 - They are named after the lab code only, which testers see: `<lab code> Raw Data`, with the root `<lab code>-raw`, and `<lab code> Results`, with the root `<lab code>-result`. When the owner already has a folder of that root, nothing is created and the person is told.
 - Creating them again adds nothing. Two creations at once make one folder of each category: the second one's creation fails on the unique key, `_create_laboratory_folders()` turns it into a `ConcurrencyError`, and Odoo runs the request again, which finds the folders.
 - The sample's form opens its folders the person sees.
+
+### Signing versions
+
+A version of a result file is approved by signing it through the [approval and signing chain](../business/approval-and-signing-chain.md) of laboratory file versions, `medilab.laboratory.file.version`: each version is a document of the chain, signed level after level by the roles its levels name, and the signature belongs to that version and its content. The chain is set up by administrators; without it, signing a version is refused.
+
+| Step        | Who and what                                                                                                                                                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Signing     | A member of the folder who sees its sample, holds the `sign` permission of versions and the role of the next level signs the current version of a file in a result folder. The signature records the signer, their role and level, the version and its SHA-256. |
+| Rejecting   | The same person rejects the version instead, with a reason; a rejection without one is refused. |
+| Withdrawing | A signer withdraws their own signature or rejection once every higher level has withdrawn theirs, as in every chain. Withdrawing the last one leaves the version unsigned, and the next signatures record the next round of `document_version`. |
+
+- Only the current version of a file in a result folder is signed or rejected. A conflict version is never current, so it is never signed.
+- A newer version of the file starts unsigned: the file shows the signing state of its current version, and the older version keeps its signatures.
+- Signing never stops a save, the online editor or a lock: a signed version is already never changed. Its number, content, hash and origin are protected for good, as every version's are. The fields signing adds are not part of that list: the signing state changes as people sign, reject and withdraw, and only through them; the round, `document_version`, cannot change while a signature stands, as in every chain.
+- Each signature of the chain records the hash of its document's content in `document_hash`, from `_approval_document_hash()`; for a version it is its SHA-256, and for document types without one it is empty.
+- Signing and rejecting take the file's row without changing it, so a signature and a concurrent save of the same file wait for each other and the second one runs again: a signature that comes after a newer version is refused, and a save after a signature adds an unsigned version. The file's last save stays as it was.
+- The level whose signer must belong to the department that did the work is refused for versions: a sample is tested by several departments, and the chain takes one department per document. Which one counts is an open question.
+- When a version's process is completed, so that its signatures can no longer be withdrawn, is an open question; until it is answered, they can always be withdrawn.
+- Signing, approving, rejecting and withdrawing are recorded in the [audit trail](audit-trail.md) on the version.
+- Whether a signed version is also digitally signed through Viettel Sign, and whether the person who saved a version may sign it, are open questions.
 
 ## Related documents
 
