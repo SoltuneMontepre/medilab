@@ -4,15 +4,17 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow     | Runs on                                                                                 | Does                                                                                                                 |
-| ------------ | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `ci-core`    | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
-| `ci-infra`   | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and `ansible-lint` when the Ansible code changes. |
-| `ci-tools`   | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
-| `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
-| `cd-infra`   | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
-| `cd-ansible` | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
-| `cd-cleanup` | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                              |
+| Workflow      | Runs on                                                                                 | Does                                                                                                                 |
+| ------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `ci-core`     | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
+| `ci-infra`    | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and `ansible-lint` when the Ansible code changes. |
+| `ci-tools`    | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
+| `ci-sync-app` | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
+| `cd-core`     | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
+| `cd-infra`    | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
+| `cd-ansible`  | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
+| `cd-sync-app` | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                      |
+| `cd-cleanup`  | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                              |
 
 Every workflow can also be started by hand.
 
@@ -76,6 +78,33 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 - Terraform creates both environments, their branch policy, their reviewers from the `ansible_apply_reviewers` variable in `infra/`, and their `DOPPLER_INFRA_TOKEN` secret; change them there and apply, not in GitHub.
 - No pull request trigger starts it, so a pull request never reaches the nodes or the `infra` secrets.
 - The kubeconfig is never printed in its log; see [Provisioning a node](../workflows/provisioning-node.md).
+
+## ci-sync-app and cd-sync-app
+
+The sync app is the Tauri desktop client in `src/applications/medilab-sync`.
+
+When the app or the workflow changes, its jobs run at once after `changes`:
+
+```mermaid
+flowchart LR
+    changes --> lint
+    changes --> compile["compile (Linux), (Windows), (macOS)"] --> build
+    changes --> runners["test (frontend), (backend)"] --> test
+```
+
+`lint`, `build` and `test` are the required checks, the same names as in `ci-core`. When nothing relevant changed, they pass at once.
+
+- `lint` runs `cargo fmt --check`, the frontend type check with `tsc`, and Clippy with warnings as errors.
+- `compile` builds the frontend and then the app on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. Only these jobs build the frontend. `build` fails unless every `compile` passed.
+- `test (frontend)` runs `bun test` and `test (backend)` runs `cargo test`, side by side. `test` fails unless both passed.
+- The app embeds the built frontend when it compiles, so `lint` and `test (backend)` compile against an empty stand-in `dist/index.html` instead of building the frontend.
+- When any job fails, its last step cancels the whole run, as in `ci-core`; each job has `actions: write` for this.
+- A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
+- `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
+- `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release.
+- The production Odoo address is built into the app from the `MEDILAB_SYNC_ODOO_URL` Actions variable. A tag build fails when it is not set or does not start with `https://`.
+- A manual run builds the packages without releasing them, to check a build before tagging.
+- The packages are not signed for automatic updates and are not uploaded to a bucket: the app checks for updates through an Odoo endpoint that does not exist yet.
 
 ## cd-core
 
