@@ -44,6 +44,7 @@ from . import (
     test_job_run,
     test_job_screens,
     test_lab_codes,
+    test_laboratory_files_records,
     test_languages,
     test_legacy_task_links,
     test_machine_scheduling,
