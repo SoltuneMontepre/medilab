@@ -45,12 +45,16 @@ class LaboratorySyncRule(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        self.env[MODEL_LABORATORY_FOLDER].browse(
+            {vals["folder_id"] for vals in vals_list if vals.get("folder_id")}
+        )._check_not_archived()
         for vals in vals_list:
             if vals.get("kind", "prefix") == "extension" and vals.get("pattern"):
                 vals["pattern"] = normal_extension(vals["pattern"])
         return super().create(vals_list)
 
     def write(self, vals):
+        (self.folder_id | self.folder_id.browse(vals.get("folder_id") or []))._check_not_archived()
         if "pattern" not in vals and vals.get("kind") != "extension":
             return super().write(vals)
         # Each rule keeps its own pattern when only its kind changes, so an extension is made normal rule by rule.
@@ -78,3 +82,7 @@ class LaboratorySyncRule(models.Model):
             else:
                 message = self.env._("An extension is letters and digits, such as csv: %s", pattern)
             raise ValidationError(message)
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_archived_folder(self):
+        self.folder_id._check_not_archived()

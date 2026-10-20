@@ -822,6 +822,11 @@ msgid "Archived At"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_folder_retention_days
+msgid "Archived Folders (days)"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_archive_mixin
 msgid "Archiving and Deleting Rules"
 msgstr ""
@@ -1850,6 +1855,13 @@ msgid ""
 "Days a sample test is due before the date promised to the customer, "
 "kept for handling incidents. Applies to sample tests whose due date "
 "is worked out from now on."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_folder_retention_days
+msgid ""
+"Days an archived laboratory folder keeps its files and versions; archiving a"
+" folder sets its retention date this many days later."
 msgstr ""
 
 #. module: sol_laboratory
@@ -3550,6 +3562,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_laboratory_device
 msgid "Laboratory Device"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_laboratory_files
+msgid "Laboratory Files"
 msgstr ""
 
 #. module: sol_laboratory
@@ -7016,6 +7033,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/res_config_settings.py:0
+msgid "The retention period of archived folders must be at least 1 day."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid ""
 "The role code %s may contain only lowercase letters, digits and "
@@ -7161,7 +7184,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
-msgid "This laboratory folder is archived: its files are read, not changed."
+msgid "This laboratory folder is archived: it is read, not changed."
 msgstr ""
 
 #. module: sol_laboratory

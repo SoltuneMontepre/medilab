@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
@@ -9,6 +11,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     FOLDER_SHARE,
     FOLDER_WRITE,
     LOCKED,
+    MEMBER_ROLE,
     NOT_FOUND,
     OWNER_ROLE,
     PERMISSION_DENIED,
@@ -23,6 +26,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_SYNC_RULE,
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
+    MODEL_RES_CONFIG_SETTINGS,
     MODEL_RES_USERS,
     MODEL_SAMPLE,
 )
@@ -80,14 +84,62 @@ class LaboratoryFolder(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             vals.setdefault("root", vals.get("name"))
+        self.env[MODEL_LABORATORY_FOLDER_MEMBER]._check_eligible(
+            {vals.get("owner_id") or self.env.uid for vals in vals_list}
+        )
         folders = super().create(vals_list)
         folders._add_owner_rows()
         return folders
 
     def write(self, vals):
+        self._check_not_archived()
         if "root" in vals and any(folder.root != vals["root"] for folder in self):
             raise UserError(self.env._("The name a folder was created with never changes; rename the folder instead."))
-        return super().write(vals)
+        if vals.get("owner_id"):
+            self.env[MODEL_LABORATORY_FOLDER_MEMBER]._check_eligible({vals["owner_id"]})
+        result = super().write(vals)
+        if "owner_id" in vals:
+            self._hand_over()
+        return result
+
+    def action_turn_off(self):
+        """Turn the folders off: nobody uploads to them, and their members still read them."""
+        self._check_folder_access(FOLDER_ADMINISTER)
+        self.write({"enabled": False})
+
+    def action_turn_on(self):
+        self._check_folder_access(FOLDER_ADMINISTER)
+        self.write({"enabled": True})
+
+    def action_archive_folder(self):
+        """Archive the folders for good: from then on they are only read, and they keep their files and versions until
+        their retention date, the retention period of archived folders from today."""
+        self._check_folder_access(FOLDER_ADMINISTER)
+        days = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("laboratory_folder_retention_days")
+        self.write(
+            {
+                "archived_at": fields.Datetime.now(),
+                "retention_until": fields.Date.context_today(self) + timedelta(days=days),
+            }
+        )
+
+    def _check_not_archived(self):
+        # There is no unarchiving, so an archived folder is only read; administrators still remove its members.
+        if self.sudo().filtered("archived_at"):
+            raise LaboratoryFileError(
+                FOLDER_ARCHIVED, self.env._("This laboratory folder is archived: it is read, not changed.")
+            )
+
+    def _hand_over(self):
+        """After a change of owner, the previous owner stays a member and the new owner's row becomes the owner's."""
+        for folder in self.sudo():
+            previous = folder.member_ids.filtered(
+                lambda member, folder=folder: member.role == OWNER_ROLE and member.user_id != folder.owner_id
+            )
+            previous.role = MEMBER_ROLE
+            # The partial unique index holds one owner row at a time, so the previous row changes first.
+            previous.flush_recordset(["role"])
+        self._add_owner_rows()
 
     @api.constrains("name", "root")
     def _check_names(self):
@@ -122,7 +174,9 @@ class LaboratoryFolder(models.Model):
             raise LaboratoryFileError(
                 PERMISSION_DENIED, self.env._("Only administrators can do this with a laboratory folder.")
             )
-        if access != FOLDER_ADMINISTER and not (access == FOLDER_SHARE and administrator):
+        if access == FOLDER_SHARE and administrator:
+            self._check_not_archived()
+        elif access != FOLDER_ADMINISTER:
             self._check_member_access(access)
         if access in (FOLDER_SHARE, FOLDER_ADMINISTER):
             try:
@@ -137,10 +191,8 @@ class LaboratoryFolder(models.Model):
             raise LaboratoryFileError(
                 NOT_FOUND, self.env._("This laboratory folder does not exist or you are not a member of it.")
             )
-        if access == FOLDER_WRITE and folders.filtered("archived_at"):
-            raise LaboratoryFileError(
-                FOLDER_ARCHIVED, self.env._("This laboratory folder is archived: its files are read, not changed.")
-            )
+        if access in (FOLDER_WRITE, FOLDER_SHARE):
+            self._check_not_archived()
         if access == FOLDER_WRITE and not all(folders.mapped("enabled")):
             raise LaboratoryFileError(
                 FOLDER_DISABLED, self.env._("This laboratory folder is turned off: its files are read, not changed.")

@@ -29,12 +29,26 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 | ------------ | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
 | `read`       | The person holds the laboratory files permission, is a member of the folder and, for a folder of a sample, sees the sample | `permission_denied`, `not_found`     |
 | `write`      | `read`, and the folder is neither archived nor turned off                                                                 | `folder_archived`, `folder_disabled` |
-| `share`      | `read` and the person owns the folder, or the person administers folders                                                  | `permission_denied`                  |
+| `share`      | `read` and the person owns the folder, or the person administers folders; and the folder is not archived                  | `permission_denied`, `folder_archived` |
 | `administer` | The person administers folders                                                                                            | `permission_denied`                  |
 
 - A person who is not a member gets `not_found`, as for a folder that does not exist, so the answer does not tell that the folder exists. So does an administrator who is not a member, except for `share`.
 - `share` and `administer` are refused with `locked` while someone else holds the folder's [document lock](document-locking.md), because writing with full rights would pass over it.
 - Odoo evaluates access domains with full rights, so an access cannot test whether the person sees a folder's sample. The check tests the sample in the person's own environment.
+
+### Administering a folder
+
+Administrators administer folders in the back office; each action checks `administer` and is recorded in the audit trail as an edit of the folder.
+
+| Action        | What happens                                                                                                                                                                       |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Turning off   | The folder refuses `write`: nobody uploads to it, and its members still read it. It is still renamed, its rules changed and its members added and removed, since it can be turned on again. |
+| Turning on    | The folder takes uploads again.                                                                                                                                                    |
+| Archiving     | The folder records when it was archived, and its retention date is the retention period of archived folders from today. There is no unarchiving.                                  |
+| Changing the owner | The new owner's row becomes the owner's and the previous owner stays a member. The new owner must be able to be a member, and must not own a folder of the same root already. |
+
+- An archived folder is read only, for its owner and members too: it refuses `write` and `share`, and the folder, its rules and its members cannot be changed. Administrators still remove its members in the back office, so access to it can always be withdrawn. It is no longer turned off or on, archived again or given another owner.
+- The retention period of archived folders is the system parameter `sol_laboratory.laboratory_folder_retention_days`, in the Laboratory Files block of [Settings](settings.md), at least 1 day. It is 1825 days by default, an assumption until the laboratory gives one. What happens once a folder's retention date has passed is an open question.
 
 ### Members
 

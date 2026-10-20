@@ -839,6 +839,11 @@ msgid "Archived At"
 msgstr "Lưu trữ lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_folder_retention_days
+msgid "Archived Folders (days)"
+msgstr "Thư mục đã lưu trữ (ngày)"
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_archive_mixin
 msgid "Archiving and Deleting Rules"
 msgstr "Quy tắc lưu trữ và xóa"
@@ -1878,6 +1883,15 @@ msgstr ""
 "Số ngày chỉ tiêu của mẫu đến hạn trước ngày đã hẹn trả khách hàng, "
 "dành để xử lý sự cố. Áp dụng cho các chỉ tiêu của mẫu được tính hạn "
 "từ bây giờ."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_folder_retention_days
+msgid ""
+"Days an archived laboratory folder keeps its files and versions; archiving a"
+" folder sets its retention date this many days later."
+msgstr ""
+"Số ngày một thư mục phòng thí nghiệm đã lưu trữ giữ các tệp và phiên bản; "
+"khi lưu trữ một thư mục, ngày lưu giữ được đặt sau số ngày này."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__deadline
@@ -3609,6 +3623,11 @@ msgstr "Phòng Thí Nghiệm"
 #: model:ir.model,name:sol_laboratory.model_medilab_laboratory_device
 msgid "Laboratory Device"
 msgstr "Máy tính đồng bộ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_laboratory_files
+msgid "Laboratory Files"
+msgstr "Tệp phòng thí nghiệm"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_laboratory_folder
@@ -7128,6 +7147,12 @@ msgstr "Số hiệu quy chuẩn phải là duy nhất."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/res_config_settings.py:0
+msgid "The retention period of archived folders must be at least 1 day."
+msgstr "Thời hạn lưu giữ thư mục đã lưu trữ phải ít nhất 1 ngày."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid ""
 "The role code %s may contain only lowercase letters, digits and "
@@ -7291,10 +7316,10 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
-msgid "This laboratory folder is archived: its files are read, not changed."
+msgid "This laboratory folder is archived: it is read, not changed."
 msgstr ""
-"Thư mục phòng thí nghiệm này đã được lưu trữ: chỉ đọc được tệp, không thay "
-"đổi được."
+"Thư mục phòng thí nghiệm này đã được lưu trữ: chỉ đọc được, không thay đổi "
+"được."
 
 #. module: sol_laboratory
 #. odoo-python

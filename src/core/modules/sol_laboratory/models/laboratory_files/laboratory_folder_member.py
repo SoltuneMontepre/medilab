@@ -40,13 +40,30 @@ class LaboratoryFolderMember(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        # The owner's row comes with the folder; anyone else added must be able to use laboratory files.
-        added = {vals["user_id"] for vals in vals_list if vals.get("user_id") and vals.get("role") != OWNER_ROLE}
+        folders = self.env[MODEL_LABORATORY_FOLDER].browse(
+            {vals["folder_id"] for vals in vals_list if vals.get("folder_id")}
+        )
+        folders._check_not_archived()
+        # The owner's row comes with the folder, which checks its owner; anyone else must be able to use laboratory files.
+        self._check_eligible(
+            {vals["user_id"] for vals in vals_list if vals.get("user_id") and vals.get("role") != OWNER_ROLE}
+        )
+        return super().create(vals_list)
+
+    def write(self, vals):
+        # The members of an archived folder do not change; they are only removed, so access can always be withdrawn.
+        self.folder_id._check_not_archived()
+        return super().write(vals)
+
+    @api.model
+    def _check_eligible(self, user_ids):
+        """Refuse anyone who cannot be a member: only active internal users with the laboratory files permission are."""
         users = self.env[MODEL_RES_USERS].sudo()
-        if added and users.search_count(Domain("id", "in", list(added)) & self._eligible_domain()) < len(added):
+        if user_ids and users.search_count(Domain("id", "in", list(user_ids)) & self._eligible_domain()) < len(
+            user_ids
+        ):
             # One message whatever the reason, so it does not tell who has an account or which permission.
             raise LaboratoryFileError(NOT_ELIGIBLE, self.env._("This person cannot be added to the folder."))
-        return super().create(vals_list)
 
     @api.model
     def _eligible_domain(self):
