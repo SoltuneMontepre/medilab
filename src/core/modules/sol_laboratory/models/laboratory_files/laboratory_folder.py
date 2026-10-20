@@ -227,13 +227,17 @@ class LaboratoryFolder(models.Model):
             )
         if access in (FOLDER_WRITE, FOLDER_SHARE):
             self._check_not_archived()
-        if access == FOLDER_WRITE and not all(folders.mapped("enabled")):
-            raise LaboratoryFileError(
-                FOLDER_DISABLED, self.env._("This laboratory folder is turned off: its files are read, not changed.")
-            )
+        if access == FOLDER_WRITE:
+            self._check_enabled()
         if access == FOLDER_SHARE and folders.owner_id != self.env.user:
             raise LaboratoryFileError(
                 PERMISSION_DENIED, self.env._("Only the owner of a laboratory folder and administrators can do this.")
+            )
+
+    def _check_enabled(self):
+        if not all(self.sudo().mapped("enabled")):
+            raise LaboratoryFileError(
+                FOLDER_DISABLED, self.env._("This laboratory folder is turned off: its files are read, not changed.")
             )
 
     def _add_owner_rows(self):

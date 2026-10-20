@@ -1,9 +1,20 @@
-from odoo import api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from psycopg2 import IntegrityError, errorcodes
 
+from odoo import api, fields, models
+from odoo.exceptions import ConcurrencyError, UserError, ValidationError
+from odoo.tools import SQL, mute_logger
+
+from odoo.addons.sol_laboratory.constants.laboratory_files import (
+    CONFLICT,
+    EDITED_ONLINE,
+    MOVE_CURRENT_CONTEXT,
+    RESTORED,
+    SYNCED,
+)
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_FILE,
+    MODEL_LABORATORY_FILE_CHANGE,
     MODEL_LABORATORY_FILE_VERSION,
     MODEL_LABORATORY_FOLDER,
     MODEL_PERMISSION_MIXIN,
@@ -62,6 +73,8 @@ class LaboratoryFile(models.Model):
     def write(self, vals):
         if set(IDENTITY_FIELDS) & set(vals):
             raise UserError(self.env._("A file keeps its folder and its path; files are never moved or renamed."))
+        if "current_version_id" in vals and not self.env.context.get(MOVE_CURRENT_CONTEXT):
+            raise UserError(self.env._("A file's current version changes only by saving or restoring the file."))
         return super().write(vals)
 
     @api.ondelete(at_uninstall=False)
@@ -79,3 +92,110 @@ class LaboratoryFile(models.Model):
                         file.path or "",
                     )
                 )
+
+    @api.model
+    def _get_or_create(self, folder, path):
+        """The file of the path in the folder, created when it has none. A path that differs only in letter case or
+        Unicode form is the same file. Two first saves of one path at once make one file: the second one's creation
+        fails on the unique key and Odoo runs its request again, when it finds the file."""
+        files = self.sudo()
+        path = normal_text(path)
+        file = files.search([("folder_id", "=", folder.id), ("path_key", "=", path_key(path))], limit=1)
+        if file:
+            return file.with_env(self.env)
+        try:
+            with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
+                return files.create({"folder_id": folder.id, "path": path}).with_env(self.env)
+        except IntegrityError as error:
+            if error.pgcode != errorcodes.UNIQUE_VIOLATION:
+                raise
+            # Committed by a transaction this one cannot see; ConcurrencyError is what Odoo's request retrying retries.
+            raise ConcurrencyError(
+                self.env._("Another save created the file %s meanwhile; the save is run again.", path)
+            ) from error
+
+    def _check_can_add_version(self, user, device):
+        """Refuse a new version of the files that breaks a rule every save obeys, whoever stores it and with whatever
+        rights: their folder is archived or turned off. Features built on files add their rules here, such as a lock
+        someone else holds. Access to the folder is the caller's to check, with _check_file_access()."""
+        folders = self.sudo().folder_id
+        folders._check_not_archived()
+        folders._check_enabled()
+
+    def _add_version(
+        self, *, sha256, size, storage_key, source, user, device=None, base_version=None, restored_from=None
+    ):
+        """Store a version of the file, the one way versions are made, and return it.
+
+        The version is numbered after the file's last one and becomes current, with a change row, unless it is made
+        from a base version that is no longer current: then it is kept as a conflict and the current version stays.
+        Content the current version already has adds nothing, and the current version is returned; a restore always
+        adds a version, with the content of the version it restores.
+
+        A concurrent save of the same file makes Odoo run the whole request again, so whatever the caller does before
+        in the same request must be safe to run twice."""
+        self.ensure_one()
+        self._check_can_add_version(user, device)
+        if source not in (SYNCED, EDITED_ONLINE, RESTORED) or (source == RESTORED) != bool(restored_from):
+            raise ValueError("A version is synced or edited online, or restored from a version.")
+        if (base_version and base_version.file_id != self) or (restored_from and restored_from.file_id != self):
+            raise ValueError("A version is made from a version of the same file.")
+        file = self.sudo()
+        file._lock_for_new_version()
+        current = file.current_version_id
+        if source != RESTORED and current.sha256 == sha256:
+            return current.with_env(self.env)
+        if source != RESTORED and base_version and base_version != current:
+            source = CONFLICT
+        version = (
+            self.env[MODEL_LABORATORY_FILE_VERSION]
+            .sudo()
+            .create(
+                {
+                    "file_id": file.id,
+                    "number": file._last_number() + 1,
+                    "parent_version_id": current.id,
+                    "restored_from_id": restored_from.id if restored_from else False,
+                    "source": source,
+                    "size": size,
+                    "sha256": sha256,
+                    "storage_key": storage_key,
+                    "user_id": user.id,
+                    "device_id": device.id if device else False,
+                }
+            )
+        )
+        if source != CONFLICT:
+            file._make_current(version)
+        return version.with_env(self.env)
+
+    def _lock_for_new_version(self):
+        # Every save updates the file's row, a conflict too, so a concurrent save of the file waits for this one and
+        # then fails with a serialization error, which Odoo answers by running its request again with what this one
+        # stored. A lock alone would let it number its version from a snapshot without this one. Raw SQL, as the ORM
+        # only takes locks that do not wait.
+        self.flush_recordset()
+        self.env.cr.execute(
+            SQL(
+                "UPDATE medilab_laboratory_file SET write_date = %s, write_uid = %s WHERE id = %s",
+                fields.Datetime.now(),
+                self.env.uid,
+                self.id,
+            )
+        )
+        self.invalidate_recordset(["write_date", "write_uid"])
+
+    def _last_number(self):
+        versions = self.env[MODEL_LABORATORY_FILE_VERSION].sudo()
+        return versions.search([("file_id", "=", self.id)], order="number desc", limit=1).number
+
+    def _make_current(self, version):
+        """Make the version the file's current one and add the change row computers read. The current version only
+        moves on to a newer version, never back to an older row."""
+        current = self.current_version_id
+        if version.file_id != self or (current and version.number <= current.number):
+            raise UserError(self.env._("A file's current version only moves on to a newer version of the file."))
+        self.with_context(**{MOVE_CURRENT_CONTEXT: True}).write({"current_version_id": version.id})
+        self.env[MODEL_LABORATORY_FILE_CHANGE].sudo().create(
+            {"folder_id": self.folder_id.id, "file_id": self.id, "version_id": version.id}
+        )

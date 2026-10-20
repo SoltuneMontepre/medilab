@@ -226,6 +226,18 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "A file's current version changes only by saving or restoring the file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "A file's current version only moves on to a newer version of the file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
 msgid ""
 "A file's path is relative to its folder, such as HPLC/run-01.csv, never a "
 "path on a computer: %s"
@@ -657,6 +669,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
 msgid "An extension is letters and digits, such as csv: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file.py:0
+msgid "Another save created the file %s meanwhile; the save is run again."
 msgstr ""
 
 #. module: sol_laboratory

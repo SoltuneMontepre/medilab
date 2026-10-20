@@ -12,6 +12,8 @@ SYNCED = "synced"
 CONFLICT = "conflict"
 RESTORED = "restored"
 EDITED_ONLINE = "edited_online"
+# Context key of the one write that moves a file's current version, made by the file itself.
+MOVE_CURRENT_CONTEXT = "laboratory_file_move_current"
 # What a person does with a folder: read it, write its files, share it and set its rules, or administer it.
 FOLDER_READ = "read"
 FOLDER_WRITE = "write"
