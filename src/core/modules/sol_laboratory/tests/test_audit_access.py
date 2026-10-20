@@ -17,6 +17,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_IR_UI_VIEW,
     MODEL_JOB_ITEM,
     MODEL_JOB_RUN,
+    MODEL_LABORATORY_FILE_CHANGE,
     MODEL_MAIL_MAIL,
     MODEL_MAIL_MESSAGE,
     MODEL_MAIL_NOTIFICATION,
@@ -74,7 +75,8 @@ class TestAuditAccess(AuditCase):
     def test_every_document_model_of_the_laboratory_is_audited(self):
         # The trail itself, and the records the trail already describes: signatures, digital signatures, the work of
         # jobs, such as the pushes of a notification, the emails and notifications of messages, which integration
-        # entries describe, and document locks, whose release by an administrator is an entry on the document.
+        # entries describe, document locks, whose release by an administrator is an entry on the document, and the
+        # changes of laboratory files, each the new current version a version's own entry describes.
         # Users keep their personal data on their contact and get their access from their person's roles. Views,
         # menus and reports change when modules are installed, accesses follow from permissions, and the mail server
         # comes from the environment.
@@ -84,6 +86,7 @@ class TestAuditAccess(AuditCase):
             MODEL_SIGNATURE,
             MODEL_DIGITAL_SIGNATURE,
             MODEL_DOCUMENT_LOCK,
+            MODEL_LABORATORY_FILE_CHANGE,
             MODEL_JOB_ITEM,
             MODEL_JOB_RUN,
             MODEL_PUSH_DELIVERY,

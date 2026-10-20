@@ -1,9 +1,12 @@
+import hashlib
+
 from odoo.fields import Command
 from odoo.tests import TransactionCase, new_test_user
 
-from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_KEY_SCOPE, MEMBER_ROLE
+from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_KEY_SCOPE, MEMBER_ROLE, SYNCED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_DEVICE,
+    MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FOLDER,
     MODEL_RES_USERS_APIKEYS,
 )
@@ -53,3 +56,21 @@ class LaboratoryFilesCase(TransactionCase):
         with self.assertRaises(LaboratoryFileError) as caught:
             call(*args)
         self.assertEqual(caught.exception.code, code)
+
+    @staticmethod
+    def sha(content):
+        return hashlib.sha256(content.encode()).hexdigest()
+
+    def file_of(self, path, folder=None):
+        return self.env[MODEL_LABORATORY_FILE]._get_or_create(folder or self.folder, path)
+
+    def save(self, file, content, user=None, source=SYNCED, **values):
+        """Store the content as a version of the file, as a save from a computer does once its bytes are stored."""
+        return file._add_version(
+            sha256=self.sha(content),
+            size=len(content),
+            storage_key=f"test/{self.sha(content)}",
+            source=source,
+            user=user or self.tester,
+            **values,
+        )
