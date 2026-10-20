@@ -21,10 +21,11 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
     NEXT_STATUSES,
     OPEN,
     OPEN_STATUSES,
+    SAVED_STATUSES,
     SAVING,
     SESSION_CONFLICT,
 )
-from odoo.addons.sol_laboratory.constants.laboratory_files import FILE_WRITE
+from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, EDITED_ONLINE, FILE_WRITE
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_EDITING_SESSION,
@@ -34,6 +35,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_CONFIG_SETTINGS,
     MODEL_RES_USERS,
 )
+from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
 # A session edits one version of one file for the person who opened it, under keys that never change.
 IDENTITY_FIELDS = ("file_id", "base_version_id", "document_key", "callback_token", "opened_by_id")
@@ -212,6 +214,93 @@ class LaboratoryEditingSession(models.Model):
     def _touch(self):
         """Record activity in the sessions, which keeps them from expiring."""
         self.sudo().write({"last_activity_at": fields.Datetime.now()})
+
+    def _store_save(self, *, sha256, size, storage_key, editor, editors):
+        """Store the editing service's save of the session, from the content the caller fetched and stored first, and
+        return the version: edited online, a conflict when the file changed after the session opened, or the current
+        version when the file already has the content. The version goes to the editor, the last person to change the
+        document; editors are everyone who changed it.
+
+        A session a save has already ended stores nothing and returns what it saved, as the editing service repeats a
+        call it got no answer to. An expired session still saves. When the editor can no longer write the file, the
+        session ends in error, recording the key of the stored content so it can be recovered, and nothing is stored."""
+        self.ensure_one()
+        session = self.sudo()
+        session._lock()
+        if session.status in SAVED_STATUSES:
+            return session.committed_version_id.with_env(self.env)
+        file = session.file_id
+        current = file.current_version_id
+        try:
+            with self.env.cr.savepoint():
+                file.with_user(editor)._check_file_access(FILE_WRITE)
+                version = file._add_version(
+                    sha256=sha256,
+                    size=size,
+                    storage_key=storage_key,
+                    source=EDITED_ONLINE,
+                    user=editor,
+                    base_version=session.base_version_id,
+                )
+        except LaboratoryFileError as error:
+            session._end_in_error(
+                self.env._(
+                    "%(person)s cannot save the file (%(reason)s); the saved content is kept under %(key)s.",
+                    person=editor.name,
+                    reason=error.args[0],
+                    key=storage_key,
+                )
+            )
+            return self.env[MODEL_LABORATORY_FILE_VERSION]
+        if version == current:
+            status, saved = CLOSED, version.browse()
+        else:
+            status, saved = (SESSION_CONFLICT if version.source == CONFLICT else COMMITTED), version
+        note = self.env._(
+            "Saved by %(editor)s; edited by %(editors)s.",
+            editor=editor.name,
+            editors=", ".join((editor | editors).mapped("name")),
+        )
+        session.with_context(**{AUDIT_NOTE_CONTEXT: note}).write(
+            {"status": status, "committed_version_id": saved.id, "last_activity_at": fields.Datetime.now()}
+        )
+        return version.with_env(self.env)
+
+    def _close_unchanged(self):
+        """End the session without a version: everyone left without changing the document."""
+        self.ensure_one()
+        session = self.sudo()
+        session._lock()
+        if session.status not in SAVED_STATUSES:
+            session.write({"status": CLOSED, "last_activity_at": fields.Datetime.now()})
+
+    def _keep_saving(self):
+        """Record a save that failed for a while, such as the bucket being unreachable: the session waits for the
+        editing service to call back again, and an expired session stays expired."""
+        self.ensure_one()
+        session = self.sudo()
+        session._lock()
+        if session.status not in SAVED_STATUSES:
+            session.write(
+                {
+                    "status": SAVING if session.status == OPEN else session.status,
+                    "last_activity_at": fields.Datetime.now(),
+                }
+            )
+
+    def _fail(self, reason):
+        """End the session in error, such as when the saved document cannot be read or the editing service could not
+        save it, unless a save already ended it."""
+        self.ensure_one()
+        session = self.sudo()
+        session._lock()
+        if session.status not in SAVED_STATUSES:
+            session._end_in_error(reason)
+
+    def _end_in_error(self, reason):
+        self.with_context(**{AUDIT_NOTE_CONTEXT: reason}).write(
+            {"status": ERROR, "last_activity_at": fields.Datetime.now()}
+        )
 
     @api.model
     def _idle_cutoff(self):
