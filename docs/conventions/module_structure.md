@@ -22,6 +22,7 @@ How code inside an Odoo module is laid out.
 | `support`           | Support requests and the customers' feedback on orders                                                                                                                           |
 | `system`            | People, departments, roles, permissions, approval chains, signatures, the audit trail, mobile devices and menus                                                                  |
 | `signing`           | Digital signing: the laboratory's signing certificates, digital signatures, their jobs and the verification page                                                                 |
+| `laboratory_files`  | Laboratory folders, their members and sync rules, and the computers signed in to them                                                                                            |
 | `stores`            | Stores and the locations inside them, with their holders and managers                                                                                                            |
 | `costs`             | Cost centres                                                                                                                                                                     |
 | `catalog`           | Stock items with their minimum quantities, suppliers and the items they sell, and how much of each item a test uses                                                              |
@@ -67,6 +68,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/stock.py`       | Statuses of lots and containers and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |
 | `constants/signing.py`     | Digital signing jobs, certificate statuses, contexts and paths, such as `DIGITAL_SIGNING_JOB` |
 | `constants/items.py`       | Kinds of stock items and how they are tracked, such as `KIND_SOLUTION`                      |
+| `constants/laboratory_files.py` | Member roles, sync modes and access levels of laboratory folders, and the codes of their refusals, such as `FOLDER_SHARE` |
 
 - Names are UPPER*SNAKE_CASE; a model constant is `MODEL*<NAME>`and holds the value of`\_name`.
 - Python code refers to a model by its constant, never by repeating the string: `_name = MODEL_TEST_PARAMETER`, `self.env[MODEL_TEST_PARAMETER]`.

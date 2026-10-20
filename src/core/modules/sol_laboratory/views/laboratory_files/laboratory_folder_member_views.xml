@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Members are added on the folder; this list also removes them, from an archived folder too. -->
+    <record id="view_medilab_laboratory_folder_member_list" model="ir.ui.view">
+        <field name="name">medilab.laboratory.folder.member.list</field>
+        <field name="model">medilab.laboratory.folder.member</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" duplicate="0">
+                <field name="folder_id" />
+                <field name="user_id" widget="many2one_avatar_user" />
+                <field name="role" widget="badge" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_folder_member_search" model="ir.ui.view">
+        <field name="name">medilab.laboratory.folder.member.search</field>
+        <field name="model">medilab.laboratory.folder.member</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="folder_id" />
+                <field name="user_id" />
+                <filter name="owners" string="Owners" domain="[('role', '=', 'owner')]" />
+                <separator />
+                <filter name="group_by_folder" string="Folder" context="{'group_by': 'folder_id'}" />
+                <filter name="group_by_user" string="Member" context="{'group_by': 'user_id'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_laboratory_folder_member" model="ir.actions.act_window">
+        <field name="name">Folder Members</field>
+        <field name="res_model">medilab.laboratory.folder.member</field>
+        <field name="path">laboratory-folder-members</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

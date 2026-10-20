@@ -2,4 +2,14 @@
 from . import mixins
 
 # isort: split
-from . import management, master_data, notifications, sample_collection, signing, system, tasks, testing
+from . import (
+    laboratory_files,
+    management,
+    master_data,
+    notifications,
+    sample_collection,
+    signing,
+    system,
+    tasks,
+    testing,
+)

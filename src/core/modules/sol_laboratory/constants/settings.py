@@ -21,3 +21,6 @@ NOTIFICATION_RETENTION_PARAMETER = "sol_laboratory.notification_retention_days"
 DEVICE_RETENTION_PARAMETER = "sol_laboratory.device_retention_days"
 # Days the cleanup job keeps finished job items and runs, ended locks, read notifications and turned-off devices.
 DEFAULT_RETENTION_DAYS = 90
+LABORATORY_FOLDER_RETENTION_PARAMETER = "sol_laboratory.laboratory_folder_retention_days"
+# Five years, assumed until the laboratory gives a period: no document sets how long laboratory files are kept.
+DEFAULT_LABORATORY_FOLDER_RETENTION_DAYS = 1825

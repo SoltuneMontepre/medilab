@@ -993,4 +993,65 @@
         <field name="document_model">medilab.document.lock</field>
         <field name="action">edit</field>
     </record>
+    <record id="permission_laboratory_folder_read_all" model="medilab.permission">
+        <field name="name">Read every laboratory folder</field>
+        <field name="document_model">medilab.laboratory.folder</field>
+        <field name="action">read</field>
+    </record>
+    <!-- The laboratory files permission: signing computers in and working in the folders the person is a member of. -->
+    <record id="permission_laboratory_folder_create_all" model="medilab.permission">
+        <field name="name">Use laboratory files</field>
+        <field name="document_model">medilab.laboratory.folder</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_laboratory_folder_edit_all" model="medilab.permission">
+        <field name="name">Administer laboratory folders</field>
+        <field name="document_model">medilab.laboratory.folder</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_laboratory_folder_member_read_all" model="medilab.permission">
+        <field name="name">Read the members of every laboratory folder</field>
+        <field name="document_model">medilab.laboratory.folder.member</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_folder_member_create_all" model="medilab.permission">
+        <field name="name">Add members to any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.folder.member</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_laboratory_folder_member_delete_all" model="medilab.permission">
+        <field name="name">Remove members from any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.folder.member</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_laboratory_sync_rule_read_all" model="medilab.permission">
+        <field name="name">Read the sync rules of every laboratory folder</field>
+        <field name="document_model">medilab.laboratory.sync.rule</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_sync_rule_create_all" model="medilab.permission">
+        <field name="name">Add sync rules to any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.sync.rule</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_laboratory_sync_rule_edit_all" model="medilab.permission">
+        <field name="name">Edit the sync rules of any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.sync.rule</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_laboratory_sync_rule_delete_all" model="medilab.permission">
+        <field name="name">Remove sync rules from any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.sync.rule</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_laboratory_device_read_all" model="medilab.permission">
+        <field name="name">Read every computer signed in to laboratory folders</field>
+        <field name="document_model">medilab.laboratory.device</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_device_edit_all" model="medilab.permission">
+        <field name="name">Revoke computers signed in to laboratory folders</field>
+        <field name="document_model">medilab.laboratory.device</field>
+        <field name="action">edit</field>
+    </record>
 </odoo>
