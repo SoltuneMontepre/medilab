@@ -19,8 +19,20 @@
 - **Laboratory files bucket.** Are laboratory files stored in the filestore bucket under a prefix of their own, or in a bucket of their own? (blocks US-T23)
 - **Online editing service.** ONLYOFFICE Document Server is in neither the registration nor the architecture. Does the laboratory run it in the cluster, and is online editing kept if it does not? (blocks US-T26)
 - **Signing a file version.** Is a signed file version also digitally signed through Viettel Sign, as printed documents are, and may the person who saved a version sign it? (blocks US-HD16)
-- **Creating sample folders.** The old module let only its sync manager create a sample's folders, from the sample. Does the head of department create them, or are they created when the sample is received? (blocks US-HD15)
+- **Creating sample folders.** The old module let only its sync manager create a sample's folders, from the sample. Does the head of department create them, or are they created when the sample is received? The [overview](../docs/functional/laboratory_module/overview.md#laboratory-files) already says the head of department creates them from the sample; the answer confirms or corrects it. (blocks US-HD15)
 - **Retention of laboratory files.** When an archived folder's retention date passes, are its files deleted from the bucket, and who is told first? (blocks US-AD30)
+- **Restoring a revoked computer.** Revoking a computer is final, also when a person revokes their own, and a revoked installation cannot sign in again. Can an administrator restore a revoked computer? For now it gets back in only as a new installation of Medilab Sync, which signs in with a new installation id. (US-AD29)
+- **Laboratory file API path.** Medilab Sync calls `/api/sync/v1` with the old module's fields, such as `logical_root` and the member role `upload`. Does the API keep that path, or move to `/medilab/api/v1` with the fields of the diagram, with Medilab Sync updated separately? (blocks US-T23)
+- **Laboratory files permission.** Decided: the create permission on laboratory folders, `laboratory_folder.create.all`, is the laboratory files permission. Its holders sign computers in and create folders, and its group carries the accesses to the folders they are members of.
+- **Expiry of device keys.** Decided: a computer's key does not expire; it stays valid until the computer signs out or is revoked.
+- **Folder retention period.** Decided: the system parameter `sol_laboratory.laboratory_folder_retention_days`. Assumption: no document gives a retention period for laboratory files, so it is 1825 days by default. An archived folder is not unarchived.
+- **Archived folders.** Decided: an archived folder behaves like a turned-off folder: it is still listed and read, and every write is refused.
+- **Folder settings.** Decided: the owner and administrators rename a folder and change its sync rules. Assumption: Medilab Sync does not say which sync mode a new folder gets, so it is upload-only.
+- **Folder names.** Decided: renaming changes the name people see; the name a folder was created with, unique for its owner, never changes. Creating a second folder of that name for the same owner is refused.
+- **Who can be added to a folder.** Decided: active internal users holding the laboratory files permission; anyone else is refused with one message that does not say why.
+- **Medilab Mobile and laboratory folders.** Decided: out of scope for now; signed-in computers are Linux or Windows, as the diagram says.
+- **Laboratory folders in the back office.** Decided: only administrators change folders, members, sync rules and computers in the back office; owners manage members through the API. Changing a folder's owner, turning it off and archiving it are done only in the back office.
+- **Deleting a folder.** Decided: folders are never deleted; they are archived.
 - **Lab tools.** A test also uses tools, such as pipettes, glassware and filters, that are neither stock items, machines nor chemicals, so nothing records what a test was done with. Should the laboratory record the tools a method or a test uses, and are they stocked, maintained or only listed?
 
 ## Related documents
