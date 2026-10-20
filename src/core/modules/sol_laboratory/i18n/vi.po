@@ -195,9 +195,38 @@ msgid "A chain with signatures cannot be deleted; archive it instead. Signatures
 msgstr "Không thể xóa chuỗi đã có chữ ký; hãy lưu trữ chuỗi. Chữ ký: %s"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"A computer signs in with its installation id and its name, never a path."
+msgstr ""
+"Máy tính đăng nhập bằng mã cài đặt và tên của nó, không bao giờ là một đường"
+" dẫn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"A computer signs in with its installation id, its name and its platform."
+msgstr "Máy tính đăng nhập bằng mã cài đặt, tên và hệ điều hành của nó."
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_approval_chain_purpose_unique
 msgid "A document type cannot have two chains for the same purpose."
 msgstr "Một loại chứng từ không thể có hai chuỗi cho cùng một mục đích."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_member_folder_owner_unique
+msgid "A folder has one owner; change the folder's owner instead."
+msgstr "Mỗi thư mục chỉ có một chủ sở hữu; hãy đổi chủ sở hữu của thư mục."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "A folder is named, such as HPLC, never given a path on a computer: %s"
+msgstr ""
+"Thư mục được đặt tên, ví dụ HPLC, không bao giờ là một đường dẫn trên máy "
+"tính: %s"
 
 #. module: sol_laboratory
 #. odoo-python
@@ -226,6 +255,23 @@ msgstr "Mỗi tên đăng nhập chỉ thuộc về một nhân sự."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_measurement_unit_name_unique
 msgid "A measurement unit with this symbol already exists."
 msgstr "Đã có đơn vị đo với ký hiệu này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid ""
+"A name pattern is a file name with *, such as run-*.csv, without a path: %s"
+msgstr "Mẫu tên là tên tệp có *, ví dụ run-*.csv, không kèm đường dẫn: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid ""
+"A name prefix is the start of a file name, such as run-, without * or a "
+"path: %s"
+msgstr ""
+"Tiền tố tên là phần đầu của tên tệp, ví dụ run-, không có * hay đường dẫn: "
+"%s"
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_sample_test_quantity_positive
@@ -317,6 +363,11 @@ msgstr "Đã có loại nhiệm vụ với mã này."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_one_default
 msgid "A test parameter has only one default way of testing."
 msgstr "Mỗi chỉ tiêu chỉ có một cách thử mặc định."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__api_key_id
+msgid "API Key"
+msgstr "Khóa API"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__account_move_count
@@ -475,6 +526,16 @@ msgstr ""
 "thử nghiệm %(code)s."
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_member_create_all
+msgid "Add members to any laboratory folder"
+msgstr "Thêm thành viên vào mọi thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_sync_rule_create_all
+msgid "Add sync rules to any laboratory folder"
+msgstr "Thêm quy tắc đồng bộ vào mọi thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__additional_identifiers
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__additional_identifiers
 msgid "Additional Identifiers"
@@ -513,6 +574,11 @@ msgstr "Mô tả loại địa chỉ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__address_inline
 msgid "Address inline (without name)"
 msgstr "Địa chỉ một dòng (không kèm tên)"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_edit_all
+msgid "Administer laboratory folders"
+msgstr "Quản trị thư mục phòng thí nghiệm"
 
 #. module: sol_laboratory
 #: model:medilab.role,name:sol_laboratory.role_administrator
@@ -554,6 +620,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__allowed_country_state_ids
 msgid "Allowed Country State"
 msgstr "Tỉnh/thành được phép"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid "An extension is letters and digits, such as csv: %s"
+msgstr "Phần mở rộng gồm chữ và số, ví dụ csv: %s"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_apply_date
@@ -623,6 +695,7 @@ msgstr "Đã duyệt"
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__archive
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__archive
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Archive"
 msgstr "Lưu trữ"
 
@@ -758,8 +831,20 @@ msgstr "Lưu trữ cách thử của phòng ban mình"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__archived
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
 msgid "Archived"
 msgstr "Đã lưu trữ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__archived_at
+msgid "Archived At"
+msgstr "Lưu trữ lúc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_folder_retention_days
+msgid "Archived Folders (days)"
+msgstr "Thư mục đã lưu trữ (ngày)"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_archive_mixin
@@ -1276,6 +1361,12 @@ msgid "Completed"
 msgstr "Hoàn thành"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_device
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_device
+msgid "Computers"
+msgstr "Máy tính"
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_res_config_settings
 msgid "Config Settings"
 msgstr "Cài đặt cấu hình"
@@ -1522,6 +1613,11 @@ msgid "Create ways of testing of their department"
 msgstr "Tạo cách thử của phòng ban mình"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__created_by_device_id
+msgid "Created By Device"
+msgstr "Tạo từ máy tính"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__create_uid
@@ -1580,6 +1676,10 @@ msgstr "Tạo cách thử của phòng ban mình"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -1642,6 +1742,10 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -1787,6 +1891,15 @@ msgstr ""
 "Số ngày chỉ tiêu của mẫu đến hạn trước ngày đã hẹn trả khách hàng, "
 "dành để xử lý sự cố. Áp dụng cho các chỉ tiêu của mẫu được tính hạn "
 "từ bây giờ."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_folder_retention_days
+msgid ""
+"Days an archived laboratory folder keeps its files and versions; archiving a"
+" folder sets its retention date this many days later."
+msgstr ""
+"Số ngày một thư mục phòng thí nghiệm đã lưu trữ giữ các tệp và phiên bản; "
+"khi lưu trữ một thư mục, ngày lưu giữ được đặt sau số ngày này."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__deadline
@@ -2153,6 +2266,11 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2217,6 +2335,11 @@ msgstr "Loại Chứng Từ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_digital_signing_mixin__document_version
 msgid "Document Version"
 msgstr "Phiên Bản Chứng Từ"
+
+#. module: sol_laboratory
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_documents
+msgid "Documents"
+msgstr "Tài liệu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_job_item__status__done
@@ -2490,6 +2613,11 @@ msgid "Edit testing methods"
 msgstr "Sửa phương pháp thử"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_sync_rule_edit_all
+msgid "Edit the sync rules of any laboratory folder"
+msgstr "Sửa quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_unit_category_edit_all
 msgid "Edit unit categories"
 msgstr "Sửa nhóm đơn vị"
@@ -2677,6 +2805,11 @@ msgid "Expired"
 msgstr "Đã hết hạn"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_sync_rule__kind__extension
+msgid "Extension"
+msgstr "Phần mở rộng"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__share
 msgid ""
 "External user with limited access, created only for the purpose of "
@@ -2770,6 +2903,31 @@ msgstr "Vị trí tài chính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__fixed_term
 msgid "Fixed Term"
 msgstr "Có thời hạn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__folder_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__folder_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
+msgid "Folder"
+msgstr "Thư mục"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__category
+msgid "Folder Category"
+msgstr "Loại thư mục"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_folder_member
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_folder_member
+msgid "Folder Members"
+msgstr "Thành viên thư mục"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_folder
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_folder
+msgid "Folders"
+msgstr "Thư mục"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_follower_ids
@@ -3059,6 +3217,11 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_lock_mixin__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_report_sol_laboratory_report_test_report__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_users_apikeys__id
 msgid "ID"
 msgstr "ID"
 
@@ -3204,6 +3367,12 @@ msgid "In Person"
 msgstr "Trực tiếp"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__in_use
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "In Use"
+msgstr "Đang dùng"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_booking__status__in_progress
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__in_progress
 msgid "In progress"
@@ -3213,6 +3382,11 @@ msgstr "Đang thực hiện"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine__status__in_use
 msgid "In use"
 msgstr "Đang sử dụng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__recursive
+msgid "Include Subfolders"
+msgstr "Gồm thư mục con"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__phone_blacklisted
@@ -3245,6 +3419,11 @@ msgstr "Số cấp dưới gián tiếp"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__industry_id
 msgid "Industry"
 msgstr "Ngành"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__client_uid
+msgid "Installation ID"
+msgstr "Mã cài đặt"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__instruction
@@ -3449,6 +3628,8 @@ msgstr "Khóa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__kind
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__kind
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_archive_file_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__kind
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
 msgid "Kind"
 msgstr "Loại"
 
@@ -3476,6 +3657,31 @@ msgstr "Mã PTN"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form
 msgid "Laboratory"
 msgstr "Phòng Thí Nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_device
+msgid "Laboratory Device"
+msgstr "Máy tính đồng bộ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.res_config_settings_view_form_laboratory_files
+msgid "Laboratory Files"
+msgstr "Tệp phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_folder
+msgid "Laboratory Folder"
+msgstr "Thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_folder_member
+msgid "Laboratory Folder Member"
+msgstr "Thành viên thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_sync_rule
+msgid "Laboratory Sync Rule"
+msgstr "Quy tắc đồng bộ"
 
 #. module: sol_laboratory
 #: model:ir.module.module,summary:base.module_sol_laboratory
@@ -3541,6 +3747,11 @@ msgid "Last Scheduled Run"
 msgstr "Lượt Chạy Theo Lịch Cuối"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__last_seen_at
+msgid "Last Seen"
+msgstr "Hoạt động gần nhất"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_chain__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__write_uid
@@ -3599,6 +3810,10 @@ msgstr "Lượt Chạy Theo Lịch Cuối"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -3661,6 +3876,10 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_archive_file__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -3714,6 +3933,11 @@ msgstr "Giới hạn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__linked_by_system
 msgid "Linked By System"
 msgstr "Do Hệ Thống Liên Kết"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__linux
+msgid "Linux"
+msgstr "Linux"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_sample__physical_state__liquid
@@ -3887,9 +4111,23 @@ msgid "Meetings"
 msgstr "Cuộc họp"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__user_id
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder_member__role__member
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Member"
+msgstr "Thành viên"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__member_of_department
 msgid "Member of department"
 msgstr "Thành viên của phòng ban"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__member_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Members"
+msgstr "Thành viên"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_ir_ui_menu
@@ -3982,6 +4220,11 @@ msgid "My Activity Deadline"
 msgstr "Hạn hoạt động của tôi"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "My Folders"
+msgstr "Thư mục của tôi"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
 msgid "My Queue"
 msgstr "Hàng đợi của tôi"
@@ -4034,8 +4277,20 @@ msgstr "Nhiệm vụ của tôi"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_field_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_testing_method_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__name
 msgid "Name"
 msgstr "Tên"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_sync_rule__kind__glob
+msgid "Name Pattern"
+msgstr "Mẫu tên"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_sync_rule__kind__prefix
+msgid "Name Prefix"
+msgstr "Tiền tố tên"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__nationality_country_code
@@ -4144,6 +4399,15 @@ msgstr "Không có hạn chót"
 msgid "No open tasks. Tasks you are given or claim appear here."
 msgstr ""
 "Không có nhiệm vụ đang mở. Nhiệm vụ được giao hoặc bạn nhận sẽ hiện ở đây."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid ""
+"Nobody can upload to the folder until it is turned on again; its members "
+"still read it. Turn it off?"
+msgstr ""
+"Không ai tải lên được thư mục cho đến khi thư mục được bật lại; các thành "
+"viên vẫn đọc được. Tắt thư mục?"
 
 #. module: sol_laboratory
 #. odoo-javascript
@@ -4271,6 +4535,19 @@ msgstr "Chỉ loại nhiệm vụ chuyển đến một vai trò mới ghi vai t
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only administrators can do this with a laboratory folder."
+msgstr ""
+"Chỉ quản trị viên được thực hiện thao tác này với thư mục phòng thí nghiệm."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only administrators create a folder for someone else or for a sample."
+msgstr "Chỉ quản trị viên được tạo thư mục cho người khác hoặc cho một mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only an assigned task can be started."
 msgstr "Chỉ nhiệm vụ đã giao mới có thể bắt đầu."
@@ -4292,6 +4569,14 @@ msgstr "Chỉ nhân sự có vai trò %s mới có thể thao tác ở cấp nà
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the assignee of %s can do this."
 msgstr "Chỉ người thực hiện %s mới có thể làm việc này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only the owner of a laboratory folder and administrators can do this."
+msgstr ""
+"Chỉ chủ sở hữu thư mục phòng thí nghiệm và quản trị viên được thực hiện thao"
+" tác này."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -4331,6 +4616,18 @@ msgstr "Phòng Ban Của Mình"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__scope__own_department
 msgid "Own department"
 msgstr "Phòng ban của mình"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__owner_id
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder_member__role__owner
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Owner"
+msgstr "Chủ sở hữu"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
+msgid "Owners"
+msgstr "Chủ sở hữu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__pin
@@ -4456,6 +4753,11 @@ msgstr "Ngày hết hạn hộ chiếu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__passport_id
 msgid "Passport No"
 msgstr "Số hộ chiếu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__pattern
+msgid "Pattern"
+msgstr "Mẫu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__payload
@@ -4716,6 +5018,66 @@ msgstr "Quyền: job.item.read.all"
 #: model:res.groups,name:sol_laboratory.group_permission_job_run_read_all
 msgid "Permission: job.run.read.all"
 msgstr "Quyền: job.run.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_device_edit_all
+msgid "Permission: laboratory.device.edit.all"
+msgstr "Quyền: laboratory.device.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_device_read_all
+msgid "Permission: laboratory.device.read.all"
+msgstr "Quyền: laboratory.device.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_create_all
+msgid "Permission: laboratory.folder.create.all"
+msgstr "Quyền: laboratory.folder.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_edit_all
+msgid "Permission: laboratory.folder.edit.all"
+msgstr "Quyền: laboratory.folder.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_member_create_all
+msgid "Permission: laboratory.folder.member.create.all"
+msgstr "Quyền: laboratory.folder.member.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_member_delete_all
+msgid "Permission: laboratory.folder.member.delete.all"
+msgstr "Quyền: laboratory.folder.member.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_member_read_all
+msgid "Permission: laboratory.folder.member.read.all"
+msgstr "Quyền: laboratory.folder.member.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_folder_read_all
+msgid "Permission: laboratory.folder.read.all"
+msgstr "Quyền: laboratory.folder.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_sync_rule_create_all
+msgid "Permission: laboratory.sync.rule.create.all"
+msgstr "Quyền: laboratory.sync.rule.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_sync_rule_delete_all
+msgid "Permission: laboratory.sync.rule.delete.all"
+msgstr "Quyền: laboratory.sync.rule.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_sync_rule_edit_all
+msgid "Permission: laboratory.sync.rule.edit.all"
+msgstr "Quyền: laboratory.sync.rule.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_sync_rule_read_all
+msgid "Permission: laboratory.sync.rule.read.all"
+msgstr "Quyền: laboratory.sync.rule.read.all"
 
 #. module: sol_laboratory
 msgid "Permission: location.archive.all"
@@ -5440,6 +5802,11 @@ msgid "Ratings"
 msgstr "Đánh giá"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__raw
+msgid "Raw Data"
+msgstr "Dữ liệu thô"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__read
 msgid "Read"
 msgstr "Xem"
@@ -5463,6 +5830,16 @@ msgstr "Xem khách hàng"
 #: model:medilab.permission,name:sol_laboratory.permission_department_read_all
 msgid "Read departments"
 msgstr "Xem phòng ban"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_device_read_all
+msgid "Read every computer signed in to laboratory folders"
+msgstr "Xem mọi máy tính đăng nhập thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_read_all
+msgid "Read every laboratory folder"
+msgstr "Xem mọi thư mục phòng thí nghiệm"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_job_item_read_all
@@ -5528,6 +5905,16 @@ msgstr "Xem nhiệm vụ của phòng ban mình"
 #: model:medilab.permission,name:sol_laboratory.permission_test_request_read_all
 msgid "Read test requests"
 msgstr "Xem yêu cầu thử nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_member_read_all
+msgid "Read the members of every laboratory folder"
+msgstr "Xem thành viên của mọi thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_sync_rule_read_all
+msgid "Read the sync rules of every laboratory folder"
+msgstr "Xem quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_cancel__reason
@@ -5630,6 +6017,16 @@ msgid "Related user name for the resource to manage its access."
 msgstr "Người dùng liên quan đến tài nguyên để quản lý sự truy cập."
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_member_delete_all
+msgid "Remove members from any laboratory folder"
+msgstr "Gỡ thành viên khỏi mọi thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_sync_rule_delete_all
+msgid "Remove sync rules from any laboratory folder"
+msgstr "Gỡ quy tắc đồng bộ khỏi mọi thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine_service__kind__repair
 msgid "Repair"
 msgstr "Sửa chữa"
@@ -5665,6 +6062,11 @@ msgstr "Người nhận phiếu kết quả"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__status__reported
 msgid "Reported"
 msgstr "Đã trả kết quả"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__report
+msgid "Reports"
+msgstr "Báo cáo"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_request__request_date
@@ -5716,6 +6118,11 @@ msgid "Retention Days"
 msgstr "Số ngày lưu mẫu"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__retention_until
+msgid "Retention Until"
+msgstr "Lưu giữ đến"
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_machine__status__retired
 msgid "Retired"
 msgstr "Ngừng sử dụng"
@@ -5733,11 +6140,28 @@ msgid "Retry Delay Minutes"
 msgstr "Phút Chờ Thử Lại"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
+msgid "Revoke"
+msgstr "Thu hồi"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_device_edit_all
+msgid "Revoke computers signed in to laboratory folders"
+msgstr "Thu hồi máy tính đăng nhập thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__revoked_at
+msgid "Revoked At"
+msgstr "Thu hồi lúc"
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_role
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__role_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_event_recipient__role_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__role_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder_member__role
 msgid "Role"
 msgstr "Vai Trò"
 
@@ -5755,6 +6179,11 @@ msgstr "Vai Trò: administrator"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_form
 msgid "Roles"
 msgstr "Vai Trò"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__root
+msgid "Root"
+msgstr "Tên gốc"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task_type__route
@@ -5861,6 +6290,7 @@ msgstr "Cùng Phòng Ban"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_handover_record_document
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_subcontract_dispatch_search
 #: code:addons/sol_laboratory/models/testing/test_report.py:0
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__sample_id
 msgid "Sample"
 msgstr "Mẫu"
 
@@ -6039,6 +6469,11 @@ msgid "Share User"
 msgstr "Người dùng chia sẻ"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Shared with Me"
+msgstr "Được chia sẻ với tôi"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__birthday_public_display
 msgid "Show Birthday To Employees"
 msgstr "Hiển thị ngày sinh cho nhân viên"
@@ -6086,6 +6521,18 @@ msgstr "Chữ Ký"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.verify_page
 msgid "Signed"
 msgstr "Đã ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__status__signed_in
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+msgid "Signed In"
+msgstr "Đã đăng nhập"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__status__signed_out
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
+msgid "Signed Out"
+msgstr "Đã đăng xuất"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__signer_id
@@ -6202,6 +6649,8 @@ msgstr "Thống kê"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__status
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__status
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -6304,6 +6753,20 @@ msgstr "Tiền tệ của nhà cung cấp"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__supplier_rank
 msgid "Supplier Rank"
 msgstr "Xếp hạng nhà cung cấp"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__sync_mode
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+msgid "Sync Mode"
+msgstr "Chế độ đồng bộ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__rule_ids
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_sync_rule
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_sync_rule
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Sync Rules"
+msgstr "Quy tắc đồng bộ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__category_id
@@ -6589,6 +7052,16 @@ msgid "The code of a testing method must be unique."
 msgstr "Mã phương pháp thử phải là duy nhất."
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_list
+msgid ""
+"The computer stops at once and can never sign in again; its person keeps "
+"their folders and other computers. Revoke it?"
+msgstr ""
+"Máy tính dừng ngay và không bao giờ đăng nhập lại được; người dùng vẫn giữ "
+"các thư mục và máy tính khác. Thu hồi máy tính?"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_form
 msgid "The customer's contact"
 msgstr "Liên hệ của khách hàng"
@@ -6652,6 +7125,15 @@ msgstr ""
 "Vị trí tài chính quy định các loại thuế/tài khoản được dùng cho liên hệ này."
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid ""
+"The folder becomes read only for good and keeps its files until its "
+"retention date. Only its members can still be removed. Archive it?"
+msgstr ""
+"Thư mục chỉ còn đọc được vĩnh viễn và giữ các tệp đến ngày lưu giữ. Chỉ còn "
+"có thể gỡ thành viên. Lưu trữ thư mục?"
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid "The group of a role cannot change."
@@ -6681,6 +7163,12 @@ msgid "The limit for %s needs a unit for its minimum or maximum."
 msgstr "Giới hạn của %s cần đơn vị cho giá trị tối thiểu hoặc tối đa."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "The login or the password is wrong."
+msgstr "Tên đăng nhập hoặc mật khẩu không đúng."
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_machine_pair_machine_unique
 msgid "The machine is already linked to this way of testing."
 msgstr "Máy đã được gắn với cách thử này."
@@ -6696,6 +7184,26 @@ msgstr "Nhóm chính của %s phải là một trong các nhóm của chỉ tiê
 #: code:addons/sol_laboratory/models/master_data/regulation_limit.py:0
 msgid "The minimum of the limit for %s is above its maximum."
 msgstr "Giá trị tối thiểu của giới hạn cho %s lớn hơn giá trị tối đa."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid ""
+"The name a folder was created with never changes; rename the folder instead."
+msgstr ""
+"Tên gốc của thư mục không bao giờ thay đổi; hãy đổi tên hiển thị của thư "
+"mục."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_owner_root_unique
+msgid "The owner already has a folder with this name; choose another name."
+msgstr "Chủ sở hữu đã có thư mục mang tên này; hãy chọn tên khác."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_member.py:0
+msgid "The owner of a folder cannot be removed from it."
+msgstr "Không thể gỡ chủ sở hữu khỏi thư mục."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_parameter_method_unique
@@ -6741,6 +7249,12 @@ msgstr "Quy trình của chứng từ đã hoàn tất nên không thể rút l�
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_code_unique
 msgid "The reference of a regulation must be unique."
 msgstr "Số hiệu quy chuẩn phải là duy nhất."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/res_config_settings.py:0
+msgid "The retention period of archived folders must be at least 1 day."
+msgstr "Thời hạn lưu giữ thư mục đã lưu trữ phải ít nhất 1 ngày."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -6819,6 +7333,22 @@ msgid "This company is already a subcontractor."
 msgstr "Công ty này đã là thầu phụ."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "This computer is not signed in."
+msgstr "Máy tính này chưa đăng nhập."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid ""
+"This computer was revoked. Install Medilab Sync again to sign it in as a new"
+" computer."
+msgstr ""
+"Máy tính này đã bị thu hồi. Hãy cài lại Medilab Sync để đăng nhập như một "
+"máy tính mới."
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_customer_partner_unique
 msgid "This contact is already a customer."
 msgstr "Liên hệ này đã là khách hàng."
@@ -6862,6 +7392,11 @@ msgstr ""
 "thể chứa nhiều hơn một địa chỉ email."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_device_user_client_unique
+msgid "This installation is already signed in for this person."
+msgstr "Bản cài đặt này đã đăng nhập cho người này."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__exceptional_location_id
 msgid "This is the exceptional, non-weekly, location set for today."
 msgstr ""
@@ -6878,9 +7413,43 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder does not exist or you are not a member of it."
+msgstr ""
+"Thư mục phòng thí nghiệm này không tồn tại hoặc bạn không phải thành viên."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder is archived: it is read, not changed."
+msgstr ""
+"Thư mục phòng thí nghiệm này đã được lưu trữ: chỉ đọc được, không thay đổi "
+"được."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder is turned off: its files are read, not changed."
+msgstr ""
+"Thư mục phòng thí nghiệm này đã bị tắt: chỉ đọc được tệp, không thay đổi "
+"được."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "This level cannot reject."
 msgstr "Cấp này không được từ chối."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_member.py:0
+msgid "This person cannot be added to the folder."
+msgstr "Không thể thêm người này vào thư mục."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_member_folder_user_unique
+msgid "This person is already a member of the folder."
+msgstr "Người này đã là thành viên của thư mục."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -6977,15 +7546,37 @@ msgid "Tuesday"
 msgstr "Thứ Ba"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Turn Off"
+msgstr "Tắt"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
+msgid "Turn On"
+msgstr "Bật"
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/scheduled_job.py:0
 msgid "Turn the schedule of %s on before running it."
 msgstr "Bật lịch của %s trước khi chạy."
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__turned_off
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_sync_rule_search
+msgid "Turned Off"
+msgstr "Đã tắt"
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_testing_method_step_method_sequence_unique
 msgid "Two steps of a testing method cannot have the same number."
 msgstr "Hai bước của một phương pháp thử không thể trùng số."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__sync_mode__two_way
+msgid "Two-Way"
+msgstr "Hai chiều"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__type_id
@@ -7042,10 +7633,20 @@ msgid "Units"
 msgstr "Đơn vị"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__sync_mode__upload_only
+msgid "Upload Only"
+msgstr "Chỉ tải lên"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__barcode
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__barcode
 msgid "Use a barcode to identify this contact."
 msgstr "Dùng mã vạch để nhận diện liên hệ này."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_create_all
+msgid "Use laboratory files"
+msgstr "Sử dụng tệp phòng thí nghiệm"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_product_pricelist
@@ -7058,6 +7659,7 @@ msgid "Used to log into the system"
 msgstr "Dùng để đăng nhập vào hệ thống"
 
 #. module: sol_laboratory
+#. odoo-python
 #: model:ir.model,name:sol_laboratory.model_res_users
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__user_id
@@ -7067,8 +7669,15 @@ msgstr "Dùng để đăng nhập vào hệ thống"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_entry__user_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_audit_report__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_audit_entry_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "User"
 msgstr "Tài Khoản"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_res_users_apikeys
+msgid "User API Key"
+msgstr "Khóa API người dùng"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__user_state
@@ -7234,6 +7843,11 @@ msgid "Whether this contact is an Employee."
 msgstr "Liên hệ này có phải là nhân viên không."
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__platform__windows
+msgid "Windows"
+msgstr "Windows"
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "Withdraw the signatures of the higher levels first."
@@ -7306,6 +7920,11 @@ msgid "Work Phone"
 msgstr "Điện thoại công ty"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__working
+msgid "Working Documents"
+msgstr "Tài liệu làm việc"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__resource_calendar_id
 msgid "Working Hours"
 msgstr "Giờ làm việc"
@@ -7323,6 +7942,12 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__vat
 msgid "You can use '/' to indicate that the customer has no Tax ID."
 msgstr "Bạn có thể dùng '/' để cho biết khách hàng không có mã số thuế."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "You do not have the laboratory files permission."
+msgstr "Bạn không có quyền sử dụng tệp phòng thí nghiệm."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -7857,6 +8482,8 @@ msgstr "Email bị trả lại"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_mail_message_subtype__enabled
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_notification_preference__enabled
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__enabled
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__enabled
 msgid "Enabled"
 msgstr "Đang bật"
 
@@ -8044,6 +8671,8 @@ msgstr "Quyền: push.delivery.read.all"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_mobile_device__platform
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__platform
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "Platform"
 msgstr "Nền tảng"
 
@@ -9584,6 +10213,7 @@ msgstr "Kết quả %(result)s bị từ chối: %(reason)s"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_report__result_ids
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_results
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_report_form
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__category__result
 msgid "Results"
 msgstr "Kết quả"
 
@@ -11253,6 +11883,8 @@ msgstr "Thử ký số lại"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signing_certificate__status__revoked
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_device__status__revoked
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_device_search
 msgid "Revoked"
 msgstr "Đã thu hồi"
 
@@ -11547,6 +12179,9 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_message
 msgid "Editing Lock"
 msgstr "Khóa chỉnh sửa"
 
@@ -11744,6 +12379,9 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_watched
 msgid "Watching Lock"
 msgstr "Đang chờ mở khóa"
 

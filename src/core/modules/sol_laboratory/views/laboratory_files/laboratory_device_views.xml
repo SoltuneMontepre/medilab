@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Computers are created by signing in from Medilab Sync. -->
+    <record id="view_medilab_laboratory_device_list" model="ir.ui.view">
+        <field name="name">medilab.laboratory.device.list</field>
+        <field name="model">medilab.laboratory.device</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" duplicate="0" decoration-muted="status == 'signed_out'">
+                <field name="name" />
+                <field name="status" widget="badge" decoration-success="status == 'signed_in'" decoration-danger="status == 'revoked'" />
+                <field name="user_id" widget="many2one_avatar_user" />
+                <field name="platform" />
+                <field name="last_seen_at" />
+                <field name="revoked_at" optional="show" />
+                <button
+                    name="action_revoke"
+                    type="object"
+                    string="Revoke"
+                    icon="fa-ban"
+                    class="btn-danger"
+                    invisible="status == 'revoked'"
+                    groups="sol_laboratory.group_permission_laboratory_device_edit_all"
+                    confirm="The computer stops at once and can never sign in again; its person keeps their folders and other computers. Revoke it?"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_device_form" model="ir.ui.view">
+        <field name="name">medilab.laboratory.device.form</field>
+        <field name="model">medilab.laboratory.device</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0" duplicate="0">
+                <header>
+                    <button
+                        name="action_revoke"
+                        type="object"
+                        string="Revoke"
+                        class="btn-danger"
+                        invisible="status == 'revoked'"
+                        groups="sol_laboratory.group_permission_laboratory_device_edit_all"
+                        confirm="The computer stops at once and can never sign in again; its person keeps their folders and other computers. Revoke it?"
+                    />
+                    <field name="status" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_id" widget="many2one_avatar_user" />
+                            <field name="platform" />
+                            <field name="client_uid" />
+                        </group>
+                        <group>
+                            <field name="last_seen_at" />
+                            <field name="revoked_at" invisible="not revoked_at" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_device_search" model="ir.ui.view">
+        <field name="name">medilab.laboratory.device.search</field>
+        <field name="model">medilab.laboratory.device</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="user_id" />
+                <filter name="signed_in" string="Signed In" domain="[('revoked_at', '=', False), ('api_key_id', '!=', False)]" />
+                <filter name="signed_out" string="Signed Out" domain="[('revoked_at', '=', False), ('api_key_id', '=', False)]" />
+                <filter name="revoked" string="Revoked" domain="[('revoked_at', '!=', False)]" />
+                <separator />
+                <filter name="group_by_user" string="User" context="{'group_by': 'user_id'}" />
+                <filter name="group_by_platform" string="Platform" context="{'group_by': 'platform'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_laboratory_device" model="ir.actions.act_window">
+        <field name="name">Computers</field>
+        <field name="res_model">medilab.laboratory.device</field>
+        <field name="path">laboratory-devices</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

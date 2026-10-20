@@ -2305,6 +2305,7 @@ model LaboratoryFolder {
 }
 
 /// Links a folder to a person who can read and write it.
+/// At most one owner row per folder (partial unique index on folder_id where role is owner).
 model LaboratoryFolderMember {
   /// Row identifier.
   id        Int              @id @default(autoincrement())
