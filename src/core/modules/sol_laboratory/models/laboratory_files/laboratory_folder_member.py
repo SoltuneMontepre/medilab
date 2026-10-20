@@ -1,7 +1,8 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.fields import Domain
 
-from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE, OWNER_ROLE
+from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE, NOT_ELIGIBLE, OWNER_ROLE
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_FOLDER,
@@ -9,6 +10,8 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_PERMISSION_MIXIN,
     MODEL_RES_USERS,
 )
+from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
 
 # Links a folder to a person who can read and write it.
@@ -34,6 +37,25 @@ class LaboratoryFolderMember(models.Model):
     _folder_owner_unique = models.UniqueIndex(
         f"(folder_id) WHERE role = '{OWNER_ROLE}'", "A folder has one owner; change the folder's owner instead."
     )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # The owner's row comes with the folder; anyone else added must be able to use laboratory files.
+        added = {vals["user_id"] for vals in vals_list if vals.get("user_id") and vals.get("role") != OWNER_ROLE}
+        users = self.env[MODEL_RES_USERS].sudo()
+        if added and users.search_count(Domain("id", "in", list(added)) & self._eligible_domain()) < len(added):
+            # One message whatever the reason, so it does not tell who has an account or which permission.
+            raise LaboratoryFileError(NOT_ELIGIBLE, self.env._("This person cannot be added to the folder."))
+        return super().create(vals_list)
+
+    @api.model
+    def _eligible_domain(self):
+        """The people who can be added to a folder: active internal users with the laboratory files permission."""
+        return (
+            Domain("active", "=", True)
+            & Domain("share", "=", False)
+            & Domain("all_group_ids", "in", self.env.ref(LABORATORY_FILES_GROUP).ids)
+        )
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_owner(self):

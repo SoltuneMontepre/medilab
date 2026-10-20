@@ -22,6 +22,7 @@
         "data/ir_cron_data.xml",
         "data/scheduled_job_data.xml",
         "security/audit_access_data.xml",
+        "security/laboratory_files_access.xml",
         "data/portal_entry_data.xml",
         "views/master_data/accreditation_certificate_views.xml",
         "views/master_data/accreditation_certificate_import_views.xml",

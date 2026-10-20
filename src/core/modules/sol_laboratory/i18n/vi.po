@@ -206,6 +206,14 @@ msgstr "Mỗi thư mục chỉ có một chủ sở hữu; hãy đổi chủ s�
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "A folder is named, such as HPLC, never given a path on a computer: %s"
+msgstr ""
+"Thư mục được đặt tên, ví dụ HPLC, không bao giờ là một đường dẫn trên máy "
+"tính: %s"
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_group.py:0
 msgid "A group that has parameters cannot have sub-groups: %s."
 msgstr "Nhóm đã có chỉ tiêu không thể có nhóm con: %s."
@@ -231,6 +239,23 @@ msgstr "Mỗi tên đăng nhập chỉ thuộc về một nhân sự."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_measurement_unit_name_unique
 msgid "A measurement unit with this symbol already exists."
 msgstr "Đã có đơn vị đo với ký hiệu này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid ""
+"A name pattern is a file name with *, such as run-*.csv, without a path: %s"
+msgstr "Mẫu tên là tên tệp có *, ví dụ run-*.csv, không kèm đường dẫn: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid ""
+"A name prefix is the start of a file name, such as run-, without * or a "
+"path: %s"
+msgstr ""
+"Tiền tố tên là phần đầu của tên tệp, ví dụ run-, không có * hay đường dẫn: "
+"%s"
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_sample_test_quantity_positive
@@ -579,6 +604,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__allowed_country_state_ids
 msgid "Allowed Country State"
 msgstr "Tỉnh/thành được phép"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid "An extension is letters and digits, such as csv: %s"
+msgstr "Phần mở rộng gồm chữ và số, ví dụ csv: %s"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__departure_apply_date
@@ -4411,6 +4442,13 @@ msgstr "Chỉ loại nhiệm vụ chuyển đến một vai trò mới ghi vai t
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only administrators can do this with a laboratory folder."
+msgstr ""
+"Chỉ quản trị viên được thực hiện thao tác này với thư mục phòng thí nghiệm."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only an assigned task can be started."
 msgstr "Chỉ nhiệm vụ đã giao mới có thể bắt đầu."
@@ -4432,6 +4470,14 @@ msgstr "Chỉ nhân sự có vai trò %s mới có thể thao tác ở cấp nà
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the assignee of %s can do this."
 msgstr "Chỉ người thực hiện %s mới có thể làm việc này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only the owner of a laboratory folder and administrators can do this."
+msgstr ""
+"Chỉ chủ sở hữu thư mục phòng thí nghiệm và quản trị viên được thực hiện thao"
+" tác này."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -7186,9 +7232,38 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder does not exist or you are not a member of it."
+msgstr ""
+"Thư mục phòng thí nghiệm này không tồn tại hoặc bạn không phải thành viên."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder is archived: its files are read, not changed."
+msgstr ""
+"Thư mục phòng thí nghiệm này đã được lưu trữ: chỉ đọc được tệp, không thay "
+"đổi được."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder is turned off: its files are read, not changed."
+msgstr ""
+"Thư mục phòng thí nghiệm này đã bị tắt: chỉ đọc được tệp, không thay đổi "
+"được."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "This level cannot reject."
 msgstr "Cấp này không được từ chối."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_member.py:0
+msgid "This person cannot be added to the folder."
+msgstr "Không thể thêm người này vào thư mục."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_member_folder_user_unique
@@ -7663,6 +7738,12 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__vat
 msgid "You can use '/' to indicate that the customer has no Tax ID."
 msgstr "Bạn có thể dùng '/' để cho biết khách hàng không có mã số thuế."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "You do not have the laboratory files permission."
+msgstr "Bạn không có quyền sử dụng tệp phòng thí nghiệm."
 
 #. module: sol_laboratory
 #. odoo-python

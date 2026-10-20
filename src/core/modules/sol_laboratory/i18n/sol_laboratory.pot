@@ -198,6 +198,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "A folder is named, such as HPLC, never given a path on a computer: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/master_data/parameter_group.py:0
 msgid "A group that has parameters cannot have sub-groups: %s."
 msgstr ""
@@ -222,6 +228,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_measurement_unit_name_unique
 msgid "A measurement unit with this symbol already exists."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid ""
+"A name pattern is a file name with *, such as run-*.csv, without a path: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid ""
+"A name prefix is the start of a file name, such as run-, without * or a "
+"path: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -567,6 +588,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__allowed_country_state_ids
 msgid "Allowed Country State"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sync_rule.py:0
+msgid "An extension is letters and digits, such as csv: %s"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4353,6 +4380,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only administrators can do this with a laboratory folder."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only an assigned task can be started."
 msgstr ""
@@ -4373,6 +4406,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the assignee of %s can do this."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "Only the owner of a laboratory folder and administrators can do this."
 msgstr ""
 
 #. module: sol_laboratory
@@ -7068,8 +7107,32 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder does not exist or you are not a member of it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder is archived: its files are read, not changed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "This laboratory folder is turned off: its files are read, not changed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "This level cannot reject."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_member.py:0
+msgid "This person cannot be added to the folder."
 msgstr ""
 
 #. module: sol_laboratory
@@ -7534,6 +7597,12 @@ msgstr ""
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__vat
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__vat
 msgid "You can use '/' to indicate that the customer has no Tax ID."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
+msgid "You do not have the laboratory files permission."
 msgstr ""
 
 #. module: sol_laboratory

@@ -1,4 +1,5 @@
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
@@ -7,6 +8,9 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
 )
+from odoo.addons.sol_laboratory.services.laboratory_paths import is_extension, is_name_pattern, is_name_prefix
+
+PATTERN_CHECKS = {"prefix": is_name_prefix, "glob": is_name_pattern, "extension": is_extension}
 
 
 # Quy Tắc Đồng Bộ
@@ -33,3 +37,21 @@ class LaboratorySyncRule(models.Model):
     recursive = fields.Boolean(string="Include Subfolders", default=True)
     # False when the rule is turned off.
     enabled = fields.Boolean(default=True)
+
+    @api.constrains("kind", "pattern")
+    def _check_pattern(self):
+        for rule in self:
+            pattern = rule.pattern or ""
+            if PATTERN_CHECKS[rule.kind](pattern):
+                continue
+            if rule.kind == "prefix":
+                message = self.env._(
+                    "A name prefix is the start of a file name, such as run-, without * or a path: %s", pattern
+                )
+            elif rule.kind == "glob":
+                message = self.env._(
+                    "A name pattern is a file name with *, such as run-*.csv, without a path: %s", pattern
+                )
+            else:
+                message = self.env._("An extension is letters and digits, such as csv: %s", pattern)
+            raise ValidationError(message)

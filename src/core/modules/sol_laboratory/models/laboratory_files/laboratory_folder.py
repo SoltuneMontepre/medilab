@@ -1,7 +1,20 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from odoo.fields import Domain
 
-from odoo.addons.sol_laboratory.constants.laboratory_files import OWNER_ROLE, TWO_WAY, UPLOAD_ONLY
+from odoo.addons.sol_laboratory.constants.laboratory_files import (
+    FOLDER_ADMINISTER,
+    FOLDER_ARCHIVED,
+    FOLDER_DISABLED,
+    FOLDER_SHARE,
+    FOLDER_WRITE,
+    LOCKED,
+    NOT_FOUND,
+    OWNER_ROLE,
+    PERMISSION_DENIED,
+    TWO_WAY,
+    UPLOAD_ONLY,
+)
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_DEVICE,
@@ -13,6 +26,9 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
     MODEL_SAMPLE,
 )
+from odoo.addons.sol_laboratory.constants.xml_ids import FOLDER_ADMINISTRATION_GROUP, LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
+from odoo.addons.sol_laboratory.services.laboratory_paths import is_name
 
 
 # Thư Mục Phòng Thí Nghiệm
@@ -72,6 +88,67 @@ class LaboratoryFolder(models.Model):
         if "root" in vals and any(folder.root != vals["root"] for folder in self):
             raise UserError(self.env._("The name a folder was created with never changes; rename the folder instead."))
         return super().write(vals)
+
+    @api.constrains("name", "root")
+    def _check_names(self):
+        for folder in self:
+            if not (is_name(folder.name) and is_name(folder.root)):
+                raise ValidationError(
+                    self.env._(
+                        "A folder is named, such as HPLC, never given a path on a computer: %s", folder.name or ""
+                    )
+                )
+
+    @api.model
+    def _check_laboratory_files_permission(self):
+        if not self.env.user.has_group(LABORATORY_FILES_GROUP):
+            raise LaboratoryFileError(PERMISSION_DENIED, self.env._("You do not have the laboratory files permission."))
+
+    @api.model
+    def _accessible_domain(self):
+        """The folders the user works in: they are a member and, for a folder of a sample, they can see the sample."""
+        samples = self.env[MODEL_SAMPLE].with_user(self.env.user)
+        sample_domain = Domain("sample_id", "=", False)
+        if samples.has_access("read"):
+            sample_domain |= Domain("sample_id", "in", samples._search([]))
+        return Domain("member_ids.user_id", "=", self.env.uid) & sample_domain
+
+    def _check_folder_access(self, access):
+        """Refuse the user what they may not do with these folders: read them, write their files, share them or
+        administer them. The laboratory files API and the features built on folders call it, then act with full
+        rights."""
+        administrator = self.env.user.has_group(FOLDER_ADMINISTRATION_GROUP)
+        if access == FOLDER_ADMINISTER and not administrator:
+            raise LaboratoryFileError(
+                PERMISSION_DENIED, self.env._("Only administrators can do this with a laboratory folder.")
+            )
+        if access != FOLDER_ADMINISTER and not (access == FOLDER_SHARE and administrator):
+            self._check_member_access(access)
+        if access in (FOLDER_SHARE, FOLDER_ADMINISTER):
+            try:
+                self._check_lock()
+            except UserError as error:
+                raise LaboratoryFileError(LOCKED, error.args[0]) from error
+
+    def _check_member_access(self, access):
+        self._check_laboratory_files_permission()
+        folders = self.sudo()
+        if folders - folders.search(Domain("id", "in", self.ids) & self._accessible_domain()):
+            raise LaboratoryFileError(
+                NOT_FOUND, self.env._("This laboratory folder does not exist or you are not a member of it.")
+            )
+        if access == FOLDER_WRITE and folders.filtered("archived_at"):
+            raise LaboratoryFileError(
+                FOLDER_ARCHIVED, self.env._("This laboratory folder is archived: its files are read, not changed.")
+            )
+        if access == FOLDER_WRITE and not all(folders.mapped("enabled")):
+            raise LaboratoryFileError(
+                FOLDER_DISABLED, self.env._("This laboratory folder is turned off: its files are read, not changed.")
+            )
+        if access == FOLDER_SHARE and folders.owner_id != self.env.user:
+            raise LaboratoryFileError(
+                PERMISSION_DENIED, self.env._("Only the owner of a laboratory folder and administrators can do this.")
+            )
 
     def _add_owner_rows(self):
         # The owner reads and writes the folder as every member does, through their own row.
