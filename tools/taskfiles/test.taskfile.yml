@@ -27,6 +27,7 @@ vars:
   DB_USER: '{{.MEDILAB_DB_USER | default "root"}}'
   COVERAGE_REPORT: src/core/modules/coverage.xml
   E2E_DIR: src/tests
+  E2E_URL: '{{.MEDILAB_URL | default "http://localhost:8069"}}'
   SYNC_APP_DIR: src/applications/medilab-sync
   TYPECHECK_DIR: tools/typecheck
   UV: uv --project src/core
@@ -145,6 +146,24 @@ tasks:
         bun run test
         . {{.ROOT_DIR}}/{{.LOG}}
         log_ok "Browser tests passed."
+
+  test:e2e:app:
+    desc: "Install every module with the demo data and start Odoo for the browser tests, as ci-core does"
+    silent: true
+    cmds:
+      - . {{.LOG}} && log_step "Installing {{.ALL_MODULES}}"
+      - docker compose up -d --wait postgres
+      - docker compose run --rm -T odoo -i {{.ALL_MODULES}} --stop-after-init --log-level=warn
+      - . {{.LOG}} && log_step "Starting Odoo"
+      - docker compose up -d odoo
+      - |
+        set -e
+        . {{.LOG}}
+        if ! curl -fsS --retry 30 --retry-delay 2 --retry-all-errors -o /dev/null {{.E2E_URL}}/web/health; then
+          log_error "Odoo did not answer at {{.E2E_URL}}. Read its log with task logs."
+          exit 1
+        fi
+        log_ok "Odoo is ready at {{.E2E_URL}}."
 
   test:apps:
     desc: "Run the application tests"
