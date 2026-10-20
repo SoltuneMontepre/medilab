@@ -1,6 +1,7 @@
 from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LOCK_MIXIN,
     MODEL_MAIL_NOTIFICATION,
     MODEL_MOBILE_DEVICE,
     MODEL_PERMISSION_MIXIN,
@@ -11,7 +12,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Đẩy Thông Báo
 class PushDelivery(models.Model):
     _name = MODEL_PUSH_DELIVERY
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN]
     _description = "Push Delivery"
     _order = "id"
     _permission_actions = ("read", "create", "edit")

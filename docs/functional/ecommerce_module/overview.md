@@ -45,8 +45,8 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md). It bui
 
 ### V. Sales Analytics
 
-- Sales pipeline: orders waiting to be claimed, quotations sent, awaiting payment, awaiting approval.
-- Performance per salesperson and per period: quotations sent, accepted, approved, revenue.
+- Sales pipeline: orders by stage, from waiting to be claimed through draft, sent and unpaid, accepted and awaiting approval to approved.
+- Performance per salesperson and per period: quotations sent, accepted and declined, revenue, and the days between claim, quotation, payment and approval.
 
 ### VI. Accounting & KPIs
 

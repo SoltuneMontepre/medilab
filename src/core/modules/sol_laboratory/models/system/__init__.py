@@ -1,9 +1,11 @@
 from . import (
     approval_chain,
     approval_level,
+    archive_file,
     audit_change,
     audit_entry,
     audit_report,
+    document_lock,
     hr_department,
     hr_employee,
     ir_access,
@@ -25,3 +27,7 @@ from . import (
     scheduled_job,
     signature,
 )
+
+# Accreditation job handlers inherit medilab.scheduled.job; load after the base model.
+# isort: split
+from . import accreditation_scheduled_job

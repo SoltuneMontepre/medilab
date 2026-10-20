@@ -333,6 +333,16 @@
         <field name="document_model">medilab.test.report</field>
         <field name="action">sign</field>
     </record>
+    <record id="permission_change_request_read_all" model="medilab.permission">
+        <field name="name">Read change requests</field>
+        <field name="document_model">medilab.change.request</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_change_request_sign_all" model="medilab.permission">
+        <field name="name">Sign change requests</field>
+        <field name="document_model">medilab.change.request</field>
+        <field name="action">sign</field>
+    </record>
     <record id="permission_task_type_edit_all" model="medilab.permission">
         <field name="name">Edit task types</field>
         <field name="document_model">medilab.task.type</field>
@@ -578,6 +588,27 @@
         <field name="document_model">medilab.quality.registration</field>
         <field name="action">delete</field>
     </record>
+
+    <record id="permission_accreditation_certificate_create_all" model="medilab.permission">
+        <field name="name">Create accreditation certificates</field>
+        <field name="document_model">medilab.accreditation.certificate</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_accreditation_certificate_edit_all" model="medilab.permission">
+        <field name="name">Edit accreditation certificates</field>
+        <field name="document_model">medilab.accreditation.certificate</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_accreditation_certificate_archive_all" model="medilab.permission">
+        <field name="name">Archive accreditation certificates</field>
+        <field name="document_model">medilab.accreditation.certificate</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_accreditation_certificate_delete_all" model="medilab.permission">
+        <field name="name">Delete accreditation certificates</field>
+        <field name="document_model">medilab.accreditation.certificate</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_regulation_create_all" model="medilab.permission">
         <field name="name">Create regulations</field>
         <field name="document_model">medilab.regulation</field>
@@ -703,6 +734,21 @@
         <field name="document_model">medilab.testing.method</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_testing_method_step_create_all" model="medilab.permission">
+        <field name="name">Create testing method steps</field>
+        <field name="document_model">medilab.testing.method.step</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_testing_method_step_edit_all" model="medilab.permission">
+        <field name="name">Edit testing method steps</field>
+        <field name="document_model">medilab.testing.method.step</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_testing_method_step_delete_all" model="medilab.permission">
+        <field name="name">Delete testing method steps</field>
+        <field name="document_model">medilab.testing.method.step</field>
+        <field name="action">delete</field>
+    </record>
     <record id="permission_unit_category_create_all" model="medilab.permission">
         <field name="name">Create unit categories</field>
         <field name="document_model">medilab.unit.category</field>
@@ -771,6 +817,16 @@
     <record id="permission_signature_read_all" model="medilab.permission">
         <field name="name">Read signatures</field>
         <field name="document_model">medilab.signature</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_signing_certificate_read_all" model="medilab.permission">
+        <field name="name">Read signing certificates</field>
+        <field name="document_model">medilab.signing.certificate</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_digital_signature_read_all" model="medilab.permission">
+        <field name="name">Read digital signatures</field>
+        <field name="document_model">medilab.digital.signature</field>
         <field name="action">read</field>
     </record>
     <record id="permission_scheduled_job_read_all" model="medilab.permission">
@@ -876,6 +932,21 @@
     <record id="permission_push_delivery_edit_all" model="medilab.permission">
         <field name="name">Edit push deliveries</field>
         <field name="document_model">medilab.push.delivery</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_document_lock_read_all" model="medilab.permission">
+        <field name="name">Read document locks</field>
+        <field name="document_model">medilab.document.lock</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_archive_file_read_all" model="medilab.permission">
+        <field name="name">Read archive files</field>
+        <field name="document_model">medilab.archive.file</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_document_lock_edit_all" model="medilab.permission">
+        <field name="name">Release document locks</field>
+        <field name="document_model">medilab.document.lock</field>
         <field name="action">edit</field>
     </record>
 </odoo>

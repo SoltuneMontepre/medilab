@@ -19,7 +19,8 @@
                         <td t-out="report.request_id.code" />
                         <td><span t-field="report.issued_at" t-options="{'widget': 'date'}" /></td>
                         <td class="text-end">
-                            <a t-attf-href="/my/test-reports/#{report.id}/download">Download</a>
+                            <a t-if="report.attachment_id" t-attf-href="/my/test-reports/#{report.id}/download">Download</a>
+                            <span t-else="" class="text-muted">Being digitally signed</span>
                         </td>
                     </tr>
                 </tbody>

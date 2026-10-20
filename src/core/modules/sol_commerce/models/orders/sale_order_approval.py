@@ -1,4 +1,4 @@
-from odoo import models
+from odoo import fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
@@ -51,7 +51,9 @@ class SaleOrderApproval(models.Model):
         return self.order_status == STATUS_COMPLETED
 
     def _approval_set_state(self, state):
-        self.write({"approval_status": state})
+        self.write(
+            {"approval_status": state, "approved_at": fields.Datetime.now() if state == APPROVAL_APPROVED else False}
+        )
 
     def _approval_notify_rejected(self, reason):
         self.ensure_one()

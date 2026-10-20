@@ -79,7 +79,7 @@ class TestSubcontractorSelection(MasterDataCase):
         pair = self.choose(self.accredited)
 
         self.accredited.accreditation_expiry = self.today - ONE_DAY
-        pair.write({"lod": 0.5, "is_accredited": True})
+        pair.write({"lod": 0.5})
 
         self.assertTrue(self.accredited.accreditation_expired)
         self.assertEqual(pair.subcontractor_id, self.accredited)

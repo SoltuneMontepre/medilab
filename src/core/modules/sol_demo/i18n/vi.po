@@ -52,6 +52,11 @@ msgid "Acetonitrile, HPLC grade"
 msgstr "Acetonitril, loại HPLC"
 
 #. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_sulfuric_acid
+msgid "Acid cabinet, away from bases and water"
+msgstr "Tủ đựng axit, tránh xa bazơ và nước"
+
+#. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_nitric_acid
 msgid "Acid cabinet, away from organic substances"
 msgstr "Tủ đựng axit, tránh xa chất hữu cơ"
@@ -141,6 +146,7 @@ msgstr "Demo: phản hồi"
 #. module: sol_demo
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__display_name
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_demo.field_purchase_order__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -148,6 +154,12 @@ msgstr "Tên hiển thị"
 #: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_cabbage
 msgid "Dispose of as organic waste."
 msgstr "Hủy như rác thải hữu cơ."
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.demo_chemical_distilled_water
+#: model:product.template,name:sol_demo.demo_product_product_distilled_water_product_template
+msgid "Double-distilled water"
+msgstr "Nước cất hai lần"
 
 #. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_sodium_chloride
@@ -217,6 +229,7 @@ msgid "Head of Sales of the department"
 msgstr "Trưởng Phòng Kinh Doanh của phòng ban"
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_signing_head_of_department
 #: model:medilab.role,name:sol_demo.demo_role_head_of_department
 msgid "Head of department"
 msgstr "Trưởng Phòng"
@@ -227,14 +240,15 @@ msgid "Head of sales"
 msgstr "Trưởng Phòng Kinh Doanh"
 
 #. module: sol_demo
-#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_heavy_metals
 #: model:hr.department,name:sol_demo.demo_hr_department_heavy_metals
+#: model:medilab.parameter.group,name:sol_demo.demo_parameter_group_heavy_metals
 msgid "Heavy metals"
 msgstr "Kim loại nặng"
 
 #. module: sol_demo
 #: model:ir.model.fields,field_description:sol_demo.field_account_move__id
 #: model:ir.model.fields,field_description:sol_demo.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_demo.field_purchase_order__id
 msgid "ID"
 msgstr "ID"
 
@@ -244,8 +258,11 @@ msgid "Journal Entry"
 msgstr "Bút toán"
 
 #. module: sol_demo
-#: model:medilab.role,name:sol_demo.demo_role_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_purchase_order_signing_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_change_request_lab_head
 #: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_report_signing_lab_head
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_change_request_lab_head
+#: model:medilab.role,name:sol_demo.demo_role_lab_head
 msgid "Lab head"
 msgstr "Trưởng Phòng Thí Nghiệm"
 
@@ -331,6 +348,11 @@ msgstr ""
 "đóng chai"
 
 #. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_nitric_acid_5_product_template
+msgid "Nitric acid 5%"
+msgstr "Axit nitric 5%"
+
+#. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_nitric_acid
 #: model:product.template,name:sol_demo.demo_product_product_nitric_acid_product_template
 msgid "Nitric acid 65%"
@@ -344,6 +366,7 @@ msgstr "Găng tay nitrile, cỡ M"
 #. module: sol_demo
 #: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_coliforms
 #: model:medilab.regulation.limit,limit_text:sol_demo.demo_regulation_limit_qcvn_6_1_e_coli
+#: model:medilab.test.result,value_text:sol_demo.demo_test_result_retest
 msgid "Not detected"
 msgstr "Không phát hiện"
 
@@ -393,6 +416,7 @@ msgid "Reseal the remaining bottles and label them with the lab code."
 msgstr "Niêm phong lại các chai còn lại và dán nhãn mã PTN."
 
 #. module: sol_demo
+#: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_distilled_water
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_ph_buffer
 msgid "Room temperature, tightly closed"
 msgstr "Nhiệt độ phòng, đậy kín"
@@ -435,9 +459,26 @@ msgid "Soil quality — Determination of pH"
 msgstr "Chất lượng đất — Xác định pH"
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_purchase_order_signing_storekeeper
 #: model:medilab.role,name:sol_demo.demo_role_storekeeper
 msgid "Storekeeper"
 msgstr "Thủ Kho"
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_001m_product_template
+msgid "Sulfuric acid 0.01 M"
+msgstr "Axit sunfuric 0,01 M"
+
+#. module: sol_demo
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_005m_product_template
+msgid "Sulfuric acid 0.05 M"
+msgstr "Axit sunfuric 0,05 M"
+
+#. module: sol_demo
+#: model:medilab.chemical,name:sol_demo.demo_chemical_sulfuric_acid
+#: model:product.template,name:sol_demo.demo_product_product_sulfuric_acid_product_template
+msgid "Sulfuric acid 97%"
+msgstr "Axit sunfuric 97%"
 
 #. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_surface_water
@@ -445,10 +486,12 @@ msgid "Surface water"
 msgstr "Nước mặt"
 
 #. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_signing
 msgid "Test result signing"
 msgstr "Ký kết quả thử nghiệm"
 
 #. module: sol_demo
+#: model:medilab.approval.level,name:sol_demo.demo_approval_level_test_result_signing_tester
 #: model:medilab.role,name:sol_demo.demo_role_tester
 msgid "Tester"
 msgstr "Thử Nghiệm Viên"
@@ -525,3 +568,23 @@ msgstr "Dư lượng thuốc bảo vệ thực vật"
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_signing
 msgid "Test report signing"
 msgstr "Ký phiếu kết quả"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_result_change_request
+msgid "Test result change request"
+msgstr "Yêu cầu thay đổi kết quả thử nghiệm"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_test_report_change_request
+msgid "Test report change request"
+msgstr "Yêu cầu thay đổi phiếu kết quả"
+
+#. module: sol_demo
+#: model:ir.model,name:sol_demo.model_purchase_order
+msgid "Purchase Order"
+msgstr "Đơn mua hàng"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
+msgid "Purchase order signing"
+msgstr "Ký đơn mua hàng"

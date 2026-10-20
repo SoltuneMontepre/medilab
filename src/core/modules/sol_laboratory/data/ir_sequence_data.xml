@@ -81,4 +81,12 @@
         <field name="padding">4</field>
         <field name="use_date_range" eval="True" />
     </record>
+
+    <record id="sequence_change_request" model="ir.sequence">
+        <field name="name">Change Request</field>
+        <field name="code">medilab.change.request</field>
+        <field name="prefix">YCTD.%(range_year)s.</field>
+        <field name="padding">4</field>
+        <field name="use_date_range" eval="True" />
+    </record>
 </odoo>

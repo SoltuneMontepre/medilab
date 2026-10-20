@@ -8,11 +8,6 @@ from .order_case import OrderCase
 class TestQuotationFreeze(OrderCase):
     """What the customer was quoted stays as it was until the quotation is revised."""
 
-    def sent_order(self):
-        order = self.make_quotable_order()
-        order.with_user(self.sales).action_send_quotation()
-        return order
-
     def test_a_line_price_and_a_sample_name_are_refused_on_a_sent_quotation(self):
         order = self.sent_order()
         line = order._catalog_lines()

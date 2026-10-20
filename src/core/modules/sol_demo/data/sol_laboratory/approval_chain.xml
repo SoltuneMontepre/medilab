@@ -20,4 +20,19 @@
         <field name="document_model">medilab.test.report</field>
         <field name="purpose">signing</field>
     </record>
+    <record id="demo_approval_chain_test_result_change_request" model="medilab.approval.chain">
+        <field name="name">Test result change request</field>
+        <field name="document_model">medilab.test.result</field>
+        <field name="purpose">change_request</field>
+    </record>
+    <record id="demo_approval_chain_test_report_change_request" model="medilab.approval.chain">
+        <field name="name">Test report change request</field>
+        <field name="document_model">medilab.test.report</field>
+        <field name="purpose">change_request</field>
+    </record>
+    <record id="demo_approval_chain_purchase_order_signing" model="medilab.approval.chain">
+        <field name="name">Purchase order signing</field>
+        <field name="document_model">purchase.order</field>
+        <field name="purpose">signing</field>
+    </record>
 </odoo>

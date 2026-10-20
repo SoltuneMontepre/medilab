@@ -45,6 +45,37 @@ class TestStockItems(CatalogCase):
         with self.assertRaises(ValidationError):
             self.create_item("Sodium chloride, 500 g", "chemical", "lot", chemical_id=self.sodium_chloride.id)
 
+    def test_a_prepared_solution_is_tracked_by_container(self):
+        for tracking in ("lot", "quantity"):
+            with self.subTest(tracking=tracking), self.assertRaises(ValidationError):
+                self.create_item("Nitric acid 5%", "solution", tracking)
+        solution = self.create_item("Nitric acid 5%", "solution", "container")
+
+        with self.assertRaises(ValidationError):
+            solution.item_tracking = "lot"
+        with self.assertRaises(ValidationError):
+            solution.product_tmpl_id.tracking = False
+
+    def test_a_prepared_solution_is_never_bought(self):
+        solution = self.create_item("Nitric acid 5%", "solution", "container")
+        self.assertFalse(solution.purchase_ok)
+
+        with self.assertRaises(ValidationError):
+            solution.purchase_ok = True
+        # Odoo's own product form writes the template.
+        with self.assertRaises(ValidationError):
+            solution.product_tmpl_id.purchase_ok = True
+
+    def test_an_item_is_bought_again_once_it_is_no_longer_a_prepared_solution(self):
+        buffer = self.create_item("Buffer pH 7", "consumable", "container")
+        self.assertTrue(buffer.purchase_ok)
+
+        buffer.item_kind = "solution"
+        self.assertFalse(buffer.purchase_ok)
+
+        buffer.item_kind = "consumable"
+        self.assertTrue(buffer.purchase_ok)
+
     def test_an_item_with_stock_on_hand_cannot_be_archived(self):
         self.put_stock(self.gloves, self.fridge, 10)
 

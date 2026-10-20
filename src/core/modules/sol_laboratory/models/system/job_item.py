@@ -1,15 +1,20 @@
 from datetime import timedelta
 
-from odoo import fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_PERMISSION_MIXIN, MODEL_SCHEDULED_JOB
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_JOB_ITEM,
+    MODEL_LOCK_MIXIN,
+    MODEL_PERMISSION_MIXIN,
+    MODEL_SCHEDULED_JOB,
+)
 
 
 # Mục Tác Vụ
 class JobItem(models.Model):
     _name = MODEL_JOB_ITEM
-    _inherit = [MODEL_PERMISSION_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN]
     _description = "Job Item"
     _order = "next_attempt_at, id"
     # Items are queued by features; administrators retry or cancel them.
@@ -57,6 +62,11 @@ class JobItem(models.Model):
     def _compute_display_name(self):
         for item in self:
             item.display_name = f"{item.job_id.name}: {item.item_key}"
+
+    @api.model
+    def _cleanup_domain(self, cutoff):
+        """The items the cleanup job removes: done or cancelled before the cutoff. Failed items wait for a person."""
+        return [("status", "in", ("done", "cancelled")), ("write_date", "<", cutoff)]
 
     def _document(self):
         self.ensure_one()

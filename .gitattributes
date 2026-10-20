@@ -1,2 +1,3 @@
 *.sh text eol=lf
 infra/ansible/** text eol=lf
+*.pdf binary

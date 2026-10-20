@@ -7,7 +7,7 @@ from odoo.exceptions import UserError
 from odoo.fields import Domain
 from odoo.http import request
 
-from odoo.addons.sol_laboratory.constants.jobs import JOB_RUN_CONTEXT
+from odoo.addons.sol_laboratory.constants.jobs import CLEANUP_CONTEXT, JOB_RUN_CONTEXT
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_CHANGE,
     MODEL_AUDIT_ENTRY,
@@ -54,6 +54,7 @@ class AuditEntry(models.Model):
             ("sign", "Sign"),
             ("withdraw", "Withdraw"),
             ("download", "Download"),
+            ("unlock", "Unlock"),
             ("job", "Job Run"),
             ("integration", "Integration"),
             ("error", "Error"),
@@ -70,7 +71,7 @@ class AuditEntry(models.Model):
     # Id of the document the one acted on is a part of.
     parent_id = fields.Integer(string="Parent Document ID", readonly=True)
     # The job run that acted, when the source is a job.
-    job_run_id = fields.Many2one(MODEL_JOB_RUN, readonly=True, ondelete="restrict")
+    job_run_id = fields.Many2one(MODEL_JOB_RUN, readonly=True, ondelete="restrict", index="btree_not_null")
     # What happened, for actions without field changes, such as the name of a deleted document.
     note = fields.Text(readonly=True)
     # Field changes of the entry.
@@ -150,7 +151,18 @@ class AuditEntry(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_audit_entry(self):
-        raise UserError(self.env._("Audit entries cannot be deleted."))
+        if not self._removed_by_cleanup():
+            raise UserError(self.env._("Audit entries cannot be deleted."))
+
+    def _removed_by_cleanup(self):
+        # Only the cleanup job removes entries, with full rights, once their archive file is written and checked.
+        return self.env.su and self.env.context.get(CLEANUP_CONTEXT)
+
+    def _remove_archived(self):
+        """Remove entries the cleanup job has archived, with their changes."""
+        entries = self.sudo().with_context(**{CLEANUP_CONTEXT: True})
+        entries.change_ids.unlink()
+        entries.unlink()
 
     def _refuse_change(self):
         raise UserError(self.env._("Audit entries cannot be changed."))

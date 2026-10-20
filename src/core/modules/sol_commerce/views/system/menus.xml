@@ -8,6 +8,7 @@
 
     <menuitem id="menu_sale_order_queue" name="Unclaimed queue" parent="sale.sale_menu_root" action="action_medilab_sale_order_queue" sequence="15" />
     <menuitem id="menu_sale_order" name="Orders" parent="sale.sale_menu_root" action="action_medilab_sale_order" sequence="16" />
+    <menuitem id="menu_order_template" name="Order templates" parent="sale.sale_menu_root" action="action_order_template" sequence="17" />
     <menuitem id="menu_cancellation_request" name="Cancellation requests" parent="sale.sale_menu_root" action="action_medilab_cancellation_request" sequence="17" />
     <menuitem id="menu_support_request" name="Support requests" parent="sale.sale_menu_root" action="action_medilab_support_request" sequence="18" />
     <menuitem
@@ -18,6 +19,19 @@
         groups="sol_laboratory.group_permission_order_read_all,group_all_orders"
         sequence="19"
     />
+
+    <!-- Odoo shows its Reporting menu to its sales managers only; salespeople reach the pipeline and performance through
+         their order permission. Odoo's own analyses under it stay hidden from users who cannot read them. -->
+    <record id="sale.menu_sale_report" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.clear()]" />
+    </record>
+    <menuitem id="menu_sales_pipeline" name="Pipeline" parent="sale.menu_sale_report" action="action_medilab_sales_pipeline" sequence="1" />
+    <menuitem id="menu_sales_performance" name="Performance" parent="sale.menu_sale_report" action="action_medilab_sales_performance" sequence="2" />
+    <menuitem id="menu_revenue_report" parent="sale.menu_sale_report" action="action_medilab_revenue_report" sequence="3" />
+    <menuitem id="menu_outstanding_report" parent="sale.menu_sale_report" action="action_medilab_outstanding_report" sequence="4" />
+    <menuitem id="menu_cash_flow_report" parent="sale.menu_sale_report" action="action_medilab_cash_flow_report" sequence="5" />
+    <menuitem id="menu_collection_report" parent="sale.menu_sale_report" action="action_medilab_collection_report" sequence="6" />
+    <menuitem id="menu_pending_payment_report" parent="sale.menu_sale_report" action="action_medilab_pending_payment_report" sequence="7" />
 
     <menuitem id="menu_commerce_root" name="E-commerce" sequence="40">
         <menuitem id="menu_invoice" action="action_medilab_invoice" sequence="5" />

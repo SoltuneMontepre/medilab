@@ -3,6 +3,7 @@ from odoo import fields, models
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_REGULATION,
     MODEL_REGULATION_LIMIT,
@@ -13,7 +14,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 # Quy Chuẩn
 class Regulation(models.Model):
     _name = MODEL_REGULATION
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_AUDIT_MIXIN]
     _description = "Regulation"
     _rec_name = "code"
     _order = "code"

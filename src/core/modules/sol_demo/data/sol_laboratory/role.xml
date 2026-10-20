@@ -77,6 +77,14 @@
     <record id="demo_role_accountant" model="medilab.role">
         <field name="code">accountant</field>
         <field name="name">Accountant</field>
+        <field
+            name="permission_ids"
+            eval="[Command.set([
+                ref('sol_commerce.permission_revenue_report_read_all'),
+                ref('sol_commerce.permission_receivable_report_read_all'),
+                ref('sol_commerce.permission_cash_flow_report_read_all'),
+            ])]"
+        />
     </record>
     <record id="demo_role_sample_delivery_staff" model="medilab.role">
         <field name="code">sample_delivery_staff</field>
@@ -172,6 +180,10 @@
                 ref('sol_laboratory.permission_test_result_read_all'),
                 ref('sol_laboratory.permission_test_report_read_all'),
                 ref('sol_laboratory.permission_test_report_sign_all'),
+                ref('sol_laboratory.permission_change_request_read_all'),
+                ref('sol_laboratory.permission_change_request_sign_all'),
+                ref('sol_inventory.permission_purchase_order_read_all'),
+                ref('sol_inventory.permission_purchase_order_sign_all'),
             ])]"
         />
     </record>
@@ -201,6 +213,16 @@
                 ref('sol_inventory.permission_method_consumption_create_all'),
                 ref('sol_inventory.permission_method_consumption_edit_all'),
                 ref('sol_inventory.permission_method_consumption_delete_all'),
+                ref('sol_inventory.permission_purchase_order_read_all'),
+                ref('sol_inventory.permission_purchase_order_create_all'),
+                ref('sol_inventory.permission_purchase_order_edit_all'),
+                ref('sol_inventory.permission_purchase_order_delete_all'),
+                ref('sol_inventory.permission_purchase_order_sign_all'),
+                ref('sol_inventory.permission_receipt_read_all'),
+                ref('sol_inventory.permission_receipt_create_all'),
+                ref('sol_inventory.permission_receipt_edit_all'),
+                ref('sol_inventory.permission_receipt_delete_all'),
+                ref('sol_inventory.permission_lot_edit_all'),
             ])]"
         />
     </record>
