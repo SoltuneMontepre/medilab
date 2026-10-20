@@ -144,6 +144,7 @@ flowchart LR
 ## Images
 
 - `cd-core` publishes `ghcr.io/soltunemontepre/medilab`, tagged with the full commit SHA and `latest`, and releases it as described in [cd-core](#cd-core).
+- Local, CI and production images build on the same Odoo, pinned by tag and digest in `ODOO_IMAGE` of `tools/dockerfiles/prod.dockerfile` and in the `image` input of `.github/actions/odoo-lint`. The pinned nightly is the one `ODOO_SOURCE_REVISION` in `tools/taskfiles/dev.taskfile.yml` is taken from. Odoo is upgraded by changing all three together.
 - Pull request images are never pushed to a registry.
 - After every `cd-core` run, `cd-cleanup` keeps the five newest tagged images and the images of the current and previous release, and deletes the other images and every untagged image.
 
