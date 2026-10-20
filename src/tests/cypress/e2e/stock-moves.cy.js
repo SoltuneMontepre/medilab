@@ -27,14 +27,14 @@ describe("Stock moves, disposal and value", () => {
     cy.visit("/odoo/stock-moves");
     cy.get(".o_searchview_input").type(reason);
     cy.contains(".o_searchview_autocomplete .o-dropdown-item", /Reason|Lý do/).click();
-    cy.get(".o_group_header").click();
+    cy.get(".o_group_header").should("have.length", 1).click();
     cy.get(".o_data_row").should("have.length", 2);
     cy.contains(".o_data_row", `${reason} back`).should("contain", "Room 102");
   });
 
   it("disposes of the expired sodium chloride bottle", () => {
     cy.visit("/odoo/disposal");
-    cy.get(".o_group_header").click();
+    cy.contains(".o_group_header", "Pesticide residues store").click();
     cy.contains(".o_data_row", "NaCl-2509").find(".o_list_record_selector input").check();
     cy.get("button[name=action_dispose]").click();
     cy.get(".modal-footer .btn-primary").click();
