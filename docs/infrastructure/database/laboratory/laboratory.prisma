@@ -2569,7 +2569,8 @@ model LaboratoryEditingSession {
   @@map("medilab_laboratory_editing_session")
 }
 
-/// A lock one person holds on a working or result file while they edit it, for 30 minutes unless renewed.
+/// A lock one person holds on a file of working documents, results or no category while they edit it, for the lock duration (30 minutes by default) unless renewed. When it was taken is Odoo's creation time of the row.
+/// At most one active lock per file (partial unique index on file_id where status is active).
 model LaboratoryFileLock {
   /// Row identifier.
   id             Int            @id @default(autoincrement())
