@@ -108,7 +108,12 @@ class LaboratoryFolder(models.Model):
     @api.depends("enabled", "archived_at")
     def _compute_status(self):
         for folder in self:
-            folder.status = "archived" if folder.archived_at else "in_use" if folder.enabled else "turned_off"
+            if folder.archived_at:
+                folder.status = "archived"
+            elif folder.enabled:
+                folder.status = "in_use"
+            else:
+                folder.status = "turned_off"
 
     def write(self, vals):
         self._check_not_archived()
