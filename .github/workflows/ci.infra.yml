@@ -76,8 +76,7 @@ jobs:
           filters: |
             relevant:
               - "infra/ansible/**"
-              - "tools/dockerfiles/ansible.dockerfile"
-              - "tools/dockerfiles/ansible.dockerfile.dockerignore"
+              - "tools/ansible/**"
               - ".github/workflows/ci.infra.yml"
 
       - name: Set up Docker Build
@@ -91,7 +90,7 @@ jobs:
           DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           context: .
-          file: tools/dockerfiles/ansible.dockerfile
+          file: tools/ansible/ansible.dockerfile
           tags: medilab-ansible:local
           load: true
           cache-from: type=gha,scope=ansible

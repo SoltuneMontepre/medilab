@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 60
     environment: ${{ inputs.action == 'apply' && 'ansible-apply' || 'ansible' }}
     env:
-      COMPOSE_FILE: tools/infrastructure/docker-compose.yml
+      COMPOSE_FILE: tools/ansible/compose.yml
       DOPPLER_TOKEN: ${{ secrets.DOPPLER_INFRA_TOKEN }}
     steps:
       - name: Checkout
@@ -45,7 +45,7 @@ jobs:
           DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           context: .
-          file: tools/dockerfiles/ansible.dockerfile
+          file: tools/ansible/ansible.dockerfile
           tags: medilab-ansible:local
           load: true
           cache-from: type=gha,scope=ansible

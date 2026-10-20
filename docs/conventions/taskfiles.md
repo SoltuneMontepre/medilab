@@ -7,6 +7,7 @@ How the [Task](https://taskfile.dev) commands in this repository are written, an
 ```text
 taskfile.yml                    entrypoint: includes the taskfiles, defines setup
 tools/
+├── ansible/                    Ansible image, its compose file and the entrypoint that loads the SSH key
 ├── odoo-intelligence/          Shared OdooLS MCP bridge, local installer, Serena launcher and tests
 ├── taskfiles/
 │   ├── ai.taskfile.yml         AI tooling: local Serena, OdooLS, source mirror, verification and isolated Cursor setup
@@ -20,7 +21,6 @@ tools/
     ├── log.sh                  output helpers sourced by the tasks
     ├── doppler.sh              Doppler login helper sourced by the tasks
     ├── ai_setup.sh             ai:setup prerequisites and environment
-    ├── ansible_run.sh          loads the Ansible SSH key into an agent inside the ansible container
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
     ├── test_apps.sh            test:apps
     ├── test_shards.py          splits the Odoo test classes into shards for test:core

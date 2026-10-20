@@ -7,6 +7,7 @@ ENV VIRTUAL_ENV=/opt/ansible \
     ANSIBLE_FORCE_COLOR=1
 
 COPY ./infra/ansible/requirements.yml /tmp/requirements.yml
+COPY ./tools/ansible/entrypoint.sh /usr/local/bin/ansible-entrypoint
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openssh-client \
@@ -21,5 +22,7 @@ RUN apt-get update \
     && rm -rf /tmp/ansible /tmp/requirements.yml
 
 USER ansible
+
+ENTRYPOINT ["bash", "/usr/local/bin/ansible-entrypoint"]
 
 WORKDIR /work/infra/ansible

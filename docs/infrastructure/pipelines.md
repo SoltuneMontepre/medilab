@@ -59,7 +59,7 @@ flowchart LR
 - It starts only by hand, from the Actions page, with two inputs:
   - `action`: `ping` runs `ansible all -m ansible.builtin.ping --become`, `inspect` runs `inspect.yml`, `check` runs `site.yml --check --diff`, and `apply` runs `site.yml --diff`.
   - `limit`: the nodes or groups to run on, passed to `--limit`. Empty runs on every node.
-- It builds the Ansible image from `tools/dockerfiles/ansible.dockerfile`, then runs it through `doppler run` with the `DOPPLER_INFRA_TOKEN` environment secret, a Doppler service token that reads only the `infra` config. Every value of `infra` is masked in the log before Ansible starts.
+- It builds the Ansible image from `tools/ansible/ansible.dockerfile`, then runs it through `doppler run` with the `DOPPLER_INFRA_TOKEN` environment secret, a Doppler service token that reads only the `infra` config. Every value of `infra` is masked in the log before Ansible starts.
 - The job runs in a GitHub environment that only `main` may deploy from, so a run from any other branch gets no secret and fails before it starts:
 
   | Environment     | Used by                    | Protection                                       |

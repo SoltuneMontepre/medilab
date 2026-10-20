@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Loads the Ansible SSH key into an agent, then runs the given command.
-# Runs inside the ansible container as its entrypoint. Needs ANSIBLE_SSH_PRIVATE_KEY for commands that reach the nodes.
+# The entrypoint of the Ansible image. Needs ANSIBLE_SSH_PRIVATE_KEY for commands that reach the nodes.
 set -e
 
 if [[ -n "${ANSIBLE_SSH_PRIVATE_KEY:-}" ]]; then

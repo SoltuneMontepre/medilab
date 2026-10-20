@@ -1,0 +1,18 @@
+name: medilab-ansible
+
+services:
+  ansible:
+    image: medilab-ansible:local
+    build:
+      context: ../..
+      dockerfile: tools/ansible/ansible.dockerfile
+    environment:
+      - ANSIBLE_SSH_PRIVATE_KEY
+      - NODE_A_PUBLIC_ADDRESS
+      - K3S_TOKEN
+      - BUCKET_ADDRESS
+      - BUCKET_BACKUP_ACCESS_KEY
+      - BUCKET_BACKUP_SECRET_KEY
+      - CLUSTER_DOPPLER_TOKEN
+    volumes:
+      - ../..:/work:z

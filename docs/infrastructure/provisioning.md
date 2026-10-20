@@ -43,7 +43,7 @@ How the nodes in [Architecture](architecture.md) are set up: Ansible in `infra/a
 
 GitHub Actions is the control node: the `cd-ansible` workflow runs the playbooks from `main`, by hand, with `ping`, `inspect`, `check` or `apply`; see [Pipelines](pipelines.md#cd-ansible). The SSH key exists only in Doppler.
 
-Ansible runs in a container built from `tools/dockerfiles/ansible.dockerfile`, the same in the workflow and on a developer machine. It is started through `doppler run` with the `infra` config, which passes the node addresses, the SSH key, the bucket keys and the cluster's Doppler token; see [Secrets](secrets.md). The SSH key is loaded into an agent inside the container and never written to disk.
+Ansible runs in a container built from `tools/ansible/ansible.dockerfile`, the same in the workflow and on a developer machine. It is started through `doppler run` with the `infra` config, which passes the node addresses, the SSH key, the bucket keys and the cluster's Doppler token; see [Secrets](secrets.md). The SSH key is loaded into an agent inside the container and never written to disk.
 
 - Node host keys are pinned in `infra/ansible/known_hosts`, one line per node: its public address, the key type and the key, copied from `/etc/ssh/ssh_host_ed25519_key.pub` in the VPS web console. Ansible refuses a node whose key is missing or different.
 - GitHub-hosted runners have no fixed addresses, so SSH on port 22 accepts connections from anywhere and the `ansible` user logs in with its key only. Turn on `ssh_hardening_enabled` once the owner confirms that nobody logs in to the node with a password, so password and root login are refused for every user.
@@ -69,7 +69,7 @@ Every version is pinned and upgraded by changing it in the code:
 | -------------------------- | ---------------------------------------------------- |
 | k3s                        | `k3s_version` in the `k3s` role                      |
 | Argo CD chart              | `argocd_chart_version` in `argocd` role              |
-| ansible-core               | `tools/dockerfiles/ansible.dockerfile`               |
+| ansible-core               | `tools/ansible/ansible.dockerfile`               |
 | Collections                | `infra/ansible/requirements.yml`                     |
 | Everything Argo CD deploys | `infra/cluster/`; see [Cluster](cluster.md#versions) |
 
