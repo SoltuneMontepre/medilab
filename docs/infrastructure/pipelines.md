@@ -6,7 +6,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 | Workflow     | Runs on                                                                                 | Does                                                                                                               |
 | ------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `ci-core`    | every pull request                                                                      | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                            |
+| `ci-core`    | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                            |
 | `ci-infra`   | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes.                                                 |
 | `ci-ai`      | every pull request                                                                      | Runs the AI tooling tests and Ruff when the AI tooling or a client config changes.                                 |
 | `cd-core`    | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails. |
@@ -28,6 +28,7 @@ flowchart LR
 ```
 
 - `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file, the lint action or the workflow. It also decides whether to scan: on core changes, or on changes to `tools/odoo-intelligence`, the AI taskfile or `ci-ai`. The browser tests run on core changes and on changes to `src/tests`.
+- A push to `main` and a manual run ignore what `changes` decides and run every job, so SonarQube Cloud analyses all of `main` with full coverage after each merge. That analysis is the project's overall view: its issues, coverage and quality gate on `main`, against which pull requests are compared.
 - `lint` runs `task typecheck` and `task test:typecheck`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
 - `tooling` runs addon link safety and Pyright report tests on Linux and Windows, only when `tools/typecheck` or the workflow changes. Windows uses real directory junctions to verify that cleanup preserves unmanaged links and target files.
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
