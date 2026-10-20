@@ -2555,7 +2555,7 @@ model LaboratoryEditingSession {
   base_version_id      Int
   /// Key the editing service identifies the document by.
   document_key         String         @unique @db.VarChar
-  /// Secret token in the address the editing service calls back on save.
+  /// SHA-256 of the secret token in the address the editing service calls back on save.
   callback_token       String         @unique @db.VarChar
   /// open, saving, committed, conflict, closed, expired or error.
   status               String         @db.VarChar

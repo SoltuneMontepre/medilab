@@ -37,7 +37,7 @@
 - **Sizes beyond 2 GiB.** Decided: a version's size is a 64-bit integer, through a field type the module adds, since Odoo's integers stop at 2 GiB and files reach 5 GiB.
 - **Letter case and Unicode of paths.** Decided: paths are kept in Unicode NFC; paths that differ only in letter case are one file, which keeps the letter case it was first saved with. Folder names and sync rule patterns are kept in NFC too.
 - **Saving the content a file already has.** Decided: when the new content's SHA-256 is the current version's, nothing is added and the current version stays, whatever version the save was based on. A restore always adds a version.
-- **Files of folders without a category.** Decided for now: they are not raw data. Whether they are edited online and locked is left to US-T26 and US-T27.
+- **Files of folders without a category.** Decided for now: they are not raw data, and their Office files are edited online. Whether they are locked is left to US-T27.
 - **Office documents.** Decided: Word, Excel and PowerPoint documents are the files with the extensions `docx`, `xlsx` and `pptx`, in any letter case.
 - **Turned-off folders and online editing.** Decided: a turned-off folder refuses every new version, saves of the online editor included.
 - **Demo files.** Decided: the shared foundation of laboratory files brings a few demo files with versions and a conflict; the upload flow adds restores, shared content and the stored bytes.
@@ -65,6 +65,18 @@
 - **Names of sample folders.** Assumption: a sample's folders are named after its lab code and their category, such as `PTN.2026.0001 Raw Data`, with the roots `PTN.2026.0001-raw` and `PTN.2026.0001-result`. Is that the name the laboratory wants?
 - **The chain of file versions.** Decided: as for every document type, the chain for signing file versions is set up by administrators and comes only with the demo data; until it exists, signing a version is refused.
 - **Category of a folder of no sample.** Decided for now: a folder of a sample must have a category, but a folder of no sample may have one too, although the diagram says its category is empty, because the tests of laboratory files create raw-data folders without a sample. The two-way rule is checked once the online editing of files has landed and those tests are moved to sample folders.
+
+## #171 Online editing
+
+- **Files edited online.** Decided: Office files of result and working folders and of folders without a category are edited online; files of raw-data and report folders are not.
+- **Who saves an online version.** Decided: the version goes to the last editor the editing service reports for the save, and the audit entry names every editor. When that person can no longer write the file, the session ends in error and its audit entry records the key of the stored content, so the content can be recovered.
+- **A save after expiry.** Decided: a save is never discarded. A save arriving for an expired session is stored like any other, and the conflict rule handles a file that changed meanwhile; expiry only stops people from joining the session.
+- **Idle period of editing sessions.** Decided: the system parameter `sol_laboratory.laboratory_editing_idle_hours`, 12 hours by default, in the Laboratory Files block of Settings.
+- **Stuck saves.** Decided: a session still saving after the idle period expires too. A save that fails for a while answers the editing service with an error, so it calls back again.
+- **Joining a session whose file changed.** Decided: a person opening a file joins its open session even when the file has a newer version; the session's save becomes a conflict.
+- **Intermediate saves.** Decided: the editor's force save is off; only the save once everyone has left is a version.
+- **Editing from the back office.** Decided: the back office has no Edit online button and no action to close a session.
+- **The callback token.** Decided: only its SHA-256 is stored, and it is compared in constant time.
 
 ## Related documents
 

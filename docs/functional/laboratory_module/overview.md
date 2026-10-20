@@ -279,9 +279,13 @@ stateDiagram-v2
     open --> saving: the editor saves
     saving --> committed: new version added
     saving --> conflict: the file changed meanwhile
+    saving --> closed: the file already has this content
     open --> closed: everyone left without changes
     open --> expired: no activity for 12 hours
-    saving --> error: the editor's file cannot be read
+    saving --> expired: no activity for 12 hours
+    expired --> committed: a save arrives later
+    expired --> conflict: a save arrives later, the file changed meanwhile
+    saving --> error: the editor's file cannot be read, or the editor can no longer write the file
 ```
 
 ### Lock
