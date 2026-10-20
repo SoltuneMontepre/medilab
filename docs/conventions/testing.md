@@ -43,6 +43,7 @@ How tests are written, where they live and how they run.
 
 - A test file is named `<feature>.cy.js` under `src/tests/cypress/e2e/`.
 - Every feature has a browser test of its main path, written with the feature: it signs in as the demo user of the role that does the work, such as `demo.tester`, and walks the main path on the demo data.
+- A test signs in with `signIn(<login>)` from `cypress/support/session.js`, which types the demo password from `MEDILAB_DEMO_PASSWORD`, default `demo`.
 - Tests use the app address `MEDILAB_URL`, default `http://localhost:8069`.
 - Tests do not depend on data a previous test created.
 - The task unsets `ELECTRON_RUN_AS_NODE`, which editors such as VS Code set and which stops Cypress from starting.
