@@ -1,5 +1,7 @@
 from ast import literal_eval
 
+from odoo.tests import new_test_user
+
 from .result_case import ResultCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT
 
@@ -28,6 +30,12 @@ class ReportCase(ResultCase):
             login="hai.dang",
             permissions=("test_report.read.all", "test_report.edit.all", "test_request.read.all"),
         )
+
+    @classmethod
+    def portal_user(cls):
+        """The portal user of a contact of the customer, who downloads its issued reports."""
+        contact = cls.env["res.partner"].create({"name": "Nguyen Thi Hoa", "parent_id": cls.customer.partner_id.id})
+        return new_test_user(cls.env, "hoa.portal", groups="base.group_portal", partner_id=contact.id)
 
     def complete(self, test=None, **values):
         """Enter, send and approve the reported result of the test."""

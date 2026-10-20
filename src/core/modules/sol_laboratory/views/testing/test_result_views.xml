@@ -4,10 +4,12 @@
         <field name="name">medilab.test.result.list</field>
         <field name="model">medilab.test.result</field>
         <field name="arch" type="xml">
-            <list create="0" delete="0" decoration-muted="not is_reported">
+            <list create="0" delete="0" decoration-muted="not is_reported or is_replaced">
                 <field name="sample_id" />
                 <field name="parameter_id" />
                 <field name="attempt" />
+                <field name="version" optional="show" />
+                <field name="is_replaced" column_invisible="1" />
                 <field name="value_display" />
                 <field name="unit_id" />
                 <field name="conclusion" />
@@ -60,6 +62,14 @@
                         class="btn-secondary"
                         invisible="not approval_can_withdraw"
                     />
+                    <button
+                        name="%(action_medilab_change_request_raise)d"
+                        type="action"
+                        string="Request a Change"
+                        context="{'default_document_model': 'medilab.test.result', 'default_document_id': id}"
+                        invisible="is_replaced or not (status == 'approved' or (status == 'rejected' and replaces_id))"
+                        groups="sol_laboratory.group_permission_test_result_edit_all"
+                    />
                     <field name="status" widget="statusbar" statusbar_visible="none,requested,approved" />
                 </header>
                 <sheet>
@@ -70,6 +80,9 @@
                         <group>
                             <field name="sample_test_id" readonly="1" force_save="1" />
                             <field name="attempt" invisible="not id" />
+                            <field name="version" invisible="not id" />
+                            <field name="replaces_id" invisible="not replaces_id" />
+                            <field name="is_replaced" invisible="not is_replaced" />
                             <field name="is_reported" invisible="not id" />
                             <field name="entered_by_id" invisible="not id" />
                             <field name="entered_at" invisible="not id" />

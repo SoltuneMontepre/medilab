@@ -42,7 +42,7 @@ The [medilab Trello board](https://trello.com/b/mk5Pnyu3/medilab) holds business
    - **Purpose:** what the feature lets someone do.
    - **Description:** what to build as a checklist: models with their tables from the diagram, views, menus, access rules. Then the rules that apply to every part, the conventions to follow and what is out of scope.
    - **Demo data:** the records the feature adds to the `sol_demo` module, following [demo data](../conventions/demo_data.md): a record in each status and the cases the acceptance criteria name.
-   - **Acceptance criteria:** the feature's acceptance criteria from its document as a checklist, plus tests that cover them.
+   - **Acceptance criteria:** the feature's acceptance criteria from its document as a checklist, plus tests that cover them and a browser test of the feature's main path.
    - **References:** the spec, then the documents, diagram and existing code. Link documents on `main`; if they are only in an open pull request, say the issue is read after it is merged.
 4. **Ask who to assign**, from the people below, as a lettered list the owner answers with letters, such as "A, C". F is nobody.
 5. **Create the issue** once the owner has seen the title and summary: `gh issue create --title "<title>" --body-file <file> --assignee <login>`. Then set the issue type to Feature.

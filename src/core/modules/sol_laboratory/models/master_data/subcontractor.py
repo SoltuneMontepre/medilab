@@ -6,6 +6,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_CONTACT_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_SUBCONTRACTOR,
 )
@@ -16,7 +17,14 @@ RES_PARTNER = "res.partner"
 # Thầu Phụ
 class Subcontractor(models.Model):
     _name = MODEL_SUBCONTRACTOR
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_ARCHIVE_MIXIN, MODEL_CODE_MIXIN, MODEL_CONTACT_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [
+        MODEL_PERMISSION_MIXIN,
+        MODEL_LOCK_MIXIN,
+        MODEL_ARCHIVE_MIXIN,
+        MODEL_CODE_MIXIN,
+        MODEL_CONTACT_MIXIN,
+        MODEL_AUDIT_MIXIN,
+    ]
     _inherits = {RES_PARTNER: "partner_id"}
     _description = "Subcontractor"
     _order = "code"

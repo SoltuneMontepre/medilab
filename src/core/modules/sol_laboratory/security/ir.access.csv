@@ -7,6 +7,9 @@ access_medilab_parameter_group_user,medilab.parameter.group user,medilab.paramet
 access_medilab_parameter_method_user,medilab.parameter.method user,medilab.parameter.method,base.group_user,r,
 access_medilab_parameter_method_machine_user,medilab.parameter.method.machine user,medilab.parameter.method.machine,base.group_user,r,
 access_medilab_quality_registration_user,medilab.quality.registration user,medilab.quality.registration,base.group_user,r,
+access_medilab_accreditation_certificate_user,medilab.accreditation.certificate user,medilab.accreditation.certificate,base.group_user,r,
+access_medilab_accreditation_certificate_import_user,medilab.accreditation.certificate.import user,medilab.accreditation.certificate.import,base.group_user,crud,
+access_medilab_accreditation_certificate_import_line_user,medilab.accreditation.certificate.import.line user,medilab.accreditation.certificate.import.line,base.group_user,crud,
 access_medilab_regulation_user,medilab.regulation user,medilab.regulation,base.group_user,r,
 access_medilab_regulation_limit_user,medilab.regulation.limit user,medilab.regulation.limit,base.group_user,r,
 access_medilab_sample_type_user,medilab.sample.type user,medilab.sample.type,base.group_user,r,
@@ -14,6 +17,7 @@ access_medilab_subcontractor_user,medilab.subcontractor user,medilab.subcontract
 access_medilab_test_parameter_user,medilab.test.parameter user,medilab.test.parameter,base.group_user,r,
 access_medilab_testing_field_user,medilab.testing.field user,medilab.testing.field,base.group_user,r,
 access_medilab_testing_method_user,medilab.testing.method user,medilab.testing.method,base.group_user,r,
+access_medilab_testing_method_step_user,medilab.testing.method.step user,medilab.testing.method.step,base.group_user,r,
 access_medilab_unit_category_user,medilab.unit.category user,medilab.unit.category,base.group_user,r,
 access_medilab_task_type_user,medilab.task.type user,medilab.task.type,base.group_user,r,
 access_medilab_task_assignee,medilab.task assignee,medilab.task,base.group_user,r,"[('assignee_id.user_id', '=', user.id)]"
@@ -34,3 +38,6 @@ access_medilab_push_delivery_user,medilab.push.delivery user,medilab.push.delive
 access_medilab_push_delivery_system,medilab.push.delivery system,medilab.push.delivery,base.group_system,crud,
 access_medilab_sample_scan_user,medilab.sample.scan user,medilab.sample.scan,base.group_user,crud,
 access_medilab_machine_booking_person,medilab.machine.booking person,medilab.machine.booking,base.group_user,r,"[('person_id.user_id', '=', user.id)]"
+access_medilab_change_request_requester,medilab.change.request requester,medilab.change.request,base.group_user,r,"[('requested_by_id.user_id', '=', user.id)]"
+access_medilab_change_request_raise_user,medilab.change.request.raise user,medilab.change.request.raise,base.group_user,crud,
+access_medilab_change_request_reject_user,medilab.change.request.reject user,medilab.change.request.reject,base.group_user,crud,

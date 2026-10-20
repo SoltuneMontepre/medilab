@@ -45,7 +45,8 @@ class AuditChange(models.Model):
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_audit_change(self):
-        raise UserError(self.env._("Audit changes cannot be deleted."))
+        if not self.env[MODEL_AUDIT_ENTRY]._removed_by_cleanup():
+            raise UserError(self.env._("Audit changes cannot be deleted."))
 
     def _refuse_change(self):
         raise UserError(self.env._("Audit changes cannot be changed."))

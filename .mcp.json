@@ -43,6 +43,8 @@
       "type": "stdio",
       "command": "uvx",
       "args": [
+        "--python",
+        "3.13",
         "--with",
         "mcp<2",
         "postgres-mcp==0.3.0",
@@ -60,9 +62,9 @@
         "--config",
         "dev",
         "--",
-        "sh",
-        "-c",
-        "CONTEXT7_API_KEY=$CONTEXT7_TOKEN exec npx -y @upstash/context7-mcp"
+        "node",
+        "-e",
+        "process.env.CONTEXT7_API_KEY = process.env.CONTEXT7_TOKEN; require('child_process').spawn('npx -y @upstash/context7-mcp', { stdio: 'inherit', shell: true }).on('exit', process.exit)"
       ]
     },
     "serena": {

@@ -1,4 +1,7 @@
 from . import (
+    accreditation_certificate,
+    accreditation_certificate_import,
+    accreditation_certificate_import_line,
     chemical,
     customer,
     machine,
@@ -17,5 +20,6 @@ from . import (
     test_parameter,
     testing_field,
     testing_method,
+    testing_method_step,
     unit_category,
 )

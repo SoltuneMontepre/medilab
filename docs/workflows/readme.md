@@ -12,3 +12,4 @@ Step-by-step procedures for recurring tasks.
 - [Setting up](setting-up.md): install the modules and configure the company, languages, settings and code formats
 - [Moving a node](moving-node.md): replace a production node, such as the Azure witness, with another machine without stopping the system
 - [Odoo intelligence](odoo-intelligence.md): install and verify Odoo navigation across coding clients and isolated worktrees
+- [Reviewing task links](reviewing-task-links.md): after the upgrade that locks task links, review the tasks the audit trail cannot verify before calling production secure

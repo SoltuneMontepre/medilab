@@ -132,6 +132,18 @@
                         <field name="document_model" invisible="1" />
                         <field name="document_id" invisible="1" />
                     </group>
+                    <notebook>
+                        <page string="Method Steps" name="method_steps" invisible="document_model != 'medilab.sample.test'">
+                            <field name="method_step_ids" readonly="1">
+                                <list create="0" delete="0" edit="0">
+                                    <field name="sequence" />
+                                    <field name="duration_minutes" />
+                                    <field name="instruction" />
+                                    <field name="note" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>

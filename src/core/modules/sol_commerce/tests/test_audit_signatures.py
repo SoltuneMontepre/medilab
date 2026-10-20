@@ -18,11 +18,6 @@ class TestAuditSignatures(AuditLookup, OrderCase):
         )
         cls.sales_level, cls.head_level = cls.chain.level_ids.sorted("sequence")
 
-    def requested_order(self):
-        order = self.make_confirmed_order()
-        order.with_user(self.sales).action_request_approval()
-        return order
-
     def test_each_signature_is_an_entry_and_the_last_one_approves(self):
         order = self.requested_order()
 

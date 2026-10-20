@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_production_lot_form_medilab" model="ir.ui.view">
+        <field name="name">stock.lot.form.medilab</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_containers" type="object" class="oe_stat_button" icon="science">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Containers</span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//div[hasclass('oe_title')]/h1" position="after">
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-success="status == 'available'"
+                    decoration-danger="status == 'expired'"
+                    decoration-muted="status == 'disposed'"
+                />
+            </xpath>
+            <xpath expr="//field[@name='ref']" position="after">
+                <field name="certificate_id" widget="many2one_binary" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_production_lot_tree_medilab" model="ir.ui.view">
+        <field name="name">stock.lot.list.medilab</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_qty']" position="before">
+                <field
+                    name="status"
+                    widget="badge"
+                    decoration-success="status == 'available'"
+                    decoration-danger="status == 'expired'"
+                    decoration-muted="status == 'disposed'"
+                    optional="show"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

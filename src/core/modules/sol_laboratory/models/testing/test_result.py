@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.approvals import (
 )
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_MIXIN,
+    MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MAIL_MESSAGE,
     MODEL_MEASUREMENT_UNIT,
@@ -37,6 +38,16 @@ TEST_STATUS_BY_STATE = {
     STATE_APPROVED: "approved",
     STATE_REJECTED: "testing",
 }
+# The limit copied from the regulation, which a new version copies from the version it replaces.
+LIMIT_FIELDS = (
+    "limit_unit_id",
+    "limit_min_set",
+    "limit_min",
+    "limit_max_set",
+    "limit_max",
+    "limit_decimals",
+    "limit_text",
+)
 # What the tester enters, and the unit and limit copied with it: edits stop once a signature stands.
 CONTENT_FIELDS = frozenset(
     {
@@ -47,13 +58,7 @@ CONTENT_FIELDS = frozenset(
         "started_at",
         "conclusion",
         "unit_id",
-        "limit_unit_id",
-        "limit_min_set",
-        "limit_min",
-        "limit_max_set",
-        "limit_max",
-        "limit_decimals",
-        "limit_text",
+        *LIMIT_FIELDS,
     }
 )
 
@@ -61,7 +66,7 @@ CONTENT_FIELDS = frozenset(
 # Kết Quả Thử Nghiệm
 class TestResult(models.Model):
     _name = MODEL_TEST_RESULT
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_APPROVAL_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_LOCK_MIXIN, MODEL_APPROVAL_MIXIN]
     _description = "Test Result"
     _order = "sample_test_id, attempt desc, version desc"
     # A result is signed, never archived or deleted.
@@ -147,7 +152,7 @@ class TestResult(models.Model):
     # The version this result replaces; empty for version 1.
     replaces_id = fields.Many2one(MODEL_TEST_RESULT, readonly=True, copy=False, ondelete="restrict")
     # True when a newer version replaces this result.
-    is_replaced = fields.Boolean(readonly=True, copy=False)
+    is_replaced = fields.Boolean(string="Replaced", readonly=True, copy=False)
 
     _attempt_unique = models.Constraint(
         "UNIQUE(sample_test_id, attempt, version)", "A sample test has one result per attempt and version."
@@ -171,7 +176,7 @@ class TestResult(models.Model):
     @api.depends("sample_test_id")
     def _compute_unit(self):
         for result in self:
-            result.unit_id = result._way_of_testing().unit_id
+            result.unit_id = (result.replaces_id or result._way_of_testing()).unit_id
 
     @api.depends("sample_test_id")
     def _compute_value_decimals(self):
@@ -182,6 +187,10 @@ class TestResult(models.Model):
     def _compute_limit(self):
         # Only the sample test is a dependency, so a later change to the regulation leaves the copy as it was.
         for result in self:
+            if result.replaces_id:
+                # A new version keeps the limit copied with the version it replaces.
+                result.update({name: result.replaces_id[name] for name in LIMIT_FIELDS})
+                continue
             limit = result._regulation_limit()
             result.limit_unit_id = limit.unit_id
             result.limit_min_set = limit.min_set
@@ -215,6 +224,9 @@ class TestResult(models.Model):
             if not self.env.su:
                 for name in SYSTEM_FIELDS:
                     vals.pop(name, None)
+            if vals.get("replaces_id"):
+                # A new version is the system's copy of the result it replaces, not a measurement.
+                continue
             test = self.env[MODEL_SAMPLE_TEST].browse(vals.get("sample_test_id")).sudo()
             if test.status not in MEASURABLE_STATUSES or test.sample_id.status not in OPEN_SAMPLE_STATUSES:
                 raise UserError(
@@ -238,7 +250,8 @@ class TestResult(models.Model):
             reported.flush_recordset(["is_reported"])
         results = super().create(vals_list)
         results._copy_limit_translations()
-        tests = results.sample_test_id.sudo()
+        entered = results.filtered(lambda result: not result.replaces_id)
+        tests = entered.sample_test_id.sudo()
         tests._start()
         # Entering the result is when the measurement is done; a booking still waiting for a slot is not needed.
         bookings = tests.booking_ids._open()
@@ -291,10 +304,10 @@ class TestResult(models.Model):
         # The computed copy holds one language; the report needs the limit text in each.
         langs = [code for code, _name in self.env["res.lang"].get_installed()]
         for result in self.sudo():
-            limit = result._regulation_limit()
-            if limit.limit_text:
+            source = result.replaces_id or result._regulation_limit()
+            if source.limit_text:
                 result.update_field_translations(
-                    "limit_text", {lang: limit.with_context(lang=lang).limit_text for lang in langs}
+                    "limit_text", {lang: source.with_context(lang=lang).limit_text for lang in langs}
                 )
 
     def _approval_check_actor(self, rejecting=False):
@@ -310,7 +323,8 @@ class TestResult(models.Model):
         return levels[:1] if len(levels) > 1 else levels.browse()
 
     def _approval_department(self):
-        return self.sample_test_id._testing_task().department_id
+        # The department that tested it, also once its testing task is done, for the change requests on it.
+        return self.sample_test_id._tested_by()
 
     def _approval_content_fields(self):
         return CONTENT_FIELDS
@@ -319,6 +333,33 @@ class TestResult(models.Model):
         # The head's approval or rejection is final: a rejected result stays on record and a retest adds a new one.
         # Only the lab head's rejection of the report sends an approved result back.
         return self.status in (STATE_APPROVED, STATE_REJECTED)
+
+    def _change_request_open(self):
+        # A rejected result is corrected by a retest, but a rejected correction may belong to a reported sample, which
+        # takes no retest, so it is corrected again by a change request.
+        return not self.is_replaced and (
+            self.status == STATE_APPROVED or (self.status == STATE_REJECTED and bool(self.replaces_id))
+        )
+
+    def _new_version(self, change_request):
+        """Replace the result by its next version, unsigned and reported in its place; its test goes back to testing in
+        the queue of the department that tested it, with the change to make."""
+        self.ensure_one()
+        result = self.sudo()
+        result.is_replaced = True
+        result.flush_recordset(["is_replaced"])
+        version = result.copy(
+            {
+                "attempt": result.attempt,
+                "is_reported": result.is_reported,
+                "version": result.version + 1,
+                "replaces_id": result.id,
+            }
+        )
+        test = version.sample_test_id
+        test._progress(test._work_status())
+        test._open_testing_task(test._tested_by(), change_request.requested_change)
+        return version
 
     def _approval_set_state(self, state):
         self.status = state

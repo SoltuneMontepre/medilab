@@ -80,12 +80,14 @@ The customer decides **what** they are told about and **where**.
 | Choice        | Options                                                                                                               |
 | ------------- | --------------------------------------------------------------------------------------------------------------------- |
 | What          | Per event type: order updates (submitted, claimed, cancelled), quotation sent, invoice and payment, results released. |
-| Where         | Per event type: email, SMS, in-portal notification. Each event can use one or several channels.                       |
+| Where         | Per event type: email and in-portal notification. Each event can use one or several channels.                         |
 | Which contact | For a business, the contact who receives the notification (see Company contacts).                                     |
 
 Rules:
 
-- Every event has a sensible default so a new customer is notified without configuring anything.
+- A new customer is notified by email without configuring anything.
+- The preferences page lists the invoice and payment events one by one. An event the customer must receive is shown, switched on and locked.
+- A business sends each event to one of its contacts, or to the contact the document names when it chooses none. That contact is notified by email. An event the customer must receive also reaches the contact the document names.
 - Notifications the customer must receive, such as password reset and payment receipts, cannot be turned off.
 - Preferences apply to future notifications only.
 
@@ -99,6 +101,9 @@ Acceptance criteria:
 - A business customer can add, edit and remove contacts, and pick one as the contact of an order from a dropdown.
 - A customer can upload a logo, see it on their documents, and remove it.
 - A customer can choose which events they are notified about and through which channel, and a changed preference applies to the next notification.
+- A notification the customer must receive cannot be turned off.
+- A new customer is notified by email without configuring anything.
+- A business can choose which of its contacts receives an event.
 - Identity fields already submitted are not asked again.
 
 ### 2. Placing an order (US-C08 to US-C12)
@@ -236,6 +241,8 @@ The customer receives one notification per event, through the channels chosen in
 | Invoice posted                           | Invoice                                     |
 | Payment received                         | Payment receipt                             |
 | Results released                         | Results ready                               |
+
+The results of an order are released on the order, to the order's contact, once for each issued report. A test request the laboratory took without an order tells the customer on its report instead.
 
 ### 6. Support and feedback (US-C20, US-C21)
 

@@ -126,6 +126,10 @@ model Contact {
   ratings            Rating[]       @relation("RatingCustomer")
   /// Ratings of orders this contact sold as salesperson.
   rated_ratings      Rating[]       @relation("RatingSalesperson")
+  /// Events this business sends to one of its contacts.
+  notification_contacts NotificationContact[] @relation("NotificationBusiness")
+  /// Events this contact receives for its business.
+  notification_routes NotificationContact[] @relation("NotificationReceiver")
 
   @@map("res_partner")
 }
@@ -328,10 +332,30 @@ model SaleOrder {
   submitted_at      DateTime?
   /// When a salesperson claimed the order.
   claimed_at        DateTime?
+  /// When the first quotation of the order was sent.
+  quoted_at         DateTime?
+  /// When the customer accepted the quotation, by paying the advance or accepting one sent without.
+  accepted_at       DateTime?
+  /// When the Head of Sales approved the order; empty while it is not approved.
+  approved_at       DateTime?
+  /// unclaimed, draft, sent, accepted, awaiting_approval or approved: the order's stage in the sales pipeline; empty for a cart and for declined, completed and cancelled orders.
+  pipeline_stage    String?               @db.VarChar
+  /// Quotations sent for the order, revisions included.
+  quotation_sent_count Int?
+  /// Quotations the customer accepted.
+  quotation_accepted_count Int?
+  /// Quotations the customer declined, including those a revision replaced since.
+  quotation_declined_count Int?
+  /// Total excluding VAT once the order is confirmed; 0 before and once it is cancelled.
+  revenue           Decimal?              @db.Decimal
   /// When sales confirmed the order: Odoo's order date once confirmed.
   date_order        DateTime
   /// The date the customer expects the results.
   expected_result_date DateTime?          @db.Date
+  /// The earliest date the laboratory estimated it can return the results, worked out when the quotation's samples or parameters change.
+  estimated_result_date DateTime?         @db.Date
+  /// True when the customer asked for results earlier than the estimate and the laboratory's check said it can meet them.
+  priority          Boolean               @default(false)
   /// When the advance must be paid; 3 days after sending by default, set by sales.
   payment_deadline  DateTime?
   /// online, bank_transfer, cash, or none when the Head of Sales sends without an advance.
@@ -362,6 +386,10 @@ model SaleOrder {
   reordered_from    SaleOrder?            @relation("Reorders", fields: [reordered_from_id], references: [id], onDelete: SetNull)
   /// Orders reordered from this one.
   reorders          SaleOrder[]           @relation("Reorders")
+  /// Templates saved from this order.
+  templates         OrderTemplate[]
+  /// Unavailable selections and reasons recorded when an order is created from a template.
+  template_omission_note String? @db.Text
   /// Samples the customer will send.
   samples           OrderSample[]
   /// Parameters and packages in the order, with their prices.
@@ -381,6 +409,7 @@ model SaleOrder {
   @@index([order_status, submitted_at])
   @@index([user_id, order_status])
   @@index([quotation_follow_up])
+  @@index([pipeline_stage])
   @@map("sale_order")
 }
 
@@ -521,16 +550,21 @@ model OrderTemplate {
   id          Int                 @id @default(autoincrement())
   /// The customer the template belongs to.
   customer_id Int
+  /// The original order whose current assignment and read access authorize this template.
+  source_order_id Int
   /// Template name, such as "Monthly water check".
   name        String              @db.VarChar
   /// False when the template is archived.
   active      Boolean             @default(true)
   /// The customer the template belongs to.
   customer    Customer            @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  /// The original order; deleting it is refused while a template refers to it.
+  source_order SaleOrder @relation(fields: [source_order_id], references: [id], onDelete: Restrict)
   /// Parameters and packages in the template.
   lines       OrderTemplateLine[]
 
   @@index([customer_id])
+  @@index([source_order_id])
   @@map("medilab_order_template")
 }
 
@@ -543,7 +577,7 @@ model OrderTemplateLine {
   /// The parameter or package product.
   product_id  Int
   /// How many times it is ordered; at least 1.
-  quantity    Int           @default(1)
+  quantity    Float         @default(1)
   /// The template.
   template    OrderTemplate @relation(fields: [template_id], references: [id], onDelete: Cascade)
   /// The parameter or package product.
@@ -588,6 +622,10 @@ model Invoice {
   amount_residual Decimal       @db.Decimal
   /// not_paid, partial, in_payment or paid, from the payments reconciled with it.
   payment_state   String        @db.VarChar
+  /// True once the invoice was emailed to the customer.
+  is_move_sent    Boolean       @default(false)
+  /// When the invoice first went to the customer; collection reports count the days to payment from it.
+  sent_at         DateTime?
   /// The order invoiced.
   order           SaleOrder     @relation(fields: [order_id], references: [id], onDelete: Restrict)
   /// The contact the invoice is addressed to.
@@ -833,4 +871,38 @@ model Rating {
   @@index([order_id])
   @@index([rated_partner_id])
   @@map("rating_rating")
+}
+
+/// Odoo's message subtype (mail_message_subtype), shown with the columns this module uses: one event a customer is notified of.
+model NotificationEvent {
+  /// Row identifier.
+  id      Int                   @id @default(autoincrement())
+  /// Unique code of the event, such as order.updated.
+  code    String                @unique @db.VarChar
+  /// Contacts that receive this event for their business.
+  routes  NotificationContact[]
+
+  @@map("mail_message_subtype")
+}
+
+/// The contact of a business that receives one event instead of the contact the document names. Unique on (partner_id, event_id); the contact belongs to the business.
+model NotificationContact {
+  /// Row identifier.
+  id         Int               @id @default(autoincrement())
+  /// The business customer.
+  partner_id Int
+  /// The event.
+  event_id   Int
+  /// The contact of the business who receives the event.
+  contact_id Int
+  /// The business customer.
+  partner    Contact           @relation("NotificationBusiness", fields: [partner_id], references: [id], onDelete: Cascade)
+  /// The event.
+  event      NotificationEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  /// The contact of the business who receives the event.
+  contact    Contact           @relation("NotificationReceiver", fields: [contact_id], references: [id], onDelete: Cascade)
+
+  @@unique([partner_id, event_id])
+  @@index([event_id])
+  @@map("medilab_notification_contact")
 }

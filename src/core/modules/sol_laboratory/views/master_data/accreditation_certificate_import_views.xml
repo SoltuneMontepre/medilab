@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_accreditation_certificate_import_form" model="ir.ui.view">
+        <field name="name">medilab.accreditation.certificate.import.form</field>
+        <field name="model">medilab.accreditation.certificate.import</field>
+        <field name="arch" type="xml">
+            <form string="Import Methods">
+                <group>
+                    <field name="certificate_id" readonly="1" />
+                    <field name="field_id" />
+                    <field name="lang" />
+                </group>
+                <field name="line_ids">
+                    <list editable="bottom">
+                        <field name="code" />
+                        <field name="name" />
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_import" type="object" string="Import" class="btn-success" />
+                    <button string="Cancel" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

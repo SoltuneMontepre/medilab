@@ -8,7 +8,6 @@
         <field name="lod">0.01</field>
         <field name="loq">0.03</field>
         <field name="result_decimals">3</field>
-        <field name="is_accredited" eval="True" />
         <field name="is_default" eval="True" />
     </record>
     <record id="demo_parameter_method_lead_icpms" model="medilab.parameter.method">
@@ -28,7 +27,6 @@
         <field name="lod">0.05</field>
         <field name="loq">0.15</field>
         <field name="result_decimals">2</field>
-        <field name="is_accredited" eval="True" />
     </record>
     <record id="demo_parameter_method_coliforms_mpn" model="medilab.parameter.method">
         <field name="parameter_id" ref="demo_test_parameter_coliforms" />
@@ -36,7 +34,6 @@
         <field name="unit_id" ref="demo_measurement_unit_mpn_100ml" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
         <field name="result_decimals">0</field>
-        <field name="is_accredited" eval="True" />
         <field name="is_default" eval="True" />
     </record>
     <record id="demo_parameter_method_coliforms_colony" model="medilab.parameter.method">
@@ -52,7 +49,6 @@
         <field name="unit_id" ref="demo_measurement_unit_cfu_100ml" />
         <field name="department_id" ref="demo_hr_department_microbiology" />
         <field name="result_decimals">0</field>
-        <field name="is_accredited" eval="True" />
         <field name="is_default" eval="True" />
     </record>
     <record id="demo_parameter_method_e_coli_colony" model="medilab.parameter.method">
@@ -68,7 +64,6 @@
         <field name="unit_id" ref="demo_measurement_unit_ph" />
         <field name="department_id" ref="demo_hr_department_chemistry" />
         <field name="result_decimals">1</field>
-        <field name="is_accredited" eval="True" />
         <field name="is_default" eval="True" />
     </record>
     <record id="demo_parameter_method_ph_soil" model="medilab.parameter.method">

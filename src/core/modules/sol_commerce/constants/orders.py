@@ -12,6 +12,7 @@ STATUS_CANCELLED = "cancelled"
 
 CUSTOMER_CANCELLABLE = (STATUS_DRAFT, STATUS_SUBMITTED, STATUS_CLAIMED)
 FINISHED_STATUSES = (STATUS_COMPLETED, STATUS_CANCELLED)
+NOTIFIED_STATUSES = (STATUS_SUBMITTED, STATUS_CLAIMED, STATUS_CANCELLED)
 
 APPROVAL_NONE = "none"
 APPROVAL_APPROVED = "approved"
@@ -61,10 +62,12 @@ FROZEN_SAMPLE_FIELDS = frozenset(
 
 PORTAL_LOCKED_ORDER_FIELDS = frozenset(
     {
+        "accepted_at",
         "advance_method",
         "advance_mode",
         "advance_value",
         "approval_status",
+        "approved_at",
         "claimed_at",
         "customer_id",
         "expected_result_date",

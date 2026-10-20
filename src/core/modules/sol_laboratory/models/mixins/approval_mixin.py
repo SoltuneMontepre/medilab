@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_MIXIN,
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_DOCUMENT_LOCK,
     MODEL_PERSON,
     MODEL_SIGNATURE,
 )
@@ -52,6 +53,11 @@ class ApprovalMixin(models.AbstractModel):
 
     def action_sign(self):
         self.ensure_one()
+        # Signing may issue the document; a second click is refused while the first signature is recorded.
+        with self.env[MODEL_DOCUMENT_LOCK]._operation(self):
+            self._approval_sign()
+
+    def _approval_sign(self):
         level = self._approval_check_actor()
         self._approval_record(level, DECISION_SIGNED)
         self._audit("sign", level.name)
@@ -92,11 +98,11 @@ class ApprovalMixin(models.AbstractModel):
             document._approval_set_state(STATE_NONE)
             document._approval_reopened()
 
-    def _approval_chain(self):
+    def _approval_chain(self, purpose=PURPOSE_SIGNING):
         return (
             self.env[MODEL_APPROVAL_CHAIN]
             .sudo()
-            .search([("document_model", "=", self._name), ("purpose", "=", PURPOSE_SIGNING)], limit=1)
+            .search([("document_model", "=", self._name), ("purpose", "=", purpose)], limit=1)
         )
 
     def _approval_requester(self):
@@ -109,6 +115,11 @@ class ApprovalMixin(models.AbstractModel):
         return frozenset()
 
     def _approval_process_completed(self):
+        return False
+
+    def _change_request_open(self):
+        """True when a change request can be raised on the document now. Types that take change requests override it,
+        and _new_version(change_request), which creates the version an approved request asks for."""
         return False
 
     def _approval_set_state(self, state):
