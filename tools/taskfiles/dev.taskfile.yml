@@ -4,7 +4,7 @@ vars:
   PROJECT_DIR: src/core
   UV: uv --project {{.PROJECT_DIR}}
   ODOO_SOURCE_DIR: .local/odoo-source
-  ODOO_SOURCE_REVISION: 17ff827a18248397342e73bb2bcac48e2b8e1027
+  ODOO_SOURCE_REVISION: 7434faa93558d4f46fdda77acd1be4dfc663ea7c
   ODOO_ADDONS: [web, account, auth_signup, portal]
   MODULES_DIR: src/core/modules
   LINT_TARGET: "{{.MODULES_DIR}}"
