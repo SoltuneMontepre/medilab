@@ -38,9 +38,8 @@ jobs:
 
   lint:
     needs: changes
-    if: needs.changes.outputs.relevant == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: read
       actions: write
@@ -49,24 +48,47 @@ jobs:
         working-directory: ${{ env.SYNC_APP_DIR }}
     steps:
       - name: Checkout
+        if: needs.changes.outputs.relevant == 'true'
         uses: actions/checkout@v7
 
       - name: Set up Rust
+        if: needs.changes.outputs.relevant == 'true'
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt
+          components: rustfmt, clippy
 
       - name: Rust format
+        if: needs.changes.outputs.relevant == 'true'
         run: cargo fmt --check --manifest-path src-tauri/Cargo.toml
 
+      - name: Cache Rust build
+        if: needs.changes.outputs.relevant == 'true'
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
+          key: lint
+
+      - name: Install Linux build dependencies
+        if: needs.changes.outputs.relevant == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
       - name: Set up Bun
+        if: needs.changes.outputs.relevant == 'true'
         uses: oven-sh/setup-bun@v2
 
       - name: Install frontend dependencies
+        if: needs.changes.outputs.relevant == 'true'
         run: bun install --frozen-lockfile --ignore-scripts
 
-      - name: Frontend tests
-        run: bun test
+      - name: Type check and build the frontend
+        if: needs.changes.outputs.relevant == 'true'
+        run: bun run build
+
+      - name: Clippy
+        if: needs.changes.outputs.relevant == 'true'
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings
 
       - name: Stop the run
         if: failure()
@@ -74,8 +96,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
 
-  build:
-    name: build (${{ matrix.label }})
+  compile:
+    name: compile (${{ matrix.label }})
     needs: changes
     if: needs.changes.outputs.relevant == 'true'
     runs-on: ${{ matrix.os }}
@@ -103,14 +125,12 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy
 
       - name: Cache Rust build
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
-          key: ${{ matrix.label }}
+          key: compile-${{ matrix.label }}
 
       - name: Install Linux build dependencies
         if: runner.os == 'Linux'
@@ -124,14 +144,11 @@ jobs:
       - name: Install frontend dependencies
         run: bun install --frozen-lockfile --ignore-scripts
 
-      - name: Build frontend
+      - name: Build the frontend
         run: bun run build
 
-      - name: Clippy
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings
-
-      - name: Rust tests
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+      - name: Compile
+        run: cargo build --manifest-path src-tauri/Cargo.toml --all-targets
 
       - name: Stop the run
         if: failure()
@@ -139,8 +156,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
 
-  sync-app:
-    needs: [changes, lint, build]
+  build:
+    needs: [changes, compile]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
@@ -154,13 +171,70 @@ jobs:
             exit 1
           fi
 
-      - name: Check the lint and builds
+      - name: Check the platform builds
         if: needs.changes.outputs.relevant == 'true'
         env:
-          LINT: ${{ needs.lint.result }}
-          BUILD: ${{ needs.build.result }}
+          RESULT: ${{ needs.compile.result }}
         run: |
-          if [ "$LINT" != success ] || [ "$BUILD" != success ]; then
-            echo "::error::lint finished with result $LINT and build with result $BUILD."
+          if [ "$RESULT" != success ]; then
+            echo "::error::The platform builds finished with result $RESULT."
             exit 1
           fi
+
+  test:
+    needs: changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: write
+    defaults:
+      run:
+        working-directory: ${{ env.SYNC_APP_DIR }}
+    steps:
+      - name: Checkout
+        if: needs.changes.outputs.relevant == 'true'
+        uses: actions/checkout@v7
+
+      - name: Set up Rust
+        if: needs.changes.outputs.relevant == 'true'
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        if: needs.changes.outputs.relevant == 'true'
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
+          key: test
+
+      - name: Install Linux build dependencies
+        if: needs.changes.outputs.relevant == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
+      - name: Set up Bun
+        if: needs.changes.outputs.relevant == 'true'
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install frontend dependencies
+        if: needs.changes.outputs.relevant == 'true'
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Frontend tests
+        if: needs.changes.outputs.relevant == 'true'
+        run: bun test
+
+      - name: Build the frontend
+        if: needs.changes.outputs.relevant == 'true'
+        run: bun run build
+
+      - name: Rust tests
+        if: needs.changes.outputs.relevant == 'true'
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+
+      - name: Stop the run
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
