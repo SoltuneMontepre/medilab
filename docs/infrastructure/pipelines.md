@@ -53,7 +53,8 @@ flowchart LR
 
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
-- The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image, when `infra/ansible/`, the Ansible Dockerfile or its `.dockerignore` changes. It uses no secrets and never reaches a node.
+- The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image, when `infra/ansible/` or `tools/ansible/` changes. It uses no secrets and never reaches a node.
+- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform` and `ansible` both passed.
 
 ## cd-ansible
 

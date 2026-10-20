@@ -99,3 +99,19 @@ jobs:
       - name: Ansible lint
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: docker run --rm -v "$PWD:/work" medilab-ansible:local ansible-lint
+
+  infrastructure:
+    needs: [terraform, ansible]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check the infrastructure jobs
+        env:
+          TERRAFORM: ${{ needs.terraform.result }}
+          ANSIBLE: ${{ needs.ansible.result }}
+        run: |
+          if [ "$TERRAFORM" != success ] || [ "$ANSIBLE" != success ]; then
+            echo "::error::terraform finished with result $TERRAFORM and ansible with result $ANSIBLE."
+            exit 1
+          fi
