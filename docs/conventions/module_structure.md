@@ -28,6 +28,7 @@ How code inside an Odoo module is laid out.
 | `purchasing`        | Purchase orders, their lines and signing, and receipts with what each lot line brings in                                                                                         |
 | `stock`             | Lots and containers, their statuses and QR labels                                                                                                                                |
 | `recipes`           | Recipes of prepared solutions and their ingredients                                                                                                                              |
+| `onboarding`        | Trusted sources, the organisations they list, sectors, collection runs, snapshots and staged records                                                                             |
 
 ## Files
 

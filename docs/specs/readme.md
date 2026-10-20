@@ -27,6 +27,7 @@ Stories: US-AD13, US-AD15
 - [Document locking](document-locking.md): how a document is locked while one user edits it or a long operation runs, how others see it, are told when it is free, and how locks are released
 - [Invoices](invoices.md): how advance, final and adjustment invoices use Odoo customer invoices, what is still owed, and who can post or correct them
 - [Odoo intelligence](odoo-intelligence.md): shared Odoo model and field navigation for editors and coding agents, with isolated worktree tooling
+- [Onboarding crawler](onboarding-crawler.md): how trusted sources are read safely through adapters and one fetcher, how runs queue their pages, and how staged records are matched, accepted and traced
 - [Payments](payments.md): how cash, bank transfer and PayOS payments are confirmed, rejected, receipted and reconciled by day
 - [PayOS](payos.md): how the PayOS provider, its signed webhook, its jobs and its payment links behave
 - [Permissions](permissions.md): how permission, role and person records become Odoo groups and accesses, and how the own-department scope is applied

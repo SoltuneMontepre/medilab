@@ -2,6 +2,7 @@
 
 - E-commerce and Inventory depend on Laboratory; Laboratory depends on neither.
 - The Medilab Theme module (`sol_theme`) depends on no MediLab module, and no MediLab module depends on it.
+- The Onboarding module (`sol_onboarding`) depends on Laboratory, and no MediLab module depends on it. It writes Laboratory master data only when an administrator accepts a staged record, and Laboratory does not know about it.
 - Customers, tasks and schedules belong to Laboratory, so they work without E-commerce. E-commerce keeps prices, taxes, service packages and each customer's sales terms.
 - Machines and chemical information belong to Laboratory. Departments and their teams belong to Laboratory. Inventory manages stock, stores, containers and their expiry, movement between stores, recipes, suppliers and purchasing, cost centres and budgets, how much of each item one test of a method uses, and which containers and lots each test result used.
 
@@ -19,6 +20,7 @@ MediLab is built on Odoo Community and extends its apps where they hold a concep
 | E-commerce | `sale`, `l10n_vn`, `rating`                         |
 | Inventory  | `stock_account`, `product_expiry`, `purchase_stock` |
 | Theme      | `web`                                               |
+| Onboarding | None beyond Laboratory's                            |
 
 Each module also has every app its own apps depend on: `mail`, `bus` and `resource` through `hr`; `account`, `account_payment`, `payment` and `product` through `sale`; `account_qr_code_emv` through `l10n_vn`; `stock`, `uom` and `purchase` through Inventory's apps.
 
@@ -69,7 +71,7 @@ People see the Odoo apps with their own menus, and MediLab adds its menus to the
 
 | App              | MediLab menus                                                                                                                                                                                                                                                                                                 |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Master Data      | Laboratory: test parameters, parameter groups, sample types, testing fields and methods, units, regulations, quality registrations, machines, chemicals and subcontractors. E-commerce: prices, taxes and service packages. Inventory: stock items, stores and locations, suppliers, recipes and cost centres |
+| Master Data      | Laboratory: test parameters, parameter groups, sample types, testing fields and methods, units, regulations, quality registrations, machines, chemicals and subcontractors. E-commerce: prices, taxes and service packages. Inventory: stock items, stores and locations, suppliers, recipes and cost centres. Onboarding: trusted sources, collection runs and staged records to review |
 | Laboratory       | Requests (test requests, change requests), Samples (samples, handover records, sample handovers, label scanning), Customers, Results (results and test reports), Schedule (machine schedules and outsourcing), analysis under its Reporting menu, and Settings under its Configuration menu |
 | Tasks            | The person's day, their tasks, the department queues and the queues they can claim from                                                                                                                                                                                                                       |
 | Audit Trail      | The audit trail and the audit report                                                                                                                                                                                                                                                                          |
