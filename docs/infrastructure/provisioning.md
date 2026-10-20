@@ -69,7 +69,7 @@ Every version is pinned and upgraded by changing it in the code:
 | -------------------------- | ---------------------------------------------------- |
 | k3s                        | `k3s_version` in the `k3s` role                      |
 | Argo CD chart              | `argocd_chart_version` in `argocd` role              |
-| ansible-core               | `tools/ansible/ansible.dockerfile`               |
+| ansible-core               | `tools/ansible/ansible.dockerfile`                   |
 | Collections                | `infra/ansible/requirements.yml`                     |
 | Everything Argo CD deploys | `infra/cluster/`; see [Cluster](cluster.md#versions) |
 
