@@ -1,4 +1,4 @@
-// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, audit, locks, notifications and scheduled jobs. Tables of the Odoo apps the module builds on (hr, resource, calendar, mail and base) appear with the columns the module uses and the columns it adds, under their Odoo table names. System parameters are Odoo settings stored in ir.config_parameter. Odoo owns the schema; this file only draws it.
+// Laboratory module tables as the Odoo ORM creates them: master data, test requests, samples, results, signing, tasks, scheduling, reports, change requests, audit, locks, notifications, scheduled jobs and laboratory files. Tables of the Odoo apps the module builds on (hr, resource, calendar, mail and base) appear with the columns the module uses and the columns it adds, under their Odoo table names. System parameters are Odoo settings stored in ir.config_parameter. Odoo owns the schema; this file only draws it.
 
 datasource db {
   provider = "postgresql"
@@ -283,7 +283,7 @@ model Location {
   @@map("medilab_location")
 }
 
-/// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận).
+/// An ISO 17025 accreditation certificate of the laboratory (Giấy chứng nhận công nhận). Trigram index on code serves search.
 model AccreditationCertificate {
   /// Row identifier.
   id           Int                             @id @default(autoincrement())
@@ -291,9 +291,9 @@ model AccreditationCertificate {
   code         String                          @unique @db.VarChar
   /// The body that issued the certificate.
   issuing_body String?                         @db.VarChar
-  /// First day the certificate is valid.
+  /// First day the certificate is valid; empty means valid from any date.
   valid_from   DateTime?                       @db.Date
-  /// Last day the certificate is valid.
+  /// Last day the certificate is valid; empty means valid until any date.
   valid_until  DateTime?                       @db.Date
   /// False when the certificate is archived.
   active       Boolean                         @default(true)
@@ -887,6 +887,8 @@ model Sample {
   handover_lines       HandoverRecordSample[]
   /// Photos of the sample taken when it was collected or received.
   photos               SamplePhoto[]
+  /// Laboratory folders of the sample.
+  folders              LaboratoryFolder[]
 
   @@index([request_id])
   @@index([sample_type_id])
@@ -1140,6 +1142,22 @@ model User {
   triggered_runs JobRun[]     @relation("JobTrigger")
   /// Mobile devices the user receives reminders on.
   devices    MobileDevice[]
+  /// Laboratory folders the user owns.
+  owned_folders      LaboratoryFolder[]         @relation("FolderOwner")
+  /// Laboratory folders the user is a member of.
+  folder_memberships LaboratoryFolderMember[]   @relation("FolderMember")
+  /// Laboratory file versions the user saved.
+  file_versions      LaboratoryFileVersion[]    @relation("VersionAuthor")
+  /// Laboratory file uploads the user made.
+  file_uploads       LaboratoryUpload[]         @relation("UploadUser")
+  /// Computers the user signs in to the laboratory folders from.
+  laboratory_devices LaboratoryDevice[]         @relation("LaboratoryDeviceUser")
+  /// Online editing sessions the user opened.
+  editing_sessions   LaboratoryEditingSession[] @relation("EditingOpener")
+  /// Laboratory file locks the user holds or held.
+  file_locks         LaboratoryFileLock[]       @relation("FileLockHolder")
+  /// Laboratory file locks the user released as an administrator.
+  released_file_locks LaboratoryFileLock[]      @relation("FileLockReleaser")
 
   @@map("res_users")
 }
@@ -2238,4 +2256,346 @@ model ArchiveFile {
 
   @@unique([kind, period_start, period_end])
   @@map("medilab_archive_file")
+}
+
+/// A folder of laboratory files: files under paths relative to it, owned by a person, with members who read and write it. It never stores a path on anyone's computer.
+model LaboratoryFolder {
+  /// Row identifier.
+  id               Int       @id @default(autoincrement())
+  /// Name people see.
+  name             String    @db.VarChar
+  /// Name of the folder, unique for its owner.
+  root             String    @db.VarChar
+  /// The user who owns the folder.
+  owner_id         Int
+  /// The sample the folder belongs to; empty for a folder of no sample.
+  sample_id        Int?
+  /// raw, working, result or report; empty for a folder of no sample.
+  category         String?   @db.VarChar
+  /// upload_only or two_way.
+  sync_mode        String    @db.VarChar
+  /// False when an administrator turned the folder off; uploads are refused and reading goes on.
+  enabled          Boolean   @default(true)
+  /// When the folder was archived; empty while in use.
+  archived_at      DateTime?
+  /// Date until which an archived folder keeps its files.
+  retention_until  DateTime? @db.Date
+  /// The device the folder was created from, for the audit.
+  created_by_device_id Int?
+  /// The user who owns the folder.
+  owner            User      @relation("FolderOwner", fields: [owner_id], references: [id], onDelete: Restrict)
+  /// The sample the folder belongs to.
+  sample           Sample?   @relation(fields: [sample_id], references: [id], onDelete: Restrict)
+  /// The device the folder was created from.
+  created_by_device LaboratoryDevice? @relation(fields: [created_by_device_id], references: [id], onDelete: SetNull)
+  /// People who can read and write the folder, the owner included.
+  members          LaboratoryFolderMember[]
+  /// Which files of a bound local folder are synced.
+  rules            LaboratorySyncRule[]
+  /// Files in the folder.
+  files            LaboratoryFile[]
+  /// Uploads into the folder.
+  uploads          LaboratoryUpload[]
+  /// Changes to the current versions of the folder's files, in order.
+  changes          LaboratoryFileChange[]
+
+  @@unique([owner_id, root])
+  @@index([sample_id])
+  @@map("medilab_laboratory_folder")
+}
+
+/// Links a folder to a person who can read and write it.
+model LaboratoryFolderMember {
+  /// Row identifier.
+  id        Int              @id @default(autoincrement())
+  /// The folder.
+  folder_id Int
+  /// The member.
+  user_id   Int
+  /// owner or member; the owner's row cannot be removed.
+  role      String           @db.VarChar
+  /// The folder.
+  folder    LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Cascade)
+  /// The member.
+  user      User             @relation("FolderMember", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([folder_id, user_id])
+  @@map("medilab_laboratory_folder_member")
+}
+
+/// A rule limiting which files of a bound local folder are synced.
+model LaboratorySyncRule {
+  /// Row identifier.
+  id        Int              @id @default(autoincrement())
+  /// The folder the rule limits.
+  folder_id Int
+  /// prefix, glob or extension.
+  kind      String           @db.VarChar
+  /// The name prefix, pattern with * or extension the file must match.
+  pattern   String           @db.VarChar
+  /// True when files in subfolders count too.
+  recursive Boolean          @default(true)
+  /// False when the rule is turned off.
+  enabled   Boolean          @default(true)
+  /// The folder the rule limits.
+  folder    LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Cascade)
+
+  @@index([folder_id])
+  @@map("medilab_laboratory_sync_rule")
+}
+
+/// A file in a laboratory folder: a series of versions, one of them current.
+model LaboratoryFile {
+  /// Row identifier.
+  id                 Int              @id @default(autoincrement())
+  /// The folder holding the file.
+  folder_id          Int
+  /// Path of the file relative to its folder, such as HPLC/run-01.csv.
+  path               String           @db.VarChar
+  /// The version people get; a restore adds a new version instead of pointing back at an old one.
+  current_version_id Int?             @unique
+  /// The folder holding the file.
+  folder             LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Restrict)
+  /// The version people get.
+  current_version    LaboratoryFileVersion? @relation("CurrentVersion", fields: [current_version_id], references: [id], onDelete: Restrict)
+  /// Every version of the file.
+  versions           LaboratoryFileVersion[] @relation("FileVersions")
+  /// Uploads of the file.
+  uploads            LaboratoryUpload[]
+  /// Changes to the file's current version.
+  changes            LaboratoryFileChange[]
+  /// Online editing sessions of the file.
+  editing_sessions   LaboratoryEditingSession[]
+  /// Locks taken on the file.
+  locks              LaboratoryFileLock[]
+
+  @@unique([folder_id, path])
+  @@map("medilab_laboratory_file")
+}
+
+/// One saved state of a file. Its number, content and origin never change once it is stored.
+model LaboratoryFileVersion {
+  /// Row identifier.
+  id                 Int            @id @default(autoincrement())
+  /// The file.
+  file_id            Int
+  /// Version number within the file, never reused.
+  number             Int
+  /// The version that was current when this one was made.
+  parent_version_id  Int?
+  /// The version a restore copied.
+  restored_from_id   Int?
+  /// synced, conflict, restored or edited_online.
+  source             String         @db.VarChar
+  /// Size of the content in bytes.
+  size               BigInt
+  /// SHA-256 of the content, in hexadecimal.
+  sha256             String         @db.VarChar
+  /// Key of the content in the bucket; versions with the same content share it.
+  storage_key        String         @db.VarChar
+  /// The user who saved the version.
+  user_id            Int
+  /// The device it came from; empty for a version made online or by a restore in the back office.
+  device_id          Int?
+  /// When the version was stored.
+  created_at         DateTime
+  /// The file.
+  file               LaboratoryFile @relation("FileVersions", fields: [file_id], references: [id], onDelete: Restrict)
+  /// The file whose current version this is.
+  current_of         LaboratoryFile? @relation("CurrentVersion")
+  /// The version that was current when this one was made.
+  parent_version     LaboratoryFileVersion? @relation("VersionParent", fields: [parent_version_id], references: [id], onDelete: Restrict)
+  /// Versions made from this one.
+  child_versions     LaboratoryFileVersion[] @relation("VersionParent")
+  /// The version a restore copied.
+  restored_from      LaboratoryFileVersion? @relation("VersionRestore", fields: [restored_from_id], references: [id], onDelete: Restrict)
+  /// Versions restored from this one.
+  restores           LaboratoryFileVersion[] @relation("VersionRestore")
+  /// The user who saved the version.
+  user               User           @relation("VersionAuthor", fields: [user_id], references: [id], onDelete: Restrict)
+  /// The device it came from.
+  device             LaboratoryDevice? @relation(fields: [device_id], references: [id], onDelete: Restrict)
+  /// Uploads based on this version.
+  based_uploads      LaboratoryUpload[] @relation("UploadBase")
+  /// The upload that stored this version.
+  upload             LaboratoryUpload? @relation("UploadResult")
+  /// Change rows announcing this version.
+  changes            LaboratoryFileChange[]
+  /// Editing sessions opened on this version.
+  editing_sessions   LaboratoryEditingSession[] @relation("EditingBase")
+  /// The editing session that saved this version.
+  saved_by_session   LaboratoryEditingSession? @relation("EditingResult")
+
+  @@unique([file_id, number])
+  @@index([storage_key])
+  @@map("medilab_laboratory_file_version")
+}
+
+/// An upload of a file's content straight to the bucket in parts, from the version it was based on.
+model LaboratoryUpload {
+  /// Row identifier.
+  id              Int              @id @default(autoincrement())
+  /// The folder uploaded to.
+  folder_id       Int
+  /// The file, once known; empty for a new path until it is finalized.
+  file_id         Int?
+  /// Path of the file relative to the folder.
+  path            String           @db.VarChar
+  /// The version the device's file was based on; empty for a new file.
+  base_version_id Int?
+  /// Size of the content in bytes.
+  size            BigInt
+  /// SHA-256 the device computed.
+  sha256          String           @db.VarChar
+  /// Key the content is uploaded to in the bucket.
+  storage_key     String           @db.VarChar
+  /// The bucket's id of the multipart upload; empty when the content was already stored.
+  multipart_id    String?          @db.VarChar
+  /// prepared, uploading, finalizing, completed, conflict, expired, aborted or failed.
+  status          String           @db.VarChar
+  /// True when the content already existed and no part was uploaded.
+  reused          Boolean          @default(false)
+  /// The version the upload stored.
+  version_id      Int?             @unique
+  /// The user uploading.
+  user_id         Int
+  /// The device uploading.
+  device_id       Int
+  /// When an unfinished upload expires and its parts are removed.
+  expires_at      DateTime
+  /// The folder uploaded to.
+  folder          LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Restrict)
+  /// The file.
+  file            LaboratoryFile?  @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// The version the device's file was based on.
+  base_version    LaboratoryFileVersion? @relation("UploadBase", fields: [base_version_id], references: [id], onDelete: Restrict)
+  /// The version the upload stored.
+  version         LaboratoryFileVersion? @relation("UploadResult", fields: [version_id], references: [id], onDelete: Restrict)
+  /// The user uploading.
+  user            User             @relation("UploadUser", fields: [user_id], references: [id], onDelete: Restrict)
+  /// The device uploading.
+  device          LaboratoryDevice @relation(fields: [device_id], references: [id], onDelete: Restrict)
+
+  @@index([status, expires_at])
+  @@map("medilab_laboratory_upload")
+}
+
+/// A computer signed in to the laboratory folders with its own key.
+model LaboratoryDevice {
+  /// Row identifier.
+  id           Int       @id @default(autoincrement())
+  /// The user the device signs in as.
+  user_id      Int
+  /// Id the application generates once per installation.
+  client_uid   String    @db.VarChar
+  /// Name of the computer.
+  name         String    @db.VarChar
+  /// linux or windows.
+  platform     String    @db.VarChar
+  /// The Odoo API key of the device, in res_users_apikeys; the key itself is never stored here.
+  api_key_id   Int?
+  /// When the device last called the API.
+  last_seen_at DateTime?
+  /// When an administrator revoked the device; empty while it can sign in.
+  revoked_at   DateTime?
+  /// The user the device signs in as.
+  user         User      @relation("LaboratoryDeviceUser", fields: [user_id], references: [id], onDelete: Cascade)
+  /// Folders created from the device.
+  created_folders LaboratoryFolder[]
+  /// Versions uploaded from the device.
+  versions     LaboratoryFileVersion[]
+  /// Uploads from the device.
+  uploads      LaboratoryUpload[]
+  /// Locks taken from the device.
+  locks        LaboratoryFileLock[]
+
+  @@unique([user_id, client_uid])
+  @@map("medilab_laboratory_device")
+}
+
+/// A change to a file's current version, in order; a device asks for the changes after the last id it saw.
+model LaboratoryFileChange {
+  /// Row identifier and the order devices read changes in.
+  id         Int                   @id @default(autoincrement())
+  /// The folder of the file.
+  folder_id  Int
+  /// The file whose current version changed.
+  file_id    Int
+  /// The new current version.
+  version_id Int
+  /// When the version became current.
+  created_at DateTime
+  /// The folder of the file.
+  folder     LaboratoryFolder      @relation(fields: [folder_id], references: [id], onDelete: Restrict)
+  /// The file whose current version changed.
+  file       LaboratoryFile        @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// The new current version.
+  version    LaboratoryFileVersion @relation(fields: [version_id], references: [id], onDelete: Restrict)
+
+  @@index([folder_id, id])
+  @@map("medilab_laboratory_file_change")
+}
+
+/// A session editing an Office file together in the browser; one is open per file at a time.
+model LaboratoryEditingSession {
+  /// Row identifier.
+  id                   Int            @id @default(autoincrement())
+  /// The file edited.
+  file_id              Int
+  /// The version the session opened.
+  base_version_id      Int
+  /// Key the editing service identifies the document by.
+  document_key         String         @unique @db.VarChar
+  /// Secret token in the address the editing service calls back on save.
+  callback_token       String         @unique @db.VarChar
+  /// open, saving, committed, conflict, closed, expired or error.
+  status               String         @db.VarChar
+  /// The user who opened the session.
+  opened_by_id         Int
+  /// The version the session saved.
+  committed_version_id Int?           @unique
+  /// When someone last worked in the session; a session idle for 12 hours expires.
+  last_activity_at     DateTime
+  /// The file edited.
+  file                 LaboratoryFile @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// The version the session opened.
+  base_version         LaboratoryFileVersion @relation("EditingBase", fields: [base_version_id], references: [id], onDelete: Restrict)
+  /// The version the session saved.
+  committed_version    LaboratoryFileVersion? @relation("EditingResult", fields: [committed_version_id], references: [id], onDelete: Restrict)
+  /// The user who opened the session.
+  opened_by            User           @relation("EditingOpener", fields: [opened_by_id], references: [id], onDelete: Restrict)
+
+  @@index([file_id, status])
+  @@map("medilab_laboratory_editing_session")
+}
+
+/// A lock one person holds on a working or result file while they edit it, for 30 minutes unless renewed.
+model LaboratoryFileLock {
+  /// Row identifier.
+  id             Int            @id @default(autoincrement())
+  /// The file locked.
+  file_id        Int
+  /// The user holding the lock.
+  user_id        Int
+  /// The device the lock was taken from.
+  device_id      Int?
+  /// active, released or expired; a file has at most one active lock.
+  status         String         @db.VarChar
+  /// When the lock expires unless renewed.
+  expires_at     DateTime
+  /// When the lock was released or expired.
+  released_at    DateTime?
+  /// The administrator who released a lock someone left; empty when its holder released it.
+  released_by_id Int?
+  /// The file locked.
+  file           LaboratoryFile @relation(fields: [file_id], references: [id], onDelete: Restrict)
+  /// The user holding the lock.
+  user           User           @relation("FileLockHolder", fields: [user_id], references: [id], onDelete: Restrict)
+  /// The device the lock was taken from.
+  device         LaboratoryDevice? @relation(fields: [device_id], references: [id], onDelete: SetNull)
+  /// The administrator who released it.
+  released_by    User?          @relation("FileLockReleaser", fields: [released_by_id], references: [id], onDelete: Restrict)
+
+  @@index([file_id, status])
+  @@map("medilab_laboratory_file_lock")
 }

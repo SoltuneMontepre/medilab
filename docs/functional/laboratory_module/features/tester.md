@@ -33,6 +33,16 @@ The tester, also called lab QA, runs the tests assigned to them on the laborator
 
 - **US-T11** As a tester, I want to raise a change request on a result whose process is completed, stating what to change and why, so that a mistake is corrected as a new version.
 
+### Laboratory files
+
+- **US-T23** As a tester, I want a folder on my computer to stay in step with a laboratory folder, so that the files I save reach MediLab without uploading them by hand.
+- **US-T24** As a tester, I want to see every version of a file with who saved it, from which computer and when, and restore an earlier one, so that no work is lost.
+- **US-T25** As a tester, I want a file someone else changed while I changed it to be kept as a conflict instead of overwritten, so that I can choose which version to keep.
+- **US-T26** As a tester, I want to edit a result spreadsheet or document together with colleagues in the browser, so that we do not send copies around.
+- **US-T27** As a tester, I want to lock a working or result file that is not an Office document while I edit it, so that nobody changes it meanwhile.
+- **US-T28** As a tester, I want to share a folder I own with colleagues, so that we work on the same files.
+- **US-T29** As a tester, I want to browse and download the files of my samples in the back office, so that I can reach them from any computer.
+
 ## II. Feature details
 
 ### 1. Planning (US-T01 to US-T04, US-T19 to US-T21)
@@ -122,6 +132,32 @@ Acceptance criteria:
 
 - A change request without what to change or why is refused.
 - An approved change request on a result creates a new version linked to the old one, which stays readable and is marked as replaced.
+
+### 5. Laboratory files (US-T23 to US-T29)
+
+Follows [Laboratory files](../overview.md#laboratory-files) and [Medilab Sync](../applications/medilab-sync.md).
+
+| Rule        | Description |
+| ----------- | ----------- |
+| Syncing     | Medilab Sync uploads every saved file of a bound local folder that matches the folder's sync rules, and in two-way folders downloads the new current versions others saved. |
+| History     | Every version stays readable and downloadable; restoring one adds a new current version. |
+| Conflicts   | A conflict keeps both versions; the tester keeps their own file or takes the server's in Medilab Sync. |
+| Editing     | Office result and working files open in the browser editor; raw-data files never do. |
+| Sharing     | The owner of a folder adds and removes its members; a member cannot leave a folder, only stop syncing it on their computer. |
+
+Acceptance criteria:
+
+- Saving a file in a bound local folder adds a version on the server with the tester, the computer, the size and the hash.
+- A file that does not match the folder's sync rules is not uploaded.
+- A file uploaded from version 10 while the server holds version 11 is kept as a conflict version, and version 11 stays current.
+- Restoring version 3 of a file with 5 versions adds version 6 with the content of version 3.
+- Uploading content the file already has stores no second copy of the bytes.
+- No one can change or delete a version, its hash or its size.
+- Saving in the online editor adds a version marked as edited online; a second person opening the file joins the same session.
+- A raw-data file cannot be opened in the online editor or locked.
+- Uploading a file someone else has locked is refused.
+- A tester who is not a member of a folder, or cannot see its sample, gets nothing from it.
+- Removing a member stops their uploads to the folder at once, and the files on their computer stay.
 
 ## III. Related documents
 

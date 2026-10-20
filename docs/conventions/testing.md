@@ -42,9 +42,11 @@ How tests are written, where they live and how they run.
 ## Browser tests
 
 - A test file is named `<feature>.cy.js` under `src/tests/cypress/e2e/`.
+- Every feature has a browser test of its main path, written with the feature: it signs in as the demo user of the role that does the work, such as `demo.tester`, and walks the main path on the demo data.
 - Tests use the app address `MEDILAB_URL`, default `http://localhost:8069`.
 - Tests do not depend on data a previous test created.
 - The task unsets `ELECTRON_RUN_AS_NODE`, which editors such as VS Code set and which stops Cypress from starting.
+- `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. `ci-core` runs it before `task test:e2e`, so tests can sign in as the demo users. Locally it changes the database of `task up`.
 
 ## Applications
 
@@ -53,7 +55,7 @@ How tests are written, where they live and how they run.
 
 ## AI tooling
 
-`task ai:test` runs the tooling suite and lint checks; `ci-ai` runs it on pull requests that change the AI tooling. Live OdooLS tests run when `task ai:setup` has installed the binary and source; otherwise they report skips, as they do in CI. `task ai:verify` checks the Python and XML model and field definitions in `odoo_intelligence/navigation_cases.json` through MCP, plus completion, hover, references and symbols. [Odoo intelligence](../workflows/odoo-intelligence.md) explains the client and Cursor extension-host checks. These checks do not install application modules or alter a database.
+`task ai:test` runs the tooling suite and lint checks; `ci-tools` runs it on pull requests that change the AI tooling. Live OdooLS tests run when `task ai:setup` has installed the binary and source; otherwise they report skips, as they do in CI. `task ai:verify` checks the Python and XML model and field definitions in `odoo_intelligence/navigation_cases.json` through MCP, plus completion, hover, references and symbols. [Odoo intelligence](../workflows/odoo-intelligence.md) explains the client and Cursor extension-host checks. These checks do not install application modules or alter a database.
 
 ## Related documents
 

@@ -1,0 +1,6 @@
+- name: Reload the k3s port rules
+  ansible.builtin.systemd_service:
+    name: medilab-k3s-firewall
+    state: reloaded
+    daemon_reload: true
+  ignore_errors: "{{ ansible_check_mode }}"

@@ -23,6 +23,7 @@ It also includes a set of shared technical features that are used by all modules
 ## Documents
 
 - [Shared technical features](shared.md): requirements shared by all modules and external integrations
+- [Business flows](business-flows.md): the core and supporting flows from trigger to result, with an activity diagram per flow
 - E-commerce module
   - [Overview](ecommerce_module/overview.md)
   - Actors: [Customer](ecommerce_module/features/customer.md), [Sales](ecommerce_module/features/sales.md), [Accountant](ecommerce_module/features/accountant.md), [Admin](ecommerce_module/features/admin.md)

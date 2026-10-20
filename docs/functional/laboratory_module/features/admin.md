@@ -35,6 +35,12 @@ The administrator maintains the master data of the Laboratory module: test param
 - **US-AD15** As an administrator, I want to group permissions into roles, assign roles to people and give a person extra permissions, so that everyone can do exactly their part of the work.
 - **US-AD16** As an administrator, I want to choose where the tasks of each task type go and their default deadline, so that work reaches the right people automatically.
 
+### Laboratory files
+
+- **US-AD29** As an administrator, I want to see every device signed in to the laboratory folders and revoke one, so that a lost or shared computer stops syncing at once.
+- **US-AD30** As an administrator, I want to turn a folder off, change its owner and members, and archive it with its retention date, so that folders follow the laboratory's rules.
+- **US-AD31** As an administrator, I want to release a lock someone left, so that work on the file can go on.
+
 ## II. Feature details
 
 ### 1. Catalog (US-AD01 to US-AD08, US-AD26 to US-AD28)
@@ -53,7 +59,7 @@ The administrator maintains the master data of the Laboratory module: test param
 | Accreditation certificate | An accreditation certificate of the laboratory has a number, the body that issued it, validity dates and the testing methods of its scope. A method can be on several certificates. |
 | Import from certificate | From a certificate, the administrator enters the list of methods in its scope as standard code and title, and chooses one testing field for the list. A code that already exists is linked to the certificate unchanged; any other creates a testing method in the chosen field with no steps, and links it. Titles are entered in the language of the list; other languages are added later on the method. Nothing is saved when any row has no code or title. |
 | Department           | An in-house pair of parameter and method names the department that tests it. Departments are maintained by the administrator (US-AD13). |
-| Accreditation        | An in-house pair of parameter and method is within the ISO 17025 accreditation scope while its method is on an accreditation certificate that is valid that day. It is worked out, not set by hand: it changes when a certificate's methods or dates change, and a [scheduled job](../../shared.md#sh-09-scheduled-tasks) updates it each day as certificates start and expire. A certificate without a start or end date is valid from or until any date. A subcontracted pair is never within the laboratory's scope.                                                  |
+| Accreditation        | An in-house pair of parameter and method is within the ISO 17025 accreditation scope while its method is on an active accreditation certificate that is valid that day, in the company's time zone. It is worked out, not set by hand: it changes when a certificate's methods, dates or archiving change, and a [scheduled job](../../shared.md#sh-09-scheduled-tasks) updates it each day as certificates start and expire. A certificate without a start or end date is valid from or until any date. An archived certificate accredits no pair. A subcontracted pair is never within the laboratory's scope. |
 | Detection limits     | LOD and LOQ are recorded per parameter and method pair, in that pair's unit.                                                                     |
 | Codes                | Parameters, groups, sample types, dossiers, subcontractors, customers, test requests and subcontract dispatches get a code from a sequence when none is typed, such as `CT.0001` for parameters, `NCT.0001` for groups, `LM.0001` for sample types, `HS.0001` for dossiers, `TP.0001` for subcontractors, `KH.0001` for customers and `YC.2026.0001` for test requests, numbered again each year. Samples get their lab code from a sequence, such as `PTN.2026.0001`. The administrator can change the prefix and length; existing codes keep their value. A typed code must still be unique. |
 | Sampling and storage | A sample type carries how to collect it, its minimum amount, storage conditions, whether and for how many days it is kept after testing, and how it is disposed of. A sample type without instructions has none; it does not use its parent's. |
@@ -82,6 +88,7 @@ Acceptance criteria:
 - Importing a list with a row without a code or title is refused with a message and creates nothing.
 - An in-house pair whose method is on a valid certificate is accredited; the day after the certificate's last valid day, it no longer is.
 - A subcontracted pair is not accredited, even when its method is on a valid certificate.
+- Archiving a certificate removes the accreditation of its methods' pairs; restoring it gives it back.
 - A certificate can be saved with several methods, and a method with several certificates.
 - A location placed on its parent's image shows as a point on the parent's map.
 - A location can be saved under a parent location, with or without a department and an image, and marked bookable or not.
@@ -170,6 +177,25 @@ Acceptance criteria:
 - A role cannot be archived; it is removed from people, approval levels and task types, then deleted.
 - A person who has signed a document, or a chain with a signed level, cannot be deleted; the message lists the signatures.
 - A task type cannot be created, archived or deleted on the screen; only its route, role and default deadline change.
+
+### 5. Laboratory files (US-AD29 to US-AD31)
+
+Follows [Laboratory files](../overview.md#laboratory-files).
+
+| Rule        | Description |
+| ----------- | ----------- |
+| Devices     | Revoking a device stops its key at once; the person's folder memberships and other devices are kept. |
+| Turning off | A folder that is turned off refuses uploads from everyone and still lets its members read and download. |
+| Ownership   | Changing a folder's owner keeps the previous owner as a member. |
+| Retention   | Archiving a folder sets its retention date from the retention period system parameter and keeps every version. |
+
+Acceptance criteria:
+
+- A revoked device cannot upload, download or list folders, and the person's other devices keep working.
+- A turned-off folder refuses every upload and still lets its members download its files.
+- Changing a folder's owner keeps the previous owner as a member.
+- Archiving a folder sets its retention date and keeps every version.
+- Releasing a lock lets others upload the file again and is recorded in the audit trail.
 
 ## III. Related documents
 

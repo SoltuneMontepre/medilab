@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_accreditation_certificate_valid" model="medilab.accreditation.certificate">
+        <field name="code">VILAS 118</field>
+        <field name="issuing_body">BoA</field>
+        <field name="valid_from">2020-01-01</field>
+        <field name="valid_until">2099-12-31</field>
+        <field
+            name="method_ids"
+            eval="[
+                Command.set([
+                    ref('demo_testing_method_tcvn_7602'),
+                    ref('demo_testing_method_tcvn_6187_2'),
+                    ref('demo_testing_method_tcvn_6187_1'),
+                    ref('demo_testing_method_tcvn_6492'),
+                    ref('demo_testing_method_iso_4832'),
+                    ref('demo_testing_method_iso_16649_2'),
+                    ref('demo_testing_method_iso_17294_2'),
+                    ref('demo_testing_method_en_15662'),
+                ])
+            ]"
+        />
+    </record>
+    <record id="demo_accreditation_certificate_expired" model="medilab.accreditation.certificate">
+        <field name="code">VILAS 117</field>
+        <field name="issuing_body">BoA</field>
+        <field name="valid_from">2018-01-01</field>
+        <field name="valid_until">2019-12-31</field>
+        <field
+            name="method_ids"
+            eval="[Command.set([ref('demo_testing_method_tcvn_5979')])]"
+        />
+    </record>
+</odoo>

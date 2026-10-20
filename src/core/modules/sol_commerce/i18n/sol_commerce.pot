@@ -3874,6 +3874,12 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "%(item)s: %(reason)s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/notifications/notification_contact.py:0
 msgid "Choose a contact of the company."
 msgstr ""
@@ -3922,14 +3928,43 @@ msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template_line.py:0
+#: model:ir.model.constraint,message:sol_commerce.constraint_medilab_order_template_line_quantity_minimum
+msgid "A template selection needs a quantity of at least 1."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Order %s was cancelled."
 msgstr ""
 
 #. module: sol_commerce
 #. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_template.py:0
+msgid "Add at least one catalog selection before saving a template."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
 msgid "Order %s was claimed by the laboratory."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "An archived template or customer cannot be used to create an order."
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_template_archive_all
+msgid "Archive order template"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__can_save_order_template
+msgid "Can Save Order Template"
 msgstr ""
 
 #. module: sol_commerce
@@ -3996,4 +4031,218 @@ msgstr ""
 #. module: sol_commerce
 #: model:portal.entry,description:sol_commerce.portal_entry_notifications
 msgid "Choose which updates you receive and where"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "Choose an active customer belonging to the source order."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_form
+msgid "Create order"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_template_create_all
+msgid "Create order template"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_template_line_create_all
+msgid "Create order template line"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_template_delete_all
+msgid "Delete order template"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_template_line_delete_all
+msgid "Delete order template line"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_template_edit_all
+msgid "Edit order template"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_template_line_edit_all
+msgid "Edit order template line"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "Give the template a name."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "New templates can only contain new selections."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid ""
+"No selections are available in the catalog.\n"
+"%s"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "Only the assigned salesperson can use this source order."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_order_template
+msgid "Order Template"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_order_template_line
+msgid "Order Template Line"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.actions.act_window,name:sol_commerce.action_order_template
+#: model:ir.ui.menu,name:sol_commerce.menu_order_template
+msgid "Order templates"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template_line.py:0
+msgid "Package component %(item)s is unavailable: %(reason)s"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_template_read_all
+msgid "Read order template"
+msgstr ""
+
+#. module: sol_commerce
+#: model:medilab.permission,name:sol_commerce.permission_order_template_line_read_all
+msgid "Read order template line"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_medilab_order_template_save
+msgid "Save an Order Template"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_save_form
+msgid "Save as template"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template__line_ids
+msgid "Selections"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template__source_customer_matches
+msgid "Source Customer Matches"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template__source_order_id
+msgid "Source Order"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_order_template_line__template_id
+msgid "Template"
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__template_omission_note
+msgid "Template Omission Note"
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "The customer and source order of a template cannot be changed."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template_line.py:0
+msgid "The package is archived or has no parameters."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template_line.py:0
+msgid "The parameter or its catalog price is unavailable."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template_line.py:0
+msgid "The product has no unique active catalog variant."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template_line.py:0
+msgid "The product is archived or is no longer sold."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template_line.py:0
+msgid "The product no longer represents a parameter or package."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "The source order is not available."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "The source order no longer belongs to the saved customer."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/sale_order_template.py:0
+msgid ""
+"This order is the source of an order template. Delete the template first."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template.py:0
+msgid "An order template needs at least one selection."
+msgstr ""
+
+#. module: sol_commerce
+#. odoo-python
+#: code:addons/sol_commerce/models/orders/order_template_line.py:0
+msgid "Choose a parameter or package from the catalog."
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_search
+msgid "Customer mismatch"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_template_form
+msgid ""
+"The source order's customer has changed. This template cannot be reused. "
+"Archive or delete it, then save a new template from the correct order."
 msgstr ""

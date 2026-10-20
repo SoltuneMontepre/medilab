@@ -1,0 +1,38 @@
+# The production odoo.conf, with the master password from Doppler. The database connection comes from the environment.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: odoo-config
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: doppler
+  target:
+    name: odoo-config
+    template:
+      engineVersion: v2
+      data:
+        odoo.conf: |
+          [options]
+          addons_path = /usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons
+          data_dir = /var/lib/odoo
+          db_name = medilab
+          dbfilter = ^medilab$
+          list_db = False
+          proxy_mode = True
+          http_interface = 0.0.0.0
+          workers = 4
+          max_cron_threads = 1
+          db_maxconn = 16
+          limit_memory_soft = 671088640
+          limit_memory_hard = 805306368
+          limit_time_cpu = 600
+          limit_time_real = 1200
+          admin_passwd = {{ .adminPassword }}
+  data:
+    - secretKey: adminPassword
+      remoteRef:
+        key: ODOO_ADMIN_PASSWORD

@@ -1,0 +1,18 @@
+# Provisions every node: checks it, prepares the host, then installs k3s and Argo CD.
+- name: Provision k3s servers
+  hosts: k3s_servers
+  become: true
+  serial: 1
+  roles:
+    - preflight
+    - base
+    - ssh_hardening
+    - node_firewall
+    - k3s
+
+- name: Bootstrap Argo CD
+  hosts: k3s_servers
+  become: true
+  run_once: true
+  roles:
+    - argocd

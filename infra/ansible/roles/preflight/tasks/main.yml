@@ -1,0 +1,83 @@
+- name: Check the operating system
+  ansible.builtin.assert:
+    that:
+      - (ansible_facts.distribution == 'Ubuntu' and ansible_facts.distribution_major_version | int >= 22)
+        or (ansible_facts.distribution == 'Debian' and ansible_facts.distribution_major_version | int >= 12)
+      - ansible_facts.architecture in ['x86_64', 'aarch64']
+    fail_msg: >-
+      {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }} on {{ ansible_facts.architecture }}
+      is not supported. Use Ubuntu 22.04+ or Debian 12+.
+    quiet: true
+
+- name: Check the WireGuard kernel module
+  ansible.builtin.command: modinfo wireguard
+  changed_when: false
+  check_mode: false
+
+- name: Look for an existing k3s
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: preflight_k3s_binary
+
+- name: Read the existing k3s config
+  ansible.builtin.slurp:
+    src: /etc/rancher/k3s/config.yaml
+  register: preflight_k3s_config
+  failed_when: false
+  when: preflight_k3s_binary.stat.exists
+
+- name: Refuse a k3s installed outside Ansible
+  ansible.builtin.assert:
+    that:
+      - preflight_k3s_config.content is defined
+      - preflight_k3s_marker in (preflight_k3s_config.content | b64decode)
+    fail_msg: >-
+      k3s is already installed on {{ inventory_hostname }} but not by infra/ansible.
+      It may run other workloads, so nothing was changed. Remove it or adopt it by hand first.
+    quiet: true
+  when: preflight_k3s_binary.stat.exists
+
+- name: Check the host before a first install
+  when: not preflight_k3s_binary.stat.exists
+  block:
+    - name: Check the available memory
+      ansible.builtin.assert:
+        that: ansible_facts.memory_mb.nocache.free >= preflight_min_available_memory_mb
+        fail_msg: >-
+          Only {{ ansible_facts.memory_mb.nocache.free }} MB of memory is available;
+          k3s and the workloads need {{ preflight_min_available_memory_mb }} MB without squeezing what already runs.
+        quiet: true
+
+    - name: Check the free disk space
+      vars:
+        preflight_root: "{{ ansible_facts.mounts | selectattr('mount', 'equalto', '/') | first }}"
+      ansible.builtin.assert:
+        that: preflight_root.size_available >= preflight_min_free_disk_gb * 1024**3
+        fail_msg: "Only {{ (preflight_root.size_available / 1024**3) | round(1) }} GB is free on /; {{ preflight_min_free_disk_gb }} GB is needed."
+        quiet: true
+
+    - name: List the listening sockets
+      ansible.builtin.command: ss -Htuln
+      register: preflight_sockets
+      changed_when: false
+      check_mode: false
+
+    - name: Check that the k3s ports are free
+      ansible.builtin.assert:
+        that: preflight_sockets.stdout is not search(':' ~ item ~ '\s')
+        fail_msg: "Port {{ item }} is already used by another program. k3s needs it; free it or move that program first."
+        quiet: true
+      loop: "{{ k3s_tcp_ports + k3s_udp_ports }}"
+
+    - name: List the routes
+      ansible.builtin.command: ip -4 route
+      register: preflight_routes
+      changed_when: false
+      check_mode: false
+
+    - name: Check that the k3s networks are unused
+      ansible.builtin.assert:
+        that: preflight_routes.stdout_lines | select('match', item | regex_escape) | list | length == 0
+        fail_msg: "A route already uses {{ item }}0.0/16, which k3s needs for pods and services."
+        quiet: true
+      loop: "{{ preflight_k3s_route_prefixes }}"
