@@ -230,6 +230,70 @@ flowchart LR
 | Bookings as tasks  | A scheduled booking appears on the person's schedule and in their to-do list as part of their testing task, due at its start.                |
 | Outsourcing        | The head of department decides on outsourcing suggestions, and can outsource a waiting or assigned test straight away with a reason in an emergency. Sample tests tested by a subcontractor are sent in a dispatch with the date sent and the date results are expected back, carried by sample delivery staff or a delivery service. A dispatch is draft, sent, received or cancelled; a sample test is in one dispatch that is not cancelled, a cancelled dispatch's tests stay outsourced for another dispatch, and a dispatch whose tests have results cannot be cancelled. |
 
+## Laboratory files
+
+Laboratory files are the files the testing work produces and uses outside MediLab's forms: raw data from instruments, working spreadsheets, result files and report drafts. The Laboratory module keeps them the way an object store does: folders of files, each file a series of versions, with the bytes in an S3 bucket and only their description in the database. People work on the files in their own programs on the laboratory's computers through [Medilab Sync](applications/medilab-sync.md), browse and download them in the Documents menu of the back office, and edit Office documents together in the browser. Medilab Sync and Medilab Mobile reach the module through its REST API.
+
+| Rule            | Description |
+| --------------- | ----------- |
+| Folder          | A folder holds files under paths relative to it, such as `HPLC/run-01.csv`. It has an owner, a name unique for that owner, and members. It never stores where it lives on anyone's computer. |
+| Sample folders  | A folder can belong to a sample, with a category: raw data, working documents, results or reports. The head of department creates a sample's folders from the sample; a person needs both the folder and the sample to use it, so testers still see only the lab code. |
+| Members         | The owner and the people they add can read and write the folder: see, download and upload its files and restore their versions. There is no read-only member. The owner and administrators add and remove members; only administrators change the owner, and the previous owner stays a member. |
+| Sync rules      | A folder can limit which files are synced by name prefix, name pattern with `*`, or extension, with or without subfolders. With no rule every file is synced. |
+| Versions        | Saving a changed file adds a version: a number that never changes, who saved it, from which device, when, its size and SHA-256 hash, and how it was made: synced, restored, edited online, or kept from a conflict. A version is never edited or deleted. The file's current version is the one people get. Two versions with the same content share the stored bytes. |
+| Uploads         | A file is uploaded straight to the bucket in parts through short-lived signed addresses, never through Odoo, up to 5 GiB in parts of 16 MiB. The server checks the hash before the version counts. An upload left unfinished expires and its parts are removed. |
+| Conflicts       | An upload made from a version that is no longer the current one is kept as a conflict version, never written over the current one. The person chooses to keep their own file or take the server's; both versions stay in the history. |
+| Restore         | Restoring an earlier version adds a new current version with its content; history is never rewritten. |
+| Raw data        | Raw-data files are evidence: each save adds a version, they are not edited online and they are not locked. |
+| Online editing  | Word, Excel and PowerPoint result and working files are edited together in the browser through ONLYOFFICE. One editing session is open per file; saving it adds a version. When the editing service is down, sync, download, history and restore keep working. |
+| Locks           | A working or result file that is not an Office document can be locked by one person while they edit it, for 30 minutes unless renewed. Others cannot upload it meanwhile; an administrator can release a lock someone left. |
+| Signing         | A version of a result file is approved by signing it through the approval chain of laboratory files ([SH-04](../shared.md#sh-04-signatures-and-digital-signing)). The signature belongs to that version and its hash; a newer version needs its own. |
+| Devices         | Each computer signs in once with the person's MediLab login and gets its own key; the password is never stored on it. An administrator sees every device and revokes one, which stops it at once without removing the person's folder memberships. |
+| Turning off     | An administrator can turn a folder off: nobody can upload to it, and its files can still be read and downloaded. |
+| Archiving       | An archived folder keeps its files and versions until its retention date, worked out from a retention period that is a system parameter. |
+| Changes         | The API gives each device the changes to the current versions of a folder since the last change it saw, so every computer gets other people's new versions. Renaming and deleting are not passed between computers. |
+| Audit           | Signing in and out of a device, uploads, conflicts, restores, downloads, online editing, locks, signatures, member changes and archiving are recorded in the [audit trail](../shared.md#sh-05-audit-trail). |
+
+### Upload
+
+```mermaid
+stateDiagram-v2
+    [*] --> prepared: upload asked for
+    prepared --> uploading: first part sent
+    prepared --> completed: same content already stored
+    uploading --> finalizing: every part sent
+    finalizing --> completed: hash checked, new current version
+    finalizing --> conflict: made from an older version
+    prepared --> expired: not finished in time
+    uploading --> expired: not finished in time
+    prepared --> aborted: cancelled by the device
+    uploading --> aborted: cancelled by the device
+    finalizing --> failed: hash or size wrong
+```
+
+### Online editing session
+
+```mermaid
+stateDiagram-v2
+    [*] --> open: a person opens the file online
+    open --> saving: the editor saves
+    saving --> committed: new version added
+    saving --> conflict: the file changed meanwhile
+    open --> closed: everyone left without changes
+    open --> expired: no activity for 12 hours
+    saving --> error: the editor's file cannot be read
+```
+
+### Lock
+
+```mermaid
+stateDiagram-v2
+    [*] --> active: a person locks the file
+    active --> active: renewed before it expires
+    active --> released: the person unlocks it, or an administrator releases it
+    active --> expired: 30 minutes without renewal
+```
+
 ## Actors
 
 - [Administrator](features/admin.md): master data, people, roles, approval chains and task types

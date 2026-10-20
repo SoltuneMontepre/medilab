@@ -35,6 +35,12 @@ The administrator maintains the master data of the Laboratory module: test param
 - **US-AD15** As an administrator, I want to group permissions into roles, assign roles to people and give a person extra permissions, so that everyone can do exactly their part of the work.
 - **US-AD16** As an administrator, I want to choose where the tasks of each task type go and their default deadline, so that work reaches the right people automatically.
 
+### Laboratory files
+
+- **US-AD29** As an administrator, I want to see every device signed in to the laboratory folders and revoke one, so that a lost or shared computer stops syncing at once.
+- **US-AD30** As an administrator, I want to turn a folder off, change its owner and members, and archive it with its retention date, so that folders follow the laboratory's rules.
+- **US-AD31** As an administrator, I want to release a lock someone left, so that work on the file can go on.
+
 ## II. Feature details
 
 ### 1. Catalog (US-AD01 to US-AD08, US-AD26 to US-AD28)
@@ -171,6 +177,25 @@ Acceptance criteria:
 - A role cannot be archived; it is removed from people, approval levels and task types, then deleted.
 - A person who has signed a document, or a chain with a signed level, cannot be deleted; the message lists the signatures.
 - A task type cannot be created, archived or deleted on the screen; only its route, role and default deadline change.
+
+### 5. Laboratory files (US-AD29 to US-AD31)
+
+Follows [Laboratory files](../overview.md#laboratory-files).
+
+| Rule        | Description |
+| ----------- | ----------- |
+| Devices     | Revoking a device stops its key at once; the person's folder memberships and other devices are kept. |
+| Turning off | A folder that is turned off refuses uploads from everyone and still lets its members read and download. |
+| Ownership   | Changing a folder's owner keeps the previous owner as a member. |
+| Retention   | Archiving a folder sets its retention date from the retention period system parameter and keeps every version. |
+
+Acceptance criteria:
+
+- A revoked device cannot upload, download or list folders, and the person's other devices keep working.
+- A turned-off folder refuses every upload and still lets its members download its files.
+- Changing a folder's owner keeps the previous owner as a member.
+- Archiving a folder sets its retention date and keeps every version.
+- Releasing a lock lets others upload the file again and is recorded in the audit trail.
 
 ## III. Related documents
 
