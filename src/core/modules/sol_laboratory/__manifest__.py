@@ -45,6 +45,7 @@
         "views/sample_collection/sample_scan_views.xml",
         "views/sample_collection/sample_label_report.xml",
         "views/sample_collection/sample_views.xml",
+        "views/sample_collection/sample_laboratory_folders_views.xml",
         "views/sample_collection/subcontract_dispatch_views.xml",
         "views/sample_collection/subcontract_dispatch_portal_templates.xml",
         "views/sample_collection/test_request_views.xml",

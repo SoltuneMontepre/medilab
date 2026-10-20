@@ -14,6 +14,8 @@ RESTORED = "restored"
 EDITED_ONLINE = "edited_online"
 # The category of a sample's folder that holds the raw data of its instruments.
 RAW_DATA = "raw"
+# The category of a sample's folder that holds its result files.
+RESULT = "result"
 # The extensions of Word, Excel and PowerPoint documents.
 OFFICE_EXTENSIONS = frozenset({"docx", "xlsx", "pptx"})
 # Context key of the one write that moves a file's current version, made by the file itself.

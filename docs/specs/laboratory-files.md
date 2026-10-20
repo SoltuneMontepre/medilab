@@ -163,6 +163,15 @@ A folder of a sample holds the files of one category of its work: raw data, work
 - A sample has one folder of each category, held by a unique key on the sample and the category. A folder of a sample needs a category; a folder of no sample may have one too, and several such folders may share it.
 - Once a folder holds files, its sample and its category never change, so its files keep meaning what they were saved as, such as a signed result of that sample.
 
+#### Creating a sample's folders
+
+**Create Folders** on the sample adds the raw-data and result folders it does not have yet. The head of a department that tests the sample creates them, holding the laboratory files permission and seeing the sample; anyone else is refused with `permission_denied`. Who creates a sample's folders, and when, is an open question: `_check_can_create_laboratory_folders()` on the sample alone decides it, so another answer changes only that method.
+
+- The new folders are owned by the person who creates them, upload-only and without sync rules, so every file is synced. The owner adds the members.
+- They are named after the lab code only, which testers see: `<lab code> Raw Data`, with the root `<lab code>-raw`, and `<lab code> Results`, with the root `<lab code>-result`. When the owner already has a folder of that root, nothing is created and the person is told.
+- Creating them again adds nothing. Two creations at once make one folder of each category: the second one's creation fails on the unique key, `_create_laboratory_folders()` turns it into a `ConcurrencyError`, and Odoo runs the request again, which finds the folders.
+- The sample's form opens its folders the person sees.
+
 ## Related documents
 
 - [Laboratory overview](../functional/laboratory_module/overview.md#laboratory-files)

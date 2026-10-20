@@ -70,6 +70,7 @@ from . import (
     test_laboratory_paths,
     test_laboratory_sample_folder_access,
     test_laboratory_sample_folder_records,
+    test_laboratory_sample_folders,
     test_languages,
     test_legacy_task_links,
     test_machine_scheduling,
