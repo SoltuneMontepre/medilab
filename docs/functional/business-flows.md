@@ -46,6 +46,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report, and WF-
   - WF-01-E3: The salesperson who requested approval cannot approve the order.
   - WF-01-E4: The old version of a revised quotation cannot be sent or confirmed.
   - WF-01-E5: The test request of an unpaid order whose customer may not order on credit cannot be confirmed.
+  - WF-01-E6: Another customer opening the quotation, invoice or result is denied.
 - **Paths in other flows:** SF-02 for cancelling an order; SF-07 for the estimated date and priority orders.
 - **States:** quotation draft → sent → accepted; order submitted → claimed → confirmed, approval requested → approved; test request draft → confirmed → paid.
 
