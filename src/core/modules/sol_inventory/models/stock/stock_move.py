@@ -26,7 +26,7 @@ from odoo.addons.sol_inventory.constants.stock import (
     PRODUCTION_USAGE,
     RECEIPT_CODE,
 )
-from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_EXPIRED
+from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_EXPIRED, SCRAP_OTHER
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_PERMISSION_MIXIN,
@@ -161,6 +161,16 @@ class StockMove(models.Model):
             raise UserError(self.env._("Scan a container of %s.", item.display_name))
         takes = self._plan_quants(item, stores, quantity, lot=lot)
         return self._done_moves(item, takes, self._destination(item, scrap), scrap=scrap, **vals)
+
+    @api.model
+    def _waste_reason(self, tags, reason):
+        """The written reason a waste records: required when its reasons include Other, and kept only then."""
+        if self.env.ref(SCRAP_OTHER) not in tags._origin:
+            return False
+        reason = (reason or "").strip()
+        if not reason:
+            raise UserError(self.env._("Write what happened, since the waste reason is Other."))
+        return reason
 
     def _destination(self, item, scrap):
         if scrap:

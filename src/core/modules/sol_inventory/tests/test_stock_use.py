@@ -3,7 +3,12 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .containers_case import ContainersCase
-from odoo.addons.sol_inventory.constants.models import MODEL_STOCK_LOT, MODEL_STOCK_QUANT, MODEL_STOCK_USE
+from odoo.addons.sol_inventory.constants.models import (
+    MODEL_SCRAP_REASON_TAG,
+    MODEL_STOCK_LOT,
+    MODEL_STOCK_QUANT,
+    MODEL_STOCK_USE,
+)
 from odoo.addons.sol_inventory.constants.stock import (
     CONTAINER_DEPLETED,
     CONTAINER_DISPOSED,
@@ -13,7 +18,7 @@ from odoo.addons.sol_inventory.constants.stock import (
     MOVE_CONSUMPTION,
     MOVE_WASTE,
 )
-from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_SPILLED
+from odoo.addons.sol_inventory.constants.xml_ids import SCRAP_EXPIRED, SCRAP_OTHER, SCRAP_SPILLED
 from odoo.addons.sol_inventory.models.stock.stock_package import MARKED_EMPTY
 
 
@@ -83,6 +88,35 @@ class TestStockUse(ContainersCase):
 
         self.assertEqual(container.quantity, 60)
         self.assertEqual(container.status, CONTAINER_OPENED)
+
+    def test_a_waste_for_another_reason_says_what_happened(self):
+        container = self.put_container(self.acid, 100, "Other", status=CONTAINER_OPENED)
+        other = self.env.ref(SCRAP_OTHER)
+        wizard = self.record(container, "waste", 10, tags=other)
+        self.assertTrue(wizard.reason_needed)
+        with self.assertRaises(UserError) as unsaid:
+            wizard.action_confirm()
+        self.assertIn("Other", unsaid.exception.args[0])
+        self.assertEqual(container.quantity, 100)
+
+        wizard.reason = "Cracked in the fridge"
+        wizard.action_confirm()
+
+        move = container.done_line_ids.move_id
+        self.assertEqual((move.reason, move.scrap_reason_tag_ids), ("Cracked in the fridge", other))
+        self.assertEqual(container.quantity, 90)
+
+    def test_a_waste_for_a_listed_reason_needs_no_writing_and_expired_is_not_offered(self):
+        container = self.put_container(self.acid, 100, "Listed", status=CONTAINER_OPENED)
+        wizard = self.record(container, "waste", 10, reason="Ignored", tags=self.env.ref(SCRAP_SPILLED))
+        self.assertFalse(wizard.reason_needed)
+
+        wizard.action_confirm()
+
+        self.assertFalse(container.done_line_ids.move_id.reason)
+        offered = self.env[MODEL_SCRAP_REASON_TAG].search(wizard._fields["scrap_reason_tag_ids"].domain(wizard))
+        self.assertIn(self.env.ref(SCRAP_OTHER), offered)
+        self.assertNotIn(self.env.ref(SCRAP_EXPIRED), offered)
 
     def test_marking_empty_uses_what_is_left(self):
         sealed = self.put_container(self.acid, 40, "Full")

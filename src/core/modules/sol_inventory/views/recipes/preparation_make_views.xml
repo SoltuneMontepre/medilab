@@ -8,6 +8,7 @@
                 <group>
                     <field name="store_ids" invisible="1" />
                     <field name="has_extra" invisible="1" />
+                    <field name="extra_reason_needed" invisible="1" />
                     <field name="recipe_id" />
                     <field name="location_id" />
                     <field name="container_scan" placeholder="Scan or type the container code" />
@@ -16,9 +17,11 @@
                     <field
                         name="scrap_reason_tag_ids"
                         widget="many2many_tags"
+                        options="{'no_create': True}"
                         invisible="not has_extra"
                         required="has_extra"
                     />
+                    <field name="extra_reason" invisible="not extra_reason_needed" required="extra_reason_needed" />
                 </group>
                 <field name="line_ids">
                     <list create="false" delete="false">

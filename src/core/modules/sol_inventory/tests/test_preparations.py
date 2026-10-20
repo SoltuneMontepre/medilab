@@ -16,12 +16,14 @@ from odoo.addons.sol_inventory.constants.stock import (
     MOVE_PREPARATION,
     MOVE_WASTE,
 )
-from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SCRAP_WRONGLY_PREPARED
+from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SCRAP_OTHER, SCRAP_WRONGLY_PREPARED
 
 
 @tagged("post_install", "-at_install")
 class TestPreparations(ContainersCase):
-    def prepare(self, acid_quantity=77, water_quantity=923, received=1000, acid=None, water=None, tags=None):
+    def prepare(
+        self, acid_quantity=77, water_quantity=923, received=1000, acid=None, water=None, tags=None, extra_reason=False
+    ):
         mark = self.env[MODEL_STOCK_LOT].search_count([])
         acid = acid or self.put_container(self.acid, 500, f"Acid{mark}", status=CONTAINER_OPENED)
         water = water or self.put_container(self.water, 1000, f"Water{mark}", status=CONTAINER_OPENED)
@@ -34,6 +36,7 @@ class TestPreparations(ContainersCase):
                     "location_id": self.pesticides_store.id,
                     "received_quantity": received,
                     "scrap_reason_tag_ids": [Command.set(tags.ids)] if tags else False,
+                    "extra_reason": extra_reason,
                     "line_ids": [
                         Command.create(
                             {
@@ -144,6 +147,17 @@ class TestPreparations(ContainersCase):
         with self.assertRaises(UserError) as extra:
             self.prepare(acid_quantity=80)
         self.assertIn("reason for the extra", extra.exception.args[0])
+
+    def test_extra_wasted_for_another_reason_says_what_happened(self):
+        other = self.env.ref(SCRAP_OTHER)
+        with self.assertRaises(UserError) as unsaid:
+            self.prepare(acid_quantity=80, tags=other)
+        self.assertIn("Other", unsaid.exception.args[0])
+
+        preparation, _acid, _water = self.prepare(acid_quantity=80, tags=other, extra_reason="Pipette overshot")
+
+        waste = preparation.move_ids.filtered(lambda move: move.is_scrap)
+        self.assertEqual((waste.reason, waste.scrap_reason_tag_ids), ("Pipette overshot", other))
 
     def test_a_sealed_expired_short_or_wrong_container_is_refused(self):
         sealed = self.put_container(self.acid, 500, "Sealed")

@@ -67,7 +67,10 @@ class ProductProduct(models.Model):
     )
     # The Laboratory chemical the item stocks; set only for a chemical.
     chemical_id = fields.Many2one(MODEL_CHEMICAL, string="Chemical", ondelete="restrict", copy=False)
-    # Days an opened container stays usable; 0 when opening does not shorten its life.
+    # True when opening a container limits its life to the shelf life after opening; false when opening does not
+    # shorten it.
+    use_shelf_life_after_opening = fields.Boolean(string="Use Shelf Life After Opening")
+    # Days an opened container stays usable after the day it is opened; 0 when it is used on that day only.
     shelf_life_after_opening_days = fields.Integer(string="Shelf Life After Opening (Days)")
     # The vendor prices of the item, one per supplier.
     supplier_item_ids = fields.One2many(MODEL_SUPPLIER_INFO, "product_id", string="Suppliers")

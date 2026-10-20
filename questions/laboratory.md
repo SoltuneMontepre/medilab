@@ -15,6 +15,7 @@
 - **Room conditions.** The temperature and humidity of working rooms are not recorded. Does a method need conditions checked before a test runs?
 - **Turnaround reporting.** The lab head has no figures on how long tests take or how many finished late. Which figures are needed, and for whom?
 - **Sanity check thresholds.** A numeric result is flagged when at least 10 approved results exist and it lies more than 3 standard deviations from their mean, or within 10% of the regulation limit. Are these the right defaults, and do some parameters need their own?
+- **Lab tools.** A test also uses tools, such as pipettes, glassware and filters, that are neither stock items, machines nor chemicals, so nothing records what a test was done with. Should the laboratory record the tools a method or a test uses, and are they stocked, maintained or only listed?
 
 ## Related documents
 

@@ -42,14 +42,15 @@ class Preparation(models.Model):
             preparation.display_name = preparation.container_ids[:1].name or preparation.recipe_id.display_name
 
     @api.model
-    def prepare(self, recipe, location, ingredient_lines, received, scrap_tags):
+    def prepare(self, recipe, location, ingredient_lines, received, scrap_tags, extra_reason=False):
         """Prepare one batch. ingredient_lines are dicts with item, quantity and containers in scan order. Each
-        ingredient quantity is at least the recipe's; anything above it is wasted. received is at most the yield."""
+        ingredient quantity is at least the recipe's; anything above it is wasted for scrap_tags, with extra_reason
+        written out when one of them is Other. received is at most the yield."""
         self._check_can_prepare()
         person = self.env[MODEL_PERSON]._for_user()
         if not location or location._holding_store() not in person._store():
             raise UserError(self.env._("Choose one of your stores."))
-        self._check_batch(recipe, ingredient_lines, received, scrap_tags)
+        waste_reason = self._check_batch(recipe, ingredient_lines, received, scrap_tags, extra_reason)
         lot_name = self.env["ir.sequence"].next_by_code(LOT_SEQUENCE)
         if not lot_name:
             raise UserError(self.env._("The prepared solution lot sequence is missing."))
@@ -86,6 +87,7 @@ class Preparation(models.Model):
                     scrap=True,
                     preparation_id=preparation.id,
                     scrap_reason_tag_ids=scrap_tags,
+                    reason=waste_reason,
                 )
         container = preparation._put_solution(lot_name, received, moves, sources, production)
         return preparation, container
@@ -138,7 +140,9 @@ class Preparation(models.Model):
             return
         raise AccessError(self.env._("You are not allowed to prepare a solution."))
 
-    def _check_batch(self, recipe, ingredient_lines, received, scrap_tags):
+    def _check_batch(self, recipe, ingredient_lines, received, scrap_tags, extra_reason):
+        """Refuse a batch that does not follow the recipe. Returns what happened to the extra, when its reason is
+        Other."""
         if not recipe or not recipe.active:
             raise UserError(self.env._("Choose a recipe."))
         self._check_received(recipe, received)
@@ -152,8 +156,11 @@ class Preparation(models.Model):
                 extra = True
         if seen != items:
             raise UserError(self.env._("Prepare every ingredient of %s.", recipe.display_name))
-        if extra and not scrap_tags:
+        if not extra:
+            return False
+        if not scrap_tags:
             raise UserError(self.env._("Give a reason for the extra ingredient."))
+        return self.env[MODEL_STOCK_MOVE]._waste_reason(scrap_tags, extra_reason)
 
     def _check_received(self, recipe, received):
         solution_uom = recipe.uom_id

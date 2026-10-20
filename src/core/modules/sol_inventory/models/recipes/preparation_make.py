@@ -11,7 +11,7 @@ from odoo.addons.sol_inventory.constants.models import (
     MODEL_STOCK_LOCATION,
     MODEL_STOCK_PACKAGE,
 )
-from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT
+from odoo.addons.sol_inventory.constants.xml_ids import CONTAINER_LABEL_REPORT, SCRAP_EXPIRED, SCRAP_OTHER
 from odoo.addons.sol_laboratory.constants.models import MODEL_PERSON
 
 
@@ -37,9 +37,17 @@ class PreparationMake(models.TransientModel):
     # The unit of the quantity obtained: the solution's.
     uom_id = fields.Many2one(related="recipe_id.uom_id")
     # Why the extra ingredient was wasted. Required when an ingredient amount is above the recipe.
-    scrap_reason_tag_ids = fields.Many2many(MODEL_SCRAP_REASON_TAG, string="Reason for the Extra")
+    scrap_reason_tag_ids = fields.Many2many(
+        MODEL_SCRAP_REASON_TAG,
+        string="Reason for the Extra",
+        domain=lambda self: [("id", "!=", self.env.ref(SCRAP_EXPIRED).id)],
+    )
+    # What happened to the extra ingredient, when its reason is Other.
+    extra_reason = fields.Char(string="Other Reason")
     # True when an ingredient amount is above the recipe.
     has_extra = fields.Boolean(compute="_compute_has_extra")
+    # True when the extra ingredient's reasons include Other, so what happened must be written.
+    extra_reason_needed = fields.Boolean(compute="_compute_extra_reason_needed")
 
     @api.depends("line_ids.quantity", "line_ids.recipe_quantity", "line_ids.item_id")
     def _compute_has_extra(self):
@@ -48,6 +56,12 @@ class PreparationMake(models.TransientModel):
                 line.item_id and line.item_id.uom_id.compare(line.quantity, line.recipe_quantity) > 0
                 for line in wizard.line_ids
             )
+
+    @api.depends("has_extra", "scrap_reason_tag_ids")
+    def _compute_extra_reason_needed(self):
+        other = self.env.ref(SCRAP_OTHER)
+        for wizard in self:
+            wizard.extra_reason_needed = wizard.has_extra and other in wizard.scrap_reason_tag_ids._origin
 
     @api.depends_context("uid")
     def _compute_store_ids(self):
@@ -108,5 +122,6 @@ class PreparationMake(models.TransientModel):
             ],
             self.received_quantity,
             self.scrap_reason_tag_ids,
+            extra_reason=self.extra_reason,
         )
         return self.env.ref(CONTAINER_LABEL_REPORT).report_action(container)

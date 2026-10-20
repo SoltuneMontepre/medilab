@@ -58,8 +58,8 @@ class StockPackage(models.Model):
                 "sulfuric_acid_005m",
             )
         }
-        # A shelf life after opening, so opening shortens the usable date; the shipped item leaves it at 0.
-        item["sodium_chloride"].shelf_life_after_opening_days = 180
+        # A shelf life after opening, so opening shortens the usable date; the shipped item does not use one.
+        item["sodium_chloride"].write({"use_shelf_life_after_opening": True, "shelf_life_after_opening_days": 180})
         # The cost the opening stock of each item is valued at.
         item["acetonitrile"].standard_price = 450
         item["sodium_chloride"].standard_price = 380
@@ -71,9 +71,10 @@ class StockPackage(models.Model):
         sealed = [_container(self.env, lot, number, BOTTLE, store) for number in (1, 2)]
         opened = _container(self.env, lot, 3, BOTTLE, store)
         emptied = _container(self.env, lot, 4, BOTTLE, store)
-        opened.with_user(tester).action_open()
+        # The emptied bottle is finished before the next one is opened, as the store opens one at a time.
         emptied.with_user(tester).action_open()
         emptied.with_user(tester).action_mark_empty()
+        opened.with_user(tester).action_open()
         expired_lot = _lot(self.env, acetonitrile, EXPIRED_LOT, -1)
         expired_lot.status = LOT_EXPIRED
         expired = _container(self.env, expired_lot, 1, BOTTLE, store)
@@ -134,10 +135,10 @@ class StockPackage(models.Model):
 
     def _grant_demo_roles(self):
         """The tester opens, prepares, records use and sees the stock of the team's store. The storekeeper reads every
-        move, moves, corrects and disposes of stock, and sees its value."""
+        move, records the openings a tester could not make, moves, corrects and disposes of stock, and sees its value."""
         for role, codes in (
             (TESTER_ROLE, ("container_edit_all", "preparation_create_all", "move_create_all", "stock_read_all")),
-            (STOREKEEPER_ROLE, ("move_read_all", "move_create_all", "stock_read_all")),
+            (STOREKEEPER_ROLE, ("move_read_all", "container_edit_all", "move_create_all", "stock_read_all")),
         ):
             self.env.ref(role).write(
                 {

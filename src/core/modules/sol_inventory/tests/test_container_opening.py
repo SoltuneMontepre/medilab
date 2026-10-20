@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from unittest.mock import patch
 
 from odoo.exceptions import AccessError, UserError
 from odoo.tests import tagged
@@ -64,13 +65,51 @@ class TestContainerOpening(ContainersCase):
             self.as_person(own, self.chemist).action_open()
         self.assertEqual(set((expired | elsewhere | own).mapped("status")), {CONTAINER_SEALED})
 
-    def test_a_shelf_life_of_zero_keeps_the_lot_expiry(self):
+    def test_a_second_container_of_an_item_waits_until_the_opened_one_is_finished(self):
+        first = self.put_container(self.acid, 500, "First")
+        second = self.put_container(self.acid, 500, "Second")
+        self.as_tester(first).action_open()
+
+        with self.assertRaises(UserError) as waiting:
+            self.as_tester(second).action_open()
+        self.assertIn(first.name, waiting.exception.args[0])
+        self.assertEqual(second.status, CONTAINER_SEALED)
+
+        self.as_tester(first).action_mark_empty()
+        self.as_tester(second).action_open()
+
+        self.assertEqual(second.status, CONTAINER_OPENED)
+
+    def test_an_opened_container_of_another_store_or_past_its_date_does_not_hold_back_an_opening(self):
+        self.put_container(self.acid, 500, "Other store", location=self.chemistry_store, status=CONTAINER_OPENED)
+        self.put_container(
+            self.acid, 500, "Past", self.env[MODEL_STOCK_PACKAGE]._at_utc(self.day(-1)), status=CONTAINER_OPENED
+        )
+        self.put_container(self.water, 500, "Water", status=CONTAINER_OPENED)
+        container = self.put_container(self.acid, 500, "Fresh")
+
+        self.as_tester(container).action_open()
+
+        self.assertEqual(container.status, CONTAINER_OPENED)
+
+    def test_an_item_without_a_shelf_life_after_opening_keeps_the_lot_expiry(self):
+        self.acid.use_shelf_life_after_opening = False
+        container = self.put_container(self.acid, 500, "Kept")
+
+        self.as_tester(container).action_open()
+
+        self.assertEqual(container.usable_until, self.day(30))
+
+    def test_a_shelf_life_of_zero_days_ends_on_the_opening_day(self):
         self.acid.shelf_life_after_opening_days = 0
         container = self.put_container(self.acid, 500, "Today")
 
         self.as_tester(container).action_open()
 
-        self.assertEqual(container.usable_until, self.day(30))
+        self.assertEqual(container.usable_until, self.day(0))
+        with patch.object(type(container), "_today", return_value=self.day(1)):
+            with self.assertRaises(UserError):
+                container._check_usable()
 
     def test_a_lot_without_an_expiry_is_not_expired(self):
         container = self.put_container(self.acid, 500, "Undated", expiration=False)

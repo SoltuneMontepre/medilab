@@ -27,6 +27,7 @@
         "views/purchasing/stock_picking_views.xml",
         "views/purchasing/res_config_settings_views.xml",
         "views/stock/stock_lot_views.xml",
+        "views/stock/container_opening_views.xml",
         "views/stock/stock_package_views.xml",
         "views/stock/container_label_report.xml",
         "views/stock/container_scan_views.xml",

@@ -1,6 +1,7 @@
 """Technical names of the database models of the Inventory module."""
 
 MODEL_ANALYTIC_ACCOUNT = "account.analytic.account"
+MODEL_CONTAINER_OPENING = "medilab.container.opening"
 MODEL_CONTAINER_SCAN = "medilab.container.scan"
 MODEL_METHOD_CONSUMPTION = "medilab.method.consumption"
 MODEL_ORDERPOINT = "stock.warehouse.orderpoint"

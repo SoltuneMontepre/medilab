@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20261015\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-20 10:16+0000\n"
-"PO-Revision-Date: 2026-10-20 10:16+0000\n"
+"POT-Creation-Date: 2026-10-20 10:28+0000\n"
+"PO-Revision-Date: 2026-10-20 10:28+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -81,6 +81,14 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_inventory/models/stock/test_result.py:0
 msgid "%(containers)s hold %(items)s, which this method does not use."
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid ""
+"%(item)s is still open in %(opened)s. Use it up or mark it empty before "
+"opening %(container)s."
 msgstr ""
 
 #. module: sol_inventory
@@ -406,6 +414,12 @@ msgstr ""
 #. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.container_label
 msgid "<span>by</span>"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "A container cannot be opened in the future."
 msgstr ""
 
 #. module: sol_inventory
@@ -795,6 +809,7 @@ msgid "By Quantity"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_opening_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_preparation_make_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_correction_form
@@ -968,6 +983,7 @@ msgid "Contact Person"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__container_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__container_ids
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_container__container_id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_result_container__container_id
@@ -1159,6 +1175,7 @@ msgid "Create suppliers"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__create_uid
@@ -1177,6 +1194,7 @@ msgid "Created by"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__create_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__create_date
@@ -1359,6 +1377,7 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__display_name
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__display_name
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_person__display_name
@@ -1609,6 +1628,11 @@ msgid "Expiry Warning Days"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__extra_reason_needed
+msgid "Extra Reason Needed"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__phone_sanitized
 msgid ""
 "Field used to store sanitized phone number. Helps speeding up searches and "
@@ -1699,6 +1723,12 @@ msgid "Give the reason."
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Give who opened the container, when, and a note."
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__global_location_number
 msgid "Global Location Number"
 msgstr ""
@@ -1742,8 +1772,14 @@ msgid "House"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_opening_form
+msgid "How the container came to be opened"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_account_analytic_account__id
 #: model:ir.model.fields,field_description:sol_inventory.field_hr_department__id
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__id
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_person__id
@@ -2059,6 +2095,7 @@ msgid "Last Price"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_uid
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__write_uid
@@ -2077,6 +2114,7 @@ msgid "Last Updated by"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_scan__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_method_consumption__write_date
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation__write_date
@@ -2368,6 +2406,7 @@ msgid "Not requested"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__note
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_supplier__note
 msgid "Note"
 msgstr ""
@@ -2446,6 +2485,12 @@ msgid ""
 msgstr ""
 
 #. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_package.py:0
+msgid "Only the storekeeper of the store that holds %s records its opening."
+msgstr ""
+
+#. module: sol_inventory
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_scan_form
 msgid "Open"
@@ -2465,11 +2510,13 @@ msgid "Opened"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__opened_at
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_at
 msgid "Opened At"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_container_opening__opened_by_id
 #: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opened_by_id
 msgid "Opened By"
 msgstr ""
@@ -2480,8 +2527,23 @@ msgid "Opened On"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_package__opening_note
+msgid "Opening Note"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_purchase_order_reject__order_id
 msgid "Order"
+msgstr ""
+
+#. module: sol_inventory
+#: model:stock.scrap.reason.tag,name:sol_inventory.scrap_reason_other
+msgid "Other"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__extra_reason
+msgid "Other Reason"
 msgstr ""
 
 #. module: sol_inventory
@@ -2785,6 +2847,11 @@ msgid "Reason"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_medilab_stock_use__reason_needed
+msgid "Reason Needed"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make__scrap_reason_tag_ids
 msgid "Reason for the Extra"
 msgstr ""
@@ -2842,8 +2909,15 @@ msgid "Recipes"
 msgstr ""
 
 #. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_opening_form
 #: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_stock_use_form
 msgid "Record"
+msgstr ""
+
+#. module: sol_inventory
+#: model:ir.actions.act_window,name:sol_inventory.action_medilab_container_opening
+#: model:ir.model,name:sol_inventory.model_medilab_container_opening
+msgid "Record Opening"
 msgstr ""
 
 #. module: sol_inventory
@@ -2851,6 +2925,11 @@ msgstr ""
 #: model:ir.model,name:sol_inventory.model_medilab_stock_use
 #: model:ir.ui.menu,name:sol_inventory.menu_record_use
 msgid "Record Use or Waste"
+msgstr ""
+
+#. module: sol_inventory
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_container_form
+msgid "Record opening"
 msgstr ""
 
 #. module: sol_inventory
@@ -3746,6 +3825,11 @@ msgid "Use"
 msgstr ""
 
 #. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_product_product__use_shelf_life_after_opening
+msgid "Use Shelf Life After Opening"
+msgstr ""
+
+#. module: sol_inventory
 #: model:ir.model.fields,help:sol_inventory.field_medilab_supplier__barcode
 msgid "Use a barcode to identify this contact."
 msgstr ""
@@ -3864,6 +3948,12 @@ msgstr ""
 #. module: sol_inventory
 #: model:ir.model.fields,field_description:sol_inventory.field_medilab_preparation_make_line__wizard_id
 msgid "Wizard"
+msgstr ""
+
+#. module: sol_inventory
+#. odoo-python
+#: code:addons/sol_inventory/models/stock/stock_move.py:0
+msgid "Write what happened, since the waste reason is Other."
 msgstr ""
 
 #. module: sol_inventory

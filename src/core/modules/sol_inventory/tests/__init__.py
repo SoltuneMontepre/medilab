@@ -15,6 +15,7 @@ from . import (
     test_receipts,
     test_recipe_access,
     test_recipes,
+    test_recorded_openings,
     test_relocation,
     test_result_consumption,
     test_stock_correction,
