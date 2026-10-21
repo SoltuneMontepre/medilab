@@ -281,6 +281,7 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. Th
 
 - `invalid_key` and `invalid_credentials` carry a `WWW-Authenticate: Bearer` header.
 - `method_not_allowed` answers a method the route does not take, with an `Allow` header naming those it takes. A path the API does not have is `not_found`.
+- Odoo's own refusals answer in the same format: a missing or invalid key, and a session of another person with a key, are `invalid_key`; a record the person may not read (`AccessError`) or that does not exist (`MissingError`) is `not_found`, so the answer does not tell that a record exists; any other user error is `invalid_request`. `permission_denied` is only raised by name, such as for a person without the laboratory files permission.
 - `internal_error` answers an exception nobody expected, with a generic message and an `id`. The server logs the exception and its traceback under that id; the answer tells nothing else about it.
 - `too_many_attempts` and `try_again` carry a `Retry-After` header in seconds. `try_again` answers a request still failing on concurrency after Odoo's last try, after 5 seconds.
 - **Adding to the API.** A feature adds its routes with `laboratory_api_route()`, its operations to the OpenAPI document, and any code of its own to `ERROR_STATUSES` (`constants/laboratory_api.py`) and to the document's error codes. Its tests call its routes through `LaboratoryApiCase` (`tests/laboratory_api_case.py`), which checks every answer against the document, so they are its contract tests.

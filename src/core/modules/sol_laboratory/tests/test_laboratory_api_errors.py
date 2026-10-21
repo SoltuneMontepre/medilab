@@ -1,3 +1,4 @@
+from odoo.exceptions import AccessError
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
@@ -67,6 +68,19 @@ class TestLaboratoryApiErrors(LaboratoryApiCase):
         self.assertNotIn("secret", error["message"])
         self.assertIn(error["id"], logged.output[0])
         self.assertIn("secret detail of the server", "\n".join(logged.output))
+
+    def test_a_record_the_person_may_not_read_is_not_found(self):
+        key = self.signed_in_key(self.tester, "installation")
+        devices = type(self.env[MODEL_LABORATORY_DEVICE])
+
+        def unreadable(_device, _current):
+            raise AccessError("You are not allowed to read this computer.")
+
+        self.patch(devices, "_laboratory_api_values", unreadable)
+        response = self.api("GET", "/devices", key=key)
+
+        self.assertApiRefused(NOT_FOUND, response)
+        self.assertNotIn("not allowed", response.json()["error"]["message"])
 
     def test_a_refused_request_commits_nothing_it_did_before_the_refusal(self):
         key = self.signed_in_key(self.tester, "first-installation")

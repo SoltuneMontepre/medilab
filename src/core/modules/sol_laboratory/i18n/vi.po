@@ -13674,9 +13674,3 @@ msgstr "Đăng nhập sai quá nhiều lần từ địa chỉ này; hãy thử 
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_sign_in_attempt.py:0
 msgid "Too many failed sign-ins with this login; try again in %s seconds."
 msgstr "Đăng nhập sai quá nhiều lần với tên đăng nhập này; hãy thử lại sau %s giây."
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/services/laboratory_api.py:0
-msgid "You may not do this."
-msgstr "Bạn không được làm việc này."

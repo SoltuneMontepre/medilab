@@ -111,6 +111,8 @@ paths:
           $ref: "#/components/responses/InvalidRequest"
         "401":
           $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
         "500":
@@ -134,6 +136,8 @@ paths:
           $ref: "#/components/responses/Unauthenticated"
         "403":
           $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
         "405":
           $ref: "#/components/responses/MethodNotAllowed"
         "500":
@@ -366,7 +370,7 @@ components:
                       code:
                         enum: [permission_denied, device_revoked]
     NotFound:
-      description: Nothing of this id is the person's.
+      description: Nothing is found, or nothing the person may read; the two answer the same.
       content:
         application/json:
           schema:

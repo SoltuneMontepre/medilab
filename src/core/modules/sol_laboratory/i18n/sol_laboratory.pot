@@ -13484,9 +13484,3 @@ msgstr ""
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_sign_in_attempt.py:0
 msgid "Too many failed sign-ins with this login; try again in %s seconds."
 msgstr ""
-
-#. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/services/laboratory_api.py:0
-msgid "You may not do this."
-msgstr ""

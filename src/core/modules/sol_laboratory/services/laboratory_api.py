@@ -27,7 +27,6 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     INVALID_REQUEST,
     METHOD_NOT_ALLOWED,
     NOT_FOUND,
-    PERMISSION_DENIED,
     TRY_AGAIN,
 )
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_LABORATORY_FOLDER
@@ -184,10 +183,9 @@ def exception_answer(exception):
         )
     if isinstance(exception, (Unauthorized, AccessDenied, SessionExpiredException)):
         return refusal_answer(INVALID_KEY, env._("This computer is not signed in."))
-    if isinstance(exception, (NotFound, MissingError)):
+    # A record the person may not read answers as one that does not exist, so the answer does not tell that it does.
+    if isinstance(exception, (NotFound, MissingError, AccessError)):
         return refusal_answer(NOT_FOUND, env._("Nothing is found at this address."))
-    if isinstance(exception, AccessError):
-        return refusal_answer(PERMISSION_DENIED, env._("You may not do this."))
     if isinstance(exception, UserError) or (
         isinstance(exception, HTTPException) and 400 <= (exception.code or 0) < 500
     ):
