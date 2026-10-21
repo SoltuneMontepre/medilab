@@ -146,7 +146,8 @@ class OnboardingStagedRecordMatching(models.Model):
 
     def _differences(self, model, matched_id) -> list:
         """The compared values of the matched record that differ, as (key, current, wanted), the record read in the
-        staged language. A way of testing has nothing but its pair, so it never differs."""
+        staged language. A way of testing has nothing but its pair, so it never differs, and a code the staged record
+        does not give is no change."""
         if self.kind == KIND_PARAMETER_METHOD:
             return []
         record = self.env[model].sudo().browse(matched_id).exists()
@@ -160,7 +161,7 @@ class OnboardingStagedRecordMatching(models.Model):
             current = (current.isoformat() if hasattr(current, "isoformat") else current) or ""
             wanted = values.get(key) or ""
             if key == "code":
-                same = normalize_code(current) == normalize_code(wanted)
+                same = not wanted or normalize_code(current) == normalize_code(wanted)
             else:
                 same = current == wanted
             if not same:

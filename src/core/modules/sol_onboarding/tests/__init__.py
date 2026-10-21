@@ -1,4 +1,5 @@
 from . import (
+    test_accepting,
     test_adapter_registry,
     test_audit_documents,
     test_crawl,

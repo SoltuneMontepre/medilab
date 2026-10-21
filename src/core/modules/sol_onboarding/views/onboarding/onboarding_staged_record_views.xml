@@ -7,6 +7,12 @@
             <list duplicate="0" create="0" delete="0">
                 <header>
                     <button
+                        name="action_accept"
+                        type="object"
+                        string="Accept"
+                        groups="sol_laboratory.group_permission_onboarding_staged_record_edit_all"
+                    />
+                    <button
                         name="%(action_medilab_onboarding_reject)d"
                         type="action"
                         string="Reject"
@@ -38,6 +44,14 @@
         <field name="arch" type="xml">
             <form duplicate="0" create="0" delete="0">
                 <header>
+                    <button
+                        name="action_accept"
+                        type="object"
+                        string="Accept"
+                        class="btn-primary"
+                        invisible="state != 'to_review'"
+                        groups="sol_laboratory.group_permission_onboarding_staged_record_edit_all"
+                    />
                     <button
                         name="%(action_medilab_onboarding_reject)d"
                         type="action"

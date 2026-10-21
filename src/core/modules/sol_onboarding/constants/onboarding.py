@@ -64,8 +64,13 @@ KIND_NEEDS = {
     KIND_PARAMETER_METHOD: {"parameter_key": KIND_TEST_PARAMETER, "method_key": KIND_TESTING_METHOD},
 }
 
-# Keys a reviewer supplies when accepting; a source never provides them.
-ASKED_KEYS = ("code", "field_id", "main_group_id", "unit_id", "department_id")
+# Keys a reviewer gives when accepting a record of each kind to create, when neither the source nor an edit gives them.
+ASKED_KEYS = {
+    KIND_TESTING_FIELD: ("code",),
+    KIND_TESTING_METHOD: ("field_id",),
+    KIND_TEST_PARAMETER: ("main_group_id",),
+    KIND_PARAMETER_METHOD: ("unit_id", "department_id"),
+}
 
 MAX_BYTES = 10 * 1024 * 1024
 TIMEOUT_SECONDS = 30
