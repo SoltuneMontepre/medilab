@@ -1,14 +1,13 @@
-import hashlib
 from datetime import timedelta
 
 from odoo import fields
 from odoo.fields import Command
 
+from .demo_laboratory_content import content_writer
 from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION
 
-# The content the two testers saved online in the lead results spreadsheet. The bytes are not in the bucket; the upload
-# flow adds them.
+# The content the two testers saved online in the lead results spreadsheet.
 ONLINE_CONTENT = "Pb: 0,004 mg/L, lặp lại 0,005 mg/L, trung bình 0,0045 mg/L"
 # How long ago the chemistry tester left the spreadsheet open in the browser without working in it.
 IDLE_HOURS = 13
@@ -28,11 +27,8 @@ def seed_laboratory_editing(env):
 
     saved = sessions.with_user(tester)._join_or_open(file.with_user(tester))
     sessions.with_user(chemistry_tester)._join_or_open(file.with_user(chemistry_tester))
-    sha256 = hashlib.sha256(ONLINE_CONTENT.encode()).hexdigest()
     version = saved._store_save(
-        sha256=sha256,
-        size=len(ONLINE_CONTENT.encode()),
-        storage_key=f"demo/{sha256}",
+        content=content_writer(env)(ONLINE_CONTENT),
         editor=chemistry_tester,
         editors=tester | chemistry_tester,
     )

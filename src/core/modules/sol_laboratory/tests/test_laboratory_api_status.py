@@ -1,21 +1,14 @@
 import os
-import socket
 from unittest.mock import patch
 
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
 from .laboratory_api_case import LaboratoryApiCase
+from .laboratory_bucket_case import closed_port
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import ACCESS_KEY_VARIABLE, ADDRESS_VARIABLE
 from odoo.addons.sol_laboratory.constants.laboratory_editing import INTERNAL_URL_VARIABLE
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_HTTP
-
-
-def closed_port():
-    """A port of this machine nothing listens on, as the address of an editing service that is down."""
-    with socket.socket() as probe:
-        probe.bind(("127.0.0.1", 0))
-        return probe.getsockname()[1]
 
 
 @tagged("post_install", "-at_install")

@@ -222,9 +222,9 @@ class LaboratoryEditingSession(models.Model):
         """Record activity in the sessions, which keeps them from expiring."""
         self.sudo().write({"last_activity_at": fields.Datetime.now()})
 
-    def _store_save(self, *, sha256, size, storage_key, editor, editors):
-        """Store the editing service's save of the session, from the content the caller fetched and stored first, and
-        return the version: edited online, a conflict when the file changed after the session opened, or the current
+    def _store_save(self, *, content, editor, editors):
+        """Store the editing service's save of the session, from the verified content the caller fetched and stored
+        first, and return the version: edited online, a conflict when the file changed after the session opened, or the current
         version when the file already has the content. The version goes to the editor, the last person to change the
         document; editors are everyone who changed it.
 
@@ -242,9 +242,7 @@ class LaboratoryEditingSession(models.Model):
             with self.env.cr.savepoint():
                 file.with_user(editor)._check_file_access(FILE_WRITE)
                 version = file._add_version(
-                    sha256=sha256,
-                    size=size,
-                    storage_key=storage_key,
+                    content=content,
                     source=EDITED_ONLINE,
                     user=editor,
                     base_version=session.base_version_id,
@@ -255,7 +253,7 @@ class LaboratoryEditingSession(models.Model):
                     "%(person)s cannot save the file (%(reason)s); the saved content is kept under %(key)s.",
                     person=editor.name,
                     reason=error.args[0],
-                    key=storage_key,
+                    key=content.sudo().object_key,
                 )
             )
             return self.env[MODEL_LABORATORY_FILE_VERSION]
