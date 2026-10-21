@@ -83,9 +83,9 @@ class ScheduledJob(models.Model):
     # The most recent run.
     last_run_id = fields.Many2one(MODEL_JOB_RUN, compute="_compute_last_run")
     # Result of the most recent run.
-    last_run_status = fields.Selection(related="last_run_id.status")
+    last_run_status = fields.Selection(related="last_run_id.status", depends=["last_run_id"])
     # Seconds the most recent run took.
-    last_run_duration = fields.Float(related="last_run_id.duration")
+    last_run_duration = fields.Float(related="last_run_id.duration", depends=["last_run_id"])
     # Items waiting to be done.
     pending_count = fields.Integer(compute="_compute_counts")
     # Items that failed their last attempt.
