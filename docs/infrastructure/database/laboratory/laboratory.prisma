@@ -2346,6 +2346,7 @@ model LaboratorySyncRule {
   /// The folder the rule limits.
   folder    LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Cascade)
 
+  @@unique([folder_id, kind, pattern])
   @@index([folder_id])
   @@map("medilab_laboratory_sync_rule")
 }

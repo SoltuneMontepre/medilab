@@ -99,6 +99,7 @@ from . import (
     test_laboratory_sample_folder_records,
     test_laboratory_sample_folders,
     test_laboratory_sign_in_concurrency,
+    test_laboratory_sync_rule_migration,
     test_languages,
     test_legacy_task_links,
     test_machine_scheduling,

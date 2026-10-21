@@ -68,6 +68,7 @@ A folder of a sample, its members, sync rules, files, versions, locks, editing s
 
 - Creating a folder adds its owner as a member with the role `owner`. A folder has one owner row, held by a partial unique index, and the owner row cannot be removed.
 - Only active internal users holding the laboratory files permission are added as members. Anyone else is refused with `not_eligible` and one message that does not say why.
+- A folder has one sync rule of each kind and pattern, held by a unique key on the folder, the kind and the pattern.
 
 ### Names, never paths
 

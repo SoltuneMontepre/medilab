@@ -91,6 +91,7 @@
 - **Waiting after `try_again`.** Decided: `Retry-After` is 5 seconds.
 - **Failed sign-ins in the audit trail.** Decided: they are not recorded there; Odoo's log and the count of failed sign-ins are enough.
 - **Errors without a code.** Decided: a method a route does not take answers 405 with `method_not_allowed` and an `Allow` header; an error nobody expected answers 500 with `internal_error`, a generic message and the id the server logged it under.
+- **One sync rule per kind and pattern.** Decided: a folder has one rule of each kind and pattern. The upgrade that adds the rule keeps the oldest of each and deletes the others, logging each deleted rule with its flags.
 
 ## Related documents
 
