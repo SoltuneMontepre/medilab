@@ -19,6 +19,7 @@ from . import (
     laboratory_file_version_sample,
     laboratory_file_version_signing,
     laboratory_folder,
+    laboratory_folder_api,
     laboratory_folder_member,
     laboratory_folder_member_sample,
     laboratory_folder_sample,
