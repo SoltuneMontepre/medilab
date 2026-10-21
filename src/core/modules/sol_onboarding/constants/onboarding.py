@@ -21,3 +21,10 @@ VALUE_KEYS = {
 
 # Keys a reviewer supplies when accepting; a source never provides them.
 ASKED_KEYS = ("code", "field_id", "main_group_id", "unit_id", "department_id")
+
+MAX_BYTES = 10 * 1024 * 1024
+TIMEOUT_SECONDS = 30
+MAX_REDIRECTS = 5
+# Media types the fetcher accepts, with the content type of the fetched document.
+CONTENT_TYPES = {"text/html": "html", "application/pdf": "pdf", "application/json": "json"}
+USER_AGENT = "MediLab-Onboarding/1.0"

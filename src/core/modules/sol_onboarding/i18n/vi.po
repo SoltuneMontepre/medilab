@@ -195,3 +195,38 @@ msgstr "Một lượt thu thập phải lấy ít nhất một trang."
 #: code:addons/sol_onboarding/models/onboarding/onboarding_source.py:0
 msgid "The start address must be an HTTPS address on the host, without user or port."
 msgstr "Địa chỉ bắt đầu phải là địa chỉ HTTPS trên đúng tên miền, không có người dùng hay cổng."
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "another host"
+msgstr "tên miền khác"
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "content type %s not accepted"
+msgstr "không nhận loại nội dung %s"
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "disallowed by robots.txt"
+msgstr "bị robots.txt chặn"
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "not HTTPS"
+msgstr "không phải HTTPS"
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "over 10 MB"
+msgstr "quá 10 MB"
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "redirect off the host"
+msgstr "chuyển hướng ra ngoài tên miền"
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "too many redirects"
+msgstr "quá nhiều lần chuyển hướng"

@@ -194,3 +194,38 @@ msgstr ""
 #: code:addons/sol_onboarding/models/onboarding/onboarding_source.py:0
 msgid "The start address must be an HTTPS address on the host, without user or port."
 msgstr ""
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "another host"
+msgstr ""
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "content type %s not accepted"
+msgstr ""
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "disallowed by robots.txt"
+msgstr ""
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "not HTTPS"
+msgstr ""
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "over 10 MB"
+msgstr ""
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "redirect off the host"
+msgstr ""
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/services/fetcher.py:0
+msgid "too many redirects"
+msgstr ""

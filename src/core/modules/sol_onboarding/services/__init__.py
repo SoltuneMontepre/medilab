@@ -1,1 +1,1 @@
-from . import adapters, parsing
+from . import adapters, fetcher, parsing
