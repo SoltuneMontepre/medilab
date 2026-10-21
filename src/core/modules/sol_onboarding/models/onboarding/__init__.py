@@ -1,4 +1,5 @@
 from . import (
+    accreditation_certificate,
     onboarding_accept,
     onboarding_organisation,
     onboarding_reject,
@@ -12,4 +13,8 @@ from . import (
     onboarding_staged_record_matching,
     onboarding_staged_record_review,
     onboarding_staged_record_staging,
+    sample_type,
+    test_parameter,
+    testing_field,
+    testing_method,
 )

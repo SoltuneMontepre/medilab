@@ -2,6 +2,7 @@
 
 MODEL_ONBOARDING_ACCEPT = "medilab.onboarding.accept"
 MODEL_ONBOARDING_ORGANISATION = "medilab.onboarding.organisation"
+MODEL_ONBOARDING_ORIGIN_MIXIN = "medilab.onboarding.origin.mixin"
 MODEL_ONBOARDING_REJECT = "medilab.onboarding.reject"
 MODEL_ONBOARDING_RUN = "medilab.onboarding.run"
 MODEL_ONBOARDING_SECTOR = "medilab.onboarding.sector"

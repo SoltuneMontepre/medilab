@@ -114,10 +114,10 @@ tasks:
       - docker compose run --rm -T --user root --entrypoint rm odoo -rf {{.TEST_RUN_DIR}}
 
   test:uninstall:
-    desc: "Install the modules in a throwaway database, uninstall commerce and inventory and check that the Laboratory data is intact"
+    desc: "Install the modules in a throwaway database, uninstall commerce, inventory and onboarding and check that the Laboratory data is intact"
     silent: true
     vars:
-      MODULES: sol_laboratory,sol_commerce,sol_inventory
+      MODULES: sol_laboratory,sol_commerce,sol_inventory,sol_onboarding
       STANDALONE_TAG: medilab_uninstall
     cmds:
       - docker compose up -d --wait postgres

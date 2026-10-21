@@ -7,10 +7,12 @@ from . import (
     test_fetcher,
     test_matching,
     test_organisations,
+    test_origin,
     test_parsing,
     test_review,
     test_runs,
     test_sectors,
     test_source_access,
     test_staging,
+    test_uninstall,
 )

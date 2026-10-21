@@ -80,8 +80,8 @@ class TestMatching(OnboardingCase):
         self.assertEqual((changed.record_id, changed.action), (certificate.id, "update"))
 
     def test_names_match_as_a_suggestion(self):
-        sample = self.env[MODEL_SAMPLE_TYPE].create({"name": "Nước Mặt"})
-        staged = self.stage(KIND_SAMPLE_TYPE, name="nước mặt")
+        sample = self.env[MODEL_SAMPLE_TYPE].create({"name": "Nước Biển Ven Bờ"})
+        staged = self.stage(KIND_SAMPLE_TYPE, name="nước biển ven bờ")
 
         self.assertEqual(
             (staged.record_model, staged.record_id, staged.match_suggested), (MODEL_SAMPLE_TYPE, sample.id, True)

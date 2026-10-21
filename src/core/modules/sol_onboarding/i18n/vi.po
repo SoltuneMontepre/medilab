@@ -74,6 +74,16 @@ msgid "Accepted"
 msgstr "Đã duyệt"
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_origin_list
+msgid "Accepted At"
+msgstr "Thời điểm chấp nhận"
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_accreditation_certificate
+msgid "Accreditation Certificate"
+msgstr "Giấy chứng nhận công nhận"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__accreditation_code
 msgid "Accreditation Code"
 msgstr "Mã công nhận"
@@ -266,15 +276,21 @@ msgid "Department Needed"
 msgstr "Cần phòng ban"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_accreditation_certificate__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_origin_mixin__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_sample_type__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_test_parameter__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_field__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_method__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -351,15 +367,21 @@ msgid "Host"
 msgstr "Tên miền"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_accreditation_certificate__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_origin_mixin__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_sample_type__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_test_parameter__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_field__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_method__id
 msgid "ID"
 msgstr "ID"
 
@@ -476,6 +498,11 @@ msgid "Onboarding Organisation"
 msgstr "Tổ chức thu thập"
 
 #. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_origin_mixin
+msgid "Onboarding Origin"
+msgstr "Nguồn gốc thu thập"
+
+#. module: sol_onboarding
 #: model:ir.model,name:sol_onboarding.model_medilab_onboarding_sector
 msgid "Onboarding Sector"
 msgstr "Ngành thu thập"
@@ -542,6 +569,23 @@ msgstr "Tổ chức"
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__organisations_refreshed_at
 msgid "Organisations Refreshed At"
 msgstr "Tổ chức được làm mới lúc"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/mixins/onboarding_origin_mixin.py:0
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_accreditation_certificate__onboarding_origin_count
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_origin_mixin__onboarding_origin_count
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_sample_type__onboarding_origin_count
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_test_parameter__onboarding_origin_count
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_field__onboarding_origin_count
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_testing_method__onboarding_origin_count
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_accreditation_certificate_form_origin
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_sample_type_form_origin
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_test_parameter_form_origin
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_testing_field_form_origin
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_testing_method_form_origin
+msgid "Origin"
+msgstr "Nguồn gốc"
 
 #. module: sol_onboarding
 #. odoo-python
@@ -710,6 +754,7 @@ msgid "Running"
 msgstr "Đang chạy"
 
 #. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_sample_type
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__sample_type
 msgid "Sample Type"
 msgstr "Loại mẫu"
@@ -831,11 +876,13 @@ msgid "Tax ID"
 msgstr "Mã số thuế"
 
 #. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_test_parameter
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__test_parameter
 msgid "Test Parameter"
 msgstr "Chỉ tiêu"
 
 #. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_testing_field
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__field_id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__field_id
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__testing_field
@@ -854,6 +901,7 @@ msgid "Testing Field Needed"
 msgstr "Cần lĩnh vực thử nghiệm"
 
 #. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_testing_method
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__testing_method
 msgid "Testing Method"
 msgstr "Phương pháp thử"
@@ -884,7 +932,8 @@ msgstr "Bản ghi khớp của %s không còn tồn tại. Hãy chọn lại b�
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
-msgid "The staged %(need)s that %(record)s needs is neither to review nor accepted."
+msgid ""
+"The staged %(need)s that %(record)s needs is neither to review nor accepted."
 msgstr "%(need)s chờ duyệt mà %(record)s cần không ở trạng thái chờ duyệt hay đã duyệt."
 
 #. module: sol_onboarding

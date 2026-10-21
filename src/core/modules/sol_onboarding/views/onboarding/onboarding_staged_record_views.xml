@@ -38,6 +38,20 @@
         </field>
     </record>
 
+    <record id="view_medilab_onboarding_staged_record_origin_list" model="ir.ui.view">
+        <field name="name">medilab.onboarding.staged.record.origin.list</field>
+        <field name="model">medilab.onboarding.staged.record</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list duplicate="0" create="0" delete="0">
+                <field name="kind" />
+                <field name="page_url" widget="url" />
+                <field name="page_fetched_at" />
+                <field name="reviewed_at" string="Accepted At" />
+            </list>
+        </field>
+    </record>
+
     <record id="view_medilab_onboarding_staged_record_form" model="ir.ui.view">
         <field name="name">medilab.onboarding.staged.record.form</field>
         <field name="model">medilab.onboarding.staged.record</field>

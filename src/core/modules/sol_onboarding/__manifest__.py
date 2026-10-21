@@ -20,6 +20,11 @@
         "views/onboarding/onboarding_reject_views.xml",
         "views/onboarding/onboarding_staged_record_views.xml",
         "views/onboarding/onboarding_run_views.xml",
+        "views/onboarding/accreditation_certificate_views.xml",
+        "views/onboarding/testing_field_views.xml",
+        "views/onboarding/testing_method_views.xml",
+        "views/onboarding/sample_type_views.xml",
+        "views/onboarding/test_parameter_views.xml",
         "views/system/menus.xml",
     ],
 }

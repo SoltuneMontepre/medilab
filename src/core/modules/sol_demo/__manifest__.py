@@ -52,6 +52,8 @@
         "data/sol_onboarding/onboarding_source.xml",
         "data/sol_onboarding/onboarding_organisation.xml",
         "data/sol_onboarding/onboarding_run.xml",
+        "data/sol_onboarding/onboarding_snapshot.xml",
+        "data/sol_onboarding/onboarding_staged_record.xml",
         "data/base/ir_cron.xml",
         "data/sol_laboratory/scheduled_job.xml",
         "data/sol_laboratory/job_item.xml",
