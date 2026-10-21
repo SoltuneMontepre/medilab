@@ -1,6 +1,6 @@
 # Laboratory files
 
-Stories: US-T23, US-T24, US-T25, US-T27, US-T28, US-AD29, US-AD30, US-AD31
+Stories: US-T23, US-T24, US-T25, US-T27, US-T28, US-AD29, US-AD30, US-AD31, US-HD15, US-HD16
 
 ## Goal
 
@@ -17,13 +17,13 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 | Laboratory sync rule     | read, create, edit, delete | all    |
 | Laboratory device        | read, edit                 | all    |
 | Laboratory file          | read                       | all    |
-| Laboratory file version  | read                       | all    |
+| Laboratory file version  | read, sign                 | all    |
 | Laboratory file change   | read                       | all    |
 | Laboratory file lock     | read                       | all    |
 
 - **The create permission on laboratory folders, `laboratory_folder.create.all`, is the laboratory files permission.** Its holders sign computers in and create folders they own. Its group also carries accesses of its own: its holders read the folders they are members of, the members and sync rules of those folders, and their own computers. They change them only through the laboratory files API, which checks them and then writes with full rights.
 - Folder administration is `laboratory_folder.edit.all`. With the read permissions of every folder, member, sync rule and computer, and the other permissions above, administrators see and change them all in the back office.
-- Files, versions and changes have only `read`: they are made by saving files, through the method below, and never changed or deleted. The laboratory files permission also reads the files and versions of its holder's folders.
+- Files, versions and changes have only `read`: they are made by saving files, through the method below, and never changed or deleted. The laboratory files permission also reads the files and versions of its holder's folders. Versions also have `sign`, for [signing them](#signing-versions).
 - Locks have only `read` too: they are taken, renewed and unlocked through the laboratory files API, and administrators release one as folder administrators. The laboratory files permission reads the locks of its holder's folders.
 - Folders have no archive or delete action: archiving a folder is editing it, and folders are never deleted. Members change their role only with the folder's owner, so they have no edit action. Computers are created by signing in and revoked by editing; they are never deleted.
 
@@ -58,9 +58,9 @@ Administrators administer folders in the back office; each action checks `admini
 
 ### Back office
 
-The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Folder Members, Sync Rules and Computers. Files, versions and locks are only read there, and a folder's form lists its files. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and change nothing else: owners manage their folders from Medilab Sync. Only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
+The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Folder Members, Sync Rules and Computers. Files, versions and locks are only read there, and a folder's form lists its files. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and change nothing else: owners manage their folders from Medilab Sync. A sample's folders are created from the sample ([Creating a sample's folders](#creating-a-samples-folders)); otherwise only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
 
-Known limitation: the back office shows a folder of a sample, its files, their versions and their locks to its members by their membership only, because an access domain cannot test whether the person sees the sample. The laboratory files API refuses such a folder to a member who does not see its sample. Only administrators set a folder's sample until US-HD15 creates sample folders, which must also limit their back office to people who see the sample.
+A folder of a sample, its members, sync rules, files, versions, locks and changes are shown only to people who see the sample, administrators included; see [Sample folders](#sample-folders).
 
 ### Members
 
@@ -155,6 +155,44 @@ A signed-in computer is a `medilab.laboratory.device` of its person, one per ins
 #### Risks
 
 - Odoo's only brake on guessing passwords is its login cooldown, which counts failures per Odoo worker. Signing in is not rate limited otherwise, so many attempts against one login can reach Odoo; the route needs a rate limit in front of Odoo, as the webhooks have.
+
+### Sample folders
+
+A folder of a sample holds the files of one category of its work: raw data, working documents, results or reports.
+
+- A sample has one folder of each category, held by a unique key on the sample and the category. A folder of a sample needs a category; a folder of no sample may have one too, and several such folders may share it.
+- Once a folder holds files, its sample and its category never change, so its files keep meaning what they were saved as, such as a signed result of that sample. The folder's form shows them read only then.
+- Everything of a sample's folder is seen only by people who see the sample, whoever they are, folder administrators included: the folder, its members, sync rules, files, versions, locks and changes, in lists, forms and links. Each of these models inherits `medilab.laboratory.sample.folder.mixin`, which adds to the model's access domain for every operation that the record's folder belongs to no sample or to a sample the user reads, with the sample's own access domain for the user. An access domain is evaluated with full rights, so it cannot test the sample itself; the sample's access domain, which Odoo builds for the user, can. A model a later feature adds under folders or files inherits the mixin too, naming the path to the sample in `_sample_field`.
+
+#### Creating a sample's folders
+
+**Create Folders** on the sample adds the raw-data and result folders it does not have yet. The head of a department that tests the sample creates them, holding the laboratory files permission and seeing the sample; anyone else is refused with `permission_denied`. Who creates a sample's folders, and when, is an open question: `_check_can_create_laboratory_folders()` on the sample alone decides it, so another answer changes only that method.
+
+- The new folders are owned by the person who creates them, upload-only and without sync rules, so every file is synced. The owner adds the members.
+- They are named after the lab code only, which testers see: `<lab code> Raw Data`, with the root `<lab code>-raw`, and `<lab code> Results`, with the root `<lab code>-result`. When the owner already has a folder of that root, nothing is created and the person is told.
+- Creating them again adds nothing. Two creations at once make one folder of each category: the second one's creation fails on the unique key, `_create_laboratory_folders()` turns it into a `ConcurrencyError`, and Odoo runs the request again, which finds the folders.
+- The sample's form opens its folders the person sees.
+
+### Signing versions
+
+A version of a result file is approved by signing it through the [approval and signing chain](../business/approval-and-signing-chain.md) of laboratory file versions, `medilab.laboratory.file.version`: each version is a document of the chain, signed level after level by the roles its levels name, and the signature belongs to that version and its content. The chain is set up by administrators; without it, signing a version is refused.
+
+| Step        | Who and what                                                                                                                                                                                                                                                    |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Signing     | A member of the folder who sees its sample, holds the `sign` permission of versions and the role of the next level signs the current version of a file in a result folder. The signature records the signer, their role and level, the version and its SHA-256. |
+| Rejecting   | The same person rejects the version instead, with a reason; a rejection without one is refused. The person who saved the version is told why, through the mandatory `laboratory_file_version.rejected` event, once for each round.                              |
+| Withdrawing | A signer withdraws their own signature or rejection once every higher level has withdrawn theirs, as in every chain. Withdrawing the last one leaves the version unsigned, and the next signatures record the next round of `document_version`.                 |
+
+- Only the current version of a file in a result folder is signed or rejected. A conflict version is never current, so it is never signed.
+- A newer version of the file starts unsigned: the file shows the signing state of its current version, and the older version keeps its signatures.
+- Signing never stops a save, the online editor or a lock: a signed version is already never changed. Its number, content, hash and origin are protected for good, as every version's are. The fields signing adds are not part of that list: the signing state changes as people sign, reject and withdraw, and only through them; the round, `document_version`, cannot change while a signature stands, as in every chain.
+- Each signature of the chain records the hash of its document's content in `document_hash`, from `_approval_document_hash()`; for a version it is its SHA-256, and for document types without one it is empty.
+- Signing and rejecting take the file's row without changing it, so a signature and a concurrent save of the same file wait for each other and the second one runs again: a signature that comes after a newer version is refused, and a save after a signature adds an unsigned version. The file's last save stays as it was.
+- The level whose signer must belong to the department that did the work is refused for versions: a sample is tested by several departments, and the chain takes one department per document. Which one counts is an open question.
+- When a version's process is completed, so that its signatures can no longer be withdrawn, is an open question; until it is answered, they can always be withdrawn.
+- Signing, approving, rejecting and withdrawing are recorded in the [audit trail](audit-trail.md) on the version.
+- In the back office, a version's form signs it, rejects it with a reason and withdraws a signature, each button shown only to the person who may use it now, and shows its signing state; its signatures are listed to people who read signatures. Lists of files and versions show the signing state of each, and filter versions that are signed, being signed or rejected.
+- Whether a signed version is also digitally signed through Viettel Sign, and whether the person who saved a version may sign it, are open questions.
 
 ## Related documents
 

@@ -109,6 +109,17 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_laboratory_file_version_rejected" model="mail.message.subtype">
+        <field name="name">Laboratory file version rejected</field>
+        <field name="description">A version of a laboratory file you saved was rejected</field>
+        <field name="code">laboratory_file_version.rejected</field>
+        <field name="res_model">medilab.laboratory.file.version</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <!-- Administrators are alerted out of the box; they choose other recipients afterwards. -->
     <data noupdate="1">
         <record id="event_recipient_signing_certificate_alert" model="medilab.notification.event.recipient">

@@ -35,4 +35,9 @@
         <field name="document_model">purchase.order</field>
         <field name="purpose">signing</field>
     </record>
+    <record id="demo_approval_chain_laboratory_file_version_signing" model="medilab.approval.chain">
+        <field name="name">Laboratory file signing</field>
+        <field name="document_model">medilab.laboratory.file.version</field>
+        <field name="purpose">signing</field>
+    </record>
 </odoo>

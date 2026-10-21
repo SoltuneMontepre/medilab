@@ -52,6 +52,20 @@
 - **Ended locks.** Decided: as for document locks, the cleanup job removes released and expired locks after the retention period of locks; their audit entries stay.
 - **Renewing a lock.** Decided: renewals are not recorded in the audit trail; taking a lock, unlocking it, its expiry and an administrator's release are.
 
+## #173
+
+- **Which file versions are signed.** Decided: only the current version of a file in a result folder. Conflict versions are never current, so they are never signed.
+- **Who signs a file version.** Decided: a member of the folder who sees its sample, with the role of the chain's level and the sign permission of versions.
+- **The department of a file version.** A sample is tested by several departments, and any of them should count for a level whose signer must belong to the department that did the work. The approval chain takes one department per document, so such a level is refused for file versions for now. Should the chain take several departments, or does one of the sample's departments count? (US-HD16)
+- **When a file version's process is completed.** Once a document's process is completed, its signatures can no longer be withdrawn. When is that for a file version, for example once the test report that relies on it is issued? For now its signatures can always be withdrawn. (US-HD16)
+- **Signing and later saves.** Decided: signing never stops a new save, online editing or a lock; a signed version is already never changed, and the newer version starts unsigned.
+- **Sample folders in the back office.** Decided: a sample's folders, and everything in them, are shown only to people who see the sample, folder administrators included.
+- **Working and report folders.** Creating a sample's folders adds its raw-data and result folders. Who creates its working-documents and reports folders, and when? Out of scope for now.
+- **Uploads to a closed sample's folders.** The old module refused uploads to the folders of a completed or cancelled sample. Should the folders of a closed sample refuse uploads, and online editing? For now they do not.
+- **Names of sample folders.** Assumption: a sample's folders are named after its lab code and their category, such as `PTN.2026.0001 Raw Data`, with the roots `PTN.2026.0001-raw` and `PTN.2026.0001-result`. Is that the name the laboratory wants?
+- **The chain of file versions.** Decided: as for every document type, the chain for signing file versions is set up by administrators and comes only with the demo data; until it exists, signing a version is refused.
+- **Category of a folder of no sample.** Decided for now: a folder of a sample must have a category, but a folder of no sample may have one too, although the diagram says its category is empty, because the tests of laboratory files create raw-data folders without a sample. The two-way rule is checked once the online editing of files has landed and those tests are moved to sample folders.
+
 ## Related documents
 
 - [Laboratory overview](../docs/functional/laboratory_module/overview.md)
