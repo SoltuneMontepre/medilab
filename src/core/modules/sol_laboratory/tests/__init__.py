@@ -41,6 +41,7 @@ from . import (
     test_handover_record,
     test_is_accredited,
     test_job_claim_timeout,
+    test_job_killed_worker,
     test_job_queue,
     test_job_retry,
     test_job_run,

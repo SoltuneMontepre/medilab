@@ -22,7 +22,7 @@ The work of a job is `_handle_<key with dots replaced by underscores>(self, item
 
 ### Claiming and retries
 
-A batch claims due items with `FOR UPDATE SKIP LOCKED`, handles each one in a savepoint, and retries a failure with a delay that doubles up to the job's attempts. The item is then marked failed and an activity is created for the administrator. Abandoned claims, an item still running after the claim timeout, count an attempt. A second cron pass waits on Odoo's own scheduler lock.
+A batch claims due items with `FOR UPDATE SKIP LOCKED`, handles each one in a savepoint, and retries a failure with a delay that doubles up to the job's attempts. The item is then marked failed and an activity is created for the administrator. Under the cron, the batch commits its claims before it handles any item, so a worker killed or a connection lost in a handler leaves its items running. Abandoned claims, an item still running after the claim timeout, count an attempt. A second cron pass waits on Odoo's own scheduler lock.
 
 Run now asks the cron worker to run the job and records who asked.
 

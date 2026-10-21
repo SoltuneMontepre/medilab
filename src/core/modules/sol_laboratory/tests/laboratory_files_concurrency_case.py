@@ -75,7 +75,7 @@ class LaboratoryFilesConcurrencyCase(TransactionCase):
                         second_acting.set()
                     return second_action(env).id
 
-                with mute_logger("odoo.sql_db", "odoo.http.retrying"):
+                with mute_logger("odoo.sql_db", "odoo.http"):
                     try:
                         result = retrying(run, env)
                     except UserError as refusal:
