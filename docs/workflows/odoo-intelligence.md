@@ -113,7 +113,7 @@ The probe writes `.local/verification/cursor-editor.json`. It quits its test win
 - Only the navigation cases in `navigation_cases.json` are checked; indexing every manifest does not prove that every dynamic ORM expression resolves.
 - No native Odoo LSP plugin is installed for Claude Code, Codex or Cursor Agent; MCP is their Odoo interface. Only the Cursor editor uses native Odoo LSP.
 - Codex loads the project configuration only in a trusted checkout.
-- Only Linux x86-64 is verified. The installer selects the official macOS and Windows artifacts, but they have not been run. On Windows the launcher's `os.execv` starts a new process instead of replacing itself, and stdio MCP through it is untested.
+- Only Linux x86-64 is fully verified. The installer selects the official macOS artifacts, but they have not been run. On Windows x86-64, `task ai:verify` passes and Claude Code connects to both launcher servers; the live tests that create symlinks need Developer Mode, and `task ai:test` needs `PYTHONUTF8=1`. The Windows launcher waits for the server process instead of replacing itself, because `os.execv` there starts a new process and exits the one the client started.
 - MCP connectivity and tool schemas do not prove that a client's model-driven calls succeed; check actual tool responses.
 
 ## Maintenance and troubleshooting
