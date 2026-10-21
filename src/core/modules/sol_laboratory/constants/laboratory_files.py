@@ -43,3 +43,9 @@ DEVICE_REVOKED = "device_revoked"
 LOCKABLE_CATEGORIES = frozenset({"working", "result", False})
 NOT_LOCKABLE = "not_lockable"
 NOT_LOCKED = "not_locked"
+# Codes of the refusals of the laboratory files API itself: a method the route does not take, a login still slowed, a
+# request still failing on concurrency after Odoo's last try, and an error nobody expected.
+METHOD_NOT_ALLOWED = "method_not_allowed"
+TOO_MANY_ATTEMPTS = "too_many_attempts"
+TRY_AGAIN = "try_again"
+INTERNAL_ERROR = "internal_error"

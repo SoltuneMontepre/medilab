@@ -2524,6 +2524,20 @@ model LaboratoryDevice {
   @@map("medilab_laboratory_device")
 }
 
+/// The failed sign-ins of a login through the laboratory files API, which slow its next ones.
+model LaboratorySignInAttempt {
+  /// Row identifier.
+  id        Int      @id @default(autoincrement())
+  /// The login the failed sign-ins were made with, as it was sent; it need not be anyone's.
+  login     String   @unique @db.VarChar
+  /// Failed sign-ins of the login since its failures were last forgotten.
+  failures  Int
+  /// When the last failed sign-in was made, to the microsecond.
+  failed_at DateTime
+
+  @@map("medilab_laboratory_sign_in_attempt")
+}
+
 /// A change to a file's current version, in order; a device asks for the changes after the last id it saw. When the version became current is Odoo's creation time of the row. Changes are only added, never changed or deleted.
 model LaboratoryFileChange {
   /// Row identifier and the order devices read changes in.

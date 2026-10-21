@@ -82,6 +82,16 @@
 - **The editor's save and the bucket.** File bytes never pass through the API's requests. Storing an editor's save means Odoo streams the saved document from the editing service into the bucket during its callback, as nothing else can fetch it before the callback is answered without risking the save. Is the callback an accepted exception to that rule, or must the save be fetched by a job after the callback is answered, accepting that a save is lost when the job fails after the editing service has dropped the document? Proposed answer, for the team to confirm, not decided: the callback is an accepted exception; it streams the save from Document Server into the bucket without holding it in memory, because losing a save is worse than bytes passing through Odoo in that one request. (blocks US-T26)
 - **Where the editor opens.** Opening a file online gives a signed editor configuration, which a page in the browser hands to ONLYOFFICE's editor. Who asks for it and where that page lives is not given: Medilab Sync with its computer key, opening the person's browser on a page that has no Odoo session, or a page of Odoo's own that the person reaches signed in, such as from the file in the back office, which today has no Edit online button. How does a person open a file online, and from which application? (US-T26)
 
+## Laboratory files API
+
+- **Routes without a key.** Decided: signing in is `auth='public'`, and health and readiness are `auth='none'`, all with `csrf=False` and `save_session=False`; every other route takes a computer's key.
+- **Slowing a login.** Decided: the delay is counted from the last failure; an attempt refused for its delay is not counted; a login's failures are forgotten 15 minutes after its last one; a login nobody has is counted the same; a right password clears the count, also when signing in is then refused with `permission_denied` or `device_revoked`.
+- **A person who lost the laboratory files permission.** Decided: they still sign out and revoke their own computers; listing them is refused.
+- **Revoking someone else's computer.** Decided: administrators do it in the back office only, not through the API.
+- **Waiting after `try_again`.** Decided: `Retry-After` is 5 seconds.
+- **Failed sign-ins in the audit trail.** Decided: they are not recorded there; Odoo's log and the count of failed sign-ins are enough.
+- **Errors without a code.** Decided: a method a route does not take answers 405 with `method_not_allowed` and an `Allow` header; an error nobody expected answers 500 with `internal_error`, a generic message and the id the server logged it under.
+
 ## Related documents
 
 - [Laboratory overview](../docs/functional/laboratory_module/overview.md)
