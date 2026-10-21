@@ -3,7 +3,7 @@ from unittest.mock import patch
 from psycopg2 import IntegrityError
 
 from odoo.exceptions import AccessError, ValidationError
-from odoo.tests import tagged
+from odoo.tests import new_test_user, tagged
 from odoo.tools import mute_logger
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM
@@ -135,6 +135,16 @@ class TestRuns(OnboardingCase):
             run.with_user(self.reader).action_start()
         with self.assertRaises(AccessError):
             run.with_user(self.reader).action_cancel()
+
+    def test_a_plain_internal_user_cannot_read_runs(self):
+        run = self.run_of(sector_ids=self.food)
+        plain = new_test_user(self.env, login="onboarding_plain", groups="base.group_user")
+
+        with self.assertRaises(AccessError):
+            self.runs.with_user(plain).search([])
+        with self.assertRaises(AccessError):
+            run.with_user(plain).read(["name"])
+        self.assertEqual(run.with_user(self.reader).name, run.name)
 
     def test_refresh_by_hand_triggers_the_job(self):
         run = self.run_of(sector_ids=self.food)

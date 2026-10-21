@@ -2,7 +2,7 @@ import hashlib
 from datetime import datetime
 
 from odoo.exceptions import AccessError
-from odoo.tests import tagged
+from odoo.tests import new_test_user, tagged
 
 from odoo.addons.sol_onboarding.constants.models import (
     MODEL_ONBOARDING_RUN,
@@ -10,6 +10,7 @@ from odoo.addons.sol_onboarding.constants.models import (
     MODEL_ONBOARDING_STAGED_RECORD,
 )
 from odoo.addons.sol_onboarding.constants.onboarding import KIND_CERTIFICATE, KIND_TESTING_METHOD
+from odoo.addons.sol_onboarding.constants.xml_ids import SOURCES_GROUP
 from odoo.addons.sol_onboarding.services.adapters.base import Fetched, StagedValues
 from odoo.addons.sol_onboarding.tests.onboarding_case import OnboardingCase
 
@@ -127,5 +128,14 @@ class TestStaging(OnboardingCase):
 
         with self.assertRaises(AccessError):
             record.with_user(self.admin).read(["source_id"])
+        self.assertEqual(self.snapshots._fields["source_id"].groups, SOURCES_GROUP)
+
+    def test_a_plain_internal_user_cannot_read_staged_records(self):
+        record = self.stage(self.method("TCVN 1"))
+        plain = new_test_user(self.env, login="onboarding_plain", groups="base.group_user")
+
         with self.assertRaises(AccessError):
-            record.snapshot_id.with_user(self.admin).read(["source_id"])
+            self.records.with_user(plain).search([])
+        with self.assertRaises(AccessError):
+            record.with_user(plain).read(["external_key"])
+        self.assertEqual(record.with_user(self.reader).external_key, "TCVN 1")
