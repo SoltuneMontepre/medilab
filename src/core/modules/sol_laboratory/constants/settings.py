@@ -30,5 +30,9 @@ LABORATORY_FILE_URL_PARAMETER = "sol_laboratory.laboratory_file_url_minutes"
 DEFAULT_LABORATORY_FILE_URL_MINUTES = 15
 # Seven days, the longest a presigned address of the bucket lasts.
 LONGEST_LABORATORY_FILE_URL_MINUTES = 7 * 24 * 60
+LABORATORY_UPLOAD_PARAMETER = "sol_laboratory.laboratory_upload_hours"
+DEFAULT_LABORATORY_UPLOAD_HOURS = 24
+# An unfinished upload expires before the bucket's lifecycle rule aborts its parts, after 7 days.
+LIFECYCLE_ABORT_HOURS = 7 * 24
 LABORATORY_EDITING_IDLE_PARAMETER = "sol_laboratory.laboratory_editing_idle_hours"
 DEFAULT_LABORATORY_EDITING_IDLE_HOURS = 12

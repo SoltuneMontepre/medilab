@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.3.0
+  version: 1.4.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through. Every refusal answers
     `{"error": {"code", "message"}}` with the HTTP status of its code; a computer acts on the code, never on the
@@ -19,11 +19,11 @@ info:
     | `permission_denied`, `device_revoked` | 403 |
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
-    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked` | 409 |
+    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed` | 409 |
     | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict` | 422 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
-    | `try_again`, `editing_unavailable` | 503 |
+    | `try_again`, `editing_unavailable`, `storage_unavailable` | 503 |
 servers:
   - url: /medilab/api/v1
 security:
@@ -577,6 +577,185 @@ paths:
           $ref: "#/components/responses/InternalError"
         "503":
           $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/uploads:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: prepareUpload
+      summary: Prepares the upload of a file's content to the path of the folder, from the version it was based on.
+      description: |
+        The person must be able to write the file: a lock someone else holds refuses it before any byte is sent. When
+        the file's current version has the claimed SHA-256, nothing is uploaded and the upload is `unchanged`.
+        Otherwise the content goes to an object of its own, in parts of `part_size` bytes but the last, through the
+        addresses of `uploadParts`, even when the same content is stored already. The size and SHA-256 are claims:
+        the server reads the object and verifies them once the upload is finalized. Repeating the request with its
+        `Idempotency-Key` answers with the same upload.
+      parameters:
+        - $ref: "#/components/parameters/RequiredIdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewUpload"
+      responses:
+        "200":
+          description: The upload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneUpload"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/UploadConflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /folders/{folder_id}/uploads/{upload_id}:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: upload_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getUpload
+      summary: Gives an upload the computer prepared, which it reads until the upload ends.
+      responses:
+        "200":
+          description: The upload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneUpload"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /folders/{folder_id}/uploads/{upload_id}/parts:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: upload_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: uploadParts
+      summary: Gives the presigned addresses that upload the parts of the numbers with a PUT.
+      description: |
+        Each address writes one part of this upload only, and nothing once the upload is completed or aborted. The
+        addresses stop working at `expires_at`; ask again for the parts not uploaded by then.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartRequest"
+      responses:
+        "200":
+          description: The addresses of the parts.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartAddresses"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/UploadConflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /folders/{folder_id}/uploads/{upload_id}/finalize:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: upload_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: finalizeUpload
+      summary: Finalizes an upload once every part is uploaded; the server then verifies and stores it.
+      description: |
+        The upload is `verifying` until the server has read its object: then it is `completed`, `conflict` when it was
+        made from a version that is no longer current, `unchanged` when the file already had the content, `failed`
+        when the content is not the one claimed, or `refused` with the code of what refused it, such as `locked`; a
+        refused upload is finalized again once that is gone, until it expires. Finalizing an upload past finalizing
+        answers with it.
+      responses:
+        "202":
+          description: The upload, being verified.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneUpload"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/UploadConflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
   /folders/{folder_id}/files/{file_id}/lock:
     parameters:
       - name: folder_id
@@ -917,6 +1096,14 @@ components:
       name: Idempotency-Key
       in: header
       required: false
+      description: A key the computer generates for the request, unique for the computer.
+      schema:
+        type: string
+        pattern: "^[A-Za-z0-9._:-]{1,200}$"
+    RequiredIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
       description: A key the computer generates for the request, unique for the computer.
       schema:
         type: string
@@ -1319,6 +1506,102 @@ components:
         created_at:
           type: string
           format: date-time
+    NewUpload:
+      type: object
+      additionalProperties: false
+      required: [path, size, sha256]
+      properties:
+        path:
+          description: The path of the file relative to its folder, such as `HPLC/run-01.csv`.
+          type: string
+          minLength: 1
+        size:
+          description: The size the computer claims, in bytes.
+          type: integer
+          minimum: 0
+          maximum: 5368709120
+        sha256:
+          description: The SHA-256 the computer claims; the server verifies it.
+          $ref: "#/components/schemas/Sha256"
+        base_version_id:
+          description: The version the computer's file was based on; empty for a new file.
+          type: [integer, "null"]
+    Upload:
+      type: object
+      additionalProperties: false
+      required: [id, path, status, failure_code, size, sha256, base_version_id, part_size, part_count, expires_at, version]
+      properties:
+        id:
+          type: integer
+        path:
+          type: string
+        status:
+          enum: [prepared, verifying, completed, conflict, unchanged, refused, failed, expired]
+        failure_code:
+          description: |
+            Why the upload failed, `size_mismatch`, `sha256_mismatch` or `missing_object`, or the code of the refusal of
+            a refused upload.
+          type: [string, "null"]
+        size:
+          type: integer
+        sha256:
+          $ref: "#/components/schemas/Sha256"
+        base_version_id:
+          type: [integer, "null"]
+        part_size:
+          description: The size of every part but the last.
+          type: integer
+        part_count:
+          description: The number of parts; 0 when nothing is uploaded in parts, such as an empty file.
+          type: integer
+        expires_at:
+          description: When an upload not finalized by then expires.
+          type: string
+          format: date-time
+        version:
+          description: The version stored, or the current version of an unchanged upload.
+          oneOf:
+            - $ref: "#/components/schemas/Version"
+            - type: "null"
+    OneUpload:
+      type: object
+      additionalProperties: false
+      required: [upload]
+      properties:
+        upload:
+          $ref: "#/components/schemas/Upload"
+    PartRequest:
+      type: object
+      additionalProperties: false
+      required: [part_numbers]
+      properties:
+        part_numbers:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: integer
+            minimum: 1
+    PartAddresses:
+      type: object
+      additionalProperties: false
+      required: [parts, expires_at]
+      properties:
+        parts:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [number, url]
+            properties:
+              number:
+                type: integer
+              url:
+                description: The presigned address that uploads the part with a PUT of its bytes.
+                type: string
+        expires_at:
+          type: string
+          format: date-time
     OneVersion:
       type: object
       additionalProperties: false
@@ -1438,6 +1721,9 @@ components:
                 - internal_error
                 - try_again
                 - editing_unavailable
+                - upload_incomplete
+                - upload_closed
+                - storage_unavailable
             message:
               description: What happened, in the person's language.
               type: string
@@ -1564,6 +1850,33 @@ components:
                     properties:
                       code:
                         enum: [internal_error]
+    UploadConflict:
+      description: The folder, a lock or the state of the upload refuses it.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [folder_archived, folder_disabled, locked, upload_incomplete, upload_closed]
+    StorageUnavailable:
+      description: The request still failed on concurrency after the server's last try, or the bucket cannot be reached.
+      headers:
+        Retry-After:
+          $ref: "#/components/headers/RetryAfter"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [try_again, storage_unavailable]
     Unavailable:
       description: The request still failed on concurrency after the server's last try.
       headers:

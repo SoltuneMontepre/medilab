@@ -10,6 +10,7 @@ from . import (
     laboratory_api_folders,
     laboratory_api_sign_in,
     laboratory_api_status,
+    laboratory_api_uploads,
     mobile_device,
     portal,
     report,

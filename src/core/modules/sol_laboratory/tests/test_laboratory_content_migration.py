@@ -28,6 +28,8 @@ class TestLaboratoryContentMigration(LaboratoryFilesCase):
         cr.execute("ALTER TABLE medilab_laboratory_file_version ADD COLUMN storage_key VARCHAR")
         cr.execute("UPDATE medilab_laboratory_file_version SET storage_key = 'demo/' || sha256")
         cr.execute("ALTER TABLE medilab_laboratory_file_version DROP COLUMN content_id")
+        # Uploads came after this upgrade, so the database it upgrades has none.
+        cr.execute("DELETE FROM medilab_laboratory_upload")
         cr.execute("DELETE FROM medilab_laboratory_content")
         cr.execute("SELECT COUNT(DISTINCT sha256), COUNT(*) FROM medilab_laboratory_file_version")
         [(self.contents, self.version_count)] = cr.fetchall()

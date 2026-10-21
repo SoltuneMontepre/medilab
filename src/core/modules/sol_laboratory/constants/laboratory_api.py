@@ -23,6 +23,11 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     TOO_MANY_ATTEMPTS,
     TRY_AGAIN,
 )
+from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
+    STORAGE_UNAVAILABLE,
+    UPLOAD_CLOSED,
+    UPLOAD_INCOMPLETE,
+)
 
 # Every route of the API is under this path.
 API_PREFIX = "/medilab/api/v1"
@@ -40,6 +45,8 @@ ERROR_STATUSES = {
     LOCKED: 409,
     NOT_LOCKED: 409,
     FOLDER_EXISTS: 409,
+    UPLOAD_INCOMPLETE: 409,
+    UPLOAD_CLOSED: 409,
     NOT_ELIGIBLE: 422,
     NOT_LOCKABLE: 422,
     NOT_EDITABLE: 422,
@@ -48,6 +55,7 @@ ERROR_STATUSES = {
     INTERNAL_ERROR: 500,
     TRY_AGAIN: 503,
     EDITING_UNAVAILABLE: 503,
+    STORAGE_UNAVAILABLE: 503,
 }
 # Seconds a computer waits before calling again after try_again.
 TRY_AGAIN_SECONDS = 5
