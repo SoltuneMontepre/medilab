@@ -28,6 +28,6 @@ from . import (
     signature,
 )
 
-# Accreditation job handlers inherit medilab.scheduled.job; load after the base model.
+# Accreditation and laboratory file lock job handlers inherit medilab.scheduled.job; load after the base model.
 # isort: split
-from . import accreditation_scheduled_job
+from . import accreditation_scheduled_job, laboratory_file_lock_scheduled_job

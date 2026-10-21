@@ -46,6 +46,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock.py:0
+msgid "%(user)s has locked %(file)s until %(until)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
 "%s does not tell editing from archiving yet, so it has no edit or "
@@ -269,6 +275,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/approval_level.py:0
 msgid "A level with signatures cannot be deleted. Signatures: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock_settings.py:0
+msgid "A lock on a laboratory file must last at least 1 minute."
 msgstr ""
 
 #. module: sol_laboratory
@@ -508,6 +520,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__active
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__active
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__active
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Active"
 msgstr ""
 
@@ -1408,6 +1422,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__device_id
 msgid "Computer"
 msgstr ""
 
@@ -1744,6 +1759,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -1813,6 +1829,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_date
 msgid "Created on"
 msgstr ""
 
@@ -2343,6 +2360,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2824,6 +2842,11 @@ msgid "Ended At"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__released_at
+msgid "Ended On"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__country_enforce_cities
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__country_enforce_cities
 msgid "Enforce Cities"
@@ -2868,12 +2891,25 @@ msgid "Expected Date"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_file_locks_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_file_locks_expire
+msgid "Expire laboratory file locks"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signing_certificate__status__expired
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__expired
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__expired
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__expired
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Expired"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__expires_at
+msgid "Expires On"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2921,6 +2957,17 @@ msgstr ""
 msgid ""
 "Field used to store sanitized phone number. Helps speeding up "
 "searches and comparisons."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file_lock
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file_lock
+msgid "File Locks"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_file_lock_minutes
+msgid "File Locks (minutes)"
 msgstr ""
 
 #. module: sol_laboratory
@@ -2995,6 +3042,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__folder_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__folder_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Folder"
 msgstr ""
 
@@ -3301,6 +3350,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__id
 msgid "ID"
 msgstr ""
 
@@ -3701,6 +3751,37 @@ msgid "Kind"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file_lock
+msgid "Laboratory File Lock"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__lock_id
+msgid "Lock"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__locked_by_id
+msgid "Locked By"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_list
+msgid "Locked On"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__locked_until
+msgid "Locked Until"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__lock_ids
+msgid "Locks"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lod
 msgid "LOD"
 msgstr ""
@@ -3909,6 +3990,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -3978,6 +4060,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -4285,6 +4368,13 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__duration_minutes
 msgid "Minutes"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_file_lock_minutes
+msgid ""
+"Minutes a lock on a laboratory file lasts unless the person holding it "
+"renews it; others cannot save the file meanwhile."
 msgstr ""
 
 #. module: sol_laboratory
@@ -4716,6 +4806,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
 msgid "Owners"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_lock_read_all
+msgid "Permission: laboratory.file.lock.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -5908,6 +6003,12 @@ msgid "Raw Data"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_locking.py:0
+msgid "Raw data, Office documents and report files are not locked."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__read
 msgid "Read"
 msgstr ""
@@ -5940,6 +6041,11 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_read_all
 msgid "Read every laboratory file"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_lock_read_all
+msgid "Read every laboratory file lock"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6721,6 +6827,11 @@ msgid "Solid"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_lock_active_unique
+msgid "Someone else has just locked this file."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__split_legal_name
 msgid "Split Legal Name"
 msgstr ""
@@ -6794,6 +6905,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Status"
 msgstr ""
 
@@ -8084,6 +8197,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/mixins/approval_mixin.py:0
 msgid "You have no signature on this document to withdraw."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_locking.py:0
+msgid "You no longer hold a lock on %s; lock it again."
 msgstr ""
 
 #. module: sol_laboratory
@@ -11329,6 +11448,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__file_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__file_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__file_id
 msgid "File"
 msgstr ""
 
@@ -12313,6 +12433,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Holder"
 msgstr ""
 
@@ -12359,6 +12481,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock.py
 msgid "Only an active lock can be released."
 msgstr ""
 
@@ -12386,6 +12509,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_list
 msgid "Release"
 msgstr ""
 
@@ -12402,6 +12527,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__released
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__released
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Released"
 msgstr ""
 
@@ -12412,6 +12539,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__released_by_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__released_by_id
 msgid "Released By"
 msgstr ""
 
@@ -12428,6 +12556,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_locking.py
 msgid "Someone else has just locked %s."
 msgstr ""
 
@@ -12566,8 +12695,8 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__lock_retention_days
 msgid ""
-"Days released and expired document locks are kept before the cleanup job "
-"removes them."
+"Days released and expired document locks and laboratory file locks are kept "
+"before the cleanup job removes them."
 msgstr ""
 
 #. module: sol_laboratory

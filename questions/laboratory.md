@@ -42,6 +42,16 @@
 - **Turned-off folders and online editing.** Decided: a turned-off folder refuses every new version, saves of the online editor included.
 - **Demo files.** Decided: the shared foundation of laboratory files brings a few demo files with versions and a conflict; the upload flow adds restores, shared content and the stored bytes.
 
+## File locks (US-T27, US-AD31)
+
+- **Which files are locked.** Decided with US-T26: files that are neither Office documents nor raw data, in folders of working documents, of results and of no category. Report files are not locked.
+- **Who holds a lock.** Decided: the person. The computer it was taken from is recorded for information, so the person's other computers save the file too.
+- **Lock duration.** Decided: the system parameter `sol_laboratory.laboratory_file_lock_minutes`, 30 minutes by default, in the Laboratory Files block of the settings.
+- **A holder who leaves the folder.** Decided: removing a member, or the person losing the laboratory files permission, leaves their lock until it expires or an administrator releases it.
+- **Who sees a lock.** Decided: the back office shows who holds a file's lock and until when; once the laboratory files API exists, its file listings show them too.
+- **Ended locks.** Decided: as for document locks, the cleanup job removes released and expired locks after the retention period of locks; their audit entries stay.
+- **Renewing a lock.** Decided: renewals are not recorded in the audit trail; taking a lock, unlocking it, its expiry and an administrator's release are.
+
 ## Related documents
 
 - [Laboratory overview](../docs/functional/laboratory_module/overview.md)

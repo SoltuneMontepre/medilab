@@ -30,13 +30,14 @@ Run now asks the cron worker to run the job and records who asked.
 
 The job `cleanup` runs daily and queues one item per kind and day, plus one per month of audit entries that is due. Each model it cleans names the records it removes in `_cleanup_domain(cutoff)`, and `CLEANUP_KINDS` in `constants/jobs.py` lists those models with the settings field of their retention period, 90 days by default:
 
-| Kind            | Removed when                                                                                      |
-| --------------- | ------------------------------------------------------------------------------------------------- |
-| `job_items`     | Done or cancelled before the cutoff; failed items wait for a person                               |
-| `job_runs`      | Ended before the cutoff, and named by no audit entry or archive file                              |
-| `locks`         | Released or expired before the cutoff                                                             |
-| `notifications` | MediLab's own notifications, read and posted before the cutoff; their pushes go with them          |
-| `devices`       | Turned off before the cutoff                                                                      |
+| Kind                    | Removed when                                                                                                                      |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `job_items`             | Done or cancelled before the cutoff; failed items wait for a person                                                               |
+| `job_runs`              | Ended before the cutoff, and named by no audit entry or archive file                                                              |
+| `locks`                 | Released or expired before the cutoff                                                                                             |
+| `notifications`         | MediLab's own notifications, read and posted before the cutoff; their pushes go with them                                         |
+| `devices`               | Turned off before the cutoff                                                                                                      |
+| `laboratory_file_locks` | [Laboratory file locks](laboratory-files.md#file-locks) released or expired before the cutoff, with the retention period of locks |
 
 Audit entries are archived by calendar month, once the whole month is older than the audit retention period, which is empty by default and then keeps them for ever. `medilab.archive.file` writes the entries of the month, each with its changes, as gzip-compressed JSON lines to an attachment, reads the stored file back, and removes the entries only when its SHA-256 matches. A month is archived once: the period is unique per kind. The job removes no other model.
 

@@ -1,10 +1,10 @@
 # Laboratory files
 
-Stories: US-T23, US-T24, US-T25, US-T28, US-AD29, US-AD30
+Stories: US-T23, US-T24, US-T25, US-T27, US-T28, US-AD29, US-AD30, US-AD31
 
 ## Goal
 
-People reach the [laboratory files](../functional/laboratory_module/overview.md#laboratory-files) only through the folders they are members of, and only with the laboratory files permission. One check decides what a person may do with a folder, so the laboratory files API and the features built on folders refuse the same things the same way. Each computer signs in once with the person's login and gets its own key, which stops at once when the computer is revoked. Every saved state of a file is a version that never changes, numbered in order even when two saves of the file come at once.
+People reach the [laboratory files](../functional/laboratory_module/overview.md#laboratory-files) only through the folders they are members of, and only with the laboratory files permission. One check decides what a person may do with a folder, so the laboratory files API and the features built on folders refuse the same things the same way. Each computer signs in once with the person's login and gets its own key, which stops at once when the computer is revoked. Every saved state of a file is a version that never changes, numbered in order even when two saves of the file come at once. A person editing a file can lock it, so nobody else saves it meanwhile.
 
 ## Design
 
@@ -19,22 +19,24 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 | Laboratory file          | read                       | all    |
 | Laboratory file version  | read                       | all    |
 | Laboratory file change   | read                       | all    |
+| Laboratory file lock     | read                       | all    |
 
 - **The create permission on laboratory folders, `laboratory_folder.create.all`, is the laboratory files permission.** Its holders sign computers in and create folders they own. Its group also carries accesses of its own: its holders read the folders they are members of, the members and sync rules of those folders, and their own computers. They change them only through the laboratory files API, which checks them and then writes with full rights.
 - Folder administration is `laboratory_folder.edit.all`. With the read permissions of every folder, member, sync rule and computer, and the other permissions above, administrators see and change them all in the back office.
 - Files, versions and changes have only `read`: they are made by saving files, through the method below, and never changed or deleted. The laboratory files permission also reads the files and versions of its holder's folders.
+- Locks have only `read` too: they are taken, renewed and unlocked through the laboratory files API, and administrators release one as folder administrators. The laboratory files permission reads the locks of its holder's folders.
 - Folders have no archive or delete action: archiving a folder is editing it, and folders are never deleted. Members change their role only with the folder's owner, so they have no edit action. Computers are created by signing in and revoked by editing; they are never deleted.
 
 ### What a person may do with a folder
 
 `_check_folder_access(access)` on `medilab.laboratory.folder` refuses the user what they may not do with the folders, as a `LaboratoryFileError`: a user error carrying the code the API answers with. The API and later features call it, then act with full rights.
 
-| Access       | Allowed when                                                                                                              | Refused with                         |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `read`       | The person holds the laboratory files permission, is a member of the folder and, for a folder of a sample, sees the sample | `permission_denied`, `not_found`     |
-| `write`      | `read`, and the folder is neither archived nor turned off                                                                 | `folder_archived`, `folder_disabled` |
-| `share`      | `read` and the person owns the folder, or the person administers folders; and the folder is not archived                  | `permission_denied`, `folder_archived` |
-| `administer` | The person administers folders                                                                                            | `permission_denied`                  |
+| Access       | Allowed when                                                                                                               | Refused with                           |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `read`       | The person holds the laboratory files permission, is a member of the folder and, for a folder of a sample, sees the sample | `permission_denied`, `not_found`       |
+| `write`      | `read`, and the folder is neither archived nor turned off                                                                  | `folder_archived`, `folder_disabled`   |
+| `share`      | `read` and the person owns the folder, or the person administers folders; and the folder is not archived                   | `permission_denied`, `folder_archived` |
+| `administer` | The person administers folders                                                                                             | `permission_denied`                    |
 
 - A person who is not a member gets `not_found`, as for a folder that does not exist, so the answer does not tell that the folder exists. So does an administrator who is not a member, except for `share`.
 - `share` and `administer` are refused with `locked` while someone else holds the folder's [document lock](document-locking.md), because writing with full rights would pass over it.
@@ -44,21 +46,21 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 
 Administrators administer folders in the back office; each action checks `administer` and is recorded in the audit trail as an edit of the folder.
 
-| Action        | What happens                                                                                                                                                                       |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Turning off   | The folder refuses `write`: nobody uploads to it, and its members still read it. It is still renamed, its rules changed and its members added and removed, since it can be turned on again. |
-| Turning on    | The folder takes uploads again.                                                                                                                                                    |
-| Archiving     | The folder records when it was archived, and its retention date is the retention period of archived folders from today. There is no unarchiving.                                  |
-| Changing the owner | The new owner's row becomes the owner's and the previous owner stays a member. The new owner must be able to be a member, and must not own a folder of the same root already. |
+| Action             | What happens                                                                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Turning off        | The folder refuses `write`: nobody uploads to it, and its members still read it. It is still renamed, its rules changed and its members added and removed, since it can be turned on again. |
+| Turning on         | The folder takes uploads again.                                                                                                                                                             |
+| Archiving          | The folder records when it was archived, and its retention date is the retention period of archived folders from today. There is no unarchiving.                                            |
+| Changing the owner | The new owner's row becomes the owner's and the previous owner stays a member. The new owner must be able to be a member, and must not own a folder of the same root already.               |
 
 - An archived folder is read only, for its owner and members too: it refuses `write` and `share`, and the folder, its rules and its members cannot be changed. Administrators still remove its members in the back office, so access to it can always be withdrawn. It is no longer turned off or on, archived again or given another owner.
 - The retention period of archived folders is the system parameter `sol_laboratory.laboratory_folder_retention_days`, in the Laboratory Files block of [Settings](settings.md), at least 1 day. It is 1825 days by default, an assumption until the laboratory gives one. What happens once a folder's retention date has passed is an open question.
 
 ### Back office
 
-The Documents menu of the Laboratory app lists Folders, Files, File Versions, Folder Members, Sync Rules and Computers. Files and versions are only read there, and a folder's form lists its files. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and change nothing else: owners manage their folders from Medilab Sync. Only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
+The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Folder Members, Sync Rules and Computers. Files, versions and locks are only read there, and a folder's form lists its files. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and change nothing else: owners manage their folders from Medilab Sync. Only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
 
-Known limitation: the back office shows a folder of a sample, its files and their versions to its members by their membership only, because an access domain cannot test whether the person sees the sample. The laboratory files API refuses such a folder to a member who does not see its sample. Only administrators set a folder's sample until US-HD15 creates sample folders, which must also limit their back office to people who see the sample.
+Known limitation: the back office shows a folder of a sample, its files, their versions and their locks to its members by their membership only, because an access domain cannot test whether the person sees the sample. The laboratory files API refuses such a folder to a member who does not see its sample. Only administrators set a folder's sample until US-HD15 creates sample folders, which must also limit their back office to people who see the sample.
 
 ### Members
 
@@ -107,16 +109,41 @@ Two saves of the same file at once, such as an upload and a save of the online e
 
 `file._check_file_access("read" | "write")` checks reading and writing a file through its folder's `_check_folder_access()`: membership, the sample of a sample folder, and whether the folder is archived or turned off. Versions are checked through their file.
 
+### File locks
+
+A person editing a file in their own program locks it (`medilab.laboratory.file.lock`), so nobody else saves it until they unlock it or the lock expires. The lock belongs to the person; the computer it was taken from is recorded for information. When it was taken is Odoo's creation time of its row.
+
+- A file is locked when it is neither raw data nor an Office document, in a folder of working documents, of results or of no category, `_is_lockable()`. Report files are not locked, and Office documents are edited together online instead.
+- A lock is `active`, `released` or `expired`. A partial unique index on the file where the status is `active` keeps one active lock per file. A lock lasts the system parameter `sol_laboratory.laboratory_file_lock_minutes` from when it was taken or last renewed, 30 minutes by default and at least 1, in the Laboratory Files block of [Settings](settings.md).
+- **A lock is in force while it is active and has not expired.** Every rule treats an expired lock as absent, whether or not it has been marked expired yet, so a lock never blocks a file past its expiry.
+
+| Step      | Method on the file | What happens                                                                                                                                                                                 | Refused with                                      |
+| --------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Locking   | `_lock(device)`    | Checks `write`. An expired active lock of the file is marked expired; the person's own lock in force is renewed, otherwise a lock is taken.                                                  | The refusals of `write`, `locked`, `not_lockable` |
+| Renewing  | `_renew_lock()`    | Checks `write`. The person's lock in force lasts the lock duration from now. A lock that expired is not renewed, since someone may have saved the file meanwhile: the person locks it again. | The refusals of `write`, `not_locked`             |
+| Unlocking | `_unlock()`        | Checks `read`, so a holder unlocks a folder turned off meanwhile. The person's lock is released; a person holding none has nothing to release.                                               | The refusals of `read`                            |
+
+- `_check_file_access("write")` refuses with `locked` a file someone else holds a lock in force on, naming them and until when, so the API refuses an upload before its bytes are sent. `_check_can_add_version()` refuses the same for the person saving, so no upload, restore or online save of someone else stores a version over the lock, whoever stores it and with whatever rights. The holder saves the file as usual; saving neither renews nor releases the lock.
+- A lock that expired is marked `expired` when someone next locks the file or its holder unlocks it, and the scheduled job `laboratory_file_locks.expire` marks the rest every 5 minutes, one item per lock, so every lock gets its end in the back office and the audit trail. Its end is the time it expired, not when it was found.
+- Released and expired locks are removed by the [cleanup job](scheduled-jobs.md#cleanup) after the retention period of locks, as document locks are; their audit entries stay.
+
+- **Back office.** File Locks lists the active locks by default, with their released and expired history, and a file shows who holds its lock in force and until when, in its list and its form, with the file's locks. Folder administrators release a lock someone left: the release checks `administer` on the file's folder, and a lock already past its expiry is recorded as expired instead.
+- **Audit.** Locks are audited as parts of their file, so the file's history shows them: taking a lock is the creation of the lock, and unlocking, expiring and an administrator's release are edits of its status, the release naming the administrator. Renewing a lock writes no entry, as when a lock expires is left out of the trail.
+
+#### Two locks at once
+
+Two people locking the same file at once end with one holder. Locking updates the file's row, without changing it, before it looks for a lock, as every save does before it numbers its version. The second one waits for the first; once the first commits, the second fails with a serialization error and Odoo's request retrying runs it again, when it is refused with `locked`. A lock and a save of someone else at once are ordered the same way: a save that started before the lock committed runs again and is refused, and a lock taken while a save is stored runs again and locks the saved version. Locking the row without updating it would not make a save that started earlier fail. The unique index refuses a second active lock that skipped the row.
+
 ### Computers
 
 A signed-in computer is a `medilab.laboratory.device` of its person, one per installation of Medilab Sync: the installation id the application generates once is unique for the person. Its name is one name and its platform is Linux or Windows.
 
-| Step         | What happens                                                                                                                                                                                                                                                                  | Refused with                                                    |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Signing in   | Odoo checks the login as it does for its external API: with the password, or, for a person with two-factor authentication, with one of their API keys in its place. The password is never kept. The computer is created, or found by its installation id, and gets a new key. | `invalid_request`, `invalid_credentials`, `permission_denied`, `device_revoked` |
-| A call       | Odoo verifies the key; the computer is the one holding the key's row and not revoked. Its last call is written at most once a minute, so parallel calls do not fight over its row.                                                                                          | `invalid_key`                                                   |
-| Signing out  | The key is removed; the computer can sign in again and gets a new key.                                                                                                                                                                                                        |                                                                 |
-| Revoking     | The key is removed and the computer is revoked for good. A person revokes their own computers, administrators any computer. The person's folder memberships and other computers stay.                                                                                         |                                                                 |
+| Step        | What happens                                                                                                                                                                                                                                                                  | Refused with                                                                    |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Signing in  | Odoo checks the login as it does for its external API: with the password, or, for a person with two-factor authentication, with one of their API keys in its place. The password is never kept. The computer is created, or found by its installation id, and gets a new key. | `invalid_request`, `invalid_credentials`, `permission_denied`, `device_revoked` |
+| A call      | Odoo verifies the key; the computer is the one holding the key's row and not revoked. Its last call is written at most once a minute, so parallel calls do not fight over its row.                                                                                            | `invalid_key`                                                                   |
+| Signing out | The key is removed; the computer can sign in again and gets a new key.                                                                                                                                                                                                        |                                                                                 |
+| Revoking    | The key is removed and the computer is revoked for good. A person revokes their own computers, administrators any computer. The person's folder memberships and other computers stay.                                                                                         |                                                                                 |
 
 - The key is an Odoo API key of the person, in `res_users_apikeys`, with the scope `sol_laboratory.device`. Odoo keeps only its hash, and the scope makes it open the laboratory files API and nothing else, not Odoo's external API. It does not expire: it stays valid until the computer signs out or is revoked. The device keeps only the id of the key's row, and signing in again removes the old key first.
 - A person with two-factor authentication cannot sign in with their password: Odoo refuses passwords outside its own sign-in screen for them. They sign in with an Odoo API key in its place, one with the scope `rpc`, which is the scope of the keys a person creates in their Odoo preferences. A key of any other scope is refused there, a computer's key too, so one computer's key never signs another in.

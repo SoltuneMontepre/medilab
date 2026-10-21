@@ -9,4 +9,8 @@
         <field name="folder_id" ref="demo_laboratory_folder_report_drafts_2025" />
         <field name="user_id" ref="demo_res_users_chemistry_tester" />
     </record>
+    <record id="demo_laboratory_folder_member_bottled_water_working_chemistry_tester" model="medilab.laboratory.folder.member">
+        <field name="folder_id" ref="demo_laboratory_folder_bottled_water_working" />
+        <field name="user_id" ref="demo_res_users_chemistry_tester" />
+    </record>
 </odoo>
