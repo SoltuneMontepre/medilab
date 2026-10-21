@@ -32,6 +32,10 @@ from . import (
     laboratory_sign_in_attempt,
     laboratory_sync_rule,
     laboratory_sync_rule_sample,
+    laboratory_upload,
+    laboratory_upload_flow,
+    laboratory_upload_sample,
+    laboratory_upload_settings,
     res_config_settings,
     res_users_apikeys,
 )

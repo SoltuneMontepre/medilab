@@ -1,6 +1,16 @@
 from odoo.tests import TransactionCase, tagged
 
-from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, RESTORED, VERIFIED
+from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, LOCKED, RESTORED, VERIFIED
+from odoo.addons.sol_laboratory.constants.laboratory_uploads import (
+    COMPLETED,
+    PREPARED,
+    REFUSED,
+    UNCHANGED,
+    UPLOAD_CONFLICT,
+    UPLOAD_EXPIRED,
+    UPLOAD_FAILED,
+)
+from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_UPLOAD
 
 
 @tagged("post_install", "-at_install")
@@ -34,3 +44,11 @@ class TestLaboratoryFileDemo(TransactionCase):
         seed_laboratory_file_restores(self.env)
 
         self.assertEqual(len(results.version_ids), 5)
+
+    def test_the_uploads_of_the_testers_computers_are_in_each_state_a_computer_reads(self):
+        uploads = self.env[MODEL_LABORATORY_UPLOAD].sudo().search([("idempotency_key", "=like", "demo-%")])
+
+        statuses = [COMPLETED, UPLOAD_CONFLICT, UNCHANGED, REFUSED, UPLOAD_FAILED, PREPARED, UPLOAD_EXPIRED]
+        self.assertEqual(sorted(uploads.mapped("status")), sorted(statuses))
+        refused = uploads.filtered(lambda upload: upload.status == REFUSED)
+        self.assertEqual((refused.failure_code, refused.content_id.state), (LOCKED, VERIFIED))

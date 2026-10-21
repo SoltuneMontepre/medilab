@@ -13711,3 +13711,209 @@ msgstr ""
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
 msgid "Version %s"
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "A file uploaded is at most 5 GiB."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "A path is relative to its folder, such as HPLC/run-01.csv: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "A version is stored by one upload only."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_settings.py:0
+msgid "An unfinished upload lasts at least 1 hour and less than 7 days, when the bucket aborts it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "An upload keeps its file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "An upload keeps what was asked to upload and the object it uploads to."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "An upload moves on only as the server verifies and stores it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "Ask for at most %(most)s parts, numbered from 1 to %(count)s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__claimed_sha256
+msgid "Claimed SHA-256"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__claimed_size
+msgid "Claimed Size"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "Empty content has the SHA-256 %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_uploads_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_uploads_expire
+msgid "Expire unfinished uploads of laboratory files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__expires_at
+msgid "Expires At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__failure_code
+msgid "Failure Code"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__finalized_at
+msgid "Finalized At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_upload_hours
+msgid "Hours a computer has to upload a laboratory file and finalize it; an upload not finalized by then expires and its parts are removed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_upload
+msgid "Laboratory Upload"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__multipart_id
+msgid "Multipart"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_upload_read_all
+msgid "Permission: laboratory.upload.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__prepared
+msgid "Prepared"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_upload_read_all
+msgid "Read every upload of laboratory files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__refused
+msgid "Refused"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_uploads_store_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_uploads_store
+msgid "Store uploaded laboratory files"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "The base version is not a version of this file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "The computer was revoked meanwhile."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "The laboratory files bucket cannot be reached; try again shortly."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "This computer already prepared an upload with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "This upload does not exist or you do not have access to it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "This upload is closed; prepare the file again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "This upload takes no more parts."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__unchanged
+msgid "Unchanged"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_upload_hours
+msgid "Unfinished Uploads (hours)"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "Upload every part before finalizing: %s parts are expected."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__user_id
+msgid "Uploaded By"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "Uploads of laboratory files are never deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_contents_verify_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_contents_verify
+msgid "Verify uploaded laboratory files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__verifying
+msgid "Verifying"
+msgstr ""
