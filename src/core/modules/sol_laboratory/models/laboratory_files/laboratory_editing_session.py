@@ -173,12 +173,19 @@ class LaboratoryEditingSession(models.Model):
 
     @api.model
     def _open_for(self, file):
-        """Open the file online for the user and return its session: the file's open session, which the user joins
-        even when the file has a newer version, or a new session on its current version when it has none or that one
-        was idle for the idle period. Two people opening the file at once make one session: the second one's creation
-        fails on the unique index, and Odoo runs its request again, when it joins the session."""
+        """Open the file online for the user, once the user may write it, it is edited online and the editing service
+        answers, and return its session."""
         file._check_file_access(FILE_WRITE)
         file._check_can_edit_online()
+        self._check_editing_available()
+        return self._join_or_open(file)
+
+    @api.model
+    def _join_or_open(self, file):
+        """The file's open session, which the user joins even when the file has a newer version, or a new session on
+        its current version when it has none or that one was idle for the idle period. Two people opening the file at
+        once make one session: the second one's creation fails on the unique index, and Odoo runs its request again,
+        when it joins the session."""
         sessions = self.sudo()
         session = sessions.search([("file_id", "=", file.id), ("status", "in", OPEN_STATUSES)], limit=1)
         if session and not session._is_idle():

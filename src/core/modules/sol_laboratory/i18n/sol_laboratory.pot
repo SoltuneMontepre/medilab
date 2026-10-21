@@ -13339,3 +13339,33 @@ msgstr ""
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
 msgid "%(version)s was rejected: %(reason)s"
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "Online editing is unavailable right now. Syncing, history and restoring still work."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "Online editing is unavailable right now."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "The editing service could not save the document."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "The editing service named nobody who can save the file; the saved content is kept under %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "The saved document is over 5 GiB, the largest file kept."
+msgstr ""

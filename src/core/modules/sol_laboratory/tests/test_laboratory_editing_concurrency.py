@@ -1,10 +1,12 @@
 import hashlib
 import uuid
 from datetime import timedelta
+from unittest.mock import patch
 
 from odoo import fields
 from odoo.tests import tagged
 
+from .editing_service import PUBLIC_URL, LocalEditingService, callback, use_editing_service
 from .laboratory_files_concurrency_case import LaboratoryFilesConcurrencyCase
 from odoo.addons.sol_laboratory.constants.laboratory_editing import COMMITTED, OPEN, SESSION_CONFLICT
 from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, EDITED_ONLINE, SYNCED
@@ -29,6 +31,7 @@ class TestLaboratoryEditingConcurrency(LaboratoryFilesConcurrencyCase):
         super().setUp()
         self.folder_id, self.file_id = self.committed(self.prepare)
         self.addCleanup(self.committed, self.remove)
+        use_editing_service(self)
 
     def prepare(self, env):
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_audit_entry")
@@ -161,3 +164,79 @@ class TestLaboratoryEditingConcurrency(LaboratoryFilesConcurrencyCase):
 
         self.assertEqual(attempts, 2)
         self.assertEqual(self.state(), ([(1, SYNCED), (2, EDITED_ONLINE)], [(COMMITTED, 2)]))
+
+    def serve_saved_document(self, content):
+        """The editing service giving the saved document, and a bucket storing it under its SHA-256."""
+        service = LocalEditingService(self)
+        service.answer("/cache/output.xlsx", content.encode())
+        use_editing_service(self, internal_url=service.url)
+
+        def store(session, chunks):
+            data = b"".join(chunks)
+            digest = hashlib.sha256(data).hexdigest()
+            return {"sha256": digest, "size": len(data), "storage_key": f"test/{digest}"}
+
+        bucket = patch.object(
+            type(self.env[MODEL_LABORATORY_EDITING_SESSION]), "_store_saved_document", autospec=True, side_effect=store
+        )
+        bucket.start()
+        self.addCleanup(bucket.stop)
+
+    def call_back(self, env, status):
+        session = self.session(env)
+        admin = str(env.ref("base.user_admin").id)
+        body, header = callback(
+            {"key": session.document_key, "status": status, "url": f"{PUBLIC_URL}/cache/output.xlsx", "users": [admin]}
+        )
+        found, fields = env[MODEL_LABORATORY_EDITING_SESSION]._from_callback(session._callback_token(), body, header)
+        found._receive_callback(fields)
+        return found
+
+    def entries(self):
+        def work(env):
+            env.cr.execute(
+                "SELECT action FROM medilab_audit_entry WHERE id > %s AND document_model = %s ORDER BY id",
+                [self.last_entry_id, MODEL_LABORATORY_EDITING_SESSION],
+            )
+            return [action for (action,) in env.cr.fetchall()]
+
+        return self.committed(work)
+
+    def test_two_calls_of_one_save_callback_at_once_store_one_version_and_one_entry(self):
+        self.serve_saved_document("bản sửa trực tuyến")
+        self.committed(self.open)
+
+        attempts, _session_id = self.race(lambda env: self.call_back(env, 2), lambda env: self.call_back(env, 2))
+
+        self.assertEqual(attempts, 2)
+        self.assertEqual(self.state(), ([(1, SYNCED), (2, EDITED_ONLINE)], [(COMMITTED, 2)]))
+        self.assertEqual(self.entries(), ["create", "edit"])
+
+    def test_someone_editing_while_the_save_is_stored_loses_nothing(self):
+        self.serve_saved_document("bản sửa trực tuyến")
+        self.committed(self.open)
+
+        attempts, _session_id = self.race(lambda env: self.call_back(env, 2), lambda env: self.call_back(env, 1))
+
+        self.assertEqual(attempts, 2)
+        self.assertEqual(self.state(), ([(1, SYNCED), (2, EDITED_ONLINE)], [(COMMITTED, 2)]))
+
+    def test_a_save_callback_arriving_while_its_session_expires_is_stored(self):
+        self.serve_saved_document("bản sửa 13 giờ")
+        self.committed(self.go_idle)
+
+        attempts, _session_id = self.race(self.expire, lambda env: self.call_back(env, 2))
+
+        self.assertEqual(attempts, 2)
+        self.assertEqual(self.state(), ([(1, SYNCED), (2, EDITED_ONLINE)], [(COMMITTED, 2)]))
+
+    def test_an_upload_and_a_save_callback_at_once_keep_the_save_as_a_conflict(self):
+        self.serve_saved_document("bản sửa trực tuyến")
+        self.committed(self.open)
+
+        attempts, _session_id = self.race(
+            lambda env: self.upload(self.file(env), "bản 2 từ máy tính"), lambda env: self.call_back(env, 2)
+        )
+
+        self.assertEqual(attempts, 2)
+        self.assertEqual(self.state(), ([(1, SYNCED), (2, SYNCED), (3, CONFLICT)], [(SESSION_CONFLICT, 3)]))

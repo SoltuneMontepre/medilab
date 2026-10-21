@@ -180,7 +180,7 @@ An editing session (`medilab.laboratory.editing.session`) is the editing of one 
 
 #### Opening and joining
 
-`_open_for(file)` opens the file online for the user, after `file._check_file_access("write")` and `file._check_can_edit_online()`, so a member opens a file of a folder that is neither archived nor turned off:
+`_open_for(file)` opens the file online for the user, after `file._check_file_access("write")` and `file._check_can_edit_online()`, so a member opens a file of a folder that is neither archived nor turned off. It then asks the editing service's health check, `_check_editing_available()`, so a person who may not edit the file online is refused for that reason whatever the service's state, and `_join_or_open(file)` joins or opens the session:
 
 - When the file has an open session with activity in the idle period, the person joins it, even when the file has a newer version than the session's base; the session's save then becomes a conflict.
 - Otherwise an open session past the idle period expires, and a new session opens on the file's current version, with a new document key and a new callback token. A file with no version yet is not opened.
@@ -194,14 +194,19 @@ Opening, joining and every call of the editing service are the session's activit
 
 The editing service saves once everyone has left the document; its force save is off, so a session has one save. The save is stored in this order:
 
-1. The saved document is streamed from the address the editing service gives into a new object, never held whole in memory, computing its size and SHA-256 on the way, before any lock. Its content is verified on the way and recorded as an upload's is, `duplicate` when the content is already stored ([Stored content](#stored-content)). When Odoo runs the request again it streams the document again into another object, and reconciliation deletes the first. The address is accepted only when its scheme, host and port are those of `ONLYOFFICE_INTERNAL_URL`, so a callback cannot make Odoo fetch from anywhere else; redirects are not followed, the fetch has a time limit, and a document over 5 GiB is refused.
+1. The saved document is streamed from the address the editing service gives into a new object, never held whole in memory, computing its size and SHA-256 on the way, before any lock. Its content is verified on the way and recorded as an upload's is, `duplicate` when the content is already stored ([Stored content](#stored-content)). When Odoo runs the request again it streams the document again into another object, and reconciliation deletes the first. A session already ended by a save fetches nothing.
+   - The editing service gives the address on the origin the browser reached it at. The address is accepted only when its scheme, host and port are those of one of two configured origins: `ONLYOFFICE_INTERNAL_URL`, or `ONLYOFFICE_PUBLIC_URL`, the public address, which Odoo rewrites to the internal origin with the same path and query. Odoo fetches only from the internal address, so a callback cannot make it fetch from anywhere else; an address on any other origin is a failed check.
+   - Redirects are not followed and are a failed check. Every read waits at most 60 seconds and the whole fetch at most 15 minutes, within the time limit of Odoo's workers. A document over 5 GiB, by its length or once it has passed that size, ends the session in `error`.
+   - `services/saved_documents.py` streams the document in chunks of 1 MiB; `_store_saved_document()` writes them to the bucket and returns the content's SHA-256, size and storage key.
 2. The session's row is updated, which locks it as a file's row is locked for a new version, and its status is read again. A session already ended by a save, `committed`, `conflict`, `closed` or `error`, stores nothing: this is the editing service repeating a call it got no answer to.
-3. The version goes to the last editor the editing service reports for the save. `_check_file_access("write")` is checked for that person; when it refuses, or `_check_can_add_version()` refuses the version, the session ends in `error`, and its audit entry records why and the key of the stored content, so the content can be recovered.
+3. The version goes to the last editor the editing service reports for the save, the last of its `users`; the audit entry names them and everyone its `history` says changed the document. A user is named by the id of the editor configuration, an Odoo user's id. `_check_file_access("write")` is checked for that person; when it refuses, `_check_can_add_version()` refuses the version, or the id is of no active user, the session ends in `error`, and its audit entry records why and the key of the stored content, so the content can be recovered.
 4. `_add_version()` stores it as edited online, from the session's base version and from no computer. The session is `committed` with the new version, `conflict` with the conflict version, or `closed` when the content is the file's current content.
 
 A save is never discarded: one arriving for an expired session is stored the same way, and the conflict rule handles a file that changed meanwhile. A save that fails for a while, such as the bucket being unreachable, keeps the session `saving`, or `expired` when it had expired, and answers the editing service with an error, so it calls back again; it gives up with an error status, which ends the session in `error`.
 
-`test_laboratory_editing_concurrency.py` races two opens of a file, two calls of one save, a save and an upload, and a save and the expiry of its session, with `laboratory_files_concurrency_case.py`.
+`test_laboratory_editing_concurrency.py` races two opens of a file, two calls of one save, a save and an upload, and a save and the expiry of its session, with `laboratory_files_concurrency_case.py`, through the session's methods and through the editing service's callbacks.
+
+`_receive_callback()` maps each status of a checked callback onto the session:
 
 | Editing service status | What happens                |
 | ---------------------- | --------------------------- |
@@ -210,14 +215,27 @@ A save is never discarded: one arriving for an expired session is stored the sam
 | 3, saving failed       | The session ends in `error` |
 | 4, closed unchanged    | The session ends `closed`   |
 | 6, 7, force save       | Activity; force save is off |
+| Any other              | Refused, as a failed check  |
 
 #### The editing service
 
 - The editing service is ONLYOFFICE Document Server Community Edition, a pinned release of 9.4 or later that the tests ran against, in the cluster; `latest` is never deployed.
-- The editor configuration and the editing service's calls are signed with the JWT secret `ONLYOFFICE_JWT_SECRET`, which comes from Doppler through the environment, never from the database or the repository.
-- Every callback is checked before anything is stored: its JWT with that secret and the algorithm HS256 only, its payload being the body it sent, the session found by its callback token, and the document key being that session's. A callback that fails a check stores nothing and is answered with an error.
+- The editor configuration and the editing service's calls are signed with the JWT secret `ONLYOFFICE_JWT_SECRET`, which comes from Doppler through the environment, never from the database or the repository. A secret shorter than 32 bytes, the length HS256 needs, counts as no secret: online editing is then unavailable.
+- Odoo reaches the editing service at `ONLYOFFICE_INTERNAL_URL` and browsers at `ONLYOFFICE_PUBLIC_URL`, both from the environment.
+- **The editor configuration.** `_editor_config(user, document_url, callback_url, lifetime_seconds)` gives the session's configuration with its token, signed for as long as the presigned address of the base version lasts. It names the document key, the file's name and extension, the editor of its extension, the base version's address, the callback address, the user by their Odoo id and name, editing, and force save off.
+- **The callback route.** The editing service calls back on a route of its own, outside `/medilab/api/v1`, an exception to the [routes of the API](#laboratory-files-api): it has no computer key, so the route is `auth='none'`, without CSRF and without a session. The callback token in its address and the JWT check it, and it answers in the editing service's format, `{"error": 0}` for success and `{"error": 1}` for an error, never in the API's error format. It is answered with an error only when `_receive_callback()` asks for the call again or a check fails, and what it did before answering is committed.
+- **The token header.** The editing service sends its token in the header `Medilab-Editor-Token`, with the prefix `Bearer `, a name of its own so that no authentication of Odoo reads it. Document Server 9.4 also puts a token in the body, whose claims are the body's fields.
+- **Checking a callback.** `_from_callback()` checks every callback before anything is stored, and refuses with `EditingCallbackRefused`:
+  - every token that comes, in the header or the body, is a JWT signed with that secret and the algorithm HS256 only, and carries an expiry that has not passed, with a minute of clock difference allowed;
+  - the header token's `payload`, and the claims of the body token without `iat` and `exp`, are the fields of the body, and agree when both come;
+  - the `operation` of a token, when it names one, is `callback`;
+  - the session is found by its callback token, and the document key is that session's, compared in constant time.
+
+  A callback that fails a check stores nothing, changes nothing and is answered with an error.
 - The network lets the browser reach the editing service's public address, the editing service reach Odoo's callback route and the bucket, and Odoo reach the editing service's internal address. The editing service reaches no other private address.
-- The editing service has a health and readiness check of its own, which the API's readiness never includes. Opening a file asks it first and refuses with `editing_unavailable` when it does not answer. Nothing else depends on the service: syncing, downloading, history and restoring never read sessions or call it, and an open session does not stop uploads of its file; its save becomes a conflict.
+  - Document Server refuses private addresses unless `ALLOW_PRIVATE_IP_ADDRESS` is on, which it needs to reach Odoo's callback. That switch turns off its own refusal of internal addresses, and people editing a document can make it fetch an address, such as by inserting an image from a link.
+  - So the network policy, not Document Server, keeps it from internal addresses: its egress reaches only Odoo's callback port and the bucket's endpoint, nothing else in the cluster and never the provider's metadata address.
+- **Health.** The editing service has a health and readiness check of its own, `GET /healthcheck` on its internal address, which answers `true` when it edits documents. The API's readiness never includes it. Opening a file asks it first, waiting at most 3 seconds and following no redirect, and refuses with `editing_unavailable` when it does not answer `true` or the secret is missing. Nothing else depends on the service: syncing, downloading, history and restoring never read sessions or call it, and an open session does not stop uploads of its file; its save becomes a conflict.
 
 #### Expiry
 
