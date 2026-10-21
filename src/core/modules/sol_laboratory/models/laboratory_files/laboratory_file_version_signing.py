@@ -59,11 +59,14 @@ class LaboratoryFileVersionSigning(models.Model):
 
     def action_sign(self):
         self.ensure_one()
+        # The signer is checked before the file's row is taken, so someone who may not sign never waits on a save.
+        self._approval_check_actor()
         self.sudo().file_id._lock_for_signing()
         return super().action_sign()
 
     def action_reject(self, reason):
         self.ensure_one()
+        self._approval_check_actor(rejecting=True)
         self.sudo().file_id._lock_for_signing()
         return super().action_reject(reason)
 
@@ -84,7 +87,8 @@ class LaboratoryFileVersionSigning(models.Model):
         """Only the current version of a file in a result folder is signed or rejected, by a member of the folder who
         sees its sample, at the level of the chain their role signs."""
         self.ensure_one()
-        self.file_id._check_file_access(FILE_READ)
+        # The file is reached with full rights and checked as the person, so the refusal is always not_found.
+        self.sudo().file_id.with_env(self.env)._check_file_access(FILE_READ)
         version = self.sudo()
         if version.file_id.folder_id.category != RESULT:
             raise UserError(self.env._("Only versions of the files of a result folder are signed."))
