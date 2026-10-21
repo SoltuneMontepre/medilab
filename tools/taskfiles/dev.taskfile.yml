@@ -15,10 +15,16 @@ vars:
 tasks:
   dev:setup:
     aliases: [setup-dev]
-    desc: "Sync the uv environment and fetch the Odoo source for type checking"
+    desc: "Sync the uv environment, fetch the Odoo source for type checking and set this checkout's compose project"
     cmds:
       - task: dev:sync
       - task: dev:odoo-source
+      - task: dev:compose-env
+
+  dev:compose-env:
+    desc: "Set this checkout's compose project in tools/infrastructure/.env from its folder name, so a worktree's containers never take the main checkout's"
+    cmds:
+      - "{{.UV}} run python tools/scripts/compose_env.py"
 
   doppler:
     desc: "Authenticate Doppler (paste token or browser login) and select the project and config"

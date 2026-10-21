@@ -9,5 +9,5 @@ Follow [.agent/skills/review-pr/SKILL.md](../../../.agent/skills/review-pr/SKILL
 
 In Claude Code:
 
-- Read the schema with the `postgres` MCP server; when it is not connected, say so and use `docker exec medilab-postgres psql`.
+- Read the schema with the `postgres` MCP server; when it is not connected, say so and use `docker compose -f tools/infrastructure/docker-compose.yml exec -T postgres psql`.
 - Ask the owner the open rule questions with AskUserQuestion before drafting the review.
