@@ -41,7 +41,9 @@ class TestLaboratoryFileLocks(LaboratoryFileLocksCase):
                 }
             ],
         )
-        self.assertEqual((file.locked_by_id, file.locked_until), (self.tester, lock.expires_at))
+        # The lock is in force only until it expires, so the file shows it while the clock is at the time it was taken.
+        with freeze_time(LOCKED_AT):
+            self.assertEqual((file.locked_by_id, file.locked_until), (self.tester, lock.expires_at))
 
         renewed_at = LOCKED_AT + timedelta(minutes=20)
         with freeze_time(renewed_at):
