@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Turned off, so the demo never fetches from the source. -->
+<odoo noupdate="1">
+    <record id="demo_onboarding_source_boa" model="medilab.onboarding.source">
+        <field name="name">Bureau of Accreditation</field>
+        <field name="adapter">boa</field>
+        <field name="host">www.boa.gov.vn</field>
+        <field name="start_url">https://www.boa.gov.vn/vi/timkiem/tochuc</field>
+        <field name="enabled" eval="False" />
+    </record>
+</odoo>

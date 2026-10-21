@@ -5,7 +5,7 @@
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
     "license": "LGPL-3",
-    "depends": ["account", "sol_laboratory", "sol_commerce", "sol_inventory"],
+    "depends": ["account", "sol_laboratory", "sol_commerce", "sol_inventory", "sol_onboarding"],
     "data": [
         "data/hr/hr_department.xml",
         "data/base/res_company.xml",
@@ -49,6 +49,9 @@
         "data/sol_laboratory/task_type.xml",
         "data/sol_laboratory/task.xml",
         "data/sol_laboratory/machine_booking.xml",
+        "data/sol_onboarding/onboarding_source.xml",
+        "data/sol_onboarding/onboarding_organisation.xml",
+        "data/sol_onboarding/onboarding_run.xml",
         "data/base/ir_cron.xml",
         "data/sol_laboratory/scheduled_job.xml",
         "data/sol_laboratory/job_item.xml",

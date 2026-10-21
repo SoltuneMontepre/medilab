@@ -31,4 +31,13 @@
         <field name="next_attempt_at" eval="(DateTime.now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="last_error">ValueError: The provider is slow</field>
     </record>
+    <!-- Due in 2099, so the demo running run is never crawled and stays running. -->
+    <record id="demo_job_item_onboarding_crawl_pending" model="medilab.job.item">
+        <field name="job_id" ref="sol_onboarding.scheduled_job_onboarding_crawl" />
+        <field name="item_key" eval="'%s:https://www.boa.gov.vn/vi/timkiem/tochuc/9901' % ref('demo_onboarding_run_running')" />
+        <field name="document_model">medilab.onboarding.run</field>
+        <field name="document_id" eval="ref('demo_onboarding_run_running')" />
+        <field name="payload" eval="{'source_id': ref('demo_onboarding_source_boa'), 'sector': None}" />
+        <field name="next_attempt_at">2099-01-01 00:00:00</field>
+    </record>
 </odoo>

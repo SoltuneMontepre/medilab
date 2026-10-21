@@ -35,7 +35,7 @@ LAST_REQUESTS: dict[str, datetime] = {}
 
 
 class PageSkipped(Exception):
-    """The page is not fetched or not kept, for the reason str() gives; fetching it again changes nothing."""
+    """The page is not fetched or not read, for the reason str() gives; fetching it again changes nothing."""
 
 
 class PageRefused(PermanentJobError):

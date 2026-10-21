@@ -78,7 +78,7 @@ class OnboardingRun(models.Model):
     ended_at = fields.Datetime(string="Ended At", copy=False)
     # Pages the run fetched.
     page_count = fields.Integer(string="Pages Fetched", default=0, copy=False)
-    # Pages the run skipped, for robots.txt, another host, the page limit or the content type.
+    # Pages the run skipped, for robots.txt, another host, the content type or a PDF without text.
     skipped_count = fields.Integer(string="Pages Skipped", default=0, copy=False)
     # Records the run staged.
     staged_count = fields.Integer(string="Records Staged", default=0, copy=False)
@@ -174,13 +174,13 @@ class OnboardingRun(models.Model):
         self.env.ref("sol_onboarding.ir_cron_onboarding_organisations").sudo()._trigger()
 
     def _finish(self, state):
-        """End the run in this state and tell the person who started it."""
+        """End the run in this state, write its counts and log, and tell the person who started it."""
         self.ensure_one()
         if self.state in RUN_ENDED:
             return
-        self.write({"state": state, "ended_at": fields.Datetime.now()})
         requester = self.requested_by_id
         localised = self.with_context(lang=requester.lang)
+        self.write({"state": state, "ended_at": fields.Datetime.now(), **localised._report()})
         labels = dict(localised._fields["state"]._description_selection(localised.env))
         body = localised.env._("Collection run %(name)s ended: %(state)s.", name=self.name, state=labels[state])
         self.env["mail.message"].raise_event(

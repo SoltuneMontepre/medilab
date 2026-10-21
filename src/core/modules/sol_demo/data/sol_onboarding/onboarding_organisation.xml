@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_onboarding_organisation_medilab" model="medilab.onboarding.organisation">
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="external_key">9901</field>
+        <field name="name">Phòng Thí nghiệm Kiểm nghiệm Medilab</field>
+        <field name="tax_id">0109990123</field>
+        <field name="accreditation_code">VILAS 9901</field>
+        <field name="url">https://www.boa.gov.vn/vi/timkiem/tochuc/9901</field>
+        <field name="seen_at" eval="(DateTime.now() - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_organisation_phuong_nam" model="medilab.onboarding.organisation">
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="external_key">9902</field>
+        <field name="name">Trung tâm Phân tích Thực phẩm Phương Nam</field>
+        <field name="tax_id">0319990456</field>
+        <field name="accreditation_code">VILAS 9902</field>
+        <field name="url">https://www.boa.gov.vn/vi/timkiem/tochuc/9902</field>
+        <field name="seen_at" eval="(DateTime.now() - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+</odoo>

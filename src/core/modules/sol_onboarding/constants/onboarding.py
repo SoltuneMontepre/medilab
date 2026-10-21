@@ -1,7 +1,8 @@
 """Names and values of the Onboarding module."""
 
-# Statuses of the job items a refresh waits on.
+# Statuses of the job items a refresh or a run waits on, and of the items that ended.
 ITEMS_OPEN = ("pending", "running")
+ITEM_DONE = "done"
 ITEM_FAILED = "failed"
 
 # Key of the job that refreshes the organisations, and the context key that turns an empty search into a suggestion.

@@ -11,7 +11,11 @@ from odoo.tests import TransactionCase, new_test_user
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
-from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_SOURCE
+from odoo.addons.sol_onboarding.constants.models import (
+    MODEL_ONBOARDING_ORGANISATION,
+    MODEL_ONBOARDING_RUN,
+    MODEL_ONBOARDING_SOURCE,
+)
 from odoo.addons.sol_onboarding.services import fetcher
 
 MAX_PASSES = 50
@@ -24,6 +28,9 @@ class OnboardingCase(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # CI installs the demo data: its running run would refuse every start, and its organisations would be suggested.
+        cls.env[MODEL_ONBOARDING_RUN].search([("state", "=", "running")]).write({"state": "cancelled"})
+        cls.env[MODEL_ONBOARDING_ORGANISATION].search([]).write({"active": False})
         cls.source = (
             cls.env[MODEL_ONBOARDING_SOURCE]
             .sudo()

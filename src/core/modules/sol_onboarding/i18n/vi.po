@@ -17,6 +17,12 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid "%s pages not queued: page limit"
+msgstr "%s trang không được lấy: đạt giới hạn số trang"
+
+#. module: sol_onboarding
 #: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_run_name_unique
 msgid "A collection run reference is used once."
 msgstr "Mã tham chiếu của lượt thu thập chỉ được dùng một lần."
@@ -401,6 +407,12 @@ msgid "Organisations Refreshed At"
 msgstr "Tổ chức được làm mới lúc"
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid "PDF without text"
+msgstr "PDF không có chữ"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__page_url
 msgid "Page Address"
 msgstr "Địa chỉ trang"
@@ -679,6 +691,18 @@ msgstr "bị robots.txt chặn"
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid "failed %(address)s: %(error)s"
+msgstr "lỗi %(address)s: %(error)s"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid "fetched %s"
+msgstr "đã lấy %s"
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "not HTTPS"
 msgstr "không phải HTTPS"
@@ -694,6 +718,18 @@ msgstr "quá 10 MB"
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "redirect off the host"
 msgstr "chuyển hướng ra ngoài tên miền"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid "skipped %(address)s: %(reason)s"
+msgstr "bỏ qua %(address)s: %(reason)s"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid "source turned off"
+msgstr "nguồn đã tắt"
 
 #. module: sol_onboarding
 #. odoo-python
