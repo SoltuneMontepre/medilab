@@ -2,6 +2,7 @@ from pathlib import Path
 
 from odoo.modules.module import load_script
 from odoo.tests import tagged
+from odoo.tools.sql import drop_constraint
 
 from .laboratory_files_case import LaboratoryFilesCase
 from .request_case import RequestCase
@@ -10,6 +11,7 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER
 
 PRE_MIGRATE = Path(__file__).resolve().parents[1] / "migrations" / "20.0.1.13.0" / "pre-migrate.py"
 LOGGER = "laboratory_folder_category_migration"
+CHECK = "medilab_laboratory_folder_category_of_sample"
 
 
 @tagged("post_install", "-at_install")
@@ -27,6 +29,7 @@ class TestLaboratoryFolderCategoryMigration(LaboratoryFilesCase, RequestCase):
             {"name": "Results", "owner_id": self.tester.id, "sample_id": self.sample.id, "category": RESULT}
         )
         self.env.flush_all()
+        drop_constraint(self.env.cr, "medilab_laboratory_folder", CHECK)
         self.env.cr.execute(
             "UPDATE medilab_laboratory_folder SET category = %s WHERE id = %s", [RAW_DATA, self.raw_data.id]
         )
@@ -63,3 +66,12 @@ class TestLaboratoryFolderCategoryMigration(LaboratoryFilesCase, RequestCase):
         with self.assertNoLogs(LOGGER, "WARNING"):
             self.migrate()
         self.assertEqual(self.results.category, RESULT)
+
+    def test_the_check_is_added_once_the_upgrade_cleared_the_categories(self):
+        folders = self.env[MODEL_LABORATORY_FOLDER]
+        with self.assertLogs(LOGGER, "WARNING"):
+            self.migrate()
+
+        folders._add_sql_constraints()
+
+        self.assertTrue(folders._table_objects[CHECK].matches_database(folders))

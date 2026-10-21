@@ -13380,9 +13380,9 @@ msgid "Permission: order.template.line.delete.all"
 msgstr "Xóa dòng đơn hàng mẫu"
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_sample_has_category
-msgid "A folder of a sample needs a category."
-msgstr "Thư mục của mẫu cần có loại thư mục."
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_category_of_sample
+msgid "A folder of a sample needs a category, and a folder of no sample has none."
+msgstr "Thư mục của mẫu cần có loại thư mục, và thư mục không thuộc mẫu nào thì không có loại thư mục."
 
 #. module: sol_laboratory
 #. odoo-python

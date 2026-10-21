@@ -13193,8 +13193,8 @@ msgid "Permission: order.template.line.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_sample_has_category
-msgid "A folder of a sample needs a category."
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_category_of_sample
+msgid "A folder of a sample needs a category, and a folder of no sample has none."
 msgstr ""
 
 #. module: sol_laboratory
