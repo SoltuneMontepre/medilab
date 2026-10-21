@@ -2274,7 +2274,7 @@ model LaboratoryFolder {
   owner_id         Int
   /// The sample the folder belongs to; empty for a folder of no sample.
   sample_id        Int?
-  /// raw, working, result or report; empty for a folder of no sample.
+  /// raw, working, result or report for a folder of a sample; empty for a folder of no sample.
   category         String?   @db.VarChar
   /// upload_only or two_way.
   sync_mode        String    @db.VarChar

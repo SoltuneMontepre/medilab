@@ -65,7 +65,7 @@
 - **Uploads to a closed sample's folders.** The old module refused uploads to the folders of a completed or cancelled sample. Should the folders of a closed sample refuse uploads, and online editing? For now they do not; this is provisional, not decided.
 - **Names of sample folders.** Assumption: a sample's folders are named after its lab code and their category, such as `PTN.2026.0001 Raw Data`, with the roots `PTN.2026.0001-raw` and `PTN.2026.0001-result`. Is that the name the laboratory wants?
 - **The chain of file versions.** Decided: as for every document type, the chain for signing file versions is set up by administrators and comes only with the demo data; until it exists, signing a version is refused.
-- **Category of a folder of no sample.** Decided for now: a folder of a sample must have a category, but a folder of no sample may have one too, although the diagram says its category is empty, because the tests of laboratory files create raw-data folders without a sample. The two-way rule is checked once the online editing of files has landed and those tests are moved to sample folders.
+- **Category of a folder of no sample.** Decided: a folder has a category if and only if it has a sample. Upgrading clears the category of every folder of no sample, and logs each one with the number of its files.
 
 ## #171 Online editing
 

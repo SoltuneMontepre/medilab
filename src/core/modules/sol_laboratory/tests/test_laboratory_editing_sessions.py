@@ -4,6 +4,7 @@ from odoo import fields
 from odoo.tests import tagged
 
 from .laboratory_editing_case import LaboratoryEditingCase
+from .laboratory_sample_folder_case import LaboratorySampleFolderCase
 from odoo.addons.sol_laboratory.constants.laboratory_editing import (
     CLOSED,
     EXPIRED,
@@ -20,12 +21,12 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     RAW_DATA,
     RESULT,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION, MODEL_LABORATORY_FOLDER
+from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION
 from odoo.addons.sol_laboratory.constants.settings import LABORATORY_EDITING_IDLE_PARAMETER
 
 
 @tagged("post_install", "-at_install")
-class TestLaboratoryEditingSessions(LaboratoryEditingCase):
+class TestLaboratoryEditingSessions(LaboratoryEditingCase, LaboratorySampleFolderCase):
     def open(self, user, file=None):
         return self.env[MODEL_LABORATORY_EDITING_SESSION].with_user(user)._open_for((file or self.file).with_user(user))
 
@@ -101,9 +102,7 @@ class TestLaboratoryEditingSessions(LaboratoryEditingCase):
     def spreadsheet_in(self, category):
         """A saved results spreadsheet of a new folder of the category, as a folder keeps its category once it holds
         files."""
-        folder = self.env[MODEL_LABORATORY_FOLDER].create(
-            {"name": f"HPLC {category or 'none'}", "owner_id": self.tester.id, "category": category}
-        )
+        folder = self.folder_of_category(category, name=f"HPLC {category or 'none'}")
         file = self.file_of("Kết quả.xlsx", folder)
         self.save(file, "Kết quả, bản 1")
         return file

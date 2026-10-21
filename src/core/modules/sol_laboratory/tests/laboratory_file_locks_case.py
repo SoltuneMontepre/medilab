@@ -3,12 +3,11 @@ from datetime import timedelta
 from odoo import fields
 from odoo.fields import Command
 
-from .laboratory_files_case import LaboratoryFilesCase
+from .laboratory_sample_folder_case import LaboratorySampleFolderCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER
 
 
-class LaboratoryFileLocksCase(LaboratoryFilesCase):
+class LaboratoryFileLocksCase(LaboratorySampleFolderCase):
     """A calibration file of the HPLC folder, which has no category, saved once by the tester, and the computer the
     tester locks it from."""
 
@@ -23,13 +22,10 @@ class LaboratoryFileLocksCase(LaboratoryFilesCase):
 
     def file_in(self, category, path="calibration.csv"):
         """A file saved once in a new folder of the category, of which the member is a member too."""
-        folder = self.env[MODEL_LABORATORY_FOLDER].create(
-            {
-                "name": f"HPLC {category or 'none'} {path.replace('.', ' ')}",
-                "owner_id": self.tester.id,
-                "category": category,
-                "member_ids": [Command.create({"user_id": self.member.id, "role": MEMBER_ROLE})],
-            }
+        folder = self.folder_of_category(
+            category,
+            name=f"HPLC {category or 'none'} {path.replace('.', ' ')}",
+            member_ids=[Command.create({"user_id": self.member.id, "role": MEMBER_ROLE})],
         )
         file = self.file_of(path, folder)
         self.save(file, f"{path} 1")
