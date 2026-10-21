@@ -14,6 +14,9 @@ ITEMS_OPEN = ("pending", "running")
 ITEM_DONE = "done"
 ITEM_FAILED = "failed"
 
+# Start of the key of every scheduled job of the module.
+JOB_KEY_PREFIX = "onboarding."
+
 # Key of the job that refreshes the organisations, and the context key that turns an empty search into a suggestion.
 ORGANISATIONS_JOB = "onboarding.organisations"
 SUGGEST_CONTEXT = "onboarding_suggest"

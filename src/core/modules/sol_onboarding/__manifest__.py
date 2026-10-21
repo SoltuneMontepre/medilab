@@ -27,4 +27,5 @@
         "views/onboarding/test_parameter_views.xml",
         "views/system/menus.xml",
     ],
+    "uninstall_hook": "uninstall_hook",
 }

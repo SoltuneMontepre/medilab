@@ -63,6 +63,8 @@ A run uses the job `onboarding.crawl` ([Scheduled jobs](scheduled-jobs.md)). Sta
 
 The job `onboarding.organisations` refreshes the organisations of each turned-on source, weekly by default, through the same fetcher. A refresh starts when the source has no refresh item pending or running and its last refresh began more than half the cron interval ago. When it starts, the organisations not seen since the previous refresh are archived, but only if that refresh had no failed page and saw at least one organisation.
 
+Uninstalling the module turns the crons of both jobs off, deletes their items and the runs nothing refers to, and then the jobs left without runs, so Odoo removes their crons. A finished run carries the audit entry of its end, which only the cleanup job removes, so a job that has run stays, its cron off.
+
 ### Staging
 
 The key of a staged record is its adapter's key for it at the source, such as a method's standard code within a certificate. A checksum of its values tells whether the source changed it:
