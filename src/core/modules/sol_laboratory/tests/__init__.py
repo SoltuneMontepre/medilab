@@ -48,6 +48,7 @@ from . import (
     test_lab_codes,
     test_laboratory_api_devices,
     test_laboratory_api_errors,
+    test_laboratory_api_file_locks,
     test_laboratory_api_folder_members,
     test_laboratory_api_folder_rules,
     test_laboratory_api_folders,
