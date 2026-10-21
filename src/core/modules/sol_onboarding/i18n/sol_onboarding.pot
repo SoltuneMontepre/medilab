@@ -1,0 +1,96 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sol_onboarding
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0-20260926\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-21 15:00+0000\n"
+"PO-Revision-Date: 2026-10-21 15:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__code
+msgid "Code"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__name
+msgid "Name"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_sector
+msgid "Onboarding Sector"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:medilab.onboarding.sector,name:sol_onboarding.sector_cosmetics
+msgid "Cosmetics"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:medilab.onboarding.sector,name:sol_onboarding.sector_environment
+msgid "Environment"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:medilab.onboarding.sector,name:sol_onboarding.sector_food
+msgid "Food"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:medilab.onboarding.sector,name:sol_onboarding.sector_pharmaceuticals
+msgid "Pharmaceuticals"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_sector_code_unique
+msgid "A sector code is used once."
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__id
+msgid "ID"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.module.module,shortdesc:base.module_sol_onboarding
+msgid "Medilab - Onboarding"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.module.module,summary:base.module_sol_onboarding
+msgid "Stage Laboratory master data collected from trusted public sources"
+msgstr ""
