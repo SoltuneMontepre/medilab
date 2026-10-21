@@ -1,4 +1,5 @@
 from . import (
+    ir_http,
     laboratory_device,
     laboratory_editing_session,
     laboratory_editing_session_callback,
@@ -21,6 +22,7 @@ from . import (
     laboratory_folder_member,
     laboratory_folder_member_sample,
     laboratory_folder_sample,
+    laboratory_sign_in_attempt,
     laboratory_sync_rule,
     laboratory_sync_rule_sample,
     res_config_settings,

@@ -1,8 +1,10 @@
 from datetime import timedelta
 
+from psycopg2 import IntegrityError, errorcodes
+
 from odoo import api, fields, models
-from odoo.exceptions import AccessDenied, ValidationError
-from odoo.tools import SQL
+from odoo.exceptions import AccessDenied, ConcurrencyError, ValidationError
+from odoo.tools import SQL, mute_logger
 
 from odoo.addons.base.models.res_users import INDEX_SIZE, KEY_CRYPT_CONTEXT
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
@@ -21,6 +23,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
     MODEL_RES_USERS_APIKEYS,
 )
+from odoo.addons.sol_laboratory.services.laboratory_api import api_datetime
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.laboratory_paths import is_name
 
@@ -111,10 +114,26 @@ class LaboratoryDevice(models.Model):
             device.write({"name": name, "api_key_id": key_id})
             old_keys._remove()
         else:
-            device = devices.sudo().create(
+            device = devices._create_signed_in(
                 {"user_id": uid, "client_uid": client_uid, "name": name, "platform": platform, "api_key_id": key_id}
             )
         return device.with_user(uid), key
+
+    @api.model
+    def _create_signed_in(self, values):
+        """The computer of a first sign-in. Two first sign-ins of one installation at once make one computer: the second
+        one's creation fails on the unique installation id and Odoo runs its request again, when it finds the
+        computer."""
+        try:
+            with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
+                return self.sudo().create(values)
+        except IntegrityError as error:
+            if error.pgcode != errorcodes.UNIQUE_VIOLATION:
+                raise
+            # Committed by a transaction this one cannot see; ConcurrencyError is what Odoo's request retrying retries.
+            raise ConcurrencyError(
+                self.env._("Another sign-in of this computer happened meanwhile; the sign-in is run again.")
+            ) from error
 
     def _sign_out(self):
         """The computer signs out: its key is removed, which empties the computer's key, and it can sign in again."""
@@ -177,6 +196,19 @@ class LaboratoryDevice(models.Model):
         )
         [(key_id,)] = self.env.cr.fetchall()
         return key, key_id
+
+    def _laboratory_api_values(self, current):
+        """The computer as the laboratory files API gives it; current is the computer of the call."""
+        self.ensure_one()
+        return {
+            "id": self.id,
+            "name": self.name,
+            "platform": self.platform,
+            "status": self.status,
+            "last_seen_at": api_datetime(self.last_seen_at),
+            "revoked_at": api_datetime(self.revoked_at),
+            "current": self.id == current.id,
+        }
 
     def _seen(self):
         now = fields.Datetime.now()

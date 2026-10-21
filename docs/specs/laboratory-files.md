@@ -247,15 +247,24 @@ Opening is the creation of the session and every change of its status an edit, r
 
 ### Laboratory files API
 
-The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. A versioned OpenAPI document in the repository describes it; CI validates the document and tests the routes against it.
+The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. The versioned OpenAPI 3.1 document `sol_laboratory/api/openapi.yaml` describes every route, its request and answer, the computers' key and every refusal; CI lints it and tests the routes against it.
 
-- **Routes.** Every route is `type='http'`, with `auth='bearer'`, `bearer_scope='sol_laboratory.device'`, `save_session=False` and the methods it takes. Odoo checks a CSRF token on `type='http'` routes for methods other than GET, HEAD, OPTIONS and TRACE, so the API's routes set `csrf=False`; the computer's key, which a browser never sends by itself, takes its place. Without a key, Odoo's bearer authentication accepts a browser session for a same-origin page opened by the person; the API refuses it, as every route needs the computer of the key.
-- **The computer of a call.** Once Odoo has verified the key, `_from_key()` finds its computer, and only that one: a computer named in the request is ignored. `_from_key()` relies on that verification of the key's hash, so only bearer routes call it. Saves and locks record the computer it found.
-- **Checks.** Every route checks, before it writes with full rights: the key's scope, through Odoo; that the computer is not revoked, through `_from_key()`; and the laboratory files permission, the folder membership and the folder's sample, through `_check_folder_access()` or `_check_file_access()`. Full rights never reach a record the check did not cover.
-- **Running twice.** A route that changes something has the effect of one run when Odoo's retrying runs it again or the computer repeats a call whose answer it lost. Preparing an upload takes an idempotency key the computer generates, unique for the computer, and a repeat answers with the same upload; the other changes are idempotent by their own rules, such as a lock its holder takes again.
+| Route | Does |
+| ----- | ---- |
+| `POST /sign-in` | Signs a computer in with the person's login and gives it its key ([Computers](#computers)) |
+| `POST /sign-out` | Signs the computer of the key out |
+| `GET /devices` | Lists the person's computers |
+| `POST /devices/{device_id}/revoke` | Revokes one of the person's computers |
+| `GET /health`, `GET /ready` | The API's health and readiness |
+
+- **Routes.** Every route is declared with `laboratory_api_route()` (`services/laboratory_api.py`): `type='http'`, `auth='bearer'`, `bearer_scope='sol_laboratory.device'`, `csrf=False`, `save_session=False`, `readonly=False` and the methods it takes, and the operation of the OpenAPI document it serves. Odoo checks a CSRF token on `type='http'` routes for methods other than GET, HEAD, OPTIONS and TRACE, so the API's routes set `csrf=False`; the computer's key, which a browser never sends by itself, takes its place. Without a key, Odoo's bearer authentication accepts a browser session for a same-origin page opened by the person; the API refuses it with `invalid_key`, as every route needs the computer of the key.
+- **Routes without a key.** Signing in gives the key, so it is `auth='public'`; health and readiness are `auth='none'` and read only. They are the only exceptions, and they too set `csrf=False` and `save_session=False`.
+- **The computer of a call.** Once Odoo has verified the key, `_from_key()` finds its computer, and only that one: a computer named in the request, such as Medilab Sync's `X-Sync-Device-Id`, is ignored. `_from_key()` relies on that verification of the key's hash, so only bearer routes call it. Saves and locks record the computer it found.
+- **Checks.** Every route checks, before it writes with full rights: the key's scope, through Odoo; that the computer is not revoked, through `_from_key()`; and the laboratory files permission, the folder membership and the folder's sample, through `_check_folder_access()` or `_check_file_access()`. Full rights never reach a record the check did not cover. Signing out and revoking one's own computers skip the laboratory files permission, so a person who lost it still stops their computers.
+- **Running twice.** A route that changes something has the effect of one run when Odoo's retrying runs it again or the computer repeats a call whose answer it lost. Preparing an upload takes an idempotency key the computer generates, unique for the computer, and a repeat answers with the same upload; the other changes are idempotent by their own rules, such as a lock its holder takes again. A repeated sign-out finds its key gone and is refused with `invalid_key`, which the computer takes as signed out; revoking a computer already revoked changes nothing.
 - **Reading routes.** Routes are not read-only, even those that only read: finding the computer records its last call, and a write on a read-only cursor makes Odoo run the request again.
-- **Requests.** A request is validated against its OpenAPI schema before the route acts; an invalid one is refused with `invalid_request`.
-- **Errors.** Every refusal answers `{"error": {"code": "<code>", "message": "<message>"}}` with the HTTP status of its code. A computer acts on the code, never on the message, which is in the person's language.
+- **Requests.** A request is checked against its operation in the OpenAPI document before the endpoint acts: no query parameter the operation does not take, a body only where it takes one, as `application/json`, matching its schema with no field the schema does not have. An invalid request is refused with `invalid_request`.
+- **Errors.** Every refusal answers `{"error": {"code": "<code>", "message": "<message>"}}` with the HTTP status of its code. A computer acts on the code, never on the message, which is in the person's language. An endpoint refuses by raising a `LaboratoryFileError` with its code; `ir.http` answers every exception on the API's paths in this format, Odoo's own refusals too, and a raised refusal commits nothing. An endpoint that must keep what it did, such as counting a failed sign-in, returns its refusal instead.
 
 | Code | Status |
 | ---- | ------ |
@@ -263,13 +272,20 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. A 
 | `invalid_credentials`, `invalid_key` | 401 |
 | `permission_denied`, `device_revoked` | 403 |
 | `not_found` | 404 |
+| `method_not_allowed` | 405 |
 | `folder_archived`, `folder_disabled`, `locked`, `not_locked` | 409 |
 | `not_eligible`, `not_lockable`, `not_editable` | 422 |
 | `too_many_attempts` | 429 |
+| `internal_error` | 500 |
 | `try_again`, `editing_unavailable` | 503 |
 
-- `try_again` answers a request still failing on concurrency after Odoo's last try, with a `Retry-After` header.
-- **Health.** `GET /medilab/api/v1/health` answers once Odoo serves requests; `GET /medilab/api/v1/ready` also checks the database and the bucket. Readiness never includes the editing service, so it answers ready while the editing service is down; the editing service has its own health check.
+- `invalid_key` and `invalid_credentials` carry a `WWW-Authenticate: Bearer` header.
+- `method_not_allowed` answers a method the route does not take, with an `Allow` header naming those it takes. A path the API does not have is `not_found`.
+- Odoo's own refusals answer in the same format: a missing or invalid key, and a session of another person with a key, are `invalid_key`; a record the person may not read (`AccessError`) or that does not exist (`MissingError`) is `not_found`, so the answer does not tell that a record exists; any other user error is `invalid_request`. `permission_denied` is only raised by name, such as for a person without the laboratory files permission.
+- `internal_error` answers an exception nobody expected, with a generic message and an `id`. The server logs the exception and its traceback under that id; the answer tells nothing else about it.
+- `too_many_attempts` and `try_again` carry a `Retry-After` header in seconds. `try_again` answers a request still failing on concurrency after Odoo's last try, after 5 seconds.
+- **Adding to the API.** A feature adds its routes with `laboratory_api_route()`, its operations to the OpenAPI document, and any code of its own to `ERROR_STATUSES` (`constants/laboratory_api.py`) and to the document's error codes. Its tests call its routes through `LaboratoryApiCase` (`tests/laboratory_api_case.py`), which checks every answer against the document, so they are its contract tests.
+- **Health.** `GET /medilab/api/v1/health` answers once Odoo serves requests; `GET /medilab/api/v1/ready` also runs the checks of `ir.http._laboratory_files_ready_checks()`, the database's, and 503 when one fails. A feature that adds a part the API needs, such as the bucket, adds its check there. Readiness never includes the editing service, so it answers ready while the editing service is down; the editing service has its own health check. When Odoo cannot reach the database at all, it answers before any route of the API does.
 
 ### Computers
 
@@ -277,23 +293,31 @@ A signed-in computer is a `medilab.laboratory.device` of its person, one per ins
 
 | Step        | What happens                                                                                                                                                                                                                                                                  | Refused with                                                                    |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Signing in  | Odoo checks the login as it does for its external API: with the password, or, for a person with two-factor authentication, with one of their API keys in its place. The password is never kept. The computer is created, or found by its installation id, and gets a new key. | `invalid_request`, `invalid_credentials`, `permission_denied`, `device_revoked` |
+| Signing in  | Odoo checks the login as it does for its external API: with the password, or, for a person with two-factor authentication, with one of their API keys in its place. The password is never kept. The computer is created, or found by its installation id, and gets a new key. | `invalid_request`, `invalid_credentials`, `permission_denied`, `device_revoked`, `too_many_attempts` |
 | A call      | Odoo verifies the key; the computer is the one holding the key's row and not revoked. Its last call is written at most once a minute, so parallel calls do not fight over its row.                                                                                            | `invalid_key`                                                                   |
 | Signing out | The key is removed; the computer can sign in again and gets a new key.                                                                                                                                                                                                        |                                                                                 |
-| Revoking    | The key is removed and the computer is revoked for good. A person revokes their own computers, administrators any computer. The person's folder memberships and other computers stay.                                                                                         |                                                                                 |
+| Revoking    | The key is removed and the computer is revoked for good. A person revokes their own computers, administrators any computer in the back office only. The person's folder memberships and other computers stay.                                                                                         |                                                                                 |
 
 - The key is an Odoo API key of the person, in `res_users_apikeys`, with the scope `sol_laboratory.device`. Odoo keeps only its hash, and the scope makes it open the laboratory files API and nothing else, not Odoo's external API. It does not expire: it stays valid until the computer signs out or is revoked. The device keeps only the id of the key's row, and signing in again removes the old key first.
 - A person with two-factor authentication cannot sign in with their password: Odoo refuses passwords outside its own sign-in screen for them. They sign in with an Odoo API key in its place, one with the scope `rpc`, which is the scope of the keys a person creates in their Odoo preferences. A key of any other scope is refused there, a computer's key too, so one computer's key never signs another in.
 - Odoo verifies the key's hash before the call reaches the laboratory files API, and that hash is deliberately slow. So the computer of a call is found by the key's row with the person, the scope and the key's index, as Odoo finds it, with the same expiry; the hash is checked again only when two of the person's keys share an index.
 - Removing a computer's key from anywhere signs the computer out, also from the person's Odoo preferences or as an administrator. Odoo makes no foreign key to its API keys, so removing one empties the key of its computer first, which records the sign-out in the audit trail. Odoo's cleanup of expired keys deletes rows with SQL and would pass over it, but computers' keys never expire.
 - Revoking is final, also for a person's own computer: the revoked installation cannot sign in again. The computer gets back in as a new installation of Medilab Sync, which generates a new installation id and signs in as a new computer. Whether administrators can restore a revoked computer is an open question.
+- Two first sign-ins of one installation at once make one computer: the second one's creation fails on the unique installation id, `_create_signed_in()` turns it into a `ConcurrencyError`, and Odoo runs the request again, which finds the computer.
 - Signing in, signing out and revoking are recorded in the [audit trail](audit-trail.md) as the creation and edits of the computer: signing in creates it or changes its key, signing out empties its key, and revoking empties its key and sets when it was revoked. The key's row is named, never the key.
 
 #### Limits on signing in
 
-- Odoo's only brake on guessing passwords is its login cooldown, which counts failures per client address in each Odoo worker and which signing in reports as `invalid_credentials`. Signing in is therefore also limited per client address in front of Odoo, as the webhooks are, and slowed per login in Odoo.
+- Odoo's only brake on guessing passwords is its login cooldown, which counts failures per client address in each Odoo worker. Signing in is therefore also limited per client address in front of Odoo, as the webhooks are, and slowed per login in Odoo.
 - **Per client address.** A Traefik rate limit on the sign-in route counts by `Cf-Connecting-IP`. That header is trusted because only Cloudflare reaches the origin: Traefik binds no host port, and network policies let only the `cloudflared` pods reach Traefik and only Traefik reach Odoo, so no other pod can send a forged header.
-- **Per login.** After 5 failed attempts for a login within 15 minutes, every further attempt waits a delay that doubles from 1 second up to 60 seconds; an attempt before its delay has passed is refused with `too_many_attempts` and a `Retry-After` header, before the password is checked. The counts are in the database, so every worker shares them. The account is never locked: the person signs in with the right password once the delay has passed, and a success clears the count.
+- **Per login.** After 5 failed attempts for a login within 15 minutes, every further attempt waits a delay that doubles from 1 second up to 60 seconds; an attempt before its delay has passed is refused with `too_many_attempts` and a `Retry-After` header, before the password is checked. The account is never locked: the person signs in with the right password once the delay has passed.
+  - The delay is counted from the last failure: the sixth attempt waits 1 second after the fifth failure, the seventh 2 seconds after the sixth, up to 60 seconds.
+  - An attempt refused for its delay is not counted, so retrying early does not lengthen the delay.
+  - A login's failures are forgotten 15 minutes after its last one; the next failure counts from one again.
+  - A login nobody has is counted and slowed the same, so the answer does not tell whether it exists.
+  - A right password clears the count, also when signing in is then refused with `permission_denied` or `device_revoked`.
+  - The counts are in `medilab.laboratory.sign.in.attempt`, one row per login, so every worker shares them. Two failures of one login at once update one row: the second fails with a serialization error and Odoo runs its request again, so each is counted once. Only full rights reach it, failed sign-ins are not in the audit trail, as Odoo's log records them, and Odoo's daily autovacuum removes the counts already forgotten.
+- **Odoo's cooldown.** While Odoo's own login cooldown holds the client's address, signing in is refused with `too_many_attempts` and the seconds left of it, before the password is checked, never as `invalid_credentials`.
 
 ### Sample folders
 
