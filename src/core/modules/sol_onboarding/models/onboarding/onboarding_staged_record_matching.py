@@ -70,9 +70,7 @@ class OnboardingStagedRecordMatching(models.Model):
         matches of its parameter and method."""
         for record in self.sorted(lambda staged: staged.kind == KIND_PARAMETER_METHOD):
             model, matched_id, suggested = record._find_match()
-            action = ACTION_CREATE
-            if matched_id:
-                action = ACTION_LINK if record._same_values(model, matched_id) else ACTION_UPDATE
+            action = record._proposed_action(model, matched_id)
             record.write(
                 {
                     "record_model": model if matched_id else False,
@@ -131,19 +129,30 @@ class OnboardingStagedRecordMatching(models.Model):
         )
         return pair.id
 
+    def _proposed_action(self, model, matched_id) -> str:
+        if not matched_id:
+            return ACTION_CREATE
+        return ACTION_LINK if self._same_values(model, matched_id) else ACTION_UPDATE
+
     def _same_values(self, model, matched_id) -> bool:
-        """Whether the compared values equal those of the matched record, read in the staged language. A way of
-        testing has nothing but its pair, so it always links."""
+        return not self._differences(model, matched_id)
+
+    def _differences(self, model, matched_id) -> list:
+        """The compared values of the matched record that differ, as (key, current, wanted), the record read in the
+        staged language. A way of testing has nothing but its pair, so it never differs."""
         if self.kind == KIND_PARAMETER_METHOD:
-            return True
+            return []
         record = self.env[model].sudo().browse(matched_id).with_context(lang=self.lang, active_test=False)
         values = self._effective_values()
+        differences = []
         for key in COMPARED_KEYS[self.kind]:
             current = record[key]
-            current = current.isoformat() if hasattr(current, "isoformat") else current
+            current = (current.isoformat() if hasattr(current, "isoformat") else current) or ""
             wanted = values.get(key) or ""
             if key == "code":
-                current, wanted = normalize_code(current or ""), normalize_code(wanted)
-            if (current or "") != wanted:
-                return False
-        return True
+                same = normalize_code(current) == normalize_code(wanted)
+            else:
+                same = current == wanted
+            if not same:
+                differences.append((key, current, wanted))
+        return differences

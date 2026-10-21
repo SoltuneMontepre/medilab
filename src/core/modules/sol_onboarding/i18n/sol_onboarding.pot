@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 18:56+0000\n"
-"PO-Revision-Date: 2026-10-21 18:56+0000\n"
+"POT-Creation-Date: 2026-10-21 20:02+0000\n"
+"PO-Revision-Date: 2026-10-21 20:02+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -48,6 +48,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__state__accepted
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Accepted"
 msgstr ""
 
@@ -58,6 +59,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__action
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Action"
 msgstr ""
 
@@ -91,6 +93,7 @@ msgid "Attachment"
 msgstr ""
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 msgid "Cancel"
 msgstr ""
@@ -103,6 +106,12 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__certificate
 msgid "Certificate"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__changes
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Changes"
 msgstr ""
 
 #. module: sol_onboarding
@@ -123,7 +132,10 @@ msgid "Choose an organisation or a sector to collect for."
 msgstr ""
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__code
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__code
 msgid "Code"
 msgstr ""
 
@@ -150,6 +162,11 @@ msgid "Collection run ended"
 msgstr ""
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Confirm match"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__content_type
 msgid "Content Type"
 msgstr ""
@@ -171,6 +188,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__create_uid
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__create_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__create_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__create_uid
@@ -181,6 +199,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__create_date
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__create_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__create_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__create_date
@@ -195,7 +214,13 @@ msgid "Delay (Seconds)"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__department_id
+msgid "Department"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__display_name
@@ -279,6 +304,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__id
@@ -289,7 +315,15 @@ msgid "ID"
 msgstr ""
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__issuing_body
+msgid "Issuing Body"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__kind
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Kind"
 msgstr ""
 
@@ -305,6 +339,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__write_uid
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__write_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__write_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__write_uid
@@ -315,6 +350,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__write_date
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__write_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__write_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__write_date
@@ -335,14 +371,34 @@ msgid "Log"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__main_group_id
+msgid "Main Group"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__match_ref
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Match"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.module.module,shortdesc:base.module_sol_onboarding
 msgid "Medilab - Onboarding"
 msgstr ""
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "Method Key"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__name
 msgid "Name"
 msgstr ""
 
@@ -396,6 +452,19 @@ msgid "Only a running collection run can be cancelled."
 msgstr ""
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "Only rejected staged records can be reopened."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid ""
+"Only staged records to review can be rejected or have their match confirmed."
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__organisation_id
 msgid "Organisation"
 msgstr ""
@@ -442,6 +511,12 @@ msgid "Pages Skipped"
 msgstr ""
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "Parameter Key"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__parameter_method
 msgid "Parameter Method"
 msgstr ""
@@ -464,6 +539,11 @@ msgstr ""
 #. module: sol_onboarding
 #: model:medilab.permission,name:sol_onboarding.permission_onboarding_staged_record_read_all
 msgid "Read staged records"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__reason
+msgid "Reason"
 msgstr ""
 
 #. module: sol_onboarding
@@ -492,13 +572,33 @@ msgid "Refresh Organisations"
 msgstr ""
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_list
+msgid "Reject"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__reject_reason
 msgid "Reject Reason"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.actions.act_window,name:sol_onboarding.action_medilab_onboarding_reject
+#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_reject
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_reject_form
+msgid "Reject Staged Records"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__state__rejected
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Rejected"
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Reopen"
 msgstr ""
 
 #. module: sol_onboarding
@@ -524,6 +624,7 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__run_id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__run_id
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Run"
 msgstr ""
 
@@ -581,6 +682,11 @@ msgid "Source Values"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__source_summary
+msgid "Source Values Summary"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.module.module,summary:base.module_sol_onboarding
 msgid "Stage Laboratory master data collected from trusted public sources"
 msgstr ""
@@ -591,7 +697,11 @@ msgid "Staged Record"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.actions.act_window,name:sol_onboarding.action_medilab_onboarding_staged_record
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__staged_record_ids
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__staged_record_ids
+#: model:ir.ui.menu,name:sol_onboarding.menu_onboarding_staged_record
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 msgid "Staged Records"
 msgstr ""
 
@@ -618,12 +728,18 @@ msgid "Status"
 msgstr ""
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_list
+msgid "Suggested"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__match_suggested
 msgid "Suggested Match"
 msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__state__superseded
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Superseded"
 msgstr ""
 
@@ -638,8 +754,15 @@ msgid "Test Parameter"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__field_id
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__testing_field
 msgid "Testing Field"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "Testing Field Key"
 msgstr ""
 
 #. module: sol_onboarding
@@ -654,6 +777,12 @@ msgstr ""
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "The match must be a record of the model of the kind %s."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_source.py:0
 msgid ""
 "The start address must be an HTTPS address on the host, without user or "
@@ -662,12 +791,37 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__state__to_review
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "To Review"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__unit_id
+msgid "Unit"
 msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__action__update
 msgid "Update"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__valid_from
+msgid "Valid From"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__valid_until
+msgid "Valid Until"
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Values"
 msgstr ""
 
 #. module: sol_onboarding

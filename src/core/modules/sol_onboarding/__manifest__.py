@@ -16,6 +16,8 @@
         "data/notification_event_data.xml",
         "data/ir_cron_data.xml",
         "data/scheduled_job_data.xml",
+        "views/onboarding/onboarding_reject_views.xml",
+        "views/onboarding/onboarding_staged_record_views.xml",
         "views/onboarding/onboarding_run_views.xml",
         "views/system/menus.xml",
     ],

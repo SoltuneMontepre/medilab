@@ -54,6 +54,17 @@
                     <field name="state" widget="statusbar" statusbar_visible="draft,running,done" />
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="%(action_medilab_onboarding_staged_record)d"
+                            type="action"
+                            icon="fact_check"
+                            context="{'search_default_run_id': id, 'search_default_to_review': 0}"
+                            groups="sol_laboratory.group_permission_onboarding_staged_record_read_all"
+                        >
+                            <field name="staged_count" widget="statinfo" string="Staged Records" />
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1><field name="name" /></h1>
                     </div>

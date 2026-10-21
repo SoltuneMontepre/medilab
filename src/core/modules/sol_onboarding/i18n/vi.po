@@ -49,6 +49,7 @@ msgstr "Một nguồn chỉ liệt kê một tổ chức một lần."
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__state__accepted
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Accepted"
 msgstr "Đã duyệt"
 
@@ -59,6 +60,7 @@ msgstr "Mã công nhận"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__action
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Action"
 msgstr "Hành động"
 
@@ -92,6 +94,7 @@ msgid "Attachment"
 msgstr "Tệp đính kèm"
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 msgid "Cancel"
 msgstr "Hủy"
@@ -105,6 +108,12 @@ msgstr "Đã hủy"
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__certificate
 msgid "Certificate"
 msgstr "Giấy chứng nhận"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__changes
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Changes"
+msgstr "Thay đổi"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__checksum
@@ -124,7 +133,10 @@ msgid "Choose an organisation or a sector to collect for."
 msgstr "Hãy chọn tổ chức hoặc ngành cần thu thập."
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__code
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__code
 msgid "Code"
 msgstr "Mã"
 
@@ -151,6 +163,11 @@ msgid "Collection run ended"
 msgstr "Lượt thu thập kết thúc"
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Confirm match"
+msgstr "Xác nhận khớp"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__content_type
 msgid "Content Type"
 msgstr "Loại nội dung"
@@ -172,6 +189,7 @@ msgstr "Tạo lượt thu thập"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__create_uid
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__create_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__create_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__create_uid
@@ -182,6 +200,7 @@ msgstr "Người tạo"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__create_date
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__create_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__create_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__create_date
@@ -196,7 +215,13 @@ msgid "Delay (Seconds)"
 msgstr "Độ trễ (giây)"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__department_id
+msgid "Department"
+msgstr "Phòng ban"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__display_name
@@ -280,6 +305,7 @@ msgstr "Tên miền"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__id
@@ -290,7 +316,15 @@ msgid "ID"
 msgstr "ID"
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__issuing_body
+msgid "Issuing Body"
+msgstr "Cơ quan cấp"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__kind
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Kind"
 msgstr "Loại"
 
@@ -306,6 +340,7 @@ msgstr "Yêu cầu gần nhất lúc"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__write_uid
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__write_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__write_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__write_uid
@@ -316,6 +351,7 @@ msgstr "Cập nhật lần cuối bởi"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__write_date
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__write_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__write_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__write_date
@@ -336,14 +372,34 @@ msgid "Log"
 msgstr "Nhật ký"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__main_group_id
+msgid "Main Group"
+msgstr "Nhóm chính"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__match_ref
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Match"
+msgstr "Khớp với"
+
+#. module: sol_onboarding
 #: model:ir.module.module,shortdesc:base.module_sol_onboarding
 msgid "Medilab - Onboarding"
 msgstr "Medilab - Thu thập dữ liệu"
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "Method Key"
+msgstr "Khóa phương pháp"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__name
 msgid "Name"
 msgstr "Tên"
 
@@ -397,6 +453,19 @@ msgid "Only a running collection run can be cancelled."
 msgstr "Chỉ lượt thu thập đang chạy mới hủy được."
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "Only rejected staged records can be reopened."
+msgstr "Chỉ có thể mở lại các bản ghi chờ duyệt đã bị từ chối."
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid ""
+"Only staged records to review can be rejected or have their match confirmed."
+msgstr "Chỉ có thể từ chối hoặc xác nhận khớp các bản ghi đang chờ duyệt."
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__organisation_id
 msgid "Organisation"
 msgstr "Tổ chức"
@@ -443,6 +512,12 @@ msgid "Pages Skipped"
 msgstr "Trang đã bỏ qua"
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "Parameter Key"
+msgstr "Khóa chỉ tiêu"
+
+#. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__parameter_method
 msgid "Parameter Method"
 msgstr "Phương pháp của chỉ tiêu"
@@ -466,6 +541,11 @@ msgstr "Xem lượt thu thập"
 #: model:medilab.permission,name:sol_onboarding.permission_onboarding_staged_record_read_all
 msgid "Read staged records"
 msgstr "Xem bản ghi chờ duyệt"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__reason
+msgid "Reason"
+msgstr "Lý do"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__record_id
@@ -493,14 +573,34 @@ msgid "Refresh Organisations"
 msgstr "Làm mới tổ chức"
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_reject_form
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_list
+msgid "Reject"
+msgstr "Từ chối"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__reject_reason
 msgid "Reject Reason"
 msgstr "Lý do từ chối"
 
 #. module: sol_onboarding
+#: model:ir.actions.act_window,name:sol_onboarding.action_medilab_onboarding_reject
+#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_reject
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_reject_form
+msgid "Reject Staged Records"
+msgstr "Từ chối bản ghi chờ duyệt"
+
+#. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__state__rejected
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Rejected"
 msgstr "Từ chối"
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Reopen"
+msgstr "Mở lại"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__requested_by_id
@@ -525,6 +625,7 @@ msgstr "Người duyệt"
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__run_id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__run_id
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Run"
 msgstr "Lượt thu thập"
 
@@ -582,6 +683,11 @@ msgid "Source Values"
 msgstr "Giá trị từ nguồn"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__source_summary
+msgid "Source Values Summary"
+msgstr "Giá trị nguồn"
+
+#. module: sol_onboarding
 #: model:ir.module.module,summary:base.module_sol_onboarding
 msgid "Stage Laboratory master data collected from trusted public sources"
 msgstr "Lưu tạm dữ liệu danh mục của phòng thí nghiệm thu thập từ các nguồn công khai đáng tin cậy"
@@ -592,7 +698,11 @@ msgid "Staged Record"
 msgstr "Bản ghi chờ duyệt"
 
 #. module: sol_onboarding
+#: model:ir.actions.act_window,name:sol_onboarding.action_medilab_onboarding_staged_record
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_reject__staged_record_ids
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__staged_record_ids
+#: model:ir.ui.menu,name:sol_onboarding.menu_onboarding_staged_record
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
 msgid "Staged Records"
 msgstr "Bản ghi chờ duyệt"
 
@@ -619,12 +729,18 @@ msgid "Status"
 msgstr "Trạng thái"
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_list
+msgid "Suggested"
+msgstr "Gợi ý"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__match_suggested
 msgid "Suggested Match"
 msgstr "Gợi ý khớp"
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__state__superseded
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "Superseded"
 msgstr "Đã thay thế"
 
@@ -639,9 +755,16 @@ msgid "Test Parameter"
 msgstr "Chỉ tiêu"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__field_id
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__testing_field
 msgid "Testing Field"
 msgstr "Lĩnh vực thử nghiệm"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "Testing Field Key"
+msgstr "Khóa lĩnh vực thử nghiệm"
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__testing_method
@@ -655,6 +778,12 @@ msgstr "Độ trễ giữa hai yêu cầu không được âm."
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+msgid "The match must be a record of the model of the kind %s."
+msgstr "Bản ghi khớp phải thuộc mô hình của loại %s."
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_source.py:0
 msgid ""
 "The start address must be an HTTPS address on the host, without user or "
@@ -663,13 +792,38 @@ msgstr "Địa chỉ bắt đầu phải là địa chỉ HTTPS trên đúng tê
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__state__to_review
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_search
 msgid "To Review"
 msgstr "Chờ duyệt"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__unit_id
+msgid "Unit"
+msgstr "Đơn vị"
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__action__update
 msgid "Update"
 msgstr "Cập nhật"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__valid_from
+msgid "Valid From"
+msgstr "Hiệu lực từ"
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__valid_until
+msgid "Valid Until"
+msgstr "Hiệu lực đến"
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
+msgid "Values"
+msgstr "Giá trị"
 
 #. module: sol_onboarding
 #. odoo-python
