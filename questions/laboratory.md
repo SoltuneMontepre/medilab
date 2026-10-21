@@ -29,7 +29,7 @@
 - **Folder retention period.** Decided: the system parameter `sol_laboratory.laboratory_folder_retention_days`. Assumption: no document gives a retention period for laboratory files, so it is 1825 days by default. An archived folder is not unarchived.
 - **Archived folders.** Decided: an archived folder behaves like a turned-off folder: it is still listed and read, and every write is refused.
 - **Folder settings.** Decided: the owner and administrators rename a folder and change its sync rules. Assumption: Medilab Sync does not say which sync mode a new folder gets, so it is upload-only.
-- **Folder names.** Decided: renaming changes the name people see; the name a folder was created with, unique for its owner, never changes. Creating a second folder of that name for the same owner is refused.
+- **Folder names.** Decided: renaming changes the name people see; the name a folder was created with, unique for its owner, never changes. Creating a second folder of that name for the same owner is refused with `folder_exists`.
 - **Who can be added to a folder.** Decided: active internal users holding the laboratory files permission; anyone else is refused with one message that does not say why.
 - **Medilab Mobile and laboratory folders.** Decided: out of scope for now; signed-in computers are Linux or Windows, as the diagram says.
 - **Laboratory folders in the back office.** Decided: only administrators change folders, members, sync rules and computers in the back office; owners manage members through the API. Changing a folder's owner, turning it off and archiving it are done only in the back office.
@@ -91,6 +91,10 @@
 - **Waiting after `try_again`.** Decided: `Retry-After` is 5 seconds.
 - **Failed sign-ins in the audit trail.** Decided: they are not recorded there; Odoo's log and the count of failed sign-ins are enough.
 - **Errors without a code.** Decided: a method a route does not take answers 405 with `method_not_allowed` and an `Allow` header; an error nobody expected answers 500 with `internal_error`, a generic message and the id the server logged it under.
+- **Repeating a request.** Decided: a route that creates a record takes an optional `Idempotency-Key` header, unique per computer, and a request repeated with it answers with what the first one created; the same key with another request is refused with `idempotency_conflict`. Uploads use the same mechanism. Without the header, a name the owner already has a folder of is refused with `folder_exists`.
+- **One sync rule per kind and pattern.** Decided: a folder has one rule of each kind and pattern. The upgrade that adds the rule keeps the oldest of each and deletes the others, logging each deleted rule with its flags.
+- **Finding people to add to a folder.** Decided: the owner and administrators search by at least 2 characters of a name or login and get at most 10 people, with id, name and login only: active internal users with the laboratory files permission who are not members yet.
+- **What a folder tells the computer.** Decided: its answer says whether the person may rename it and change its members and rules, `can_share`, so the computer does not work the rules out itself.
 
 ## Related documents
 

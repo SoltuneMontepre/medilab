@@ -57,8 +57,9 @@ def laboratory_api_route(path, methods, operation, auth=BY_KEY, permission=True,
     OpenAPI document with that operationId.
 
     A route by key finds the computer of the key and, with permission, checks the laboratory files permission; its
-    endpoint gets the computer, the request's JSON body and the path's arguments. Other routes get the body and the
-    arguments. An endpoint returns the JSON value it answers with, None for an answer without content, or a response."""
+    endpoint gets the computer, the request's JSON body, the path's arguments and the parameters the operation takes,
+    named as Python names. Other routes get the same without the computer. An endpoint returns the JSON value it
+    answers with, None for an answer without content, or a response."""
     declared = DeclaredRoute(methods, operation, PATH_ARGUMENT.findall(path), auth, permission)
 
     def decorator(endpoint):
@@ -103,15 +104,15 @@ def serve(endpoint, controller, params, declared):
     if request.httprequest.method not in (*methods, *(["HEAD"] if "GET" in methods else [])):
         raise MethodNotAllowed(valid_methods=methods)
     path_arguments = {name: params.pop(name) for name in declared.arguments}
-    body = checked_request(declared.operation, params)
+    body, values = checked_request(declared.operation, params)
     if declared.auth == BY_KEY:
         env = request_env()
         device = env[MODEL_LABORATORY_DEVICE]._from_key(bearer_key())
         if declared.permission:
             env[MODEL_LABORATORY_FOLDER]._check_laboratory_files_permission()
-        result = endpoint(controller, device, body, **path_arguments)
+        result = endpoint(controller, device, body, **path_arguments, **values)
     else:
-        result = endpoint(controller, body, **path_arguments)
+        result = endpoint(controller, body, **path_arguments, **values)
     if isinstance(result, http.Response):
         return result
     return json_answer(result)
@@ -127,11 +128,33 @@ def bearer_key():
 
 
 def checked_request(operation, query):
-    """The JSON body of the request once it matches the operation of the document: no query parameter the operation
-    does not take, and a JSON body only where it takes one, matching its schema."""
+    """The JSON body and the parameters of the request once it matches the operation of the document: only the query
+    parameters the operation takes, its parameters matching their schemas, and a JSON body only where it takes one,
+    matching its schema. The parameters are named as Python names, such as idempotency_key for Idempotency-Key."""
     env = request_env()
-    if query:
-        raise LaboratoryFileError(INVALID_REQUEST, env._("This route takes no parameter %s.", ", ".join(sorted(query))))
+    declared = openapi_document.parameters(operation)
+    unknown = set(query) - {name for name, place, _required, _pointer in declared if place == "query"}
+    if unknown:
+        raise LaboratoryFileError(
+            INVALID_REQUEST, env._("This route takes no parameter %s.", ", ".join(sorted(unknown)))
+        )
+    values = {}
+    for name, place, required, pointer in declared:
+        value = query.get(name) if place == "query" else request.httprequest.headers.get(name)
+        if value is None:
+            if required:
+                raise LaboratoryFileError(INVALID_REQUEST, env._("This route needs the parameter %s.", name))
+            continue
+        if error := openapi_document.schema_error(pointer, value):
+            raise LaboratoryFileError(
+                INVALID_REQUEST,
+                env._("The parameter %(name)s does not match the API: %(error)s", name=name, error=error),
+            )
+        values[name.lower().replace("-", "_")] = value
+    return _checked_body(env, operation), values
+
+
+def _checked_body(env, operation):
     data = request.httprequest.get_data()
     pointer = openapi_document.request_body_pointer(operation)
     if pointer is None:
