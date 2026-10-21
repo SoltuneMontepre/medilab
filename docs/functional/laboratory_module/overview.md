@@ -241,7 +241,7 @@ Laboratory files are the files the testing work produces and uses outside MediLa
 | Members         | The owner and the people they add can read and write the folder: see, download and upload its files and restore their versions. There is no read-only member. The owner and administrators add and remove members; only administrators change the owner, and the previous owner stays a member. |
 | Sync rules      | A folder can limit which files are synced by name prefix, name pattern with `*`, or extension, with or without subfolders. With no rule every file is synced. |
 | Versions        | Saving a changed file adds a version: a number that never changes, who saved it, from which device, when, its size and SHA-256 hash, and how it was made: synced, restored, edited online, or kept from a conflict. A version is never edited or deleted. The file's current version is the one people get. Two versions with the same content share the stored bytes. |
-| Uploads         | A file is uploaded straight to the bucket in parts through short-lived signed addresses, never through Odoo, up to 5 GiB in parts of 16 MiB. The server checks the hash before the version counts. An upload left unfinished expires and its parts are removed. |
+| Uploads         | A file is uploaded straight to the bucket in parts through short-lived signed addresses, never through Odoo, up to 5 GiB in parts of 16 MiB. The server checks the hash and size of the stored bytes before the version counts. An upload left unfinished expires and its parts are removed. |
 | Conflicts       | An upload made from a version that is no longer the current one is kept as a conflict version, never written over the current one. The person chooses to keep their own file or take the server's; both versions stay in the history. |
 | Restore         | Restoring an earlier version adds a new current version with its content; history is never rewritten. |
 | Raw data        | Raw-data files are evidence: each save adds a version, they are not edited online and they are not locked. |
@@ -260,7 +260,7 @@ Laboratory files are the files the testing work produces and uses outside MediLa
 stateDiagram-v2
     [*] --> prepared: upload asked for
     prepared --> uploading: first part sent
-    prepared --> completed: same content already stored
+    prepared --> completed: the file already has this content
     uploading --> finalizing: every part sent
     finalizing --> completed: hash checked, new current version
     finalizing --> conflict: made from an older version

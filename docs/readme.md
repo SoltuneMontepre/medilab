@@ -8,6 +8,7 @@ Open the index of the folder that matches what you are looking for; each index l
 
 - [Business rules](business/readme.md): rules every document and module states and implements the same way
 - [Conventions](conventions/readme.md): code, documentation, database, Git and taskfile conventions for agents and the system
+- [Decisions](decisions/readme.md): architecture decisions the owner approved, with their rationale and requirements
 - [Infrastructure](infrastructure/readme.md): production architecture, secrets, Terraform and CI
 - [Workflows](workflows/readme.md): step-by-step procedures for recurring tasks
 - [Functional](functional/index.md): the project, its modules, actors and features, and shared technical features
