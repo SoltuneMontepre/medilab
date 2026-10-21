@@ -128,6 +128,41 @@ class TestLaboratoryFileVersionSigning(AuditLookup, LaboratorySigningCase):
         self.assertEqual((standing.document_version, standing.document_hash), (2, version.sha256))
         self.assertEqual(version.approval_state, STATE_APPROVED)
 
+    def test_a_signer_who_no_longer_reads_the_file_cannot_withdraw(self):
+        def leave_folder(person):
+            self.results.member_ids.filtered(lambda member: member.user_id == person.user_id).unlink()
+
+        def lose_sample(person):
+            person.permission_ids -= self.permissions("sample.read.all")
+
+        cases = (
+            ("left the folder", leave_folder, ()),
+            ("lost the sample", lose_sample, ()),
+            ("reads every version but left the folder", leave_folder, ("laboratory_file_version.read.all",)),
+        )
+        for index, (case, lose_access, extra_permissions) in enumerate(cases):
+            with self.subTest(case=case):
+                signer = self.create_person(
+                    f"Signer {index}",
+                    self.department,
+                    f"file.signer.{index}",
+                    permissions=(*SIGNER_PERMISSIONS, *extra_permissions),
+                    roles=self.signer_role,
+                )
+                self.results.member_ids = [Command.create({"user_id": signer.user_id.id})]
+                version = self.result_version(f"lead 0.00{index} mg/L", f"lead-{index}.xlsx")
+                self.sign(version, signer)
+
+                lose_access(signer)
+
+                if extra_permissions:
+                    self.assertFalse(self.as_person(version, signer).approval_can_withdraw)
+                with self.assertRaises(LaboratoryFileError) as refused:
+                    self.as_person(version, signer).action_withdraw()
+                self.assertEqual(refused.exception.code, NOT_FOUND)
+                self.assertFalse(self.signatures(version).withdrawn_at)
+                self.assertRecordValues(version, [{"approval_state": STATE_APPROVED, "document_version": 1}])
+
     def test_the_signing_state_changes_only_by_signing(self):
         version = self.result_version()
 
