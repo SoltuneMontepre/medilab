@@ -1,0 +1,442 @@
+openapi: 3.1.0
+info:
+  title: MediLab laboratory files API
+  version: 1.0.0
+  description: |
+    The API Medilab Sync signs computers in with and reaches laboratory files through. Every refusal answers
+    `{"error": {"code", "message"}}` with the HTTP status of its code; a computer acts on the code, never on the
+    message, which is in the person's language.
+
+    | Code | Status |
+    | ---- | ------ |
+    | `invalid_request` | 400 |
+    | `invalid_credentials`, `invalid_key` | 401 |
+    | `permission_denied`, `device_revoked` | 403 |
+    | `not_found` | 404 |
+    | `method_not_allowed` | 405 |
+    | `folder_archived`, `folder_disabled`, `locked`, `not_locked` | 409 |
+    | `not_eligible`, `not_lockable`, `not_editable` | 422 |
+    | `too_many_attempts` | 429 |
+    | `internal_error` | 500 |
+    | `try_again`, `editing_unavailable` | 503 |
+servers:
+  - url: /medilab/api/v1
+security:
+  - deviceKey: []
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Answers once Odoo serves requests.
+      security: []
+      responses:
+        "200":
+          description: Odoo serves requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /ready:
+    get:
+      operationId: ready
+      summary: Answers whether the API can serve laboratory files. The editing service is never part of it.
+      security: []
+      responses:
+        "200":
+          description: Every check passes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Readiness"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          description: A check fails.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Readiness"
+  /sign-in:
+    post:
+      operationId: signIn
+      summary: Signs a computer in with the person's MediLab login and gives it a key of its own.
+      description: |
+        A person with two-factor authentication signs in with one of their Odoo API keys in place of the password.
+        Signing in again replaces the computer's key. After 5 failed attempts for a login within 15 minutes, every
+        further attempt waits a delay that doubles from 1 second up to 60 seconds after the last failure; an attempt
+        before its delay has passed is refused before the password is checked.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignIn"
+      responses:
+        "200":
+          description: The computer is signed in. The key is given only in this answer.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignedIn"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/TooManyAttempts"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /sign-out:
+    post:
+      operationId: signOut
+      summary: Signs the computer of the key out; it can sign in again.
+      description: The key stops at once, so repeating a sign-out whose answer was lost is refused with `invalid_key`.
+      responses:
+        "204":
+          description: The computer is signed out.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /devices:
+    get:
+      operationId: listDevices
+      summary: Lists the person's computers.
+      responses:
+        "200":
+          description: The person's computers, the one of the key included.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /devices/{device_id}/revoke:
+    post:
+      operationId: revokeDevice
+      summary: Revokes one of the person's computers for good.
+      description: |
+        Its key stops at once and it cannot sign in again; the person's folders and other computers stay. Revoking a
+        computer already revoked changes nothing.
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: The computer is revoked.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevokedDevice"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+components:
+  securitySchemes:
+    deviceKey:
+      type: http
+      scheme: bearer
+      description: The key a computer got by signing in. A browser session never takes its place.
+  headers:
+    Allow:
+      description: The methods the route takes.
+      required: true
+      schema:
+        type: string
+    RetryAfter:
+      description: Seconds to wait before calling again.
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    WwwAuthenticate:
+      description: The key a call needs.
+      required: true
+      schema:
+        type: string
+  schemas:
+    Name:
+      description: One name, never a path on a computer.
+      type: string
+      minLength: 1
+      pattern: "^[^/\\\\:]+$"
+    Health:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          const: pass
+    Readiness:
+      type: object
+      additionalProperties: false
+      required: [status, checks]
+      properties:
+        status:
+          enum: [pass, fail]
+        checks:
+          description: Each check by name, such as `database`, and whether it passes.
+          type: object
+          additionalProperties:
+            enum: [pass, fail]
+    SignIn:
+      type: object
+      additionalProperties: false
+      required: [login, password, client_uid, name, platform]
+      properties:
+        login:
+          type: string
+          minLength: 1
+        password:
+          description: The password, or an Odoo API key for a person with two-factor authentication. It is never kept.
+          type: string
+          minLength: 1
+        client_uid:
+          description: The id the application generates once per installation.
+          $ref: "#/components/schemas/Name"
+        name:
+          description: The name of the computer.
+          $ref: "#/components/schemas/Name"
+        platform:
+          enum: [linux, windows]
+    Device:
+      type: object
+      additionalProperties: false
+      required: [id, name, platform, status, last_seen_at, revoked_at, current]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        platform:
+          enum: [linux, windows]
+        status:
+          enum: [signed_in, signed_out, revoked]
+        last_seen_at:
+          description: When the computer last called the API, to the minute.
+          type: [string, "null"]
+          format: date-time
+        revoked_at:
+          type: [string, "null"]
+          format: date-time
+        current:
+          description: Whether this is the computer of the key.
+          type: boolean
+    SignedIn:
+      type: object
+      additionalProperties: false
+      required: [key, device]
+      properties:
+        key:
+          description: The computer's key, for the Authorization header. It does not expire.
+          type: string
+        device:
+          $ref: "#/components/schemas/Device"
+    DeviceList:
+      type: object
+      additionalProperties: false
+      required: [devices]
+      properties:
+        devices:
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+    RevokedDevice:
+      type: object
+      additionalProperties: false
+      required: [device]
+      properties:
+        device:
+          $ref: "#/components/schemas/Device"
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message]
+          properties:
+            code:
+              enum:
+                - invalid_request
+                - invalid_credentials
+                - invalid_key
+                - permission_denied
+                - device_revoked
+                - not_found
+                - method_not_allowed
+                - folder_archived
+                - folder_disabled
+                - locked
+                - not_locked
+                - not_eligible
+                - not_lockable
+                - not_editable
+                - too_many_attempts
+                - internal_error
+                - try_again
+                - editing_unavailable
+            message:
+              description: What happened, in the person's language.
+              type: string
+            id:
+              description: The id the server logged an internal error under.
+              type: string
+  responses:
+    InvalidRequest:
+      description: The request does not match this document.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [invalid_request]
+    Unauthenticated:
+      description: The login or the computer's key is refused.
+      headers:
+        WWW-Authenticate:
+          $ref: "#/components/headers/WwwAuthenticate"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [invalid_credentials, invalid_key]
+    Forbidden:
+      description: The person may not do this.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [permission_denied, device_revoked]
+    NotFound:
+      description: Nothing is found, or nothing the person may read; the two answer the same.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [not_found]
+    MethodNotAllowed:
+      description: The route does not take this method.
+      headers:
+        Allow:
+          $ref: "#/components/headers/Allow"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [method_not_allowed]
+    TooManyAttempts:
+      description: Signing in with this login, or from this address, is slowed after failed attempts.
+      headers:
+        Retry-After:
+          $ref: "#/components/headers/RetryAfter"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [too_many_attempts]
+    InternalError:
+      description: The server failed; it logged the details under the answer's id.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - required: [error]
+                properties:
+                  error:
+                    required: [id]
+                    properties:
+                      code:
+                        enum: [internal_error]
+    Unavailable:
+      description: The request still failed on concurrency after the server's last try.
+      headers:
+        Retry-After:
+          $ref: "#/components/headers/RetryAfter"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [try_again]
