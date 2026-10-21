@@ -74,5 +74,5 @@ tasks:
         . {{.LOG}}
         printf '\n'
         log_ok "Local infrastructure is started:"
-        log_link "Odoo" "http://localhost:8069"
-        log_link "CloudBeaver" "http://localhost:8978"
+        log_link "Odoo" "http://localhost:${MEDILAB_ODOO_PORT:-8069}"
+        log_link "CloudBeaver" "http://localhost:${MEDILAB_CLOUDBEAVER_PORT:-8978}"

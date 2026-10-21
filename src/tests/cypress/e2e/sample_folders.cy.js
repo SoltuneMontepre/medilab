@@ -1,5 +1,6 @@
 const PASSWORD = "demo";
-// The lead results of the bottled water in testing: version 1 is signed by the head of chemistry, version 2 is newer.
+// The lead results of the bottled water in testing: version 1 is signed by the head of chemistry, version 2 and
+// version 3, edited online, are newer.
 const RESULT_FILE = "Pb-ket-qua.xlsx";
 
 function signIn(login) {

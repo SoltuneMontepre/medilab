@@ -33,14 +33,14 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 
 `_check_folder_access(access)` on `medilab.laboratory.folder` refuses the user what they may not do with the folders, as a `LaboratoryFileError`: a user error carrying the code the API answers with. The API and later features call it, then act with full rights.
 
-| Access       | Allowed when                                                                                                               | Refused with                           |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| `read`       | The person holds the laboratory files permission, is a member of the folder and, for a folder of a sample, sees the sample | `permission_denied`, `not_found`       |
-| `write`      | `read`, and the folder is neither archived nor turned off                                                                  | `folder_archived`, `folder_disabled`   |
-| `share`      | `read` and the person owns the folder, or the person administers folders; and the folder is not archived                   | `permission_denied`, `folder_archived` |
-| `administer` | The person administers folders                                                                                             | `permission_denied`                    |
+| Access       | Allowed when                                                                                                                                            | Refused with                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `read`       | The person holds the laboratory files permission, is a member of the folder and, for a folder of a sample, sees the sample                              | `permission_denied`, `not_found`                    |
+| `write`      | `read`, and the folder is neither archived nor turned off                                                                                               | `folder_archived`, `folder_disabled`                |
+| `share`      | `read` and the person owns the folder, or the person administers folders and, for a folder of a sample, sees the sample; and the folder is not archived | `permission_denied`, `not_found`, `folder_archived` |
+| `administer` | The person administers folders and, for a folder of a sample, sees the sample                                                                           | `permission_denied`, `not_found`                    |
 
-- A person who is not a member gets `not_found`, as for a folder that does not exist, so the answer does not tell that the folder exists. So does an administrator who is not a member, except for `share`.
+- A person who is not a member gets `not_found`, as for a folder that does not exist, so the answer does not tell that the folder exists. So does an administrator who is not a member, for `read` and `write`, and an administrator who does not see the folder's sample, for every access, before any other refusal.
 - `share` and `administer` are refused with `locked` while someone else holds the folder's [document lock](document-locking.md), because writing with full rights would pass over it.
 - Odoo evaluates access domains with full rights, so an access cannot test whether the person sees a folder's sample. The check tests the sample in the person's own environment.
 
@@ -68,6 +68,7 @@ A folder of a sample, its members, sync rules, files, versions, locks, editing s
 
 - Creating a folder adds its owner as a member with the role `owner`. A folder has one owner row, held by a partial unique index, and the owner row cannot be removed.
 - Only active internal users holding the laboratory files permission are added as members. Anyone else is refused with `not_eligible` and one message that does not say why.
+- A folder has one sync rule of each kind and pattern, held by a unique key on the folder, the kind and the pattern.
 
 ### Names, never paths
 
@@ -131,6 +132,8 @@ File content is stored in the laboratory files bucket, a private S3-compatible b
 - **Unfinished uploads.** An upload not finalized by its expiry is marked `expired`, its multipart upload is aborted and its content becomes `failed`, by the job `laboratory_uploads.expire`. The bucket's lifecycle rules also abort incomplete multipart uploads after 7 days, in case the job did not.
 - **Reconciliation.** The job `laboratory_contents.reconcile` compares the bucket with the rows every day: objects with no content row, `pending` content of no open upload, `duplicate` and `failed` content whose object is still there, and verified content whose object is missing or has another size. It deletes the objects no verified content refers to once they are a day old, and records the rest as errors in the [audit trail](audit-trail.md).
 - **Never removed.** Nothing deletes the object of verified content. When the content of laboratory files is removed after their retention is an open question; until it is answered, verified content is kept.
+- **Reaching the bucket.** Odoo reads the bucket's settings from the environment: its key, `BUCKET_LABORATORY_ACCESS_KEY` and `BUCKET_LABORATORY_SECRET_KEY`, the bucket's name `BUCKET_LABORATORY_NAME`, the address Odoo calls it at `BUCKET_LABORATORY_ADDRESS`, the public address presigned addresses are made for `BUCKET_LABORATORY_PUBLIC_ADDRESS`, and the region its keys sign for `BUCKET_LABORATORY_REGION`. `services/laboratory_bucket.py` makes every call, each safe to make twice: completing an upload already completed answers with its object's size, and aborting an upload or deleting an object already gone changes nothing. A call that cannot reach the bucket raises `BucketUnavailable`, so the same call can be made again later. Odoo writes the documents it stores itself, such as an editor's save, in parts of 16 MiB, each with its SHA-256, which the bucket checks, and empty content in one call, since a multipart upload has at least one part of at least one byte.
+- **Local development and CI.** Docker Compose runs a Garage server, pinned by digest, as the laboratory files bucket. Its one-shot service `garage-setup` sets the bucket up as production's: the lifecycle rule that aborts incomplete multipart uploads after 7 days, Odoo's key reaching that bucket only and creating none, and a second bucket the key may not reach, which the tests check. Its keys are local values in the Compose file.
 - **Encryption and backups.** The bucket is encrypted at rest and reached over HTTPS only. Object keys say nothing about content, so the database is the index of the bucket: it is backed up outside the provider's site with the bucket, and restoring both is tested: the restored bucket holds the object of every verified content, with its size and SHA-256.
 
 ### File locks
@@ -151,6 +154,7 @@ A person editing a file in their own program locks it (`medilab.laboratory.file.
 - A lock that expired is marked `expired` when someone next locks the file or its holder unlocks it, and the scheduled job `laboratory_file_locks.expire` marks the rest every 5 minutes, one item per lock, so every lock gets its end in the back office and the audit trail. Its end is the time it expired, not when it was found.
 - Released and expired locks are removed by the [cleanup job](scheduled-jobs.md#cleanup) after the retention period of locks, as document locks are; their audit entries stay.
 
+- **API.** A computer locks, renews and unlocks a file through `/folders/{folder_id}/files/{file_id}/lock`, after `read` on the folder and once the file is found in it: a file of another folder, or of no id, is `not_found`. The lock records the computer of the key, never one the request names. Locking a file one holds again renews the lock, renewing a lock that expired is `not_locked`, and unlocking with no lock answers 204, so each has the effect of one run when repeated. An administrator's release of someone else's lock is done in the back office only. A file's answer shows the lock in force on it with its holder and when it expires, never the computer of another person's lock.
 - **Back office.** File Locks lists the active locks by default, with their released and expired history, and a file shows who holds its lock in force and until when, in its list and its form, with the file's locks. Folder administrators release a lock someone left: the release checks `administer` on the file's folder, and a lock already past its expiry is recorded as expired instead.
 - **Audit.** Locks are audited as parts of their file, so the file's history shows them: taking a lock is the creation of the lock, and unlocking, expiring and an administrator's release are edits of its status, the release naming the administrator. Renewing a lock writes no entry, as when a lock expires is left out of the trail.
 
@@ -180,7 +184,7 @@ An editing session (`medilab.laboratory.editing.session`) is the editing of one 
 
 #### Opening and joining
 
-`_open_for(file)` opens the file online for the user, after `file._check_file_access("write")` and `file._check_can_edit_online()`, so a member opens a file of a folder that is neither archived nor turned off:
+`_open_for(file)` opens the file online for the user, after `file._check_file_access("write")` and `file._check_can_edit_online()`, so a member opens a file of a folder that is neither archived nor turned off. It then asks the editing service's health check, `_check_editing_available()`, so a person who may not edit the file online is refused for that reason whatever the service's state, and `_join_or_open(file)` joins or opens the session:
 
 - When the file has an open session with activity in the idle period, the person joins it, even when the file has a newer version than the session's base; the session's save then becomes a conflict.
 - Otherwise an open session past the idle period expires, and a new session opens on the file's current version, with a new document key and a new callback token. A file with no version yet is not opened.
@@ -194,14 +198,19 @@ Opening, joining and every call of the editing service are the session's activit
 
 The editing service saves once everyone has left the document; its force save is off, so a session has one save. The save is stored in this order:
 
-1. The saved document is streamed from the address the editing service gives into a new object, never held whole in memory, computing its size and SHA-256 on the way, before any lock. Its content is verified on the way and recorded as an upload's is, `duplicate` when the content is already stored ([Stored content](#stored-content)). When Odoo runs the request again it streams the document again into another object, and reconciliation deletes the first. The address is accepted only when its scheme, host and port are those of `ONLYOFFICE_INTERNAL_URL`, so a callback cannot make Odoo fetch from anywhere else; redirects are not followed, the fetch has a time limit, and a document over 5 GiB is refused.
+1. The saved document is streamed from the address the editing service gives into a new object, never held whole in memory, computing its size and SHA-256 on the way, before any lock. Its content is verified on the way and recorded as an upload's is, `duplicate` when the content is already stored ([Stored content](#stored-content)). When Odoo runs the request again it streams the document again into another object, and reconciliation deletes the first. A session already ended by a save fetches nothing.
+   - The editing service gives the address on the origin the browser reached it at. The address is accepted only when its scheme, host and port are those of one of two configured origins: `ONLYOFFICE_INTERNAL_URL`, or `ONLYOFFICE_PUBLIC_URL`, the public address, which Odoo rewrites to the internal origin with the same path and query. Odoo fetches only from the internal address, so a callback cannot make it fetch from anywhere else; an address on any other origin is a failed check.
+   - Redirects are not followed and are a failed check. Every read waits at most 60 seconds and the whole fetch at most 15 minutes, within the time limit of Odoo's workers. A document over 5 GiB, by its length or once it has passed that size, ends the session in `error`.
+   - `services/saved_documents.py` streams the document in chunks of 1 MiB; `_store_saved_document()` writes them to the bucket and returns the content's SHA-256, size and storage key.
 2. The session's row is updated, which locks it as a file's row is locked for a new version, and its status is read again. A session already ended by a save, `committed`, `conflict`, `closed` or `error`, stores nothing: this is the editing service repeating a call it got no answer to.
-3. The version goes to the last editor the editing service reports for the save. `_check_file_access("write")` is checked for that person; when it refuses, or `_check_can_add_version()` refuses the version, the session ends in `error`, and its audit entry records why and the key of the stored content, so the content can be recovered.
+3. The version goes to the last editor the editing service reports for the save, the last of its `users`; the audit entry names them and everyone its `history` says changed the document. A user is named by the id of the editor configuration, an Odoo user's id. `_check_file_access("write")` is checked for that person; when it refuses, `_check_can_add_version()` refuses the version, or the id is of no active user, the session ends in `error`, and its audit entry records why and the key of the stored content, so the content can be recovered.
 4. `_add_version()` stores it as edited online, from the session's base version and from no computer. The session is `committed` with the new version, `conflict` with the conflict version, or `closed` when the content is the file's current content.
 
 A save is never discarded: one arriving for an expired session is stored the same way, and the conflict rule handles a file that changed meanwhile. A save that fails for a while, such as the bucket being unreachable, keeps the session `saving`, or `expired` when it had expired, and answers the editing service with an error, so it calls back again; it gives up with an error status, which ends the session in `error`.
 
-`test_laboratory_editing_concurrency.py` races two opens of a file, two calls of one save, a save and an upload, and a save and the expiry of its session, with `laboratory_files_concurrency_case.py`.
+`test_laboratory_editing_concurrency.py` races two opens of a file, two calls of one save, a save and an upload, and a save and the expiry of its session, with `laboratory_files_concurrency_case.py`, through the session's methods and through the editing service's callbacks.
+
+`_receive_callback()` maps each status of a checked callback onto the session:
 
 | Editing service status | What happens                |
 | ---------------------- | --------------------------- |
@@ -210,14 +219,27 @@ A save is never discarded: one arriving for an expired session is stored the sam
 | 3, saving failed       | The session ends in `error` |
 | 4, closed unchanged    | The session ends `closed`   |
 | 6, 7, force save       | Activity; force save is off |
+| Any other              | Refused, as a failed check  |
 
 #### The editing service
 
 - The editing service is ONLYOFFICE Document Server Community Edition, a pinned release of 9.4 or later that the tests ran against, in the cluster; `latest` is never deployed.
-- The editor configuration and the editing service's calls are signed with the JWT secret `ONLYOFFICE_JWT_SECRET`, which comes from Doppler through the environment, never from the database or the repository.
-- Every callback is checked before anything is stored: its JWT with that secret and the algorithm HS256 only, its payload being the body it sent, the session found by its callback token, and the document key being that session's. A callback that fails a check stores nothing and is answered with an error.
+- The editor configuration and the editing service's calls are signed with the JWT secret `ONLYOFFICE_JWT_SECRET`, which comes from Doppler through the environment, never from the database or the repository. A secret shorter than 32 bytes, the length HS256 needs, counts as no secret: online editing is then unavailable.
+- Odoo reaches the editing service at `ONLYOFFICE_INTERNAL_URL` and browsers at `ONLYOFFICE_PUBLIC_URL`, both from the environment.
+- **The editor configuration.** `_editor_config(user, document_url, callback_url, lifetime_seconds)` gives the session's configuration with its token, signed for as long as the presigned address of the base version lasts. It names the document key, the file's name and extension, the editor of its extension, the base version's address, the callback address, the user by their Odoo id and name, editing, and force save off.
+- **The callback route.** The editing service calls back on a route of its own, outside `/medilab/api/v1`, an exception to the [routes of the API](#laboratory-files-api): it has no computer key, so the route is `auth='none'`, without CSRF and without a session. The callback token in its address and the JWT check it, and it answers in the editing service's format, `{"error": 0}` for success and `{"error": 1}` for an error, never in the API's error format. It is answered with an error only when `_receive_callback()` asks for the call again or a check fails, and what it did before answering is committed.
+- **The token header.** The editing service sends its token in the header `Medilab-Editor-Token`, with the prefix `Bearer `, a name of its own so that no authentication of Odoo reads it. Document Server 9.4 also puts a token in the body, whose claims are the body's fields.
+- **Checking a callback.** `_from_callback()` checks every callback before anything is stored, and refuses with `EditingCallbackRefused`:
+  - every token that comes, in the header or the body, is a JWT signed with that secret and the algorithm HS256 only, and carries an expiry that has not passed, with a minute of clock difference allowed;
+  - the header token's `payload`, and the claims of the body token without `iat` and `exp`, are the fields of the body, and agree when both come;
+  - the `operation` of a token, when it names one, is `callback`;
+  - the session is found by its callback token, and the document key is that session's, compared in constant time.
+
+  A callback that fails a check stores nothing, changes nothing and is answered with an error.
 - The network lets the browser reach the editing service's public address, the editing service reach Odoo's callback route and the bucket, and Odoo reach the editing service's internal address. The editing service reaches no other private address.
-- The editing service has a health and readiness check of its own, which the API's readiness never includes. Opening a file asks it first and refuses with `editing_unavailable` when it does not answer. Nothing else depends on the service: syncing, downloading, history and restoring never read sessions or call it, and an open session does not stop uploads of its file; its save becomes a conflict.
+  - Document Server refuses private addresses unless `ALLOW_PRIVATE_IP_ADDRESS` is on, which it needs to reach Odoo's callback. That switch turns off its own refusal of internal addresses, and people editing a document can make it fetch an address, such as by inserting an image from a link.
+  - So the network policy, not Document Server, keeps it from internal addresses: its egress reaches only Odoo's callback port and the bucket's endpoint, nothing else in the cluster and never the provider's metadata address.
+- **Health.** The editing service has a health and readiness check of its own, `GET /healthcheck` on its internal address, which answers `true` when it edits documents. The API's readiness never includes it. Opening a file asks it first, waiting at most 3 seconds and following no redirect, and refuses with `editing_unavailable` when it does not answer `true` or the secret is missing. Nothing else depends on the service: syncing, downloading, history and restoring never read sessions or call it, and an open session does not stop uploads of its file; its save becomes a conflict.
 
 #### Expiry
 
@@ -229,15 +251,35 @@ Opening is the creation of the session and every change of its status an edit, r
 
 ### Laboratory files API
 
-The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. A versioned OpenAPI document in the repository describes it; CI validates the document and tests the routes against it.
+The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. The versioned OpenAPI 3.1 document `sol_laboratory/api/openapi.yaml` describes every route, its request and answer, the computers' key and every refusal; CI lints it and tests the routes against it.
 
-- **Routes.** Every route is `type='http'`, with `auth='bearer'`, `bearer_scope='sol_laboratory.device'`, `save_session=False` and the methods it takes. Odoo checks a CSRF token on `type='http'` routes for methods other than GET, HEAD, OPTIONS and TRACE, so the API's routes set `csrf=False`; the computer's key, which a browser never sends by itself, takes its place. Without a key, Odoo's bearer authentication accepts a browser session for a same-origin page opened by the person; the API refuses it, as every route needs the computer of the key.
-- **The computer of a call.** Once Odoo has verified the key, `_from_key()` finds its computer, and only that one: a computer named in the request is ignored. `_from_key()` relies on that verification of the key's hash, so only bearer routes call it. Saves and locks record the computer it found.
-- **Checks.** Every route checks, before it writes with full rights: the key's scope, through Odoo; that the computer is not revoked, through `_from_key()`; and the laboratory files permission, the folder membership and the folder's sample, through `_check_folder_access()` or `_check_file_access()`. Full rights never reach a record the check did not cover.
-- **Running twice.** A route that changes something has the effect of one run when Odoo's retrying runs it again or the computer repeats a call whose answer it lost. Preparing an upload takes an idempotency key the computer generates, unique for the computer, and a repeat answers with the same upload; the other changes are idempotent by their own rules, such as a lock its holder takes again.
+| Route | Does |
+| ----- | ---- |
+| `POST /sign-in` | Signs a computer in with the person's login and gives it its key ([Computers](#computers)) |
+| `POST /sign-out` | Signs the computer of the key out |
+| `GET /devices` | Lists the person's computers |
+| `POST /devices/{device_id}/revoke` | Revokes one of the person's computers |
+| `GET /folders`, `POST /folders` | Lists the person's folders; creates one of the person's own |
+| `GET /folders/{folder_id}`, `PATCH /folders/{folder_id}` | Gives a folder; renames it |
+| `GET /folders/{folder_id}/members`, `POST /folders/{folder_id}/members`, `DELETE /folders/{folder_id}/members/{member_id}` | Lists, adds and removes members |
+| `GET /folders/{folder_id}/member-candidates?q=` | Finds people who can be added |
+| `GET /folders/{folder_id}/rules`, `POST /folders/{folder_id}/rules`, `PATCH` and `DELETE /folders/{folder_id}/rules/{rule_id}` | Lists, adds, changes and removes sync rules |
+| `POST`, `DELETE /folders/{folder_id}/files/{file_id}/lock`, `POST /folders/{folder_id}/files/{file_id}/lock/renew` | Locks a file, unlocks it and renews the person's lock ([File locks](#file-locks)) |
+| `GET /health`, `GET /ready` | The API's health and readiness |
+
+- **Routes.** Every route is declared with `laboratory_api_route()` (`services/laboratory_api.py`): `type='http'`, `auth='bearer'`, `bearer_scope='sol_laboratory.device'`, `csrf=False`, `save_session=False`, `readonly=False` and the methods it takes, and the operation of the OpenAPI document it serves. Odoo checks a CSRF token on `type='http'` routes for methods other than GET, HEAD, OPTIONS and TRACE, so the API's routes set `csrf=False`; the computer's key, which a browser never sends by itself, takes its place. Without a key, Odoo's bearer authentication accepts a browser session for a same-origin page opened by the person; the API refuses it with `invalid_key`, as every route needs the computer of the key.
+- **Routes without a key.** Signing in gives the key, so it is `auth='public'`; health and readiness are `auth='none'` and read only. They are the only exceptions, and they too set `csrf=False` and `save_session=False`.
+- **The computer of a call.** Once Odoo has verified the key, `_from_key()` finds its computer, and only that one: a computer named in the request, such as Medilab Sync's `X-Sync-Device-Id`, is ignored. `_from_key()` relies on that verification of the key's hash, so only bearer routes call it. Saves and locks record the computer it found.
+- **Checks.** Every route checks, before it writes with full rights: the key's scope, through Odoo; that the computer is not revoked, through `_from_key()`; and the laboratory files permission, the folder membership and the folder's sample, through `_check_folder_access()` or `_check_file_access()`. Full rights never reach a record the check did not cover. Signing out and revoking one's own computers skip the laboratory files permission, so a person who lost it still stops their computers.
+- **Running twice.** A route that changes something has the effect of one run when Odoo's retrying runs it again or the computer repeats a call whose answer it lost.
+  - **Creating with an `Idempotency-Key`.** A route that creates a record takes an optional `Idempotency-Key` header: a key the computer generates for the request, unique for the computer. The record keeps it, through `medilab.laboratory.idempotency.mixin`, with a unique index on its computer and the key. A request repeated with the same key answers with the record the first one created; a key sent with another request is refused with `idempotency_conflict`, and a key that is not 1 to 200 letters, digits, dots, colons, hyphens or underscores with `invalid_request`. Two requests with one key at once make one record: the second one's creation fails on the unique index, `_create_once()` turns it into a `ConcurrencyError`, and Odoo runs the request again, which finds the record. Creating a folder takes it, and so does preparing an upload; a later route that creates a record inherits the mixin and declares its index.
+  - **Without a key**, creating a folder of a name its owner already has is refused with `folder_exists`.
+  - **The other changes** are idempotent by their own rules: adding a member already in the folder, or a sync rule of a kind and pattern it has, answers with that one; removing a member or a rule already gone answers 204; a rename or a change of a rule sets the same values again; a lock its holder takes again is renewed. A repeated sign-out finds its key gone and is refused with `invalid_key`, which the computer takes as signed out; revoking a computer already revoked changes nothing.
+- **Folders.** The folder routes check `read` to read a folder, its members and its rules, and `share` to rename it, add and remove members, find people to add and change its rules, then act with full rights. A folder is listed and read only by its members and, for a folder of a sample, by members who see the sample; anyone else gets `not_found`. A folder created through the API is the person's own, of no sample and no category, upload-only, and records the computer it was created from. Changing its owner, turning it off and archiving it are done in the back office only. A folder's answer has `can_share`, whether the person may do what `share` allows, so the computer does not work the rules out itself.
+- **Finding people to add.** `member-candidates` takes at least 2 characters of a name or login and answers at most 10 people, with their id, name and login only: active internal users with the laboratory files permission who are not members yet. Adding anyone else, or an id of nobody, is refused with `not_eligible` and one message.
 - **Reading routes.** Routes are not read-only, even those that only read: finding the computer records its last call, and a write on a read-only cursor makes Odoo run the request again.
-- **Requests.** A request is validated against its OpenAPI schema before the route acts; an invalid one is refused with `invalid_request`.
-- **Errors.** Every refusal answers `{"error": {"code": "<code>", "message": "<message>"}}` with the HTTP status of its code. A computer acts on the code, never on the message, which is in the person's language.
+- **Requests.** A request is checked against its operation in the OpenAPI document before the endpoint acts: no query parameter the operation does not take, a body only where it takes one, as `application/json`, matching its schema with no field the schema does not have. An invalid request is refused with `invalid_request`.
+- **Errors.** Every refusal answers `{"error": {"code": "<code>", "message": "<message>"}}` with the HTTP status of its code. A computer acts on the code, never on the message, which is in the person's language. An endpoint refuses by raising a `LaboratoryFileError` with its code; `ir.http` answers every exception on the API's paths in this format, Odoo's own refusals too, and a raised refusal commits nothing. An endpoint that must keep what it did, such as counting a failed sign-in, returns its refusal instead.
 
 | Code | Status |
 | ---- | ------ |
@@ -245,13 +287,20 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. A 
 | `invalid_credentials`, `invalid_key` | 401 |
 | `permission_denied`, `device_revoked` | 403 |
 | `not_found` | 404 |
-| `folder_archived`, `folder_disabled`, `locked`, `not_locked` | 409 |
-| `not_eligible`, `not_lockable`, `not_editable` | 422 |
+| `method_not_allowed` | 405 |
+| `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked` | 409 |
+| `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict` | 422 |
 | `too_many_attempts` | 429 |
+| `internal_error` | 500 |
 | `try_again`, `editing_unavailable` | 503 |
 
-- `try_again` answers a request still failing on concurrency after Odoo's last try, with a `Retry-After` header.
-- **Health.** `GET /medilab/api/v1/health` answers once Odoo serves requests; `GET /medilab/api/v1/ready` also checks the database and the bucket. Readiness never includes the editing service, so it answers ready while the editing service is down; the editing service has its own health check.
+- `invalid_key` and `invalid_credentials` carry a `WWW-Authenticate: Bearer` header.
+- `method_not_allowed` answers a method the route does not take, with an `Allow` header naming those it takes. A path the API does not have is `not_found`.
+- Odoo's own refusals answer in the same format: a missing or invalid key, and a session of another person with a key, are `invalid_key`; a record the person may not read (`AccessError`) or that does not exist (`MissingError`) is `not_found`, so the answer does not tell that a record exists; any other user error is `invalid_request`. `permission_denied` is only raised by name, such as for a person without the laboratory files permission.
+- `internal_error` answers an exception nobody expected, with a generic message and an `id`. The server logs the exception and its traceback under that id; the answer tells nothing else about it.
+- `too_many_attempts` and `try_again` carry a `Retry-After` header in seconds. `try_again` answers a request still failing on concurrency after Odoo's last try, after 5 seconds.
+- **Adding to the API.** A feature adds its routes with `laboratory_api_route()`, its operations to the OpenAPI document, and any code of its own to `ERROR_STATUSES` (`constants/laboratory_api.py`) and to the document's error codes. Its tests call its routes through `LaboratoryApiCase` (`tests/laboratory_api_case.py`), which checks every answer against the document, so they are its contract tests.
+- **Health.** `GET /medilab/api/v1/health` answers once Odoo serves requests; `GET /medilab/api/v1/ready` also runs the checks of `ir.http._laboratory_files_ready_checks()`, the database's and the bucket's, and 503 when one fails. The bucket's check reads the bucket with Odoo's key, waiting at most 2 seconds to connect and 3 for the answer, and fails while the bucket is not configured. A feature that adds a part the API needs adds its check there. Readiness never includes the editing service, so it answers ready while the editing service is down; the editing service has its own health check. When Odoo cannot reach the database at all, it answers before any route of the API does.
 
 ### Computers
 
@@ -259,29 +308,37 @@ A signed-in computer is a `medilab.laboratory.device` of its person, one per ins
 
 | Step        | What happens                                                                                                                                                                                                                                                                  | Refused with                                                                    |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Signing in  | Odoo checks the login as it does for its external API: with the password, or, for a person with two-factor authentication, with one of their API keys in its place. The password is never kept. The computer is created, or found by its installation id, and gets a new key. | `invalid_request`, `invalid_credentials`, `permission_denied`, `device_revoked` |
+| Signing in  | Odoo checks the login as it does for its external API: with the password, or, for a person with two-factor authentication, with one of their API keys in its place. The password is never kept. The computer is created, or found by its installation id, and gets a new key. | `invalid_request`, `invalid_credentials`, `permission_denied`, `device_revoked`, `too_many_attempts` |
 | A call      | Odoo verifies the key; the computer is the one holding the key's row and not revoked. Its last call is written at most once a minute, so parallel calls do not fight over its row.                                                                                            | `invalid_key`                                                                   |
 | Signing out | The key is removed; the computer can sign in again and gets a new key.                                                                                                                                                                                                        |                                                                                 |
-| Revoking    | The key is removed and the computer is revoked for good. A person revokes their own computers, administrators any computer. The person's folder memberships and other computers stay.                                                                                         |                                                                                 |
+| Revoking    | The key is removed and the computer is revoked for good. A person revokes their own computers, administrators any computer in the back office only. The person's folder memberships and other computers stay.                                                                                         |                                                                                 |
 
 - The key is an Odoo API key of the person, in `res_users_apikeys`, with the scope `sol_laboratory.device`. Odoo keeps only its hash, and the scope makes it open the laboratory files API and nothing else, not Odoo's external API. It does not expire: it stays valid until the computer signs out or is revoked. The device keeps only the id of the key's row, and signing in again removes the old key first.
 - A person with two-factor authentication cannot sign in with their password: Odoo refuses passwords outside its own sign-in screen for them. They sign in with an Odoo API key in its place, one with the scope `rpc`, which is the scope of the keys a person creates in their Odoo preferences. A key of any other scope is refused there, a computer's key too, so one computer's key never signs another in.
 - Odoo verifies the key's hash before the call reaches the laboratory files API, and that hash is deliberately slow. So the computer of a call is found by the key's row with the person, the scope and the key's index, as Odoo finds it, with the same expiry; the hash is checked again only when two of the person's keys share an index.
 - Removing a computer's key from anywhere signs the computer out, also from the person's Odoo preferences or as an administrator. Odoo makes no foreign key to its API keys, so removing one empties the key of its computer first, which records the sign-out in the audit trail. Odoo's cleanup of expired keys deletes rows with SQL and would pass over it, but computers' keys never expire.
 - Revoking is final, also for a person's own computer: the revoked installation cannot sign in again. The computer gets back in as a new installation of Medilab Sync, which generates a new installation id and signs in as a new computer. Whether administrators can restore a revoked computer is an open question.
+- Two first sign-ins of one installation at once make one computer: the second one's creation fails on the unique installation id, `_create_signed_in()` turns it into a `ConcurrencyError`, and Odoo runs the request again, which finds the computer.
 - Signing in, signing out and revoking are recorded in the [audit trail](audit-trail.md) as the creation and edits of the computer: signing in creates it or changes its key, signing out empties its key, and revoking empties its key and sets when it was revoked. The key's row is named, never the key.
 
 #### Limits on signing in
 
-- Odoo's only brake on guessing passwords is its login cooldown, which counts failures per client address in each Odoo worker and which signing in reports as `invalid_credentials`. Signing in is therefore also limited per client address in front of Odoo, as the webhooks are, and slowed per login in Odoo.
+- Odoo's only brake on guessing passwords is its login cooldown, which counts failures per client address in each Odoo worker. Signing in is therefore also limited per client address in front of Odoo, as the webhooks are, and slowed per login in Odoo.
 - **Per client address.** A Traefik rate limit on the sign-in route counts by `Cf-Connecting-IP`. That header is trusted because only Cloudflare reaches the origin: Traefik binds no host port, and network policies let only the `cloudflared` pods reach Traefik and only Traefik reach Odoo, so no other pod can send a forged header.
-- **Per login.** After 5 failed attempts for a login within 15 minutes, every further attempt waits a delay that doubles from 1 second up to 60 seconds; an attempt before its delay has passed is refused with `too_many_attempts` and a `Retry-After` header, before the password is checked. The counts are in the database, so every worker shares them. The account is never locked: the person signs in with the right password once the delay has passed, and a success clears the count.
+- **Per login.** After 5 failed attempts for a login within 15 minutes, every further attempt waits a delay that doubles from 1 second up to 60 seconds; an attempt before its delay has passed is refused with `too_many_attempts` and a `Retry-After` header, before the password is checked. The account is never locked: the person signs in with the right password once the delay has passed.
+  - The delay is counted from the last failure: the sixth attempt waits 1 second after the fifth failure, the seventh 2 seconds after the sixth, up to 60 seconds.
+  - An attempt refused for its delay is not counted, so retrying early does not lengthen the delay.
+  - A login's failures are forgotten 15 minutes after its last one; the next failure counts from one again.
+  - A login nobody has is counted and slowed the same, so the answer does not tell whether it exists.
+  - A right password clears the count, also when signing in is then refused with `permission_denied` or `device_revoked`.
+  - The counts are in `medilab.laboratory.sign.in.attempt`, one row per login, so every worker shares them. Two failures of one login at once update one row: the second fails with a serialization error and Odoo runs its request again, so each is counted once. Only full rights reach it, failed sign-ins are not in the audit trail, as Odoo's log records them, and Odoo's daily autovacuum removes the counts already forgotten.
+- **Odoo's cooldown.** While Odoo's own login cooldown holds the client's address, signing in is refused with `too_many_attempts` and the seconds left of it, before the password is checked, never as `invalid_credentials`.
 
 ### Sample folders
 
 A folder of a sample holds the files of one category of its work: raw data, working documents, results or reports.
 
-- A sample has one folder of each category, held by a unique key on the sample and the category. A folder of a sample needs a category; a folder of no sample may have one too, and several such folders may share it.
+- A sample has one folder of each category, held by a unique key on the sample and the category. A folder has a category if and only if it has a sample, held by a check on the folder. Upgrading clears the category of every folder of no sample before the check is added, and logs each folder it changed with the number of its files, as its files stop counting as that category: a former raw-data folder's files are locked and edited online.
 - Once a folder holds files, its sample and its category never change, so its files keep meaning what they were saved as, such as a signed result of that sample. The folder's form shows them read only then.
 - Everything of a sample's folder is seen only by people who see the sample, whoever they are, folder administrators included: the folder, its members, sync rules, files, versions, locks, editing sessions and changes, in lists, forms and links. Each of these models inherits `medilab.laboratory.sample.folder.mixin`, which adds to the model's access domain for every operation that the record's folder belongs to no sample or to a sample the user reads, with the sample's own access domain for the user. An access domain is evaluated with full rights, so it cannot test the sample itself; the sample's access domain, which Odoo builds for the user, can. A model a later feature adds under folders or files inherits the mixin too, naming the path to the sample in `_sample_field`.
 
@@ -299,11 +356,11 @@ A folder of a sample holds the files of one category of its work: raw data, work
 
 A version of a result file is approved by signing it through the [approval and signing chain](../business/approval-and-signing-chain.md) of laboratory file versions, `medilab.laboratory.file.version`: each version is a document of the chain, signed level after level by the roles its levels name, and the signature belongs to that version and its content. The chain is set up by administrators; without it, signing a version is refused.
 
-| Step        | Who and what                                                                                                                                                                                                                                                    |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Signing     | A member of the folder who sees its sample, holds the `sign` permission of versions and the role of the next level signs the current version of a file in a result folder. The signature records the signer, their role and level, the version and its SHA-256. |
-| Rejecting   | The same person rejects the version instead, with a reason; a rejection without one is refused. The person who saved the version is told why, through the mandatory `laboratory_file_version.rejected` event, once for each round.                              |
-| Withdrawing | A signer withdraws their own signature or rejection once every higher level has withdrawn theirs, as in every chain. Withdrawing the last one leaves the version unsigned, and the next signatures record the next round of `document_version`.                 |
+| Step        | Who and what                                                                                                                                                                                                                                                                                                                       |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Signing     | A member of the folder who sees its sample, holds the `sign` permission of versions and the role of the next level signs the current version of a file in a result folder. The signature records the signer, their role and level, the version and its SHA-256.                                                                    |
+| Rejecting   | The same person rejects the version instead, with a reason; a rejection without one is refused. The person who saved the version is told why, through the mandatory `laboratory_file_version.rejected` event, once for each round.                                                                                                 |
+| Withdrawing | A signer who still reads the version's file, as a member of its folder who sees its sample, withdraws their own signature or rejection once every higher level has withdrawn theirs, as in every chain. Withdrawing the last one leaves the version unsigned, and the next signatures record the next round of `document_version`. |
 
 - Only the current version of a file in a result folder is signed or rejected. A conflict version is never current, so it is never signed.
 - A newer version of the file starts unsigned: the file shows the signing state of its current version, and the older version keeps its signatures.

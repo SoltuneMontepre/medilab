@@ -22,14 +22,30 @@ class TestLaboratorySampleFolderRecords(LaboratoryFilesCase, RequestCase):
         with mute_logger("odoo.sql_db"), self.assertRaises(IntegrityError):
             self.create_folder("Raw data again", sample_id=self.sample.id, category=RAW_DATA)
 
-    def test_folders_of_no_sample_are_not_limited_by_category(self):
-        self.create_folder("HPLC raw data", category=RAW_DATA)
-
-        self.create_folder("GC raw data", category=RAW_DATA)
-
     def test_a_folder_of_a_sample_needs_a_category(self):
         with mute_logger("odoo.sql_db"), self.assertRaises(IntegrityError):
             self.create_folder("Unsorted", sample_id=self.sample.id)
+
+        folder = self.create_folder("Results", sample_id=self.sample.id, category="result")
+        with mute_logger("odoo.sql_db"), self.assertRaises(IntegrityError):
+            folder.category = False
+            folder.flush_recordset()
+
+    def test_a_folder_of_no_sample_has_no_category(self):
+        with mute_logger("odoo.sql_db"), self.assertRaises(IntegrityError):
+            self.create_folder("HPLC raw data", category=RAW_DATA)
+
+        for vals in ({"category": RAW_DATA}, {"sample_id": self.sample.id}):
+            with self.subTest(vals=vals), mute_logger("odoo.sql_db"), self.assertRaises(IntegrityError):
+                self.folder.write(vals)
+                self.folder.flush_recordset()
+
+        results = self.create_folder("Results", sample_id=self.sample.id, category="result")
+        with mute_logger("odoo.sql_db"), self.assertRaises(IntegrityError):
+            results.sample_id = False
+            results.flush_recordset()
+        results.write({"sample_id": False, "category": False})
+        self.assertRecordValues(results, [{"sample_id": False, "category": False}])
 
     def test_a_folder_keeps_its_sample_and_category_once_it_holds_files(self):
         other_sample = self.create_request().sample_ids

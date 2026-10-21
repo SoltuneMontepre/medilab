@@ -29,7 +29,7 @@
 - **Folder retention period.** Decided: the system parameter `sol_laboratory.laboratory_folder_retention_days`. Assumption: no document gives a retention period for laboratory files, so it is 1825 days by default. An archived folder is not unarchived.
 - **Archived folders.** Decided: an archived folder behaves like a turned-off folder: it is still listed and read, and every write is refused.
 - **Folder settings.** Decided: the owner and administrators rename a folder and change its sync rules. Assumption: Medilab Sync does not say which sync mode a new folder gets, so it is upload-only.
-- **Folder names.** Decided: renaming changes the name people see; the name a folder was created with, unique for its owner, never changes. Creating a second folder of that name for the same owner is refused.
+- **Folder names.** Decided: renaming changes the name people see; the name a folder was created with, unique for its owner, never changes. Creating a second folder of that name for the same owner is refused with `folder_exists`.
 - **Who can be added to a folder.** Decided: active internal users holding the laboratory files permission; anyone else is refused with one message that does not say why.
 - **Medilab Mobile and laboratory folders.** Decided: out of scope for now; signed-in computers are Linux or Windows, as the diagram says.
 - **Laboratory folders in the back office.** Decided: only administrators change folders, members, sync rules and computers in the back office; owners manage members through the API. Changing a folder's owner, turning it off and archiving it are done only in the back office.
@@ -65,7 +65,7 @@
 - **Uploads to a closed sample's folders.** The old module refused uploads to the folders of a completed or cancelled sample. Should the folders of a closed sample refuse uploads, and online editing? For now they do not; this is provisional, not decided.
 - **Names of sample folders.** Assumption: a sample's folders are named after its lab code and their category, such as `PTN.2026.0001 Raw Data`, with the roots `PTN.2026.0001-raw` and `PTN.2026.0001-result`. Is that the name the laboratory wants?
 - **The chain of file versions.** Decided: as for every document type, the chain for signing file versions is set up by administrators and comes only with the demo data; until it exists, signing a version is refused.
-- **Category of a folder of no sample.** Decided for now: a folder of a sample must have a category, but a folder of no sample may have one too, although the diagram says its category is empty, because the tests of laboratory files create raw-data folders without a sample. The two-way rule is checked once the online editing of files has landed and those tests are moved to sample folders.
+- **Category of a folder of no sample.** Decided: a folder has a category if and only if it has a sample. Upgrading clears the category of every folder of no sample, and logs each one with the number of its files.
 
 ## #171 Online editing
 
@@ -80,6 +80,21 @@
 - **The callback token.** Decided: only its SHA-256 is stored, and it is compared in constant time.
 - **Online editing of a closed sample's files.** Asked with [uploads to a closed sample's folders](#173): whether a closed sample's folders refuse online editing too. For now they do not; this is provisional, not decided.
 - **The editor's save and the bucket.** File bytes never pass through the API's requests. Storing an editor's save means Odoo streams the saved document from the editing service into the bucket during its callback, as nothing else can fetch it before the callback is answered without risking the save. Is the callback an accepted exception to that rule, or must the save be fetched by a job after the callback is answered, accepting that a save is lost when the job fails after the editing service has dropped the document? Proposed answer, for the team to confirm, not decided: the callback is an accepted exception; it streams the save from Document Server into the bucket without holding it in memory, because losing a save is worse than bytes passing through Odoo in that one request. (blocks US-T26)
+- **Where the editor opens.** Opening a file online gives a signed editor configuration, which a page in the browser hands to ONLYOFFICE's editor. Who asks for it and where that page lives is not given: Medilab Sync with its computer key, opening the person's browser on a page that has no Odoo session, or a page of Odoo's own that the person reaches signed in, such as from the file in the back office, which today has no Edit online button. How does a person open a file online, and from which application? (US-T26)
+
+## Laboratory files API
+
+- **Routes without a key.** Decided: signing in is `auth='public'`, and health and readiness are `auth='none'`, all with `csrf=False` and `save_session=False`; every other route takes a computer's key.
+- **Slowing a login.** Decided: the delay is counted from the last failure; an attempt refused for its delay is not counted; a login's failures are forgotten 15 minutes after its last one; a login nobody has is counted the same; a right password clears the count, also when signing in is then refused with `permission_denied` or `device_revoked`.
+- **A person who lost the laboratory files permission.** Decided: they still sign out and revoke their own computers; listing them is refused.
+- **Revoking someone else's computer.** Decided: administrators do it in the back office only, not through the API.
+- **Waiting after `try_again`.** Decided: `Retry-After` is 5 seconds.
+- **Failed sign-ins in the audit trail.** Decided: they are not recorded there; Odoo's log and the count of failed sign-ins are enough.
+- **Errors without a code.** Decided: a method a route does not take answers 405 with `method_not_allowed` and an `Allow` header; an error nobody expected answers 500 with `internal_error`, a generic message and the id the server logged it under.
+- **Repeating a request.** Decided: a route that creates a record takes an optional `Idempotency-Key` header, unique per computer, and a request repeated with it answers with what the first one created; the same key with another request is refused with `idempotency_conflict`. Uploads use the same mechanism. Without the header, a name the owner already has a folder of is refused with `folder_exists`.
+- **One sync rule per kind and pattern.** Decided: a folder has one rule of each kind and pattern. The upgrade that adds the rule keeps the oldest of each and deletes the others, logging each deleted rule with its flags.
+- **Finding people to add to a folder.** Decided: the owner and administrators search by at least 2 characters of a name or login and get at most 10 people, with id, name and login only: active internal users with the laboratory files permission who are not members yet.
+- **What a folder tells the computer.** Decided: its answer says whether the person may rename it and change its members and rules, `can_share`, so the computer does not work the rules out itself.
 
 ## Related documents
 

@@ -63,3 +63,17 @@ class TestLaboratoryEditingServiceDown(LaboratoryEditingCase):
 
         self.assertEqual((self.session.status, self.file.current_version_id), (SESSION_CONFLICT, synced))
         self.assertEqual(version.parent_version_id, synced)
+
+    def test_syncing_restoring_and_reading_history_never_ask_the_editing_service(self):
+        self.save(self.file, "Kết quả, bản 2 từ máy tính", user=self.member)
+        self.file._add_version(
+            sha256=self.first.sha256,
+            size=self.first.size,
+            storage_key=self.first.storage_key,
+            source=RESTORED,
+            user=self.member,
+            restored_from=self.first,
+        )
+        self.env[MODEL_LABORATORY_FILE_VERSION].with_user(self.member).search([("file_id", "=", self.file.id)])
+
+        self.health_check.assert_not_called()

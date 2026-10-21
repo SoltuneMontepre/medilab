@@ -8024,9 +8024,9 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
-msgid "This laboratory folder does not exist or you are not a member of it."
+msgid "This laboratory folder does not exist or you do not have access to it."
 msgstr ""
-"Thư mục phòng thí nghiệm này không tồn tại hoặc bạn không phải thành viên."
+"Thư mục phòng thí nghiệm này không tồn tại hoặc bạn không có quyền truy cập."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -13380,9 +13380,9 @@ msgid "Permission: order.template.line.delete.all"
 msgstr "Xóa dòng đơn hàng mẫu"
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_sample_has_category
-msgid "A folder of a sample needs a category."
-msgstr "Thư mục của mẫu cần có loại thư mục."
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_category_of_sample
+msgid "A folder of a sample needs a category, and a folder of no sample has none."
+msgstr "Thư mục của mẫu cần có loại thư mục, và thư mục không thuộc mẫu nào thì không có loại thư mục."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -13529,3 +13529,237 @@ msgstr "Mẫu đã có thư mục thuộc loại này."
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
 msgid "%(version)s was rejected: %(reason)s"
 msgstr "%(version)s đã bị từ chối: %(reason)s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "Online editing is unavailable right now. Syncing, history and restoring still work."
+msgstr "Hiện không thể chỉnh sửa trực tuyến. Đồng bộ, lịch sử và khôi phục vẫn hoạt động."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "Online editing is unavailable right now."
+msgstr "Hiện không thể chỉnh sửa trực tuyến."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "The editing service could not save the document."
+msgstr "Dịch vụ chỉnh sửa không lưu được tài liệu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "The editing service named nobody who can save the file; the saved content is kept under %s."
+msgstr "Dịch vụ chỉnh sửa không nêu người nào có thể lưu tệp; nội dung đã lưu được giữ tại %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "The saved document is over 5 GiB, the largest file kept."
+msgstr "Tài liệu đã lưu lớn hơn 5 GiB, kích thước tệp lớn nhất được lưu giữ."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_sign_in_attempt_login_unique
+msgid "A login has one count of failed sign-ins."
+msgstr "Mỗi tên đăng nhập chỉ có một bộ đếm lần đăng nhập sai."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_device.py:0
+msgid "Another sign-in of this computer happened meanwhile; the sign-in is run again."
+msgstr "Máy tính này vừa đăng nhập ở một yêu cầu khác; lần đăng nhập này được chạy lại."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sign_in_attempt__failed_at
+msgid "Failed At"
+msgstr "Thời điểm đăng nhập sai"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sign_in_attempt__failures
+msgid "Failures"
+msgstr "Số lần đăng nhập sai"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_http
+msgid "HTTP Routing"
+msgstr "Định tuyến HTTP"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_sign_in_attempt
+msgid "Laboratory Sign-in Attempt"
+msgstr "Lượt đăng nhập sai"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "Nothing is found at this address."
+msgstr "Không tìm thấy gì tại địa chỉ này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "Sign this computer in: the call has no key."
+msgstr "Hãy đăng nhập máy tính này: yêu cầu không có khóa."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "The body is not valid JSON."
+msgstr "Nội dung yêu cầu không phải JSON hợp lệ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "The body of this route is JSON."
+msgstr "Nội dung yêu cầu của đường dẫn này phải là JSON."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "The request cannot be done: %s"
+msgstr "Không thể thực hiện yêu cầu: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "The request does not match the API: %s"
+msgstr "Yêu cầu không khớp với API: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "The server failed. Give this id to your administrator: %s"
+msgstr "Máy chủ gặp lỗi. Hãy gửi mã này cho quản trị viên: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "The server is busy with the same records; try again."
+msgstr "Máy chủ đang xử lý cùng dữ liệu này; hãy thử lại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/laboratory_api_devices.py:0
+msgid "This computer does not exist or is not one of yours."
+msgstr "Máy tính này không tồn tại hoặc không phải của bạn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "This route does not take the method %s."
+msgstr "Đường dẫn này không nhận phương thức %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "This route takes no body."
+msgstr "Đường dẫn này không nhận nội dung yêu cầu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "This route takes no parameter %s."
+msgstr "Đường dẫn này không nhận tham số %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sign_in_attempt.py:0
+msgid "Too many failed sign-ins from this address; try again in %s seconds."
+msgstr "Đăng nhập sai quá nhiều lần từ địa chỉ này; hãy thử lại sau %s giây."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_sign_in_attempt.py:0
+msgid "Too many failed sign-ins with this login; try again in %s seconds."
+msgstr "Đăng nhập sai quá nhiều lần với tên đăng nhập này; hãy thử lại sau %s giây."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+msgid "Another request added this member meanwhile; the request is run again."
+msgstr "Một yêu cầu khác vừa thêm thành viên này; yêu cầu được chạy lại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+msgid "Another request added this sync rule meanwhile; the request is run again."
+msgstr "Một yêu cầu khác vừa thêm quy tắc đồng bộ này; yêu cầu được chạy lại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/mixins/laboratory_idempotency_mixin.py:0
+msgid "Another request made the same record meanwhile; the request is run again."
+msgstr "Một yêu cầu khác vừa tạo cùng bản ghi này; yêu cầu được chạy lại."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__idempotency_key
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_idempotency_mixin__idempotency_key
+msgid "Idempotency Key"
+msgstr "Khóa chống lặp yêu cầu"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_idempotency_mixin
+msgid "Laboratory Record Created Once per Request"
+msgstr "Bản ghi phòng thí nghiệm tạo một lần cho mỗi yêu cầu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_sync_rule_folder_kind_pattern_unique
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+msgid "The folder already has this sync rule."
+msgstr "Thư mục đã có quy tắc đồng bộ này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/controllers/laboratory_api_folder_members.py:0
+msgid "The owner of a folder cannot be removed from it; an administrator changes its owner."
+msgstr "Không thể xóa chủ sở hữu khỏi thư mục; quản trị viên đổi chủ sở hữu của thư mục."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "The parameter %(name)s does not match the API: %(error)s"
+msgstr "Tham số %(name)s không khớp với API: %(error)s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+msgid "This Idempotency-Key was already sent with another request."
+msgstr "Idempotency-Key này đã được gửi kèm một yêu cầu khác."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_device_idempotency_key_unique
+msgid "This computer already created a folder with this Idempotency-Key."
+msgstr "Máy tính này đã tạo một thư mục với Idempotency-Key này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/services/laboratory_api.py:0
+msgid "This route needs the parameter %s."
+msgstr "Đường dẫn này cần tham số %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+msgid "This sync rule does not exist in the folder."
+msgstr "Quy tắc đồng bộ này không có trong thư mục."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+msgid "Type at least %s characters of the person's name or login."
+msgstr "Hãy nhập ít nhất %s ký tự của tên hoặc tên đăng nhập."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+msgid "You already have a folder named %s."
+msgstr "Bạn đã có thư mục tên %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+msgid "This file does not exist in the folder."
+msgstr "Tệp này không có trong thư mục."
