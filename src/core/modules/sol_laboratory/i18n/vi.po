@@ -13883,3 +13883,21 @@ msgstr "Nội dung lưu trữ không bao giờ bị xóa."
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
 msgid "Verified content has the size and SHA-256 the server computed."
 msgstr "Nội dung đã xác minh có kích thước và SHA-256 do máy chủ tính."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "This computer already made a version with this Idempotency-Key."
+msgstr "Máy tính này đã tạo một phiên bản với Idempotency-Key này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+msgid "This version is not a version of the file."
+msgstr "Phiên bản này không phải là phiên bản của tệp."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+msgid "Version %s"
+msgstr "Phiên bản %s"

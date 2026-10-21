@@ -19,6 +19,10 @@ PENDING = "pending"
 VERIFIED = "verified"
 DUPLICATE = "duplicate"
 FAILED = "failed"
+# The first key of the advisory locks that order the changes of each folder, used by no other lock.
+FEED_LOCK_SCOPE = 17010170
+# Key in the cursor's cache of the files whose rows the transaction updated for a new version.
+ROW_LOCKED_FILES = "laboratory_files_row_locked"
 # Context key of the one write that settles content, made by the content itself.
 SETTLE_CONTENT_CONTEXT = "laboratory_content_settle"
 # The category of a sample's folder that holds the raw data of its instruments.

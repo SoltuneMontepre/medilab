@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_DEVICE,
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FILE_VERSION,
+    MODEL_LABORATORY_IDEMPOTENCY_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_RES_USERS,
 )
@@ -29,13 +30,14 @@ PROTECTED_FIELDS = (
     "content_id",
     "user_id",
     "device_id",
+    "idempotency_key",
 )
 
 
 # Phiên Bản Tệp
 class LaboratoryFileVersion(models.Model):
     _name = MODEL_LABORATORY_FILE_VERSION
-    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN]
+    _inherit = [MODEL_PERMISSION_MIXIN, MODEL_AUDIT_MIXIN, MODEL_LABORATORY_IDEMPOTENCY_MIXIN]
     _description = "Laboratory File Version"
     _order = "file_id, number desc"
     # Versions are stored by saving a file and are never changed or deleted.
@@ -73,6 +75,10 @@ class LaboratoryFileVersion(models.Model):
     device_id = fields.Many2one(MODEL_LABORATORY_DEVICE, string="Computer", ondelete="restrict", readonly=True)
 
     _file_number_unique = models.Constraint("UNIQUE(file_id, number)", "A file has one version of each number.")
+    _device_idempotency_key_unique = models.UniqueIndex(
+        "(device_id, idempotency_key) WHERE idempotency_key IS NOT NULL",
+        "This computer already made a version with this Idempotency-Key.",
+    )
     _sha256_format = models.Constraint(
         "CHECK(sha256 ~ '^[0-9a-f]{64}$')", "A version's SHA-256 is 64 lowercase hexadecimal digits."
     )
