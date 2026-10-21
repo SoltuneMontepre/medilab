@@ -1,30 +1,32 @@
 # Laboratory files
 
-Stories: US-T23, US-T24, US-T25, US-T27, US-T28, US-AD29, US-AD30, US-AD31, US-HD15, US-HD16
+Stories: US-T23, US-T24, US-T25, US-T26, US-T27, US-T28, US-AD29, US-AD30, US-AD31, US-HD15, US-HD16
 
 ## Goal
 
-People reach the [laboratory files](../functional/laboratory_module/overview.md#laboratory-files) only through the folders they are members of, and only with the laboratory files permission. One check decides what a person may do with a folder, so the laboratory files API and the features built on folders refuse the same things the same way. Each computer signs in once with the person's login and gets its own key, which stops at once when the computer is revoked. Every saved state of a file is a version that never changes, numbered in order even when two saves of the file come at once. A person editing a file can lock it, so nobody else saves it meanwhile.
+People reach the [laboratory files](../functional/laboratory_module/overview.md#laboratory-files) only through the folders they are members of, and only with the laboratory files permission. One check decides what a person may do with a folder, so the laboratory files API and the features built on folders refuse the same things the same way. Each computer signs in once with the person's login and gets its own key, which stops at once when the computer is revoked. Every saved state of a file is a version that never changes, numbered in order even when two saves of the file come at once. A person editing a file can lock it, so nobody else saves it meanwhile. People edit an Office file together in the browser in one session per file, and no save of the editor is lost.
 
 ## Design
 
 ### Permissions
 
-| Document type            | Actions                    | Scopes |
-| ------------------------ | -------------------------- | ------ |
-| Laboratory folder        | read, create, edit         | all    |
-| Laboratory folder member | read, create, delete       | all    |
-| Laboratory sync rule     | read, create, edit, delete | all    |
-| Laboratory device        | read, edit                 | all    |
-| Laboratory file          | read                       | all    |
-| Laboratory file version  | read, sign                 | all    |
-| Laboratory file change   | read                       | all    |
-| Laboratory file lock     | read                       | all    |
+| Document type              | Actions                    | Scopes |
+| -------------------------- | -------------------------- | ------ |
+| Laboratory folder          | read, create, edit         | all    |
+| Laboratory folder member   | read, create, delete       | all    |
+| Laboratory sync rule       | read, create, edit, delete | all    |
+| Laboratory device          | read, edit                 | all    |
+| Laboratory file            | read                       | all    |
+| Laboratory file version    | read, sign                 | all    |
+| Laboratory file change     | read                       | all    |
+| Laboratory file lock       | read                       | all    |
+| Laboratory editing session | read                       | all    |
 
 - **The create permission on laboratory folders, `laboratory_folder.create.all`, is the laboratory files permission.** Its holders sign computers in and create folders they own. Its group also carries accesses of its own: its holders read the folders they are members of, the members and sync rules of those folders, and their own computers. They change them only through the laboratory files API, which checks them and then writes with full rights.
 - Folder administration is `laboratory_folder.edit.all`. With the read permissions of every folder, member, sync rule and computer, and the other permissions above, administrators see and change them all in the back office.
 - Files, versions and changes have only `read`: they are made by saving files, through the method below, and never changed or deleted. The laboratory files permission also reads the files and versions of its holder's folders. Versions also have `sign`, for [signing them](#signing-versions).
 - Locks have only `read` too: they are taken, renewed and unlocked through the laboratory files API, and administrators release one as folder administrators. The laboratory files permission reads the locks of its holder's folders.
+- Editing sessions have only `read`: opening a file online and the editing service's saves make and change them, and they are never deleted. The laboratory files permission also reads the sessions of its holder's folders.
 - Folders have no archive or delete action: archiving a folder is editing it, and folders are never deleted. Members change their role only with the folder's owner, so they have no edit action. Computers are created by signing in and revoked by editing; they are never deleted.
 
 ### What a person may do with a folder
@@ -58,9 +60,9 @@ Administrators administer folders in the back office; each action checks `admini
 
 ### Back office
 
-The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Folder Members, Sync Rules and Computers. Files, versions and locks are only read there, and a folder's form lists its files. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and change nothing else: owners manage their folders from Medilab Sync. A sample's folders are created from the sample ([Creating a sample's folders](#creating-a-samples-folders)); otherwise only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
+The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Editing Sessions, Folder Members, Sync Rules and Computers. Files, versions, locks and editing sessions are only read there; a folder's form lists its files, and a file's form its versions and editing sessions. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and change nothing else: owners manage their folders from Medilab Sync. A sample's folders are created from the sample ([Creating a sample's folders](#creating-a-samples-folders)); otherwise only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
 
-A folder of a sample, its members, sync rules, files, versions, locks and changes are shown only to people who see the sample, administrators included; see [Sample folders](#sample-folders).
+A folder of a sample, its members, sync rules, files, versions, locks, editing sessions and changes are shown only to people who see the sample, administrators included; see [Sample folders](#sample-folders).
 
 ### Members
 
@@ -134,6 +136,71 @@ A person editing a file in their own program locks it (`medilab.laboratory.file.
 
 Two people locking the same file at once end with one holder. Locking updates the file's row, without changing it, before it looks for a lock, as every save does before it numbers its version. The second one waits for the first; once the first commits, the second fails with a serialization error and Odoo's request retrying runs it again, when it is refused with `locked`. A lock and a save of someone else at once are ordered the same way: a save that started before the lock committed runs again and is refused, and a lock taken while a save is stored runs again and locks the saved version. Locking the row without updating it would not make a save that started earlier fail. The unique index refuses a second active lock that skipped the row.
 
+### Online editing
+
+An editing session (`medilab.laboratory.editing.session`) is the editing of one Office file together in the browser, through ONLYOFFICE Document Server. Everyone in it edits the version it opened, its base version, and its save is one new version.
+
+| Status      | The session                                                                                                     |
+| ----------- | --------------------------------------------------------------------------------------------------------------- |
+| `open`      | is edited; a person opening the file joins it                                                                   |
+| `saving`    | was asked to save by the editing service, and the save is not stored yet                                        |
+| `committed` | saved a version marked edited online, the file's new current version                                            |
+| `conflict`  | saved a conflict version, because the file changed after the session opened                                     |
+| `closed`    | ended without a new version: everyone left without changes, or the save had the content the file has            |
+| `expired`   | had no activity for the idle period; nobody joins it any more                                                   |
+| `error`     | could not save: the saved document could not be read, or the person who saved last can no longer write the file |
+
+`open` and `saving` sessions are open: a file has at most one, held by a partial unique index. The other statuses end the session.
+
+#### Which files
+
+`file._check_can_edit_online()` refuses with `not_editable` a file that is not an Office document, a file of a raw-data folder and a file of a report folder. Office files of result and working folders and of folders without a category are edited online.
+
+#### Opening and joining
+
+`_open_for(file)` opens the file online for the user, after `file._check_file_access("write")` and `file._check_can_edit_online()`, so a member opens a file of a folder that is neither archived nor turned off:
+
+- When the file has an open session with activity in the idle period, the person joins it, even when the file has a newer version than the session's base; the session's save then becomes a conflict.
+- Otherwise an open session past the idle period expires, and a new session opens on the file's current version, with a new document key and a new callback token. A file with no version yet is not opened.
+- Two people opening a file at once make one session: the second one's creation fails on the partial unique index, which becomes a `ConcurrencyError`, and Odoo runs the request again, when it joins the session.
+- The callback token is in the address the editing service calls back on. It is an HMAC of the document key with the database's secret, under a scope used for nothing else, so everyone in the session gets the same address, as the editing service calls back on the address of whoever changed the document last. Only its SHA-256 is stored; the session is found by it, and the hash is compared in constant time.
+
+Opening, joining and every call of the editing service are the session's activity. The idle period is the system parameter `sol_laboratory.laboratory_editing_idle_hours`, in the Laboratory Files block of [Settings](settings.md), at least 1 hour and 12 hours by default.
+
+#### Saving
+
+The editing service saves once everyone has left the document; its force save is off, so a session has one save. The save is stored in this order:
+
+1. The saved document is fetched from the address the editing service gives and stored by its content, before any lock, as fetching and storing it again is harmless when Odoo runs the request again. The address is accepted only when its scheme, host and port are those of `ONLYOFFICE_INTERNAL_URL`, so a callback cannot make Odoo fetch from anywhere else.
+2. The session's row is updated, which locks it as a file's row is locked for a new version, and its status is read again. A session already ended by a save, `committed`, `conflict`, `closed` or `error`, stores nothing: this is the editing service repeating a call it got no answer to.
+3. The version goes to the last editor the editing service reports for the save. `_check_file_access("write")` is checked for that person; when it refuses, or `_check_can_add_version()` refuses the version, the session ends in `error`, and its audit entry records why and the key of the stored content, so the content can be recovered.
+4. `_add_version()` stores it as edited online, from the session's base version and from no computer. The session is `committed` with the new version, `conflict` with the conflict version, or `closed` when the content is the file's current content.
+
+A save is never discarded: one arriving for an expired session is stored the same way, and the conflict rule handles a file that changed meanwhile. A save that fails for a while, such as the bucket being unreachable, keeps the session `saving`, or `expired` when it had expired, and answers the editing service with an error, so it calls back again; it gives up with an error status, which ends the session in `error`.
+
+`test_laboratory_editing_concurrency.py` races two opens of a file, two calls of one save, a save and an upload, and a save and the expiry of its session, with `laboratory_files_concurrency_case.py`.
+
+| Editing service status | What happens                |
+| ---------------------- | --------------------------- |
+| 1, being edited        | Activity                    |
+| 2, ready to save       | The save above              |
+| 3, saving failed       | The session ends in `error` |
+| 4, closed unchanged    | The session ends `closed`   |
+| 6, 7, force save       | Activity; force save is off |
+
+#### The editing service
+
+- The editor configuration and the editing service's calls are signed with the JWT secret `ONLYOFFICE_JWT_SECRET`, which comes from the environment, never from the database or the repository.
+- Opening a file asks the editing service's health check first and refuses with `editing_unavailable` when it does not answer. Nothing else depends on the service: syncing, downloading, history and restoring never read sessions or call it, and an open session does not stop uploads of its file; its save becomes a conflict.
+
+#### Expiry
+
+The job `laboratory_editing_sessions.expire` runs every 30 minutes and expires the open and saving sessions with no activity in the idle period. Expiry only stops people from joining: the people still editing lose nothing, as their save is stored when it arrives.
+
+#### Audit
+
+Opening is the creation of the session and every change of its status an edit, recorded in the [audit trail](audit-trail.md) under its file. Joining is an edit entry naming the person, a save's entry names every editor, and an error records why. The token is masked, and activity times are not recorded.
+
 ### Computers
 
 A signed-in computer is a `medilab.laboratory.device` of its person, one per installation of Medilab Sync: the installation id the application generates once is unique for the person. Its name is one name and its platform is Linux or Windows.
@@ -162,7 +229,7 @@ A folder of a sample holds the files of one category of its work: raw data, work
 
 - A sample has one folder of each category, held by a unique key on the sample and the category. A folder of a sample needs a category; a folder of no sample may have one too, and several such folders may share it.
 - Once a folder holds files, its sample and its category never change, so its files keep meaning what they were saved as, such as a signed result of that sample. The folder's form shows them read only then.
-- Everything of a sample's folder is seen only by people who see the sample, whoever they are, folder administrators included: the folder, its members, sync rules, files, versions, locks and changes, in lists, forms and links. Each of these models inherits `medilab.laboratory.sample.folder.mixin`, which adds to the model's access domain for every operation that the record's folder belongs to no sample or to a sample the user reads, with the sample's own access domain for the user. An access domain is evaluated with full rights, so it cannot test the sample itself; the sample's access domain, which Odoo builds for the user, can. A model a later feature adds under folders or files inherits the mixin too, naming the path to the sample in `_sample_field`.
+- Everything of a sample's folder is seen only by people who see the sample, whoever they are, folder administrators included: the folder, its members, sync rules, files, versions, locks, editing sessions and changes, in lists, forms and links. Each of these models inherits `medilab.laboratory.sample.folder.mixin`, which adds to the model's access domain for every operation that the record's folder belongs to no sample or to a sample the user reads, with the sample's own access domain for the user. An access domain is evaluated with full rights, so it cannot test the sample itself; the sample's access domain, which Odoo builds for the user, can. A model a later feature adds under folders or files inherits the mixin too, naming the path to the sample in `_sample_field`.
 
 #### Creating a sample's folders
 

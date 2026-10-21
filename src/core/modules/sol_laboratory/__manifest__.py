@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Laboratory",
-    "version": "20.0.1.11.0",
+    "version": "20.0.1.12.0",
     "summary": "Laboratory testing core: test catalog, parameters, samples, results and machines.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -21,6 +21,7 @@
         "data/notification_event_data.xml",
         "data/ir_cron_data.xml",
         "data/scheduled_job_data.xml",
+        "data/laboratory_editing_job_data.xml",
         "security/audit_access_data.xml",
         "security/laboratory_files_access.xml",
         "data/portal_entry_data.xml",
@@ -59,6 +60,7 @@
         "views/laboratory_files/laboratory_file_lock_views.xml",
         "views/laboratory_files/laboratory_file_version_reject_views.xml",
         "views/laboratory_files/laboratory_file_version_signing_views.xml",
+        "views/laboratory_files/laboratory_editing_session_views.xml",
         "views/laboratory_files/laboratory_folder_views.xml",
         "views/laboratory_files/laboratory_folder_sample_views.xml",
         "views/laboratory_files/laboratory_folder_member_views.xml",

@@ -1035,4 +1035,9 @@
         <field name="document_model">medilab.laboratory.file.version</field>
         <field name="action">sign</field>
     </record>
+    <record id="permission_laboratory_editing_session_read_all" model="medilab.permission">
+        <field name="name">Read every online editing session of laboratory files</field>
+        <field name="document_model">medilab.laboratory.editing.session</field>
+        <field name="action">read</field>
+    </record>
 </odoo>
