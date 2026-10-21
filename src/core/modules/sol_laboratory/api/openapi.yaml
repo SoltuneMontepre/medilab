@@ -1,11 +1,16 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.0.0
+  version: 1.2.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through. Every refusal answers
     `{"error": {"code", "message"}}` with the HTTP status of its code; a computer acts on the code, never on the
     message, which is in the person's language.
+
+    A route that creates something takes an optional `Idempotency-Key` header, a key the computer generates for the
+    request and that is unique for the computer: repeating the request with the same key, such as after a lost answer,
+    answers with what the first one created; the same key with another request is refused with
+    `idempotency_conflict`. Other changes are idempotent by their own rules.
 
     | Code | Status |
     | ---- | ------ |
@@ -14,8 +19,8 @@ info:
     | `permission_denied`, `device_revoked` | 403 |
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
-    | `folder_archived`, `folder_disabled`, `locked`, `not_locked` | 409 |
-    | `not_eligible`, `not_lockable`, `not_editable` | 422 |
+    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked` | 409 |
+    | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict` | 422 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
     | `try_again`, `editing_unavailable` | 503 |
@@ -176,7 +181,516 @@ paths:
           $ref: "#/components/responses/InternalError"
         "503":
           $ref: "#/components/responses/Unavailable"
+  /folders:
+    get:
+      operationId: listFolders
+      summary: Lists the folders the person is a member of, those of samples they do not see left out.
+      responses:
+        "200":
+          description: The person's folders, archived and turned-off ones included.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FolderList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: createFolder
+      summary: Creates a folder of the name, owned by the person.
+      description: |
+        Without an `Idempotency-Key`, a name the person already has a folder of is refused with `folder_exists`.
+        With one, repeating the request answers with the folder it created.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewFolder"
+      responses:
+        "200":
+          description: The folder.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneFolder"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    get:
+      operationId: getFolder
+      summary: Gives a folder the person is a member of.
+      responses:
+        "200":
+          description: The folder.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneFolder"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    patch:
+      operationId: renameFolder
+      summary: Renames a folder; its root, the name it was created with, never changes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FolderChange"
+      responses:
+        "200":
+          description: The folder.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneFolder"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/members:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    get:
+      operationId: listFolderMembers
+      summary: Lists the members of a folder, its owner first.
+      responses:
+        "200":
+          description: The members.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: addFolderMember
+      summary: Adds a person to a folder; adding a member again answers with their membership.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewMember"
+      responses:
+        "200":
+          description: The membership.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneMember"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/members/{member_id}:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: member_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    delete:
+      operationId: removeFolderMember
+      summary: Removes a member from a folder; the owner is never removed, and a member already removed is gone.
+      responses:
+        "204":
+          description: The member is not in the folder any more.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/member-candidates:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    get:
+      operationId: searchFolderMemberCandidates
+      summary: Finds people who can be added to a folder by part of their name or login.
+      description: Only active internal users with the laboratory files permission who are not members yet, at most 10.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+      responses:
+        "200":
+          description: The people found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CandidateList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/rules:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    get:
+      operationId: listFolderRules
+      summary: Lists the sync rules of a folder.
+      responses:
+        "200":
+          description: The sync rules.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RuleList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: addFolderRule
+      summary: Adds a sync rule; a rule of the same kind and pattern answers with the one the folder has.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewRule"
+      responses:
+        "200":
+          description: The sync rule.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneRule"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/rules/{rule_id}:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: rule_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    patch:
+      operationId: changeFolderRule
+      summary: Changes a sync rule.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuleChange"
+      responses:
+        "200":
+          description: The sync rule.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneRule"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    delete:
+      operationId: removeFolderRule
+      summary: Removes a sync rule; a rule already removed is gone.
+      responses:
+        "204":
+          description: The rule is not in the folder any more.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/files/{file_id}/lock:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: lockFile
+      summary: Locks a file the person edits in their own program, so nobody else saves it meanwhile.
+      description: |
+        Locking a file the person already holds a lock in force on renews that lock. Only files that are neither raw
+        data nor Office documents, in folders of working documents, of results or of no category, are locked.
+      responses:
+        "200":
+          description: The person's lock.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneLock"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    delete:
+      operationId: unlockFile
+      summary: Unlocks the person's lock on a file; a person holding none has nothing to unlock.
+      responses:
+        "204":
+          description: The person holds no lock on the file any more.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/files/{file_id}/lock/renew:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: renewFileLock
+      summary: Renews the person's lock in force for the lock duration from now.
+      description: A lock that expired is not renewed, as someone may have saved the file meanwhile; it is locked again.
+      responses:
+        "200":
+          description: The person's lock.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneLock"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
 components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: A key the computer generates for the request, unique for the computer.
+      schema:
+        type: string
+        pattern: "^[A-Za-z0-9._:-]{1,200}$"
   securitySchemes:
     deviceKey:
       type: http
@@ -293,6 +807,232 @@ components:
       properties:
         device:
           $ref: "#/components/schemas/Device"
+    Folder:
+      type: object
+      additionalProperties: false
+      required: [id, name, root, sync_mode, status, role, category, sample, retention_until, can_share]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        root:
+          description: The name the folder was created with, unique for its owner; it never changes.
+          type: string
+        sync_mode:
+          enum: [upload_only, two_way]
+        status:
+          enum: [in_use, turned_off, archived]
+        role:
+          description: The person's role in the folder.
+          enum: [owner, member]
+        category:
+          description: The category of a sample's folder; empty for a folder of no sample.
+          enum: [raw, working, result, report, null]
+        sample:
+          oneOf:
+            - type: "null"
+            - type: object
+              additionalProperties: false
+              required: [id, lab_code]
+              properties:
+                id:
+                  type: integer
+                lab_code:
+                  type: string
+        retention_until:
+          description: The date until which an archived folder keeps its files; empty while it is in use.
+          type: [string, "null"]
+          format: date
+        can_share:
+          description: Whether the person renames the folder and changes its members and rules.
+          type: boolean
+    OneFolder:
+      type: object
+      additionalProperties: false
+      required: [folder]
+      properties:
+        folder:
+          $ref: "#/components/schemas/Folder"
+    FolderList:
+      type: object
+      additionalProperties: false
+      required: [folders]
+      properties:
+        folders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Folder"
+    NewFolder:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          $ref: "#/components/schemas/Name"
+    FolderChange:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          $ref: "#/components/schemas/Name"
+    Member:
+      type: object
+      additionalProperties: false
+      required: [id, user, role]
+      properties:
+        id:
+          type: integer
+        user:
+          type: object
+          additionalProperties: false
+          required: [id, name]
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        role:
+          enum: [owner, member]
+    OneMember:
+      type: object
+      additionalProperties: false
+      required: [member]
+      properties:
+        member:
+          $ref: "#/components/schemas/Member"
+    MemberList:
+      type: object
+      additionalProperties: false
+      required: [members]
+      properties:
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/Member"
+    NewMember:
+      type: object
+      additionalProperties: false
+      required: [user_id]
+      properties:
+        user_id:
+          type: integer
+    Candidate:
+      type: object
+      additionalProperties: false
+      required: [id, name, login]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        login:
+          type: string
+    CandidateList:
+      type: object
+      additionalProperties: false
+      required: [candidates]
+      properties:
+        candidates:
+          type: array
+          maxItems: 10
+          items:
+            $ref: "#/components/schemas/Candidate"
+    Rule:
+      type: object
+      additionalProperties: false
+      required: [id, kind, pattern, recursive, enabled]
+      properties:
+        id:
+          type: integer
+        kind:
+          $ref: "#/components/schemas/RuleKind"
+        pattern:
+          type: string
+        recursive:
+          description: Whether files in subfolders count too.
+          type: boolean
+        enabled:
+          type: boolean
+    RuleKind:
+      description: A name prefix, a name pattern with `*`, or an extension.
+      enum: [prefix, glob, extension]
+    OneRule:
+      type: object
+      additionalProperties: false
+      required: [rule]
+      properties:
+        rule:
+          $ref: "#/components/schemas/Rule"
+    RuleList:
+      type: object
+      additionalProperties: false
+      required: [rules]
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rule"
+    NewRule:
+      type: object
+      additionalProperties: false
+      required: [kind, pattern]
+      properties:
+        kind:
+          $ref: "#/components/schemas/RuleKind"
+        pattern:
+          description: One name or extension, never a path on a computer.
+          $ref: "#/components/schemas/Name"
+        recursive:
+          type: boolean
+          default: true
+    RuleChange:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        kind:
+          $ref: "#/components/schemas/RuleKind"
+        pattern:
+          $ref: "#/components/schemas/Name"
+        recursive:
+          type: boolean
+        enabled:
+          type: boolean
+    Lock:
+      type: object
+      additionalProperties: false
+      required: [id, file_id, user, device_id, status, expires_at]
+      properties:
+        id:
+          type: integer
+        file_id:
+          type: integer
+        user:
+          type: object
+          additionalProperties: false
+          required: [id, name]
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        device_id:
+          description: The computer the person locked the file from.
+          type: [integer, "null"]
+        status:
+          enum: [active, released, expired]
+        expires_at:
+          type: string
+          format: date-time
+    OneLock:
+      type: object
+      additionalProperties: false
+      required: [lock]
+      properties:
+        lock:
+          $ref: "#/components/schemas/Lock"
     Error:
       type: object
       additionalProperties: false
@@ -314,11 +1054,13 @@ components:
                 - method_not_allowed
                 - folder_archived
                 - folder_disabled
+                - folder_exists
                 - locked
                 - not_locked
                 - not_eligible
                 - not_lockable
                 - not_editable
+                - idempotency_conflict
                 - too_many_attempts
                 - internal_error
                 - try_again
@@ -381,6 +1123,30 @@ components:
                     properties:
                       code:
                         enum: [not_found]
+    Conflict:
+      description: The folder, or its state, refuses the change.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [folder_archived, folder_disabled, folder_exists, locked, not_locked]
+    Unprocessable:
+      description: The request names something that cannot be done.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [not_eligible, not_lockable, not_editable, idempotency_conflict]
     MethodNotAllowed:
       description: The route does not take this method.
       headers:

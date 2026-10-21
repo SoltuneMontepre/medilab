@@ -68,6 +68,7 @@ A folder of a sample, its members, sync rules, files, versions, locks, editing s
 
 - Creating a folder adds its owner as a member with the role `owner`. A folder has one owner row, held by a partial unique index, and the owner row cannot be removed.
 - Only active internal users holding the laboratory files permission are added as members. Anyone else is refused with `not_eligible` and one message that does not say why.
+- A folder has one sync rule of each kind and pattern, held by a unique key on the folder, the kind and the pattern.
 
 ### Names, never paths
 
@@ -151,6 +152,7 @@ A person editing a file in their own program locks it (`medilab.laboratory.file.
 - A lock that expired is marked `expired` when someone next locks the file or its holder unlocks it, and the scheduled job `laboratory_file_locks.expire` marks the rest every 5 minutes, one item per lock, so every lock gets its end in the back office and the audit trail. Its end is the time it expired, not when it was found.
 - Released and expired locks are removed by the [cleanup job](scheduled-jobs.md#cleanup) after the retention period of locks, as document locks are; their audit entries stay.
 
+- **API.** A computer locks, renews and unlocks a file through `/folders/{folder_id}/files/{file_id}/lock`, after `read` on the folder and once the file is found in it: a file of another folder, or of no id, is `not_found`. The lock records the computer of the key, never one the request names. Locking a file one holds again renews the lock, renewing a lock that expired is `not_locked`, and unlocking with no lock answers 204, so each has the effect of one run when repeated. An administrator's release of someone else's lock is done in the back office only. A file's answer shows the lock in force on it with its holder and when it expires, never the computer of another person's lock.
 - **Back office.** File Locks lists the active locks by default, with their released and expired history, and a file shows who holds its lock in force and until when, in its list and its form, with the file's locks. Folder administrators release a lock someone left: the release checks `administer` on the file's folder, and a lock already past its expiry is recorded as expired instead.
 - **Audit.** Locks are audited as parts of their file, so the file's history shows them: taking a lock is the creation of the lock, and unlocking, expiring and an administrator's release are edits of its status, the release naming the administrator. Renewing a lock writes no entry, as when a lock expires is left out of the trail.
 
@@ -255,13 +257,24 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. Th
 | `POST /sign-out` | Signs the computer of the key out |
 | `GET /devices` | Lists the person's computers |
 | `POST /devices/{device_id}/revoke` | Revokes one of the person's computers |
+| `GET /folders`, `POST /folders` | Lists the person's folders; creates one of the person's own |
+| `GET /folders/{folder_id}`, `PATCH /folders/{folder_id}` | Gives a folder; renames it |
+| `GET /folders/{folder_id}/members`, `POST /folders/{folder_id}/members`, `DELETE /folders/{folder_id}/members/{member_id}` | Lists, adds and removes members |
+| `GET /folders/{folder_id}/member-candidates?q=` | Finds people who can be added |
+| `GET /folders/{folder_id}/rules`, `POST /folders/{folder_id}/rules`, `PATCH` and `DELETE /folders/{folder_id}/rules/{rule_id}` | Lists, adds, changes and removes sync rules |
+| `POST`, `DELETE /folders/{folder_id}/files/{file_id}/lock`, `POST /folders/{folder_id}/files/{file_id}/lock/renew` | Locks a file, unlocks it and renews the person's lock ([File locks](#file-locks)) |
 | `GET /health`, `GET /ready` | The API's health and readiness |
 
 - **Routes.** Every route is declared with `laboratory_api_route()` (`services/laboratory_api.py`): `type='http'`, `auth='bearer'`, `bearer_scope='sol_laboratory.device'`, `csrf=False`, `save_session=False`, `readonly=False` and the methods it takes, and the operation of the OpenAPI document it serves. Odoo checks a CSRF token on `type='http'` routes for methods other than GET, HEAD, OPTIONS and TRACE, so the API's routes set `csrf=False`; the computer's key, which a browser never sends by itself, takes its place. Without a key, Odoo's bearer authentication accepts a browser session for a same-origin page opened by the person; the API refuses it with `invalid_key`, as every route needs the computer of the key.
 - **Routes without a key.** Signing in gives the key, so it is `auth='public'`; health and readiness are `auth='none'` and read only. They are the only exceptions, and they too set `csrf=False` and `save_session=False`.
 - **The computer of a call.** Once Odoo has verified the key, `_from_key()` finds its computer, and only that one: a computer named in the request, such as Medilab Sync's `X-Sync-Device-Id`, is ignored. `_from_key()` relies on that verification of the key's hash, so only bearer routes call it. Saves and locks record the computer it found.
 - **Checks.** Every route checks, before it writes with full rights: the key's scope, through Odoo; that the computer is not revoked, through `_from_key()`; and the laboratory files permission, the folder membership and the folder's sample, through `_check_folder_access()` or `_check_file_access()`. Full rights never reach a record the check did not cover. Signing out and revoking one's own computers skip the laboratory files permission, so a person who lost it still stops their computers.
-- **Running twice.** A route that changes something has the effect of one run when Odoo's retrying runs it again or the computer repeats a call whose answer it lost. Preparing an upload takes an idempotency key the computer generates, unique for the computer, and a repeat answers with the same upload; the other changes are idempotent by their own rules, such as a lock its holder takes again. A repeated sign-out finds its key gone and is refused with `invalid_key`, which the computer takes as signed out; revoking a computer already revoked changes nothing.
+- **Running twice.** A route that changes something has the effect of one run when Odoo's retrying runs it again or the computer repeats a call whose answer it lost.
+  - **Creating with an `Idempotency-Key`.** A route that creates a record takes an optional `Idempotency-Key` header: a key the computer generates for the request, unique for the computer. The record keeps it, through `medilab.laboratory.idempotency.mixin`, with a unique index on its computer and the key. A request repeated with the same key answers with the record the first one created; a key sent with another request is refused with `idempotency_conflict`, and a key that is not 1 to 200 letters, digits, dots, colons, hyphens or underscores with `invalid_request`. Two requests with one key at once make one record: the second one's creation fails on the unique index, `_create_once()` turns it into a `ConcurrencyError`, and Odoo runs the request again, which finds the record. Creating a folder takes it, and so does preparing an upload; a later route that creates a record inherits the mixin and declares its index.
+  - **Without a key**, creating a folder of a name its owner already has is refused with `folder_exists`.
+  - **The other changes** are idempotent by their own rules: adding a member already in the folder, or a sync rule of a kind and pattern it has, answers with that one; removing a member or a rule already gone answers 204; a rename or a change of a rule sets the same values again; a lock its holder takes again is renewed. A repeated sign-out finds its key gone and is refused with `invalid_key`, which the computer takes as signed out; revoking a computer already revoked changes nothing.
+- **Folders.** The folder routes check `read` to read a folder, its members and its rules, and `share` to rename it, add and remove members, find people to add and change its rules, then act with full rights. A folder is listed and read only by its members and, for a folder of a sample, by members who see the sample; anyone else gets `not_found`. A folder created through the API is the person's own, of no sample and no category, upload-only, and records the computer it was created from. Changing its owner, turning it off and archiving it are done in the back office only. A folder's answer has `can_share`, whether the person may do what `share` allows, so the computer does not work the rules out itself.
+- **Finding people to add.** `member-candidates` takes at least 2 characters of a name or login and answers at most 10 people, with their id, name and login only: active internal users with the laboratory files permission who are not members yet. Adding anyone else, or an id of nobody, is refused with `not_eligible` and one message.
 - **Reading routes.** Routes are not read-only, even those that only read: finding the computer records its last call, and a write on a read-only cursor makes Odoo run the request again.
 - **Requests.** A request is checked against its operation in the OpenAPI document before the endpoint acts: no query parameter the operation does not take, a body only where it takes one, as `application/json`, matching its schema with no field the schema does not have. An invalid request is refused with `invalid_request`.
 - **Errors.** Every refusal answers `{"error": {"code": "<code>", "message": "<message>"}}` with the HTTP status of its code. A computer acts on the code, never on the message, which is in the person's language. An endpoint refuses by raising a `LaboratoryFileError` with its code; `ir.http` answers every exception on the API's paths in this format, Odoo's own refusals too, and a raised refusal commits nothing. An endpoint that must keep what it did, such as counting a failed sign-in, returns its refusal instead.
@@ -273,8 +286,8 @@ The API is Odoo HTTP controllers in `sol_laboratory` under `/medilab/api/v1`. Th
 | `permission_denied`, `device_revoked` | 403 |
 | `not_found` | 404 |
 | `method_not_allowed` | 405 |
-| `folder_archived`, `folder_disabled`, `locked`, `not_locked` | 409 |
-| `not_eligible`, `not_lockable`, `not_editable` | 422 |
+| `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked` | 409 |
+| `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict` | 422 |
 | `too_many_attempts` | 429 |
 | `internal_error` | 500 |
 | `try_again`, `editing_unavailable` | 503 |
