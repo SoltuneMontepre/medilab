@@ -37,7 +37,7 @@
 - **Sizes beyond 2 GiB.** Decided: a version's size is a 64-bit integer, through a field type the module adds, since Odoo's integers stop at 2 GiB and files reach 5 GiB.
 - **Letter case and Unicode of paths.** Decided: paths are kept in Unicode NFC; paths that differ only in letter case are one file, which keeps the letter case it was first saved with. Folder names and sync rule patterns are kept in NFC too.
 - **Saving the content a file already has.** Decided: when the new content's SHA-256 is the current version's, nothing is added and the current version stays, whatever version the save was based on. A restore always adds a version.
-- **Files of folders without a category.** Decided for now: they are not raw data, and their Office files are edited online. Whether they are locked is left to US-T27.
+- **Files of folders without a category.** Decided for now: they are not raw data. Their Office files are edited online, as [files edited online](#171-online-editing) says, and their other files are locked, as [which files are locked](#file-locks-us-t27-us-ad31) says.
 - **Office documents.** Decided: Word, Excel and PowerPoint documents are the files with the extensions `docx`, `xlsx` and `pptx`, in any letter case.
 - **Turned-off folders and online editing.** Decided: a turned-off folder refuses every new version, saves of the online editor included.
 - **Demo files.** Decided: the shared foundation of laboratory files brings a few demo files with versions and a conflict; the upload flow adds restores, shared content and the stored bytes.
@@ -77,6 +77,7 @@
 - **Intermediate saves.** Decided: the editor's force save is off; only the save once everyone has left is a version.
 - **Editing from the back office.** Decided: the back office has no Edit online button and no action to close a session.
 - **The callback token.** Decided: only its SHA-256 is stored, and it is compared in constant time.
+- **Online editing of a closed sample's files.** Asked with [uploads to a closed sample's folders](#173): whether a closed sample's folders refuse online editing too. For now they do not.
 
 ## Related documents
 
