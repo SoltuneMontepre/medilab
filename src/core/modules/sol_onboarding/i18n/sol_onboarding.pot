@@ -6,14 +6,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0-20260926\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 17:08+0000\n"
-"PO-Revision-Date: 2026-10-21 17:08+0000\n"
+"POT-Creation-Date: 2026-10-21 17:40+0000\n"
+"PO-Revision-Date: 2026-10-21 17:40+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: sol_onboarding
+#: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_run_name_unique
+msgid "A collection run reference is used once."
+msgstr ""
+
+#. module: sol_onboarding
+#: model:mail.message.subtype,description:sol_onboarding.event_onboarding_run_ended
+msgid "A collection run you started ended"
+msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_source_page_limit_positive
@@ -52,8 +62,51 @@ msgid "Address"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_run_one_running
+msgid "Another collection run is running; start this one when it ends."
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
+msgid "Cancel"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_run__state__cancelled
+msgid "Cancelled"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run.py:0
+msgid "Choose an organisation or a sector to collect for."
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__code
 msgid "Code"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_run
+msgid "Collection Run"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.actions.act_window,name:sol_onboarding.action_medilab_onboarding_run
+#: model:ir.ui.menu,name:sol_onboarding.menu_onboarding_run
+msgid "Collection Runs"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run.py:0
+msgid "Collection run %(name)s ended: %(state)s."
+msgstr ""
+
+#. module: sol_onboarding
+#: model:mail.message.subtype,name:sol_onboarding.event_onboarding_run_ended
+msgid "Collection run ended"
 msgstr ""
 
 #. module: sol_onboarding
@@ -62,7 +115,13 @@ msgid "Cosmetics"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:medilab.permission,name:sol_onboarding.permission_onboarding_run_create_all
+msgid "Create collection runs"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__create_uid
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__create_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__create_uid
 msgid "Created by"
@@ -70,6 +129,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__create_date
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__create_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__create_date
 msgid "Created on"
@@ -82,6 +142,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__display_name
@@ -89,8 +150,28 @@ msgid "Display Name"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_run__state__done
+msgid "Done"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_run__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:medilab.permission,name:sol_onboarding.permission_onboarding_run_edit_all
+msgid "Edit collection runs"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__enabled
 msgid "Enabled"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__ended_at
+msgid "Ended At"
 msgstr ""
 
 #. module: sol_onboarding
@@ -101,6 +182,12 @@ msgstr ""
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__external_key
 msgid "External Key"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_run__state__failed
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_search
+msgid "Failed"
 msgstr ""
 
 #. module: sol_onboarding
@@ -115,6 +202,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__id
@@ -128,6 +216,7 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__write_uid
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__write_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__write_uid
 msgid "Last Updated by"
@@ -135,9 +224,16 @@ msgstr ""
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__write_date
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__write_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__write_date
 msgid "Last Updated on"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__log
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
+msgid "Log"
 msgstr ""
 
 #. module: sol_onboarding
@@ -150,6 +246,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__name
 msgid "Name"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.ui.menu,name:sol_onboarding.menu_master_data_onboarding
+msgid "Onboarding"
 msgstr ""
 
 #. module: sol_onboarding
@@ -168,6 +269,12 @@ msgid "Onboarding Source"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.actions.server,name:sol_onboarding.ir_cron_onboarding_crawl_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_onboarding.scheduled_job_onboarding_crawl
+msgid "Onboarding crawl"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.actions.server,name:sol_onboarding.ir_cron_onboarding_organisations_ir_actions_server
 #: model:medilab.scheduled.job,name:sol_onboarding.scheduled_job_onboarding_organisations
 msgid "Onboarding organisations"
@@ -176,6 +283,23 @@ msgstr ""
 #. module: sol_onboarding
 #: model:res.groups,name:sol_onboarding.group_onboarding_sources
 msgid "Onboarding sources"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run.py:0
+msgid "Only a draft collection run can be started."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run.py:0
+msgid "Only a running collection run can be cancelled."
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__organisation_id
+msgid "Organisation"
 msgstr ""
 
 #. module: sol_onboarding
@@ -189,13 +313,64 @@ msgid "Page Limit"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__page_count
+msgid "Pages Fetched"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__skipped_count
+msgid "Pages Skipped"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:medilab.onboarding.sector,name:sol_onboarding.sector_pharmaceuticals
 msgid "Pharmaceuticals"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:medilab.permission,name:sol_onboarding.permission_onboarding_run_read_all
+msgid "Read collection runs"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__staged_count
+msgid "Records Staged"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__name
+msgid "Reference"
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
+msgid "Refresh Organisations"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__requested_by_id
+msgid "Requested By"
+msgstr ""
+
+#. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
+msgid "Result"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_run__state__running
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_search
+msgid "Running"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model,name:sol_onboarding.model_medilab_scheduled_job
 msgid "Scheduled Job"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__sector_ids
+msgid "Sectors"
 msgstr ""
 
 #. module: sol_onboarding
@@ -214,8 +389,24 @@ msgid "Stage Laboratory master data collected from trusted public sources"
 msgstr ""
 
 #. module: sol_onboarding
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
+msgid "Start"
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__start_url
 msgid "Start Address"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__started_at
+msgid "Started At"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_run__state
+#: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_search
+msgid "Status"
 msgstr ""
 
 #. module: sol_onboarding

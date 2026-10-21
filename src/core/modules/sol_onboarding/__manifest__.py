@@ -11,7 +11,12 @@
         "security/onboarding_security.xml",
         "security/ir.access.csv",
         "data/onboarding_sector_data.xml",
+        "data/ir_sequence_data.xml",
+        "data/permission_data.xml",
+        "data/notification_event_data.xml",
         "data/ir_cron_data.xml",
         "data/scheduled_job_data.xml",
+        "views/onboarding/onboarding_run_views.xml",
+        "views/system/menus.xml",
     ],
 }

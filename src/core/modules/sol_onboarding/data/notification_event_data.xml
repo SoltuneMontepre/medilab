@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="event_onboarding_run_ended" model="mail.message.subtype">
+        <field name="name">Collection run ended</field>
+        <field name="description">A collection run you started ended</field>
+        <field name="code">onboarding_run.ended</field>
+        <field name="res_model">medilab.onboarding.run</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+</odoo>

@@ -78,6 +78,15 @@ Accepting runs as the administrator, through the same `create` and `write` of th
 
 Laboratory does not know about Onboarding. The module adds the origin to the forms of the master data it stages by extending their views with a button that opens the staged records of the record.
 
+### Document types
+
+| Document type | Actions            | Scopes |
+| ------------- | ------------------ | ------ |
+| Run           | read, create, edit | all    |
+| Staged record | read, edit         | all    |
+
+`create` makes a draft run; `edit` starts and cancels a run, refreshes the organisations, and edits, accepts, rejects and reopens staged records. Neither document has `delete`.
+
 ### Network
 
 The cluster lets Odoo reach the hosts of the turned-on sources over HTTPS. No other outbound access is added for the module.

@@ -40,7 +40,11 @@ class OnboardingCase(TransactionCase):
             )
         )
         cls.admin = new_test_user(cls.env, login="onboarding_admin", groups=f"base.group_user,{ADMINISTRATOR_GROUP}")
-        cls.reader = new_test_user(cls.env, login="onboarding_reader", groups="base.group_user")
+        cls.reader = new_test_user(
+            cls.env,
+            login="onboarding_reader",
+            groups="base.group_user,sol_laboratory.group_permission_onboarding_run_read_all",
+        )
 
     def setUp(self):
         super().setUp()
