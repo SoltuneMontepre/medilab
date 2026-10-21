@@ -1,9 +1,11 @@
+from datetime import timedelta
 from itertools import count, pairwise
 from unittest.mock import patch
 
 import requests
 
 from odoo import fields
+from odoo.exceptions import LockError
 from odoo.tests import tagged
 
 from .onboarding_case import OnboardingCase
@@ -11,7 +13,13 @@ from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobE
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_SOURCE
 from odoo.addons.sol_onboarding.constants.onboarding import MAX_BYTES, TIMEOUT_SECONDS
 from odoo.addons.sol_onboarding.services import fetcher as fetcher_module
-from odoo.addons.sol_onboarding.services.fetcher import Fetcher, PageRefused, PageSkipped, PageUnavailable
+from odoo.addons.sol_onboarding.services.fetcher import (
+    Fetcher,
+    PageRefused,
+    PageSkipped,
+    PageUnavailable,
+    SourceBusy,
+)
 
 ROBOTS_URL = "https://lab.example/robots.txt"
 HTML = (200, "text/html", b"<p>Page</p>", {})
@@ -117,6 +125,21 @@ class TestFetcher(OnboardingCase):
         with self.assertRaises(PageUnavailable):
             Fetcher(self.source, "run:3").fetch("https://lab.example/public")
 
+    def test_reads_an_unusable_robots_txt_as_allowing_all(self):
+        calls = self.serve(
+            {
+                ROBOTS_URL: (200, "text/html", b"<p>Not found</p>", {}),
+                "https://lab.example/a": HTML,
+                "https://lab.example/b": HTML,
+            }
+        )
+        fetcher = Fetcher(self.source, "run:1")
+
+        fetcher.fetch("https://lab.example/a")
+        fetcher.fetch("https://lab.example/b")
+
+        self.assertEqual([call.url for call in calls], [ROBOTS_URL, "https://lab.example/a", "https://lab.example/b"])
+
     def test_keeps_the_delay_between_requests(self):
         self.calls = self.serve(
             {"https://lab.example/a": HTML, "https://lab.example/b": HTML, "https://lab.example/c": HTML}
@@ -145,6 +168,19 @@ class TestFetcher(OnboardingCase):
             [call.url for call in calls], [ROBOTS_URL, "https://lab.example/a", ROBOTS_URL, "https://lab.example/b"]
         )
         self.assertDelayKept(calls)
+
+    def test_defers_while_another_worker_holds_the_source(self):
+        calls = self.serve({"https://lab.example/a": HTML})
+        locked = LockError("Cannot grab a lock on records")
+
+        with (
+            patch.object(self.registry[MODEL_ONBOARDING_SOURCE], "lock_for_update", side_effect=locked),
+            self.assertRaises(SourceBusy) as busy,
+        ):
+            Fetcher(self.source, "run:1").fetch("https://lab.example/a")
+
+        self.assertEqual(busy.exception.until, fields.Datetime.now() + timedelta(seconds=2))
+        self.assertEqual(calls, [])
 
     def test_sends_get_without_cookies_or_credentials(self):
         calls = self.serve({"https://lab.example/a": HTML})

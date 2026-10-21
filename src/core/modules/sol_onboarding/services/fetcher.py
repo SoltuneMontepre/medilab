@@ -10,6 +10,7 @@ from urllib.robotparser import RobotFileParser
 import requests
 
 from odoo import fields
+from odoo.exceptions import LockError
 
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 from odoo.addons.sol_onboarding.constants.onboarding import (
@@ -27,9 +28,9 @@ ROBOTS_CONTENT_TYPES = {"text/plain": "text"}
 # ponytail: robots.txt is cached per worker process, keyed by host and run, so each worker reads it at most once per
 # run; keep it on the run if one read per worker becomes too many requests.
 ROBOTS: dict[tuple[str, str], RobotFileParser] = {}
-# ponytail: each host's last request is also kept per worker process, because a fetch that raises rolls back its
-# savepoint with last_request_at and the row lock; this worker still waits, another one sees only committed times.
-# Write request times outside the job's transaction if workers must also hold back after a failed fetch.
+# ponytail: a fetch that raises rolls back its savepoint, with last_request_at and the row lock, so each host's last
+# request is also kept per worker process. Ceiling: another worker can request early after a failed fetch; write
+# request times outside the job's transaction to close it.
 LAST_REQUESTS: dict[str, datetime] = {}
 
 
@@ -43,6 +44,14 @@ class PageRefused(PermanentJobError):
 
 class PageUnavailable(Exception):
     """The source cannot be read now: a network error, a timeout or a 5xx answer; a later try can read it."""
+
+
+class SourceBusy(Exception):
+    """Another worker holds the source row; fetching from the source can start again at until."""
+
+    def __init__(self, until):
+        super().__init__(f"Another worker is fetching from the source; try again at {until}.")
+        self.until = until
 
 
 class Fetcher:
@@ -100,7 +109,8 @@ class Fetcher:
                 document = self._fetch(
                     f"https://{self.source.host}/robots.txt", ROBOTS_CONTENT_TYPES, check_robots=False
                 )
-            except PageRefused:
+            except (PageRefused, PageSkipped):
+                # A robots.txt that answers 4xx or cannot be used allows everything for the run.
                 robots.allow_all = True
             else:
                 robots.parse(document.body.decode("utf-8", "replace").splitlines())
@@ -108,10 +118,12 @@ class Fetcher:
         return ROBOTS[key]
 
     def _wait_turn(self):
-        # The lock keeps the source row to this transaction; another worker's lock_for_update raises LockError until
-        # it ends, and the job retries that worker's item.
+        # The row stays locked until this transaction ends; lock_for_update does not wait for another worker's lock.
         source = self.source
-        source.lock_for_update()
+        try:
+            source.lock_for_update()
+        except LockError:
+            raise SourceBusy(fields.Datetime.now() + timedelta(seconds=source.delay_seconds)) from None
         source.invalidate_recordset(["last_request_at"])
         last = max(source.last_request_at or datetime.min, LAST_REQUESTS.get(source.host, datetime.min))
         # A last request ahead of the clock waits the whole delay, never longer.
