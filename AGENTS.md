@@ -23,6 +23,10 @@ Always read [docs/readme.md](docs/readme.md) first to understand the conventions
 
 The `postgres` server is read-only; [Database access](docs/workflows/odoo-intelligence.md#database-access) says how an authorized write is configured. When a server is not connected, say so, then continue with the shell.
 
+## Office files
+
+Read and edit `.docx`, `.xlsx` and `.pptx` files with the `officecli` skill, after `task docs:setup`; see [Office documents](docs/workflows/office-documents.md).
+
 ## Hard Rules
 
 - **Read first.** Read the current state of the files before changing anything; they may have changed since you last saw them.
