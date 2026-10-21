@@ -138,7 +138,7 @@ class TestLaboratoryEditingSaves(LaboratoryEditingCase):
         self.assertEqual((self.session.status, len(self.file.version_ids)), (ERROR, 1))
 
     def test_a_rule_every_save_obeys_refuses_the_save_and_ends_the_session_in_error(self):
-        # As a lock someone else holds on the file would, through the extension point of the features built on files.
+        # As a rule a feature built on files adds would, through their extension point.
         def refuse(files, user, device):
             raise LaboratoryFileError(LOCKED, "Locked by someone else.")
 
