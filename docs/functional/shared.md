@@ -17,7 +17,7 @@ The system consists of three modules (E-commerce, Inventory, Laboratory) that ca
 - When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
 - Each module can be upgraded without losing the data of the others.
 - The MediLab look is the optional Medilab Theme module (`sol_theme`), which depends on no other MediLab module and that no MediLab module depends on. Installing or removing it changes only how the system looks.
-- The Onboarding module (`sol_onboarding`) is optional: it depends on Laboratory and no MediLab module depends on it. Uninstalling it leaves the master data it created.
+- The Onboarding module (`sol_onboarding`) is optional: it depends on Laboratory and only the demo data module (`sol_demo`) depends on it. Uninstalling it leaves the master data it created.
 - Each module builds on Odoo Community apps and installs them with itself, as listed in [Module boundaries](../business/module-boundaries.md#odoo-apps). No module needs Odoo Enterprise.
 
 Acceptance criteria:

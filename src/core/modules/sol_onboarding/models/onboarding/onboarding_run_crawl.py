@@ -38,9 +38,11 @@ class OnboardingRunCrawl(models.Model):
         if fetched.content_type == "pdf" and not pdf_text(fetched.body):
             raise PageSkipped(self.env._("PDF without text"))
         parsed = adapter_for(source).parse(fetched, payload["sector"])
-        # A cancel another transaction made meanwhile makes the lock fail, so the item is retried and ends at once;
-        # held, the lock keeps a cancel waiting until the page's records are staged.
+        # Transactions run at REPEATABLE READ: a cancel committed during the fetch makes the lock raise a serialization
+        # error, and one not yet committed a LockError. The item is retried, which counts one attempt, and the retry
+        # sees the cancel.
         self.lock_for_update(allow_referencing=True)
+        self.invalidate_recordset(["state"])
         if self.state != RUN_RUNNING:
             return
         self.env[MODEL_ONBOARDING_STAGED_RECORD]._stage(snapshot, parsed.records)
