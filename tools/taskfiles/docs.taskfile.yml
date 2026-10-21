@@ -1,0 +1,25 @@
+version: "3"
+
+vars:
+  LOG: tools/scripts/log.sh
+  # Changing the pin means copying the upstream SKILL.md of the same tag into .agent/skills/officecli/.
+  OFFICECLI_VERSION: 1.0.158
+
+tasks:
+  docs:setup:
+    desc: "Install OfficeCLI to read and edit the .docx, .xlsx and .pptx files in docs"
+    silent: true
+    cmds:
+      - |
+        set -e
+        . {{.LOG}}
+        if ! command -v officecli >/dev/null 2>&1; then
+          if ! command -v npm >/dev/null 2>&1; then
+            log_error "npm not found. Install Node.js: https://nodejs.org/en/download"
+            exit 1
+          fi
+          log_info "Installing OfficeCLI {{.OFFICECLI_VERSION}} with npm."
+          # Without install scripts, the first officecli run downloads the binary of the pinned tag and checks its SHA256.
+          npm install -g --ignore-scripts --silent @officecli/officecli@{{.OFFICECLI_VERSION}}
+        fi
+        log_ok "OfficeCLI $(officecli --version) ready."

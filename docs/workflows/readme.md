@@ -13,4 +13,5 @@ Step-by-step procedures for recurring tasks.
 - [Provisioning a node](provisioning-node.md): give Ansible access to a machine from the VPS web console and Doppler, then check, inspect, preview and apply k3s and Argo CD with `cd-ansible`
 - [Moving a node](moving-node.md): replace a production node, such as the Azure witness, with another machine without stopping the system
 - [Odoo intelligence](odoo-intelligence.md): install and verify Odoo navigation across coding clients and isolated worktrees
+- [Office documents](office-documents.md): install OfficeCLI and read or edit the `.docx`, `.xlsx` and `.pptx` files in `docs`
 - [Reviewing task links](reviewing-task-links.md): after the upgrade that locks task links, review the tasks the audit trail cannot verify before calling production secure
