@@ -1,3 +1,4 @@
+from .editing_service import use_editing_service
 from .laboratory_files_case import LaboratoryFilesCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_LABORATORY_EDITING_SESSION
 
@@ -9,6 +10,8 @@ class LaboratoryEditingCase(LaboratoryFilesCase):
         super().setUp()
         self.file = self.file_of("2026/Kết quả HPLC tháng 10.xlsx")
         self.first = self.save(self.file, "Kết quả, bản 1")
+        # Opening a file online asks the editing service's health check, which answers up unless a test says otherwise.
+        self.health_check = use_editing_service(self)
 
     def new_session(self, file=None, user=None):
         """A session as opening a file online makes it, without its checks."""

@@ -1,6 +1,7 @@
 from . import (
     laboratory_device,
     laboratory_editing_session,
+    laboratory_editing_session_callback,
     laboratory_editing_session_sample,
     laboratory_file,
     laboratory_file_change,

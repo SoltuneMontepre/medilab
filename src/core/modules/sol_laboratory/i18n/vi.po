@@ -13529,3 +13529,33 @@ msgstr "Mẫu đã có thư mục thuộc loại này."
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
 msgid "%(version)s was rejected: %(reason)s"
 msgstr "%(version)s đã bị từ chối: %(reason)s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "Online editing is unavailable right now. Syncing, history and restoring still work."
+msgstr "Hiện không thể chỉnh sửa trực tuyến. Đồng bộ, lịch sử và khôi phục vẫn hoạt động."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "Online editing is unavailable right now."
+msgstr "Hiện không thể chỉnh sửa trực tuyến."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "The editing service could not save the document."
+msgstr "Dịch vụ chỉnh sửa không lưu được tài liệu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "The editing service named nobody who can save the file; the saved content is kept under %s."
+msgstr "Dịch vụ chỉnh sửa không nêu người nào có thể lưu tệp; nội dung đã lưu được giữ tại %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session_callback.py:0
+msgid "The saved document is over 5 GiB, the largest file kept."
+msgstr "Tài liệu đã lưu lớn hơn 5 GiB, kích thước tệp lớn nhất được lưu giữ."

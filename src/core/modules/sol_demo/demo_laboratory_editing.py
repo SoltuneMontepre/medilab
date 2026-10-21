@@ -22,8 +22,8 @@ def seed_laboratory_editing(env):
     file = env.ref("sol_demo.demo_laboratory_file_hplc_results")
     sessions = env[MODEL_LABORATORY_EDITING_SESSION]
 
-    saved = sessions.with_user(tester)._open_for(file.with_user(tester))
-    sessions.with_user(chemistry_tester)._open_for(file.with_user(chemistry_tester))
+    saved = sessions.with_user(tester)._join_or_open(file.with_user(tester))
+    sessions.with_user(chemistry_tester)._join_or_open(file.with_user(chemistry_tester))
     sha256 = hashlib.sha256(ONLINE_CONTENT.encode()).hexdigest()
     version = saved._store_save(
         sha256=sha256,
@@ -33,9 +33,9 @@ def seed_laboratory_editing(env):
         editors=tester | chemistry_tester,
     )
 
-    expired = sessions.with_user(chemistry_tester)._open_for(file.with_user(chemistry_tester))
+    expired = sessions.with_user(chemistry_tester)._join_or_open(file.with_user(chemistry_tester))
     expired.sudo().last_activity_at = fields.Datetime.now() - timedelta(hours=IDLE_HOURS)
-    opened = sessions.with_user(tester)._open_for(file.with_user(tester))
+    opened = sessions.with_user(tester)._join_or_open(file.with_user(tester))
 
     env["ir.model.data"]._update_xmlids(
         [
