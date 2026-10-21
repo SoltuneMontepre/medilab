@@ -87,9 +87,19 @@ class TestRuns(OnboardingCase):
         first = self.run_of(sector_ids=self.food)
         second = self.run_of(sector_ids=self.food)
         first.action_start()
-        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"):
+        with self.assertRaisesRegex(ValidationError, "Another collection run is running"):
             second.action_start()
+        with self.assertRaises(IntegrityError), mute_logger("odoo.sql_db"):
+            second.write({"state": "running"})
             second.flush_recordset()
+
+    def test_a_run_that_queues_nothing_ends_at_once(self):
+        cosmetics = self.env[MODEL_ONBOARDING_SECTOR].search([("code", "=", "cosmetics")])
+        empty = self.run_of(sector_ids=cosmetics)
+        empty.action_start()
+        self.assertEqual(empty.state, "done")
+        self.assertTrue(empty.ended_at)
+        self.run_of(sector_ids=self.food).action_start()
 
     def test_cancelling_cancels_pending_items(self):
         run = self.run_of(sector_ids=self.food)

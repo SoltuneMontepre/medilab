@@ -17,6 +17,7 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
     CRAWL_JOB,
     EVENT_RUN_ENDED,
     ITEMS_OPEN,
+    RUN_DONE,
     RUN_DRAFT,
     RUN_ENDED,
     RUN_RUNNING,
@@ -109,11 +110,15 @@ class OnboardingRun(models.Model):
                 raise ValidationError(self.env._("Only a draft collection run can be started."))
             if not (run.organisation_id or run.sector_ids):
                 raise ValidationError(self.env._("Choose an organisation or a sector to collect for."))
+            if self.sudo().search_count([("state", "=", RUN_RUNNING)]):
+                raise ValidationError(self.env._("Another collection run is running; start this one when it ends."))
             run.write({"state": RUN_RUNNING, "started_at": fields.Datetime.now(), "requested_by_id": self.env.user.id})
-            # A second running run fails here, not in a later flush.
+            # The index refuses a second running run that slipped past the check above.
             run.flush_recordset()
             for source in sources:
                 run._queue_first_pages(source)
+            if not run._crawl_items():
+                run._finish(RUN_DONE)
         self.env.ref("sol_onboarding.ir_cron_onboarding_crawl").sudo()._trigger()
 
     def _queue_first_pages(self, source):

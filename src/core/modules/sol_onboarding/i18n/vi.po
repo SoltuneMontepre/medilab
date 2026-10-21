@@ -63,6 +63,7 @@ msgid "Address"
 msgstr "Địa chỉ"
 
 #. module: sol_onboarding
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run.py:0
 #: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_run_one_running
 msgid "Another collection run is running; start this one when it ends."
 msgstr "Đang có lượt thu thập khác chạy; hãy bắt đầu lượt này khi lượt kia kết thúc."
