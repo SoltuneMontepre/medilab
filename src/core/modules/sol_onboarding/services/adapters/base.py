@@ -24,7 +24,7 @@ class OrganisationValues:
 class StagedValues:
     kind: str  # a KIND_* constant
     key: str
-    values: dict[str, str]  # VALUE_KEYS[kind], plain text
+    values: dict[str, str]  # VALUE_KEYS[kind], plain text; dates as ISO YYYY-MM-DD
     lang: str
     sector: str | None = None  # a SECTOR_CODES entry
     parent: tuple[str, str] | None = None  # (kind, key) of the staged record it belongs to

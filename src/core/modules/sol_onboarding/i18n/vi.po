@@ -821,6 +821,11 @@ msgid "Valid Until"
 msgstr "Hiệu lực đến"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__display_value
+msgid "Value"
+msgstr "Giá trị"
+
+#. module: sol_onboarding
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
 msgid "Values"
 msgstr "Giá trị"

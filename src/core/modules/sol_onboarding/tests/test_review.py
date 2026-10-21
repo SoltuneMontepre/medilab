@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import tagged
@@ -14,7 +14,7 @@ from odoo.addons.sol_onboarding.constants.models import (
     MODEL_ONBOARDING_SNAPSHOT,
     MODEL_ONBOARDING_STAGED_RECORD,
 )
-from odoo.addons.sol_onboarding.constants.onboarding import KIND_SAMPLE_TYPE, KIND_TESTING_METHOD
+from odoo.addons.sol_onboarding.constants.onboarding import KIND_CERTIFICATE, KIND_SAMPLE_TYPE, KIND_TESTING_METHOD
 from odoo.addons.sol_onboarding.services.adapters.base import Fetched, StagedValues
 from odoo.addons.sol_onboarding.tests.onboarding_case import OnboardingCase
 
@@ -131,3 +131,72 @@ class TestReview(OnboardingCase):
             staged.with_user(self.admin).match_ref = self.env[MODEL_TESTING_FIELD].create(
                 {"code": "ZZRV", "name": "RV"}
             )
+
+    def test_a_deleted_match_is_no_match(self):
+        sample = self.env[MODEL_SAMPLE_TYPE].create({"name": "Deleted Match Sample"})
+        staged = self.sample("deleted match sample")
+        self.assertEqual(staged.match_ref, sample)
+
+        sample.sudo().unlink()
+        staged.invalidate_recordset()
+
+        self.assertFalse(staged.match_ref)
+        self.assertFalse(staged.changes)
+        self.assertEqual(staged.display_value, "deleted match sample")
+
+    def test_editing_values_derives_the_action_again(self):
+        field = self.env[MODEL_TESTING_FIELD].create({"code": "ZZREVACT", "name": "Action field"})
+        self.env[MODEL_TESTING_METHOD].create({"field_id": field.id, "code": "TCVN 9991:2011", "name": "Old title"})
+        staged = self.stage(KIND_TESTING_METHOD, code="TCVN 9991:2011", name="New title", field_key="x")
+        self.assertEqual(staged.action, "update")
+
+        staged.with_user(self.admin).name = "Old title"
+        self.assertEqual(staged.action, "link")
+        staged.with_user(self.admin).name = "Another title"
+        self.assertEqual(staged.action, "update")
+
+    def test_a_date_edit_round_trips(self):
+        staged = self.stage(KIND_CERTIFICATE, code="ZZ CERT 1", issuing_body="BoA", valid_from="2025-01-01")
+
+        staged.with_user(self.admin).valid_until = date(2027, 1, 1)
+
+        self.assertEqual(staged.edited_values, {"valid_until": "2027-01-01"})
+        self.assertEqual(staged.valid_until, date(2027, 1, 1))
+        self.assertEqual(staged.valid_from, date(2025, 1, 1))
+        staged.with_user(self.admin).valid_until = False
+        self.assertFalse(staged.edited_values)
+
+    def test_a_record_edit_is_stored_as_an_id(self):
+        field = self.env[MODEL_TESTING_FIELD].create({"code": "ZZREVFLD", "name": "Edited field"})
+        staged = self.stage(KIND_TESTING_METHOD, code="TCVN 9992:2011", name="Title", field_key="x")
+
+        staged.with_user(self.admin).field_id = field
+
+        self.assertEqual(staged.edited_values, {"field_id": field.id})
+        staged.invalidate_recordset()
+        self.assertEqual(staged.field_id, field)
+
+    def test_two_fields_written_together_are_both_stored(self):
+        staged = self.stage(KIND_CERTIFICATE, code="ZZ CERT 2", issuing_body="BoA")
+
+        staged.with_user(self.admin).write({"issuing_body": "Other", "valid_until": date(2028, 2, 2)})
+
+        self.assertEqual(staged.edited_values, {"issuing_body": "Other", "valid_until": "2028-02-02"})
+
+    def test_saving_one_field_keeps_a_date_that_is_not_iso(self):
+        staged = self.stage(KIND_CERTIFICATE, code="ZZ CERT 3", issuing_body="BoA", valid_from="15/01/2025")
+
+        staged.with_user(self.admin).issuing_body = "Other"
+
+        self.assertEqual(staged.edited_values, {"issuing_body": "Other"})
+        self.assertEqual(staged._effective_values()["valid_from"], "15/01/2025")
+        self.assertFalse(staged.valid_from)
+
+    def test_the_views_load_without_the_sources(self):
+        views = [(False, "list"), (False, "form")]
+        for user in (self.admin, self.reader):
+            for model in (MODEL_ONBOARDING_STAGED_RECORD, MODEL_ONBOARDING_RUN):
+                arches = self.env[model].with_user(user).get_views(views)["views"]
+                for view in arches.values():
+                    self.assertNotIn("source_id", view["arch"])
+                    self.assertNotIn("snapshot_ids", view["arch"])

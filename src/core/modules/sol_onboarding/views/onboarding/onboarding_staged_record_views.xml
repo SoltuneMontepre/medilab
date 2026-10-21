@@ -15,6 +15,7 @@
                 </header>
                 <field name="kind" />
                 <field name="external_key" />
+                <field name="display_value" />
                 <field name="action" />
                 <field
                     name="state"

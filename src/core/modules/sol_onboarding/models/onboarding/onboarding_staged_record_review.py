@@ -29,31 +29,29 @@ class OnboardingStagedRecordReview(models.Model):
     _rec_name = "external_key"
 
     # The values below show the edited value, else the source's; writing one stores it in the edited values.
-    code = fields.Char(string="Code", compute="_compute_values", inverse="_inverse_values")
-    name = fields.Char(string="Name", compute="_compute_values", inverse="_inverse_values")
-    issuing_body = fields.Char(string="Issuing Body", compute="_compute_values", inverse="_inverse_values")
-    valid_from = fields.Date(string="Valid From", compute="_compute_values", inverse="_inverse_values")
-    valid_until = fields.Date(string="Valid Until", compute="_compute_values", inverse="_inverse_values")
-    field_id = fields.Many2one(
-        MODEL_TESTING_FIELD, string="Testing Field", compute="_compute_values", inverse="_inverse_values"
-    )
+    code = fields.Char(string="Code", compute="_compute_values", readonly=False)
+    name = fields.Char(string="Name", compute="_compute_values", readonly=False)
+    issuing_body = fields.Char(string="Issuing Body", compute="_compute_values", readonly=False)
+    valid_from = fields.Date(string="Valid From", compute="_compute_values", readonly=False)
+    valid_until = fields.Date(string="Valid Until", compute="_compute_values", readonly=False)
+    field_id = fields.Many2one(MODEL_TESTING_FIELD, string="Testing Field", compute="_compute_values", readonly=False)
     main_group_id = fields.Many2one(
         MODEL_PARAMETER_GROUP,
         string="Main Group",
         compute="_compute_values",
-        inverse="_inverse_values",
+        readonly=False,
         domain="[('child_ids', '=', False)]",
     )
-    unit_id = fields.Many2one(
-        MODEL_MEASUREMENT_UNIT, string="Unit", compute="_compute_values", inverse="_inverse_values"
-    )
+    unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, string="Unit", compute="_compute_values", readonly=False)
     department_id = fields.Many2one(
         MODEL_DEPARTMENT,
         string="Department",
         compute="_compute_values",
-        inverse="_inverse_values",
+        readonly=False,
         domain=DEPARTMENT_DOMAIN,
     )
+    # The code of the record, else its name.
+    display_value = fields.Char(string="Value", compute="_compute_display_value")
     # One "Label: value" line per value the source gave.
     source_summary = fields.Text(string="Source Values Summary", compute="_compute_source_summary")
     # For an update, one "field: current → new" line per value that differs from the matched record.
@@ -80,31 +78,57 @@ class OnboardingStagedRecordReview(models.Model):
             "method_key": _("Method Key"),
         }
 
+    def _derive(self, key, values):
+        """The value of an editable key in the form of its field."""
+        value = values.get(key) or False
+        if key in DATE_KEYS:
+            try:
+                return fields.Date.to_date(value)
+            except ValueError:
+                return False
+        if key in RECORD_KEYS:
+            return self.env[self._fields[key].comodel_name].browse(value or []).exists()
+        return value
+
     @api.depends("source_values", "edited_values")
     def _compute_values(self):
         for record in self:
             values = record._effective_values()
-            for key in TEXT_KEYS:
-                record[key] = values.get(key) or False
-            for key in DATE_KEYS:
-                record[key] = fields.Date.to_date(values.get(key) or False)
-            for key in RECORD_KEYS:
-                comodel = self.env[self._fields[key].comodel_name]
-                record[key] = comodel.browse(values.get(key) or []).exists()
-
-    def _inverse_values(self):
-        for record in self:
-            edited = {}
             for key in EDITABLE_KEYS:
-                value = record[key]
-                if key in RECORD_KEYS:
-                    value = value.id
-                elif key in DATE_KEYS:
-                    value = value.isoformat() if value else ""
-                value = value or ""
-                if value != (record.source_values.get(key) or ""):
-                    edited[key] = value
-            record.edited_values = edited or False
+                record[key] = record._derive(key, values)
+
+    def write(self, vals):
+        """Store the editable values this save gives in the edited values, and no others, so a value the save does not
+        touch keeps its stored form."""
+        keys = [key for key in EDITABLE_KEYS if key in vals]
+        if not keys:
+            return super().write(vals)
+        others = {key: value for key, value in vals.items() if key not in keys}
+        for record in self:
+            edited = dict(record.edited_values or {})
+            for key in keys:
+                stored = self._stored(key, vals[key])
+                if stored == (record.source_values.get(key) or ""):
+                    edited.pop(key, None)
+                else:
+                    edited[key] = stored
+            super(OnboardingStagedRecordReview, record).write({**others, "edited_values": edited or False})
+        return True
+
+    def _stored(self, key, value):
+        """The form a written value takes in the edited values."""
+        if key in DATE_KEYS:
+            value = fields.Date.to_date(value)
+            return value.isoformat() if value else ""
+        if key in RECORD_KEYS:
+            return value.id if isinstance(value, models.BaseModel) else value or 0
+        return value or ""
+
+    @api.depends("source_values", "edited_values")
+    def _compute_display_value(self):
+        for record in self:
+            values = record._effective_values()
+            record.display_value = values.get("code") or values.get("name") or False
 
     @api.depends("source_values", "kind")
     def _compute_source_summary(self):
@@ -126,7 +150,8 @@ class OnboardingStagedRecordReview(models.Model):
     @api.depends("record_model", "record_id")
     def _compute_match_ref(self):
         for record in self:
-            record.match_ref = f"{record.record_model},{record.record_id}" if record.record_id else False
+            matched = record._matched_record()
+            record.match_ref = f"{matched._name},{matched.id}" if matched else False
 
     def _inverse_match_ref(self):
         for record in self:

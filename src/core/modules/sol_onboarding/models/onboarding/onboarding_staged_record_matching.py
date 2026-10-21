@@ -129,6 +129,13 @@ class OnboardingStagedRecordMatching(models.Model):
         )
         return pair.id
 
+    def _matched_record(self):
+        """The Laboratory record it matches, empty when there is none or it was deleted."""
+        self.ensure_one()
+        if not self.record_id:
+            return self.env[KIND_MODELS[self.kind]]
+        return self.env[self.record_model].sudo().browse(self.record_id).exists()
+
     def _proposed_action(self, model, matched_id) -> str:
         if not matched_id:
             return ACTION_CREATE
@@ -142,7 +149,10 @@ class OnboardingStagedRecordMatching(models.Model):
         staged language. A way of testing has nothing but its pair, so it never differs."""
         if self.kind == KIND_PARAMETER_METHOD:
             return []
-        record = self.env[model].sudo().browse(matched_id).with_context(lang=self.lang, active_test=False)
+        record = self.env[model].sudo().browse(matched_id).exists()
+        if not record:
+            return []
+        record = record.with_context(lang=self.lang, active_test=False)
         values = self._effective_values()
         differences = []
         for key in COMPARED_KEYS[self.kind]:
