@@ -459,6 +459,12 @@ msgid "Name"
 msgstr ""
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
+msgid "No testing method has the code %s after the import."
+msgstr ""
+
+#. module: sol_onboarding
 #: model:ir.ui.menu,name:sol_onboarding.menu_master_data_onboarding
 msgid "Onboarding"
 msgstr ""
@@ -877,7 +883,7 @@ msgstr ""
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
-msgid "The staged %s it needs is neither to review nor accepted."
+msgid "The staged %(need)s that %(record)s needs is neither to review nor accepted."
 msgstr ""
 
 #. module: sol_onboarding

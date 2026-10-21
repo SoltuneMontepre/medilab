@@ -68,13 +68,13 @@ The job `onboarding.organisations` refreshes the organisations of each turned-on
 The key of a staged record is its adapter's key for it at the source, such as a method's standard code within a certificate. A checksum of its values tells whether the source changed it:
 
 - the same key and checksum as a staged record that is to review, accepted or rejected stages nothing;
-- the same key with another checksum stages a new record, and an older one to review becomes `superseded`.
+- the same key with another checksum stages a new record, and an older one to review becomes `superseded` and passes its children, such as the methods of a certificate's scope, to the new one.
 
 Matching an existing Laboratory record runs when a record is staged and again when its values are edited. Codes are compared after removing spaces and folding case; names with the trigram indexes of the master data tables, as a suggestion.
 
 ### Accepting
 
-Accepting runs as the administrator, through the same `create` and `write` of the Laboratory models that their forms use, so their constraints, permissions and audit entries apply. A certificate with its scope goes through the import of [Import from certificate](../functional/laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). Each staged record is accepted in a savepoint with the records it needs, so a refusal leaves it and them to review and does not undo the others of a batch. The accepted record is kept on the staged record as its model and id.
+Accepting runs as the administrator, through the same `create` and `write` of the Laboratory models that their forms use, so their constraints, permissions and audit entries apply. It runs in the administrator's language, so Laboratory's messages come in that language; a name is written in the language of the staged record. A certificate with its scope goes through the import of [Import from certificate](../functional/laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28), one import per testing field. Methods whose codes differ only in case and spaces become one line, under the code of the method they match, if any. Each staged record is accepted in a savepoint with the records it needs, so a refusal leaves it and them to review and does not undo the others of a batch. The accepted record is kept on the staged record as its model and id.
 
 Laboratory does not know about Onboarding. The module adds the origin to the forms of the master data it stages by extending their views with a button that opens the staged records of the record.
 

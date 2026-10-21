@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from odoo.exceptions import AccessError
 from odoo.tests import new_test_user, tagged
-from odoo.tools import mute_logger
+from odoo.tools import SQL, mute_logger
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
@@ -200,7 +200,20 @@ class TestAccepting(OnboardingCase):
             (staged.state, staged.record_model, staged.record_id), ("accepted", MODEL_TESTING_METHOD, method.id)
         )
         self.assertEqual(method.with_context(lang="vi_VN").name, "New title")
+        self.assertEqual(method.with_context(lang="en_US").name, "Old title")
         self.assertEqual((method.code, method.field_id, method.active), ("TCVN 9702:2011", self.field, False))
+
+    def test_a_created_name_is_kept_in_the_staged_language(self):
+        staged = self.stage(KIND_TESTING_FIELD, code="ZZACCLANG", name="Lĩnh vực ngôn ngữ")
+
+        staged.with_user(self.admin).with_context(lang="en_US").action_accept()
+
+        field = self.env[MODEL_TESTING_FIELD].browse(staged.record_id)
+        field.flush_recordset()
+        stored = self.env.execute_query(
+            SQL("SELECT name FROM %s WHERE id = %s", SQL.identifier(field._table), field.id)
+        )
+        self.assertEqual(stored[0][0], {"en_US": "Lĩnh vực ngôn ngữ", "vi_VN": "Lĩnh vực ngôn ngữ"})
 
     def test_an_update_keeps_a_code_the_source_does_not_give(self):
         field = self.env[MODEL_TESTING_FIELD].create({"code": "ZZACCKEEP", "name": "Accepting Kept Field"})

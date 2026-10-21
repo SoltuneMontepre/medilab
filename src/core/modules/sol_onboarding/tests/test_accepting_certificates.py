@@ -195,19 +195,69 @@ class TestAcceptingCertificates(OnboardingCase):
         )
         self.assertFalse(self.env[MODEL_ACCREDITATION_CERTIFICATE].search([("code", "=", CERTIFICATE_CODE)]))
 
+    def test_a_restaged_certificate_keeps_its_scope(self):
+        methods = [self.method(f"TCVN 991{number}:2013", f"Kept method {number}") for number in range(3)]
+        staged = self.stage(self.certificate(), *methods)
+        old, children = staged[0], staged[1:]
+        self.run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
+
+        new = self.stage(self.certificate(issuing_body="AOSC"), *methods)
+
+        self.assertEqual((len(new), old.state), (1, "superseded"))
+        self.assertEqual(new.child_ids, children)
+        self.assertFalse(old.child_ids)
+        new.field_id = self.field
+        new.with_user(self.admin).action_accept()
+
+        lab_certificate = self.lab_certificate(new)
+        self.assertEqual((lab_certificate.issuing_body, len(lab_certificate.method_ids)), ("AOSC", 3))
+        self.assertEqual(children.mapped("state"), ["accepted"] * 3)
+
+    def test_a_rejected_field_of_a_new_method_refuses_the_certificate(self):
+        field, certificate, child = self.stage(
+            self.item(KIND_TESTING_FIELD, "ZZCERTREJ", name="Rejected certificate field"),
+            self.certificate(),
+            self.method("TCVN 9884:2012", "Method of a rejected field", field_key="ZZCERTREJ"),
+        )
+        field.with_user(self.admin).action_reject("Not ours")
+        message = "The staged Testing Field that Testing Method TCVN 9884:2012 needs is neither to review nor accepted."
+
+        action = certificate.with_user(self.admin).action_accept()
+
+        # Refused rather than asked for the certificate's testing field, which would not help.
+        self.assertEqual(action["domain"], [("id", "in", certificate.ids)])
+        self.assertEqual(certificate.error, message)
+        certificate.field_id = self.field
+
+        certificate.with_user(self.admin).action_accept()
+
+        self.assertEqual(certificate.error, message)
+        self.assertEqual((certificate.state, child.state), ("to_review", "to_review"))
+        self.assertFalse(self.env[MODEL_TESTING_METHOD].search([("code", "=", "TCVN 9884:2012")]))
+
+    def test_codes_written_differently_in_one_scope_make_one_method(self):
+        certificate, first, second = self.stage(
+            self.certificate(),
+            self.method("TCVN 9902:2013", "Written once"),
+            self.method("tcvn 9902 : 2013", "Written twice"),
+        )
+        certificate.field_id = self.field
+
+        certificate.with_user(self.admin).action_accept()
+
+        method = self.lab_certificate(certificate).method_ids
+        self.assertEqual((method.code, method.field_id), ("TCVN 9902:2013", self.field))
+        self.assertEqual((first | second).mapped("state"), ["accepted"] * 2)
+        self.assertEqual((first | second).mapped("record_id"), [method.id] * 2)
+        self.assertEqual(self.env[MODEL_TESTING_METHOD].search_count([("code", "ilike", "9902")]), 1)
+
     def test_accepting_twenty_with_two_refused_accepts_eighteen_and_lists_two(self):
         group = self.env[MODEL_PARAMETER_GROUP].create({"name": "Batch group"})
         staged = self.stage(
             self.certificate(),
             self.method("TCVN 9881:2012", "Batch method of the certificate one"),
             self.method("TCVN 9882:2012", "Batch method of the certificate two"),
-            # Staged in English, the language Laboratory then refuses it in.
-            StagedValues(
-                KIND_CERTIFICATE,
-                "VILAS 9812",
-                {"code": "VILAS 9812", "valid_from": "2027-01-01", "valid_until": "2026-01-01"},
-                "en_US",
-            ),
+            self.certificate("VILAS 9812", valid_from="2027-01-01", valid_until="2026-01-01"),
             *[self.item(KIND_TESTING_FIELD, f"ZZBATCH{number}", name=f"Batch field {number}") for number in range(5)],
             *[
                 StagedValues(
@@ -231,8 +281,11 @@ class TestAcceptingCertificates(OnboardingCase):
         # In the list's order, newest first, so the methods come before their certificate.
         records = staged.browse(staged.ids[::-1])
 
+        self.assertEqual((self.admin.lang, dated_wrongly.lang), ("en_US", "vi_VN"))
+
         with mute_logger("odoo.sql_db"):
-            action = records.with_user(self.admin).action_accept()
+            # The administrator's session is in English; the refused records are staged in Vietnamese.
+            action = records.with_user(self.admin).with_context(lang=self.admin.lang).action_accept()
 
         refused = dated_wrongly | taken
         self.assertEqual(action["res_model"], MODEL_ONBOARDING_STAGED_RECORD)

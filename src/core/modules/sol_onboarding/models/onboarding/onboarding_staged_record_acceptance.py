@@ -28,6 +28,7 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
     STAGED_TO_REVIEW,
 )
 from odoo.addons.sol_onboarding.constants.xml_ids import ACCEPT_ACTION
+from odoo.addons.sol_onboarding.models.onboarding.onboarding_staged_record_matching import normalize_code
 
 # Values a Laboratory record of each kind takes from the staged value field of the same name.
 LABORATORY_KEYS = {
@@ -104,20 +105,19 @@ class OnboardingStagedRecordAcceptance(models.Model):
 
     def _accept_one(self):
         """Accept the to-review records it needs, then create, link or update its Laboratory record as the current
-        user, in the staged language."""
+        user, in the user's language."""
         self.ensure_one()
         _ = self.env._
         if self.state != STAGED_TO_REVIEW:
             raise UserError(_("Only staged records to review can be accepted."))
         if self.match_suggested:
             raise UserError(_("Confirm or clear the suggested match first."))
-        model = self.env[KIND_MODELS[self.kind]].with_context(lang=self.lang)
+        model = self.env[KIND_MODELS[self.kind]]
         for field, need in self._needs().items():
             if need.state == STAGED_TO_REVIEW:
                 need._accept_one()
             elif not need and field not in ASKED_KEYS.get(self.kind, ()):
-                label = model._fields[field]._description_string(self.env)
-                raise UserError(_("The staged %s it needs is neither to review nor accepted.", label))
+                self._refuse_need(model._fields[field])
         if missing := self._own_missing_values():
             labels = [self._fields[key]._description_string(self.env) for key in missing]
             raise UserError(
@@ -142,68 +142,104 @@ class OnboardingStagedRecordAcceptance(models.Model):
             }
         )
 
+    def _refuse_need(self, field):
+        label = field._description_string(self.env)
+        raise UserError(
+            self.env._(
+                "The staged %(need)s that %(record)s needs is neither to review nor accepted.",
+                need=label,
+                record=self._describe(),
+            )
+        )
+
     def _accept_certificate(self, model):
         """Create, link or update the certificate, then link the to-review methods of its scope through Laboratory's
-        import, one import per testing field. A matched method goes by its own code, so the import links it however
-        the source wrote the code. The methods to create or link are accepted with the certificate; one to update is
-        linked but stays to review, so its changes are accepted on their own."""
+        import, one import per testing field. Methods whose codes differ only in case and spaces make one line, under
+        a matched method's own code, so the import links it however the source wrote the code. The methods to create
+        or link are accepted with the certificate; one to update is linked but stays to review, so its changes are
+        accepted on their own."""
+        _ = self.env._
         certificate = self._laboratory_record(model)
         methods = self._scope_methods()
+        groups = defaultdict(self.browse)
+        for method in methods:
+            groups[normalize_code(method.code or "")] |= method
         codes = {}
         lines = defaultdict(list)
-        for method in methods:
-            matched = method._matched_record()
-            if method.action != ACTION_CREATE and not matched:
-                raise UserError(
-                    self.env._("The matched record of %s no longer exists. Set the match again.", method._describe())
-                )
-            if method.action == ACTION_UPDATE:
-                field = matched.field_id
-            else:
-                field = method._method_field() or self.field_id or matched.field_id
-            codes[method] = matched.code or method.code
-            lines[field.id].append(Command.create({"code": codes[method], "name": method.name}))
+        for group in groups.values():
+            matched = self.env[MODEL_TESTING_METHOD]
+            field = self.env[MODEL_TESTING_FIELD]
+            for method in group:
+                found = method._matched_record()
+                if method.action != ACTION_CREATE and not found:
+                    raise UserError(
+                        _("The matched record of %s no longer exists. Set the match again.", method._describe())
+                    )
+                matched = matched or found
+                if method.action != ACTION_UPDATE:
+                    method_field = method._method_field()
+                    field = field or method_field
+            field = field or self.field_id or matched.field_id
+            codes.update(dict.fromkeys(group, matched.code or group[0].code))
+            lines[field.id].append(Command.create({"code": codes[group[0]], "name": group[0].name}))
         for field_id, field_lines in lines.items():
             self.env[MODEL_ACCREDITATION_CERTIFICATE_IMPORT].create(
                 {"certificate_id": certificate.id, "field_id": field_id, "lang": self.lang, "line_ids": field_lines}
             ).action_import()
-        found = (
+        imported = (
             self.env[MODEL_TESTING_METHOD]
             .with_context(active_test=False)
             .search([("code", "in", list(codes.values()))])
         )
-        by_code = {record.code: record for record in found}
+        by_code = {record.code: record for record in imported}
         for method in methods.filtered(lambda method: method.action != ACTION_UPDATE):
+            if codes[method] not in by_code:
+                raise UserError(_("No testing method has the code %s after the import.", codes[method]))
             method._mark_accepted(by_code[codes[method]])
         return certificate
 
     def _scope_methods(self):
-        """The staged methods of a certificate's scope that are to review."""
+        """The staged methods of a certificate's scope that are to review, in the order they were staged."""
         if self.kind != KIND_CERTIFICATE:
             return self.browse()
         return self.child_ids.filtered(
             lambda child: child.kind == KIND_TESTING_METHOD and child.state == STAGED_TO_REVIEW
-        )
+        ).sorted("id")
 
     def _method_field(self):
         """The testing field of a staged method: the edited one, else the one its staged testing field became, which
-        is accepted first when still to review. Empty when it has neither."""
-        need = self._needs().get("field_id", self.browse())
+        is accepted first when still to review. Empty when it has neither. A method to create refuses a staged testing
+        field that the source names but that is neither to review nor accepted."""
+        needs = self._needs()
+        need = needs.get("field_id", self.browse())
         if need.state == STAGED_TO_REVIEW:
             need._accept_one()
+        elif "field_id" in needs and not need and self.action == ACTION_CREATE and self._field_named():
+            self._refuse_need(self._fields["field_id"])
         return self.field_id or self.env[MODEL_TESTING_FIELD].browse(need.record_id)
 
+    def _field_named(self) -> bool:
+        return bool(self._effective_values().get("field_key"))
+
     def _laboratory_record(self, model):
-        """Create the record, or link or update the matched one, writing only the values that differ. Active is never
-        written, so an archived record stays archived."""
+        """Create the record, or link or update the matched one, writing only the values that differ. The name is
+        written in the staged language, the other values in the user's. Active is never written, so an archived record
+        stays archived."""
         if self.action == ACTION_CREATE:
-            return model.create(self._laboratory_values())
+            values = self._laboratory_values()
+            if values.get("name"):
+                # As a create in the staged language stores it: in that language and as the source text.
+                values["name"] = {"en_US": values["name"], self.lang: values["name"]}
+            return model.create(values)
         record = self._matched_record().with_env(model.env)
         if not record:
             raise UserError(self.env._("The matched record no longer exists. Set the match again."))
         if self.action == ACTION_UPDATE:
             values = self._laboratory_values()
-            record.write({key: values[key] for key, _current, _wanted in self._differences(record._name, record.id)})
+            changed = {key: values[key] for key, _current, _wanted in self._differences(record._name, record.id)}
+            record.write({key: value for key, value in changed.items() if key != "name"})
+            if "name" in changed:
+                record.with_context(lang=self.lang).write({"name": changed["name"]})
         return record
 
     def _needs(self) -> dict:
@@ -221,7 +257,10 @@ class OnboardingStagedRecordAcceptance(models.Model):
         certificate misses the testing field when a method of its scope to create misses one, and gives it to them."""
         self.ensure_one()
         if self.kind == KIND_CERTIFICATE:
-            fieldless = any(method._own_missing_values() for method in self._scope_methods())
+            # A method whose source names a testing field it cannot have is refused instead.
+            fieldless = any(
+                method._own_missing_values() and not method._field_named() for method in self._scope_methods()
+            )
             return ["field_id"] if fieldless and not self.field_id else []
         if self.action != ACTION_CREATE:
             return []

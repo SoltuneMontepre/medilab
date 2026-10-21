@@ -28,7 +28,7 @@ class OnboardingStagedRecordStaging(models.Model):
         """Stage the values read from the snapshot and return the records created.
 
         The same key and checksum as a kept record stages nothing; changed values stage a new record and supersede the
-        older ones still to review. Runs as root, since the crawl job does."""
+        older ones still to review, whose children move to it. Runs as root, since the crawl job does."""
         staged = self.sudo()
         sectors = {sector.code: sector for sector in self.env[MODEL_ONBOARDING_SECTOR].sudo().search([])}
         created = {}
@@ -59,7 +59,10 @@ class OnboardingStagedRecordStaging(models.Model):
                     "action": ACTION_CREATE,
                 }
             )
-            existing.filtered(lambda old: old.state == STAGED_TO_REVIEW).state = STAGED_SUPERSEDED
+            superseded = existing.filtered(lambda old: old.state == STAGED_TO_REVIEW)
+            superseded.state = STAGED_SUPERSEDED
+            # Its children, the unchanged ones included, belong to the record that supersedes it.
+            superseded.child_ids.parent_id = record
             created[record] = item.parent
         # Parents are resolved after the loop, since a page may list a child before its parent.
         for record, parent in created.items():

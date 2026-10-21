@@ -460,6 +460,12 @@ msgid "Name"
 msgstr "Tên"
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
+msgid "No testing method has the code %s after the import."
+msgstr "Sau khi nhập, không có phương pháp thử nào mang mã %s."
+
+#. module: sol_onboarding
 #: model:ir.ui.menu,name:sol_onboarding.menu_master_data_onboarding
 msgid "Onboarding"
 msgstr "Thu thập dữ liệu"
@@ -878,8 +884,8 @@ msgstr "Bản ghi khớp của %s không còn tồn tại. Hãy chọn lại b�
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
-msgid "The staged %s it needs is neither to review nor accepted."
-msgstr "%s chờ duyệt mà bản ghi này cần không ở trạng thái chờ duyệt hay đã duyệt."
+msgid "The staged %(need)s that %(record)s needs is neither to review nor accepted."
+msgstr "%(need)s chờ duyệt mà %(record)s cần không ở trạng thái chờ duyệt hay đã duyệt."
 
 #. module: sol_onboarding
 #. odoo-python
