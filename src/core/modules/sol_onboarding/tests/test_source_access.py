@@ -61,6 +61,8 @@ class TestSourceAccess(HttpCase):
         for start_url in (
             "http://lab.example/",
             "https://other.example/",
+            "https://lab.example:abc/",
+            "https://[bad/",
             "https://user@lab.example/",
             "https://lab.example:8443/",
         ):

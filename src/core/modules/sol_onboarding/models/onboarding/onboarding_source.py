@@ -41,13 +41,17 @@ class OnboardingSource(models.Model):
     @api.constrains("host", "start_url")
     def _check_start_url(self):
         for source in self:
-            address = urlsplit(source.start_url)
-            if (
-                address.scheme != "https"
-                or address.hostname != source.host
-                or address.username is not None
-                or address.port is not None
-            ):
+            try:
+                address = urlsplit(source.start_url)
+                valid = (
+                    address.scheme == "https"
+                    and address.hostname == source.host
+                    and address.username is None
+                    and address.port is None
+                )
+            except ValueError:
+                valid = False
+            if not valid:
                 raise ValidationError(
                     self.env._("The start address must be an HTTPS address on the host, without user or port.")
                 )
