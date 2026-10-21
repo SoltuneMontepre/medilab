@@ -4,6 +4,7 @@ from . import (
     dispatch_portal,
     laboratory_api_devices,
     laboratory_api_file_locks,
+    laboratory_api_files,
     laboratory_api_folder_members,
     laboratory_api_folder_rules,
     laboratory_api_folders,

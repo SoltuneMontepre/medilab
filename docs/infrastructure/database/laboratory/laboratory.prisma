@@ -2409,6 +2409,8 @@ model LaboratoryFileVersion {
   user_id            Int
   /// The device it came from; empty for a version made online or by a restore in the back office.
   device_id          Int?
+  /// The Idempotency-Key the device sent with the request that restored the version; unique for the device where it is set (a partial unique index).
+  idempotency_key    String?        @db.VarChar
   /// none, requested, approved or rejected: where the version is in its signing.
   approval_state     String         @default("none") @db.VarChar
   /// Round of the version's signing that the next signature records; it grows when every signature is withdrawn.

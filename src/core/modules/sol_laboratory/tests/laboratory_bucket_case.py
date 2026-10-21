@@ -21,7 +21,7 @@ def closed_port():
 def remove_written_objects(case):
     """Delete, after the test, the objects of the contents the test records, which its rollback leaves in the bucket."""
     contents = case.env[MODEL_LABORATORY_CONTENT].sudo()
-    last_id = contents.search([], order="id desc", limit=1).id
+    last_id = contents.search([], order="id desc", limit=1).id or 0
 
     def remove():
         for key in contents.search([("id", ">", last_id)]).mapped("object_key"):
@@ -30,9 +30,9 @@ def remove_written_objects(case):
     case.addCleanup(remove)
 
 
-class LaboratoryBucketCase(TransactionCase):
-    """Tests against the laboratory files bucket of local development and CI. What they write to it is theirs to
-    remove."""
+class LaboratoryBucketTools:
+    """What tests against the laboratory files bucket of local development and CI use, in any kind of test case. What
+    they write to it is theirs to remove."""
 
     @classmethod
     def _request_handler(cls, s, r, /, **kw):
@@ -46,7 +46,7 @@ class LaboratoryBucketCase(TransactionCase):
         """The bucket's settings, which the tests need."""
         bucket = laboratory_bucket.settings()
         if bucket is None:
-            self.fail("The laboratory files bucket is not configured.")
+            raise AssertionError("The laboratory files bucket is not configured.")
         return bucket
 
     def new_key(self):
@@ -69,7 +69,7 @@ class LaboratoryBucketCase(TransactionCase):
         target = address._replace(scheme=internal.scheme, netloc=internal.netloc).geturl()
         return requests.request(method, target, data=data, headers={"Host": address.netloc}, timeout=60)
 
-    def stored(self, key):
+    def read_back(self, key):
         """The SHA-256 and size of the object, read back from the bucket."""
         digest = hashlib.sha256()
         size = 0
@@ -78,3 +78,7 @@ class LaboratoryBucketCase(TransactionCase):
                 digest.update(chunk)
                 size += len(chunk)
         return digest.hexdigest(), size
+
+
+class LaboratoryBucketCase(LaboratoryBucketTools, TransactionCase):
+    """Tests against the laboratory files bucket of local development and CI."""

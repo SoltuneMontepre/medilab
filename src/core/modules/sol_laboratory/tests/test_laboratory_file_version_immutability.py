@@ -59,6 +59,7 @@ class TestLaboratoryFileVersionImmutability(LaboratoryFilesCase):
             "content_id": self.stored("other").id,
             "user_id": self.member.id,
             "device_id": False,
+            "idempotency_key": "another-request",
         }
         self.assertEqual(set(changes), set(PROTECTED_FIELDS))
 

@@ -13693,3 +13693,21 @@ msgstr ""
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
 msgid "Verified content has the size and SHA-256 the server computed."
 msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "This computer already made a version with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+msgid "This version is not a version of the file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+msgid "Version %s"
+msgstr ""
