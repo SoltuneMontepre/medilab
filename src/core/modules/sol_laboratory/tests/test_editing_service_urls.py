@@ -3,10 +3,16 @@ from unittest.mock import patch
 
 from odoo.tests import BaseCase, tagged
 
-from odoo.addons.sol_laboratory.constants.laboratory_editing import INTERNAL_URL_VARIABLE
-from odoo.addons.sol_laboratory.services.editing_service_urls import is_editing_service_url, is_saved_document_url
+from odoo.addons.sol_laboratory.constants.laboratory_editing import INTERNAL_URL_VARIABLE, PUBLIC_URL_VARIABLE
+from odoo.addons.sol_laboratory.services.editing_service_urls import (
+    internal_saved_document_url,
+    is_editing_service_url,
+    is_saved_document_url,
+)
 
 SERVICE = "http://onlyoffice"
+PUBLIC = "https://docs.lab.example"
+SAVED_PATH = "/cache/files/data/Khirz6zTPdfd7_902/output.xlsx/output.xlsx?md5=abc&expires=1&filename=output.xlsx"
 SAVED = "http://onlyoffice/cache/files/data/Khirz6zTPdfd7/output.xlsx/output.xlsx?md5=abc&expires=1"
 
 
@@ -63,3 +69,34 @@ class TestEditingServiceUrls(BaseCase):
         with patch.dict(os.environ, clear=False):
             os.environ.pop(INTERNAL_URL_VARIABLE, None)
             self.assertFalse(is_saved_document_url(SAVED))
+
+    def test_a_saved_document_on_the_public_address_is_fetched_from_the_internal_one(self):
+        with patch.dict(os.environ, {INTERNAL_URL_VARIABLE: SERVICE, PUBLIC_URL_VARIABLE: PUBLIC}):
+            for url in (f"{PUBLIC}{SAVED_PATH}", f"https://DOCS.lab.example:443{SAVED_PATH}"):
+                with self.subTest(url=url):
+                    self.assertEqual(internal_saved_document_url(url), f"{SERVICE}{SAVED_PATH}")
+            self.assertEqual(internal_saved_document_url(f"{SERVICE}{SAVED_PATH}"), f"{SERVICE}{SAVED_PATH}")
+
+    def test_a_saved_document_on_any_other_origin_is_never_fetched(self):
+        with patch.dict(os.environ, {INTERNAL_URL_VARIABLE: SERVICE, PUBLIC_URL_VARIABLE: PUBLIC}):
+            for url in (
+                f"http://docs.lab.example{SAVED_PATH}",
+                f"https://docs.lab.example:8443{SAVED_PATH}",
+                f"https://docs.lab.example.attacker.example{SAVED_PATH}",
+                f"https://user@docs.lab.example{SAVED_PATH}",
+                f"https://attacker.example{SAVED_PATH}",
+                f"http://169.254.169.254{SAVED_PATH}",
+                f"http://127.0.0.1{SAVED_PATH}",
+                f"http://odoo:8069{SAVED_PATH}",
+                "",
+                None,
+            ):
+                with self.subTest(url=url):
+                    self.assertIsNone(internal_saved_document_url(url))
+
+    def test_without_both_addresses_a_saved_document_on_the_public_one_is_never_fetched(self):
+        for environment in ({INTERNAL_URL_VARIABLE: SERVICE}, {PUBLIC_URL_VARIABLE: PUBLIC}, {}):
+            with self.subTest(environment=environment), patch.dict(os.environ, environment):
+                for variable in {INTERNAL_URL_VARIABLE, PUBLIC_URL_VARIABLE} - set(environment):
+                    os.environ.pop(variable, None)
+                self.assertIsNone(internal_saved_document_url(f"{PUBLIC}{SAVED_PATH}"))
