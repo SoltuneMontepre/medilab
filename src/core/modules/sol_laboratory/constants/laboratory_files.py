@@ -49,3 +49,7 @@ METHOD_NOT_ALLOWED = "method_not_allowed"
 TOO_MANY_ATTEMPTS = "too_many_attempts"
 TRY_AGAIN = "try_again"
 INTERNAL_ERROR = "internal_error"
+# Code of the refusal of a folder whose name its owner already has.
+FOLDER_EXISTS = "folder_exists"
+# Code of the refusal of an Idempotency-Key the computer already sent with another request.
+IDEMPOTENCY_CONFLICT = "idempotency_conflict"
