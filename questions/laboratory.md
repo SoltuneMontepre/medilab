@@ -1,6 +1,6 @@
 # Laboratory questions
 
-- **Zero limits (US-AD07).** Odoo stores an empty number as 0, so a regulation limit of exactly 0, such as 0 CFU/250 mL, reads as "no limit" and is entered as the text "Not detected" instead. Does any regulation need a numeric limit of 0, for example so results can be compared with it automatically?
+- **Zero limits (US-AD07).** Decided: a regulation's minimum or maximum may be 0, and flags say which of them are set, as the [Laboratory administrator](../docs/functional/laboratory_module/features/admin.md) Regulations rule and `laboratory.prisma` say.
 - **Changing a due date.** A sample test's due date can be changed by hand. Who may change it, and does it keep the changed date when the request's expected date changes? (blocks US-HD05)
 - **Due date check.** A due date falls on a weekday and the scheduler checks that a slot is free or can be made free. Do public holidays count as non-working days, does the check block saving or only warn, may it move the bookings of other tests, and does it suggest the earliest date that can be met? (blocks US-HD05)
 - **Team work.** Departments can be split into teams. Do testing tasks also queue by team, and does the team lead assign them instead of the head of department? (blocks US-AD13)
@@ -11,9 +11,8 @@
 - **Complaints and nonconforming work.** There is no way to record a customer complaint about a result or report, or work that did not follow the method, and follow it to a correction. Is this in scope, as ISO/IEC 17025 asks?
 - **Quality control.** Blanks, control samples, reference materials and proficiency tests are not recorded. Does the laboratory track them, and does a failed control block the results of its run?
 - **Measurement uncertainty.** A result has no uncertainty. Should results carry one, and does the report print it?
-- **Staff competence.** Anyone in the department can be assigned any test. Should a person be authorised per testing method, so that assignment and the scheduler's recommendation only offer people allowed to run it?
+- **Staff competence.** Decided: a person is authorised per test parameter, not per testing method, and only authorised people are offered and scheduled, as [Requirements changed](requirements-changed.md) says.
 - **Room conditions.** The temperature and humidity of working rooms are not recorded. Does a method need conditions checked before a test runs?
-- **Turnaround reporting.** The lab head has no figures on how long tests take or how many finished late. Which figures are needed, and for whom?
 - **Sanity check thresholds.** A numeric result is flagged when at least 10 approved results exist and it lies more than 3 standard deviations from their mean, or within 10% of the regulation limit. Are these the right defaults, and do some parameters need their own?
 - **Signing a file version.** Is a signed file version also digitally signed through Viettel Sign, as printed documents are, and may the person who saved a version sign it? For now versions are not signed through Viettel Sign, and the person who saved a version may sign it; both are provisional, not decided. (blocks US-HD16)
 - **Creating sample folders.** The old module let only its sync manager create a sample's folders, from the sample. Does the head of department create them, or are they created when the sample is received? The [overview](../docs/functional/laboratory_module/overview.md#laboratory-files) already says the head of department creates them from the sample; the answer confirms or corrects it. For now the head of a department that tests the sample creates them from the sample; this is provisional, not decided. (blocks US-HD15)
@@ -42,6 +41,19 @@
 - **Office documents.** Decided: Word, Excel and PowerPoint documents are the files with the extensions `docx`, `xlsx` and `pptx`, in any letter case.
 - **Turned-off folders and online editing.** Decided: a turned-off folder refuses every new version, saves of the online editor included.
 - **Demo files.** Decided: the shared foundation of laboratory files brings a few demo files with versions and a conflict; the upload flow adds restores, shared content and the stored bytes.
+- **Deleting ways of testing.** The Ways of Testing list on the parameter form only archives a pair. The documents still let a pair that nothing refers to be deleted, and the Delete ways of testing permissions are still shipped, but no screen offers deleting one, so only the API can. Should a screen offer deleting an unused pair, or should the delete action and its permissions be removed? (US-AD06)
+- **Contract management.** The documents only keep a contract reference on a subcontractor. Does the laboratory need to manage contracts, with customers, with subcontractors or both, and if so, what does a contract hold (number, dates, value, file, covered parameters), does it expire or renew, and does it limit which requests or outsourced tests can be made under it? (US-AD12)
+- **Limits per sample type.** A way of testing has one unit, LOD and LOQ, but accreditation scopes give some per sample form or material, such as Pb by H157:2022 at 0.05 mg/kg in liquids and 0.2 mg/kg in other foods. Should a way of testing carry its limits per sample type? (US-AD06)
+- **Ways of testing for a sample type.** A way of testing does not name the sample types it suits, so one validated only for water can be recommended for a vegetable sample. Should a way of testing name the sample types it may be used on?
+- **Ways of testing without a machine.** The scheduler recommends a way of testing and suggests outsourcing from the machines' availability. How is a way of testing that needs no machine, such as a sensory test, planned and recommended?
+- **Machines never calibrated.** Only a passed calibration date keeps a machine from bookings. Can a new machine with no calibration date yet be booked?
+- **Quality registration expiry.** A dossier counts as expired after its last valid day. Against which date: the sample's receipt, the result's approval or the report's issue, and which applies to a new version of an issued report? (US-AD08)
+- **Samples without the customer present.** The handover record is signed by the customer. How is a sample received by courier or post, with no one to sign, recorded?
+- **Anonymity beyond the label.** Testers never see the customer on a sample's label or photos, but free-text notes and the packaging can still name the customer. Are notes hidden from testers, or checked when they are written?
+- **Returning samples.** A sample ends retained or disposed of, but some customers ask for what is left of their sample. Can a remaining or retained sample be returned to the customer, and how is it recorded?
+- **Unsynced edits of a removed member.** A member removed from a folder keeps the files waiting on their computer, paused for good, and nobody else sees them. Are they handed over, uploaded or discarded? (US-T28)
+- **A shared computer.** Medilab Sync signs in one person per installation. When another person signs in on the same computer, what happens to the first person's files still waiting to sync? (US-T23)
+- **Conflicts on result files.** When a result file changed both on a computer and on the server, keeping the local file does not say which version is the result, and a version can be signed while the conflict is open. Which version counts, and is signing refused until the conflict is resolved? (US-T25, US-HD16)
 
 ## File locks (US-T27, US-AD31)
 
