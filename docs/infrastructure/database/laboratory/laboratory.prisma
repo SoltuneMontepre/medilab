@@ -1337,6 +1337,8 @@ model Signature {
   document_id      Int
   /// Version of the document that was signed.
   document_version Int
+  /// SHA-256 of the content signed, for a document type whose content has one, such as a laboratory file version.
+  document_hash    String?       @db.VarChar
   /// The level signed at.
   level_id         Int
   /// The person who signed.
@@ -2259,6 +2261,8 @@ model ArchiveFile {
 }
 
 /// A folder of laboratory files: files under paths relative to it, owned by a person, with members who read and write it. It never stores a path on anyone's computer.
+/// A folder of a sample is checked to have a category, and a sample has one folder of each category.
+/// A folder of no sample is not yet checked to have no category, because the tests of laboratory files create raw-data folders without a sample.
 model LaboratoryFolder {
   /// Row identifier.
   id               Int       @id @default(autoincrement())
@@ -2300,6 +2304,7 @@ model LaboratoryFolder {
   changes          LaboratoryFileChange[]
 
   @@unique([owner_id, root])
+  @@unique([sample_id, category])
   @@index([sample_id])
   @@map("medilab_laboratory_folder")
 }
@@ -2401,6 +2406,10 @@ model LaboratoryFileVersion {
   user_id            Int
   /// The device it came from; empty for a version made online or by a restore in the back office.
   device_id          Int?
+  /// none, requested, approved or rejected: where the version is in its signing.
+  approval_state     String         @default("none") @db.VarChar
+  /// Round of the version's signing that the next signature records; it grows when every signature is withdrawn.
+  document_version   Int            @default(1)
   /// The file.
   file               LaboratoryFile @relation("FileVersions", fields: [file_id], references: [id], onDelete: Restrict)
   /// The file whose current version this is.
@@ -2546,7 +2555,7 @@ model LaboratoryEditingSession {
   base_version_id      Int
   /// Key the editing service identifies the document by.
   document_key         String         @unique @db.VarChar
-  /// Secret token in the address the editing service calls back on save.
+  /// SHA-256 of the secret token in the address the editing service calls back on save.
   callback_token       String         @unique @db.VarChar
   /// open, saving, committed, conflict, closed, expired or error.
   status               String         @db.VarChar
@@ -2569,7 +2578,8 @@ model LaboratoryEditingSession {
   @@map("medilab_laboratory_editing_session")
 }
 
-/// A lock one person holds on a working or result file while they edit it, for 30 minutes unless renewed.
+/// A lock one person holds on a file of working documents, results or no category while they edit it, for the lock duration (30 minutes by default) unless renewed. When it was taken is Odoo's creation time of the row.
+/// At most one active lock per file (partial unique index on file_id where status is active).
 model LaboratoryFileLock {
   /// Row identifier.
   id             Int            @id @default(autoincrement())

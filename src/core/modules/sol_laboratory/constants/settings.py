@@ -24,3 +24,7 @@ DEFAULT_RETENTION_DAYS = 90
 LABORATORY_FOLDER_RETENTION_PARAMETER = "sol_laboratory.laboratory_folder_retention_days"
 # Five years, assumed until the laboratory gives a period: no document sets how long laboratory files are kept.
 DEFAULT_LABORATORY_FOLDER_RETENTION_DAYS = 1825
+LABORATORY_FILE_LOCK_PARAMETER = "sol_laboratory.laboratory_file_lock_minutes"
+DEFAULT_LABORATORY_FILE_LOCK_MINUTES = 30
+LABORATORY_EDITING_IDLE_PARAMETER = "sol_laboratory.laboratory_editing_idle_hours"
+DEFAULT_LABORATORY_EDITING_IDLE_HOURS = 12

@@ -35,15 +35,37 @@ msgstr "%(document_type)s không có quyền %(action)s."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid "%(path)s, %(status)s"
+msgstr "%(path)s, %(status)s"
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
 msgid "%(path)s, version %(number)s"
 msgstr "%(path)s, phiên bản %(number)s"
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid ""
+"%(person)s cannot save the file (%(reason)s); the saved content is kept "
+"under %(key)s."
+msgstr ""
+"%(person)s không lưu được tệp (%(reason)s); nội dung đã lưu được giữ tại "
+"%(key)s."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task_reassign.py:0
 msgid "%(person)s is not in %(department)s."
 msgstr "%(person)s không thuộc %(department)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock.py:0
+msgid "%(user)s has locked %(file)s until %(until)s."
+msgstr "%(user)s đã khóa %(file)s đến %(until)s."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -127,6 +149,12 @@ msgid ""
 msgstr ""
 "%s được thử tại phòng thí nghiệm bởi một phòng ban hoặc bởi một thầu "
 "phụ, không thể cả hai."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid "%s joined the session."
+msgstr "%s đã tham gia phiên."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -290,6 +318,12 @@ msgstr "Không thể xóa cấp đã có chữ ký. Chữ ký: %s"
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock_settings.py:0
+msgid "A lock on a laboratory file must last at least 1 minute."
+msgstr "Khóa trên tệp phòng thí nghiệm phải kéo dài ít nhất 1 phút."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid "A login belongs to one person only."
 msgstr "Mỗi tên đăng nhập chỉ thuộc về một nhân sự."
@@ -406,6 +440,11 @@ msgstr "Đã có loại nhiệm vụ với mã này."
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_parameter_method_one_default
 msgid "A test parameter has only one default way of testing."
 msgstr "Mỗi chỉ tiêu chỉ có một cách thử mặc định."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_editing_session_committed_version_unique
+msgid "A version is saved by one editing session only."
+msgstr "Mỗi phiên bản chỉ do một phiên chỉnh sửa lưu."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_current_version_unique
@@ -529,6 +568,8 @@ msgstr "Giao diện của hành động cửa sổ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_unit_category__active
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__active
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__active
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Active"
 msgstr "Đang hoạt động"
 
@@ -688,6 +729,33 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__allowed_country_state_ids
 msgid "Allowed Country State"
 msgstr "Tỉnh/thành được phép"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid ""
+"An editing session keeps its file, its base version, its keys and its "
+"opener."
+msgstr ""
+"Phiên chỉnh sửa giữ nguyên tệp, phiên bản gốc, các khóa và người mở."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid "An editing session opens and saves versions of its own file."
+msgstr "Phiên chỉnh sửa chỉ mở và lưu phiên bản của chính tệp của nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid "An editing session saves one version."
+msgstr "Mỗi phiên chỉnh sửa lưu một phiên bản."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid "An editing session that has ended cannot be opened again."
+msgstr "Phiên chỉnh sửa đã kết thúc không thể mở lại."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -1091,6 +1159,11 @@ msgid "Barcode"
 msgstr "Mã vạch"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__base_version_id
+msgid "Base Version"
+msgstr "Phiên bản gốc"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__batch_size
 msgid "Batch Size"
 msgstr "Kích Thước Lô"
@@ -1166,6 +1239,11 @@ msgstr "Hiệu chuẩn"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_search
 msgid "Calibration Overdue"
 msgstr "Quá hạn hiệu chuẩn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__callback_token
+msgid "Callback Token"
+msgstr "Mã gọi lại"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_approval_level__can_reject
@@ -1317,6 +1395,11 @@ msgid "Claimed At"
 msgstr "Nhận Lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__closed
+msgid "Closed"
+msgstr "Đã đóng"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__closed_by_system
 msgid "Closed By System"
 msgstr "Do hệ thống kết thúc"
@@ -1383,6 +1466,11 @@ msgid "Commercial Entity"
 msgstr "Pháp nhân thương mại"
 
 #. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__committed
+msgid "Committed"
+msgstr "Đã lưu phiên bản"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__ref_company_ids
 msgid "Companies that refers to partner"
 msgstr "Công ty là đối tác"
@@ -1437,6 +1525,7 @@ msgstr "Hoàn thành"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__device_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__device_id
 msgid "Computer"
 msgstr "Máy tính"
 
@@ -1468,11 +1557,13 @@ msgstr "Đã xác nhận"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__source__conflict
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__conflict
 msgid "Conflict"
 msgstr "Xung đột"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 msgid "Conflicts"
 msgstr "Xung đột"
 
@@ -1773,6 +1864,8 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -1842,6 +1935,8 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2380,6 +2475,8 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2409,6 +2506,11 @@ msgstr "Đã hủy mẫu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
 msgid "Document"
 msgstr "Chứng từ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__document_key
+msgid "Document Key"
+msgstr "Khóa tài liệu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_item__document_model
@@ -2544,6 +2646,16 @@ msgstr "Thời Lượng (giây)"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__routing_identifier
 msgid "EDI Routing Address"
 msgstr "Địa chỉ định tuyến EDI"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_editing_session_callback_token_unique
+msgid "Each editing session has its own callback token."
+msgstr "Mỗi phiên chỉnh sửa có mã gọi lại riêng."
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_editing_session_document_key_unique
+msgid "Each editing session has its own document key."
+msgstr "Mỗi phiên chỉnh sửa có khóa tài liệu riêng."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_scheduled_job_cron_unique
@@ -2748,6 +2860,20 @@ msgid "Edited Online"
 msgstr "Chỉnh sửa trực tuyến"
 
 #. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_editing_session
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__editing_session_ids
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_editing_session
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_form_editing
+msgid "Editing Sessions"
+msgstr "Phiên chỉnh sửa trực tuyến"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid "Editing sessions are never deleted."
+msgstr "Phiên chỉnh sửa không bao giờ bị xóa."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__date_version
 msgid "Effective Date"
 msgstr "Ngày hiệu lực"
@@ -2864,6 +2990,11 @@ msgid "Ended At"
 msgstr "Kết Thúc Lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__released_at
+msgid "Ended On"
+msgstr "Kết thúc lúc"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__country_enforce_cities
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__country_enforce_cities
 msgid "Enforce Cities"
@@ -2885,6 +3016,11 @@ msgstr ""
 "Nhập số Chứng minh nhân dâncủa nhân viên do chính phủ cấp (ví dụ: "
 "Aadhaar, SIN, NIN). Thông tin này được sử dụng cho hồ sơ chính thức "
 "và tuân thủ pháp lý."
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
+msgid "Errors"
+msgstr "Lỗi"
 
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
@@ -2911,13 +3047,33 @@ msgid "Expected Date"
 msgstr "Ngày hẹn trả kết quả"
 
 #. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_file_locks_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_file_locks_expire
+msgid "Expire laboratory file locks"
+msgstr "Hết hạn khóa tệp phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_editing_sessions_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_editing_sessions_expire
+msgid "Expire editing sessions"
+msgstr "Hết hạn phiên chỉnh sửa"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_quality_registration_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_signing_certificate__status__expired
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__release_reason__expired
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__expired
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__expired
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__expired
 msgid "Expired"
 msgstr "Đã hết hạn"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__expires_at
+msgid "Expires On"
+msgstr "Hết hạn lúc"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_sync_rule__kind__extension
@@ -2968,6 +3124,17 @@ msgid ""
 "searches and comparisons."
 msgstr ""
 "Trường lưu số điện thoại đã chuẩn hóa, giúp tìm kiếm và so sánh nhanh hơn."
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file_lock
+#: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_file_lock
+msgid "File Locks"
+msgstr "Khóa Tệp"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_file_lock_minutes
+msgid "File Locks (minutes)"
+msgstr "Khóa tệp (phút)"
 
 #. module: sol_laboratory
 #: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file_version
@@ -3041,6 +3208,8 @@ msgstr "Có thời hạn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__folder_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__folder_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__folder_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Folder"
 msgstr "Thư mục"
 
@@ -3247,6 +3416,17 @@ msgid "Hourly Cost"
 msgstr "Chi phí theo giờ"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_editing_idle_hours
+msgid ""
+"Hours an online editing session can go without activity before it expires; "
+"people still editing lose nothing, and the next person opening the file "
+"starts a new session."
+msgstr ""
+"Số giờ một phiên chỉnh sửa trực tuyến có thể không hoạt động trước khi hết "
+"hạn; người vẫn đang chỉnh sửa không mất gì, và người kế tiếp mở tệp sẽ bắt "
+"đầu một phiên mới."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__street_number
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__street_number
 msgid "House"
@@ -3357,6 +3537,8 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__id
 msgid "ID"
 msgstr "ID"
 
@@ -3395,6 +3577,11 @@ msgstr "Tên thẻ căn cước"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__identification_id
 msgid "Identification No"
 msgstr "Số CMND"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_editing_idle_hours
+msgid "Idle Editing Sessions (hours)"
+msgstr "Phiên chỉnh sửa không hoạt động (giờ)"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__message_needaction
@@ -3769,6 +3956,37 @@ msgid "Kind"
 msgstr "Loại"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file_lock
+msgid "Laboratory File Lock"
+msgstr "Khóa Tệp Phòng Thí Nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__lock_id
+msgid "Lock"
+msgstr "Khóa"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__locked_by_id
+msgid "Locked By"
+msgstr "Người khóa"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_list
+msgid "Locked On"
+msgstr "Khóa lúc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__locked_until
+msgid "Locked Until"
+msgstr "Khóa đến"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__lock_ids
+msgid "Locks"
+msgstr "Khóa"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__lod
 msgid "LOD"
 msgstr "LOD"
@@ -3797,6 +4015,11 @@ msgstr "Phòng Thí Nghiệm"
 #: model:ir.model,name:sol_laboratory.model_medilab_laboratory_device
 msgid "Laboratory Device"
 msgstr "Máy tính đồng bộ"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_editing_session
+msgid "Laboratory Editing Session"
+msgstr "Phiên chỉnh sửa trực tuyến"
 
 #. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file
@@ -3862,6 +4085,7 @@ msgstr "Ngôn ngữ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__last_activity
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__last_activity_at
 msgid "Last Activity"
 msgstr "Hoạt động cuối"
 
@@ -3979,6 +4203,8 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4048,6 +4274,8 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -4356,6 +4584,15 @@ msgstr "Đơn vị lượng mẫu tối thiểu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__duration_minutes
 msgid "Minutes"
 msgstr "Số Phút"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_file_lock_minutes
+msgid ""
+"Minutes a lock on a laboratory file lasts unless the person holding it "
+"renews it; others cannot save the file meanwhile."
+msgstr ""
+"Số phút một khóa trên tệp phòng thí nghiệm có hiệu lực nếu người giữ khóa "
+"không gia hạn; trong thời gian đó người khác không lưu được tệp."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__model
@@ -4685,6 +4922,16 @@ msgstr "Tạm giữ"
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_editing.py:0
+msgid ""
+"Only Word, Excel and PowerPoint files of result and working folders are "
+"edited online; raw data and reports never are."
+msgstr ""
+"Chỉ tệp Word, Excel và PowerPoint của thư mục kết quả và thư mục làm việc "
+"được chỉnh sửa trực tuyến; dữ liệu thô và báo cáo thì không bao giờ."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/job_item.py:0
 msgid "Only a failed item can be retried."
 msgstr "Chỉ mục đã thất bại mới được thử lại."
@@ -4756,8 +5003,22 @@ msgstr "Chỉ người đã ký mới có thể rút lại chữ ký."
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_task__status__open
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_test_request_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__open
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 msgid "Open"
 msgstr "Đang mở"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__opened_by_id
+msgid "Opened By"
+msgstr "Người mở"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_form_editing
+msgid "Opened On"
+msgstr "Mở lúc"
 
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_test_request__delivery_method__other
@@ -4796,6 +5057,11 @@ msgstr "Chủ sở hữu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_member_search
 msgid "Owners"
 msgstr "Chủ sở hữu"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_lock_read_all
+msgid "Permission: laboratory.file.lock.read.all"
+msgstr "Quyền: laboratory.file.lock.read.all"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__pin
@@ -5211,6 +5477,11 @@ msgstr "Quyền: laboratory.device.edit.all"
 #: model:res.groups,name:sol_laboratory.group_permission_laboratory_device_read_all
 msgid "Permission: laboratory.device.read.all"
 msgstr "Quyền: laboratory.device.read.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_editing_session_read_all
+msgid "Permission: laboratory.editing.session.read.all"
+msgstr "Quyền: laboratory.editing.session.read.all"
 
 #. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_change_read_all
@@ -6005,6 +6276,12 @@ msgid "Raw Data"
 msgstr "Dữ liệu thô"
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_locking.py:0
+msgid "Raw data, Office documents and report files are not locked."
+msgstr "Dữ liệu thô, tài liệu Office và tệp báo cáo không được khóa."
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_permission__action__read
 msgid "Read"
 msgstr "Xem"
@@ -6040,9 +6317,19 @@ msgid "Read every laboratory file"
 msgstr "Xem mọi tệp phòng thí nghiệm"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_lock_read_all
+msgid "Read every laboratory file lock"
+msgstr "Xem mọi khóa tệp phòng thí nghiệm"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_read_all
 msgid "Read every laboratory folder"
 msgstr "Xem mọi thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_editing_session_read_all
+msgid "Read every online editing session of laboratory files"
+msgstr "Xem mọi phiên chỉnh sửa trực tuyến của tệp phòng thí nghiệm"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_version_read_all
@@ -6603,6 +6890,22 @@ msgid "Saved On"
 msgstr "Lưu lúc"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__committed_version_id
+msgid "Saved Version"
+msgstr "Phiên bản đã lưu"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid "Saved by %(editor)s; edited by %(editors)s."
+msgstr "Lưu bởi %(editor)s; chỉnh sửa bởi %(editors)s."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__saving
+msgid "Saving"
+msgstr "Đang lưu"
+
+#. module: sol_laboratory
 #: code:addons/sol_laboratory/models/master_data/testing_method_step.py:0
 msgid "Say what to do in the step."
 msgstr "Hãy nhập nội dung thực hiện của bước."
@@ -6822,6 +7125,17 @@ msgid "Solid"
 msgstr "Rắn"
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_file_lock_active_unique
+msgid "Someone else has just locked this file."
+msgstr "Người khác vừa khóa tệp này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
+msgid "Someone else opened %s online meanwhile; it is opened again."
+msgstr "Người khác vừa mở %s trực tuyến; tệp được mở lại."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__split_legal_name
 msgid "Split Legal Name"
 msgstr "Tách tên pháp lý"
@@ -6895,6 +7209,10 @@ msgstr "Thống kê"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__status
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__status
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__status
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -7385,6 +7703,11 @@ msgid "The factor of a unit must be greater than zero."
 msgstr "Hệ số của đơn vị phải lớn hơn 0."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_editing_session_file_open_unique
+msgid "The file already has an open editing session; join it instead."
+msgstr "Tệp đã có một phiên chỉnh sửa đang mở; hãy tham gia phiên đó."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__property_account_position_id
 msgid ""
 "The fiscal position determines the taxes/accounts used for this contact."
@@ -7413,6 +7736,12 @@ msgstr ""
 #: code:addons/sol_laboratory/models/system/role.py:0
 msgid "The group of a role cannot change."
 msgstr "Không thể đổi nhóm của vai trò."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/res_config_settings.py:0
+msgid "The idle period of editing sessions must be at least 1 hour."
+msgstr "Thời gian không hoạt động của phiên chỉnh sửa phải ít nhất 1 giờ."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__user_id
@@ -7665,6 +7994,12 @@ msgid ""
 msgstr ""
 "Trường này dùng để tìm theo địa chỉ email, vì trường email chính có "
 "thể chứa nhiều hơn một địa chỉ email."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_editing.py:0
+msgid "This file has no version to edit yet."
+msgstr "Tệp này chưa có phiên bản nào để chỉnh sửa."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_device_user_client_unique
@@ -8249,6 +8584,12 @@ msgid "You have no signature on this document to withdraw."
 msgstr "Bạn không có chữ ký nào trên chứng từ này để rút lại."
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_locking.py:0
+msgid "You no longer hold a lock on %s; lock it again."
+msgstr "Bạn không còn giữ khóa trên %s; hãy khóa lại."
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__zip
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__zip
 msgid "Zip"
@@ -8777,6 +9118,7 @@ msgstr "Đang bật"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_push_delivery__error
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_audit_entry__action__error
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__error
 msgid "Error"
 msgstr "Lỗi"
 
@@ -11463,6 +11805,9 @@ msgstr "Tên Trường"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_change__file_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__file_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__file_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__file_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_editing_session_search
 msgid "File"
 msgstr "Tệp"
 
@@ -12487,6 +12832,8 @@ msgstr "Hết hạn khóa chứng từ"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__user_id
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__user_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Holder"
 msgstr "Người giữ khóa"
 
@@ -12533,6 +12880,7 @@ msgstr "Báo tôi khi có thể sửa"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock.py
 msgid "Only an active lock can be released."
 msgstr "Chỉ có thể mở khóa đang hiệu lực."
 
@@ -12560,6 +12908,8 @@ msgstr "Xem khóa chứng từ"
 #. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_list
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_list
 msgid "Release"
 msgstr "Mở khóa"
 
@@ -12576,6 +12926,8 @@ msgstr "Mở khóa chứng từ"
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_document_lock__status__released
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__released
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
 msgid "Released"
 msgstr "Đã mở khóa"
 
@@ -12586,6 +12938,7 @@ msgstr "Mở khóa lúc"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_document_lock__released_by_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__released_by_id
 msgid "Released By"
 msgstr "Người mở khóa"
 
@@ -12602,6 +12955,7 @@ msgstr "Đã lưu"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/document_lock.py:0
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_locking.py
 msgid "Someone else has just locked %s."
 msgstr "Người khác vừa khóa %s."
 
@@ -12740,9 +13094,11 @@ msgstr "Số ngày giữ các thông báo đã đọc trước khi tác vụ d�
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__lock_retention_days
 msgid ""
-"Days released and expired document locks are kept before the cleanup job "
-"removes them."
-msgstr "Số ngày giữ các khóa chứng từ đã mở hoặc đã hết hạn trước khi tác vụ dọn dẹp xóa chúng."
+"Days released and expired document locks and laboratory file locks are kept "
+"before the cleanup job removes them."
+msgstr ""
+"Số ngày giữ các khóa chứng từ và khóa tệp phòng thí nghiệm đã mở hoặc đã hết"
+" hạn trước khi tác vụ dọn dẹp xóa chúng."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__job_retention_days
@@ -13022,3 +13378,154 @@ msgstr "Sửa dòng đơn hàng mẫu"
 #: model:res.groups,name:sol_laboratory.group_permission_order_template_line_delete_all
 msgid "Permission: order.template.line.delete.all"
 msgstr "Xóa dòng đơn hàng mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_sample_has_category
+msgid "A folder of a sample needs a category."
+msgstr "Thư mục của mẫu cần có loại thư mục."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_sample.py:0
+msgid "A folder that holds files keeps its sample and its category."
+msgstr "Thư mục đã có tệp giữ nguyên mẫu và loại thư mục của nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_laboratory_folders.py:0
+msgid "Another person created the folders of %s meanwhile; this is run again."
+msgstr "Người khác vừa tạo các thư mục của %s; thao tác được chạy lại."
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_laboratory_file_version_rejected
+msgid "A version of a laboratory file you saved was rejected"
+msgstr "Một phiên bản tệp phòng thí nghiệm bạn lưu đã bị từ chối"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
+msgid ""
+"A version's signing state changes only by signing, rejecting or withdrawing."
+msgstr ""
+"Trạng thái ký của phiên bản chỉ thay đổi khi ký, từ chối hoặc rút chữ ký."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__approval_state__requested
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_search_signing
+msgid "Being Signed"
+msgstr "Đang ký"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_form_laboratory_folders
+msgid "Create Folders"
+msgstr "Tạo thư mục"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__document_hash
+msgid "Document Hash"
+msgstr "Mã băm chứng từ"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_laboratory_file_version_rejected
+msgid "Laboratory file version rejected"
+msgstr "Phiên bản tệp phòng thí nghiệm bị từ chối"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__laboratory_folder_count
+msgid "Laboratory Folder Count"
+msgstr "Số thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__laboratory_folders_missing
+msgid "Laboratory Folders Missing"
+msgstr "Thiếu thư mục phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_sample_folder_mixin
+msgid "Laboratory Records of a Sample's Folder"
+msgstr "Bản ghi của thư mục của mẫu"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_version__approval_state__none
+msgid "Not Signed"
+msgstr "Chưa ký"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
+msgid ""
+"Only the current version of a file is signed; this one has a newer version."
+msgstr ""
+"Chỉ ký phiên bản hiện hành của tệp; phiên bản này đã có phiên bản mới hơn."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_laboratory_folders.py:0
+msgid "Only the head of a department that tests %s creates its folders."
+msgstr "Chỉ trưởng phòng ban thử nghiệm %s mới được tạo thư mục của mẫu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
+msgid "Only versions of the files of a result folder are signed."
+msgstr "Chỉ ký phiên bản của các tệp trong thư mục kết quả."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/sample_laboratory_folders.py:0
+msgid "%(owner)s already has a folder named %(root)s."
+msgstr "%(owner)s đã có thư mục tên %(root)s."
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_file_version_sign_all
+msgid "Permission: laboratory.file.version.sign.all"
+msgstr "Quyền: laboratory.file.version.sign.all"
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_file_version_reject
+msgid "Reject a Laboratory File Version"
+msgstr "Từ Chối Phiên Bản Tệp"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_laboratory_file_version_reject
+msgid "Reject the Version"
+msgstr "Từ chối phiên bản"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+msgid "Round"
+msgstr "Lượt ký"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__signature_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+msgid "Signatures"
+msgstr "Chữ ký"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+msgid "Signed On"
+msgstr "Ký lúc"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_version_form_signing
+msgid ""
+"Sign this version? Your signature belongs to this version and its content."
+msgstr ""
+"Ký phiên bản này? Chữ ký của bạn gắn với phiên bản này và nội dung của nó."
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_file_version_sign_all
+msgid "Sign versions of laboratory files"
+msgstr "Ký phiên bản của tệp phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_sample_category_unique
+msgid "The sample already has a folder of this category."
+msgstr "Mẫu đã có thư mục thuộc loại này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version_signing.py:0
+msgid "%(version)s was rejected: %(reason)s"
+msgstr "%(version)s đã bị từ chối: %(reason)s"

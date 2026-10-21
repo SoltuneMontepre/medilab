@@ -1,7 +1,13 @@
 import hashlib
 
-from odoo.addons.sol_laboratory.constants.laboratory_files import SYNCED
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_LABORATORY_FILE
+from odoo.fields import Command
+
+from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE, RESULT, SYNCED
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_IR_MODEL_DATA,
+    MODEL_LABORATORY_DEVICE,
+    MODEL_LABORATORY_FILE,
+)
 
 COMPUTERS = (
     (
@@ -47,7 +53,7 @@ def seed_laboratory_files(env):
     env.ref("sol_demo.demo_laboratory_folder_gc_old").with_user(administrator).action_turn_off()
     env.ref("sol_demo.demo_laboratory_folder_report_drafts_2025").with_user(administrator).action_archive_folder()
 
-    env["ir.model.data"]._update_xmlids(
+    env[MODEL_IR_MODEL_DATA]._update_xmlids(
         [{"xml_id": f"sol_demo.{xml_id}", "record": record, "noupdate": True} for xml_id, record in computers.items()]
     )
 
@@ -99,4 +105,55 @@ def seed_laboratory_file_versions(env):
                 "noupdate": True,
             }
         )
-    env["ir.model.data"]._update_xmlids(xml_ids)
+    env[MODEL_IR_MODEL_DATA]._update_xmlids(xml_ids)
+
+
+# The saves of the lead results of the bottled water in testing, by the chemistry tester: the head of the department
+# signs the first, and the second is newer and not signed.
+SAMPLE_RESULT_SAVES = ("Pb: 0,004 mg/L", "Pb: 0,004 mg/L, lặp lại 0,005 mg/L")
+
+
+def seed_sample_folders(env):
+    """The raw-data and result folders the head of chemistry created for the bottled water in testing, with the
+    chemistry tester as a member, and its lead results spreadsheet: the first version signed by the head, the second
+    newer and not signed."""
+    if env.ref("sol_demo.demo_laboratory_folder_bottled_water_testing_result", raise_if_not_found=False):
+        return
+    head = env.ref("sol_demo.demo_res_users_head_of_department")
+    tester = env.ref("sol_demo.demo_res_users_chemistry_tester")
+    sample = env.ref("sol_demo.demo_sample_bottled_water_testing")
+    folders = sample._create_laboratory_folders(head)
+    for folder in folders:
+        folder.member_ids = [Command.create({"user_id": tester.id, "role": MEMBER_ROLE})]
+    results = folders.filtered(lambda folder: folder.category == RESULT)
+    file = env[MODEL_LABORATORY_FILE]._get_or_create(results, "Pb-ket-qua.xlsx")
+    device = env.ref("sol_demo.demo_laboratory_device_aas_pc")
+    versions = []
+    for content in SAMPLE_RESULT_SAVES:
+        sha256 = hashlib.sha256(content.encode()).hexdigest()
+        versions.append(
+            file._add_version(
+                sha256=sha256,
+                size=len(content.encode()),
+                storage_key=f"demo/{sha256}",
+                source=SYNCED,
+                user=tester,
+                device=device,
+            )
+        )
+        if len(versions) == 1:
+            versions[0].with_user(head).action_sign()
+
+    xml_ids = [
+        {"xml_id": f"sol_demo.demo_laboratory_folder_bottled_water_testing_{folder.category}", "record": folder}
+        for folder in folders
+    ]
+    xml_ids.append({"xml_id": "sol_demo.demo_laboratory_file_bottled_water_lead_results", "record": file})
+    xml_ids += [
+        {
+            "xml_id": f"sol_demo.demo_laboratory_file_version_bottled_water_lead_results_{version.number}",
+            "record": version,
+        }
+        for version in versions
+    ]
+    env[MODEL_IR_MODEL_DATA]._update_xmlids([{**xml_id, "noupdate": True} for xml_id in xml_ids])

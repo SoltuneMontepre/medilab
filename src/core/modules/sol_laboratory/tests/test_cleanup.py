@@ -24,6 +24,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DOCUMENT_LOCK,
     MODEL_JOB_ITEM,
     MODEL_JOB_RUN,
+    MODEL_LABORATORY_FILE_LOCK,
     MODEL_MAIL_MESSAGE,
     MODEL_MAIL_NOTIFICATION,
     MODEL_MOBILE_DEVICE,
@@ -246,7 +247,14 @@ class TestCleanup(AuditLookup, PeopleCase):
 
         self.assertEqual(
             housekeeping,
-            {MODEL_JOB_ITEM, MODEL_JOB_RUN, MODEL_DOCUMENT_LOCK, MODEL_MAIL_NOTIFICATION, MODEL_MOBILE_DEVICE},
+            {
+                MODEL_JOB_ITEM,
+                MODEL_JOB_RUN,
+                MODEL_DOCUMENT_LOCK,
+                MODEL_MAIL_NOTIFICATION,
+                MODEL_MOBILE_DEVICE,
+                MODEL_LABORATORY_FILE_LOCK,
+            },
         )
         self.backdate(self.regulation, "write_date", 1000)
         self.run_cleanup()
