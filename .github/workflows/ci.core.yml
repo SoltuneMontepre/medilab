@@ -24,7 +24,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-      actions: write
     outputs:
       relevant: ${{ steps.result.outputs.relevant }}
       scan: ${{ steps.result.outputs.relevant == 'true' || steps.filter.outputs.ai == 'true' }}
@@ -71,18 +70,9 @@ jobs:
           done
           echo "relevant=$relevant" >> "$GITHUB_OUTPUT"
 
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
-
   lint:
     needs: changes
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      actions: write
     timeout-minutes: 10
     steps:
       - name: Checkout
@@ -137,18 +127,9 @@ jobs:
           image: ${{ steps.odoo.outputs.image }}
           addons-path: src/core/modules
 
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
-
   build:
     needs: changes
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      actions: write
     timeout-minutes: 10
     steps:
       - name: Check out repository
@@ -177,20 +158,11 @@ jobs:
           provenance: false
           sbom: false
 
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
-
   test-runner:
     name: test (${{ matrix.part }})
     needs: [changes, build]
     if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      actions: write
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -242,18 +214,9 @@ jobs:
           if-no-files-found: ignore
           retention-days: 1
 
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
-
   e2e:
     needs: [changes, build]
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      actions: write
     timeout-minutes: 20
     env:
       COMPOSE_FILE: tools/infrastructure/docker-compose.yml
@@ -303,12 +266,6 @@ jobs:
         if: failure() && (needs.changes.outputs.e2e == 'true' || github.event_name != 'pull_request')
         run: docker compose logs --no-color odoo
 
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
-
   test:
     needs: [changes, test-runner, e2e]
     if: ${{ !cancelled() }}
@@ -338,9 +295,6 @@ jobs:
     needs: [changes, test-runner]
     if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      actions: write
     timeout-minutes: 5
     steps:
       - name: Checkout
@@ -368,19 +322,10 @@ jobs:
           path: src/core/modules/coverage.xml
           retention-days: 1
 
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
-
   sonarqube:
     needs: [changes, test, coverage]
     if: ${{ !cancelled() && needs.test.result == 'success' }}
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      actions: write
     timeout-minutes: 5
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -413,9 +358,3 @@ jobs:
           args: >
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
-
-      - name: Stop the run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}

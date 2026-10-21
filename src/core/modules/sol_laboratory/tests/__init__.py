@@ -40,6 +40,7 @@ from . import (
     test_editing_service_urls,
     test_handover_record,
     test_is_accredited,
+    test_job_claim_commit,
     test_job_claim_timeout,
     test_job_queue,
     test_job_retry,
