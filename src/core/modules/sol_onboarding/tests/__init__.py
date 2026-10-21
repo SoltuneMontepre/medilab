@@ -3,6 +3,7 @@ from . import (
     test_audit_documents,
     test_crawl,
     test_fetcher,
+    test_matching,
     test_organisations,
     test_parsing,
     test_runs,

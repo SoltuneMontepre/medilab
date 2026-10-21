@@ -1,5 +1,14 @@
 """Names and values of the Onboarding module."""
 
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ACCREDITATION_CERTIFICATE,
+    MODEL_PARAMETER_METHOD,
+    MODEL_SAMPLE_TYPE,
+    MODEL_TEST_PARAMETER,
+    MODEL_TESTING_FIELD,
+    MODEL_TESTING_METHOD,
+)
+
 # Statuses of the job items a refresh or a run waits on, and of the items that ended.
 ITEMS_OPEN = ("pending", "running")
 ITEM_DONE = "done"
@@ -37,6 +46,22 @@ VALUE_KEYS = {
     KIND_SAMPLE_TYPE: ("name",),
     KIND_TEST_PARAMETER: ("name",),
     KIND_PARAMETER_METHOD: ("parameter_key", "method_key"),
+}
+
+# Laboratory model a staged record of each kind matches; a way of testing matches a pair of parameter and method.
+KIND_MODELS = {
+    KIND_CERTIFICATE: MODEL_ACCREDITATION_CERTIFICATE,
+    KIND_TESTING_FIELD: MODEL_TESTING_FIELD,
+    KIND_TESTING_METHOD: MODEL_TESTING_METHOD,
+    KIND_SAMPLE_TYPE: MODEL_SAMPLE_TYPE,
+    KIND_TEST_PARAMETER: MODEL_TEST_PARAMETER,
+    KIND_PARAMETER_METHOD: MODEL_PARAMETER_METHOD,
+}
+
+# Value keys that name the staged record of another kind a record needs, with that kind.
+KIND_NEEDS = {
+    KIND_TESTING_METHOD: {"field_key": KIND_TESTING_FIELD},
+    KIND_PARAMETER_METHOD: {"parameter_key": KIND_TEST_PARAMETER, "method_key": KIND_TESTING_METHOD},
 }
 
 # Keys a reviewer supplies when accepting; a source never provides them.

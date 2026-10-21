@@ -65,7 +65,9 @@ class OnboardingStagedRecordStaging(models.Model):
         for record, parent in created.items():
             if parent:
                 record.parent_id = record._find_parent(*parent)
-        return staged.browse([record.id for record in created])
+        created_records = staged.browse([record.id for record in created])
+        created_records._match()
+        return created_records
 
     def _find_parent(self, kind, key):
         """The staged record of this kind and key from the same run, else the newest to review or accepted one of the

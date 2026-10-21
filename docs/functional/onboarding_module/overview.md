@@ -2,7 +2,7 @@
 
 The Onboarding module (`sol_onboarding`) fills the Laboratory master data of a new installation from public data that trusted sources publish, such as the organisation search of the Bureau of Accreditation (BoA, [boa.gov.vn](https://www.boa.gov.vn/vi/timkiem/tochuc)). It only serves master data: it never touches test requests, samples, results or any other document. The tables are drawn in [onboarding.prisma](../../infrastructure/database/onboarding/onboarding.prisma), and [Onboarding crawler](../../specs/onboarding-crawler.md) specifies how it collects.
 
-The module is optional. It depends on Laboratory, no MediLab module depends on it, and uninstalling it leaves the master data it created in Laboratory.
+The module is optional. It depends on Laboratory, only the demo data module (`sol_demo`) depends on it, and uninstalling it leaves the master data it created in Laboratory.
 
 ## How it works
 
