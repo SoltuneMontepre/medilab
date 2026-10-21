@@ -233,6 +233,8 @@ A save is never discarded: one arriving for an expired session is stored the sam
 
   A callback that fails a check stores nothing, changes nothing and is answered with an error.
 - The network lets the browser reach the editing service's public address, the editing service reach Odoo's callback route and the bucket, and Odoo reach the editing service's internal address. The editing service reaches no other private address.
+  - Document Server refuses private addresses unless `ALLOW_PRIVATE_IP_ADDRESS` is on, which it needs to reach Odoo's callback. That switch turns off its own refusal of internal addresses, and people editing a document can make it fetch an address, such as by inserting an image from a link.
+  - So the network policy, not Document Server, keeps it from internal addresses: its egress reaches only Odoo's callback port and the bucket's endpoint, nothing else in the cluster and never the provider's metadata address.
 - **Health.** The editing service has a health and readiness check of its own, `GET /healthcheck` on its internal address, which answers `true` when it edits documents. The API's readiness never includes it. Opening a file asks it first, waiting at most 3 seconds and following no redirect, and refuses with `editing_unavailable` when it does not answer `true` or the secret is missing. Nothing else depends on the service: syncing, downloading, history and restoring never read sessions or call it, and an open session does not stop uploads of its file; its save becomes a conflict.
 
 #### Expiry
