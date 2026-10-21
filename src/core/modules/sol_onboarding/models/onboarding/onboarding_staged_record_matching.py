@@ -1,4 +1,4 @@
-from odoo import models
+from odoo import fields, models
 from odoo.tools import SQL
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD
@@ -35,6 +35,14 @@ COMPARED_KEYS = {
 
 def normalize_code(value: str) -> str:
     return "".join(clean_text(value).split()).lower()
+
+
+def is_iso_date(value: str) -> bool:
+    try:
+        fields.Date.to_date(value)
+    except ValueError:
+        return False
+    return True
 
 
 # Bản Ghi Chờ Duyệt: the Laboratory record a staged record matches and the action it proposes.
@@ -146,8 +154,8 @@ class OnboardingStagedRecordMatching(models.Model):
 
     def _differences(self, model, matched_id) -> list:
         """The compared values of the matched record that differ, as (key, current, wanted), the record read in the
-        staged language. A way of testing has nothing but its pair, so it never differs, and a code the staged record
-        does not give is no change."""
+        staged language. A way of testing has nothing but its pair, so it never differs, and a value the staged record
+        does not give, or gives as a date that is not ISO, is no change."""
         if self.kind == KIND_PARAMETER_METHOD:
             return []
         record = self.env[model].sudo().browse(matched_id).exists()
@@ -157,11 +165,13 @@ class OnboardingStagedRecordMatching(models.Model):
         values = self._effective_values()
         differences = []
         for key in COMPARED_KEYS[self.kind]:
+            wanted = values.get(key) or ""
+            if not wanted or (record._fields[key].type == "date" and not is_iso_date(wanted)):
+                continue
             current = record[key]
             current = (current.isoformat() if hasattr(current, "isoformat") else current) or ""
-            wanted = values.get(key) or ""
             if key == "code":
-                same = not wanted or normalize_code(current) == normalize_code(wanted)
+                same = normalize_code(current) == normalize_code(wanted)
             else:
                 same = current == wanted
             if not same:

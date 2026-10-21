@@ -18,6 +18,12 @@ msgstr ""
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
+msgid "%(record)s needs these values first: %(values)s."
+msgstr "%(record)s cần nhập trước các giá trị: %(values)s."
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
 msgid "%s pages not queued: page limit"
 msgstr "%s trang không được lấy: đạt giới hạn số trang"
@@ -101,6 +107,11 @@ msgstr "Địa chỉ"
 #: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_run_one_running
 msgid "Another collection run is running; start this one when it ends."
 msgstr "Đang có lượt thu thập khác chạy; hãy bắt đầu lượt này khi lượt kia kết thúc."
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_accept__asked_for
+msgid "Asked For"
+msgstr "Cần nhập cho"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__attachment_id
@@ -333,12 +344,6 @@ msgstr "Thời điểm tải"
 #: model:medilab.onboarding.sector,name:sol_onboarding.sector_food
 msgid "Food"
 msgstr "Thực phẩm"
-
-#. module: sol_onboarding
-#. odoo-python
-#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
-msgid "Give these values first: %s."
-msgstr "Hãy nhập trước các giá trị: %s."
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__host

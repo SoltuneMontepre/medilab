@@ -110,9 +110,15 @@ class OnboardingStagedRecordAcceptance(models.Model):
             elif not need and field not in ASKED_KEYS.get(self.kind, ()):
                 label = model._fields[field]._description_string(self.env)
                 raise UserError(_("The staged %s it needs is neither to review nor accepted.", label))
-        if missing := self._missing_values():
+        if missing := self._own_missing_values():
             labels = [self._fields[key]._description_string(self.env) for key in missing]
-            raise UserError(_("Give these values first: %s.", format_list(self.env, labels)))
+            raise UserError(
+                _(
+                    "%(record)s needs these values first: %(values)s.",
+                    record=self._describe(),
+                    values=format_list(self.env, labels),
+                )
+            )
         record = self._laboratory_record(model)
         self.write(
             {
@@ -148,13 +154,28 @@ class OnboardingStagedRecordAcceptance(models.Model):
                 needs[field] = self._resolve_need(kind, values.get(key) or "").with_env(self.env)
         return needs
 
-    def _missing_values(self) -> list[str]:
+    def _own_missing_values(self) -> list[str]:
         """The asked keys a record to create has no value for; a staged record that a need names gives its key."""
         self.ensure_one()
         if self.action != ACTION_CREATE:
             return []
         needs = self._needs()
         return [key for key in ASKED_KEYS.get(self.kind, ()) if not self[key] and not needs.get(key)]
+
+    def _missing_values(self) -> dict:
+        """The asked keys that the record, or a to-review record it needs at any depth, has no value for, each with
+        the staged record that misses it. No two records of one chain ask the same key."""
+        self.ensure_one()
+        missing = dict.fromkeys(self._own_missing_values(), self)
+        for need in self._needs().values():
+            if need.state == STAGED_TO_REVIEW:
+                missing.update(need._missing_values())
+        return missing
+
+    def _describe(self) -> str:
+        """The kind and the value of the record, such as "Test Parameter pH"."""
+        kind = dict(self._fields["kind"]._description_selection(self.env))[self.kind]
+        return f"{kind} {self.display_value or self.external_key}"
 
     def _laboratory_values(self) -> dict:
         """The values of its Laboratory record: the shown values, and the record each need became."""

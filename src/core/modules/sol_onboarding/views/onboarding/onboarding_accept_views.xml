@@ -7,6 +7,7 @@
             <form string="Accept Staged Record">
                 <group>
                     <field name="staged_record_id" readonly="1" />
+                    <field name="asked_for" readonly="1" />
                     <field name="code" invisible="not code_needed" required="code_needed" />
                     <field
                         name="field_id"

@@ -29,29 +29,36 @@ class OnboardingAccept(models.TransientModel):
     unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, string="Unit")
     # Department that tests the way of testing to create.
     department_id = fields.Many2one(MODEL_DEPARTMENT, string="Department", domain=DEPARTMENT_DOMAIN)
-    # True when the staged record misses the code.
+    # True when the staged record, or a record it needs, misses the code.
     code_needed = fields.Boolean(string="Code Needed", compute="_compute_needed")
-    # True when the staged record misses the testing field.
+    # True when the staged record, or a record it needs, misses the testing field.
     field_needed = fields.Boolean(string="Testing Field Needed", compute="_compute_needed")
-    # True when the staged record misses the main group.
+    # True when the staged record, or a record it needs, misses the main group.
     main_group_needed = fields.Boolean(string="Main Group Needed", compute="_compute_needed")
-    # True when the staged record misses the unit.
+    # True when the staged record, or a record it needs, misses the unit.
     unit_needed = fields.Boolean(string="Unit Needed", compute="_compute_needed")
-    # True when the staged record misses the department.
+    # True when the staged record, or a record it needs, misses the department.
     department_needed = fields.Boolean(string="Department Needed", compute="_compute_needed")
+    # One "Value: record" line per value asked, naming the staged record that misses it.
+    asked_for = fields.Text(string="Asked For", compute="_compute_needed")
 
     @api.depends("staged_record_id")
     def _compute_needed(self):
         for wizard in self:
-            missing = wizard.staged_record_id._missing_values() if wizard.staged_record_id else []
+            missing = wizard.staged_record_id._missing_values() if wizard.staged_record_id else {}
             wizard.code_needed = "code" in missing
             wizard.field_needed = "field_id" in missing
             wizard.main_group_needed = "main_group_id" in missing
             wizard.unit_needed = "unit_id" in missing
             wizard.department_needed = "department_id" in missing
+            wizard.asked_for = "\n".join(
+                f"{self._fields[key]._description_string(self.env)}: {record._describe()}"
+                for key, record in missing.items()
+            )
 
     def action_confirm(self):
+        """Write each value to the staged record that misses it, then accept the staged record."""
         self.ensure_one()
-        staged = self.staged_record_id
-        staged.write({key: self[key] for key in staged._missing_values()})
-        return staged.action_accept()
+        for key, record in self.staged_record_id._missing_values().items():
+            record.write({key: self[key]})
+        return self.staged_record_id.action_accept()
