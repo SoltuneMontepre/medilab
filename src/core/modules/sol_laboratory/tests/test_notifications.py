@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.notifications import (
     BREVO_WEBHOOK_TOKEN,
     CHANNEL_EMAIL,
     EVENT_TASK_REMINDER,
+    EVENT_TEST_REPORT_ISSUED,
     FIREBASE_CREDENTIALS,
     FIREBASE_PROJECT_ID,
 )
@@ -84,7 +85,7 @@ class TestNotifications(TransactionCase):
         self.assertEqual(len(mine), 1)
 
     def test_a_mandatory_channel_cannot_be_turned_off(self):
-        event = self.env["mail.message.subtype"].search([("code", "=", "invoice.sent")], limit=1)
+        event = self.env["mail.message.subtype"]._event(EVENT_TEST_REPORT_ISSUED)
         with self.assertRaises(UserError):
             self.env["medilab.notification.preference"].with_user(self.user).set_own(event, CHANNEL_EMAIL, False)
 
@@ -373,7 +374,7 @@ class TestNotifications(TransactionCase):
         with self.assertRaises(AccessError):
             own.with_user(self.user).write({"channel": "push"})
 
-        mandatory = self.env["mail.message.subtype"].search([("code", "=", "invoice.sent")], limit=1)
+        mandatory = self.env["mail.message.subtype"]._event(EVENT_TEST_REPORT_ISSUED)
         required = preferences.with_user(self.user).set_own(mandatory, CHANNEL_EMAIL, True)
         with self.assertRaises(UserError):
             required.with_user(self.user).write({"enabled": False})
