@@ -1,16 +1,22 @@
 import threading
 import time
+import uuid
 
 from odoo import api, sql_db
 from odoo.api import SUPERUSER_ID
 from odoo.exceptions import UserError
+from odoo.fields import Command
 from odoo.http.retrying import retrying
 from odoo.orm.environments import Transaction
 from odoo.tests import TransactionCase
 from odoo.tools import mute_logger
 
+from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER, MODEL_SAMPLE_TYPE, MODEL_TEST_REQUEST
+
 # How long the first action keeps its transaction open once the second one is acting, so the second waits on it.
 HOLD_SECONDS = 0.5
+# Created without chatter entries, so removing the records leaves nothing behind.
+QUIET = {"tracking_disable": True, "mail_create_nolog": True, "mail_notrack": True}
 
 
 class LaboratoryFilesConcurrencyCase(TransactionCase):
@@ -81,3 +87,48 @@ class LaboratoryFilesConcurrencyCase(TransactionCase):
         self.assertFalse(thread.is_alive())
         self.assertFalse(errors, errors)
         return len(attempts), result
+
+    @staticmethod
+    def create_sample(env):
+        """A customer's request with one sample, which a test commits and removes with remove_sample()."""
+        env = env(context=QUIET)
+        customer = env[MODEL_CUSTOMER].create({"name": f"Concurrency {uuid.uuid4().hex[:8]}", "is_company": True})
+        sample_type = env[MODEL_SAMPLE_TYPE].create({"name": f"Concurrency {uuid.uuid4().hex[:8]}"})
+        request = env[MODEL_TEST_REQUEST].create(
+            {
+                "customer_id": customer.id,
+                "expected_date": "2026-10-20",
+                "sample_ids": [
+                    Command.create(
+                        {
+                            "customer_sample_name": "Lavie bottled water 1 L",
+                            "sample_type_id": sample_type.id,
+                            "physical_state": "liquid",
+                        }
+                    )
+                ],
+            }
+        )
+        return {
+            "customer": customer.id,
+            "partner": customer.partner_id.id,
+            "sample_type": sample_type.id,
+            "request": request.id,
+            "sample": request.sample_ids.id,
+        }
+
+    @staticmethod
+    def remove_sample(cr, sample):
+        """Remove a sample create_sample() made, and its folders once their files are removed. Folders, samples and
+        requests refuse deletion, so they are removed with SQL."""
+        cr.execute(
+            "DELETE FROM medilab_laboratory_folder_member WHERE folder_id IN "
+            "(SELECT id FROM medilab_laboratory_folder WHERE sample_id = %s)",
+            [sample["sample"]],
+        )
+        cr.execute("DELETE FROM medilab_laboratory_folder WHERE sample_id = %s", [sample["sample"]])
+        cr.execute("DELETE FROM medilab_sample WHERE id = %s", [sample["sample"]])
+        cr.execute("DELETE FROM medilab_test_request WHERE id = %s", [sample["request"]])
+        cr.execute("DELETE FROM medilab_sample_type WHERE id = %s", [sample["sample_type"]])
+        cr.execute("DELETE FROM medilab_customer WHERE id = %s", [sample["customer"]])
+        cr.execute("DELETE FROM res_partner WHERE id = %s", [sample["partner"]])

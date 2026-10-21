@@ -4,7 +4,7 @@ from odoo.tests import tagged
 
 from .laboratory_files_case import LaboratoryFilesCase
 from .request_case import RequestCase
-from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE, RAW_DATA, RESULT
+from odoo.addons.sol_laboratory.constants.laboratory_files import MEMBER_ROLE, NOT_FOUND, RAW_DATA, RESULT
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FILE_CHANGE,
@@ -102,7 +102,8 @@ class TestLaboratorySampleFolderBackOffice(LaboratoryFilesCase, RequestCase):
             with self.subTest(model=model, sees_sample=True):
                 self.assertEqual(self.visible(self.folder_administrator, model, of_sample), of_sample)
 
-    def test_a_lock_in_a_folder_of_the_sample_is_hidden_from_people_who_cannot_see_the_sample(self):
+    def tester_locks(self):
+        """The tester's locks on a file of the sample's result folder and on a file of the HPLC folder."""
         results = self.env[MODEL_LABORATORY_FOLDER].create(
             {
                 "name": "Results",
@@ -118,8 +119,10 @@ class TestLaboratorySampleFolderBackOffice(LaboratoryFilesCase, RequestCase):
         self.save(other_file, "calibration 1")
         # Locking the sample's file takes seeing the sample too.
         self.tester.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
-        of_sample = sample_file.with_user(self.tester)._lock()
-        of_no_sample = other_file.with_user(self.tester)._lock()
+        return sample_file.with_user(self.tester)._lock(), other_file.with_user(self.tester)._lock()
+
+    def test_a_lock_in_a_folder_of_the_sample_is_hidden_from_people_who_cannot_see_the_sample(self):
+        of_sample, of_no_sample = self.tester_locks()
 
         for user in (self.member, self.folder_administrator):
             with self.subTest(user=user.login):
@@ -132,6 +135,18 @@ class TestLaboratorySampleFolderBackOffice(LaboratoryFilesCase, RequestCase):
                 self.assertEqual(
                     self.visible(user, MODEL_LABORATORY_FILE_LOCK, of_sample | of_no_sample), of_sample | of_no_sample
                 )
+
+    def test_a_folder_administrator_who_cannot_see_the_sample_cannot_release_a_lock_in_its_folder(self):
+        of_sample, of_no_sample = self.tester_locks()
+
+        for locks in (of_sample, of_sample | of_no_sample):
+            with self.subTest(locks=locks.ids):
+                self.assertRefused(NOT_FOUND, locks.with_user(self.folder_administrator).action_release)
+                self.assertRecordValues(locks, [{"status": "active", "released_by_id": False}] * len(locks))
+
+        self.folder_administrator.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        of_sample.with_user(self.folder_administrator).action_release()
+        self.assertRecordValues(of_sample, [{"status": "released", "released_by_id": self.folder_administrator.id}])
 
     def test_a_folder_administrator_who_cannot_see_the_sample_cannot_change_its_folder(self):
         with self.assertRaises(AccessError):

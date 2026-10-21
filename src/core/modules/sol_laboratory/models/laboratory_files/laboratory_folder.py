@@ -192,13 +192,18 @@ class LaboratoryFolder(models.Model):
             raise LaboratoryFileError(PERMISSION_DENIED, self.env._("You do not have the laboratory files permission."))
 
     @api.model
-    def _accessible_domain(self):
-        """The folders the user works in: they are a member and, for a folder of a sample, they can see the sample."""
+    def _sample_domain(self):
+        """The folders of no sample and the folders of the samples the user can see."""
         samples = self.env[MODEL_SAMPLE].with_user(self.env.user)
         sample_domain = Domain("sample_id", "=", False)
         if samples.has_access("read"):
             sample_domain |= Domain("sample_id", "in", samples._search([]))
-        return Domain("member_ids.user_id", "=", self.env.uid) & sample_domain
+        return sample_domain
+
+    @api.model
+    def _accessible_domain(self):
+        """The folders the user works in: they are a member and, for a folder of a sample, they can see the sample."""
+        return Domain("member_ids.user_id", "=", self.env.uid) & self._sample_domain()
 
     def _check_folder_access(self, access):
         """Refuse the user what they may not do with these folders: read them, write their files, share them or
@@ -209,9 +214,12 @@ class LaboratoryFolder(models.Model):
             raise LaboratoryFileError(
                 PERMISSION_DENIED, self.env._("Only administrators can do this with a laboratory folder.")
             )
-        if access == FOLDER_SHARE and administrator:
-            self._check_not_archived()
-        elif access != FOLDER_ADMINISTER:
+        if access == FOLDER_ADMINISTER or (access == FOLDER_SHARE and administrator):
+            # Administrators need no membership, but a folder of a sample only for people who see the sample.
+            self._check_found(self._sample_domain())
+            if access == FOLDER_SHARE:
+                self._check_not_archived()
+        else:
             self._check_member_access(access)
         if access in (FOLDER_SHARE, FOLDER_ADMINISTER):
             try:
@@ -221,11 +229,8 @@ class LaboratoryFolder(models.Model):
 
     def _check_member_access(self, access):
         self._check_laboratory_files_permission()
+        self._check_found(self._accessible_domain())
         folders = self.sudo()
-        if folders - folders.search(Domain("id", "in", self.ids) & self._accessible_domain()):
-            raise LaboratoryFileError(
-                NOT_FOUND, self.env._("This laboratory folder does not exist or you are not a member of it.")
-            )
         if access in (FOLDER_WRITE, FOLDER_SHARE):
             self._check_not_archived()
         if access == FOLDER_WRITE:
@@ -233,6 +238,14 @@ class LaboratoryFolder(models.Model):
         if access == FOLDER_SHARE and folders.owner_id != self.env.user:
             raise LaboratoryFileError(
                 PERMISSION_DENIED, self.env._("Only the owner of a laboratory folder and administrators can do this.")
+            )
+
+    def _check_found(self, domain):
+        # A folder outside the domain is answered as one that does not exist, so the answer does not tell it exists.
+        folders = self.sudo()
+        if folders - folders.search(Domain("id", "in", self.ids) & domain):
+            raise LaboratoryFileError(
+                NOT_FOUND, self.env._("This laboratory folder does not exist or you do not have access to it.")
             )
 
     def _check_enabled(self):
