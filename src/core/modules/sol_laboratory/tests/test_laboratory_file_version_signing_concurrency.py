@@ -1,22 +1,24 @@
 import uuid
 
 from odoo.exceptions import UserError
-from odoo.tests import tagged
+from odoo.tests import new_test_user, tagged
 
 from .laboratory_files_case import stored_content
 from .laboratory_files_concurrency_case import LaboratoryFilesConcurrencyCase
 from odoo.addons.sol_laboratory.constants.approvals import PURPOSE_SIGNING, STATE_APPROVED, STATE_NONE
-from odoo.addons.sol_laboratory.constants.laboratory_files import RESULT, SYNCED
+from odoo.addons.sol_laboratory.constants.laboratory_files import NOT_FOUND, RESULT, SYNCED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_CHAIN,
     MODEL_APPROVAL_LEVEL,
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FILE_VERSION,
     MODEL_LABORATORY_FOLDER,
+    MODEL_RES_USERS,
     MODEL_ROLE,
     MODEL_SIGNATURE,
 )
-from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_PERSON
+from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_PERSON, LABORATORY_FILES_GROUP
+from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
 
 def save(file, content):
@@ -34,6 +36,8 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         super().setUp()
         self.ids = self.committed(self.prepare)
         self.addCleanup(self.committed, self.remove)
+        # In a transaction of its own: removing a person tracks their contact, which fails among the other removals.
+        self.addCleanup(self.committed, self.remove_outsider)
 
     def prepare(self, env):
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_audit_entry")
@@ -72,7 +76,12 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
             }
         )
         file = env[MODEL_LABORATORY_FILE]._get_or_create(folder, "lead.xlsx")
+        # Holds the laboratory files permission but is no member of the folder.
+        outsider = new_test_user(
+            env, login=f"sign.outsider.{uuid.uuid4().hex[:8]}", groups=f"base.group_user,{LABORATORY_FILES_GROUP}"
+        )
         return {
+            "outsider": outsider.id,
             "chain": chain.id if created_chain else False,
             "roles": added_roles.ids,
             "sample": sample,
@@ -106,6 +115,12 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
             roles = chain.level_ids.role_id
             chain.unlink()
             roles.unlink()
+
+    def remove_outsider(self, env):
+        outsider = env[MODEL_RES_USERS].browse(self.ids["outsider"])
+        partner = outsider.partner_id
+        outsider.unlink()
+        partner.unlink()
 
     def first_version(self, env):
         return env[MODEL_LABORATORY_FILE_VERSION].browse(self.ids["first"]).with_user(env.ref("base.user_admin"))
@@ -142,6 +157,21 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
 
         self.assertEqual(attempts, 2)
         self.assertEqual(self.state(), ([(1, STATE_APPROVED), (2, STATE_NONE)], 1))
+
+    def test_someone_who_may_not_sign_is_refused_without_waiting_for_a_save(self):
+        def sign_as_outsider(env):
+            version = env[MODEL_LABORATORY_FILE_VERSION].browse(self.ids["first"]).with_user(self.ids["outsider"])
+            version.action_sign()
+            return version
+
+        attempts, refusal = self.race(
+            lambda env: save(env[MODEL_LABORATORY_FILE].browse(self.ids["file"]), "lead 0.005 mg/L"), sign_as_outsider
+        )
+
+        self.assertEqual(attempts, 1)
+        self.assertIsInstance(refusal, LaboratoryFileError)
+        self.assertEqual(refusal.code, NOT_FOUND)
+        self.assertEqual(self.state(), ([(1, STATE_NONE), (2, STATE_NONE)], 0))
 
     def test_signing_twice_at_once_records_one_signature(self):
         attempts, refusal = self.race(self.sign_first, self.sign_first)
