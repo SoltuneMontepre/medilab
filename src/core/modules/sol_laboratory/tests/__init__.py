@@ -60,6 +60,7 @@ from . import (
     test_laboratory_api_sign_in,
     test_laboratory_api_sign_in_limits,
     test_laboratory_api_status,
+    test_laboratory_bucket,
     test_laboratory_device_audit,
     test_laboratory_device_revocation,
     test_laboratory_device_sign_in,
