@@ -10,6 +10,23 @@ spec:
     customRequestHeaders:
       X-Forwarded-Proto: https
 ---
+# Signing in to the laboratory files API and the webhooks are limited per client address, which Cloudflare sends as
+# Cf-Connecting-IP; network policies let only cloudflared reach Traefik and only Traefik reach Odoo, so nothing else
+# sends that header. Traefik answers 429 past the limit.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: odoo-rate-limit
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  rateLimit:
+    average: 30
+    period: 1m
+    burst: 30
+    sourceCriterion:
+      requestHeaderName: Cf-Connecting-IP
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -25,6 +42,16 @@ spec:
       services:
         - name: odoo
           port: websocket
+    - kind: Rule
+      match: >-
+        Host(`lims.soltunemontepre.tech`) && (Path(`/medilab/api/v1/sign-in`) || Path(`/medilab/brevo/webhook`) ||
+        Path(`/payment/payos/webhook`))
+      middlewares:
+        - name: odoo-https
+        - name: odoo-rate-limit
+      services:
+        - name: odoo
+          port: http
     - kind: Rule
       match: Host(`lims.soltunemontepre.tech`)
       middlewares:

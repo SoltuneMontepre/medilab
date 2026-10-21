@@ -107,6 +107,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 - Cloudflare routes requests to connected replicas, so a lost site stops receiving traffic.
 - Web DNS records in the `soltunemontepre.tech` zone, such as `lims.soltunemontepre.tech`, are proxied CNAMEs to `<tunnel-id>.cfargotunnel.com`; Cloudflare terminates TLS and `cloudflared` reaches Traefik over plain HTTP.
 - Traefik's service is `ClusterIP` and ServiceLB is turned off, so no node opens ports 80 or 443.
+- Network policies let only `cloudflared` reach Traefik and only Traefik reach Odoo, so the client address Cloudflare sends in `Cf-Connecting-IP` can be trusted. Traefik limits signing in and the webhooks per client address by that header; see [Cluster](cluster.md#ingress).
 
 ## MQTT
 

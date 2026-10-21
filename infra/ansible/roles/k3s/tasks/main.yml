@@ -69,6 +69,14 @@
     group: root
     mode: "0600"
 
+- name: Let only cloudflared reach Traefik
+  ansible.builtin.template:
+    src: traefik-network-policy.yaml.j2
+    dest: "{{ k3s_manifests_dir }}/medilab-traefik-network-policy.yaml"
+    owner: root
+    group: root
+    mode: "0600"
+
 - name: Install k3s
   when: k3s_needs_install
   block:

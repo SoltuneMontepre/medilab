@@ -34,6 +34,7 @@ How the nodes in [Architecture](architecture.md) are set up: Ansible in `infra/a
 - Every node is a k3s server with embedded etcd. The first node starts the cluster (`k3s_cluster_init`); the others join it through `k3s_server_url`, so Server B and the witness are added without moving any data.
 - The cluster token is `K3S_TOKEN` in Doppler, so every server and every restore of an etcd snapshot uses the same one.
 - ServiceLB is turned off and Traefik's service is `ClusterIP`, so k3s takes no host port such as 80 or 443 from programs already on the node.
+- A network policy in `kube-system` lets only the `cloudflared` pods reach Traefik's web entry point; k3s's network policy controller, which `config.yaml` leaves on, enforces it. See [Cluster](cluster.md#ingress).
 - `k3s_system_reserved` and `k3s_kube_reserved` keep CPU and memory for the rest of the host, so pods cannot starve it.
 - Secrets are encrypted at rest in etcd.
 - etcd is snapshotted every six hours and 28 snapshots are kept. When `k3s_etcd_s3_bucket` is set, the snapshots also go to that bucket under `k3s-etcd/`.
