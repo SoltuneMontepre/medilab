@@ -101,7 +101,7 @@ Two saves of the same file at once, such as an upload and a save of the online e
 - Two first saves of one new path make one file: the second one's creation fails on the unique path key, which `_get_or_create()` turns into a `ConcurrencyError`, and Odoo runs the request again.
 - **Everything a caller does before `_add_version()` in the same request must be safe to run twice**, as a concurrent save runs the whole request again: the storage calls of uploads, and fetching the edited document from the online editor. Saves outside a web request, such as jobs, are not run again.
 
-`test_laboratory_file_version_concurrency.py` runs such races in two real database transactions.
+`laboratory_files_concurrency_case.py` runs such races in two real database transactions, the second through Odoo's request retrying, and gives the second one's record or the refusal it got; `test_laboratory_file_version_concurrency.py` races saves with it.
 
 #### Access
 

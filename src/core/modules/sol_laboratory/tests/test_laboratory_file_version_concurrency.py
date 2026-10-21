@@ -1,24 +1,15 @@
 import hashlib
-import threading
-import time
 import uuid
 
-from odoo import api, sql_db
-from odoo.api import SUPERUSER_ID
-from odoo.http.retrying import retrying
-from odoo.orm.environments import Transaction
-from odoo.tests import TransactionCase, tagged
-from odoo.tools import mute_logger
+from odoo.tests import tagged
 
+from .laboratory_files_concurrency_case import LaboratoryFilesConcurrencyCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, EDITED_ONLINE, RESTORED, SYNCED
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FILE_VERSION,
     MODEL_LABORATORY_FOLDER,
 )
-
-# How long the first save keeps its transaction open once the second one is saving, so the second waits on the file.
-HOLD_SECONDS = 0.5
 
 
 def save(file, content, source=SYNCED, **values):
@@ -34,24 +25,13 @@ def save(file, content, source=SYNCED, **values):
 
 
 @tagged("post_install", "-at_install")
-class TestLaboratoryFileVersionConcurrency(TransactionCase):
+class TestLaboratoryFileVersionConcurrency(LaboratoryFilesConcurrencyCase):
     """Two real database transactions saving the same file at once, the second one through Odoo's request retrying."""
 
     def setUp(self):
         super().setUp()
         self.folder_id, self.file_id, self.first_id = self.committed(self.prepare)
         self.addCleanup(self.committed, self.remove)
-
-    def committed(self, work):
-        with sql_db.db_connect(self.registry.db_name).cursor() as cursor:
-            return work(self.environment(cursor))
-
-    def environment(self, cursor):
-        # An environment looks its registry up by name, which waits on the lock the test run holds, so the thread of
-        # these tests would never get one; they use the registry already loaded.
-        cursor.transaction = Transaction(self.registry)
-        cursor.transaction._check_signaling(cursor)
-        return api.Environment(cursor, SUPERUSER_ID, {})
 
     def prepare(self, env):
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_audit_entry")
@@ -86,55 +66,6 @@ class TestLaboratoryFileVersionConcurrency(TransactionCase):
         cr.execute("DELETE FROM medilab_laboratory_file WHERE folder_id = %s", [self.folder_id])
         cr.execute("DELETE FROM medilab_laboratory_folder_member WHERE folder_id = %s", [self.folder_id])
         cr.execute("DELETE FROM medilab_laboratory_folder WHERE id = %s", [self.folder_id])
-
-    def race(self, first_save, second_save):
-        """The first save stores its version and keeps its transaction open until the second one is saving, then
-        commits. The second save runs as a request does, through Odoo's retrying. The number of times the second one
-        ran and the id of what it returned."""
-        stored = threading.Event()
-        second_saving = threading.Event()
-        errors = []
-
-        def first():
-            try:
-                with sql_db.db_connect(self.registry.db_name).cursor() as cursor:
-                    env = self.environment(cursor)
-                    first_save(env)
-                    env.flush_all()
-                    # Committing resets the transaction, which also looks the registry up by name; the save is flushed,
-                    # so the cursor commits it without one.
-                    cursor.transaction = None
-                    stored.set()
-                    if not second_saving.wait(timeout=10):
-                        errors.append(TimeoutError("the second save never started"))
-                        return
-                    time.sleep(HOLD_SECONDS)
-            except Exception as error:
-                errors.append(error)
-            finally:
-                stored.set()
-
-        attempts = []
-        thread = threading.Thread(target=first)
-        thread.start()
-        try:
-            with sql_db.db_connect(self.registry.db_name).cursor() as cursor:
-                env = self.environment(cursor)
-
-                def run():
-                    attempts.append(len(attempts) + 1)
-                    if len(attempts) == 1:
-                        self.assertTrue(stored.wait(timeout=10), "the first save never stored its version")
-                        second_saving.set()
-                    return second_save(env).id
-
-                with mute_logger("odoo.sql_db", "odoo.http.retrying"):
-                    result = retrying(run, env)
-        finally:
-            thread.join(15)
-        self.assertFalse(thread.is_alive())
-        self.assertFalse(errors, errors)
-        return len(attempts), result
 
     def versions(self):
         def work(env):
