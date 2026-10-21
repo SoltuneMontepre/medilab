@@ -33,7 +33,8 @@ class TestLaboratoryPaths(LaboratoryFilesCase):
         for kind, patterns in accepted.items():
             for pattern in patterns:
                 with self.subTest(kind=kind, pattern=pattern):
-                    rules.create({"folder_id": self.folder.id, "kind": kind, "pattern": pattern})
+                    # Removed again, as csv and .csv are one rule, which a folder has once.
+                    rules.create({"folder_id": self.folder.id, "kind": kind, "pattern": pattern}).unlink()
         for kind, patterns in refused.items():
             for pattern in patterns:
                 with self.subTest(kind=kind, pattern=pattern), self.assertRaises(ValidationError):
@@ -41,10 +42,14 @@ class TestLaboratoryPaths(LaboratoryFilesCase):
 
     def test_an_extension_is_kept_without_its_dot_and_in_lowercase(self):
         rules = self.env[MODEL_LABORATORY_SYNC_RULE]
+        # One folder each, as a folder has one rule of a kind and pattern.
+        folders = self.folder | self.env[MODEL_LABORATORY_FOLDER].create(
+            [{"name": name, "owner_id": self.tester.id} for name in ("AAS", "GC")]
+        )
         created = rules.create(
             [
-                {"folder_id": self.folder.id, "kind": "extension", "pattern": pattern}
-                for pattern in (".PDF", "Pdf", "pdf")
+                {"folder_id": folder.id, "kind": "extension", "pattern": pattern}
+                for folder, pattern in zip(folders, (".PDF", "Pdf", "pdf"), strict=True)
             ]
         )
         prefix = rules.create({"folder_id": self.folder.id, "kind": "prefix", "pattern": "XLSX"})

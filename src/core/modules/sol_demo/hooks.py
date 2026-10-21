@@ -14,7 +14,9 @@ def post_init_hook(env):
     from .demo_cleanup import seed_cleanup
     from .demo_dispatches import seed_dispatches
     from .demo_finance import seed_finance
-    from .demo_laboratory_files import seed_laboratory_file_versions, seed_laboratory_files
+    from .demo_laboratory_editing import seed_laboratory_editing
+    from .demo_laboratory_file_locks import seed_laboratory_file_locks
+    from .demo_laboratory_files import seed_laboratory_file_versions, seed_laboratory_files, seed_sample_folders
     from .demo_locks import seed_locks
     from .demo_order_templates import seed_order_templates
     from .demo_orders import seed_orders
@@ -39,5 +41,8 @@ def post_init_hook(env):
     seed_locks(env)
     seed_laboratory_files(env)
     seed_laboratory_file_versions(env)
+    seed_laboratory_file_locks(env)
+    seed_sample_folders(env)
+    seed_laboratory_editing(env)
     seed_cleanup(env)
     seed_support(env)

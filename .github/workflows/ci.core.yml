@@ -109,6 +109,12 @@ jobs:
         if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
         run: task test:typecheck
 
+      - name: OpenAPI document
+        if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'
+        run: |
+          git fetch --quiet --depth=1 origin main
+          task test:openapi OPENAPI_BASE=FETCH_HEAD
+
       - name: Read the Odoo image
         id: odoo
         if: needs.changes.outputs.relevant == 'true' || github.event_name != 'pull_request'

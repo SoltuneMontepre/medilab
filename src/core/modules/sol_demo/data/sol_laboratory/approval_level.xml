@@ -78,4 +78,11 @@
         <field name="role_id" ref="demo_role_lab_head" />
         <field name="can_reject" eval="True" />
     </record>
+    <record id="demo_approval_level_laboratory_file_version_signing_head_of_department" model="medilab.approval.level">
+        <field name="chain_id" ref="demo_approval_chain_laboratory_file_version_signing" />
+        <field name="sequence">10</field>
+        <field name="name">Head of department</field>
+        <field name="role_id" ref="demo_role_head_of_department" />
+        <field name="can_reject" eval="True" />
+    </record>
 </odoo>

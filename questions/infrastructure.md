@@ -1,6 +1,7 @@
 # Infrastructure questions
 
 - **Bucket names.** What are the names of the main and backup buckets in Object Storage Lite? The architecture calls them `filestore` and `backups`; k3s needs the backup bucket's name to send etcd snapshots there, and `infra/cluster/` uses both names.
+- **Laboratory files bucket.** Laboratory files get a private S3-compatible bucket of their own. Is it a third Object Storage Lite plan with the same provider, and does that provider support presigned multipart uploads of files up to 5 GiB, lifecycle rules that abort incomplete multipart uploads, and encryption at rest? Where are its backups kept, outside the provider's site? (blocks US-T23)
 - **Sync app address and updates.** Which Odoo address is built into the sync app for production, set as the `MEDILAB_SYNC_ODOO_URL` Actions variable? Is the Tauri update signing key whose public key is in `tauri.conf.json` still available, and should Odoo serve update manifests at `/api/sync/v1/updates`, so that releases can update installed apps?
 - **Recovery target.** How long may the system be down when a site is lost, and how many seconds of writes may be lost?
 - **Rollback after a migration.** When a release upgrades the modules and then fails, should `cd-core` also restore the database from the pre-release backup, losing writes made since, or leave the newer schema for a person to decide?

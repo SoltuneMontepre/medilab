@@ -17,7 +17,8 @@ The [global rules](../readme.md#global-rules) still hold for the administrator: 
 
 - Sees every computer signed in to the laboratory folders and revokes one; its person keeps their folders and other computers.
 - Sees every laboratory folder with its members and sync rules, turns a folder off and on, changes its owner, who stays a member, and archives it with its retention date; an archived folder is only read, and its members can still be removed.
-- Changes the retention period of archived folders in the settings.
+- Sees every laboratory file lock and releases one someone left, so others can save the file again; this is audited.
+- Changes the retention period of archived folders and how long a laboratory file lock lasts in the settings.
 
 ## Related documents
 

@@ -31,6 +31,9 @@ vars:
   SYNC_APP_DIR: src/applications/medilab-sync
   TYPECHECK_DIR: tools/typecheck
   UV: uv --project src/core
+  OPENAPI_DOCUMENT: src/core/modules/sol_laboratory/api/openapi.yaml
+  OASDIFF_IMAGE: docker.io/tufin/oasdiff:v1.33.0@sha256:6263a96dd2ef0726c54e21fea9b8e1607eac4841add0079324b424c1f52b819c
+  OPENAPI_BASE: '{{.OPENAPI_BASE | default "origin/main"}}'
   LOG: tools/scripts/log.sh
 
 tasks:
@@ -133,6 +136,12 @@ tasks:
     cmds:
       - task: dev:odoo-links
       - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
+
+  test:openapi:
+    desc: "Lint the OpenAPI document of the laboratory files API and refuse a change that breaks it against main unless its version changes; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
+    cmds:
+      - "{{.UV}} run openapi-spec-validator {{.OPENAPI_DOCUMENT}}"
+      - "{{.UV}} run python tools/scripts/test_openapi.py {{.OPENAPI_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
 
   test:e2e:
     desc: "Run the browser tests against the running Odoo; task test:e2e needs task up first"

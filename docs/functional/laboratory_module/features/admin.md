@@ -188,6 +188,7 @@ Follows [Laboratory files](../overview.md#laboratory-files).
 | Turning off | A folder that is turned off refuses uploads from everyone and still lets its members read and download. |
 | Ownership   | Changing a folder's owner keeps the previous owner as a member. |
 | Retention   | Archiving a folder sets its retention date from the retention period system parameter and keeps every version. |
+| File signing | Versions of laboratory files are signed through the chain for signing laboratory file versions, which the administrator sets up with its levels before anyone signs a version; until then signing one is refused. |
 
 Acceptance criteria:
 
