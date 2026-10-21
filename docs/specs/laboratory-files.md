@@ -178,6 +178,8 @@ The editing service saves once everyone has left the document; its force save is
 
 A save is never discarded: one arriving for an expired session is stored the same way, and the conflict rule handles a file that changed meanwhile. A save that fails for a while, such as the bucket being unreachable, keeps the session `saving`, or `expired` when it had expired, and answers the editing service with an error, so it calls back again; it gives up with an error status, which ends the session in `error`.
 
+`test_laboratory_editing_concurrency.py` races two opens of a file, two calls of one save, a save and an upload, and a save and the expiry of its session, with `laboratory_files_concurrency_case.py`.
+
 | Editing service status | What happens                |
 | ---------------------- | --------------------------- |
 | 1, being edited        | Activity                    |
