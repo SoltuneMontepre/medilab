@@ -48,6 +48,7 @@ tasks:
     silent: true
     cmds:
       - docker compose up -d --wait postgres
+      - docker compose run --rm -T garage-setup
       - task: test:core:clean
       - defer: { task: test:core:clean }
       - . {{.LOG}} && log_step "Splitting the test classes into {{.TOTAL_SHARDS}} shards"
@@ -162,6 +163,7 @@ tasks:
     cmds:
       - . {{.LOG}} && log_step "Installing {{.ALL_MODULES}}"
       - docker compose up -d --wait postgres
+      - docker compose run --rm -T garage-setup
       - docker compose run --rm -T odoo -i {{.ALL_MODULES}} --stop-after-init --log-level=warn
       - . {{.LOG}} && log_step "Starting Odoo"
       - docker compose up -d odoo

@@ -46,6 +46,7 @@ jobs:
               - "tools/taskfiles/test.taskfile.yml"
               - "tools/scripts/**"
               - "tools/infrastructure/docker-compose.yml"
+              - "tools/infrastructure/garage/**"
               - "pyrightconfig.json"
               - ".github/actions/odoo-lint/**"
               - ".github/workflows/ci.core.yml"

@@ -2,6 +2,12 @@
 # task dev:setup writes from the checkout's folder name, so a worktree's stack never takes the main checkout's.
 name: medilab
 
+# The laboratory files bucket as Odoo and Garage see it. Local values only: production's key and secret are in Doppler.
+x-laboratory-bucket: &laboratory-bucket
+  BUCKET_LABORATORY_ACCESS_KEY: &access-key ${BUCKET_LABORATORY_ACCESS_KEY:-GK000000000000000000000001}
+  BUCKET_LABORATORY_SECRET_KEY: &secret-key ${BUCKET_LABORATORY_SECRET_KEY:-0000000000000000000000000000000000000000000000000000000000000001}
+  BUCKET_LABORATORY_NAME: &bucket-name ${BUCKET_LABORATORY_NAME:-laboratory-files}
+
 services:
   odoo:
     image: ${MEDILAB_ODOO_IMAGE:-medilab-odoo:local}
@@ -14,8 +20,14 @@ services:
       USER: ${MEDILAB_DB_USER:-root}
       PASSWORD: ${MEDILAB_DB_PASSWORD:-root}
       MEDILAB_DEMO_PASSWORD: ${MEDILAB_DEMO_PASSWORD:-}
+      <<: *laboratory-bucket
+      BUCKET_LABORATORY_ADDRESS: http://garage:3900
+      BUCKET_LABORATORY_PUBLIC_ADDRESS: ${BUCKET_LABORATORY_PUBLIC_ADDRESS:-http://localhost:3900}
+      BUCKET_LABORATORY_REGION: garage
     depends_on:
       postgres:
+        condition: service_healthy
+      garage:
         condition: service_healthy
     ports:
       - "${MEDILAB_ODOO_PORT:-8069}:8069"
@@ -48,6 +60,43 @@ services:
     ports:
       - "${MEDILAB_DB_PORT:-15432}:5432"
 
+  garage:
+    image: docker.io/dxflrs/garage:v2.4.1@sha256:9c96caa2612d3411acc5b0e6701fb238dbfba33e533a6d7d3d811a4b12d0d020
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+    restart: unless-stopped
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:-0000000000000000000000000000000000000000000000000000000000000002}
+      GARAGE_ADMIN_TOKEN: &garage-admin-token ${GARAGE_ADMIN_TOKEN:-medilab-local-admin-token}
+      GARAGE_DEFAULT_ACCESS_KEY: *access-key
+      GARAGE_DEFAULT_SECRET_KEY: *secret-key
+      GARAGE_DEFAULT_BUCKET: *bucket-name
+    healthcheck:
+      test: ["CMD", "/garage", "health"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    volumes:
+      - medilab-garage:/var/lib/garage
+      - ./garage/garage.toml:/etc/garage.toml:ro,z
+    ports:
+      - "${MEDILAB_GARAGE_PORT:-3900}:3900"
+      - "127.0.0.1:${MEDILAB_GARAGE_ADMIN_PORT:-3903}:3903"
+
+  # Sets the bucket up as production's: the lifecycle rule, the key's rights, and a bucket the key may not reach.
+  garage-setup:
+    image: docker.io/library/python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36
+    command: ["python3", "/opt/medilab/garage/setup.py"]
+    environment:
+      <<: *laboratory-bucket
+      GARAGE_ADMIN_URL: http://garage:3903
+      GARAGE_ADMIN_TOKEN: *garage-admin-token
+      GARAGE_OTHER_BUCKET: laboratory-files-other
+    depends_on:
+      garage:
+        condition: service_healthy
+    volumes:
+      - ./garage:/opt/medilab/garage:ro,z
+
   cloudbeaver:
     image: docker.io/dbeaver/cloudbeaver:latest
     restart: unless-stopped
@@ -67,5 +116,6 @@ services:
 
 volumes:
   medilab-app:
+  medilab-garage:
   medilab-db:
   medilab-cloudbeaver:

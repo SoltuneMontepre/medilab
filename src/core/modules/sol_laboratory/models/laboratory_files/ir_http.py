@@ -4,6 +4,7 @@ from odoo import api, models
 from odoo.http import request
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_HTTP
+from odoo.addons.sol_laboratory.services import laboratory_bucket
 from odoo.addons.sol_laboratory.services.laboratory_api import exception_answer, is_api_path
 
 
@@ -30,9 +31,9 @@ class IrHttp(models.AbstractModel):
     @api.model
     def _laboratory_files_ready_checks(self):
         """The checks of the parts the laboratory files API needs, by name: each returns whether its part serves. A
-        feature that adds such a part, such as the bucket, adds its check; the editing service is never one, as only
-        online editing needs it."""
-        return {"database": self._laboratory_files_database_ready}
+        feature that adds such a part adds its check; the editing service is never one, as only online editing needs
+        it."""
+        return {"database": self._laboratory_files_database_ready, "bucket": laboratory_bucket.is_ready}
 
     @api.model
     def _laboratory_files_database_ready(self):
