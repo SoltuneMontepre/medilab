@@ -5,7 +5,7 @@ from odoo import fields, models
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_SCHEDULED_JOB
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_ORGANISATION, MODEL_ONBOARDING_SOURCE
-from odoo.addons.sol_onboarding.constants.onboarding import ORGANISATIONS_JOB
+from odoo.addons.sol_onboarding.constants.onboarding import ITEM_FAILED, ITEMS_OPEN, ORGANISATIONS_JOB
 from odoo.addons.sol_onboarding.services.adapters.base import Parsed
 from odoo.addons.sol_onboarding.services.adapters.registry import adapter_for
 from odoo.addons.sol_onboarding.services.fetcher import Fetcher, PageSkipped, SourceBusy
@@ -23,17 +23,27 @@ class ScheduledJob(models.Model):
         recent = now - (now + relativedelta(**{self.interval_type: self.interval_number}) - now) / 2
         for source in self.env[MODEL_ONBOARDING_SOURCE].sudo().search([("enabled", "=", True)]):
             refreshed_at = source.organisations_refreshed_at
-            if self._refresh_items(source, "pending", "running") or (refreshed_at and refreshed_at > recent):
+            if self._refresh_items(source, *ITEMS_OPEN) or (refreshed_at and refreshed_at > recent):
                 continue
-            if refreshed_at:
-                # What the previous refresh did not see is no longer listed.
-                self.env[MODEL_ONBOARDING_ORGANISATION].sudo().search(
-                    [("source_id", "=", source.id), ("seen_at", "<", refreshed_at)]
-                ).write({"active": False})
-            source.organisations_refreshed_at = now
-            stamp = fields.Datetime.to_string(now)
-            for address in adapter_for(source).organisation_list_pages()[: source.page_limit]:
-                self._queue_organisation_page(source, stamp, address)
+            self._start_organisations_refresh(source)
+
+    def _start_organisations_refresh(self, source):
+        """Archive what the previous refresh did not see, then queue the first pages of a new refresh."""
+        now = fields.Datetime.now()
+        previous = source.organisations_refreshed_at
+        organisations = self.env[MODEL_ONBOARDING_ORGANISATION].sudo()
+        if previous:
+            failed = self._refresh_items(source, ITEM_FAILED, stamp=fields.Datetime.to_string(previous))
+            seen = organisations.search_count([("source_id", "=", source.id), ("seen_at", ">=", previous)])
+            # A refresh that failed or saw nothing proves nothing about what is no longer listed.
+            if seen and not failed:
+                organisations.search([("source_id", "=", source.id), ("seen_at", "<", previous)]).write(
+                    {"active": False}
+                )
+        source.organisations_refreshed_at = now
+        stamp = fields.Datetime.to_string(now)
+        for address in adapter_for(source).organisation_list_pages()[: source.page_limit]:
+            self._queue_organisation_page(source, stamp, address)
 
     def _refresh_items(self, source, *statuses, stamp="%"):
         domain = [("item_key", "=like", f"organisations:{source.id}:{stamp}:%")]

@@ -6,9 +6,8 @@ from odoo.tools import SQL
 
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_ORGANISATION, MODEL_ONBOARDING_SOURCE
 from odoo.addons.sol_onboarding.constants.onboarding import SUGGEST_CONTEXT
+from odoo.addons.sol_onboarding.constants.xml_ids import SOURCES_GROUP
 from odoo.addons.sol_onboarding.services.adapters.base import OrganisationValues
-
-SOURCES_GROUP = "sol_onboarding.group_onboarding_sources"
 
 
 # Tổ Chức
@@ -65,7 +64,7 @@ class OnboardingOrganisation(models.Model):
             result |= organisation
         return result
 
-    def _suggested(self, company, limit=20):
+    def _suggested(self, company, limit=20, domain=None):
         """Active organisations for the company, its tax ID first, then the closest name."""
         tax_digits = re.sub(r"\D", "", company.vat or "")
         tax_order = (
@@ -76,9 +75,10 @@ class OnboardingOrganisation(models.Model):
         self.flush_model()
         self.env.cr.execute(
             SQL(
-                "SELECT id FROM %(table)s WHERE active ORDER BY %(tax_order)s similarity(name, %(name)s) DESC, name "
+                "SELECT id FROM %(table)s WHERE active AND id IN %(allowed)s ORDER BY %(tax_order)s similarity(name, %(name)s) DESC, name "
                 "LIMIT %(limit)s",
                 table=SQL.identifier(self._table),
+                allowed=self._search(domain or []).subselect(),
                 tax_order=tax_order,
                 name=company.name or "",
                 limit=limit,
@@ -90,8 +90,5 @@ class OnboardingOrganisation(models.Model):
     def name_search(self, name="", domain=None, operator="ilike", limit=100):
         if name or not self.env.context.get(SUGGEST_CONTEXT):
             return super().name_search(name, domain, operator, limit)
-        # ponytail: the domain filters the suggested page, so it can return fewer than limit; widen if a caller needs more.
-        suggested = self._suggested(self.env.company, limit)
-        if domain:
-            suggested = suggested.filtered_domain(domain)
+        suggested = self._suggested(self.env.company, limit, domain)
         return [(organisation.id, organisation.display_name) for organisation in suggested]

@@ -61,7 +61,7 @@ A fetched document is data. HTML is parsed with `lxml` into a tree that is only 
 
 A run uses the job `onboarding.crawl` ([Scheduled jobs](scheduled-jobs.md)). Starting a run queues one item per first page of each source it reads, with the item key `<run id>:<address>` and the source in the payload, so an address is fetched once per run. The handler `_handle_onboarding_crawl` fetches the page, keeps the snapshot, has the adapter parse it, stages its records and queues the pages it links to. A network error or a `5xx` answer is retried; a `4xx` answer raises `PermanentJobError`. A run ends when it has no pending or running items left: `done` when none failed, `failed` otherwise, and its counts and log are written then. Cancelling a run cancels its pending items.
 
-The job `onboarding.organisations` refreshes the organisations of each turned-on source, weekly by default, through the same fetcher.
+The job `onboarding.organisations` refreshes the organisations of each turned-on source, weekly by default, through the same fetcher. A refresh starts when the source has no refresh item pending or running and its last refresh began more than half the cron interval ago. When it starts, the organisations not seen since the previous refresh are archived, but only if that refresh had no failed page and saw at least one organisation.
 
 ### Staging
 

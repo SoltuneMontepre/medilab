@@ -83,6 +83,29 @@ class TestOrganisations(OnboardingCase):
         active = {organisation.external_key: organisation.active for organisation in self.listed()}
         self.assertEqual(active, {"a": True, "b": False})
 
+    def test_a_refresh_with_a_failed_page_archives_nothing_at_the_next(self):
+        self.serve({START: page(("a", "Alpha", "1"), ("b", "Beta", "2"))})
+        self.run_until_settled(ORGANISATIONS_JOB)
+        self.clock.tick(timedelta(weeks=1))
+        self.serve({START: page(("a", "Alpha", "1"), next_page=SECOND)})
+        self.run_until_settled(ORGANISATIONS_JOB)
+        self.assertIn("failed", self.items().mapped("status"))
+        self.clock.tick(timedelta(weeks=1))
+        self.run_until_settled(ORGANISATIONS_JOB)
+
+        self.assertEqual(self.listed().mapped("active"), [True, True])
+
+    def test_a_refresh_that_saw_nothing_archives_nothing_at_the_next(self):
+        self.serve({START: page(("a", "Alpha", "1"), ("b", "Beta", "2"))})
+        self.run_until_settled(ORGANISATIONS_JOB)
+        self.clock.tick(timedelta(weeks=1))
+        self.serve({START: (200, "text/html", b"", {})})
+        self.run_until_settled(ORGANISATIONS_JOB)
+        self.clock.tick(timedelta(weeks=1))
+        self.run_until_settled(ORGANISATIONS_JOB)
+
+        self.assertEqual(self.listed().mapped("active"), [True, True])
+
     def test_an_organisation_listed_again_comes_back(self):
         archived = self.organisation(external_key="a", name="Alpha", active=False)
         self.organisations.sudo()._upsert(self.source, [OrganisationValues(key="a", name="Alpha", url=START)])
@@ -157,6 +180,16 @@ class TestOrganisations(OnboardingCase):
 
         self.assertCountEqual([id_ for id_, _ in self.suggest.name_search("")], [kept.id, other.id])
         self.assertEqual([id_ for id_, _ in self.suggest.name_search("", [("id", "=", other.id)])], [other.id])
+
+    def test_a_domain_matching_only_a_low_ranked_organisation_still_returns_it(self):
+        self.env.company.vat = False
+        self.env.company.name = "Alpha"
+        self.organisation(name="Alpha")
+        low = self.organisation(name="Zzz")
+
+        result = self.suggest.name_search("", [("id", "=", low.id)], limit=1)
+
+        self.assertEqual([id_ for id_, _ in result], [low.id])
 
     def test_a_typed_name_searches_as_usual(self):
         self.organisation(name="Alpha")
