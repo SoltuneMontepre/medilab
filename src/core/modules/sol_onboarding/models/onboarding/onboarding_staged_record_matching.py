@@ -9,21 +9,20 @@ from odoo.addons.sol_onboarding.constants.onboarding import (
     ACTION_UPDATE,
     KIND_CERTIFICATE,
     KIND_MODELS,
+    KIND_NEEDS,
     KIND_PARAMETER_METHOD,
     KIND_SAMPLE_TYPE,
     KIND_TEST_PARAMETER,
     KIND_TESTING_FIELD,
     KIND_TESTING_METHOD,
+    NAME_MATCH_THRESHOLD,
     STAGED_ACCEPTED,
     STAGED_TO_REVIEW,
 )
 from odoo.addons.sol_onboarding.services.parsing import clean_text
 
-NAME_MATCH_THRESHOLD = 0.6
-
-# Kinds that match by code, and the kinds that match by name.
+# Kinds that match by code.
 CODE_KINDS = (KIND_CERTIFICATE, KIND_TESTING_METHOD)
-NAME_KINDS = (KIND_SAMPLE_TYPE, KIND_TEST_PARAMETER)
 # Values that decide between linking a record and updating it; a method's testing field does not count.
 COMPARED_KEYS = {
     KIND_CERTIFICATE: ("code", "issuing_body", "valid_from", "valid_until"),
@@ -118,8 +117,11 @@ class OnboardingStagedRecordMatching(models.Model):
 
     def _find_pair(self, values):
         """The active pair of the matched parameter and method, else 0."""
-        parameter = self._resolve_need(KIND_TEST_PARAMETER, values.get("parameter_key", ""))
-        method = self._resolve_need(KIND_TESTING_METHOD, values.get("method_key", ""))
+        needs = {
+            kind: self._resolve_need(kind, values.get(key, ""))
+            for key, kind in KIND_NEEDS[KIND_PARAMETER_METHOD].items()
+        }
+        parameter, method = needs[KIND_TEST_PARAMETER], needs[KIND_TESTING_METHOD]
         if not (parameter.record_id and method.record_id):
             return 0
         pair = (

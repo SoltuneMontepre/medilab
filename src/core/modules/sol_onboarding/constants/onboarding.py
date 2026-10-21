@@ -84,3 +84,6 @@ STAGED_KEPT = (STAGED_TO_REVIEW, STAGED_ACCEPTED, STAGED_REJECTED)
 ACTION_CREATE = "create"
 ACTION_LINK = "link"
 ACTION_UPDATE = "update"
+
+# Trigram similarity from which a name matches an existing record.
+NAME_MATCH_THRESHOLD = 0.6

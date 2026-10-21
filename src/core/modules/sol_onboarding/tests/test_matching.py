@@ -143,3 +143,10 @@ class TestMatching(OnboardingCase):
         pair.active = False
         staged.edited_values = {"method_key": method.code}
         self.assertEqual((staged.record_id, staged.action), (0, "create"))
+
+    def test_a_code_with_a_non_breaking_space_and_full_width_characters_links(self):
+        method = self.lab_method(code="TCVN 9883:2011")
+        staged = self.stage(KIND_TESTING_METHOD, code="TCVN 9883：２011", name=method.name, field_key="x")
+
+        self.assertEqual(staged.source_values["code"], "TCVN 9883:2011")
+        self.assertEqual((staged.record_id, staged.action, staged.match_suggested), (method.id, "link", False))
