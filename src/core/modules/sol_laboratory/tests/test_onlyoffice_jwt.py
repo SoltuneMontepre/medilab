@@ -125,11 +125,11 @@ class TestOnlyofficeJwt(BaseCase):
         self.assertRefused([FIELDS], header)
 
     def test_the_secret_comes_from_the_environment_and_is_at_least_32_bytes(self):
-        for value, expected in ((None, None), ("", None), ("x" * 31, None), ("x" * 32, "x" * 32)):
-            with self.subTest(length=len(value or "")), patch.dict(os.environ):
-                os.environ.pop(JWT_SECRET_VARIABLE, None)
-                if value is not None:
-                    os.environ[JWT_SECRET_VARIABLE] = value
+        without_secret = {name: value for name, value in os.environ.items() if name != JWT_SECRET_VARIABLE}
+        with patch.dict(os.environ, without_secret, clear=True):
+            self.assertIsNone(jwt_secret())
+        for value, expected in (("", None), ("x" * 31, None), ("x" * 32, "x" * 32)):
+            with self.subTest(length=len(value)), patch.dict(os.environ, {JWT_SECRET_VARIABLE: value}):
                 self.assertEqual(jwt_secret(), expected)
 
     def test_a_signed_configuration_is_valid_for_its_lifetime(self):
