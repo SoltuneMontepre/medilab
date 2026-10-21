@@ -83,10 +83,12 @@ class TestLaboratoryFileVersionConcurrency(LaboratoryFilesConcurrencyCase):
         return env[MODEL_LABORATORY_FILE_VERSION].browse(self.first_id)
 
     def test_an_upload_and_an_online_save_at_once_get_the_next_two_numbers(self):
-        attempts, _second = self.race(
-            lambda env: save(self.file(env), "uploaded", base_version=self.first_version(env)),
-            lambda env: save(self.file(env), "edited", EDITED_ONLINE, base_version=self.first_version(env)),
-        )
+        # The race mutes the logger Odoo's retrying writes to, so a race that runs again logs nothing.
+        with self.assertNoLogs("odoo.http", "INFO"):
+            attempts, _second = self.race(
+                lambda env: save(self.file(env), "uploaded", base_version=self.first_version(env)),
+                lambda env: save(self.file(env), "edited", EDITED_ONLINE, base_version=self.first_version(env)),
+            )
 
         self.assertEqual(attempts, 2)
         # The online save was made from version 1, which was no longer current once the upload committed.

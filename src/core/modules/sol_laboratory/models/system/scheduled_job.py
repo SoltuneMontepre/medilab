@@ -223,6 +223,9 @@ class ScheduledJob(models.Model):
             _logger.exception("Job %s could not claim its items", job.key)
             job._progress(remaining=0)
             return run
+        # The claims are committed before any item is handled: a worker killed in a handler would otherwise roll them
+        # back, and its item would be taken again at once, without the claim timeout or a counted attempt.
+        job._progress()
         for item in items:
             job._process_item(item, handler, run)
             job._progress(processed=1)
