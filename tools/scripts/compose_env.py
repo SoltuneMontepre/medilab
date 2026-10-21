@@ -3,15 +3,17 @@ and podman-compose read wherever they are run from. The project is the checkout'
 stays medilab and a worktree, such as medilab-api, gets containers, a network and volumes of its own. Other lines of
 the file, such as the ports a worktree sets, are kept. Runs on the host through uv.
 
-Usage: compose_env.py <compose env file>
+Usage: compose_env.py
 """
 
 import pathlib
 import re
 import subprocess
-import sys
 
 KEY = "COMPOSE_PROJECT_NAME"
+# The .env next to the compose file, found from this script rather than taken as an argument, so it can only ever be
+# that file.
+ENV_FILE = pathlib.Path(__file__).resolve().parents[1] / "infrastructure" / ".env"
 
 
 def project_name():
@@ -22,8 +24,8 @@ def project_name():
     return re.sub(r"[^a-z0-9_-]", "", folder).lstrip("_-") or "medilab"
 
 
-def main(path):
-    env = pathlib.Path(path)
+def main():
+    env = ENV_FILE
     if not env.parent.is_dir():
         # A checkout without the compose file, such as CI's sparse one, runs no stack.
         print(f"No {env.parent}; no compose project to set.")
@@ -36,4 +38,4 @@ def main(path):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:])
+    main()

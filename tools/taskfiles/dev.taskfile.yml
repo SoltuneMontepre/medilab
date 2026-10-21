@@ -11,7 +11,6 @@ vars:
   TYPECHECK_DIR: tools/typecheck
   LOG: tools/scripts/log.sh
   DOPPLER: tools/scripts/doppler.sh
-  COMPOSE_ENV: tools/infrastructure/.env
 
 tasks:
   dev:setup:
@@ -25,7 +24,7 @@ tasks:
   dev:compose-env:
     desc: "Set this checkout's compose project in tools/infrastructure/.env from its folder name, so a worktree's containers never take the main checkout's"
     cmds:
-      - "{{.UV}} run python tools/scripts/compose_env.py {{.COMPOSE_ENV}}"
+      - "{{.UV}} run python tools/scripts/compose_env.py"
 
   doppler:
     desc: "Authenticate Doppler (paste token or browser login) and select the project and config"
