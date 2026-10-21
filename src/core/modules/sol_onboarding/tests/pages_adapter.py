@@ -30,10 +30,13 @@ class PagesAdapter(Adapter):
                 tax_id=row.get("data-tax-id"),
                 accreditation_code=row.get("data-code"),
             )
-            for row in tree.xpath("//tr[@data-key]")
+            for row in tree.iter("tr")
+            if row.get("data-key") is not None
         )
         records = []
-        for item in tree.xpath("//li[@data-kind]"):
+        for item in tree.iter("li"):
+            if item.get("data-kind") is None:
+                continue
             kind = item.get("data-kind")
             parent = (
                 (item.get("data-parent-kind"), item.get("data-parent-key")) if item.get("data-parent-key") else None
@@ -48,5 +51,5 @@ class PagesAdapter(Adapter):
                     parent=parent,
                 )
             )
-        links = tuple(urljoin(document.url, link.get("href")) for link in tree.xpath('//a[@rel="next"]'))
+        links = tuple(urljoin(document.url, link.get("href")) for link in tree.iter("a") if link.get("rel") == "next")
         return Parsed(tuple(records), organisations, links)

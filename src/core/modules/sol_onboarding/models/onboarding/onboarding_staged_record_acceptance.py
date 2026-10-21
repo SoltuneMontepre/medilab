@@ -2,8 +2,9 @@ from collections import defaultdict
 
 import psycopg2
 
-from odoo import Command, fields, models
+from odoo import fields, models
 from odoo.exceptions import UserError
+from odoo.fields import Command
 from odoo.tools import format_list
 
 from odoo.addons.sol_laboratory.constants.models import (

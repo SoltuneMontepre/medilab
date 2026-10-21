@@ -42,7 +42,7 @@ class OnboardingSource(models.Model):
     def _check_start_url(self):
         for source in self:
             try:
-                address = urlsplit(source.start_url)
+                address = urlsplit(source.start_url or "")
                 valid = (
                     address.scheme == "https"
                     and address.hostname == source.host
