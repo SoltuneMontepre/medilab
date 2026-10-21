@@ -91,6 +91,7 @@ services:
       GARAGE_ADMIN_URL: http://garage:3903
       GARAGE_ADMIN_TOKEN: *garage-admin-token
       GARAGE_OTHER_BUCKET: laboratory-files-other
+      GARAGE_RECONCILE_BUCKET: laboratory-files-reconcile
     depends_on:
       garage:
         condition: service_healthy

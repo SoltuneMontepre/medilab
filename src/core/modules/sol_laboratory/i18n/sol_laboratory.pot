@@ -13917,3 +13917,33 @@ msgstr ""
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__verifying
 msgid "Verifying"
 msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_contents_reconcile_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_contents_reconcile
+msgid "Reconcile the laboratory files bucket"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The laboratory files bucket belongs to the database %(uuid)s, so reconciliation deletes nothing in it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The object %(key)s of verified laboratory file content is missing from the bucket."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The object %(key)s of verified laboratory file content has %(size)s bytes instead of %(expected)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The laboratory file content %(key)s is still pending a day after it was made, and no open upload holds it."
+msgstr ""
