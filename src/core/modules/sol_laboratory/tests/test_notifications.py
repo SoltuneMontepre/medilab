@@ -84,7 +84,7 @@ class TestNotifications(TransactionCase):
         self.assertEqual(len(mine), 1)
 
     def test_a_mandatory_channel_cannot_be_turned_off(self):
-        event = self.env["mail.message.subtype"].search([("code", "=", "invoice.sent")], limit=1)
+        event = self.env.ref("sol_laboratory.event_test_report_issued")
         with self.assertRaises(UserError):
             self.env["medilab.notification.preference"].with_user(self.user).set_own(event, CHANNEL_EMAIL, False)
 
@@ -373,7 +373,7 @@ class TestNotifications(TransactionCase):
         with self.assertRaises(AccessError):
             own.with_user(self.user).write({"channel": "push"})
 
-        mandatory = self.env["mail.message.subtype"].search([("code", "=", "invoice.sent")], limit=1)
+        mandatory = self.env.ref("sol_laboratory.event_test_report_issued")
         required = preferences.with_user(self.user).set_own(mandatory, CHANNEL_EMAIL, True)
         with self.assertRaises(UserError):
             required.with_user(self.user).write({"enabled": False})
