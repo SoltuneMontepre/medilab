@@ -18,9 +18,11 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     RAW_DATA,
     RESTORED,
     SYNCED,
+    VERIFIED,
 )
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_LABORATORY_CONTENT,
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FILE_CHANGE,
     MODEL_LABORATORY_FILE_VERSION,
@@ -156,10 +158,11 @@ class LaboratoryFile(models.Model):
         folders._check_not_archived()
         folders._check_enabled()
 
-    def _add_version(
-        self, *, sha256, size, storage_key, source, user, device=None, base_version=None, restored_from=None
-    ):
+    def _add_version(self, *, source, user, content=None, device=None, base_version=None, restored_from=None):
         """Store a version of the file, the one way versions are made, and return it.
+
+        A save stores content the server verified, and the version records that content's SHA-256 and size; a restore
+        takes them from the version it restores. Values a computer sent are never stored.
 
         The version is numbered after the file's last one and becomes current, with a change row, unless it is made
         from a base version that is no longer current: then it is kept as a conflict and the current version stays.
@@ -170,14 +173,11 @@ class LaboratoryFile(models.Model):
         in the same request must be safe to run twice."""
         self.ensure_one()
         self._check_can_add_version(user, device)
-        if source not in (SYNCED, EDITED_ONLINE, RESTORED) or (source == RESTORED) != bool(restored_from):
-            raise ValueError("A version is synced or edited online, or restored from a version.")
-        if (base_version and base_version.file_id != self) or (restored_from and restored_from.file_id != self):
-            raise ValueError("A version is made from a version of the same file.")
+        content = self._content_of_new_version(source, content, base_version, restored_from)
         file = self.sudo()
         file._lock_for_new_version()
         current = file.current_version_id
-        if source != RESTORED and current.sha256 == sha256:
+        if source != RESTORED and current.content_id == content:
             return current.with_env(self.env)
         if source != RESTORED and base_version and base_version != current:
             source = CONFLICT
@@ -191,9 +191,9 @@ class LaboratoryFile(models.Model):
                     "parent_version_id": current.id,
                     "restored_from_id": restored_from.id if restored_from else False,
                     "source": source,
-                    "size": size,
-                    "sha256": sha256,
-                    "storage_key": storage_key,
+                    "content_id": content.id,
+                    "size": content.size,
+                    "sha256": content.sha256,
                     "user_id": user.id,
                     "device_id": device.id if device else False,
                 }
@@ -202,6 +202,22 @@ class LaboratoryFile(models.Model):
         if source != CONFLICT:
             file._make_current(version)
         return version.with_env(self.env)
+
+    def _content_of_new_version(self, source, content, base_version, restored_from):
+        """Refuse a version made the wrong way, and return the verified content it stores: the content given, or for a
+        restore the content of the version it restores."""
+        if source not in (SYNCED, EDITED_ONLINE, RESTORED) or (source == RESTORED) != bool(restored_from):
+            raise ValueError("A version is synced or edited online, or restored from a version.")
+        if (base_version and base_version.file_id != self) or (restored_from and restored_from.file_id != self):
+            raise ValueError("A version is made from a version of the same file.")
+        if restored_from:
+            if content:
+                raise ValueError("A restore stores the content of the version it restores.")
+            content = restored_from.sudo().content_id
+        content = (content or self.env[MODEL_LABORATORY_CONTENT]).sudo()
+        if len(content) != 1 or content.state != VERIFIED:
+            raise ValueError("A version stores content the server verified.")
+        return content
 
     def _lock_for_new_version(self):
         # Every save updates the file's row, a conflict too, so a concurrent save of the file waits for this one and

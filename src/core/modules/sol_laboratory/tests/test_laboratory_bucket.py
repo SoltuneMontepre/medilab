@@ -2,7 +2,6 @@ import base64
 import hashlib
 import os
 import re
-import socket
 import time
 import urllib.parse
 from unittest.mock import patch
@@ -13,7 +12,7 @@ from botocore.exceptions import ClientError
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
-from .laboratory_bucket_case import LaboratoryBucketCase
+from .laboratory_bucket_case import LaboratoryBucketCase, closed_port
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import ACCESS_KEY_VARIABLE, ADDRESS_VARIABLE, PART_SIZE
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 
@@ -21,13 +20,6 @@ from odoo.addons.sol_laboratory.services import laboratory_bucket
 # tools/infrastructure/docker-compose.yml).
 OTHER_BUCKET = "laboratory-files-other"
 MINUTE = 60
-
-
-def closed_port():
-    """A port of this machine nothing listens on, as the address of a bucket that is down."""
-    with socket.socket() as probe:
-        probe.bind(("127.0.0.1", 0))
-        return probe.getsockname()[1]
 
 
 def in_chunks(data, size=1024 * 1024):

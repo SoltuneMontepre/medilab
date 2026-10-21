@@ -89,6 +89,18 @@ class LaboratoryFilesConcurrencyCase(TransactionCase):
         return len(attempts), result
 
     @staticmethod
+    def last_content(env):
+        """The id of the last content recorded so far, from which remove_contents() removes what a test committed."""
+        env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_laboratory_content")
+        return env.cr.fetchone()[0]
+
+    @staticmethod
+    def remove_contents(cr, last_content_id):
+        """Remove the contents recorded after last_content_id, once the versions referring to them are removed. Content
+        refuses deletion, so it is removed with SQL; its bytes were never written to the bucket."""
+        cr.execute("DELETE FROM medilab_laboratory_content WHERE id > %s", [last_content_id])
+
+    @staticmethod
     def create_sample(env):
         """A customer's request with one sample, which a test commits and removes with remove_sample()."""
         env = env(context=QUIET)

@@ -26,5 +26,9 @@ LABORATORY_FOLDER_RETENTION_PARAMETER = "sol_laboratory.laboratory_folder_retent
 DEFAULT_LABORATORY_FOLDER_RETENTION_DAYS = 1825
 LABORATORY_FILE_LOCK_PARAMETER = "sol_laboratory.laboratory_file_lock_minutes"
 DEFAULT_LABORATORY_FILE_LOCK_MINUTES = 30
+LABORATORY_FILE_URL_PARAMETER = "sol_laboratory.laboratory_file_url_minutes"
+DEFAULT_LABORATORY_FILE_URL_MINUTES = 15
+# Seven days, the longest a presigned address of the bucket lasts.
+LONGEST_LABORATORY_FILE_URL_MINUTES = 7 * 24 * 60
 LABORATORY_EDITING_IDLE_PARAMETER = "sol_laboratory.laboratory_editing_idle_hours"
 DEFAULT_LABORATORY_EDITING_IDLE_HOURS = 12
