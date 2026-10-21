@@ -1,9 +1,9 @@
-import hashlib
 import uuid
 
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
+from .laboratory_files_case import stored_content
 from .laboratory_files_concurrency_case import LaboratoryFilesConcurrencyCase
 from odoo.addons.sol_laboratory.constants.approvals import PURPOSE_SIGNING, STATE_APPROVED, STATE_NONE
 from odoo.addons.sol_laboratory.constants.laboratory_files import RESULT, SYNCED
@@ -20,13 +20,8 @@ from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_PERSON
 
 
 def save(file, content):
-    sha256 = hashlib.sha256(content.encode()).hexdigest()
     return file._add_version(
-        sha256=sha256,
-        size=len(content),
-        storage_key=f"test/{sha256}",
-        source=SYNCED,
-        user=file.env.ref("base.user_admin"),
+        content=stored_content(file.env, content), source=SYNCED, user=file.env.ref("base.user_admin")
     )
 
 
@@ -43,6 +38,7 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
     def prepare(self, env):
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_audit_entry")
         self.last_entry_id = env.cr.fetchone()[0]
+        self.last_content_id = self.last_content(env)
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_signature")
         self.last_signature_id = env.cr.fetchone()[0]
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_document_lock")
@@ -98,6 +94,7 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         cr.execute("DELETE FROM medilab_laboratory_file_change WHERE folder_id = %s", [self.ids["folder"]])
         cr.execute("UPDATE medilab_laboratory_file SET current_version_id = NULL WHERE id = %s", [self.ids["file"]])
         cr.execute("DELETE FROM medilab_laboratory_file_version WHERE file_id = %s", [self.ids["file"]])
+        self.remove_contents(cr, self.last_content_id)
         cr.execute("DELETE FROM medilab_laboratory_file WHERE id = %s", [self.ids["file"]])
         cr.execute("DELETE FROM medilab_laboratory_folder_member WHERE folder_id = %s", [self.ids["folder"]])
         cr.execute("DELETE FROM medilab_laboratory_folder WHERE id = %s", [self.ids["folder"]])

@@ -31,9 +31,6 @@ class TestLaboratoryEditingServiceDown(LaboratoryEditingCase):
         self.save(self.file, "Kết quả, bản 2 từ máy tính")
 
         restored = self.file._add_version(
-            sha256=self.first.sha256,
-            size=self.first.size,
-            storage_key=self.first.storage_key,
             source=RESTORED,
             user=self.member,
             restored_from=self.first,
@@ -54,11 +51,7 @@ class TestLaboratoryEditingServiceDown(LaboratoryEditingCase):
         synced = self.save(self.file, "Kết quả, bản 2 từ máy tính")
 
         version = self.session._store_save(
-            sha256=self.sha("sửa trực tuyến"),
-            size=len("sửa trực tuyến"),
-            storage_key=f"test/{self.sha('sửa trực tuyến')}",
-            editor=self.tester,
-            editors=self.tester,
+            content=self.stored("sửa trực tuyến"), editor=self.tester, editors=self.tester
         )
 
         self.assertEqual((self.session.status, self.file.current_version_id), (SESSION_CONFLICT, synced))
@@ -67,9 +60,6 @@ class TestLaboratoryEditingServiceDown(LaboratoryEditingCase):
     def test_syncing_restoring_and_reading_history_never_ask_the_editing_service(self):
         self.save(self.file, "Kết quả, bản 2 từ máy tính", user=self.member)
         self.file._add_version(
-            sha256=self.first.sha256,
-            size=self.first.size,
-            storage_key=self.first.storage_key,
             source=RESTORED,
             user=self.member,
             restored_from=self.first,

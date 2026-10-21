@@ -1,4 +1,4 @@
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
 from .laboratory_files_case import LaboratoryFilesCase
@@ -10,7 +10,12 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     RESTORED,
     SYNCED,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_DEVICE, MODEL_LABORATORY_FILE_CHANGE
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LABORATORY_CONTENT,
+    MODEL_LABORATORY_DEVICE,
+    MODEL_LABORATORY_FILE_CHANGE,
+    MODEL_LABORATORY_FILE_VERSION,
+)
 
 
 @tagged("post_install", "-at_install")
@@ -74,26 +79,57 @@ class TestLaboratoryFileVersions(LaboratoryFilesCase):
         versions = self.save_many(5)
         third = versions[2]
 
-        restored = self.file._add_version(
-            sha256=third.sha256,
-            size=third.size,
-            storage_key=third.storage_key,
-            source=RESTORED,
-            user=self.member,
-            restored_from=third,
-        )
+        restored = self.file._add_version(source=RESTORED, user=self.member, restored_from=third)
 
         self.assertEqual((restored.number, restored.restored_from_id, restored.sha256), (6, third, third.sha256))
+        # No byte is copied: the restore holds the content of the version it restores.
+        self.assertEqual(restored.content_id, third.content_id)
         self.assertEqual(self.file.current_version_id, restored)
-        again = self.file._add_version(
-            sha256=third.sha256,
-            size=third.size,
-            storage_key=third.storage_key,
-            source=RESTORED,
-            user=self.member,
-            restored_from=third,
-        )
+        again = self.file._add_version(source=RESTORED, user=self.member, restored_from=third)
         self.assertEqual(again.number, 7)
+
+    def test_a_restore_stores_only_the_content_of_the_version_it_restores(self):
+        first = self.save(self.file, "run 1")
+
+        with self.assertRaises(ValueError):
+            self.file._add_version(
+                source=RESTORED, user=self.member, restored_from=first, content=self.stored("other content")
+            )
+
+    def test_a_version_stores_only_content_the_server_verified(self):
+        self.save(self.file, "run 1")
+        contents = self.env[MODEL_LABORATORY_CONTENT].sudo()
+        pending = contents._new_pending()
+        failed = contents._new_pending()
+        failed._fail()
+        stored = self.stored("run 2")
+        duplicate = contents._new_pending()
+        duplicate._settle(stored.sha256, stored.size)
+        for name, content in (("none", contents), ("pending", pending), ("failed", failed), ("duplicate", duplicate)):
+            with self.subTest(content=name), self.assertRaises(ValueError):
+                self.file._add_version(content=content, source=SYNCED, user=self.tester)
+        self.assertEqual(len(self.file.version_ids), 1)
+
+    def test_a_version_records_the_size_and_sha256_of_its_content_only(self):
+        content = self.stored("run 1")
+        version = self.file._add_version(content=content, source=SYNCED, user=self.tester)
+        values = {
+            "file_id": self.file.id,
+            "number": 2,
+            "source": SYNCED,
+            "content_id": content.id,
+            "user_id": self.tester.id,
+        }
+
+        for claimed in ({"sha256": "0" * 64, "size": content.size}, {"sha256": content.sha256, "size": 1}):
+            with self.subTest(claimed=claimed), self.assertRaises(ValidationError), self.env.cr.savepoint():
+                self.env[MODEL_LABORATORY_FILE_VERSION].create({**values, **claimed})
+        pending = self.env[MODEL_LABORATORY_CONTENT].sudo()._new_pending()
+        with self.assertRaises(ValidationError), self.env.cr.savepoint():
+            self.env[MODEL_LABORATORY_FILE_VERSION].create(
+                {**values, "content_id": pending.id, "sha256": content.sha256, "size": content.size}
+            )
+        self.assertEqual((version.sha256, version.size), (content.sha256, content.size))
 
     def test_the_current_version_never_moves_back_to_an_older_one(self):
         first, second = self.save_many(2)
