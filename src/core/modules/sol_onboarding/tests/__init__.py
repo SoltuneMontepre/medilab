@@ -7,4 +7,5 @@ from . import (
     test_runs,
     test_sectors,
     test_source_access,
+    test_staging,
 )

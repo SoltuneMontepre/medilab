@@ -43,7 +43,10 @@ class OnboardingCase(TransactionCase):
         cls.reader = new_test_user(
             cls.env,
             login="onboarding_reader",
-            groups="base.group_user,sol_laboratory.group_permission_onboarding_run_read_all",
+            groups=(
+                "base.group_user,sol_laboratory.group_permission_onboarding_run_read_all,"
+                "sol_laboratory.group_permission_onboarding_staged_record_read_all"
+            ),
         )
 
     def setUp(self):

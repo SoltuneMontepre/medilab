@@ -5605,6 +5605,14 @@ msgid "Permission: onboarding.run.read.all"
 msgstr "Quyền: onboarding.run.read.all"
 
 #. module: sol_laboratory
+msgid "Permission: onboarding.staged.record.edit.all"
+msgstr "Quyền: onboarding.staged.record.edit.all"
+
+#. module: sol_laboratory
+msgid "Permission: onboarding.staged.record.read.all"
+msgstr "Quyền: onboarding.staged.record.read.all"
+
+#. module: sol_laboratory
 msgid "Permission: order.create.all"
 msgstr "Quyền: order.create.all"
 

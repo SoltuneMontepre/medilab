@@ -11,7 +11,9 @@ from odoo.addons.sol_onboarding.constants.models import (
     MODEL_ONBOARDING_ORGANISATION,
     MODEL_ONBOARDING_RUN,
     MODEL_ONBOARDING_SECTOR,
+    MODEL_ONBOARDING_SNAPSHOT,
     MODEL_ONBOARDING_SOURCE,
+    MODEL_ONBOARDING_STAGED_RECORD,
 )
 from odoo.addons.sol_onboarding.constants.onboarding import (
     CRAWL_JOB,
@@ -32,6 +34,7 @@ class OnboardingRun(models.Model):
     _description = "Collection Run"
     _order = "id desc"
     _permission_actions = ("read", "create", "edit")
+    _audit_children = ("staged_record_ids",)
 
     _name_unique = models.Constraint("UNIQUE(name)", "A collection run reference is used once.")
     _one_running = models.UniqueIndex(
@@ -79,6 +82,10 @@ class OnboardingRun(models.Model):
     skipped_count = fields.Integer(string="Pages Skipped", default=0, copy=False)
     # Records the run staged.
     staged_count = fields.Integer(string="Records Staged", default=0, copy=False)
+    # Documents the run fetched.
+    snapshot_ids = fields.One2many(MODEL_ONBOARDING_SNAPSHOT, "run_id", string="Snapshots")
+    # Records the run staged.
+    staged_record_ids = fields.One2many(MODEL_ONBOARDING_STAGED_RECORD, "run_id", string="Staged Records")
     # One line per page: fetched, skipped with its reason, or failed with its error.
     log = fields.Text(string="Log", copy=False)
 

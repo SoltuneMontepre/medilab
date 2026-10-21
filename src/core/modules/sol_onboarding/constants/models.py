@@ -3,4 +3,6 @@
 MODEL_ONBOARDING_ORGANISATION = "medilab.onboarding.organisation"
 MODEL_ONBOARDING_RUN = "medilab.onboarding.run"
 MODEL_ONBOARDING_SECTOR = "medilab.onboarding.sector"
+MODEL_ONBOARDING_SNAPSHOT = "medilab.onboarding.snapshot"
 MODEL_ONBOARDING_SOURCE = "medilab.onboarding.source"
+MODEL_ONBOARDING_STAGED_RECORD = "medilab.onboarding.staged.record"

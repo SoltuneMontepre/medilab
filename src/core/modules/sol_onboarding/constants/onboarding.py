@@ -47,3 +47,14 @@ MAX_REDIRECTS = 5
 # Media types the fetcher accepts, with the content type of the fetched document.
 CONTENT_TYPES = {"text/html": "html", "application/pdf": "pdf", "application/json": "json"}
 USER_AGENT = "MediLab-Onboarding/1.0"
+
+STAGED_TO_REVIEW = "to_review"
+STAGED_ACCEPTED = "accepted"
+STAGED_REJECTED = "rejected"
+STAGED_SUPERSEDED = "superseded"
+# States of a key that stop an unchanged record from being staged again.
+STAGED_KEPT = (STAGED_TO_REVIEW, STAGED_ACCEPTED, STAGED_REJECTED)
+
+ACTION_CREATE = "create"
+ACTION_LINK = "link"
+ACTION_UPDATE = "update"
