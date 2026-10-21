@@ -1,9 +1,12 @@
+import socket
+from io import BytesIO
 from unittest.mock import patch
 
 import requests
 
 from odoo.tests import TransactionCase, tagged
 from odoo.tools import file_open
+from odoo.tools.pdf import PdfReader
 
 from odoo.addons.sol_onboarding.services.parsing import clean_text, html_tree, json_data, pdf_text
 
@@ -15,7 +18,10 @@ class TestParsing(TransactionCase):
 
     def test_html_is_parsed_without_fetching_anything(self):
         body = b'<script src="https://evil.test/x.js"></script><link href="https://evil.test/a.css"><p>A</p>'
-        with patch.object(requests.Session, "get", side_effect=AssertionError("fetched")):
+        with (
+            patch.object(requests.Session, "get", side_effect=AssertionError("fetched")),
+            patch.object(socket.socket, "connect", side_effect=AssertionError("network")),
+        ):
             tree = html_tree(body)
         self.assertEqual(tree.text_content().strip(), "A")
 
@@ -25,7 +31,9 @@ class TestParsing(TransactionCase):
 
     def test_a_pdf_without_text_gives_no_text(self):
         with file_open("sol_onboarding/tests/pages/scanned.pdf", "rb") as scanned:
-            self.assertEqual(pdf_text(scanned.read()), "")
+            body = scanned.read()
+        self.assertEqual(len(PdfReader(BytesIO(body), strict=False).pages), 1)
+        self.assertEqual(pdf_text(body), "")
 
     def test_a_broken_pdf_gives_no_text(self):
         self.assertEqual(pdf_text(b"not a pdf"), "")

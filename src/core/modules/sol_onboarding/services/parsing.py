@@ -5,7 +5,6 @@ import unicodedata
 from io import BytesIO
 
 from lxml import html
-from pypdf.errors import PyPdfError
 
 from odoo.tools.pdf import PdfReader
 
@@ -28,7 +27,7 @@ def pdf_text(body: bytes) -> str:
     try:
         reader = PdfReader(BytesIO(body), strict=False)
         return "\n".join(page.extract_text() or "" for page in reader.pages).strip()
-    except (PyPdfError, ValueError, KeyError, OSError):
+    except Exception:  # fetched PDFs are untrusted: any reader failure means no text
         return ""
 
 
