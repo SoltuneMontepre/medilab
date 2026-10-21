@@ -872,6 +872,12 @@ msgstr "Bản ghi khớp không còn tồn tại. Hãy chọn lại bản ghi kh
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
+msgid "The matched record of %s no longer exists. Set the match again."
+msgstr "Bản ghi khớp của %s không còn tồn tại. Hãy chọn lại bản ghi khớp."
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
 msgid "The staged %s it needs is neither to review nor accepted."
 msgstr "%s chờ duyệt mà bản ghi này cần không ở trạng thái chờ duyệt hay đã duyệt."
 

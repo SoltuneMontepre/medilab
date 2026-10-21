@@ -871,6 +871,12 @@ msgstr ""
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
+msgid "The matched record of %s no longer exists. Set the match again."
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
 msgid "The staged %s it needs is neither to review nor accepted."
 msgstr ""
 

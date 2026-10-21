@@ -1,9 +1,16 @@
+from collections import defaultdict
+
 import psycopg2
 
 from odoo import Command, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_list
 
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ACCREDITATION_CERTIFICATE_IMPORT,
+    MODEL_TESTING_FIELD,
+    MODEL_TESTING_METHOD,
+)
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_STAGED_RECORD
 from odoo.addons.sol_onboarding.constants.onboarding import (
     ACTION_CREATE,
@@ -71,7 +78,8 @@ class OnboardingStagedRecordAcceptance(models.Model):
         refuses a record. Returns the refused records, each with its error."""
         refused = self.browse()
         to_review = self.filtered(lambda record: record.state == STAGED_TO_REVIEW)
-        for record in self:
+        # Certificates go first, so the methods of their scope are accepted with them.
+        for record in self.sorted(lambda record: record.kind != KIND_CERTIFICATE):
             # Accepted already, as a record that one before it needs.
             if record in to_review and record.state == STAGED_ACCEPTED:
                 continue
@@ -119,7 +127,10 @@ class OnboardingStagedRecordAcceptance(models.Model):
                     values=format_list(self.env, labels),
                 )
             )
-        record = self._laboratory_record(model)
+        record = self._accept_certificate(model) if self.kind == KIND_CERTIFICATE else self._laboratory_record(model)
+        self._mark_accepted(record)
+
+    def _mark_accepted(self, record):
         self.write(
             {
                 "state": STAGED_ACCEPTED,
@@ -130,6 +141,57 @@ class OnboardingStagedRecordAcceptance(models.Model):
                 "error": False,
             }
         )
+
+    def _accept_certificate(self, model):
+        """Create, link or update the certificate, then link the to-review methods of its scope through Laboratory's
+        import, one import per testing field. A matched method goes by its own code, so the import links it however
+        the source wrote the code. The methods to create or link are accepted with the certificate; one to update is
+        linked but stays to review, so its changes are accepted on their own."""
+        certificate = self._laboratory_record(model)
+        methods = self._scope_methods()
+        codes = {}
+        lines = defaultdict(list)
+        for method in methods:
+            matched = method._matched_record()
+            if method.action != ACTION_CREATE and not matched:
+                raise UserError(
+                    self.env._("The matched record of %s no longer exists. Set the match again.", method._describe())
+                )
+            if method.action == ACTION_UPDATE:
+                field = matched.field_id
+            else:
+                field = method._method_field() or self.field_id or matched.field_id
+            codes[method] = matched.code or method.code
+            lines[field.id].append(Command.create({"code": codes[method], "name": method.name}))
+        for field_id, field_lines in lines.items():
+            self.env[MODEL_ACCREDITATION_CERTIFICATE_IMPORT].create(
+                {"certificate_id": certificate.id, "field_id": field_id, "lang": self.lang, "line_ids": field_lines}
+            ).action_import()
+        found = (
+            self.env[MODEL_TESTING_METHOD]
+            .with_context(active_test=False)
+            .search([("code", "in", list(codes.values()))])
+        )
+        by_code = {record.code: record for record in found}
+        for method in methods.filtered(lambda method: method.action != ACTION_UPDATE):
+            method._mark_accepted(by_code[codes[method]])
+        return certificate
+
+    def _scope_methods(self):
+        """The staged methods of a certificate's scope that are to review."""
+        if self.kind != KIND_CERTIFICATE:
+            return self.browse()
+        return self.child_ids.filtered(
+            lambda child: child.kind == KIND_TESTING_METHOD and child.state == STAGED_TO_REVIEW
+        )
+
+    def _method_field(self):
+        """The testing field of a staged method: the edited one, else the one its staged testing field became, which
+        is accepted first when still to review. Empty when it has neither."""
+        need = self._needs().get("field_id", self.browse())
+        if need.state == STAGED_TO_REVIEW:
+            need._accept_one()
+        return self.field_id or self.env[MODEL_TESTING_FIELD].browse(need.record_id)
 
     def _laboratory_record(self, model):
         """Create the record, or link or update the matched one, writing only the values that differ. Active is never
@@ -155,8 +217,12 @@ class OnboardingStagedRecordAcceptance(models.Model):
         return needs
 
     def _own_missing_values(self) -> list[str]:
-        """The asked keys a record to create has no value for; a staged record that a need names gives its key."""
+        """The asked keys a record to create has no value for; a staged record that a need names gives its key. A
+        certificate misses the testing field when a method of its scope to create misses one, and gives it to them."""
         self.ensure_one()
+        if self.kind == KIND_CERTIFICATE:
+            fieldless = any(method._own_missing_values() for method in self._scope_methods())
+            return ["field_id"] if fieldless and not self.field_id else []
         if self.action != ACTION_CREATE:
             return []
         needs = self._needs()
@@ -164,10 +230,14 @@ class OnboardingStagedRecordAcceptance(models.Model):
 
     def _missing_values(self) -> dict:
         """The asked keys that the record, or a to-review record it needs at any depth, has no value for, each with
-        the staged record that misses it. No two records of one chain ask the same key."""
+        the staged record that misses it; a certificate's methods to create or link count their needs. No two records
+        of one chain ask the same key."""
         self.ensure_one()
         missing = dict.fromkeys(self._own_missing_values(), self)
-        for need in self._needs().values():
+        needs = list(self._needs().values())
+        for method in self._scope_methods().filtered(lambda method: method.action != ACTION_UPDATE):
+            needs += method._needs().values()
+        for need in needs:
             if need.state == STAGED_TO_REVIEW:
                 missing.update(need._missing_values())
         return missing

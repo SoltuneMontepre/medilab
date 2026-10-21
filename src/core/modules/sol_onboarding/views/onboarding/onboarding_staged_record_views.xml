@@ -100,7 +100,7 @@
                             <field name="valid_until" invisible="kind != 'certificate'" readonly="state != 'to_review'" />
                             <field
                                 name="field_id"
-                                invisible="kind != 'testing_method'"
+                                invisible="kind not in ('certificate', 'testing_method')"
                                 readonly="state != 'to_review'"
                                 options="{'no_create': True}"
                             />
