@@ -214,11 +214,11 @@ class LaboratoryFolder(models.Model):
             raise LaboratoryFileError(
                 PERMISSION_DENIED, self.env._("Only administrators can do this with a laboratory folder.")
             )
-        if access == FOLDER_SHARE and administrator:
-            self._check_not_archived()
-        elif access == FOLDER_ADMINISTER:
+        if access == FOLDER_ADMINISTER or (access == FOLDER_SHARE and administrator):
             # Administrators need no membership, but a folder of a sample only for people who see the sample.
             self._check_found(self._sample_domain())
+            if access == FOLDER_SHARE:
+                self._check_not_archived()
         else:
             self._check_member_access(access)
         if access in (FOLDER_SHARE, FOLDER_ADMINISTER):
