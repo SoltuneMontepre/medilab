@@ -9,6 +9,7 @@ from odoo.tools import mute_logger
 from .laboratory_files_case import LaboratoryFilesCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, SYNCED
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LABORATORY_CONTENT,
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FILE_CHANGE,
     MODEL_LABORATORY_FILE_VERSION,
@@ -28,14 +29,19 @@ class TestLaboratoryFileVersionImmutability(LaboratoryFilesCase):
 
     @classmethod
     def create_version(cls, file, number, content, **values):
+        """A version created directly, of verified content of the text; values replace what the version records."""
+        data = content.encode()
+        size = values.get("size", len(data))
+        sha256 = hashlib.sha256(data).hexdigest()
+        stored = cls.env[MODEL_LABORATORY_CONTENT].sudo()._new_pending()._settle(sha256, max(size, 0))
         return cls.env[MODEL_LABORATORY_FILE_VERSION].create(
             {
                 "file_id": file.id,
                 "number": number,
                 "source": SYNCED,
-                "size": len(content),
-                "sha256": hashlib.sha256(content.encode()).hexdigest(),
-                "storage_key": f"test/{number}",
+                "size": size,
+                "sha256": sha256,
+                "content_id": stored.id,
                 "user_id": cls.tester.id,
                 **values,
             }
@@ -50,7 +56,7 @@ class TestLaboratoryFileVersionImmutability(LaboratoryFilesCase):
             "source": CONFLICT,
             "size": 1,
             "sha256": "0" * 64,
-            "storage_key": "test/other",
+            "content_id": self.stored("other").id,
             "user_id": self.member.id,
             "device_id": False,
         }

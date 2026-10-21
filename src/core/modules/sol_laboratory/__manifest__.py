@@ -91,6 +91,7 @@
         "views/signing/res_config_settings_views.xml",
         "views/laboratory_files/res_config_settings_views.xml",
         "views/laboratory_files/laboratory_file_lock_settings_views.xml",
+        "views/laboratory_files/laboratory_file_url_settings_views.xml",
         "views/testing/sample_test_cancel_views.xml",
         "views/testing/sample_test_outsource_views.xml",
         "views/testing/sample_test_views.xml",

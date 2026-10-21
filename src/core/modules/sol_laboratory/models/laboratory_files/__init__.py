@@ -1,5 +1,6 @@
 from . import (
     ir_http,
+    laboratory_content,
     laboratory_device,
     laboratory_editing_session,
     laboratory_editing_session_callback,
@@ -14,6 +15,7 @@ from . import (
     laboratory_file_locking,
     laboratory_file_sample,
     laboratory_file_signing,
+    laboratory_file_url_settings,
     laboratory_file_version,
     laboratory_file_version_reject,
     laboratory_file_version_sample,

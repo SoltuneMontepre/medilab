@@ -7,7 +7,9 @@ from odoo import fields
 from odoo.tests import tagged
 
 from .editing_service import PUBLIC_URL, LocalEditingService, callback, use_editing_service
+from .laboratory_bucket_case import closed_port, remove_written_objects
 from .laboratory_editing_case import LaboratoryEditingCase
+from odoo.addons.sol_laboratory.constants.laboratory_bucket import ADDRESS_VARIABLE
 from odoo.addons.sol_laboratory.constants.laboratory_editing import (
     CLOSED,
     COMMITTED,
@@ -18,16 +20,18 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
     SAVING,
     SESSION_CONFLICT,
 )
-from odoo.addons.sol_laboratory.constants.laboratory_files import EDITED_ONLINE
+from odoo.addons.sol_laboratory.constants.laboratory_files import DUPLICATE, EDITED_ONLINE, SYNCED, VERIFIED
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LABORATORY_CONTENT,
     MODEL_LABORATORY_EDITING_SESSION,
     MODEL_LABORATORY_FOLDER_MEMBER,
 )
-from odoo.addons.sol_laboratory.services import saved_documents
+from odoo.addons.sol_laboratory.services import laboratory_bucket, saved_documents
 from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused
 
 SAVED_PATH = "/cache/files/data/session_902/output.xlsx/output.xlsx"
 CONTENT = "Kết quả HPLC, sửa trực tuyến".encode()
+SAVED_SHA256 = hashlib.sha256(CONTENT).hexdigest()
 
 
 @tagged("post_install", "-at_install")
@@ -41,18 +45,12 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
         self.service.answer(SAVED_PATH, CONTENT)
         self.session = self.new_session()
         self.sessions = self.env[MODEL_LABORATORY_EDITING_SESSION]
-        # Stands in for the laboratory files bucket: the content is read whole and recorded under its SHA-256.
-        self.stored = []
+        remove_written_objects(self)
 
-        def store(session, chunks):
-            content = b"".join(chunks)
-            sha256 = hashlib.sha256(content).hexdigest()
-            self.stored.append(sha256)
-            return {"sha256": sha256, "size": len(content), "storage_key": f"test/{sha256}"}
-
-        self.bucket = patch.object(type(self.sessions), "_store_saved_document", autospec=True, side_effect=store)
-        self.bucket.start()
-        self.addCleanup(self.bucket.stop)
+    def saved_key(self):
+        """The key of the object that holds the saved document."""
+        contents = self.env[MODEL_LABORATORY_CONTENT].sudo()
+        return contents.search([("state", "=", VERIFIED), ("sha256", "=", SAVED_SHA256)]).object_key
 
     def call(self, status, session=None, token=None, **values):
         """Send the session a callback of the status, as Document Server 9.4 sends it, and return whether it is answered
@@ -77,9 +75,7 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
         self.assertTrue(self.save_online())
 
         version = self.file.current_version_id
-        self.assertEqual(
-            (version.source, version.user_id, version.sha256), (EDITED_ONLINE, self.member, self.stored[0])
-        )
+        self.assertEqual((version.source, version.user_id, version.sha256), (EDITED_ONLINE, self.member, SAVED_SHA256))
         self.assertEqual((self.session.status, self.session.committed_version_id), (COMMITTED, version))
         note = self.entries(self.session, "edit")[-1].note
         self.assertIn(self.member.name, note)
@@ -122,7 +118,7 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
         self.assertTrue(self.save_online())
 
         self.assertEqual((self.session.status, len(self.file.version_ids)), (ERROR, 1))
-        self.assertIn(f"test/{self.stored[0]}", self.entries(self.session, "edit")[-1].note)
+        self.assertIn(self.saved_key(), self.entries(self.session, "edit")[-1].note)
 
     def test_a_save_naming_nobody_who_can_save_ends_the_session_in_error_and_the_trail_keeps_the_content(self):
         for number, users in enumerate(([], ["999999"], ["7a"], [7])):
@@ -134,7 +130,7 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
                 self.assertTrue(self.call(2, session=session, url=f"{PUBLIC_URL}{SAVED_PATH}", users=users))
 
                 self.assertEqual(session.status, ERROR)
-                self.assertIn(f"test/{self.stored[-1]}", self.entries(session, "edit")[-1].note)
+                self.assertIn(self.saved_key(), self.entries(session, "edit")[-1].note)
 
     def test_a_save_that_cannot_be_read_now_keeps_the_session_saving_and_asks_for_the_call_again(self):
         self.service.answer(SAVED_PATH, status=500)
@@ -146,10 +142,58 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
         self.assertTrue(self.save_online())
         self.assertEqual(self.session.status, COMMITTED)
 
-    def test_without_the_laboratory_files_bucket_a_save_waits(self):
-        self.bucket.stop()
+    def test_the_saved_document_is_written_to_an_object_of_its_own_and_verified_on_the_way(self):
+        self.assertTrue(self.save_online())
 
-        self.assertFalse(self.save_online())
+        content = self.file.current_version_id.content_id.sudo()
+        self.assertEqual((content.state, content.sha256, content.size), (VERIFIED, SAVED_SHA256, len(CONTENT)))
+        with laboratory_bucket.read(content.object_key) as chunks:
+            self.assertEqual(b"".join(chunks), CONTENT)
+
+    def test_a_save_of_content_already_stored_shares_it_and_its_own_object_is_deleted_once_committed(self):
+        contents = self.env[MODEL_LABORATORY_CONTENT].sudo()
+        stored = contents._new_pending()
+        laboratory_bucket.write(stored.object_key, iter([CONTENT]))
+        stored._settle(SAVED_SHA256, len(CONTENT))
+        self.file_of("2026/Bản sao.xlsx")._add_version(content=stored, source=SYNCED, user=self.tester)
+
+        self.assertTrue(self.save_online())
+
+        self.assertEqual(self.file.current_version_id.content_id, stored)
+        duplicate = contents.search([("sha256", "=", SAVED_SHA256), ("state", "=", DUPLICATE)])
+        self.assertEqual(laboratory_bucket.object_size(duplicate.object_key), len(CONTENT))
+        self.env.cr.postcommit.run()
+        self.assertIsNone(laboratory_bucket.object_size(duplicate.object_key))
+        self.assertEqual(laboratory_bucket.object_size(stored.object_key), len(CONTENT))
+
+    def test_a_save_whose_transaction_fails_after_its_object_is_written_leaves_nothing_that_counts(self):
+        written = []
+        write = laboratory_bucket.write
+
+        def recording(key, chunks):
+            written.append(key)
+            self.addCleanup(laboratory_bucket.delete, key)
+            return write(key, chunks)
+
+        def fail(*args, **kwargs):
+            raise RuntimeError("The transaction of the callback fails.")
+
+        with (
+            patch.object(laboratory_bucket, "write", recording),
+            patch.object(type(self.sessions), "_store_save", fail),
+            self.assertRaises(RuntimeError),
+            self.env.cr.savepoint(),
+        ):
+            self.save_online()
+
+        [key] = written
+        self.assertEqual(laboratory_bucket.object_size(key), len(CONTENT))
+        self.assertFalse(self.env[MODEL_LABORATORY_CONTENT].sudo().search([("object_key", "=", key)]))
+        self.assertNothingStored()
+
+    def test_without_the_laboratory_files_bucket_a_save_waits(self):
+        with patch.dict(os.environ, {ADDRESS_VARIABLE: f"http://127.0.0.1:{closed_port()}"}):
+            self.assertFalse(self.save_online())
 
         self.assertNothingStored(SAVING)
 

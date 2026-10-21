@@ -7135,11 +7135,6 @@ msgid "Storage Conditions"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__storage_key
-msgid "Storage Key"
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__street
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__street
 msgid "Street"
@@ -13572,4 +13567,129 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
 msgid "This file does not exist in the folder."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_content
+msgid "Laboratory Content"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_content__object_key
+msgid "Object Key"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__content_id
+msgid "Content"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_content__state__verified
+msgid "Verified"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_content__state__duplicate
+msgid "Duplicate"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_file_url_minutes
+msgid "File Addresses (minutes)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_file_url_minutes
+msgid "Minutes an address that downloads a version of a laboratory file, or opens it in the online editor, keeps working once it is given."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_url_settings.py:0
+msgid "An address of a laboratory file lasts from 1 minute to 7 days, the longest the bucket takes."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "A version holds verified content, with the size and SHA-256 the server computed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "A SHA-256 is 64 lowercase hexadecimal digits."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "A content keeps the key of its object."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "A content's size cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "An object key is 32 lowercase hexadecimal digits."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content is pending until the server has computed its size and SHA-256."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content is settled by the server from its own reading of the bytes."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content with the same SHA-256 was stored meanwhile; it is settled again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content with this SHA-256 is already stored."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Each object of the bucket is one content."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Failed content is never verified."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Only pending content fails."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Stored content is never deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Verified content has the size and SHA-256 the server computed."
 msgstr ""

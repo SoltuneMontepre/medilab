@@ -1,4 +1,5 @@
 import hashlib
+import socket
 import urllib.parse
 
 import requests
@@ -6,7 +7,27 @@ import requests
 from odoo.tests import TransactionCase
 from odoo.tests.common import _super_send
 
+from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_CONTENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
+
+
+def closed_port():
+    """A port of this machine nothing listens on, as the address of a service that is down."""
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        return probe.getsockname()[1]
+
+
+def remove_written_objects(case):
+    """Delete, after the test, the objects of the contents the test records, which its rollback leaves in the bucket."""
+    contents = case.env[MODEL_LABORATORY_CONTENT].sudo()
+    last_id = contents.search([], order="id desc", limit=1).id
+
+    def remove():
+        for key in contents.search([("id", ">", last_id)]).mapped("object_key"):
+            laboratory_bucket.delete(key)
+
+    case.addCleanup(remove)
 
 
 class LaboratoryBucketCase(TransactionCase):
