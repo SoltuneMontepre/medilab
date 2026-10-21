@@ -5,6 +5,7 @@ from .laboratory_api_case import LaboratoryApiCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     FOLDER_ARCHIVED,
     FOLDER_EXISTS,
+    IDEMPOTENCY_CONFLICT,
     INVALID_REQUEST,
     NOT_FOUND,
     PERMISSION_DENIED,
@@ -77,7 +78,7 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
     def test_an_idempotency_key_sent_with_another_request_is_refused(self):
         self.create("AAS", idempotency_key="create-1")
 
-        self.assertApiRefused(INVALID_REQUEST, self.create("GC", idempotency_key="create-1"))
+        self.assertApiRefused(IDEMPOTENCY_CONFLICT, self.create("GC", idempotency_key="create-1"))
         self.assertApiRefused(INVALID_REQUEST, self.create("GC", idempotency_key="a key with spaces"))
 
     def test_a_folder_is_named_never_given_a_path(self):

@@ -9,7 +9,8 @@ info:
 
     A route that creates something takes an optional `Idempotency-Key` header, a key the computer generates for the
     request and that is unique for the computer: repeating the request with the same key, such as after a lost answer,
-    answers with what the first one created. Other changes are idempotent by their own rules.
+    answers with what the first one created; the same key with another request is refused with
+    `idempotency_conflict`. Other changes are idempotent by their own rules.
 
     | Code | Status |
     | ---- | ------ |
@@ -19,7 +20,7 @@ info:
     | `not_found` | 404 |
     | `method_not_allowed` | 405 |
     | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked` | 409 |
-    | `not_eligible`, `not_lockable`, `not_editable` | 422 |
+    | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict` | 422 |
     | `too_many_attempts` | 429 |
     | `internal_error` | 500 |
     | `try_again`, `editing_unavailable` | 503 |
@@ -922,6 +923,7 @@ components:
                 - not_eligible
                 - not_lockable
                 - not_editable
+                - idempotency_conflict
                 - too_many_attempts
                 - internal_error
                 - try_again
@@ -1007,7 +1009,7 @@ components:
                   error:
                     properties:
                       code:
-                        enum: [not_eligible, not_lockable, not_editable]
+                        enum: [not_eligible, not_lockable, not_editable, idempotency_conflict]
     MethodNotAllowed:
       description: The route does not take this method.
       headers:

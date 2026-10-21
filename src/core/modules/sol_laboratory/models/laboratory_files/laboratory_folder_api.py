@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_api import CANDIDATE_LIMIT,
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     FOLDER_EXISTS,
     FOLDER_SHARE,
+    IDEMPOTENCY_CONFLICT,
     INVALID_REQUEST,
     MEMBER_ROLE,
     NOT_FOUND,
@@ -57,7 +58,7 @@ class LaboratoryFolderApi(models.Model):
         if created:
             if created.root != root:
                 raise LaboratoryFileError(
-                    INVALID_REQUEST, self.env._("This Idempotency-Key was already sent with another request.")
+                    IDEMPOTENCY_CONFLICT, self.env._("This Idempotency-Key was already sent with another request.")
                 )
             return created
         if self.sudo().search_count([("owner_id", "=", self.env.uid), ("root", "=", root)]):
