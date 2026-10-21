@@ -1,8 +1,9 @@
+# The project names the containers, network and volumes. Each checkout sets its own in the .env next to this file, which
+# task dev:setup writes from the checkout's folder name, so a worktree's stack never takes the main checkout's.
 name: medilab
 
 services:
   odoo:
-    container_name: medilab-odoo
     image: ${MEDILAB_ODOO_IMAGE:-medilab-odoo:local}
     build:
       context: ../..
@@ -17,7 +18,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "8069:8069"
+      - "${MEDILAB_ODOO_PORT:-8069}:8069"
     volumes:
       - medilab-app:/var/lib/odoo
       - ../../src/core/config:/etc/odoo:z
@@ -25,7 +26,6 @@ services:
       - ../scripts:/opt/medilab/scripts:ro,z
 
   postgres:
-    container_name: medilab-postgres
     restart: always
     image: docker.io/library/postgres:18
     environment:
@@ -46,22 +46,21 @@ services:
       - medilab-db:/var/lib/postgresql
       - ./postgres/init:/docker-entrypoint-initdb.d:z
     ports:
-      - "15432:5432"
+      - "${MEDILAB_DB_PORT:-15432}:5432"
 
   cloudbeaver:
-    container_name: medilab-cloudbeaver
     image: docker.io/dbeaver/cloudbeaver:latest
     restart: unless-stopped
     environment:
       CB_SERVER_NAME: MediLab
-      CB_SERVER_URL: http://localhost:8978
+      CB_SERVER_URL: http://localhost:${MEDILAB_CLOUDBEAVER_PORT:-8978}
       CB_ADMIN_NAME: ${CLOUDBEAVER_ADMIN_NAME:-medilab}
       CB_ADMIN_PASSWORD: ${CLOUDBEAVER_ADMIN_PASSWORD:-admin}
     depends_on:
       postgres:
         condition: service_healthy
     ports:
-      - "8978:8978"
+      - "${MEDILAB_CLOUDBEAVER_PORT:-8978}:8978"
     volumes:
       - medilab-cloudbeaver:/opt/cloudbeaver/workspace
       - ./cloudbeaver/data-sources.json:/opt/cloudbeaver/workspace/GlobalConfiguration/.dbeaver/data-sources.json:z

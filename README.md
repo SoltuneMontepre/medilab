@@ -37,11 +37,29 @@ Open http://localhost:8069. The `medilab` database is created by the first `task
 
 ## Services
 
-| Service     | URL                   | Notes                                 |
-| ----------- | --------------------- | ------------------------------------- |
-| Odoo        | http://localhost:8069 |                                       |
-| Postgres    | `localhost:15432`     | see [Environment](#environment)       |
-| CloudBeaver | http://localhost:8978 | `medilab` / `admin` unless overridden |
+| Service     | URL                   | Notes                                                              |
+| ----------- | --------------------- | ------------------------------------------------------------------ |
+| Odoo        | http://localhost:8069 | port `MEDILAB_ODOO_PORT`                                           |
+| Postgres    | `localhost:15432`     | port `MEDILAB_DB_PORT`; see [Environment](#environment)            |
+| CloudBeaver | http://localhost:8978 | port `MEDILAB_CLOUDBEAVER_PORT`; `medilab` / `admin` unless overridden |
+
+### A second stack from a worktree
+
+Each checkout runs its own compose project, named after its folder: the main checkout's is `medilab`, a worktree in `medilab-api` gets `medilab-api`. Containers, network and volumes are named after the project, such as `medilab-api_postgres_1`, so starting or stopping a worktree's stack, with `task` or with `docker compose` or `podman-compose` directly, never touches another checkout's.
+
+- `task dev:setup` writes the project into `tools/infrastructure/.env`, which compose reads wherever it is run from, and keeps the other lines of the file. The file is not committed.
+- A worktree that runs its own stack next to the main one adds its ports, and an image tag of its own so its build does not replace the main checkout's `medilab-odoo:local`, to that file:
+
+```sh
+MEDILAB_ODOO_PORT=8169
+MEDILAB_DB_PORT=25432
+MEDILAB_CLOUDBEAVER_PORT=18978
+MEDILAB_ODOO_IMAGE=medilab-odoo:medilab-api
+```
+
+- With `MEDILAB_ODOO_IMAGE` set, `task up` does not build, so build the worktree's image once, and after a change of dependencies: `docker compose -f tools/infrastructure/docker-compose.yml build odoo`.
+- The `postgres` MCP server connects to `localhost:15432`; for a worktree's database, set `DATABASE_URI` to its port, as [Odoo intelligence](docs/workflows/odoo-intelligence.md#database-access) says.
+- Commands that reach a container go through the project, never a container name: `docker compose -f tools/infrastructure/docker-compose.yml exec -T postgres psql -U root -d medilab`.
 
 ## Commands
 
@@ -57,7 +75,7 @@ Open http://localhost:8069. The `medilab` database is created by the first `task
 | `task upgrade`             | Upgrade all installed modules                                                                            |
 | `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                   |
 | `task reset`               | Delete the database and volumes, then start again                                                        |
-| `task dev:setup`           | Sync `src/core/.venv` from `uv.lock`, fetch the Odoo source and link the modules into it for type checks |
+| `task dev:setup`           | Sync `src/core/.venv` from `uv.lock`, fetch the Odoo source and link the modules into it for type checks, and set this checkout's compose project |
 | `task ai:setup`            | Install Serena, OdooLS and its Odoo source in this worktree for the coding clients                       |
 | `task ai:odoo-ls`          | Install the pinned OdooLS release, typeshed and Odoo source that the `odoo` MCP server uses              |
 | `task ai:test`             | Run the AI tooling tests and lint checks                                                                 |

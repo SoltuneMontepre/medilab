@@ -2,7 +2,7 @@ version: "3"
 
 set: [pipefail]
 
-dotenv: [src/core/.env.local]
+dotenv: [src/core/.env.local, tools/infrastructure/.env]
 
 vars:
   DOPPLER_PROJECT: medilab
