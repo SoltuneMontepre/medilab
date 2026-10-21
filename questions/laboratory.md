@@ -91,7 +91,10 @@
 - **Waiting after `try_again`.** Decided: `Retry-After` is 5 seconds.
 - **Failed sign-ins in the audit trail.** Decided: they are not recorded there; Odoo's log and the count of failed sign-ins are enough.
 - **Errors without a code.** Decided: a method a route does not take answers 405 with `method_not_allowed` and an `Allow` header; an error nobody expected answers 500 with `internal_error`, a generic message and the id the server logged it under.
+- **Repeating a request.** Decided: a route that creates a record takes an optional `Idempotency-Key` header, unique per computer, and a request repeated with it answers with what the first one created; uploads use the same mechanism. Without the header, a name the owner already has a folder of is refused with `folder_exists`.
 - **One sync rule per kind and pattern.** Decided: a folder has one rule of each kind and pattern. The upgrade that adds the rule keeps the oldest of each and deletes the others, logging each deleted rule with its flags.
+- **Finding people to add to a folder.** Decided: the owner and administrators search by at least 2 characters of a name or login and get at most 10 people, with id, name and login only: active internal users with the laboratory files permission who are not members yet.
+- **What a folder tells the computer.** Decided: its answer says whether the person may rename it and change its members and rules, `can_share`, so the computer does not work the rules out itself.
 
 ## Related documents
 

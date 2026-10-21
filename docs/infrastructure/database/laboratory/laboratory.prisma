@@ -2261,8 +2261,8 @@ model ArchiveFile {
 }
 
 /// A folder of laboratory files: files under paths relative to it, owned by a person, with members who read and write it. It never stores a path on anyone's computer.
-/// A folder of a sample is checked to have a category, and a sample has one folder of each category.
-/// A folder of no sample is not yet checked to have no category, because the tests of laboratory files create raw-data folders without a sample.
+/// A folder has a category if and only if it has a sample, and a sample has one folder of each category.
+/// Partial unique index on created_by_device_id and idempotency_key where idempotency_key is set.
 model LaboratoryFolder {
   /// Row identifier.
   id               Int       @id @default(autoincrement())
@@ -2286,6 +2286,8 @@ model LaboratoryFolder {
   retention_until  DateTime? @db.Date
   /// The device the folder was created from, for the audit.
   created_by_device_id Int?
+  /// The Idempotency-Key the computer sent with the request that created the folder; empty when it sent none.
+  idempotency_key String? @db.VarChar
   /// The user who owns the folder.
   owner            User      @relation("FolderOwner", fields: [owner_id], references: [id], onDelete: Restrict)
   /// The sample the folder belongs to.

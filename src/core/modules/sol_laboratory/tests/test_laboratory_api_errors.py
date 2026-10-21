@@ -38,7 +38,7 @@ class TestLaboratoryApiErrors(LaboratoryApiCase):
         self.assertEqual(self.api("GET", "/devices", key=key).status_code, 200)
 
     def test_a_path_the_api_does_not_have_is_not_found(self):
-        self.assertApiRefused(NOT_FOUND, self.api("GET", "/folders"))
+        self.assertApiRefused(NOT_FOUND, self.api("GET", "/samples"))
 
     def test_a_method_a_route_does_not_take_is_refused_with_the_methods_it_takes(self):
         for method in ("DELETE", "PUT", "OPTIONS"):

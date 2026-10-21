@@ -49,3 +49,5 @@ METHOD_NOT_ALLOWED = "method_not_allowed"
 TOO_MANY_ATTEMPTS = "too_many_attempts"
 TRY_AGAIN = "try_again"
 INTERNAL_ERROR = "internal_error"
+# Code of the refusal of a folder whose name its owner already has.
+FOLDER_EXISTS = "folder_exists"

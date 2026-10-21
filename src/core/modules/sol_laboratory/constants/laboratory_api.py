@@ -7,6 +7,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     DEVICE_REVOKED,
     FOLDER_ARCHIVED,
     FOLDER_DISABLED,
+    FOLDER_EXISTS,
     INTERNAL_ERROR,
     INVALID_CREDENTIALS,
     INVALID_KEY,
@@ -37,6 +38,7 @@ ERROR_STATUSES = {
     FOLDER_DISABLED: 409,
     LOCKED: 409,
     NOT_LOCKED: 409,
+    FOLDER_EXISTS: 409,
     NOT_ELIGIBLE: 422,
     NOT_LOCKABLE: 422,
     NOT_EDITABLE: 422,
@@ -54,3 +56,6 @@ FIRST_SIGN_IN_DELAY = 1
 LONGEST_SIGN_IN_DELAY = 60
 # The failures of a login are forgotten once its last one is this old.
 SIGN_IN_FAILURE_WINDOW = timedelta(minutes=15)
+# Searching people to add to a folder takes at least this many characters and finds at most this many people.
+CANDIDATE_QUERY_MIN_LENGTH = 2
+CANDIDATE_LIMIT = 10

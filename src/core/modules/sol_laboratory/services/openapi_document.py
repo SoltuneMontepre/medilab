@@ -67,6 +67,25 @@ def request_body_pointer(operation_id):
     return _pointer("paths", path, method.lower(), "requestBody", "content", "application/json", "schema")
 
 
+def parameters(operation_id):
+    """The query and header parameters the operation takes: each one's name, where it is sent, whether it is required
+    and the pointer of its schema."""
+    method, path, operation = operations()[operation_id]
+    found = []
+    for index, parameter in enumerate(operation.get("parameters", [])):
+        if "$ref" in parameter:
+            name = parameter["$ref"].rsplit("/", 1)[1]
+            parameter, pointer = (
+                document()["components"]["parameters"][name],
+                _pointer("components", "parameters", name),
+            )
+        else:
+            pointer = _pointer("paths", path, method.lower(), "parameters", index)
+        if parameter["in"] in ("query", "header"):
+            found.append((parameter["name"], parameter["in"], parameter.get("required", False), pointer + "/schema"))
+    return found
+
+
 def documented_answer(operation_id, status):
     """The answer the operation documents for the status, or None when it documents none."""
     _method, _path, operation = operations()[operation_id]
