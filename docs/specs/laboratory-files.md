@@ -38,9 +38,9 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 | `read`       | The person holds the laboratory files permission, is a member of the folder and, for a folder of a sample, sees the sample | `permission_denied`, `not_found`       |
 | `write`      | `read`, and the folder is neither archived nor turned off                                                                  | `folder_archived`, `folder_disabled`   |
 | `share`      | `read` and the person owns the folder, or the person administers folders; and the folder is not archived                   | `permission_denied`, `folder_archived` |
-| `administer` | The person administers folders                                                                                             | `permission_denied`                    |
+| `administer` | The person administers folders and, for a folder of a sample, sees the sample                                              | `permission_denied`, `not_found`       |
 
-- A person who is not a member gets `not_found`, as for a folder that does not exist, so the answer does not tell that the folder exists. So does an administrator who is not a member, except for `share`.
+- A person who is not a member gets `not_found`, as for a folder that does not exist, so the answer does not tell that the folder exists. So does an administrator who is not a member, for `read` and `write`, and an administrator who does not see the folder's sample, for `administer`.
 - `share` and `administer` are refused with `locked` while someone else holds the folder's [document lock](document-locking.md), because writing with full rights would pass over it.
 - Odoo evaluates access domains with full rights, so an access cannot test whether the person sees a folder's sample. The check tests the sample in the person's own environment.
 
