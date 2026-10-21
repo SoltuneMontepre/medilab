@@ -1,3 +1,4 @@
+// Accepts the demo certificate, so it passes once per database; CI installs a fresh one for every run.
 const PASSWORD = "demo";
 const ORGANISATION = "Phòng Thí nghiệm Kiểm nghiệm Medilab";
 const CERTIFICATE = "VILAS 9901";
