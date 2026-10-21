@@ -32,8 +32,8 @@ def save(file, content):
 
 @tagged("post_install", "-at_install")
 class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase):
-    """Two real database transactions signing and saving one result file at once, the second one through Odoo's request
-    retrying. The administrator signs at the one level of the chain of file versions."""
+    """Two real database transactions signing and saving one result file of a sample at once, the second one through
+    Odoo's request retrying. The administrator signs at the one level of the chain of file versions."""
 
     def setUp(self):
         super().setUp()
@@ -66,10 +66,12 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         administrator = env.ref(ADMINISTRATOR_PERSON)
         added_roles = chain.level_ids.role_id - administrator.role_ids
         administrator.role_ids |= added_roles
+        sample = self.create_sample(env)
         folder = env[MODEL_LABORATORY_FOLDER].create(
             {
                 "name": f"Concurrency {uuid.uuid4().hex[:8]}",
                 "owner_id": env.ref("base.user_admin").id,
+                "sample_id": sample["sample"],
                 "category": RESULT,
             }
         )
@@ -77,6 +79,7 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         return {
             "chain": chain.id if created_chain else False,
             "roles": added_roles.ids,
+            "sample": sample,
             "folder": folder.id,
             "file": file.id,
             "first": save(file, "lead 0.004 mg/L").id,
@@ -98,6 +101,7 @@ class TestLaboratoryFileVersionSigningConcurrency(LaboratoryFilesConcurrencyCase
         cr.execute("DELETE FROM medilab_laboratory_file WHERE id = %s", [self.ids["file"]])
         cr.execute("DELETE FROM medilab_laboratory_folder_member WHERE folder_id = %s", [self.ids["folder"]])
         cr.execute("DELETE FROM medilab_laboratory_folder WHERE id = %s", [self.ids["folder"]])
+        self.remove_sample(cr, self.ids["sample"])
         administrator = env.ref(ADMINISTRATOR_PERSON)
         administrator.role_ids -= env[MODEL_ROLE].browse(self.ids["roles"])
         if self.ids["chain"]:

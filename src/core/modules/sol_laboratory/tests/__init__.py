@@ -79,6 +79,7 @@ from . import (
     test_laboratory_files_records,
     test_laboratory_folder_access,
     test_laboratory_folder_administration,
+    test_laboratory_folder_category_migration,
     test_laboratory_folder_ownership,
     test_laboratory_paths,
     test_laboratory_sample_folder_access,

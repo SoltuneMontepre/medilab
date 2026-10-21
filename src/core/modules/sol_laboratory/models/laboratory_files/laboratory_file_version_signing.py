@@ -67,6 +67,19 @@ class LaboratoryFileVersionSigning(models.Model):
         self.sudo().file_id._lock_for_signing()
         return super().action_reject(reason)
 
+    def action_withdraw(self):
+        self.ensure_one()
+        self._check_withdrawing_access()
+        return super().action_withdraw()
+
+    def _approval_check_withdraw(self):
+        self._check_withdrawing_access()
+        super()._approval_check_withdraw()
+
+    def _check_withdrawing_access(self):
+        # Withdrawing writes with full rights, so only a signer who still reads the version's file withdraws.
+        self.sudo().file_id.with_env(self.env)._check_file_access(FILE_READ)
+
     def _approval_check_actor(self, rejecting=False):
         """Only the current version of a file in a result folder is signed or rejected, by a member of the folder who
         sees its sample, at the level of the chain their role signs."""

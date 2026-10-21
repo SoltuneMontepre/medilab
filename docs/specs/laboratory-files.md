@@ -33,14 +33,14 @@ People reach the [laboratory files](../functional/laboratory_module/overview.md#
 
 `_check_folder_access(access)` on `medilab.laboratory.folder` refuses the user what they may not do with the folders, as a `LaboratoryFileError`: a user error carrying the code the API answers with. The API and later features call it, then act with full rights.
 
-| Access       | Allowed when                                                                                                               | Refused with                           |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| `read`       | The person holds the laboratory files permission, is a member of the folder and, for a folder of a sample, sees the sample | `permission_denied`, `not_found`       |
-| `write`      | `read`, and the folder is neither archived nor turned off                                                                  | `folder_archived`, `folder_disabled`   |
-| `share`      | `read` and the person owns the folder, or the person administers folders; and the folder is not archived                   | `permission_denied`, `folder_archived` |
-| `administer` | The person administers folders                                                                                             | `permission_denied`                    |
+| Access       | Allowed when                                                                                                                                            | Refused with                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `read`       | The person holds the laboratory files permission, is a member of the folder and, for a folder of a sample, sees the sample                              | `permission_denied`, `not_found`                    |
+| `write`      | `read`, and the folder is neither archived nor turned off                                                                                               | `folder_archived`, `folder_disabled`                |
+| `share`      | `read` and the person owns the folder, or the person administers folders and, for a folder of a sample, sees the sample; and the folder is not archived | `permission_denied`, `not_found`, `folder_archived` |
+| `administer` | The person administers folders and, for a folder of a sample, sees the sample                                                                           | `permission_denied`, `not_found`                    |
 
-- A person who is not a member gets `not_found`, as for a folder that does not exist, so the answer does not tell that the folder exists. So does an administrator who is not a member, except for `share`.
+- A person who is not a member gets `not_found`, as for a folder that does not exist, so the answer does not tell that the folder exists. So does an administrator who is not a member, for `read` and `write`, and an administrator who does not see the folder's sample, for every access, before any other refusal.
 - `share` and `administer` are refused with `locked` while someone else holds the folder's [document lock](document-locking.md), because writing with full rights would pass over it.
 - Odoo evaluates access domains with full rights, so an access cannot test whether the person sees a folder's sample. The check tests the sample in the person's own environment.
 
@@ -281,7 +281,7 @@ A signed-in computer is a `medilab.laboratory.device` of its person, one per ins
 
 A folder of a sample holds the files of one category of its work: raw data, working documents, results or reports.
 
-- A sample has one folder of each category, held by a unique key on the sample and the category. A folder of a sample needs a category; a folder of no sample may have one too, and several such folders may share it.
+- A sample has one folder of each category, held by a unique key on the sample and the category. A folder has a category if and only if it has a sample, held by a check on the folder. Upgrading clears the category of every folder of no sample before the check is added, and logs each folder it changed with the number of its files, as its files stop counting as that category: a former raw-data folder's files are locked and edited online.
 - Once a folder holds files, its sample and its category never change, so its files keep meaning what they were saved as, such as a signed result of that sample. The folder's form shows them read only then.
 - Everything of a sample's folder is seen only by people who see the sample, whoever they are, folder administrators included: the folder, its members, sync rules, files, versions, locks, editing sessions and changes, in lists, forms and links. Each of these models inherits `medilab.laboratory.sample.folder.mixin`, which adds to the model's access domain for every operation that the record's folder belongs to no sample or to a sample the user reads, with the sample's own access domain for the user. An access domain is evaluated with full rights, so it cannot test the sample itself; the sample's access domain, which Odoo builds for the user, can. A model a later feature adds under folders or files inherits the mixin too, naming the path to the sample in `_sample_field`.
 
@@ -299,11 +299,11 @@ A folder of a sample holds the files of one category of its work: raw data, work
 
 A version of a result file is approved by signing it through the [approval and signing chain](../business/approval-and-signing-chain.md) of laboratory file versions, `medilab.laboratory.file.version`: each version is a document of the chain, signed level after level by the roles its levels name, and the signature belongs to that version and its content. The chain is set up by administrators; without it, signing a version is refused.
 
-| Step        | Who and what                                                                                                                                                                                                                                                    |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Signing     | A member of the folder who sees its sample, holds the `sign` permission of versions and the role of the next level signs the current version of a file in a result folder. The signature records the signer, their role and level, the version and its SHA-256. |
-| Rejecting   | The same person rejects the version instead, with a reason; a rejection without one is refused. The person who saved the version is told why, through the mandatory `laboratory_file_version.rejected` event, once for each round.                              |
-| Withdrawing | A signer withdraws their own signature or rejection once every higher level has withdrawn theirs, as in every chain. Withdrawing the last one leaves the version unsigned, and the next signatures record the next round of `document_version`.                 |
+| Step        | Who and what                                                                                                                                                                                                                                                                                                                       |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Signing     | A member of the folder who sees its sample, holds the `sign` permission of versions and the role of the next level signs the current version of a file in a result folder. The signature records the signer, their role and level, the version and its SHA-256.                                                                    |
+| Rejecting   | The same person rejects the version instead, with a reason; a rejection without one is refused. The person who saved the version is told why, through the mandatory `laboratory_file_version.rejected` event, once for each round.                                                                                                 |
+| Withdrawing | A signer who still reads the version's file, as a member of its folder who sees its sample, withdraws their own signature or rejection once every higher level has withdrawn theirs, as in every chain. Withdrawing the last one leaves the version unsigned, and the next signatures record the next round of `document_version`. |
 
 - Only the current version of a file in a result folder is signed or rejected. A conflict version is never current, so it is never signed.
 - A newer version of the file starts unsigned: the file shows the signing state of its current version, and the older version keeps its signatures.

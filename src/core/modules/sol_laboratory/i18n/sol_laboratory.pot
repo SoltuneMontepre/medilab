@@ -7867,7 +7867,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder.py:0
-msgid "This laboratory folder does not exist or you are not a member of it."
+msgid "This laboratory folder does not exist or you do not have access to it."
 msgstr ""
 
 #. module: sol_laboratory
@@ -13193,8 +13193,8 @@ msgid "Permission: order.template.line.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_sample_has_category
-msgid "A folder of a sample needs a category."
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_laboratory_folder_category_of_sample
+msgid "A folder of a sample needs a category, and a folder of no sample has none."
 msgstr ""
 
 #. module: sol_laboratory
