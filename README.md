@@ -37,11 +37,12 @@ Open http://localhost:8069. The `medilab` database is created by the first `task
 
 ## Services
 
-| Service     | URL                   | Notes                                 |
-| ----------- | --------------------- | ------------------------------------- |
-| Odoo        | http://localhost:8069 |                                       |
-| Postgres    | `localhost:15432`     | see [Environment](#environment)       |
-| CloudBeaver | http://localhost:8978 | `medilab` / `admin` unless overridden |
+| Service     | URL                   | Notes                                                             |
+| ----------- | --------------------- | ----------------------------------------------------------------- |
+| Odoo        | http://localhost:8069 |                                                                   |
+| Postgres    | `localhost:15432`     | see [Environment](#environment)                                   |
+| CloudBeaver | http://localhost:8978 | `medilab` / `admin` unless overridden                             |
+| Garage      | http://localhost:3900 | the laboratory files bucket; its admin API is on `127.0.0.1:3903` |
 
 ## Commands
 
@@ -49,7 +50,7 @@ Open http://localhost:8069. The `medilab` database is created by the first `task
 | -------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `task`                     | List all tasks                                                                                           |
 | `task setup`               | Run `doppler`, `dev:setup`, `ai:setup` and `upgrade`                                                     |
-| `task up`                  | Start Odoo, Postgres and CloudBeaver                                                                     |
+| `task up`                  | Start Odoo, Postgres, Garage and CloudBeaver                                                             |
 | `task doppler`             | Log the Doppler CLI in and select project `medilab`, config `dev`                                        |
 | `task stop`                | Stop the containers and keep the volumes                                                                 |
 | `task restart`             | Restart Odoo after changing Python, XML or config                                                        |
@@ -89,7 +90,7 @@ medilab/
       medilab-sync/
   tools/
     dockerfiles/                # prod.dockerfile
-    infrastructure/             # docker-compose.yml and CloudBeaver config
+    infrastructure/             # docker-compose.yml, the CloudBeaver config and the Garage setup
     taskfiles/                  # app.taskfile.yml, dev.taskfile.yml
     typecheck/                  # pyright runner and the links into the Odoo source
   .github/                      # CI workflow and odoo-lint action
