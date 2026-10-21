@@ -95,3 +95,103 @@ msgstr "Medilab - Thu thập dữ liệu"
 #: model:ir.module.module,summary:base.module_sol_onboarding
 msgid "Stage Laboratory master data collected from trusted public sources"
 msgstr "Lưu tạm dữ liệu danh mục của phòng thí nghiệm thu thập từ các nguồn công khai đáng tin cậy"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__active
+msgid "Active"
+msgstr "Đang dùng"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__adapter
+msgid "Adapter"
+msgstr "Bộ đọc"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__create_uid
+msgid "Created by"
+msgstr "Người tạo"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__create_date
+msgid "Created on"
+msgstr "Ngày tạo"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__delay_seconds
+msgid "Delay (Seconds)"
+msgstr "Độ trễ (giây)"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__enabled
+msgid "Enabled"
+msgstr "Đã bật"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__host
+msgid "Host"
+msgstr "Tên miền"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__write_uid
+msgid "Last Updated by"
+msgstr "Cập nhật lần cuối bởi"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__write_date
+msgid "Last Updated on"
+msgstr "Cập nhật lần cuối vào"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__last_request_at
+msgid "Last Request At"
+msgstr "Yêu cầu gần nhất lúc"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__name
+msgid "Name"
+msgstr "Tên"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__organisations_refreshed_at
+msgid "Organisations Refreshed At"
+msgstr "Tổ chức được làm mới lúc"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__page_limit
+msgid "Page Limit"
+msgstr "Giới hạn số trang"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__start_url
+msgid "Start Address"
+msgstr "Địa chỉ bắt đầu"
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_source
+msgid "Onboarding Source"
+msgstr "Nguồn tin cậy"
+
+#. module: sol_onboarding
+#: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_source_delay_seconds_not_negative
+msgid "The delay between two requests cannot be negative."
+msgstr "Độ trễ giữa hai yêu cầu không được âm."
+
+#. module: sol_onboarding
+#: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_source_page_limit_positive
+msgid "A run fetches at least one page."
+msgstr "Một lượt thu thập phải lấy ít nhất một trang."
+
+#. module: sol_onboarding
+#: code:addons/sol_onboarding/models/onboarding/onboarding_source.py:0
+msgid "The start address must be an HTTPS address on the host, without user or port."
+msgstr "Địa chỉ bắt đầu phải là địa chỉ HTTPS trên đúng tên miền, không có người dùng hay cổng."
