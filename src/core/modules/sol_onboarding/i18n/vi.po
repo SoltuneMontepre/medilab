@@ -17,39 +17,9 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__code
-msgid "Code"
-msgstr "Mã"
-
-#. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__name
-msgid "Name"
-msgstr "Tên"
-
-#. module: sol_onboarding
-#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_sector
-msgid "Onboarding Sector"
-msgstr "Ngành thu thập"
-
-#. module: sol_onboarding
-#: model:medilab.onboarding.sector,name:sol_onboarding.sector_cosmetics
-msgid "Cosmetics"
-msgstr "Mỹ phẩm"
-
-#. module: sol_onboarding
-#: model:medilab.onboarding.sector,name:sol_onboarding.sector_environment
-msgid "Environment"
-msgstr "Môi trường"
-
-#. module: sol_onboarding
-#: model:medilab.onboarding.sector,name:sol_onboarding.sector_food
-msgid "Food"
-msgstr "Thực phẩm"
-
-#. module: sol_onboarding
-#: model:medilab.onboarding.sector,name:sol_onboarding.sector_pharmaceuticals
-msgid "Pharmaceuticals"
-msgstr "Dược phẩm"
+#: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_source_page_limit_positive
+msgid "A run fetches at least one page."
+msgstr "Một lượt thu thập phải lấy ít nhất một trang."
 
 #. module: sol_onboarding
 #: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_sector_code_unique
@@ -57,46 +27,17 @@ msgid "A sector code is used once."
 msgstr "Mã ngành chỉ được dùng một lần."
 
 #. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_uid
-msgid "Created by"
-msgstr "Người tạo"
+#: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_organisation_key_unique
+msgid "A source lists an organisation once."
+msgstr "Một nguồn chỉ liệt kê một tổ chức một lần."
 
 #. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_date
-msgid "Created on"
-msgstr "Ngày tạo"
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__accreditation_code
+msgid "Accreditation Code"
+msgstr "Mã công nhận"
 
 #. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__display_name
-msgid "Display Name"
-msgstr "Tên hiển thị"
-
-#. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__id
-msgid "ID"
-msgstr "ID"
-
-#. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_uid
-msgid "Last Updated by"
-msgstr "Cập nhật lần cuối bởi"
-
-#. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_date
-msgid "Last Updated on"
-msgstr "Cập nhật lần cuối vào"
-
-#. module: sol_onboarding
-#: model:ir.module.module,shortdesc:base.module_sol_onboarding
-msgid "Medilab - Onboarding"
-msgstr "Medilab - Thu thập dữ liệu"
-
-#. module: sol_onboarding
-#: model:ir.module.module,summary:base.module_sol_onboarding
-msgid "Stage Laboratory master data collected from trusted public sources"
-msgstr "Lưu tạm dữ liệu danh mục của phòng thí nghiệm thu thập từ các nguồn công khai đáng tin cậy"
-
-#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__active
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__active
 msgid "Active"
 msgstr "Đang dùng"
@@ -107,11 +48,30 @@ msgid "Adapter"
 msgstr "Bộ đọc"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__url
+msgid "Address"
+msgstr "Địa chỉ"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__code
+msgid "Code"
+msgstr "Mã"
+
+#. module: sol_onboarding
+#: model:medilab.onboarding.sector,name:sol_onboarding.sector_cosmetics
+msgid "Cosmetics"
+msgstr "Mỹ phẩm"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__create_uid
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_uid
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__create_date
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__create_date
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
@@ -122,7 +82,10 @@ msgid "Delay (Seconds)"
 msgstr "Độ trễ (giây)"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__display_name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__display_name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -132,24 +95,32 @@ msgid "Enabled"
 msgstr "Đã bật"
 
 #. module: sol_onboarding
+#: model:medilab.onboarding.sector,name:sol_onboarding.sector_environment
+msgid "Environment"
+msgstr "Môi trường"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__external_key
+msgid "External Key"
+msgstr "Khóa ở nguồn"
+
+#. module: sol_onboarding
+#: model:medilab.onboarding.sector,name:sol_onboarding.sector_food
+msgid "Food"
+msgstr "Thực phẩm"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__host
 msgid "Host"
 msgstr "Tên miền"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__id
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__id
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_scheduled_job__id
 msgid "ID"
 msgstr "ID"
-
-#. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__write_uid
-msgid "Last Updated by"
-msgstr "Cập nhật lần cuối bởi"
-
-#. module: sol_onboarding
-#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__write_date
-msgid "Last Updated on"
-msgstr "Cập nhật lần cuối vào"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__last_request_at
@@ -157,9 +128,56 @@ msgid "Last Request At"
 msgstr "Yêu cầu gần nhất lúc"
 
 #. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__write_uid
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_uid
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__write_uid
+msgid "Last Updated by"
+msgstr "Cập nhật lần cuối bởi"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__write_date
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__write_date
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__write_date
+msgid "Last Updated on"
+msgstr "Cập nhật lần cuối vào"
+
+#. module: sol_onboarding
+#: model:ir.module.module,shortdesc:base.module_sol_onboarding
+msgid "Medilab - Onboarding"
+msgstr "Medilab - Thu thập dữ liệu"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__name
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_sector__name
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__name
 msgid "Name"
 msgstr "Tên"
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_organisation
+msgid "Onboarding Organisation"
+msgstr "Tổ chức thu thập"
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_sector
+msgid "Onboarding Sector"
+msgstr "Ngành thu thập"
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_source
+msgid "Onboarding Source"
+msgstr "Nguồn tin cậy"
+
+#. module: sol_onboarding
+#: model:ir.actions.server,name:sol_onboarding.ir_cron_onboarding_organisations_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_onboarding.scheduled_job_onboarding_organisations
+msgid "Onboarding organisations"
+msgstr "Tổ chức thu thập"
+
+#. module: sol_onboarding
+#: model:res.groups,name:sol_onboarding.group_onboarding_sources
+msgid "Onboarding sources"
+msgstr "Nguồn thu thập"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__organisations_refreshed_at
@@ -172,14 +190,39 @@ msgid "Page Limit"
 msgstr "Giới hạn số trang"
 
 #. module: sol_onboarding
+#: model:medilab.onboarding.sector,name:sol_onboarding.sector_pharmaceuticals
+msgid "Pharmaceuticals"
+msgstr "Dược phẩm"
+
+#. module: sol_onboarding
+#: model:ir.model,name:sol_onboarding.model_medilab_scheduled_job
+msgid "Scheduled Job"
+msgstr "Tác vụ định kỳ"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__seen_at
+msgid "Seen At"
+msgstr "Thấy lúc"
+
+#. module: sol_onboarding
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__source_id
+msgid "Source"
+msgstr "Nguồn"
+
+#. module: sol_onboarding
+#: model:ir.module.module,summary:base.module_sol_onboarding
+msgid "Stage Laboratory master data collected from trusted public sources"
+msgstr "Lưu tạm dữ liệu danh mục của phòng thí nghiệm thu thập từ các nguồn công khai đáng tin cậy"
+
+#. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_source__start_url
 msgid "Start Address"
 msgstr "Địa chỉ bắt đầu"
 
 #. module: sol_onboarding
-#: model:ir.model,name:sol_onboarding.model_medilab_onboarding_source
-msgid "Onboarding Source"
-msgstr "Nguồn tin cậy"
+#: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__tax_id
+msgid "Tax ID"
+msgstr "Mã số thuế"
 
 #. module: sol_onboarding
 #: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_source_delay_seconds_not_negative
@@ -187,46 +230,51 @@ msgid "The delay between two requests cannot be negative."
 msgstr "Độ trễ giữa hai yêu cầu không được âm."
 
 #. module: sol_onboarding
-#: model:ir.model.constraint,message:sol_onboarding.constraint_medilab_onboarding_source_page_limit_positive
-msgid "A run fetches at least one page."
-msgstr "Một lượt thu thập phải lấy ít nhất một trang."
-
-#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_source.py:0
-msgid "The start address must be an HTTPS address on the host, without user or port."
+msgid ""
+"The start address must be an HTTPS address on the host, without user or "
+"port."
 msgstr "Địa chỉ bắt đầu phải là địa chỉ HTTPS trên đúng tên miền, không có người dùng hay cổng."
 
 #. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "another host"
 msgstr "tên miền khác"
 
 #. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "content type %s not accepted"
 msgstr "không nhận loại nội dung %s"
 
 #. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "disallowed by robots.txt"
 msgstr "bị robots.txt chặn"
 
 #. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "not HTTPS"
 msgstr "không phải HTTPS"
 
 #. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "over 10 MB"
 msgstr "quá 10 MB"
 
 #. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "redirect off the host"
 msgstr "chuyển hướng ra ngoài tên miền"
 
 #. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "too many redirects"
 msgstr "quá nhiều lần chuyển hướng"

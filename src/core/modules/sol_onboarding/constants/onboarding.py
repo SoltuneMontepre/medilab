@@ -1,5 +1,9 @@
 """Names and values of the Onboarding module."""
 
+# Key of the job that refreshes the organisations, and the context key that turns an empty search into a suggestion.
+ORGANISATIONS_JOB = "onboarding.organisations"
+SUGGEST_CONTEXT = "onboarding_suggest"
+
 SECTOR_CODES = ("food", "cosmetics", "pharmaceuticals", "environment")
 
 KIND_CERTIFICATE = "certificate"

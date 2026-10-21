@@ -8,7 +8,10 @@
     "license": "LGPL-3",
     "depends": ["sol_laboratory"],
     "data": [
+        "security/onboarding_security.xml",
         "security/ir.access.csv",
         "data/onboarding_sector_data.xml",
+        "data/ir_cron_data.xml",
+        "data/scheduled_job_data.xml",
     ],
 }

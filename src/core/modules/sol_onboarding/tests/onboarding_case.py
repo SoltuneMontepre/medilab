@@ -6,12 +6,15 @@ from unittest.mock import patch
 import requests
 from freezegun import freeze_time
 
+from odoo import fields
 from odoo.tests import TransactionCase, new_test_user
 
+from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_SOURCE
 from odoo.addons.sol_onboarding.services import fetcher
 
+MAX_PASSES = 50
 NOT_FOUND = (404, "text/html", b"", {})
 
 
@@ -83,3 +86,14 @@ class OnboardingCase(TransactionCase):
 
         self.startPatcher(patch.object(requests.Session, "get", get))
         return calls
+
+    def run_until_settled(self, job_key):
+        """Run batches of the job while due items remain, then once more so its finder sees what settled."""
+        job = self.env[MODEL_SCHEDULED_JOB]._by_key(job_key)
+        for _ in range(MAX_PASSES):
+            job._run_batch()
+            if not job._due_count(fields.Datetime.now()):
+                break
+        else:
+            self.fail(f"Job {job_key} still has due items after {MAX_PASSES} passes")
+        job._run_batch()
