@@ -24,6 +24,9 @@ from odoo.addons.sol_laboratory.constants.models import (
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.laboratory_paths import normal_text
 
+# The logger of the queries a unique key refuses, which a save point catches and answers itself.
+SQL_LOGGER = "odoo.sql_db"
+
 
 # Thư Mục Phòng Thí Nghiệm: what the laboratory files API does with folders once it has checked access; a computer
 # creates a folder once per Idempotency-Key.
@@ -100,7 +103,7 @@ class LaboratoryFolderApi(models.Model):
             return member
         members._check_eligible({user_id})
         try:
-            with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
+            with self.env.cr.savepoint(), mute_logger(SQL_LOGGER):
                 return members.create({"folder_id": self.id, "user_id": user_id, "role": MEMBER_ROLE})
         except IntegrityError as error:
             if error.pgcode != errorcodes.UNIQUE_VIOLATION:
@@ -119,7 +122,7 @@ class LaboratoryFolderApi(models.Model):
         if rule:
             return rule
         try:
-            with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
+            with self.env.cr.savepoint(), mute_logger(SQL_LOGGER):
                 return rules.create({"folder_id": self.id, "kind": kind, "pattern": pattern, "recursive": recursive})
         except IntegrityError as error:
             if error.pgcode != errorcodes.UNIQUE_VIOLATION:
@@ -135,7 +138,7 @@ class LaboratoryFolderApi(models.Model):
         if not rule:
             raise LaboratoryFileError(NOT_FOUND, self.env._("This sync rule does not exist in the folder."))
         try:
-            with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
+            with self.env.cr.savepoint(), mute_logger(SQL_LOGGER):
                 rule.write(values)
                 rule.flush_recordset()
         except IntegrityError as error:
