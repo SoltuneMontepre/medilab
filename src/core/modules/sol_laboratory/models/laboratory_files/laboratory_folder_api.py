@@ -52,6 +52,14 @@ class LaboratoryFolderApi(models.Model):
         folder._check_folder_access(access)
         return folder
 
+    def _file_of(self, file_id):
+        """The file of the id in this folder, for the user; a file of another folder, or of no id, is not found."""
+        self.ensure_one()
+        file = self.sudo().file_ids.filtered(lambda row: row.id == file_id)
+        if not file:
+            raise LaboratoryFileError(NOT_FOUND, self.env._("This file does not exist in the folder."))
+        return file.with_env(self.env)
+
     @api.model
     def _create_for_device(self, device, name, key=None):
         """The folder of the name the person creates from the computer, owned by them. A request repeated with its

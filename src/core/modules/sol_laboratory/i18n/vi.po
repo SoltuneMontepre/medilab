@@ -13757,3 +13757,9 @@ msgstr "Hãy nhập ít nhất %s ký tự của tên hoặc tên đăng nhập.
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
 msgid "You already have a folder named %s."
 msgstr "Bạn đã có thư mục tên %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
+msgid "This file does not exist in the folder."
+msgstr "Tệp này không có trong thư mục."

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: MediLab laboratory files API
-  version: 1.1.0
+  version: 1.2.0
   description: |
     The API Medilab Sync signs computers in with and reaches laboratory files through. Every refusal answers
     `{"error": {"code", "message"}}` with the HTTP status of its code; a computer acts on the code, never on the
@@ -577,6 +577,110 @@ paths:
           $ref: "#/components/responses/InternalError"
         "503":
           $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/files/{file_id}/lock:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: lockFile
+      summary: Locks a file the person edits in their own program, so nobody else saves it meanwhile.
+      description: |
+        Locking a file the person already holds a lock in force on renews that lock. Only files that are neither raw
+        data nor Office documents, in folders of working documents, of results or of no category, are locked.
+      responses:
+        "200":
+          description: The person's lock.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneLock"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    delete:
+      operationId: unlockFile
+      summary: Unlocks the person's lock on a file; a person holding none has nothing to unlock.
+      responses:
+        "204":
+          description: The person holds no lock on the file any more.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/files/{file_id}/lock/renew:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: renewFileLock
+      summary: Renews the person's lock in force for the lock duration from now.
+      description: A lock that expired is not renewed, as someone may have saved the file meanwhile; it is locked again.
+      responses:
+        "200":
+          description: The person's lock.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneLock"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
 components:
   parameters:
     IdempotencyKey:
@@ -896,6 +1000,39 @@ components:
           type: boolean
         enabled:
           type: boolean
+    Lock:
+      type: object
+      additionalProperties: false
+      required: [id, file_id, user, device_id, status, expires_at]
+      properties:
+        id:
+          type: integer
+        file_id:
+          type: integer
+        user:
+          type: object
+          additionalProperties: false
+          required: [id, name]
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        device_id:
+          description: The computer the person locked the file from.
+          type: [integer, "null"]
+        status:
+          enum: [active, released, expired]
+        expires_at:
+          type: string
+          format: date-time
+    OneLock:
+      type: object
+      additionalProperties: false
+      required: [lock]
+      properties:
+        lock:
+          $ref: "#/components/schemas/Lock"
     Error:
       type: object
       additionalProperties: false
