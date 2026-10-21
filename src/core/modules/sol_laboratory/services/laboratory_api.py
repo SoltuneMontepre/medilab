@@ -4,6 +4,7 @@ A route checks the computer's key, the laboratory files permission and the reque
 its endpoint acts. A refusal is raised as a LaboratoryFileError with its code, and every exception of the API's paths
 is answered in one format by ir.http, so a feature that adds routes adds only its endpoints and its codes."""
 
+import dataclasses
 import functools
 import json
 import logging
@@ -37,8 +38,9 @@ from odoo.addons.sol_laboratory.services.request_env import request_env
 
 _logger = logging.getLogger(__name__)
 
-# The Authorization header as Odoo's bearer authentication reads it, so both read the same key.
-BEARER = re.compile(r"^bearer\s+(.+)$", re.IGNORECASE)
+# The Authorization header as Odoo's bearer authentication reads it, so both read the same key. The key starts at the
+# first character that is not a space, so the pattern cannot backtrack.
+BEARER = re.compile(r"^bearer\s+(\S.*)$", re.IGNORECASE)
 # The names of the arguments a route path gives, such as device_id in /devices/<int:device_id>/revoke.
 PATH_ARGUMENT = re.compile(r"<(?:[^:<>]+:)?([^:<>]+)>")
 # How the routes authenticate: computers by their key; signing in by the login it sends; health checks not at all.
@@ -58,26 +60,11 @@ def laboratory_api_route(path, methods, operation, auth=BY_KEY, permission=True,
     A route by key finds the computer of the key and, with permission, checks the laboratory files permission; its
     endpoint gets the computer, the request's JSON body and the path's arguments. Other routes get the body and the
     arguments. An endpoint returns the JSON value it answers with, None for an answer without content, or a response."""
-    arguments = PATH_ARGUMENT.findall(path)
+    declared = DeclaredRoute(methods, operation, PATH_ARGUMENT.findall(path), auth, permission)
 
     def decorator(endpoint):
         def route(controller, **params):
-            # Odoo adds OPTIONS to every route's methods and serves HEAD as GET.
-            if request.httprequest.method not in (*methods, *(["HEAD"] if "GET" in methods else [])):
-                raise MethodNotAllowed(valid_methods=methods)
-            path_arguments = {name: params.pop(name) for name in arguments}
-            body = checked_request(operation, params)
-            if auth == BY_KEY:
-                env = request_env()
-                device = env[MODEL_LABORATORY_DEVICE]._from_key(bearer_key())
-                if permission:
-                    env[MODEL_LABORATORY_FOLDER]._check_laboratory_files_permission()
-                result = endpoint(controller, device, body, **path_arguments)
-            else:
-                result = endpoint(controller, body, **path_arguments)
-            if isinstance(result, http.Response):
-                return result
-            return json_answer(result)
+            return serve(endpoint, controller, params, declared)
 
         # The endpoint's name, so the routes of a controller keep theirs. Odoo passes a route only the arguments its
         # signature names, which would drop a query parameter the request check must refuse: the route takes them all.
@@ -95,6 +82,40 @@ def laboratory_api_route(path, methods, operation, auth=BY_KEY, permission=True,
         )(route)
 
     return decorator
+
+
+@dataclasses.dataclass(frozen=True)
+class DeclaredRoute:
+    """What a route of the API was declared with: its methods, its operation of the OpenAPI document, the names of its
+    path's arguments, how it authenticates and whether it checks the laboratory files permission."""
+
+    methods: list
+    operation: str
+    arguments: list
+    auth: str
+    permission: bool
+
+
+def serve(endpoint, controller, params, declared):
+    """Serve a request of the endpoint once its method, its request, the computer of its key and the laboratory files
+    permission pass, and answer what it returns."""
+    methods = declared.methods
+    # Odoo adds OPTIONS to every route's methods and serves HEAD as GET.
+    if request.httprequest.method not in (*methods, *(["HEAD"] if "GET" in methods else [])):
+        raise MethodNotAllowed(valid_methods=methods)
+    path_arguments = {name: params.pop(name) for name in declared.arguments}
+    body = checked_request(declared.operation, params)
+    if declared.auth == BY_KEY:
+        env = request_env()
+        device = env[MODEL_LABORATORY_DEVICE]._from_key(bearer_key())
+        if declared.permission:
+            env[MODEL_LABORATORY_FOLDER]._check_laboratory_files_permission()
+        result = endpoint(controller, device, body, **path_arguments)
+    else:
+        result = endpoint(controller, body, **path_arguments)
+    if isinstance(result, http.Response):
+        return result
+    return json_answer(result)
 
 
 def bearer_key():

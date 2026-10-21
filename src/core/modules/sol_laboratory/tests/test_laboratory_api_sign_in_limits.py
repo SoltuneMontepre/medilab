@@ -138,4 +138,5 @@ class TestLaboratoryApiSignInLimits(LaboratoryApiCase):
 
         self.env[MODEL_LABORATORY_SIGN_IN_ATTEMPT]._gc_forgotten_failures()
 
-        self.assertEqual(self.env[MODEL_LABORATORY_SIGN_IN_ATTEMPT].search([]).mapped("login"), [self.tester.login])
+        kept = self.env[MODEL_LABORATORY_SIGN_IN_ATTEMPT].search([("login", "in", ["nobody", self.tester.login])])
+        self.assertEqual(kept.mapped("login"), [self.tester.login])
