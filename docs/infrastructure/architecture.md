@@ -106,6 +106,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 - Web traffic comes in only through Cloudflare Tunnel. `cloudflared` runs two replicas of the same tunnel, one per data site, and connects outbound.
 - Cloudflare routes requests to connected replicas, so a lost site stops receiving traffic.
 - Web DNS records in the `soltunemontepre.tech` zone, such as `lims.soltunemontepre.tech`, are proxied CNAMEs to `<tunnel-id>.cfargotunnel.com`; Cloudflare terminates TLS and `cloudflared` reaches Traefik over plain HTTP.
+- `argocd.soltunemontepre.tech` serves the Argo CD server through the same tunnel, behind a Cloudflare Access application that only admits the `argocd` service token, which `cd-core` uses to check a release.
 - Traefik's service is `ClusterIP` and ServiceLB is turned off, so no node opens ports 80 or 443.
 
 ## MQTT

@@ -11,10 +11,26 @@ spec:
   targetNamespace: {{ argocd_namespace }}
   createNamespace: true
   valuesContent: |-
+    global:
+      domain: {{ argocd_hostname }}
     dex:
       enabled: false
+    # cloudflared reaches Traefik over plain HTTP behind Cloudflare Access, so the server serves HTTP.
+    server:
+      ingress:
+        enabled: true
+        ingressClassName: traefik
     configs:
+      params:
+        server.insecure: true
+      # cd-core's verify reads the odoo application and its logs as the release account.
+      rbac:
+        policy.csv: |
+          p, role:release, applications, get, default/odoo, allow
+          p, role:release, logs, get, default/odoo, allow
+          g, release, role:release
       cm:
+        accounts.release: apiKey
         # The root application waits for each sync wave of applications to be healthy.
         resource.customizations.health.argoproj.io_Application: |
           hs = {}
