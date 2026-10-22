@@ -80,6 +80,7 @@
         group: root
         mode: "0700"
         force: true
+      ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Run the install script
       ansible.builtin.command: /usr/local/lib/medilab/k3s-install.sh
