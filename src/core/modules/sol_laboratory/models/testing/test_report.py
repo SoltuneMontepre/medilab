@@ -407,7 +407,7 @@ class TestReport(models.Model):
         """Each sample the report covers, with its conclusion and one row per reported result."""
         results = self.sudo().result_ids.sorted("id")
         ways = {result: result._way_of_testing() for result in results}
-        marks = self._print_marks(self.env[MODEL_PARAMETER_METHOD].union(*ways.values()))
+        marks = self._print_marks(self.env[MODEL_PARAMETER_METHOD].union(ways.values()))
         env = self._print_env()
         return [
             {
