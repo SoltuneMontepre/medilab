@@ -1,6 +1,7 @@
 from . import (
     ir_http,
     laboratory_content,
+    laboratory_content_reconciliation,
     laboratory_device,
     laboratory_editing_session,
     laboratory_editing_session_callback,

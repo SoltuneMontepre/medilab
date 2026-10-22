@@ -11,6 +11,7 @@ call here is safe to make twice: one that finds its work already done answers as
 import base64
 import contextlib
 import dataclasses
+import datetime
 import functools
 import hashlib
 import logging
@@ -321,6 +322,52 @@ def _write_part(client, bucket, key, upload_id, number, data):
             Bucket=bucket.name, Key=key, UploadId=upload_id, PartNumber=number, Body=data, ChecksumSHA256=checksum
         )["ETag"]
     return {"PartNumber": number, "ETag": etag, "ChecksumSHA256": checksum}
+
+
+def objects():
+    """Every object of the bucket as (key, size, last modified as a naive UTC time), page by page in the order of their
+    keys, so a bucket of any size is never held whole in memory."""
+    bucket, client = _calls()
+    with _reaching():
+        for page in client.get_paginator("list_objects_v2").paginate(Bucket=bucket.name):
+            for entry in page.get("Contents", []):
+                yield entry["Key"], entry["Size"], _naive_utc(entry["LastModified"])
+
+
+def multipart_uploads():
+    """Every multipart upload of the bucket that is neither completed nor aborted, as (key, upload id, initiated as a
+    naive UTC time)."""
+    bucket, client = _calls()
+    with _reaching():
+        for page in client.get_paginator("list_multipart_uploads").paginate(Bucket=bucket.name):
+            for entry in page.get("Uploads", []):
+                yield entry["Key"], entry["UploadId"], _naive_utc(entry["Initiated"])
+
+
+def _naive_utc(moment):
+    return moment.astimezone(datetime.UTC).replace(tzinfo=None)
+
+
+def read_text(key):
+    """The text of a small object, or None when it does not exist."""
+    bucket, client = _calls()
+    try:
+        with _reaching():
+            return client.get_object(Bucket=bucket.name, Key=key)["Body"].read().decode()
+    except ClientError as error:
+        if _code(error) in NOT_FOUND:
+            return None
+        raise
+
+
+def write_text(key, text):
+    """Write a small object holding the text."""
+    bucket, client = _calls()
+    data = text.encode()
+    with _reaching():
+        client.put_object(
+            Bucket=bucket.name, Key=key, Body=data, ChecksumSHA256=_sha256_header(hashlib.sha256(data).digest())
+        )
 
 
 def delete(key):
