@@ -1,3 +1,5 @@
+import { call, signIn } from "../support/odoo";
+
 const PASSWORD = "demo";
 const WORKSHEET = "tinh-toan-nong-do-Pb.csv";
 const LOCK_ACTION = "Lock the worksheet as the tester";
@@ -10,26 +12,6 @@ tester = env.ref("sol_demo.demo_res_users_tester")
 worksheet = env.ref("sol_demo.demo_laboratory_file_concentration").with_user(tester)
 worksheet._lock(env.ref("sol_demo.demo_laboratory_device_hplc_pc"))
 `;
-
-function signIn(login) {
-  cy.visit("/web/login");
-  cy.get("input[name=login]").type(login);
-  cy.get("input[name=password]").type(`${PASSWORD}{enter}`);
-  cy.location("pathname").should("match", /^\/odoo/);
-}
-
-function call(model, method, args, kwargs = {}) {
-  return cy
-    .request("POST", `/web/dataset/call_kw/${model}/${method}`, {
-      jsonrpc: "2.0",
-      method: "call",
-      params: { model, method, args, kwargs },
-    })
-    .then(({ body }) => {
-      expect(body.error, JSON.stringify(body.error)).to.be.undefined;
-      return body.result;
-    });
-}
 
 // Signs the administrator in with requests only, so no open page keeps their session once the test signs someone in.
 function signInAsAdministrator() {

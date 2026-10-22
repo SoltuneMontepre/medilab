@@ -6547,6 +6547,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__reason
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Reason"
 msgstr ""
 
@@ -10423,6 +10425,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__outsourcing_suggested
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__outsourcing_suggested
 msgid "Outsourcing Suggested"
 msgstr ""
 
@@ -14203,4 +14206,42 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__verifying
 msgid "Verifying"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__emergency_outsource_reason
+msgid "Emergency Outsource Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Emergency Outsourcing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
+msgid "No outsourcing suggestion: give the reason for outsourcing the test straight away."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Give a reason for outsourcing the test straight away."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only a waiting or assigned sample test can be outsourced straight away: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only the department testing %s can outsource it straight away."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__tested_by_my_department
+msgid "Tested By My Department"
 msgstr ""
