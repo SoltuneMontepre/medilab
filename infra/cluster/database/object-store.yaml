@@ -9,7 +9,7 @@ metadata:
 spec:
   retentionPolicy: 30d
   configuration:
-    destinationPath: s3://backups/postgres
+    destinationPath: s3://medilab-backups/postgres
     s3Credentials:
       accessKeyId:
         name: backup-bucket

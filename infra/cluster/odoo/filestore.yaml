@@ -47,7 +47,7 @@ spec:
     name: filestore
   csi:
     driver: ru.yandex.s3.csi
-    volumeHandle: filestore
+    volumeHandle: medilab-filestore
     controllerPublishSecretRef:
       name: filestore-bucket
       namespace: medilab

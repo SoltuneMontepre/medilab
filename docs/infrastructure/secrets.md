@@ -27,7 +27,7 @@ Every local program that needs a secret is started through `doppler run --projec
 - `TERRAFORM_TOKEN` is an HCP Terraform team token with write access to the workspace.
 - `ANSIBLE_SSH_PRIVATE_KEY` is the private key of the `ansible` user on every node; see [Provisioning a node](../workflows/provisioning-node.md).
 - `K3S_TOKEN` is the k3s cluster token. It is set once: joining nodes and etcd snapshot restores need the same value.
-- `BUCKET_ADDRESS` is the endpoint of the object storage. `BUCKET_MAIN_ACCESS_KEY` and `BUCKET_MAIN_SECRET_KEY` reach the `filestore` bucket; `BUCKET_BACKUP_ACCESS_KEY` and `BUCKET_BACKUP_SECRET_KEY` reach the `backups` bucket.
+- `BUCKET_ADDRESS` is the endpoint of the object storage. `BUCKET_MAIN_ACCESS_KEY` and `BUCKET_MAIN_SECRET_KEY` reach the `medilab-filestore` bucket; `BUCKET_BACKUP_ACCESS_KEY` and `BUCKET_BACKUP_SECRET_KEY` reach the `medilab-backups` bucket.
 - `NODE_A_PUBLIC_ADDRESS` and `NODE_B_PUBLIC_ADDRESS` are the public IPs of Server A and Server B, the addresses Ansible connects to.
 - `CLUSTER_DOPPLER_TOKEN` is a Doppler service token with read access to `infra`. Ansible stores it in the cluster as the `doppler-token` Secret, through which External Secrets reads the secrets below; see [Cluster](cluster.md#secrets).
 - `CLOUDFLARE_TUNNEL_TOKEN` is the token of the Cloudflare Tunnel that `cloudflared` connects. Terraform creates the tunnel; after `task tf:apply`, pipe `terraform -chdir=infra output -raw tunnel_token` to the clipboard and enter it in Doppler by hand, since the pipelines' token cannot write to `infra`.
