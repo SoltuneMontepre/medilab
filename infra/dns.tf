@@ -28,11 +28,3 @@ module "dns" {
     }
   }
 }
-
-module "argocd_access" {
-  source = "./modules/access"
-
-  account_id = module.dns.account_id
-  name       = "argocd"
-  hostname   = local.web_hostnames.argocd
-}

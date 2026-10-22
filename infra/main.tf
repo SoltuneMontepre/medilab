@@ -19,9 +19,6 @@ module "github_actions" {
 
     RELEASE_APP_ID          = module.secrets.release_app_id
     RELEASE_APP_PRIVATE_KEY = module.secrets.release_app_private_key
-
-    CF_ACCESS_CLIENT_ID     = module.argocd_access.client_id
-    CF_ACCESS_CLIENT_SECRET = module.argocd_access.client_secret
   }
 
   variables = {
