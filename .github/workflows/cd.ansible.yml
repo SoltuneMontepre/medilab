@@ -23,6 +23,17 @@ on:
         description: "Nodes or groups to run on, as for --limit; empty for every node"
         required: false
         type: string
+      verbosity:
+        description: "Ansible verbosity, from 0 to 4 (-v to -vvvv)"
+        required: false
+        type: choice
+        default: "0"
+        options:
+          - "0"
+          - "1"
+          - "2"
+          - "3"
+          - "4"
 
 jobs:
   ansible:
@@ -56,6 +67,7 @@ jobs:
 
       - name: Mask Doppler secrets
         run: |
+          set -o pipefail
           doppler secrets download --no-file --format json \
             | jq -r 'to_entries[] | select(.key | startswith("DOPPLER_") | not) | .value' \
             | while IFS= read -r line; do
@@ -68,6 +80,7 @@ jobs:
         env:
           ACTION: ${{ inputs.action }}
           LIMIT: ${{ inputs.limit }}
+          VERBOSITY: ${{ inputs.verbosity }}
         run: |
           case "$ACTION" in
             ping) command=(ansible all -m ansible.builtin.ping --become) ;;
@@ -77,5 +90,8 @@ jobs:
           esac
           if [[ -n "$LIMIT" ]]; then
             command+=(--limit "$LIMIT")
+          fi
+          if [[ "$VERBOSITY" != "0" ]]; then
+            command+=("-$(printf 'v%.0s' $(seq "$VERBOSITY"))")
           fi
           doppler run -- docker compose run --rm -T ansible "${command[@]}"

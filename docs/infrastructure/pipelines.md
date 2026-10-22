@@ -65,9 +65,10 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 
 `cd-ansible` is the control node of [Provisioning](provisioning.md): it runs the same container and commands as the `task ansible:*` tasks.
 
-- It starts only by hand, from the Actions page, with two inputs:
+- It starts only by hand, from the Actions page, with three inputs:
   - `action`: `ping` runs `ansible all -m ansible.builtin.ping --become`, `inspect` runs `inspect.yml`, `check` runs `site.yml --check --diff`, and `apply` runs `site.yml --diff`.
   - `limit`: the nodes or groups to run on, passed to `--limit`. Empty runs on every node.
+  - `verbosity`: from 0 to 4, passed to Ansible as `-v` to `-vvvv`.
 - It builds the Ansible image from `tools/ansible/ansible.dockerfile`, then runs it through `doppler run` with the `DOPPLER_INFRA_TOKEN` environment secret, a Doppler service token that reads only the `infra` config. Every value of `infra` is masked in the log before Ansible starts.
 - The job runs in a GitHub environment that only `main` may deploy from, so a run from any other branch gets no secret and fails before it starts:
 
