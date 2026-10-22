@@ -4,6 +4,7 @@ from . import (
     accreditation_certificate_import_line,
     chemical,
     customer,
+    location,
     machine,
     machine_service,
     measurement_unit,
