@@ -53,7 +53,7 @@
     <!-- One label per container: its QR code, code, item, lot and usable date. -->
     <template id="container_label">
         <div
-            class="page"
+            class="article page"
             t-attf-style="font-family: sans-serif; font-size: 10pt; line-height: 1.15; {{ '' if first else 'page-break-before: always' }}"
         >
             <table style="width: 100%; border-collapse: collapse; table-layout: fixed">

@@ -6,7 +6,7 @@
         <field name="model">PinAAcle 900T</field>
         <field name="manufacturer">PerkinElmer</field>
         <field name="serial_number">PAA900T-1042</field>
-        <field name="location">Room 203, bench 2</field>
+        <field name="location_id" ref="demo_location_chemistry_bench_2" />
         <field name="maintenance_interval_days">180</field>
     </record>
     <record id="demo_machine_icpms" model="medilab.machine">
@@ -15,7 +15,7 @@
         <field name="model">7900</field>
         <field name="manufacturer">Agilent</field>
         <field name="serial_number">JP-7900-2231</field>
-        <field name="location">Room 205</field>
+        <field name="location_id" ref="demo_location_chemistry_bench_1" />
     </record>
     <record id="demo_machine_incubator" model="medilab.machine">
         <field name="code">INC-01</field>
@@ -23,7 +23,7 @@
         <field name="model">IN110</field>
         <field name="manufacturer">Memmert</field>
         <field name="serial_number">B416.0123</field>
-        <field name="location">Microbiology room</field>
+        <field name="location_id" ref="demo_location_microbiology_bench_1" />
         <field name="status">under_repair</field>
     </record>
     <record id="demo_machine_aas_2" model="medilab.machine">
@@ -32,7 +32,7 @@
         <field name="model">AA-7000</field>
         <field name="manufacturer">Shimadzu</field>
         <field name="serial_number">A30985300112</field>
-        <field name="location">Room 203, bench 3</field>
+        <field name="location_id" ref="demo_location_chemistry_bench_3" />
     </record>
     <record id="demo_machine_aas_3" model="medilab.machine">
         <field name="code">AAS-03</field>
@@ -40,7 +40,7 @@
         <field name="model">AAnalyst 800</field>
         <field name="manufacturer">PerkinElmer</field>
         <field name="serial_number">AA800-0377</field>
-        <field name="location">Room 204</field>
+        <field name="location_id" ref="demo_location_chemistry_bench_1" />
         <field name="status">under_repair</field>
     </record>
 </odoo>

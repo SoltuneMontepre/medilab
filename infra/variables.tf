@@ -27,3 +27,9 @@ variable "ansible_apply_reviewers" {
   type        = list(string)
   default     = ["hatohui"]
 }
+
+variable "cloudflare_zone_name" {
+  description = "The Cloudflare zone that owns MediLab's host names"
+  type        = string
+  default     = "soltunemontepre.tech"
+}

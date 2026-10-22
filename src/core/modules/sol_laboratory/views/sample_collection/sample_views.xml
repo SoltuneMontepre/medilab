@@ -71,7 +71,7 @@
                 <sheet>
                     <div class="oe_title">
                         <label for="code" />
-                        <h1><field name="code" placeholder="Given when the sample is saved" /></h1>
+                        <h1><field name="code" required="0" placeholder="Given when the sample is saved" /></h1>
                     </div>
                     <group>
                         <group>
@@ -92,6 +92,7 @@
                             <field name="condition" readonly="status != 'expected'" />
                             <field name="condition_note" readonly="status != 'expected'" />
                             <field name="storage_location" readonly="status not in ('expected', 'on_hold')" />
+                            <field name="sampling_location_id" readonly="status != 'expected'" />
                         </group>
                         <group>
                             <field name="received_at" />

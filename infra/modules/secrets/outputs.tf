@@ -27,3 +27,9 @@ output "doppler_infra_token" {
   value       = data.doppler_secrets.this.map["DOPPLER_INFRA_TOKEN"]
   sensitive   = true
 }
+
+output "cloudflare_api_token" {
+  description = "Cloudflare token that edits DNS and the tunnel of the zone"
+  value       = data.doppler_secrets.this.map["CLOUDFLARE_API_TOKEN"]
+  sensitive   = true
+}
