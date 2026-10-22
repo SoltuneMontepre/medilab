@@ -1,25 +1,6 @@
-const PASSWORD = "demo";
+import { call, signIn } from "../support/odoo";
+
 const REASON = "Máy AAS đang sửa, cần kết quả trước hạn.";
-
-function signIn(login) {
-  cy.visit("/web/login");
-  cy.get("input[name=login]").type(login);
-  cy.get("input[name=password]").type(`${PASSWORD}{enter}`);
-  cy.location("pathname").should("match", /^\/odoo/);
-}
-
-function call(model, method, args, kwargs = {}) {
-  return cy
-    .request("POST", `/web/dataset/call_kw/${model}/${method}`, {
-      jsonrpc: "2.0",
-      method: "call",
-      params: { model, method, args, kwargs },
-    })
-    .then(({ body }) => {
-      expect(body.error, JSON.stringify(body.error)).to.be.undefined;
-      return body.result;
-    });
-}
 
 // The lab code of the sample of a demo sample test.
 function sampleCode(xmlId) {
