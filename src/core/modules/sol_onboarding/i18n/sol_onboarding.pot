@@ -128,6 +128,11 @@ msgid "Attachment"
 msgstr ""
 
 #. module: sol_onboarding
+#: model:medilab.onboarding.source,name:sol_onboarding.onboarding_source_boa
+msgid "Bureau of Accreditation"
+msgstr ""
+
+#. module: sol_onboarding
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_accept_form
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
@@ -342,6 +347,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_organisation__external_key
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__external_key
 msgid "External Key"
+msgstr ""
+
+#. module: sol_onboarding
+#: model:medilab.onboarding.source,name:sol_onboarding.onboarding_source_fda_bam
+msgid "FDA Bacteriological Analytical Manual"
 msgstr ""
 
 #. module: sol_onboarding

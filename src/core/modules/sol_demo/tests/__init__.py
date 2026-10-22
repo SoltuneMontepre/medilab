@@ -3,5 +3,6 @@ from . import (
     test_demo_echo,
     test_invoice_demo,
     test_laboratory_file_demo,
+    test_onboarding_demo,
     test_order_template_demo,
 )

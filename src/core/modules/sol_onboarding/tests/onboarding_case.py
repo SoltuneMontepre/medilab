@@ -31,6 +31,8 @@ class OnboardingCase(TransactionCase):
         # CI installs the demo data: its running run would refuse every start, and its organisations would be suggested.
         cls.env[MODEL_ONBOARDING_RUN].search([("state", "=", "running")]).write({"state": "cancelled"})
         cls.env[MODEL_ONBOARDING_ORGANISATION].search([]).write({"active": False})
+        # The shipped sources would otherwise join every run and refresh.
+        cls.env[MODEL_ONBOARDING_SOURCE].sudo().search([]).enabled = False
         cls.source = (
             cls.env[MODEL_ONBOARDING_SOURCE]
             .sudo()

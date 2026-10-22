@@ -129,6 +129,11 @@ msgid "Attachment"
 msgstr "Tệp đính kèm"
 
 #. module: sol_onboarding
+#: model:medilab.onboarding.source,name:sol_onboarding.onboarding_source_boa
+msgid "Bureau of Accreditation"
+msgstr "Văn phòng Công nhận Chất lượng"
+
+#. module: sol_onboarding
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_accept_form
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_reject_form
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_run_form
@@ -344,6 +349,11 @@ msgstr "Lỗi"
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__external_key
 msgid "External Key"
 msgstr "Khóa ở nguồn"
+
+#. module: sol_onboarding
+#: model:medilab.onboarding.source,name:sol_onboarding.onboarding_source_fda_bam
+msgid "FDA Bacteriological Analytical Manual"
+msgstr "Sổ tay Phân tích Vi khuẩn học của FDA"
 
 #. module: sol_onboarding
 #: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_run__state__failed

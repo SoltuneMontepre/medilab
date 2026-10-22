@@ -7,6 +7,9 @@ from odoo.tools import mute_logger
 
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_SOURCE
+from odoo.addons.sol_onboarding.services.adapters.boa import BoaAdapter
+from odoo.addons.sol_onboarding.services.adapters.fda_bam import FdaBamAdapter
+from odoo.addons.sol_onboarding.services.adapters.registry import adapter_for
 
 SOURCE_VALUES = {
     "name": "Test source",
@@ -55,6 +58,16 @@ class TestSourceAccess(HttpCase):
         source = self.sources.create(SOURCE_VALUES)
         self.assertEqual(
             (source.enabled, source.active, source.delay_seconds, source.page_limit), (False, True, 2, 500)
+        )
+
+    def test_the_shipped_sources_read_with_their_adapters(self):
+        boa = self.env.ref("sol_onboarding.onboarding_source_boa").sudo()
+        fda = self.env.ref("sol_onboarding.onboarding_source_fda_bam").sudo()
+        self.assertIsInstance(adapter_for(boa), BoaAdapter)
+        self.assertIsInstance(adapter_for(fda), FdaBamAdapter)
+        self.assertEqual(
+            [(source.host, source.delay_seconds, source.page_limit) for source in (boa, fda)],
+            [("www.boa.gov.vn", 2, 500), ("www.fda.gov", 30, 500)],
         )
 
     def test_a_start_address_must_be_https_on_the_host(self):

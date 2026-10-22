@@ -106,7 +106,7 @@
         <field name="source_id" ref="demo_onboarding_source_boa" />
         <field name="run_id" ref="demo_onboarding_run_failed" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation_earlier" />
-        <field name="external_key">HH</field>
+        <field name="external_key">Hóa</field>
         <field name="checksum">52ba6d6cfa3d548febbe2efbc2666c936bd97ddbc0bb29c7fce0299300e5a270</field>
         <field name="source_values" eval="{'code': 'HH', 'name': 'Hoá học'}" />
         <field name="lang">vi_VN</field>
@@ -120,7 +120,7 @@
         <field name="source_id" ref="demo_onboarding_source_boa" />
         <field name="run_id" ref="demo_onboarding_run_done" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
-        <field name="external_key">HH</field>
+        <field name="external_key">Hóa</field>
         <field name="checksum">c624acae195f274c252ee381d94814f4c5b59897f01cb8cf62a7c02627f20bd7</field>
         <field name="source_values" eval="{'code': 'HH', 'name': 'Hóa học'}" />
         <field name="lang">vi_VN</field>
@@ -137,8 +137,8 @@
         <field name="run_id" ref="demo_onboarding_run_done" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_food" />
         <field name="external_key">TCVN 7602:2007</field>
-        <field name="checksum">551bcb7f55a4211bcbf75ae74b1589f0c1ea261c841a54f860478cd91913dadb</field>
-        <field name="source_values" eval="{'code': 'TCVN 7602:2007', 'name': 'Thực phẩm — Xác định hàm lượng chì bằng phương pháp quang phổ hấp thụ nguyên tử', 'field_key': 'HH'}" />
+        <field name="checksum">e2b85808e366110538429da4fb5eb3f9b7b9b65c979e4abcdd83485d16b67041</field>
+        <field name="source_values" eval="{'code': 'TCVN 7602:2007', 'name': 'Thực phẩm — Xác định hàm lượng chì bằng phương pháp quang phổ hấp thụ nguyên tử', 'field_key': 'Hóa'}" />
         <field name="lang">vi_VN</field>
         <field name="sector_id" ref="sol_onboarding.sector_food" />
         <field name="action">link</field>
@@ -155,8 +155,8 @@
         <field name="run_id" ref="demo_onboarding_run_failed" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation_earlier" />
         <field name="external_key">ISO 4832:2006</field>
-        <field name="checksum">0afb556d9608e80a83f74de39e408f3686cbba97c1677e7a9119b0409a31d6cd</field>
-        <field name="source_values" eval="{'code': 'ISO 4832:2006', 'name': 'Vi sinh vật trong thực phẩm và thức ăn chăn nuôi — Định lượng coliform — Kỹ thuật đếm khuẩn lạc', 'field_key': 'VS'}" />
+        <field name="checksum">17d6999e1c0a0e3b6a4c34dac9babd2655cbf2965c5610a8cb03e8d773a2efbb</field>
+        <field name="source_values" eval="{'code': 'ISO 4832:2006', 'name': 'Vi sinh vật trong thực phẩm và thức ăn chăn nuôi — Định lượng coliform — Kỹ thuật đếm khuẩn lạc', 'field_key': 'Sinh'}" />
         <field name="lang">vi_VN</field>
         <field name="parent_id" ref="demo_onboarding_staged_record_certificate_vilas_9901" />
         <field name="action">update</field>
@@ -271,8 +271,8 @@
         <field name="run_id" ref="demo_onboarding_run_done" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_food" />
         <field name="external_key">ISO 4832:2006</field>
-        <field name="checksum">f120aaa54f7841ccbccc7fcceafc9ce3cfc728dcf46ee5a6f234bce030070615</field>
-        <field name="source_values" eval="{'code': 'ISO 4832:2006', 'name': 'Vi sinh vật trong chuỗi thực phẩm — Phương pháp định lượng coliform — Kỹ thuật đếm khuẩn lạc', 'field_key': 'VS'}" />
+        <field name="checksum">ee681a578ffff0a40dce7df099d379f40a8d368059c0fc26bb3f41dbad54a730</field>
+        <field name="source_values" eval="{'code': 'ISO 4832:2006', 'name': 'Vi sinh vật trong chuỗi thực phẩm — Phương pháp định lượng coliform — Kỹ thuật đếm khuẩn lạc', 'field_key': 'Sinh'}" />
         <field name="lang">vi_VN</field>
         <field name="sector_id" ref="sol_onboarding.sector_food" />
         <field name="action">update</field>
@@ -330,7 +330,7 @@
         <field name="source_id" ref="demo_onboarding_source_boa" />
         <field name="run_id" ref="demo_onboarding_run_done" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_environment" />
-        <field name="external_key">Radiation</field>
+        <field name="external_key">Phóng xạ</field>
         <field name="checksum">c448d9fa29c4efd23423eb77adf6cf06096d4da44e8cc52d441220aa8abb3051</field>
         <field name="source_values" eval="{'code': '', 'name': 'Radiation'}" />
         <field name="lang">en_US</field>
@@ -346,8 +346,8 @@
         <field name="run_id" ref="demo_onboarding_run_done" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_environment" />
         <field name="external_key">ISO 9696:2017</field>
-        <field name="checksum">d97f20d89a981e76654f7de88d35e07ba50ac9a1c3add267a86910c49d2e2735</field>
-        <field name="source_values" eval="{'code': 'ISO 9696:2017', 'name': 'Water quality — Gross alpha activity — Test method using thick source', 'field_key': 'Radiation'}" />
+        <field name="checksum">82ab28e7b5ff5caf3a1ffd3bade72d03b0fa9e2858be2324eb717bb9f1844448</field>
+        <field name="source_values" eval="{'code': 'ISO 9696:2017', 'name': 'Water quality — Gross alpha activity — Test method using thick source', 'field_key': 'Phóng xạ'}" />
         <field name="lang">en_US</field>
         <field name="sector_id" ref="sol_onboarding.sector_environment" />
         <field name="action">create</field>

@@ -11,6 +11,7 @@
         "security/onboarding_security.xml",
         "security/ir.access.csv",
         "data/onboarding_sector_data.xml",
+        "data/onboarding_source_data.xml",
         "data/ir_sequence_data.xml",
         "data/permission_data.xml",
         "data/notification_event_data.xml",

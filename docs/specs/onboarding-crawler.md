@@ -24,7 +24,9 @@ Runs and staged records are documents: they inherit `medilab.permission.mixin` a
 
 Sources are chosen by the developers, not by the laboratory. Each source is a record in the module's `data/onboarding_source_data.xml`, with its adapter, host, start address, delay between requests (2 seconds by default), page limit per run (500 by default) and whether it is turned on. Adding, changing or turning off a source is a code change reviewed in a pull request, and reaches an installation when the module is upgraded.
 
-The module ships the BoA organisation search as its first source, turned on.
+The module ships two sources, turned on: the BoA organisation search, read by the `boa` adapter with a delay of 2 seconds, and the FDA Bacteriological Analytical Manual (BAM), read by the `fda_bam` adapter with a delay of 30 seconds. A source's delay is at least the `Crawl-delay` its `robots.txt` asks. The demo data turns every source off when it is installed and on every upgrade, so a demo never reaches a source.
+
+The owner allows collecting from BoA. The BAM is in the public domain and serves food and cosmetics. Not shipped for now are the EPA's methods, whose reuse carries a non-commercial caveat; the TCVN standards at `tieuchuan.vsqi.gov.vn`, whose certificate chain does not verify, since the fetcher keeps verifying certificates; and the scopes of other laboratories.
 
 - The source model is not a document: it has no permissions, no menu and no views, and no group, the administrator's included, gets an access rule on it. Code reads it with `sudo()`.
 - Administrators see neither the sources nor their settings. A staged record shows only the address and time of the page it came from.
