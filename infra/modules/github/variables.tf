@@ -31,3 +31,8 @@ variable "environment_secrets" {
   default     = {}
   sensitive   = true
 }
+
+variable "required_checks" {
+  description = "The status checks the default branch requires, as check name => the ID of the GitHub App that reports it"
+  type        = map(number)
+}

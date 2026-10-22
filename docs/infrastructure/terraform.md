@@ -21,7 +21,7 @@ Terraform manages the `soltunemontepre.tech` zone's records and the tunnel that 
 
 ## GitHub
 
-The `github` module publishes the Actions secrets and variables and creates the `ansible` and `ansible-apply` environments; see [Secrets](secrets.md#published-to-github) and [Pipelines](pipelines.md#cd-ansible).
+The `github` module publishes the Actions secrets and variables, creates the `ansible` and `ansible-apply` environments, manages the `main` ruleset, which requires a reviewed pull request and the checks in `required_checks` and lets organization admins and GitHub Actions bypass it, and allows GitHub Actions to create pull requests. The `release` variable sets the `RELEASE_MODE`, `RELEASE_DAYS` and `RELEASE_HOURS` Actions variables of [cd-core](pipelines.md#cd-core); see [Secrets](secrets.md#published-to-github) and [Pipelines](pipelines.md#cd-ansible).
 
 ## Related documents
 
