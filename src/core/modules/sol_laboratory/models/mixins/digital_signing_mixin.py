@@ -34,12 +34,12 @@ class DigitalSigningMixin(models.AbstractModel):
 
     # The digital signature of the document's current version; empty until Viettel Sign signed its PDF.
     digital_signature_id = fields.Many2one(
-        MODEL_DIGITAL_SIGNATURE, compute="_compute_digital_signature", compute_sudo=True
+        MODEL_DIGITAL_SIGNATURE, compute="_compute_digital_signature", compute_sudo=True, store=True, index=True
     )
     # When Viettel Sign signed the PDF of the current version.
     digital_signed_at = fields.Datetime(related="digital_signature_id.signed_at", string="Digitally Signed At")
     # True when the signing of the document's PDF waits in the signing job's queue.
-    digital_signing_pending = fields.Boolean(compute="_compute_digital_signature", compute_sudo=True)
+    digital_signing_pending = fields.Boolean(compute="_compute_digital_signing_pending", compute_sudo=True)
 
     @api.depends("document_version")
     def _compute_digital_signature(self):
@@ -48,6 +48,16 @@ class DigitalSigningMixin(models.AbstractModel):
             .sudo()
             .search([("document_model", "=", self._name), ("document_id", "in", self.ids)])
         )
+        for document in self:
+            document.digital_signature_id = signatures.filtered(
+                lambda signature, document=document: (
+                    signature.document_id == document.id and signature.document_version == document.document_version
+                )
+            )[:1]
+
+    # A stored field and a non-stored field cannot share a compute; the registry warns when they do.
+    @api.depends("digital_signature_id", "document_version")
+    def _compute_digital_signing_pending(self):
         queued = set(
             self.env[MODEL_JOB_ITEM]
             .sudo()
@@ -63,11 +73,6 @@ class DigitalSigningMixin(models.AbstractModel):
         )
         enabled = self._digital_signing_enabled()
         for document in self:
-            document.digital_signature_id = signatures.filtered(
-                lambda signature, document=document: (
-                    signature.document_id == document.id and signature.document_version == document.document_version
-                )
-            )[:1]
             document.digital_signing_pending = bool(
                 enabled
                 and document.id

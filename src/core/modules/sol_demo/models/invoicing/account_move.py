@@ -5,6 +5,7 @@ from odoo import api, fields, models
 from odoo.fields import Command
 
 from odoo.addons.sol_commerce.models.orders.sale_order_confirmation import CONFIRMING_ORDER_IDS
+from odoo.addons.sol_demo.demo_chart import load_vietnam_chart
 from odoo.addons.sol_laboratory.constants.notifications import VIETNAM_ZONE
 
 MARKER = "sol_demo.demo_account_move_advance"
@@ -29,8 +30,7 @@ class AccountMove(models.Model):
             self._seed_failed_push()
             return
         company = self.env.company
-        if not company.chart_template:
-            self.env["account.chart.template"].try_loading("vn", company)
+        load_vietnam_chart(self.env)
         if not self.env["account.journal"].search([("type", "=", "sale"), ("company_id", "=", company.id)], limit=1):
             return
         an_phu = self.env.ref(PARTNER_AN_PHU)

@@ -81,7 +81,7 @@ class ScheduledJob(models.Model):
     # False when the schedule is off: items wait until it is on again or the job is run by hand; kept on the cron.
     cron_active = fields.Boolean(related="cron_id.active", readonly=False, string="Active")
     # The most recent run.
-    last_run_id = fields.Many2one(MODEL_JOB_RUN, compute="_compute_last_run")
+    last_run_id = fields.Many2one(MODEL_JOB_RUN, compute="_compute_last_run", store=True, index=True)
     # Result of the most recent run.
     last_run_status = fields.Selection(related="last_run_id.status")
     # Seconds the most recent run took.
