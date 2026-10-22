@@ -4,7 +4,6 @@ kind: Kustomization
 resources:
   - applications/cert-manager.yaml
   - applications/external-secrets.yaml
-  - applications/csi-s3.yaml
   - applications/secret-store.yaml
   - applications/cloudnative-pg.yaml
   - applications/plugin-barman-cloud.yaml

@@ -10,13 +10,12 @@ What Argo CD deploys from `infra/cluster/` onto the cluster in [Architecture](ar
 | --------------------- | -------------------------------------------------------------------------- | ---------------------------- | ------------------ | ---- |
 | `cert-manager`        | cert-manager, which issues the TLS certificates of the Barman Cloud plugin | `cert-manager` chart         | `cert-manager`     | -3   |
 | `external-secrets`    | External Secrets Operator                                                  | `external-secrets` chart     | `external-secrets` | -3   |
-| `csi-s3`              | The S3 CSI driver, with the GeeseFS mounter                                | `csi-s3` chart               | `csi-s3`           | -3   |
 | `secret-store`        | The `doppler` `ClusterSecretStore`                                         | `infra/cluster/secret-store` | `external-secrets` | -2   |
 | `cloudnative-pg`      | The CloudNativePG operator                                                 | `cloudnative-pg` chart       | `cnpg-system`      | -2   |
 | `plugin-barman-cloud` | The Barman Cloud plugin of CloudNativePG                                   | `plugin-barman-cloud` chart  | `cnpg-system`      | -1   |
 | `database`            | The Postgres `Cluster`, its object store and its scheduled backup          | `infra/cluster/database`     | `medilab`          | 0    |
 | `cloudflared`         | The Cloudflare Tunnel connector                                            | `infra/cluster/cloudflared`  | `medilab`          | 1    |
-| `odoo`                | Odoo, its filestore volume, the pre-sync backup and the upgrade Job        | `infra/cluster/odoo`         | `medilab`          | 1    |
+| `odoo`                | Odoo, the pre-sync backup and the upgrade Job                              | `infra/cluster/odoo`         | `medilab`          | 1    |
 
 - The root application syncs the applications wave by wave and waits until every application of a wave is healthy before the next. Argo CD has no health check for an `Application` by default; the `argocd` role adds one.
 - Every application syncs automatically, prunes what was removed from Git and reverts changes made by hand. Every application except `odoo` retries a failed sync five times, so the first install settles while operators and their CRDs come up.
@@ -30,7 +29,6 @@ Every chart and image is pinned and upgraded by changing it in `infra/cluster/`:
 | ------------------------- | -------- | --------------------------------------- |
 | cert-manager chart        | v1.21.2  | `applications/cert-manager.yaml`        |
 | External Secrets chart    | 2.13.0   | `applications/external-secrets.yaml`    |
-| S3 CSI driver chart       | 0.43.7   | `applications/csi-s3.yaml`              |
 | CloudNativePG chart       | 0.29.1   | `applications/cloudnative-pg.yaml`      |
 | Barman Cloud plugin chart | 0.8.1    | `applications/plugin-barman-cloud.yaml` |
 | Postgres image            | 18.4     | `imageName` in `database/cluster.yaml`  |
@@ -46,7 +44,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 | Secret               | Doppler secrets                                                          | Used by                    |
 | -------------------- | ------------------------------------------------------------------------ | -------------------------- |
 | `backup-bucket`      | `BUCKET_ADDRESS`, `BUCKET_BACKUP_ACCESS_KEY`, `BUCKET_BACKUP_SECRET_KEY` | The `backups` object store |
-| `filestore-bucket`   | `BUCKET_ADDRESS`, `BUCKET_MAIN_ACCESS_KEY`, `BUCKET_MAIN_SECRET_KEY`     | The filestore volume       |
+| `filestore-bucket`   | `BUCKET_ADDRESS`, `BUCKET_MAIN_ACCESS_KEY`, `BUCKET_MAIN_SECRET_KEY`     | Odoo and the upgrade Job   |
 | `cloudflared-tunnel` | `CLOUDFLARE_TUNNEL_TOKEN`                                                | `cloudflared`              |
 | `odoo-config`        | `ODOO_ADMIN_PASSWORD`, written into `odoo.conf`                          | Odoo and the upgrade Job   |
 
@@ -61,7 +59,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 ## Odoo
 
 - `odoo.conf` comes from the `odoo-config` Secret, not the image: four workers, one cron thread, `proxy_mode`, no database manager and only the `medilab` database. Odoo reaches the database through the `medilab-db-rw` service with the user in `medilab-db-app`.
-- The filestore bucket is mounted at `/var/lib/odoo/filestore` through the `medilab-filestore` volume, so every replica and the upgrade Job see the same attachments. The rest of `/var/lib/odoo`, including the sessions, is local to each pod.
+- Odoo and the upgrade Job get the `medilab-filestore` bucket credentials and endpoint from the `filestore-bucket` Secret as `BUCKET_LABORATORY_*`, with `BUCKET_LABORATORY_NAME=medilab-filestore`, `BUCKET_LABORATORY_REGION=us-east-1` and `BUCKET_FILESTORE=1`. Attachments are kept in the bucket and cached in the pod's `/var/lib/odoo` `emptyDir` alongside the sessions; see [Laboratory files](../specs/laboratory-files.md#filestore).
 - Traefik routes `lims.soltunemontepre.tech` to Odoo, and `/websocket` to its websocket port, and tells Odoo the request came over HTTPS.
 - Every sync of the `odoo` application runs, in order:
   1. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.

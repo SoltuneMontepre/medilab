@@ -39,6 +39,7 @@ from . import (
     test_document_locking,
     test_editing_service_health,
     test_editing_service_urls,
+    test_filestore_bucket,
     test_handover_record,
     test_is_accredited,
     test_job_claim_commit,

@@ -90,7 +90,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 
 | Bucket              | Holds                                 |
 | ------------------- | ------------------------------------- |
-| `medilab-filestore` | Odoo attachments                      |
+| `medilab-filestore` | Laboratory files and Odoo attachments |
 | `medilab-backups`   | Postgres WAL archive and base backups |
 
 ## Backups
@@ -120,7 +120,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 
 - Two replicas, spread over the data sites by preferred pod anti-affinity.
 - A release rolls out one replica at a time (`maxSurge: 1`, `maxUnavailable: 0`): a new replica must be ready before an old one stops, so users are not interrupted. The anti-affinity is preferred rather than required so that the extra replica can be placed during a rollout.
-- Attachments are stored in the `medilab-filestore` bucket, outside both servers, and mounted into every replica through an S3 CSI driver, so either replica serves every file.
+- Attachments are stored in the `medilab-filestore` bucket through the laboratory bucket service (`BUCKET_FILESTORE=1`) and cached on each replica's local disk, so either replica serves every file; see [Laboratory files](../specs/laboratory-files.md#filestore).
 - Sessions are stored on each replica's local disk; users log in again after a failover.
 - Module installs and upgrades run in a one-off Job per release, never at pod start.
 - Scheduled actions run on both replicas; Odoo locks each job so it runs once.
