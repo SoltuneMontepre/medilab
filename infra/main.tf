@@ -15,13 +15,20 @@ module "github_actions" {
     DOPPLER_TOKEN = module.secrets.doppler_token
     TF_API_TOKEN  = module.secrets.tf_api_token
 
+    ARGOCD_AUTH_TOKEN = module.secrets.argocd_auth_token
+
     CF_ACCESS_CLIENT_ID     = module.argocd_access.client_id
     CF_ACCESS_CLIENT_SECRET = module.argocd_access.client_secret
   }
 
   variables = {
     ARGOCD_SERVER = local.web_hostnames.argocd
+    RELEASE_MODE  = var.release.mode
+    RELEASE_DAYS  = var.release.days
+    RELEASE_HOURS = var.release.hours
   }
+
+  required_checks = var.required_checks
 
   environments = {
     ansible = {
@@ -36,4 +43,9 @@ module "github_actions" {
   environment_secrets = {
     DOPPLER_INFRA_TOKEN = module.secrets.doppler_infra_token
   }
+}
+
+import {
+  to = module.github_actions.github_repository_ruleset.main
+  id = "${var.github_repository}:24628840"
 }

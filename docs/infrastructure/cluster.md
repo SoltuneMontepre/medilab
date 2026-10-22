@@ -55,7 +55,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 ## Database
 
 - The `medilab-db` `Cluster` runs one instance on the `local-path` storage of its node, with 20 GiB, and creates the `medilab` database owned by the `medilab` user.
-- The `backups` `ObjectStore` writes the WAL archive and the base backups to `s3://medilab-backups/postgres`, compressed, and keeps them for 30 days. The bucket endpoint reaches the plugin's sidecar as `AWS_ENDPOINT_URL`, since the object store can only take it as plain text. The sidecar sets `AWS_REQUEST_CHECKSUM_CALCULATION` and `AWS_RESPONSE_CHECKSUM_VALIDATION` to `when_required`, since the provider refuses the checksums boto3 adds to multipart uploads by default.
+- The `backups` `ObjectStore` writes the WAL archive and the base backups to `s3://medilab-backups/postgres`, compressed, and keeps them for 30 days. The bucket endpoint reaches the plugin's sidecar as `AWS_ENDPOINT_URL`, since the object store can only take it as plain text. The sidecar sets `AWS_REQUEST_CHECKSUM_CALCULATION` and `AWS_RESPONSE_CHECKSUM_VALIDATION` to `when_required`, since the object storage refuses the checksums boto3 adds to multipart uploads by default.
 - The `medilab-db-daily` `ScheduledBackup` takes a base backup every day at 02:00 Asia/Ho_Chi_Minh, written as `0 0 19 * * *` because the operator reads the schedule in UTC.
 
 ## Odoo

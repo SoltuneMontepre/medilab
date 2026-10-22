@@ -21,7 +21,7 @@ Every local program that needs a secret is started through `doppler run --projec
 - `DOPPLER_INFRA_TOKEN` is a Doppler service token with read access to `infra` only, published to the Ansible environments for `cd-ansible`.
 - `GITHUB_TOKEN` needs permission to write Actions secrets and environments on the repository.
 - `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID` and `ARM_TENANT_ID` are a service principal of the Azure for Students subscription, read from the environment by Terraform's `azurerm` provider to manage the witness VM. The principal has the Contributor role on the witness resource group only.
-- `ARGOCD_AUTH_TOKEN` is the token of a read-only Argo CD account, used by `cd-core` to check a release.
+- `ARGOCD_AUTH_TOKEN` is a token of the Argo CD `release` account, used by `cd-core` to check a release. Create it after the `argocd` role has run, logged in to Argo CD as `admin`: `argocd account generate-token --account release`.
 - `CLOUDFLARE_API_TOKEN` is read from the environment by Terraform's Cloudflare provider. It edits DNS, the tunnel and Access of the `soltunemontepre.tech` zone and creates Origin CA certificates: Zone read and DNS edit on the zone; Cloudflare Tunnel edit, Access: Apps and Policies edit and Access: Service Tokens edit on the account.
 - `CONTEXT7_TOKEN` is a Context7 API key, read by the `context7` MCP server.
 - `TERRAFORM_TOKEN` is an HCP Terraform team token with write access to the workspace.
