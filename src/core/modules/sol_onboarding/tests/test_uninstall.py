@@ -61,6 +61,8 @@ def test_uninstalling_onboarding_keeps_accepted_master_data(env):
     jobs.queue(CRAWL_JOB, "uninstall")
     env[MODEL_JOB_RUN].create({"job_id": jobs._by_key(CRAWL_JOB).id, "started_at": fields.Datetime.now()})
     organisations_job = jobs._by_key(ORGANISATIONS_JOB)
+    # The shipped sources are turned on, and the job would read their sites.
+    env[MODEL_ONBOARDING_SOURCE].search([]).enabled = False
     organisations_job._run_batch()
     assert env[MODEL_AUDIT_ENTRY].search_count([("job_run_id", "in", organisations_job.run_ids.ids)])
     organisations_cron_id = organisations_job.cron_id.id
