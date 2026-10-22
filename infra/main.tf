@@ -14,6 +14,13 @@ module "github_actions" {
     SONAR_TOKEN   = module.secrets.sonar_token
     DOPPLER_TOKEN = module.secrets.doppler_token
     TF_API_TOKEN  = module.secrets.tf_api_token
+
+    CF_ACCESS_CLIENT_ID     = module.argocd_access.client_id
+    CF_ACCESS_CLIENT_SECRET = module.argocd_access.client_secret
+  }
+
+  variables = {
+    ARGOCD_SERVER = local.web_hostnames.argocd
   }
 
   environments = {

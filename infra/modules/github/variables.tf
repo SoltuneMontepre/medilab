@@ -10,6 +10,12 @@ variable "secrets" {
   sensitive   = true
 }
 
+variable "variables" {
+  description = "GitHub Actions repository variables to publish, as name => value"
+  type        = map(string)
+  default     = {}
+}
+
 variable "environments" {
   description = "Deployment environments to create, as name => the only branch that may deploy and the GitHub usernames that must approve"
   type = map(object({

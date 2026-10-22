@@ -1,6 +1,7 @@
 locals {
   web_hostnames = {
-    lims = "lims.${var.cloudflare_zone_name}"
+    lims   = "lims.${var.cloudflare_zone_name}"
+    argocd = "argocd.${var.cloudflare_zone_name}"
   }
 }
 
@@ -26,4 +27,12 @@ module "dns" {
       proxied = true
     }
   }
+}
+
+module "argocd_access" {
+  source = "./modules/access"
+
+  account_id = module.dns.account_id
+  name       = "argocd"
+  hostname   = local.web_hostnames.argocd
 }
