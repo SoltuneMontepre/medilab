@@ -245,6 +245,23 @@ Acceptance criteria:
 - A reminder arrives 15 minutes before a booking starts, once on each channel.
 - An event the administrator turned off notifies nobody; turning it on again notifies the next occurrence.
 
+#### SH-12 Conversations
+
+People of the laboratory write to each other in conversations, and about a document in its chatter, on the web and on [Medilab Mobile](laboratory_module/applications/medilab-mobile.md).
+
+- **Built on Odoo Discuss.** A conversation is an Odoo Discuss channel (`discuss.channel`): a direct conversation between two people, or a group conversation with a name and members. Its messages are Odoo messages (`mail.message`), with their files and photos as attachments. On the web, conversations are in Odoo's Discuss app.
+- **Internal.** Only people with an internal user take part in conversations. Customers and subcontractors never join one; a customer writes to sales through a support request.
+- **Chatter.** Messages about a document, such as a task, a sample or a test request, are posted in its chatter, where everyone who can read the document reads them.
+- **Mentions.** A message that mentions a person with @ notifies them on each channel they keep on (SH-11).
+- **Pushes.** A new message in a conversation is pushed to the Medilab Mobile devices of its members, except its author and the members who muted the conversation.
+
+Acceptance criteria:
+
+- A message sent in a conversation on the web appears on the phones of its members, and a message sent from a phone appears on the web.
+- A customer or a subcontractor cannot be added to a conversation.
+- Mentioning a person in a sample's chatter notifies them on each channel they keep on.
+- A message in a group conversation is pushed to every member except its author and those who muted it.
+
 ## II. External systems integration
 
 All integrations are optional and enabled in the settings. Credentials come from configuration files (SH-03), never from the database. Every call is logged in the audit trail (SH-05), and a provider outage never loses a business action: it is queued and retried (SH-09).
