@@ -14,7 +14,13 @@
     <template id="report_handover_record">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="record">
-                <t t-call="sol_laboratory.report_handover_record_document" t-lang="record.request_id.customer_id.lang" />
+                <!-- The PDF engine only declares UTF-8 when it wraps an article. A bare page is read as Latin-1. -->
+                <div class="article" t-att-data-oe-model="record._name" t-att-data-oe-id="record.id">
+                    <t
+                        t-call="sol_laboratory.report_handover_record_document"
+                        t-lang="record.request_id.customer_id.lang"
+                    />
+                </div>
             </t>
         </t>
     </template>
