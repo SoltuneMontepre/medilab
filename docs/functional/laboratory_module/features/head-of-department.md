@@ -93,7 +93,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Accept      | Accepting a suggestion marks its sample tests as outsourced through the suggested subcontracted way of testing, or another of the parameter's subcontracted ways the head chooses, and puts them in the subcontractor's draft dispatch. |
 | Dispatch    | Outsourced sample tests for one subcontractor go in a dispatch: date sent, date results are expected back, and sample delivery staff (nhân viên giao nhận mẫu) or a delivery service with its tracking number. |
 | Accreditation | A subcontractor whose accreditation has expired cannot be chosen.                                                          |
-| Emergency   | The head outsources a waiting or assigned test of the department straight away, with a reason, through one of the parameter's subcontracted ways of testing. Its bookings that have not started are cancelled, and it goes in the subcontractor's draft dispatch as an accepted suggestion does. |
+| Emergency   | The head outsources a waiting or assigned test of the department straight away, with a reason, through one of the parameter's subcontracted ways of testing. Its bookings that have not started are cancelled, and it goes in the subcontractor's draft dispatch as an accepted suggestion does. Outsourcing a test asks for the reason only when the test has no outsourcing suggestion, and the reason shows on the test. |
 
 Acceptance criteria:
 

@@ -6654,6 +6654,8 @@ msgstr "Xem quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__reason
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Reason"
 msgstr "Lý do"
 
@@ -10585,6 +10587,7 @@ msgstr "Gửi thầu phụ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__outsourcing_suggested
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__outsourcing_suggested
 msgid "Outsourcing Suggested"
 msgstr "Đề xuất gửi thầu phụ"
 
@@ -14369,3 +14372,36 @@ msgstr "Xác minh các tệp phòng thí nghiệm đã tải lên"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__verifying
 msgid "Verifying"
 msgstr "Đang xác minh"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__emergency_outsource_reason
+msgid "Emergency Outsource Reason"
+msgstr "Lý do gửi thầu phụ khẩn cấp"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Emergency Outsourcing"
+msgstr "Gửi thầu phụ khẩn cấp"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
+msgid "No outsourcing suggestion: give the reason for outsourcing the test straight away."
+msgstr "Chỉ tiêu không có đề xuất gửi thầu phụ: nhập lý do gửi thầu phụ ngay."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Give a reason for outsourcing the test straight away."
+msgstr "Nhập lý do gửi thầu phụ ngay chỉ tiêu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only a waiting or assigned sample test can be outsourced straight away: %s"
+msgstr "Chỉ gửi thầu phụ ngay được chỉ tiêu của mẫu đang chờ hoặc đã phân công: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only the department testing %s can outsource it straight away."
+msgstr "Chỉ phòng ban đang thử nghiệm %s mới gửi thầu phụ ngay được chỉ tiêu này."

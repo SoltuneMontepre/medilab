@@ -19,7 +19,7 @@
                         string="Outsource"
                         class="btn-success"
                         context="{'default_sample_test_id': id}"
-                        invisible="not outsourcing_suggested or status not in ('waiting', 'assigned') or not subcontracted_method_ids"
+                        invisible="status not in ('waiting', 'assigned') or not subcontracted_method_ids"
                         groups="sol_laboratory.group_permission_subcontract_dispatch_create_all"
                     />
                     <button
@@ -66,6 +66,9 @@
                         <group string="Outsourcing" invisible="not outsourcing_suggested">
                             <field name="outsourcing_suggested" invisible="1" />
                             <field name="subcontracted_method_ids" widget="many2many_tags" />
+                        </group>
+                        <group string="Emergency Outsourcing" invisible="not emergency_outsource_reason">
+                            <field name="emergency_outsource_reason" string="Reason" />
                         </group>
                         <group string="Cancellation" invisible="not cancel_reason">
                             <field name="cancel_reason" />
