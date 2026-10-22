@@ -164,7 +164,7 @@ flowchart LR
 - The release and rollback commits on `main` carry `[skip ci]`, so they start no workflow and the rollback does not start `cd-core` again. The redeploy pull request's pipelines run as for any pull request.
 - A rollback does not restore the database. When the upgrade Job failed, Odoo rolled back its own transaction and the schema is unchanged. When the upgrade succeeded and the replicas then failed, the previous image runs on the newer schema; the pre-sync backup is there to restore by hand.
 - `release` and `rollback` act as the release GitHub App, through a token that `actions/create-github-app-token` makes from the `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` Actions secrets. The app commits as its bot user, pushes to `main`, which the `main` ruleset lets it bypass, and opens the redeploy pull request. It is installed on this repository only, with Contents and Pull requests read and write.
-- `verify` and `rollback` reach Argo CD at the `ARGOCD_SERVER` Actions variable through Cloudflare Access, with the `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` Actions secrets, and read it with `ARGOCD_AUTH_TOKEN`, a token of the `release` account, which can only read the `odoo` application and its logs. The argocd CLI they install matches the Argo CD version of the `argocd` role.
+- `verify` and `rollback` reach Argo CD at the `ARGOCD_SERVER` Actions variable and read it with `ARGOCD_AUTH_TOKEN`, a token of the `release` account, which can only read the `odoo` application and its logs. The argocd CLI they install matches the Argo CD version of the `argocd` role.
 - A failed `publish` stops the run; a `schedule` run skips `publish` and only releases.
 
 ## Images

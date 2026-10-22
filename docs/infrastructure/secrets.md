@@ -23,7 +23,7 @@ Every local program that needs a secret is started through `doppler run --projec
 - `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` are the ID and a private key of the release GitHub App, which an organization owner creates under the organization's Developer settings with Contents and Pull requests read and write and no webhook, and installs on this repository only.
 - `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_SUBSCRIPTION_ID` and `ARM_TENANT_ID` are a service principal of the Azure for Students subscription, read from the environment by Terraform's `azurerm` provider to manage the witness VM. The principal has the Contributor role on the witness resource group only.
 - `ARGOCD_AUTH_TOKEN` is a token of the Argo CD `release` account, used by `cd-core` to check a release. Create it after the `argocd` role has run, logged in to Argo CD as `admin`: `argocd account generate-token --account release`.
-- `CLOUDFLARE_API_TOKEN` is read from the environment by Terraform's Cloudflare provider. It edits DNS, the tunnel and Access of the `soltunemontepre.tech` zone and creates Origin CA certificates: Zone read and DNS edit on the zone; Cloudflare Tunnel edit, Access: Apps and Policies edit and Access: Service Tokens edit on the account.
+- `CLOUDFLARE_API_TOKEN` is read from the environment by Terraform's Cloudflare provider. It edits DNS and the tunnel of the `soltunemontepre.tech` zone and creates Origin CA certificates: Zone read and DNS edit on the zone, Cloudflare Tunnel edit on the account.
 - `CONTEXT7_TOKEN` is a Context7 API key, read by the `context7` MCP server.
 - `TERRAFORM_TOKEN` is an HCP Terraform team token with write access to the workspace.
 - `ANSIBLE_SSH_PRIVATE_KEY` is the private key of the `ansible` user on every node; see [Provisioning a node](../workflows/provisioning-node.md).
@@ -45,11 +45,6 @@ Every local program that needs a secret is started through `doppler run --projec
 | `ARGOCD_AUTH_TOKEN`       | `ARGOCD_AUTH_TOKEN`       |
 | `RELEASE_APP_ID`          | `RELEASE_APP_ID`          |
 | `RELEASE_APP_PRIVATE_KEY` | `RELEASE_APP_PRIVATE_KEY` |
-
-| Actions secret            | Terraform source                                   |
-| ------------------------- | -------------------------------------------------- |
-| `CF_ACCESS_CLIENT_ID`     | The client ID of the `argocd` Access service token |
-| `CF_ACCESS_CLIENT_SECRET` | The secret of the `argocd` Access service token    |
 
 The `ARGOCD_SERVER` Actions variable holds `argocd.soltunemontepre.tech`.
 
