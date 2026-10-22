@@ -29,6 +29,7 @@ vars:
   E2E_DIR: src/tests
   E2E_URL: '{{.MEDILAB_URL | default "http://localhost:8069"}}'
   SYNC_APP_DIR: src/applications/medilab-sync
+  MOBILE_APP_DIR: src/applications/medilab-mobile
   TYPECHECK_DIR: tools/typecheck
   UV: uv --project src/core
   OPENAPI_DOCUMENT: src/core/modules/sol_laboratory/api/openapi.yaml
@@ -180,4 +181,4 @@ tasks:
     desc: "Run the application tests"
     silent: true
     cmds:
-      - . tools/scripts/test_apps.sh {{.SYNC_APP_DIR}}
+      - . tools/scripts/test_apps.sh {{.SYNC_APP_DIR}} {{.MOBILE_APP_DIR}}

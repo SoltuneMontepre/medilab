@@ -8,7 +8,7 @@ How tests are written, where they live and how they run.
 | ------------- | ------------------------------------------------ | ------------------------------------- | --------------------- |
 | Odoo modules  | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`    | `task test:core`      |
 | Browser       | Cypress                                          | `src/tests/cypress/e2e/`              | `task test:e2e`       |
-| Applications  | `bun test` and `cargo test`                      | next to the code, in each application | `task test:apps`      |
+| Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application | `task test:apps`      |
 | Type checking | `unittest` and pyright                           | `tools/typecheck/`                    | `task test:typecheck` |
 | AI tooling    | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`      | `task ai:test`        |
 
@@ -52,6 +52,7 @@ How tests are written, where they live and how they run.
 ## Applications
 
 - Frontend tests are `*.test.ts` and `*.test.tsx` files next to the code they test, run by `bun test`.
+- React Native does not run under `bun test`, so Medilab Mobile's tests run with Jest and the `jest-expo` preset through `bun run test`, and render screens with React Native Testing Library. Every file under its `src/app/` is a route, so a screen and its test live in `src/features/<area>/` and the route file only exports the screen.
 - Rust tests run with `cargo test` when `cargo` is installed; `task test:apps` skips them with a message otherwise.
 
 ## AI tooling
