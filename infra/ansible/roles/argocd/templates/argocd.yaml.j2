@@ -15,7 +15,6 @@ spec:
       domain: {{ argocd_hostname }}
     dex:
       enabled: false
-    # cloudflared reaches Traefik over plain HTTP behind Cloudflare Access, so the server serves HTTP.
     server:
       ingress:
         enabled: true
@@ -23,7 +22,6 @@ spec:
     configs:
       params:
         server.insecure: true
-      # cd-core's verify reads the odoo application and its logs as the release account.
       rbac:
         policy.csv: |
           p, role:release, applications, get, default/odoo, allow
