@@ -225,6 +225,9 @@ class ScheduledJob(models.Model):
             _logger.exception("Job %s could not claim its items", job.key)
             job._progress(remaining=0)
             return run
+        # The claims are committed before any item is handled: a worker killed in a handler would otherwise roll them
+        # back, and its item would be taken again at once, without the claim timeout or a counted attempt.
+        job._progress()
         for item in items:
             job._process_item(item, handler, run)
             job._progress(processed=1)
@@ -273,19 +276,21 @@ class ScheduledJob(models.Model):
 
     def _claim(self, now):
         # The ORM cannot express SKIP LOCKED, which lets two workers claim different items without waiting.
+        # ARRAY() selects the batch once: under IN, a nested loop plan runs the select again for each row, its lock
+        # skips the rows this update already claimed, and the update claims more than the batch size.
         items = self.env[MODEL_JOB_ITEM]
         items.flush_model()
         self.env.cr.execute(
             SQL(
                 """
                 UPDATE %(table)s SET status = 'running', claimed_at = %(now)s
-                WHERE id IN (
+                WHERE id = ANY(ARRAY(
                     SELECT id FROM %(table)s
                     WHERE job_id = %(job)s AND status = 'pending' AND next_attempt_at <= %(now)s
                     ORDER BY next_attempt_at, id
                     LIMIT %(limit)s
                     FOR UPDATE SKIP LOCKED
-                )
+                ))
                 RETURNING id
                 """,
                 table=SQL.identifier(items._table),

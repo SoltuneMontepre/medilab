@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Locks are taken, renewed and unlocked from Medilab Sync; the back office reads them, and folder administrators
+     release a lock someone left. -->
+<odoo>
+    <record id="view_medilab_laboratory_file_lock_list" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.lock.list</field>
+        <field name="model">medilab.laboratory.file.lock</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" duplicate="0" decoration-muted="status != 'active'">
+                <field name="file_id" />
+                <field name="folder_id" />
+                <field name="user_id" widget="many2one_avatar_user" />
+                <field name="device_id" optional="show" />
+                <field name="create_date" string="Locked On" />
+                <field name="expires_at" />
+                <field name="status" widget="badge" decoration-warning="status == 'active'" />
+                <field name="released_at" optional="show" />
+                <field name="released_by_id" widget="many2one_avatar_user" optional="hide" />
+                <button
+                    name="action_release"
+                    type="object"
+                    string="Release"
+                    icon="fa-unlock"
+                    class="btn-danger"
+                    invisible="status != 'active'"
+                    groups="sol_laboratory.group_permission_laboratory_folder_edit_all"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_file_lock_form" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.lock.form</field>
+        <field name="model">medilab.laboratory.file.lock</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0" duplicate="0">
+                <header>
+                    <button
+                        name="action_release"
+                        type="object"
+                        string="Release"
+                        class="btn-danger"
+                        invisible="status != 'active'"
+                        groups="sol_laboratory.group_permission_laboratory_folder_edit_all"
+                    />
+                    <field name="status" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="file_id" /></h1>
+                    </div>
+                    <group>
+                        <group name="holder">
+                            <field name="folder_id" />
+                            <field name="user_id" widget="many2one_avatar_user" />
+                            <field name="device_id" />
+                        </group>
+                        <group name="period">
+                            <field name="create_date" string="Locked On" />
+                            <field name="expires_at" />
+                            <field name="released_at" invisible="status == 'active'" />
+                            <field name="released_by_id" widget="many2one_avatar_user" invisible="not released_by_id" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_file_lock_search" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.lock.search</field>
+        <field name="model">medilab.laboratory.file.lock</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="file_id" />
+                <field name="folder_id" />
+                <field name="user_id" />
+                <filter name="active_locks" string="Active" domain="[('status', '=', 'active')]" />
+                <filter name="released" string="Released" domain="[('status', '=', 'released')]" />
+                <filter name="expired" string="Expired" domain="[('status', '=', 'expired')]" />
+                <filter name="group_by_folder" string="Folder" context="{'group_by': 'folder_id'}" />
+                <filter name="group_by_user" string="Holder" context="{'group_by': 'user_id'}" />
+                <filter name="group_by_status" string="Status" context="{'group_by': 'status'}" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_laboratory_file_lock" model="ir.actions.act_window">
+        <field name="name">File Locks</field>
+        <field name="res_model">medilab.laboratory.file.lock</field>
+        <field name="path">laboratory-file-locks</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active_locks': 1}</field>
+    </record>
+
+    <record id="view_medilab_laboratory_file_list_locks" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.list.locks</field>
+        <field name="model">medilab.laboratory.file</field>
+        <field name="inherit_id" ref="view_medilab_laboratory_file_list" />
+        <field name="arch" type="xml">
+            <field name="current_user_id" position="after">
+                <field name="locked_by_id" widget="many2one_avatar_user" optional="show" />
+                <field name="locked_until" optional="show" />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_file_form_locks" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.form.locks</field>
+        <field name="model">medilab.laboratory.file</field>
+        <field name="inherit_id" ref="view_medilab_laboratory_file_form" />
+        <field name="arch" type="xml">
+            <group name="current_version" position="after">
+                <group name="lock" invisible="not lock_id">
+                    <field name="lock_id" invisible="1" />
+                    <field name="locked_by_id" widget="many2one_avatar_user" />
+                    <field name="locked_until" />
+                </group>
+            </group>
+            <notebook position="inside">
+                <page string="Locks" name="locks" invisible="not lock_ids">
+                    <field name="lock_ids">
+                        <list decoration-muted="status != 'active'">
+                            <field name="user_id" widget="many2one_avatar_user" />
+                            <field name="device_id" />
+                            <field name="create_date" string="Locked On" />
+                            <field name="expires_at" />
+                            <field name="status" widget="badge" decoration-warning="status == 'active'" />
+                            <field name="released_at" optional="show" />
+                            <field name="released_by_id" widget="many2one_avatar_user" optional="show" />
+                            <button
+                                name="action_release"
+                                type="object"
+                                string="Release"
+                                icon="fa-unlock"
+                                class="btn-danger"
+                                invisible="status != 'active'"
+                                groups="sol_laboratory.group_permission_laboratory_folder_edit_all"
+                            />
+                        </list>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>

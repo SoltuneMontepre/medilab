@@ -15,12 +15,14 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     NOT_FOUND,
     OWNER_ROLE,
     PERMISSION_DENIED,
+    RAW_DATA,
     TWO_WAY,
     UPLOAD_ONLY,
 )
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_LABORATORY_DEVICE,
+    MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FOLDER,
     MODEL_LABORATORY_FOLDER_MEMBER,
     MODEL_LABORATORY_SYNC_RULE,
@@ -32,7 +34,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import FOLDER_ADMINISTRATION_GROUP, LABORATORY_FILES_GROUP
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
-from odoo.addons.sol_laboratory.services.laboratory_paths import is_name
+from odoo.addons.sol_laboratory.services.laboratory_paths import is_name, normal_text
 
 
 # Thư Mục Phòng Thí Nghiệm
@@ -43,7 +45,7 @@ class LaboratoryFolder(models.Model):
     _order = "name, id"
     # Folders are archived, never deleted, and archiving one is editing it: it has no active field.
     _permission_actions = ("read", "create", "edit")
-    _audit_children = ("member_ids", "rule_ids")
+    _audit_children = ("member_ids", "rule_ids", "file_ids")
 
     # Name people see.
     name = fields.Char(required=True)
@@ -57,7 +59,7 @@ class LaboratoryFolder(models.Model):
     sample_id = fields.Many2one(MODEL_SAMPLE, ondelete="restrict", index=True)
     # raw, working, result or report; empty for a folder of no sample.
     category = fields.Selection(
-        [("raw", "Raw Data"), ("working", "Working Documents"), ("result", "Results"), ("report", "Reports")],
+        [(RAW_DATA, "Raw Data"), ("working", "Working Documents"), ("result", "Results"), ("report", "Reports")],
         string="Folder Category",
     )
     # upload_only sends local changes and never writes to the computer; two_way also downloads others' versions.
@@ -76,6 +78,8 @@ class LaboratoryFolder(models.Model):
     member_ids = fields.One2many(MODEL_LABORATORY_FOLDER_MEMBER, "folder_id", string="Members")
     # Which files of a bound local folder are synced.
     rule_ids = fields.One2many(MODEL_LABORATORY_SYNC_RULE, "folder_id", string="Sync Rules")
+    # Files in the folder.
+    file_ids = fields.One2many(MODEL_LABORATORY_FILE, "folder_id", string="Files")
     # in_use, turned_off by an administrator, or archived for good.
     status = fields.Selection(
         [("in_use", "In Use"), ("turned_off", "Turned Off"), ("archived", "Archived")], compute="_compute_status"
@@ -89,6 +93,7 @@ class LaboratoryFolder(models.Model):
     def create(self, vals_list):
         administrator = self.env.su or self.env.user.has_group(FOLDER_ADMINISTRATION_GROUP)
         for vals in vals_list:
+            vals.update(self._normal_names(vals))
             vals.setdefault("root", vals.get("name"))
             # The laboratory files permission creates folders of one's own; a sample's folders come from the sample.
             if not administrator and (
@@ -117,6 +122,7 @@ class LaboratoryFolder(models.Model):
 
     def write(self, vals):
         self._check_not_archived()
+        vals = {**vals, **self._normal_names(vals)}
         if "root" in vals and any(folder.root != vals["root"] for folder in self):
             raise UserError(self.env._("The name a folder was created with never changes; rename the folder instead."))
         if vals.get("owner_id"):
@@ -146,6 +152,11 @@ class LaboratoryFolder(models.Model):
                 "retention_until": fields.Date.context_today(self) + timedelta(days=days),
             }
         )
+
+    @api.model
+    def _normal_names(self, vals):
+        # The same name typed on two computers is the same text, whatever Unicode form each one used.
+        return {name: normal_text(vals[name]) for name in ("name", "root") if vals.get(name)}
 
     def _check_not_archived(self):
         # There is no unarchiving, so an archived folder is only read; administrators still remove its members.
@@ -181,13 +192,18 @@ class LaboratoryFolder(models.Model):
             raise LaboratoryFileError(PERMISSION_DENIED, self.env._("You do not have the laboratory files permission."))
 
     @api.model
-    def _accessible_domain(self):
-        """The folders the user works in: they are a member and, for a folder of a sample, they can see the sample."""
+    def _sample_domain(self):
+        """The folders of no sample and the folders of the samples the user can see."""
         samples = self.env[MODEL_SAMPLE].with_user(self.env.user)
         sample_domain = Domain("sample_id", "=", False)
         if samples.has_access("read"):
             sample_domain |= Domain("sample_id", "in", samples._search([]))
-        return Domain("member_ids.user_id", "=", self.env.uid) & sample_domain
+        return sample_domain
+
+    @api.model
+    def _accessible_domain(self):
+        """The folders the user works in: they are a member and, for a folder of a sample, they can see the sample."""
+        return Domain("member_ids.user_id", "=", self.env.uid) & self._sample_domain()
 
     def _check_folder_access(self, access):
         """Refuse the user what they may not do with these folders: read them, write their files, share them or
@@ -198,9 +214,12 @@ class LaboratoryFolder(models.Model):
             raise LaboratoryFileError(
                 PERMISSION_DENIED, self.env._("Only administrators can do this with a laboratory folder.")
             )
-        if access == FOLDER_SHARE and administrator:
-            self._check_not_archived()
-        elif access != FOLDER_ADMINISTER:
+        if access == FOLDER_ADMINISTER or (access == FOLDER_SHARE and administrator):
+            # Administrators need no membership, but a folder of a sample only for people who see the sample.
+            self._check_found(self._sample_domain())
+            if access == FOLDER_SHARE:
+                self._check_not_archived()
+        else:
             self._check_member_access(access)
         if access in (FOLDER_SHARE, FOLDER_ADMINISTER):
             try:
@@ -210,20 +229,29 @@ class LaboratoryFolder(models.Model):
 
     def _check_member_access(self, access):
         self._check_laboratory_files_permission()
+        self._check_found(self._accessible_domain())
         folders = self.sudo()
-        if folders - folders.search(Domain("id", "in", self.ids) & self._accessible_domain()):
-            raise LaboratoryFileError(
-                NOT_FOUND, self.env._("This laboratory folder does not exist or you are not a member of it.")
-            )
         if access in (FOLDER_WRITE, FOLDER_SHARE):
             self._check_not_archived()
-        if access == FOLDER_WRITE and not all(folders.mapped("enabled")):
-            raise LaboratoryFileError(
-                FOLDER_DISABLED, self.env._("This laboratory folder is turned off: its files are read, not changed.")
-            )
+        if access == FOLDER_WRITE:
+            self._check_enabled()
         if access == FOLDER_SHARE and folders.owner_id != self.env.user:
             raise LaboratoryFileError(
                 PERMISSION_DENIED, self.env._("Only the owner of a laboratory folder and administrators can do this.")
+            )
+
+    def _check_found(self, domain):
+        # A folder outside the domain is answered as one that does not exist, so the answer does not tell it exists.
+        folders = self.sudo()
+        if folders - folders.search(Domain("id", "in", self.ids) & domain):
+            raise LaboratoryFileError(
+                NOT_FOUND, self.env._("This laboratory folder does not exist or you do not have access to it.")
+            )
+
+    def _check_enabled(self):
+        if not all(self.sudo().mapped("enabled")):
+            raise LaboratoryFileError(
+                FOLDER_DISABLED, self.env._("This laboratory folder is turned off: its files are read, not changed.")
             )
 
     def _add_owner_rows(self):

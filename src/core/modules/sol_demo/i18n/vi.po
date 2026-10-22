@@ -77,6 +77,22 @@ msgid "Auditor"
 msgstr "Kiểm Toán Viên"
 
 #. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_chemistry_bench_1
+#: model:medilab.location,name:sol_demo.demo_location_microbiology_bench_1
+msgid "Bench 1"
+msgstr "Bàn 1"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_chemistry_bench_2
+msgid "Bench 2"
+msgstr "Bàn 2"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_chemistry_bench_3
+msgid "Bench 3"
+msgstr "Bàn 3"
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_bottled_water
 msgid "Bottled water"
 msgstr "Nước đóng chai"
@@ -109,6 +125,11 @@ msgid "Chemistry"
 msgstr "Hóa học"
 
 #. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_chemistry_room
+msgid "Chemistry room"
+msgstr "Phòng Hóa"
+
+#. module: sol_demo
 #: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_chlorpyrifos
 msgid "Chlorpyrifos"
 msgstr "Chlorpyrifos"
@@ -132,6 +153,11 @@ msgstr "Lấy nguyên cây, đựng trong túi giấy sạch."
 #: model:product.template,name:sol_demo.demo_product_product_cotton_swabs_product_template
 msgid "Cotton swabs, 15 cm"
 msgstr "Tăm bông, 15 cm"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_water_point
+msgid "Deionised water point"
+msgstr "Điểm lấy nước khử ion"
 
 #. module: sol_demo
 #: model:medilab.scheduled.job,name:sol_demo.demo_scheduled_job_echo
@@ -187,6 +213,16 @@ msgstr "Đăng ký quan trắc môi trường với Bộ Tài nguyên và Môi t
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_acetonitrile
 msgid "Flammables cabinet"
 msgstr "Tủ đựng chất dễ cháy"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_floor_1
+msgid "Floor 1"
+msgstr "Tầng 1"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_floor_2
+msgid "Floor 2"
+msgstr "Tầng 2"
 
 #. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_food
@@ -267,6 +303,11 @@ msgid "Lab head"
 msgstr "Trưởng Phòng Thí Nghiệm"
 
 #. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_lab_head_office
+msgid "Lab head's office"
+msgstr "Phòng Trưởng phòng thí nghiệm"
+
+#. module: sol_demo
 #: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_lead
 msgid "Lead (Pb)"
 msgstr "Chì (Pb)"
@@ -280,6 +321,11 @@ msgstr "Đèn catốt rỗng chì cho máy AAS"
 #: model:medilab.chemical,name:sol_demo.demo_chemical_lead_standard
 msgid "Lead standard solution 1000 mg/L"
 msgstr "Dung dịch chuẩn chì 1000 mg/L"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_building
+msgid "Main building"
+msgstr "Tòa nhà chính"
 
 #. module: sol_demo
 #: model:medilab.unit.category,name:sol_demo.demo_unit_category_mass
@@ -300,6 +346,16 @@ msgstr "Phần khối lượng"
 #: model:ir.module.module,shortdesc:base.module_sol_demo
 msgid "Medilab - Testing Data"
 msgstr "Medilab - Dữ liệu thử nghiệm"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_meeting_room_1
+msgid "Meeting room 1"
+msgstr "Phòng họp 1"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_meeting_room_2
+msgid "Meeting room 2"
+msgstr "Phòng họp 2"
 
 #. module: sol_demo
 #: model:medilab.unit.category,name:sol_demo.demo_unit_category_count_per_mass
@@ -337,6 +393,11 @@ msgid ""
 msgstr ""
 "Vi sinh vật trong thực phẩm và thức ăn chăn nuôi — Định lượng Escherichia "
 "coli dương tính β-glucuronidaza — Phần 2: Kỹ thuật đếm khuẩn lạc ở 44 °C"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_microbiology_room
+msgid "Microbiology room"
+msgstr "Phòng Vi sinh"
 
 #. module: sol_demo
 #: model:medilab.regulation,name:sol_demo.demo_regulation_qcvn_6_1
@@ -409,6 +470,21 @@ msgstr "Đĩa thạch đếm khuẩn lạc (PCA)"
 #: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_bottled_water
 msgid "Pour into the drain and recycle the bottles."
 msgstr "Đổ vào cống thải và tái chế chai."
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_ro_01
+msgid "RO water sampling point 1"
+msgstr "Điểm lấy mẫu nước RO 1"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_ro_02
+msgid "RO water sampling point 2"
+msgstr "Điểm lấy mẫu nước RO 2"
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_ro_03
+msgid "RO water sampling point 3"
+msgstr "Điểm lấy mẫu nước RO 3"
 
 #. module: sol_demo
 #: model:medilab.sample.type,post_test_requirements:sol_demo.demo_sample_type_bottled_water
@@ -588,6 +664,11 @@ msgstr "Đơn mua hàng"
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
 msgid "Purchase order signing"
 msgstr "Ký đơn mua hàng"
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_laboratory_file_version_signing
+msgid "Laboratory file signing"
+msgstr "Ký tệp phòng thí nghiệm"
 
 #. module: sol_demo
 #: model:ir.model,name:sol_demo.model_stock_package

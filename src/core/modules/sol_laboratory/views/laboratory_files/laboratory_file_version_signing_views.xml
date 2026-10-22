@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Versions of result files are signed, rejected and withdrawn from their form. -->
+<odoo>
+    <record id="view_medilab_laboratory_file_version_list_signing" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.version.list.signing</field>
+        <field name="model">medilab.laboratory.file.version</field>
+        <field name="inherit_id" ref="view_medilab_laboratory_file_version_list" />
+        <field name="arch" type="xml">
+            <field name="source" position="after">
+                <field
+                    name="approval_state"
+                    widget="badge"
+                    optional="show"
+                    decoration-success="approval_state == 'approved'"
+                    decoration-info="approval_state == 'requested'"
+                    decoration-danger="approval_state == 'rejected'"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_file_version_form_signing" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.version.form.signing</field>
+        <field name="model">medilab.laboratory.file.version</field>
+        <field name="inherit_id" ref="view_medilab_laboratory_file_version_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//header/field[@name='source']" position="before">
+                <button
+                    name="action_sign"
+                    type="object"
+                    string="Sign"
+                    class="btn-primary"
+                    invisible="not approval_can_sign"
+                    confirm="Sign this version? Your signature belongs to this version and its content."
+                />
+                <button
+                    name="%(action_medilab_laboratory_file_version_reject)d"
+                    type="action"
+                    string="Reject"
+                    class="btn-danger"
+                    context="{'default_version_id': id}"
+                    invisible="not approval_can_reject"
+                />
+                <button
+                    name="action_withdraw"
+                    type="object"
+                    string="Withdraw Signature"
+                    class="btn-secondary"
+                    invisible="not approval_can_withdraw"
+                />
+            </xpath>
+            <xpath expr="//header/field[@name='source']" position="after">
+                <field
+                    name="approval_state"
+                    widget="badge"
+                    decoration-success="approval_state == 'approved'"
+                    decoration-info="approval_state == 'requested'"
+                    decoration-danger="approval_state == 'rejected'"
+                />
+                <field name="approval_can_sign" invisible="1" />
+                <field name="approval_can_reject" invisible="1" />
+                <field name="approval_can_withdraw" invisible="1" />
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <notebook groups="sol_laboratory.group_permission_signature_read_all">
+                    <page string="Signatures" name="signatures">
+                        <field name="signature_ids">
+                            <list decoration-muted="withdrawn_at">
+                                <field name="signer_name" string="Signer" />
+                                <field name="signer_role" string="Role" />
+                                <field name="level_name" string="Level" />
+                                <field
+                                    name="decision"
+                                    widget="badge"
+                                    decoration-success="decision == 'signed'"
+                                    decoration-danger="decision == 'rejected'"
+                                />
+                                <field name="reason" />
+                                <field name="document_version" string="Round" optional="hide" />
+                                <field name="document_hash" string="SHA-256" optional="hide" />
+                                <field name="create_date" string="Signed On" />
+                                <field name="withdrawn_at" optional="show" />
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_medilab_laboratory_file_version_search_signing" model="ir.ui.view">
+        <field name="name">medilab.laboratory.file.version.search.signing</field>
+        <field name="model">medilab.laboratory.file.version</field>
+        <field name="inherit_id" ref="view_medilab_laboratory_file_version_search" />
+        <field name="arch" type="xml">
+            <filter name="edited_online" position="after">
+                <separator />
+                <filter name="signed" string="Signed" domain="[('approval_state', '=', 'approved')]" />
+                <filter name="being_signed" string="Being Signed" domain="[('approval_state', '=', 'requested')]" />
+                <filter name="rejected" string="Rejected" domain="[('approval_state', '=', 'rejected')]" />
+            </filter>
+        </field>
+    </record>
+</odoo>

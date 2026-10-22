@@ -241,12 +241,12 @@ Laboratory files are the files the testing work produces and uses outside MediLa
 | Members         | The owner and the people they add can read and write the folder: see, download and upload its files and restore their versions. There is no read-only member. The owner and administrators add and remove members; only administrators change the owner, and the previous owner stays a member. |
 | Sync rules      | A folder can limit which files are synced by name prefix, name pattern with `*`, or extension, with or without subfolders. With no rule every file is synced. |
 | Versions        | Saving a changed file adds a version: a number that never changes, who saved it, from which device, when, its size and SHA-256 hash, and how it was made: synced, restored, edited online, or kept from a conflict. A version is never edited or deleted. The file's current version is the one people get. Two versions with the same content share the stored bytes. |
-| Uploads         | A file is uploaded straight to the bucket in parts through short-lived signed addresses, never through Odoo, up to 5 GiB in parts of 16 MiB. The server checks the hash before the version counts. An upload left unfinished expires and its parts are removed. |
+| Uploads         | A file is uploaded straight to the bucket in parts through short-lived signed addresses, never through Odoo, up to 5 GiB in parts of 16 MiB. The server checks the hash and size of the stored bytes before the version counts. An upload left unfinished expires and its parts are removed. |
 | Conflicts       | An upload made from a version that is no longer the current one is kept as a conflict version, never written over the current one. The person chooses to keep their own file or take the server's; both versions stay in the history. |
 | Restore         | Restoring an earlier version adds a new current version with its content; history is never rewritten. |
 | Raw data        | Raw-data files are evidence: each save adds a version, they are not edited online and they are not locked. |
 | Online editing  | Word, Excel and PowerPoint result and working files are edited together in the browser through ONLYOFFICE. One editing session is open per file; saving it adds a version. When the editing service is down, sync, download, history and restore keep working. |
-| Locks           | A working or result file that is not an Office document can be locked by one person while they edit it, for 30 minutes unless renewed. Others cannot upload it meanwhile; an administrator can release a lock someone left. |
+| Locks           | A working, result or uncategorized file that is not an Office document can be locked by one person while they edit it, for 30 minutes unless renewed; the duration is a system parameter. Others cannot upload it meanwhile; an administrator can release a lock someone left. |
 | Signing         | A version of a result file is approved by signing it through the approval chain of laboratory files ([SH-04](../shared.md#sh-04-signatures-and-digital-signing)). The signature belongs to that version and its hash; a newer version needs its own. |
 | Devices         | Each computer signs in once with the person's MediLab login and gets its own key; the password is never stored on it. An administrator sees every device and revokes one, which stops it at once without removing the person's folder memberships. |
 | Turning off     | An administrator can turn a folder off: nobody can upload to it, and its files can still be read and downloaded. |
@@ -260,7 +260,7 @@ Laboratory files are the files the testing work produces and uses outside MediLa
 stateDiagram-v2
     [*] --> prepared: upload asked for
     prepared --> uploading: first part sent
-    prepared --> completed: same content already stored
+    prepared --> completed: the file already has this content
     uploading --> finalizing: every part sent
     finalizing --> completed: hash checked, new current version
     finalizing --> conflict: made from an older version
@@ -279,9 +279,13 @@ stateDiagram-v2
     open --> saving: the editor saves
     saving --> committed: new version added
     saving --> conflict: the file changed meanwhile
+    saving --> closed: the file already has this content
     open --> closed: everyone left without changes
     open --> expired: no activity for 12 hours
-    saving --> error: the editor's file cannot be read
+    saving --> expired: no activity for 12 hours
+    expired --> committed: a save arrives later
+    expired --> conflict: a save arrives later, the file changed meanwhile
+    saving --> error: the editor's file cannot be read, or the editor can no longer write the file
 ```
 
 ### Lock

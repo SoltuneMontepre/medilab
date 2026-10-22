@@ -29,9 +29,11 @@ flowchart LR
     runners --> coverage --> sonarqube
 ```
 
-- `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file, the lint action or the workflow. It also decides whether to scan: on core changes, or on changes to `tools/odoo-intelligence`, the AI taskfile or `ci-tools`. The browser tests run on core changes and on changes to `src/tests`.
+- `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file and the Garage setup of `tools/infrastructure/garage`, the lint action or the workflow. It also decides whether to scan: on core changes, or on changes to `tools/odoo-intelligence`, the AI taskfile or `ci-tools`. The browser tests run on core changes and on changes to `src/tests`.
 - A push to `main` and a manual run ignore what `changes` decides and run every job, so SonarQube Cloud analyses all of `main` with full coverage after each merge. That analysis is the project's overall view: its issues, coverage and quality gate on `main`, against which pull requests are compared.
-- `lint` runs `task typecheck` and `task test:typecheck`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
+- `lint` runs `task typecheck` and `task test:typecheck`, then `task test:openapi`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
+- `task test:openapi` lints the OpenAPI document of the laboratory files API with `openapi-spec-validator`, then compares it with the document on `main` with oasdiff, in its image pinned by digest. A change that breaks the document, such as removing a field or a route, fails unless it gives the document a new `info.version`. The tests of the routes check their answers against the same document; see [Testing](../conventions/testing.md#odoo-module-tests).
+- The test runners and `e2e` reach the laboratory files bucket of the Garage server that Docker Compose starts; `garage-setup` sets it up once per run, before the modules install.
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
 - Four test runners each build the image again from that cache and load it as `medilab-odoo:ci`, so the tests run on the image that ships, with its Python requirements. Each runs its own copy of the test database per shard, four shards at once, one per runner CPU, and uploads its raw coverage data as a `coverage-data-<n>` artifact. The runners skip when the change is not relevant.
   - `test (1/3)` to `test (3/3)` install every module except `sol_demo`, without coverage, and each run four of the twelve shards: `task test:core RUNNER=<n> RUNNERS=3 EXCLUDE=sol_demo INSTALL_COVERAGE=false`. No other module's tests use the demo data, and coverage makes the install about 60% slower.
@@ -40,7 +42,6 @@ flowchart LR
 - `test` is the required check for the tests: it fails unless every runner and `e2e` passed.
 - `coverage` combines the coverage data of the four runners with `task test:core:coverage` and uploads the report as the `coverage` artifact.
 - `sonarqube` downloads the coverage report, scans with SonarQube Cloud and waits for the quality gate. A failed gate, including on coverage, fails the pipeline. A pull request that changes only the AI tooling skips `lint`, `build`, the test runners and `coverage`; `sonarqube` then scans without a coverage report, which is enough because `tools/**` is excluded from coverage.
-- When any job fails, its last step cancels the whole run, so the remaining jobs stop instead of running to the end. The failed job shows the cause; the others show as cancelled. Every job that can cancel the run has `actions: write` for this.
 - A pull request from a fork cannot read secrets, so `sonarqube` fails on it with a message. Contributors push a branch to the repository instead.
 - Static assets, the applications, the tests, the tools, module manifests and migration scripts are excluded from SonarQube coverage in `sonar-project.properties`, because no coverage report exists for them; Odoo reads manifests as data, and the tests install the modules fresh, so they never run the lines of either. SonarQube's coverage figure therefore does not include the typecheck scripts in `tools/typecheck`; `task test:typecheck` tests them in `lint`, and SonarQube still reports issues and security hotspots in `tools/`.
 
@@ -64,9 +65,10 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 
 `cd-ansible` is the control node of [Provisioning](provisioning.md): it runs the same container and commands as the `task ansible:*` tasks.
 
-- It starts only by hand, from the Actions page, with two inputs:
+- It starts only by hand, from the Actions page, with three inputs:
   - `action`: `ping` runs `ansible all -m ansible.builtin.ping --become`, `inspect` runs `inspect.yml`, `check` runs `site.yml --check --diff`, and `apply` runs `site.yml --diff`.
   - `limit`: the nodes or groups to run on, passed to `--limit`. Empty runs on every node.
+  - `verbosity`: from 0 to 4, passed to Ansible as `-v` to `-vvvv`.
 - It builds the Ansible image from `tools/ansible/ansible.dockerfile`, then runs it through `doppler run` with the `DOPPLER_INFRA_TOKEN` environment secret, a Doppler service token that reads only the `infra` config. Every value of `infra` is masked in the log before Ansible starts.
 - The job runs in a GitHub environment that only `main` may deploy from, so a run from any other branch gets no secret and fails before it starts:
 
@@ -98,7 +100,6 @@ flowchart LR
 - `compile` builds the frontend and then the app on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. Only these jobs build the frontend. `build` fails unless every `compile` passed.
 - `test (frontend)` runs `bun test` and `test (backend)` runs `cargo test`, side by side. `test` fails unless both passed.
 - The app embeds the built frontend when it compiles, so `lint` and `test (backend)` compile against an empty stand-in `dist/index.html` instead of building the frontend.
-- When any job fails, its last step cancels the whole run, as in `ci-core`; each job has `actions: write` for this.
 - A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
 - `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
 - `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release.
@@ -146,6 +147,7 @@ flowchart LR
 ## Images
 
 - `cd-core` publishes `ghcr.io/soltunemontepre/medilab`, tagged with the full commit SHA and `latest`, and releases it as described in [cd-core](#cd-core).
+- Local, CI and production images build on the same Odoo, pinned by tag and digest in `ODOO_IMAGE` of `tools/dockerfiles/prod.dockerfile`, and `lint` runs `odoo-lint` on that image. `ODOO_SOURCE_REVISION` in `tools/taskfiles/dev.taskfile.yml` is the commit of 20.0 that nightly is built from. Odoo is upgraded by changing `ODOO_IMAGE`, `ODOO_SOURCE_REVISION` and `odoo_revision` in `tools/odoo-intelligence/odoo_intelligence/release.json` together.
 - Pull request images are never pushed to a registry.
 - After every `cd-core` run, `cd-cleanup` keeps the five newest tagged images and the images of the current and previous release, and deletes the other images and every untagged image.
 

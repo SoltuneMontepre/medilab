@@ -27,6 +27,8 @@ class Signature(models.Model):
     document_id = fields.Integer(string="Document", required=True)
     # Version of the document that was signed.
     document_version = fields.Integer(required=True, default=1)
+    # SHA-256 of the content signed, for a document type whose content has one, such as a laboratory file version.
+    document_hash = fields.Char(string="Document Hash")
     # The level signed at.
     level_id = fields.Many2one(MODEL_APPROVAL_LEVEL, string="Level", required=True, ondelete="restrict")
     # The person who signed.

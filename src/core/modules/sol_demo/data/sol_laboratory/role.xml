@@ -166,6 +166,8 @@
                 ref('sol_laboratory.permission_subcontract_dispatch_read_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_create_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_edit_all'),
+                ref('sol_laboratory.permission_laboratory_file_version_sign_all'),
+                ref('sol_laboratory.permission_signature_read_all'),
             ])]"
         />
     </record>

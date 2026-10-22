@@ -1,0 +1,1894 @@
+openapi: 3.1.0
+info:
+  title: MediLab laboratory files API
+  version: 1.4.0
+  description: |
+    The API Medilab Sync signs computers in with and reaches laboratory files through. Every refusal answers
+    `{"error": {"code", "message"}}` with the HTTP status of its code; a computer acts on the code, never on the
+    message, which is in the person's language.
+
+    A route that creates something takes an optional `Idempotency-Key` header, a key the computer generates for the
+    request and that is unique for the computer: repeating the request with the same key, such as after a lost answer,
+    answers with what the first one created; the same key with another request is refused with
+    `idempotency_conflict`. Other changes are idempotent by their own rules.
+
+    | Code | Status |
+    | ---- | ------ |
+    | `invalid_request` | 400 |
+    | `invalid_credentials`, `invalid_key` | 401 |
+    | `permission_denied`, `device_revoked` | 403 |
+    | `not_found` | 404 |
+    | `method_not_allowed` | 405 |
+    | `folder_archived`, `folder_disabled`, `folder_exists`, `locked`, `not_locked`, `upload_incomplete`, `upload_closed` | 409 |
+    | `not_eligible`, `not_lockable`, `not_editable`, `idempotency_conflict` | 422 |
+    | `too_many_attempts` | 429 |
+    | `internal_error` | 500 |
+    | `try_again`, `editing_unavailable`, `storage_unavailable` | 503 |
+servers:
+  - url: /medilab/api/v1
+security:
+  - deviceKey: []
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Answers once Odoo serves requests.
+      security: []
+      responses:
+        "200":
+          description: Odoo serves requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /ready:
+    get:
+      operationId: ready
+      summary: Answers whether the API can serve laboratory files. The editing service is never part of it.
+      security: []
+      responses:
+        "200":
+          description: Every check passes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Readiness"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          description: A check fails.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Readiness"
+  /sign-in:
+    post:
+      operationId: signIn
+      summary: Signs a computer in with the person's MediLab login and gives it a key of its own.
+      description: |
+        A person with two-factor authentication signs in with one of their Odoo API keys in place of the password.
+        Signing in again replaces the computer's key. After 5 failed attempts for a login within 15 minutes, every
+        further attempt waits a delay that doubles from 1 second up to 60 seconds after the last failure; an attempt
+        before its delay has passed is refused before the password is checked.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignIn"
+      responses:
+        "200":
+          description: The computer is signed in. The key is given only in this answer.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignedIn"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/TooManyAttempts"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /sign-out:
+    post:
+      operationId: signOut
+      summary: Signs the computer of the key out; it can sign in again.
+      description: The key stops at once, so repeating a sign-out whose answer was lost is refused with `invalid_key`.
+      responses:
+        "204":
+          description: The computer is signed out.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /devices:
+    get:
+      operationId: listDevices
+      summary: Lists the person's computers.
+      responses:
+        "200":
+          description: The person's computers, the one of the key included.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /devices/{device_id}/revoke:
+    post:
+      operationId: revokeDevice
+      summary: Revokes one of the person's computers for good.
+      description: |
+        Its key stops at once and it cannot sign in again; the person's folders and other computers stay. Revoking a
+        computer already revoked changes nothing.
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: The computer is revoked.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevokedDevice"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders:
+    get:
+      operationId: listFolders
+      summary: Lists the folders the person is a member of, those of samples they do not see left out.
+      responses:
+        "200":
+          description: The person's folders, archived and turned-off ones included.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FolderList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: createFolder
+      summary: Creates a folder of the name, owned by the person.
+      description: |
+        Without an `Idempotency-Key`, a name the person already has a folder of is refused with `folder_exists`.
+        With one, repeating the request answers with the folder it created.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewFolder"
+      responses:
+        "200":
+          description: The folder.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneFolder"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    get:
+      operationId: getFolder
+      summary: Gives a folder the person is a member of.
+      responses:
+        "200":
+          description: The folder.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneFolder"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    patch:
+      operationId: renameFolder
+      summary: Renames a folder; its root, the name it was created with, never changes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FolderChange"
+      responses:
+        "200":
+          description: The folder.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneFolder"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/members:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    get:
+      operationId: listFolderMembers
+      summary: Lists the members of a folder, its owner first.
+      responses:
+        "200":
+          description: The members.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: addFolderMember
+      summary: Adds a person to a folder; adding a member again answers with their membership.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewMember"
+      responses:
+        "200":
+          description: The membership.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneMember"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/members/{member_id}:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: member_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    delete:
+      operationId: removeFolderMember
+      summary: Removes a member from a folder; the owner is never removed, and a member already removed is gone.
+      responses:
+        "204":
+          description: The member is not in the folder any more.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/member-candidates:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    get:
+      operationId: searchFolderMemberCandidates
+      summary: Finds people who can be added to a folder by part of their name or login.
+      description: Only active internal users with the laboratory files permission who are not members yet, at most 10.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+      responses:
+        "200":
+          description: The people found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CandidateList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/rules:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    get:
+      operationId: listFolderRules
+      summary: Lists the sync rules of a folder.
+      responses:
+        "200":
+          description: The sync rules.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RuleList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    post:
+      operationId: addFolderRule
+      summary: Adds a sync rule; a rule of the same kind and pattern answers with the one the folder has.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewRule"
+      responses:
+        "200":
+          description: The sync rule.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneRule"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/rules/{rule_id}:
+    parameters:
+        - name: folder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: rule_id
+          in: path
+          required: true
+          schema:
+            type: integer
+    patch:
+      operationId: changeFolderRule
+      summary: Changes a sync rule.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuleChange"
+      responses:
+        "200":
+          description: The sync rule.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneRule"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    delete:
+      operationId: removeFolderRule
+      summary: Removes a sync rule; a rule already removed is gone.
+      responses:
+        "204":
+          description: The rule is not in the folder any more.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/uploads:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: prepareUpload
+      summary: Prepares the upload of a file's content to the path of the folder, from the version it was based on.
+      description: |
+        The person must be able to write the file: a lock someone else holds refuses it before any byte is sent. When
+        the file's current version has the claimed SHA-256, nothing is uploaded and the upload is `unchanged`.
+        Otherwise the content goes to an object of its own, in parts of `part_size` bytes but the last, through the
+        addresses of `uploadParts`, even when the same content is stored already. The size and SHA-256 are claims:
+        the server reads the object and verifies them once the upload is finalized. Repeating the request with its
+        `Idempotency-Key` answers with the same upload.
+      parameters:
+        - $ref: "#/components/parameters/RequiredIdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewUpload"
+      responses:
+        "200":
+          description: The upload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneUpload"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/UploadConflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /folders/{folder_id}/uploads/{upload_id}:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: upload_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getUpload
+      summary: Gives an upload the computer prepared, which it reads until the upload ends.
+      responses:
+        "200":
+          description: The upload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneUpload"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /folders/{folder_id}/uploads/{upload_id}/parts:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: upload_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: uploadParts
+      summary: Gives the presigned addresses that upload the parts of the numbers with a PUT.
+      description: |
+        Each address writes one part of this upload only, and nothing once the upload is completed or aborted. The
+        addresses stop working at `expires_at`; ask again for the parts not uploaded by then.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartRequest"
+      responses:
+        "200":
+          description: The addresses of the parts.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartAddresses"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/UploadConflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /folders/{folder_id}/uploads/{upload_id}/finalize:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: upload_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: finalizeUpload
+      summary: Finalizes an upload once every part is uploaded; the server then verifies and stores it.
+      description: |
+        The upload is `verifying` until the server has read its object: then it is `completed`, `conflict` when it was
+        made from a version that is no longer current, `unchanged` when the file already had the content, `failed`
+        when the content is not the one claimed, or `refused` with the code of what refused it, such as `locked`; a
+        refused upload is finalized again once that is gone, until it expires. Finalizing an upload past finalizing
+        answers with it.
+      responses:
+        "202":
+          description: The upload, being verified.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneUpload"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/UploadConflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/StorageUnavailable"
+  /folders/{folder_id}/files/{file_id}/lock:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: lockFile
+      summary: Locks a file the person edits in their own program, so nobody else saves it meanwhile.
+      description: |
+        Locking a file the person already holds a lock in force on renews that lock. Only files that are neither raw
+        data nor Office documents, in folders of working documents, of results or of no category, are locked.
+      responses:
+        "200":
+          description: The person's lock.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneLock"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+    delete:
+      operationId: unlockFile
+      summary: Unlocks the person's lock on a file; a person holding none has nothing to unlock.
+      responses:
+        "204":
+          description: The person holds no lock on the file any more.
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/files/{file_id}/lock/renew:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: renewFileLock
+      summary: Renews the person's lock in force for the lock duration from now.
+      description: A lock that expired is not renewed, as someone may have saved the file meanwhile; it is locked again.
+      responses:
+        "200":
+          description: The person's lock.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneLock"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/files:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listFiles
+      summary: Gives the folder's files with their current versions and locks, in the order of their ids.
+      description: |
+        A computer hydrates a folder it binds from these and checks them against its own files. Files are never renamed
+        or deleted, so a file listed once stays listed. `next_after` is the `after` of the next page, or empty after the
+        last one.
+      parameters:
+        - name: after
+          in: query
+          required: false
+          description: The id of the last one the computer has; 0 or none from the start.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,18}$"
+        - name: limit
+          in: query
+          required: false
+          description: How many to give, from 1 to 100; 50 by default.
+          schema:
+            type: string
+            pattern: "^(100|[1-9][0-9]?)$"
+      responses:
+        "200":
+          description: The files.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/files/{file_id}/versions:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listVersions
+      summary: Gives the history of a file, every version newest first.
+      responses:
+        "200":
+          description: The versions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/files/{file_id}/versions/{version_id}/download:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: version_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: downloadVersion
+      summary: Gives a presigned address that downloads the version's content straight from the bucket with a GET.
+      description: |
+        The address reads that version's content only, writes nothing, and stops working at `expires_at`. The download
+        is recorded in the audit trail. A version's content is reached only this way, never by its SHA-256.
+      responses:
+        "200":
+          description: The download address.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Download"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/files/{file_id}/versions/{version_id}/restore:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: version_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: restoreVersion
+      summary: Restores the version as the file's new current version, with its content; no byte is copied.
+      description: |
+        A restore always adds a version. Repeating the request with its `Idempotency-Key` answers with the version it
+        added.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: The version added.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OneVersion"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /folders/{folder_id}/changes:
+    parameters:
+      - name: folder_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listChanges
+      summary: Gives the changes to the current versions of the folder's files after the last one the computer saw.
+      description: |
+        Changes are given in the order of their ids, and a change never commits after one of a higher id in the same
+        folder, so a computer that asks from the last id it saw misses none. Renaming and deleting are never passed
+        between computers. `next_after` is the `after` of the next page, or empty after the last one.
+      parameters:
+        - name: after
+          in: query
+          required: false
+          description: The id of the last one the computer has; 0 or none from the start.
+          schema:
+            type: string
+            pattern: "^[0-9]{1,18}$"
+        - name: limit
+          in: query
+          required: false
+          description: How many to give, from 1 to 100; 50 by default.
+          schema:
+            type: string
+            pattern: "^(100|[1-9][0-9]?)$"
+      responses:
+        "200":
+          description: The changes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangeList"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: A key the computer generates for the request, unique for the computer.
+      schema:
+        type: string
+        pattern: "^[A-Za-z0-9._:-]{1,200}$"
+    RequiredIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: A key the computer generates for the request, unique for the computer.
+      schema:
+        type: string
+        pattern: "^[A-Za-z0-9._:-]{1,200}$"
+  securitySchemes:
+    deviceKey:
+      type: http
+      scheme: bearer
+      description: The key a computer got by signing in. A browser session never takes its place.
+  headers:
+    Allow:
+      description: The methods the route takes.
+      required: true
+      schema:
+        type: string
+    RetryAfter:
+      description: Seconds to wait before calling again.
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    WwwAuthenticate:
+      description: The key a call needs.
+      required: true
+      schema:
+        type: string
+  schemas:
+    Name:
+      description: One name, never a path on a computer.
+      type: string
+      minLength: 1
+      pattern: "^[^/\\\\:]+$"
+    Health:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          const: pass
+    Readiness:
+      type: object
+      additionalProperties: false
+      required: [status, checks]
+      properties:
+        status:
+          enum: [pass, fail]
+        checks:
+          description: Each check by name, such as `database`, and whether it passes.
+          type: object
+          additionalProperties:
+            enum: [pass, fail]
+    SignIn:
+      type: object
+      additionalProperties: false
+      required: [login, password, client_uid, name, platform]
+      properties:
+        login:
+          type: string
+          minLength: 1
+        password:
+          description: The password, or an Odoo API key for a person with two-factor authentication. It is never kept.
+          type: string
+          minLength: 1
+        client_uid:
+          description: The id the application generates once per installation.
+          $ref: "#/components/schemas/Name"
+        name:
+          description: The name of the computer.
+          $ref: "#/components/schemas/Name"
+        platform:
+          enum: [linux, windows]
+    Device:
+      type: object
+      additionalProperties: false
+      required: [id, name, platform, status, last_seen_at, revoked_at, current]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        platform:
+          enum: [linux, windows]
+        status:
+          enum: [signed_in, signed_out, revoked]
+        last_seen_at:
+          description: When the computer last called the API, to the minute.
+          type: [string, "null"]
+          format: date-time
+        revoked_at:
+          type: [string, "null"]
+          format: date-time
+        current:
+          description: Whether this is the computer of the key.
+          type: boolean
+    SignedIn:
+      type: object
+      additionalProperties: false
+      required: [key, device]
+      properties:
+        key:
+          description: The computer's key, for the Authorization header. It does not expire.
+          type: string
+        device:
+          $ref: "#/components/schemas/Device"
+    DeviceList:
+      type: object
+      additionalProperties: false
+      required: [devices]
+      properties:
+        devices:
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+    RevokedDevice:
+      type: object
+      additionalProperties: false
+      required: [device]
+      properties:
+        device:
+          $ref: "#/components/schemas/Device"
+    Folder:
+      type: object
+      additionalProperties: false
+      required: [id, name, root, sync_mode, status, role, category, sample, retention_until, can_share]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        root:
+          description: The name the folder was created with, unique for its owner; it never changes.
+          type: string
+        sync_mode:
+          enum: [upload_only, two_way]
+        status:
+          enum: [in_use, turned_off, archived]
+        role:
+          description: The person's role in the folder.
+          enum: [owner, member]
+        category:
+          description: The category of a sample's folder; empty for a folder of no sample.
+          enum: [raw, working, result, report, null]
+        sample:
+          oneOf:
+            - type: "null"
+            - type: object
+              additionalProperties: false
+              required: [id, lab_code]
+              properties:
+                id:
+                  type: integer
+                lab_code:
+                  type: string
+        retention_until:
+          description: The date until which an archived folder keeps its files; empty while it is in use.
+          type: [string, "null"]
+          format: date
+        can_share:
+          description: Whether the person renames the folder and changes its members and rules.
+          type: boolean
+    OneFolder:
+      type: object
+      additionalProperties: false
+      required: [folder]
+      properties:
+        folder:
+          $ref: "#/components/schemas/Folder"
+    FolderList:
+      type: object
+      additionalProperties: false
+      required: [folders]
+      properties:
+        folders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Folder"
+    NewFolder:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          $ref: "#/components/schemas/Name"
+    FolderChange:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name:
+          $ref: "#/components/schemas/Name"
+    Member:
+      type: object
+      additionalProperties: false
+      required: [id, user, role]
+      properties:
+        id:
+          type: integer
+        user:
+          type: object
+          additionalProperties: false
+          required: [id, name]
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        role:
+          enum: [owner, member]
+    OneMember:
+      type: object
+      additionalProperties: false
+      required: [member]
+      properties:
+        member:
+          $ref: "#/components/schemas/Member"
+    MemberList:
+      type: object
+      additionalProperties: false
+      required: [members]
+      properties:
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/Member"
+    NewMember:
+      type: object
+      additionalProperties: false
+      required: [user_id]
+      properties:
+        user_id:
+          type: integer
+    Candidate:
+      type: object
+      additionalProperties: false
+      required: [id, name, login]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        login:
+          type: string
+    CandidateList:
+      type: object
+      additionalProperties: false
+      required: [candidates]
+      properties:
+        candidates:
+          type: array
+          maxItems: 10
+          items:
+            $ref: "#/components/schemas/Candidate"
+    Rule:
+      type: object
+      additionalProperties: false
+      required: [id, kind, pattern, recursive, enabled]
+      properties:
+        id:
+          type: integer
+        kind:
+          $ref: "#/components/schemas/RuleKind"
+        pattern:
+          type: string
+        recursive:
+          description: Whether files in subfolders count too.
+          type: boolean
+        enabled:
+          type: boolean
+    RuleKind:
+      description: A name prefix, a name pattern with `*`, or an extension.
+      enum: [prefix, glob, extension]
+    OneRule:
+      type: object
+      additionalProperties: false
+      required: [rule]
+      properties:
+        rule:
+          $ref: "#/components/schemas/Rule"
+    RuleList:
+      type: object
+      additionalProperties: false
+      required: [rules]
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rule"
+    NewRule:
+      type: object
+      additionalProperties: false
+      required: [kind, pattern]
+      properties:
+        kind:
+          $ref: "#/components/schemas/RuleKind"
+        pattern:
+          description: One name or extension, never a path on a computer.
+          $ref: "#/components/schemas/Name"
+        recursive:
+          type: boolean
+          default: true
+    RuleChange:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        kind:
+          $ref: "#/components/schemas/RuleKind"
+        pattern:
+          $ref: "#/components/schemas/Name"
+        recursive:
+          type: boolean
+        enabled:
+          type: boolean
+    Lock:
+      type: object
+      additionalProperties: false
+      required: [id, file_id, user, device_id, status, expires_at]
+      properties:
+        id:
+          type: integer
+        file_id:
+          type: integer
+        user:
+          type: object
+          additionalProperties: false
+          required: [id, name]
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        device_id:
+          description: The computer the person locked the file from.
+          type: [integer, "null"]
+        status:
+          enum: [active, released, expired]
+        expires_at:
+          type: string
+          format: date-time
+    FileLock:
+      description: The lock in force on a file as every member sees it, without the computer it was taken from.
+      type: object
+      additionalProperties: false
+      required: [user, expires_at]
+      properties:
+        user:
+          $ref: "#/components/schemas/Person"
+        expires_at:
+          type: string
+          format: date-time
+    OneLock:
+      type: object
+      additionalProperties: false
+      required: [lock]
+      properties:
+        lock:
+          $ref: "#/components/schemas/Lock"
+    Sha256:
+      description: A SHA-256 in lowercase hexadecimal.
+      type: string
+      pattern: "^[0-9a-f]{64}$"
+    Person:
+      type: object
+      additionalProperties: false
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Version:
+      type: object
+      additionalProperties: false
+      required: [id, number, source, size, sha256, parent_version_id, restored_from_id, saved_by, device, created_at]
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        source:
+          enum: [synced, conflict, restored, edited_online]
+        size:
+          type: integer
+          minimum: 0
+        sha256:
+          $ref: "#/components/schemas/Sha256"
+        parent_version_id:
+          description: The version that was current when this one was made.
+          type: [integer, "null"]
+        restored_from_id:
+          description: The version a restore copied.
+          type: [integer, "null"]
+        saved_by:
+          $ref: "#/components/schemas/Person"
+        device:
+          description: The computer it came from; empty for a version made online or by a restore in the back office.
+          oneOf:
+            - $ref: "#/components/schemas/Person"
+            - type: "null"
+        created_at:
+          type: string
+          format: date-time
+    NewUpload:
+      type: object
+      additionalProperties: false
+      required: [path, size, sha256]
+      properties:
+        path:
+          description: The path of the file relative to its folder, such as `HPLC/run-01.csv`.
+          type: string
+          minLength: 1
+        size:
+          description: The size the computer claims, in bytes.
+          type: integer
+          minimum: 0
+          maximum: 5368709120
+        sha256:
+          description: The SHA-256 the computer claims; the server verifies it.
+          $ref: "#/components/schemas/Sha256"
+        base_version_id:
+          description: The version the computer's file was based on; empty for a new file.
+          type: [integer, "null"]
+    Upload:
+      type: object
+      additionalProperties: false
+      required: [id, path, status, failure_code, size, sha256, base_version_id, part_size, part_count, expires_at, version]
+      properties:
+        id:
+          type: integer
+        path:
+          type: string
+        status:
+          enum: [prepared, verifying, completed, conflict, unchanged, refused, failed, expired]
+        failure_code:
+          description: |
+            Why the upload failed, `size_mismatch`, `sha256_mismatch` or `missing_object`, or the code of the refusal of
+            a refused upload.
+          type: [string, "null"]
+        size:
+          type: integer
+        sha256:
+          $ref: "#/components/schemas/Sha256"
+        base_version_id:
+          type: [integer, "null"]
+        part_size:
+          description: The size of every part but the last.
+          type: integer
+        part_count:
+          description: The number of parts; 0 when nothing is uploaded in parts, such as an empty file.
+          type: integer
+        expires_at:
+          description: When an upload not finalized by then expires.
+          type: string
+          format: date-time
+        version:
+          description: The version stored, or the current version of an unchanged upload.
+          oneOf:
+            - $ref: "#/components/schemas/Version"
+            - type: "null"
+    OneUpload:
+      type: object
+      additionalProperties: false
+      required: [upload]
+      properties:
+        upload:
+          $ref: "#/components/schemas/Upload"
+    PartRequest:
+      type: object
+      additionalProperties: false
+      required: [part_numbers]
+      properties:
+        part_numbers:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: integer
+            minimum: 1
+    PartAddresses:
+      type: object
+      additionalProperties: false
+      required: [parts, expires_at]
+      properties:
+        parts:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [number, url]
+            properties:
+              number:
+                type: integer
+              url:
+                description: The presigned address that uploads the part with a PUT of its bytes.
+                type: string
+        expires_at:
+          type: string
+          format: date-time
+    OneVersion:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        version:
+          $ref: "#/components/schemas/Version"
+    VersionList:
+      type: object
+      additionalProperties: false
+      required: [versions]
+      properties:
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Version"
+    File:
+      type: object
+      additionalProperties: false
+      required: [id, path, current_version, lock]
+      properties:
+        id:
+          type: integer
+        path:
+          description: The path relative to the folder, in the letter case it was first saved with.
+          type: string
+        current_version:
+          oneOf:
+            - $ref: "#/components/schemas/Version"
+            - type: "null"
+        lock:
+          description: The lock in force on the file; empty when nobody holds one.
+          oneOf:
+            - $ref: "#/components/schemas/FileLock"
+            - type: "null"
+    FileList:
+      type: object
+      additionalProperties: false
+      required: [files, next_after]
+      properties:
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/File"
+        next_after:
+          type: [integer, "null"]
+    Download:
+      type: object
+      additionalProperties: false
+      required: [url, expires_at]
+      properties:
+        url:
+          description: The presigned address that reads the content with a GET.
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+    Change:
+      type: object
+      additionalProperties: false
+      required: [id, file, version]
+      properties:
+        id:
+          type: integer
+        file:
+          type: object
+          additionalProperties: false
+          required: [id, path]
+          properties:
+            id:
+              type: integer
+            path:
+              type: string
+        version:
+          description: The file's new current version.
+          $ref: "#/components/schemas/Version"
+    ChangeList:
+      type: object
+      additionalProperties: false
+      required: [changes, next_after]
+      properties:
+        changes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Change"
+        next_after:
+          type: [integer, "null"]
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message]
+          properties:
+            code:
+              enum:
+                - invalid_request
+                - invalid_credentials
+                - invalid_key
+                - permission_denied
+                - device_revoked
+                - not_found
+                - method_not_allowed
+                - folder_archived
+                - folder_disabled
+                - folder_exists
+                - locked
+                - not_locked
+                - not_eligible
+                - not_lockable
+                - not_editable
+                - idempotency_conflict
+                - too_many_attempts
+                - internal_error
+                - try_again
+                - editing_unavailable
+                - upload_incomplete
+                - upload_closed
+                - storage_unavailable
+            message:
+              description: What happened, in the person's language.
+              type: string
+            id:
+              description: The id the server logged an internal error under.
+              type: string
+  responses:
+    InvalidRequest:
+      description: The request does not match this document.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [invalid_request]
+    Unauthenticated:
+      description: The login or the computer's key is refused.
+      headers:
+        WWW-Authenticate:
+          $ref: "#/components/headers/WwwAuthenticate"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [invalid_credentials, invalid_key]
+    Forbidden:
+      description: The person may not do this.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [permission_denied, device_revoked]
+    NotFound:
+      description: Nothing is found, or nothing the person may read; the two answer the same.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [not_found]
+    Conflict:
+      description: The folder, or its state, refuses the change.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [folder_archived, folder_disabled, folder_exists, locked, not_locked]
+    Unprocessable:
+      description: The request names something that cannot be done.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [not_eligible, not_lockable, not_editable, idempotency_conflict]
+    MethodNotAllowed:
+      description: The route does not take this method.
+      headers:
+        Allow:
+          $ref: "#/components/headers/Allow"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [method_not_allowed]
+    TooManyAttempts:
+      description: Signing in with this login, or from this address, is slowed after failed attempts.
+      headers:
+        Retry-After:
+          $ref: "#/components/headers/RetryAfter"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [too_many_attempts]
+    InternalError:
+      description: The server failed; it logged the details under the answer's id.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - required: [error]
+                properties:
+                  error:
+                    required: [id]
+                    properties:
+                      code:
+                        enum: [internal_error]
+    UploadConflict:
+      description: The folder, a lock or the state of the upload refuses it.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [folder_archived, folder_disabled, locked, upload_incomplete, upload_closed]
+    StorageUnavailable:
+      description: The request still failed on concurrency after the server's last try, or the bucket cannot be reached.
+      headers:
+        Retry-After:
+          $ref: "#/components/headers/RetryAfter"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [try_again, storage_unavailable]
+    Unavailable:
+      description: The request still failed on concurrency after the server's last try.
+      headers:
+        Retry-After:
+          $ref: "#/components/headers/RetryAfter"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        enum: [try_again]

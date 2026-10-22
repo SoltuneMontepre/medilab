@@ -25,10 +25,11 @@ How a module is laid out, from its root:
 
 ```text
 <module>/
-├── __init__.py          imports controllers and models
+├── __init__.py          imports controllers, fields and models
 ├── __manifest__.py
 ├── constants/           technical names, see Constants
 ├── controllers/         HTTP routes
+├── fields/              field types Odoo does not have, such as a 64-bit integer
 ├── models/<concern>/    one model per file
 ├── services/            logic that belongs to no single model
 ├── security/
