@@ -60,6 +60,7 @@ class OnboardingCase(TransactionCase):
         super().setUp()
         self.addCleanup(fetcher.ROBOTS.clear)
         self.addCleanup(fetcher.LAST_REQUESTS.clear)
+        self.addCleanup(fetcher.UNAVAILABLE.clear)
         frozen = freeze_time("2026-10-21 08:00:00")
         self.clock = frozen.start()
         self.addCleanup(frozen.stop)

@@ -80,7 +80,8 @@ class OnboardingRun(models.Model):
     ended_at = fields.Datetime(string="Ended At", copy=False)
     # Pages the run fetched.
     page_count = fields.Integer(string="Pages Fetched", default=0, copy=False)
-    # Pages the run skipped, for robots.txt, another host, the content type or a PDF without text.
+    # Pages the run skipped, for robots.txt, another host, not HTTPS, too many redirects, a refused content type or size, a
+    # PDF without text, or the source turned off; pages over the page limit are logged, not counted.
     skipped_count = fields.Integer(string="Pages Skipped", default=0, copy=False)
     # Records the run staged.
     staged_count = fields.Integer(string="Records Staged", default=0, copy=False)

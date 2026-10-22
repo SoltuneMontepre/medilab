@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from dateutil.relativedelta import relativedelta
 from lxml.etree import ParserError
 
@@ -11,7 +13,7 @@ from odoo.addons.sol_onboarding.constants.models import (
 )
 from odoo.addons.sol_onboarding.constants.onboarding import ITEM_FAILED, ITEMS_OPEN, ORGANISATIONS_JOB
 from odoo.addons.sol_onboarding.services.adapters.registry import adapter_for
-from odoo.addons.sol_onboarding.services.fetcher import Fetcher, PageSkipped, SourceBusy
+from odoo.addons.sol_onboarding.services.fetcher import UNAVAILABLE, Fetcher, PageSkipped, PageUnavailable, SourceBusy
 
 
 # Tác Vụ Định Kỳ
@@ -90,11 +92,19 @@ class ScheduledJob(models.Model):
 
     def _handle_page(self, item, read_page):
         """Run read_page(item), which fetches and reads one page: a busy source defers the item, a skipped page keeps
-        its reason in the item's payload, and a page without content lists nothing."""
+        its reason in the item's payload, and a page without content lists nothing. A source that cannot be read defers
+        its other pages to the first retry of the page that failed, without spending their attempts."""
+        source_id = item.payload["source_id"]
+        now = fields.Datetime.now()
+        if (unavailable_until := UNAVAILABLE.get(source_id)) and unavailable_until > now:
+            return unavailable_until
         try:
             read_page(item)
         except SourceBusy as error:
             return error.until
+        except PageUnavailable:
+            UNAVAILABLE[source_id] = now + timedelta(minutes=self.retry_delay_minutes)
+            raise
         except PageSkipped as error:
             item.payload = {**item.payload, "skipped": str(error)}
         except ParserError:

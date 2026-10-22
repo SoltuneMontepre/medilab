@@ -70,9 +70,11 @@ class OnboardingRunCrawl(models.Model):
             address = item.item_key.partition(":")[2]
             if item.status == ITEM_FAILED:
                 error = (item.last_error or "").strip()
-                # A retried failure keeps its traceback, whose last line is the exception class and its message.
+                # A retried failure keeps its traceback, whose last line is the exception class and, when it has one,
+                # its message.
                 if error.startswith("Traceback"):
-                    error = error.rpartition("\n")[2].partition(": ")[2]
+                    last = error.rpartition("\n")[2]
+                    error = last.partition(": ")[2] if ": " in last else last
                 lines.append(self.env._("failed %(address)s: %(error)s", address=address, error=error))
             elif "skipped" in item.payload:
                 lines.append(

@@ -33,6 +33,10 @@ ROBOTS: dict[tuple[str, str], RobotFileParser] = {}
 # request is also kept per worker process. Ceiling: another worker can request early after a failed fetch; write
 # request times outside the job's transaction to close it.
 LAST_REQUESTS: dict[str, datetime] = {}
+# ponytail: the time until which a source that raised PageUnavailable is left alone, by source id, kept per worker
+# process like LAST_REQUESTS, so another worker still spends one attempt; store the time on the source row if that
+# matters.
+UNAVAILABLE: dict[int, datetime] = {}
 
 
 class PageSkipped(Exception):

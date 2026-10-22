@@ -10,9 +10,12 @@ from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_RUN, MO
 from odoo.addons.sol_onboarding.constants.onboarding import CRAWL_JOB
 from odoo.addons.sol_onboarding.services.fetcher import Fetcher, SourceBusy
 from odoo.addons.sol_onboarding.tests.onboarding_case import OnboardingCase
+from odoo.addons.sol_onboarding.tests.pages_adapter import PagesAdapter
 
 FOOD = "https://lab.example/food"
 SECOND = "https://lab.example/food/2"
+THIRD = "https://lab.example/food/3"
+FOURTH = "https://lab.example/food/4"
 COSMETICS = "https://lab.example/cosmetics"
 ELSEWHERE = "https://other.example/food"
 ROBOTS = "https://lab.example/robots.txt"
@@ -93,6 +96,32 @@ class TestCrawl(OnboardingCase):
         # A retried failure keeps its traceback; the log gives the message of its last line.
         self.assertIn(f"failed {SECOND}: The source answered 503.", run.log.splitlines())
         self.assertEqual(self.staged(run), [("TCVN 1", "to_review")])
+
+    def test_an_unavailable_source_defers_its_other_pages_without_an_attempt(self):
+        calls = self.serve(
+            {
+                FOOD: page(links=[SECOND, THIRD, FOURTH]),
+                SECOND: (503, "text/html", b"", {}),
+                THIRD: page(),
+                FOURTH: page(),
+            }
+        )
+        run = self.start()
+        self.job._run_batch()  # the first page queues three
+        self.job._run_batch()  # one batch claims all three
+        items = {item.item_key.partition(":")[2]: item for item in run._crawl_items()}
+        self.assertEqual([items[url].attempts for url in (SECOND, THIRD, FOURTH)], [1, 0, 0])
+        self.assertEqual({items[url].status for url in (SECOND, THIRD, FOURTH)}, {"pending"})
+        self.assertEqual(items[THIRD].next_attempt_at, items[SECOND].next_attempt_at)
+        self.assertNotIn(THIRD, [call.url for call in calls])
+
+    @mute_logger(JOB_LOGGER)
+    def test_a_failure_without_a_message_names_its_exception_in_the_log(self):
+        self.job.retry_delay_minutes = 0
+        self.serve({FOOD: page()})
+        with patch.object(PagesAdapter, "parse", side_effect=RuntimeError):
+            run = self.crawl()
+        self.assertIn(f"failed {FOOD}: RuntimeError", run.log.splitlines())
 
     @mute_logger(JOB_LOGGER)
     def test_a_4xx_page_fails_at_once(self):
