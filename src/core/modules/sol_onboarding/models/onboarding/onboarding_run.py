@@ -4,7 +4,9 @@ from odoo.exceptions import ValidationError
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_JOB_ITEM,
+    MODEL_MAIL_MESSAGE,
     MODEL_PERMISSION_MIXIN,
+    MODEL_RES_USERS,
     MODEL_SCHEDULED_JOB,
 )
 from odoo.addons.sol_onboarding.constants.models import (
@@ -70,7 +72,7 @@ class OnboardingRun(models.Model):
     )
     # The user who started the run and is notified when it ends.
     requested_by_id = fields.Many2one(
-        "res.users", string="Requested By", required=True, default=lambda self: self.env.user, ondelete="restrict"
+        MODEL_RES_USERS, string="Requested By", required=True, default=lambda self: self.env.user, ondelete="restrict"
     )
     # Time the run started.
     started_at = fields.Datetime(string="Started At", copy=False)
@@ -183,7 +185,7 @@ class OnboardingRun(models.Model):
         self.write({"state": state, "ended_at": fields.Datetime.now(), **localised._report()})
         labels = dict(localised._fields["state"]._description_selection(localised.env))
         body = localised.env._("Collection run %(name)s ended: %(state)s.", name=self.name, state=labels[state])
-        self.env["mail.message"].raise_event(
+        self.env[MODEL_MAIL_MESSAGE].raise_event(
             EVENT_RUN_ENDED,
             self,
             f"onboarding_run:{self.id}:ended",

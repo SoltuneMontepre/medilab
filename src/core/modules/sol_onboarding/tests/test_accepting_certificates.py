@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from odoo.tests import tagged
-from odoo.tools import mute_logger
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
@@ -213,6 +212,37 @@ class TestAcceptingCertificates(OnboardingCase):
         self.assertEqual((lab_certificate.issuing_body, len(lab_certificate.method_ids)), ("AOSC", 3))
         self.assertEqual(children.mapped("state"), ["accepted"] * 3)
 
+    def test_methods_accepted_before_their_certificate_are_linked_to_it(self):
+        certificate, first, second = self.stage(
+            self.certificate(),
+            self.method("TCVN 9921:2014", "Accepted before the certificate"),
+            self.method("TCVN 9922:2014", "Accepted with the certificate"),
+        )
+        first.field_id = self.field
+        first.with_user(self.admin).action_accept()
+        self.assertEqual((certificate.state, first.state), ("to_review", "accepted"))
+        certificate.field_id = self.field
+
+        certificate.with_user(self.admin).action_accept()
+
+        self.assertEqual((certificate | second).mapped("state"), ["accepted"] * 2)
+        methods = self.env[MODEL_TESTING_METHOD].browse((first | second).mapped("record_id"))
+        self.assertEqual(self.lab_certificate(certificate).method_ids, methods)
+
+    def test_a_method_accepted_after_its_certificate_is_linked_to_it(self):
+        certificate, first = self.stage(self.certificate(), self.method("TCVN 9923:2014", "In the first scope"))
+        certificate.field_id = self.field
+        certificate.with_user(self.admin).action_accept()
+        self.run = self.env[MODEL_ONBOARDING_RUN].create({"requested_by_id": self.admin.id})
+        later = self.stage(self.method("TCVN 9924:2014", "Added to the scope later"))
+        self.assertEqual(later.parent_id, certificate)
+        later.field_id = self.field
+
+        later.with_user(self.admin).action_accept()
+
+        methods = self.env[MODEL_TESTING_METHOD].browse((first | later).mapped("record_id"))
+        self.assertEqual((later.state, self.lab_certificate(certificate).method_ids), ("accepted", methods))
+
     def test_a_rejected_field_of_a_new_method_refuses_the_certificate(self):
         field, certificate, child = self.stage(
             self.item(KIND_TESTING_FIELD, "ZZCERTREJ", name="Rejected certificate field"),
@@ -283,8 +313,9 @@ class TestAcceptingCertificates(OnboardingCase):
 
         self.assertEqual((self.admin.lang, dated_wrongly.lang), ("en_US", "vi_VN"))
 
-        with mute_logger("odoo.sql_db"):
-            # The administrator's session is in English; the refused records are staged in Vietnamese.
+        # A refused constraint logs no error; the administrator's session is in English and the refused records are
+        # staged in Vietnamese.
+        with self.assertNoLogs("odoo.sql_db", level="ERROR"):
             action = records.with_user(self.admin).with_context(lang=self.admin.lang).action_accept()
 
         refused = dated_wrongly | taken

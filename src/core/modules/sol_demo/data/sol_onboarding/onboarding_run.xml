@@ -19,7 +19,7 @@ Testing Field: 3
 Testing Method: 6
 Sample Type: 3
 Test Parameter: 3
-Parameter Method: 3</field>
+Way of Testing: 3</field>
     </record>
     <record id="demo_onboarding_run_failed" model="medilab.onboarding.run">
         <field name="organisation_id" ref="demo_onboarding_organisation_medilab" />
@@ -31,13 +31,13 @@ Parameter Method: 3</field>
         <field name="skipped_count">0</field>
         <field name="staged_count">6</field>
         <field name="log">fetched https://www.boa.gov.vn/vi/timkiem/tochuc/9901
-failed https://www.boa.gov.vn/vi/timkiem/tochuc/9901/pham-vi.pdf: odoo.addons.sol_onboarding.services.fetcher.PageUnavailable: The source answered 503.
+failed https://www.boa.gov.vn/vi/timkiem/tochuc/9901/pham-vi.pdf: The source answered 503.
 Certificate: 1
 Testing Field: 1
 Testing Method: 1
 Sample Type: 1
 Test Parameter: 1
-Parameter Method: 1</field>
+Way of Testing: 1</field>
     </record>
     <record id="demo_onboarding_run_cancelled" model="medilab.onboarding.run">
         <field name="sector_ids" eval="[Command.set([ref('sol_onboarding.sector_cosmetics')])]" />

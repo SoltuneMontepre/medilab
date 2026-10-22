@@ -76,6 +76,6 @@ describe("Onboarding", () => {
     cy.get("button[name=action_open_onboarding_origin]").click();
     cy.contains(".o_data_row", "https://www.boa.gov.vn/vi/timkiem/tochuc/9901").click();
 
-    cy.get(".o_field_widget[name=external_key] input").should("have.value", CERTIFICATE);
+    cy.get(".o_field_widget[name=external_key]").should("have.text", CERTIFICATE);
   });
 });

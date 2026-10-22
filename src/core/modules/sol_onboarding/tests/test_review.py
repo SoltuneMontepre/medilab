@@ -1,7 +1,10 @@
 from datetime import date, datetime
 
+from lxml import etree
+
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import tagged
+from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_SAMPLE_TYPE,
@@ -15,6 +18,7 @@ from odoo.addons.sol_onboarding.constants.models import (
     MODEL_ONBOARDING_STAGED_RECORD,
 )
 from odoo.addons.sol_onboarding.constants.onboarding import KIND_CERTIFICATE, KIND_SAMPLE_TYPE, KIND_TESTING_METHOD
+from odoo.addons.sol_onboarding.models.onboarding.onboarding_staged_record_acceptance import LABORATORY_KEYS
 from odoo.addons.sol_onboarding.services.adapters.base import Fetched, StagedValues
 from odoo.addons.sol_onboarding.tests.onboarding_case import OnboardingCase
 
@@ -34,6 +38,10 @@ class TestReview(OnboardingCase):
 
     def sample(self, name="Review sample xyz"):
         return self.stage(KIND_SAMPLE_TYPE, name=name)
+
+    def form_fields(self, name):
+        form = self.records.with_user(self.admin).get_views([(False, "form")])["views"]["form"]
+        return [node for node in etree.fromstring(form["arch"]).iter("field") if node.get("name") == name]
 
     def test_editing_keeps_the_source_value(self):
         staged = self.sample()
@@ -132,6 +140,26 @@ class TestReview(OnboardingCase):
                 {"code": "ZZRV", "name": "RV"}
             )
 
+    def test_a_match_set_with_an_edit_is_kept(self):
+        sample = self.env[MODEL_SAMPLE_TYPE].create({"name": "Hand set target"})
+        staged = self.sample("Review hand set xyz")
+        self.assertFalse(staged.record_id)
+
+        staged.with_user(self.admin).write(
+            {"name": "Renamed hand set xyz", "match_ref": f"{MODEL_SAMPLE_TYPE},{sample.id}"}
+        )
+
+        self.assertEqual(
+            (staged.record_model, staged.record_id, staged.match_suggested), (MODEL_SAMPLE_TYPE, sample.id, False)
+        )
+        self.assertEqual(staged.edited_values, {"name": "Renamed hand set xyz"})
+
+    def test_the_record_model_must_be_the_model_of_the_kind(self):
+        staged = self.sample()
+
+        with self.assertRaises(ValidationError):
+            staged.write({"record_model": "res.partner"})
+
     def test_a_deleted_match_is_no_match(self):
         sample = self.env[MODEL_SAMPLE_TYPE].create({"name": "Deleted Match Sample"})
         staged = self.sample("deleted match sample")
@@ -200,3 +228,15 @@ class TestReview(OnboardingCase):
                 for view in arches.values():
                     self.assertNotIn("source_id", view["arch"])
                     self.assertNotIn("snapshot_ids", view["arch"])
+
+    def test_the_form_shows_the_kind_key_and_action_read_only(self):
+        for name in ("kind", "external_key", "action"):
+            with self.subTest(field=name):
+                self.assertEqual({node.get("readonly") for node in self.form_fields(name)}, {"1"})
+
+    def test_the_form_shows_a_code_only_for_the_kinds_that_keep_one(self):
+        (code,) = self.form_fields("code")
+
+        shown = {kind for kind in LABORATORY_KEYS if not safe_eval(code.get("invisible"), {"kind": kind})}
+
+        self.assertEqual(shown, {kind for kind, keys in LABORATORY_KEYS.items() if "code" in keys})

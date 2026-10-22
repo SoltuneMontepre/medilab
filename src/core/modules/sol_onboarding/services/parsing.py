@@ -9,9 +9,9 @@ from lxml import html
 from odoo.tools.pdf import PdfReader
 
 
-# Folds compatibility forms, drops control characters and collapses whitespace.
+# Composes characters, drops control characters and collapses whitespace; compatibility forms such as m³ stay.
 def clean_text(value: str) -> str:
-    text = unicodedata.normalize("NFKC", value)
+    text = unicodedata.normalize("NFC", value)
     text = "".join(
         " " if char.isspace() else char for char in text if char.isspace() or unicodedata.category(char)[0] != "C"
     )

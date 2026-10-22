@@ -2,10 +2,11 @@ from datetime import date, datetime
 
 from odoo.exceptions import AccessError
 from odoo.tests import new_test_user, tagged
-from odoo.tools import SQL, mute_logger
+from odoo.tools import SQL
 
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ACCREDITATION_CERTIFICATE,
+    MODEL_AUDIT_ENTRY,
     MODEL_DEPARTMENT,
     MODEL_MEASUREMENT_UNIT,
     MODEL_PARAMETER_GROUP,
@@ -100,8 +101,8 @@ class TestAccepting(OnboardingCase):
         self.assertEqual(
             wizard.asked_for.splitlines(),
             [
-                "Unit: Parameter Method accepted pair",
-                "Department: Parameter Method accepted pair",
+                "Unit: Way of Testing accepted pair",
+                "Department: Way of Testing accepted pair",
                 "Main Group: Test Parameter Accepted parameter xyz",
             ],
         )
@@ -140,7 +141,7 @@ class TestAccepting(OnboardingCase):
         self.assertEqual(action["res_model"], MODEL_ONBOARDING_ACCEPT)
         wizard = self.wizard(action)
         self.assertEqual((wizard.department_needed, wizard.unit_needed, wizard.main_group_needed), (True, False, False))
-        self.assertEqual(wizard.asked_for, "Department: Parameter Method accepted pair")
+        self.assertEqual(wizard.asked_for, "Department: Way of Testing accepted pair")
         self.assertEqual(pair.state, "to_review")
         self.assertFalse(self.lab_pairs_for(pair))
 
@@ -175,8 +176,7 @@ class TestAccepting(OnboardingCase):
         # The field's code is taken after it was staged, so its staged match is stale.
         self.env[MODEL_TESTING_FIELD].create({"code": FIELD_CODE, "name": "Taken meanwhile"})
 
-        with mute_logger("odoo.sql_db"):
-            action = pair.with_user(self.admin).action_accept()
+        action = pair.with_user(self.admin).action_accept()
 
         self.assertEqual(action["res_model"], MODEL_ONBOARDING_STAGED_RECORD)
         self.assertEqual(action["domain"], [("id", "in", pair.ids)])
@@ -264,10 +264,39 @@ class TestAccepting(OnboardingCase):
 
         staged.with_user(self.admin).action_accept()
 
-        self.assertEqual((staged.state, staged.error), ("to_review", "Confirm or clear the suggested match first."))
+        self.assertEqual(
+            (staged.state, staged.error),
+            ("to_review", "Confirm or clear the suggested match of Sample Type accepting match sample first."),
+        )
         staged.with_user(self.admin).action_confirm_match()
         staged.with_user(self.admin).action_accept()
         self.assertEqual((staged.state, staged.record_id, staged.error), ("accepted", sample.id, False))
+
+    def test_a_suggested_match_of_a_needed_record_names_it(self):
+        self.env[MODEL_TEST_PARAMETER].create(
+            {"name": "Accepted Parameter XYZ", "group_ids": [self.group.id], "main_group_id": self.group.id}
+        )
+        pair, parameter, _method, _field = self.way_of_testing()
+        self.assertTrue(parameter.match_suggested)
+        pair.write({"unit_id": self.unit.id, "department_id": self.department.id})
+
+        pair.with_user(self.admin).action_accept()
+
+        self.assertEqual(
+            (pair.state, pair.error),
+            ("to_review", "Confirm or clear the suggested match of Test Parameter Accepted parameter xyz first."),
+        )
+
+    def test_the_audit_trail_leaves_the_source_out(self):
+        staged = self.stage(KIND_SAMPLE_TYPE, name="Audited sample xyz")
+
+        staged.with_user(self.admin).action_accept()
+
+        entries = self.env[MODEL_AUDIT_ENTRY].search(
+            [("document_model", "=", MODEL_ONBOARDING_STAGED_RECORD), ("document_id", "=", staged.id)]
+        )
+        self.assertEqual(sorted(entries.mapped("action")), ["create", "edit"])
+        self.assertNotIn("source_id", entries.change_ids.mapped("field_name"))
 
     def test_without_the_accept_permission_the_api_refuses(self):
         staged = self.stage(KIND_SAMPLE_TYPE, name="Not accepted sample xyz")

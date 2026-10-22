@@ -29,12 +29,19 @@ class OnboardingStagedRecordReview(models.Model):
     _rec_name = "external_key"
 
     # The values below show the edited value, else the source's; writing one stores it in the edited values.
+    # Code of a certificate, testing field or testing method.
     code = fields.Char(string="Code", compute="_compute_values", readonly=False)
+    # Name of a testing field, testing method, sample type or test parameter.
     name = fields.Char(string="Name", compute="_compute_values", readonly=False)
+    # Body that issued a certificate.
     issuing_body = fields.Char(string="Issuing Body", compute="_compute_values", readonly=False)
+    # First valid day of a certificate.
     valid_from = fields.Date(string="Valid From", compute="_compute_values", readonly=False)
+    # Last valid day of a certificate.
     valid_until = fields.Date(string="Valid Until", compute="_compute_values", readonly=False)
+    # Testing field of a testing method, or the one a certificate gives the methods of its scope that have none.
     field_id = fields.Many2one(MODEL_TESTING_FIELD, string="Testing Field", compute="_compute_values", readonly=False)
+    # Main group of a test parameter.
     main_group_id = fields.Many2one(
         MODEL_PARAMETER_GROUP,
         string="Main Group",
@@ -42,7 +49,9 @@ class OnboardingStagedRecordReview(models.Model):
         readonly=False,
         domain="[('child_ids', '=', False)]",
     )
+    # Unit of a way of testing.
     unit_id = fields.Many2one(MODEL_MEASUREMENT_UNIT, string="Unit", compute="_compute_values", readonly=False)
+    # Department that tests a way of testing in-house.
     department_id = fields.Many2one(
         MODEL_DEPARTMENT,
         string="Department",
@@ -144,7 +153,7 @@ class OnboardingStagedRecordReview(models.Model):
         for record in self:
             differences = []
             if record.action == ACTION_UPDATE and record.record_id:
-                differences = record._differences(record.record_model, record.record_id)
+                differences = record._differences(record.record_id)
             record.changes = "\n".join(f"{labels[key]}: {current} → {wanted}" for key, current, wanted in differences)
 
     @api.depends("record_model", "record_id")
@@ -166,7 +175,7 @@ class OnboardingStagedRecordReview(models.Model):
                     "record_model": model,
                     "record_id": matched_id,
                     "match_suggested": False,
-                    "action": record._proposed_action(model, matched_id),
+                    "action": record._proposed_action(matched_id),
                 }
             )
 

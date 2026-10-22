@@ -45,7 +45,7 @@ An adapter never makes a request itself. It only returns addresses, and the fetc
 The fetcher is the only code that makes outbound requests. It uses `requests`, which Odoo already depends on.
 
 - It fetches only `https` addresses on the source's host, verifies the certificate, follows no redirect by itself, and checks a redirect's target against the host before fetching it.
-- It reads `robots.txt` of the host once per run and skips a disallowed path.
+- It reads `robots.txt` of the host once per run and skips a disallowed path. A `robots.txt` that redirects off the host or more than five times disallows every path for the run; one that answers `4xx` or cannot be used, such as one that is not plain text, allows every path.
 - It waits at least the source's delay between two requests of a source, across workers, by keeping the time of the last request on the source row, locked while it is read and written.
 - It sends only `GET` requests with a `User-Agent` naming MediLab, no cookies kept between requests and no credentials.
 - It stops reading a response after 10 MB and after a 30 second timeout, and accepts only HTML, PDF and JSON content types.
@@ -72,7 +72,7 @@ The key of a staged record is its adapter's key for it at the source, such as a 
 - the same key and checksum as a staged record that is to review, accepted or rejected stages nothing;
 - the same key with another checksum stages a new record, and an older one to review becomes `superseded` and passes its children, such as the methods of a certificate's scope, to the new one.
 
-Matching an existing Laboratory record runs when a record is staged and again when its values are edited. Codes are compared after removing spaces and folding case; names with the trigram indexes of the master data tables, as a suggestion.
+Matching an existing Laboratory record runs when a record is staged and again when its values are edited. Codes are compared after removing spaces and folding case and compatibility forms, such as full-width digits; names by trigram similarity, as a suggestion.
 
 ### Accepting
 

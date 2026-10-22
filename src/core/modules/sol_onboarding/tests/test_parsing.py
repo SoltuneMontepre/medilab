@@ -14,7 +14,12 @@ from odoo.addons.sol_onboarding.services.parsing import clean_text, html_tree, j
 @tagged("post_install", "-at_install")
 class TestParsing(TransactionCase):
     def test_clean_text_removes_control_characters_and_folds_spaces(self):
-        self.assertEqual(clean_text(" TCVN\u00a06492\uff1a2011\x00\t "), "TCVN 6492:2011")
+        self.assertEqual(clean_text(" TCVN\u00a06492\uff1a2011\x00\t "), "TCVN 6492\uff1a2011")
+
+    def test_clean_text_keeps_the_characters_of_the_source(self):
+        for value in ("10⁶ CFU/g", "SO₄²⁻", "mg/m³"):
+            with self.subTest(value=value):
+                self.assertEqual(clean_text(value), value)
 
     def test_html_is_parsed_without_fetching_anything(self):
         body = b'<script src="https://evil.test/x.js"></script><link href="https://evil.test/a.css"><p>A</p>'

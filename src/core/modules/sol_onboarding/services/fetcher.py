@@ -14,6 +14,7 @@ from odoo.exceptions import LockError
 
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 from odoo.addons.sol_onboarding.constants.onboarding import (
+    CONNECT_TIMEOUT_SECONDS,
     CONTENT_TYPES,
     MAX_BYTES,
     MAX_REDIRECTS,
@@ -36,6 +37,10 @@ LAST_REQUESTS: dict[str, datetime] = {}
 
 class PageSkipped(Exception):
     """The page is not fetched or not read, for the reason str() gives; fetching it again changes nothing."""
+
+
+class RedirectSkipped(PageSkipped):
+    """The page redirects off the host or past the redirect limit."""
 
 
 class PageRefused(PermanentJobError):
@@ -77,7 +82,9 @@ class Fetcher:
                 session.headers.clear()
                 session.headers["User-Agent"] = USER_AGENT
                 try:
-                    response = session.get(url, stream=True, allow_redirects=False, timeout=TIMEOUT_SECONDS)
+                    response = session.get(
+                        url, stream=True, allow_redirects=False, timeout=(CONNECT_TIMEOUT_SECONDS, TIMEOUT_SECONDS)
+                    )
                 except requests.RequestException as error:
                     raise PageUnavailable(f"The source did not answer: {type(error).__name__}.") from None
                 with response:
@@ -85,20 +92,24 @@ class Fetcher:
                         url = urljoin(url, response.headers["Location"])
                         continue
                     return self._read(response, url, content_types, deadline)
-        raise PageSkipped(self.source.env._("too many redirects"))
+        raise RedirectSkipped(self.source.env._("too many redirects"))
 
     def _checked_address(self, url, redirected):
         # The address is sent as parsed here, so the request goes where the check looked.
-        off_host = self.source.env._("redirect off the host") if redirected else self.source.env._("another host")
+        off_host = (
+            RedirectSkipped(self.source.env._("redirect off the host"))
+            if redirected
+            else PageSkipped(self.source.env._("another host"))
+        )
         try:
             address = urlsplit(url)
             port = address.port
         except ValueError:
-            raise PageSkipped(off_host) from None
+            raise off_host from None
         if address.scheme != "https":
             raise PageSkipped(self.source.env._("not HTTPS"))
         if address.hostname != self.source.host or address.username is not None or port is not None:
-            raise PageSkipped(off_host)
+            raise off_host
         return address.geturl()
 
     def _robots(self):
@@ -109,6 +120,9 @@ class Fetcher:
                 document = self._fetch(
                     f"https://{self.source.host}/robots.txt", ROBOTS_CONTENT_TYPES, check_robots=False
                 )
+            except RedirectSkipped:
+                # Rules that cannot be followed to their address disallow everything for the run (RFC 9309 2.3.1.2).
+                robots.disallow_all = True
             except (PageRefused, PageSkipped):
                 # A robots.txt that answers 4xx or cannot be used allows everything for the run.
                 robots.allow_all = True
@@ -130,7 +144,7 @@ class Fetcher:
         elapsed = max((datetime.now() - last).total_seconds(), 0)
         if elapsed < source.delay_seconds:
             sleep(source.delay_seconds - elapsed)
-        # Odoo keeps whole seconds; rounding up never stores a time before the request.
+        # Rounded up to the second, so the stored time is never before the request sent next.
         stamp = (datetime.now() + timedelta(microseconds=999_999)).replace(microsecond=0)
         source.last_request_at = LAST_REQUESTS[source.host] = stamp
 
@@ -147,6 +161,8 @@ class Fetcher:
         if length.isdigit() and int(length) > MAX_BYTES:
             raise PageSkipped(self.source.env._("over 10 MB"))
         body = bytearray()
+        # ponytail: the deadline is checked between chunks, so a server trickling bytes can hold the worker until
+        # Odoo's time limit; read in a thread with a hard stop if a source ever does.
         try:
             for chunk in response.iter_content(CHUNK_SIZE):
                 body += chunk

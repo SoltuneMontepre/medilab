@@ -99,6 +99,7 @@ class TestRuns(OnboardingCase):
         empty.action_start()
         self.assertEqual(empty.state, "done")
         self.assertTrue(empty.ended_at)
+        self.assertEqual(empty.log, "No turned-on source reads this organisation or these sectors.")
         self.run_of(sector_ids=self.food).action_start()
 
     def test_cancelling_cancels_pending_items(self):

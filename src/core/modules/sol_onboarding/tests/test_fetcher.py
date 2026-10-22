@@ -11,7 +11,7 @@ from odoo.tests import tagged
 from .onboarding_case import OnboardingCase
 from odoo.addons.sol_laboratory.models.system.scheduled_job import PermanentJobError
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_SOURCE
-from odoo.addons.sol_onboarding.constants.onboarding import MAX_BYTES, TIMEOUT_SECONDS
+from odoo.addons.sol_onboarding.constants.onboarding import CONNECT_TIMEOUT_SECONDS, MAX_BYTES, TIMEOUT_SECONDS
 from odoo.addons.sol_onboarding.services import fetcher as fetcher_module
 from odoo.addons.sol_onboarding.services.fetcher import (
     Fetcher,
@@ -140,6 +140,15 @@ class TestFetcher(OnboardingCase):
 
         self.assertEqual([call.url for call in calls], [ROBOTS_URL, "https://lab.example/a", "https://lab.example/b"])
 
+    def test_a_robots_txt_redirected_off_the_host_or_too_often_disallows_every_page(self):
+        hops = {f"https://lab.example/robots/{index}": redirect(f"/robots/{index + 1}") for index in range(6)}
+        for robots, key in ((redirect("https://evil.test/robots.txt"), "run:1"), (redirect("/robots/0"), "run:2")):
+            with self.subTest(run=key):
+                calls = self.serve({ROBOTS_URL: robots, **hops, "https://lab.example/a": HTML})
+                with self.assertRaisesRegex(PageSkipped, "disallowed by robots.txt"):
+                    Fetcher(self.source, key).fetch("https://lab.example/a")
+                self.assertNotIn("https://lab.example/a", [call.url for call in calls])
+
     def test_keeps_the_delay_between_requests(self):
         self.calls = self.serve(
             {"https://lab.example/a": HTML, "https://lab.example/b": HTML, "https://lab.example/c": HTML}
@@ -191,7 +200,10 @@ class TestFetcher(OnboardingCase):
         for call in calls:
             self.assertIn("MediLab", call.headers["User-Agent"])
             self.assertEqual(set(call.headers), {"User-Agent"})
-            self.assertEqual(call.kwargs, {"stream": True, "allow_redirects": False, "timeout": TIMEOUT_SECONDS})
+            self.assertEqual(
+                call.kwargs,
+                {"stream": True, "allow_redirects": False, "timeout": (CONNECT_TIMEOUT_SECONDS, TIMEOUT_SECONDS)},
+            )
             self.assertIsNot(call.verify, False)
             self.assertFalse(call.trust_env)
 
@@ -222,7 +234,7 @@ class TestFetcher(OnboardingCase):
 
         with self.assertRaises(PageUnavailable):
             fetcher.fetch("https://lab.example/silent")
-        self.assertEqual(calls[-1].kwargs["timeout"], TIMEOUT_SECONDS)
+        self.assertEqual(calls[-1].kwargs["timeout"], (CONNECT_TIMEOUT_SECONDS, TIMEOUT_SECONDS))
         # Each read of the stream ends 20 seconds after the previous one.
         with patch.object(fetcher_module, "monotonic", side_effect=count(0, 20)), self.assertRaises(PageUnavailable):
             fetcher.fetch("https://lab.example/slow")

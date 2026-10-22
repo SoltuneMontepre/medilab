@@ -27,6 +27,8 @@ class OnboardingRunCrawl(models.Model):
 
     def _crawl_page(self, item):
         """Fetch the item's page, keep it, stage what it lists and queue the pages it links to."""
+        # A batch claims its items at once; one cancelled since must not fetch.
+        self.invalidate_recordset(["state"])
         if not self or self.state != RUN_RUNNING:
             return
         payload = item.payload
@@ -67,7 +69,10 @@ class OnboardingRunCrawl(models.Model):
         for item in items:
             address = item.item_key.partition(":")[2]
             if item.status == ITEM_FAILED:
-                error = (item.last_error or "").strip().rpartition("\n")[2]
+                error = (item.last_error or "").strip()
+                # A retried failure keeps its traceback, whose last line is the exception class and its message.
+                if error.startswith("Traceback"):
+                    error = error.rpartition("\n")[2].partition(": ")[2]
                 lines.append(self.env._("failed %(address)s: %(error)s", address=address, error=error))
             elif "skipped" in item.payload:
                 lines.append(
@@ -80,6 +85,8 @@ class OnboardingRunCrawl(models.Model):
         kinds = Counter(run.staged_record_ids.mapped("kind"))
         labels = self.env[MODEL_ONBOARDING_STAGED_RECORD]._fields["kind"]._description_selection(self.env)
         lines += [f"{label}: {kinds[kind]}" for kind, label in labels if kinds[kind]]
+        if not items:
+            lines.append(self.env._("No turned-on source reads this organisation or these sectors."))
         return {
             "page_count": len(run.snapshot_ids),
             "skipped_count": len(items.filtered(lambda item: "skipped" in item.payload)),

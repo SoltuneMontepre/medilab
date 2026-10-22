@@ -1,6 +1,6 @@
 from odoo import fields, models
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN
+from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_MIXIN, MODEL_PERMISSION_MIXIN, MODEL_RES_USERS
 from odoo.addons.sol_onboarding.constants.models import (
     MODEL_ONBOARDING_RUN,
     MODEL_ONBOARDING_SECTOR,
@@ -19,6 +19,8 @@ class OnboardingStagedRecord(models.Model):
     _description = "Staged Record"
     _order = "id desc"
     _permission_actions = ("read", "edit")
+    # The trail is read by people who may not see the sources.
+    _audit_exclude = ("source_id",)
 
     _source_key_index = models.Index("(source_id, kind, external_key)")
     _state_index = models.Index("(state)")
@@ -32,7 +34,7 @@ class OnboardingStagedRecord(models.Model):
             ("testing_method", "Testing Method"),
             ("sample_type", "Sample Type"),
             ("test_parameter", "Test Parameter"),
-            ("parameter_method", "Parameter Method"),
+            ("parameter_method", "Way of Testing"),
         ],
         string="Kind",
         required=True,
@@ -95,6 +97,6 @@ class OnboardingStagedRecord(models.Model):
     # Message of the last refused accept.
     error = fields.Text(string="Error")
     # The user who accepted or rejected it.
-    reviewed_by_id = fields.Many2one("res.users", string="Reviewed By", ondelete="restrict")
+    reviewed_by_id = fields.Many2one(MODEL_RES_USERS, string="Reviewed By", ondelete="restrict")
     # Time it was accepted or rejected.
     reviewed_at = fields.Datetime(string="Reviewed At")

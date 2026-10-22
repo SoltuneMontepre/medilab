@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from odoo import fields
 from odoo.tests import tagged
-from odoo.tools import file_open, mute_logger
+from odoo.tools import SQL, file_open, mute_logger
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_SCHEDULED_JOB
 from odoo.addons.sol_onboarding.constants.models import MODEL_ONBOARDING_RUN, MODEL_ONBOARDING_SECTOR
@@ -90,9 +90,8 @@ class TestCrawl(OnboardingCase):
         failed = run._crawl_items().filtered(lambda item: item.status == "failed")
         self.assertEqual((failed.item_key, failed.attempts), (f"{run.id}:{SECOND}", 3))
         self.assertEqual(run.state, "failed")
-        # A retried failure keeps its traceback; the log gives its last line.
-        error = "odoo.addons.sol_onboarding.services.fetcher.PageUnavailable: The source answered 503."
-        self.assertIn(f"failed {SECOND}: {error}", run.log.splitlines())
+        # A retried failure keeps its traceback; the log gives the message of its last line.
+        self.assertIn(f"failed {SECOND}: The source answered 503.", run.log.splitlines())
         self.assertEqual(self.staged(run), [("TCVN 1", "to_review")])
 
     @mute_logger(JOB_LOGGER)
@@ -159,6 +158,18 @@ class TestCrawl(OnboardingCase):
         self.assertEqual(calls, [])
         self.assertFalse(run.staged_record_ids)
         self.assertEqual(run.read(RUN_REPORT), report)
+
+    def test_a_page_claimed_before_a_cancel_is_not_fetched(self):
+        calls = self.serve({FOOD: page(method("TCVN 1"))})
+        run = self.start()
+        item = self.job._claim(fields.Datetime.now())
+        self.assertEqual(run.state, "running")
+        # Another worker cancels the run; this transaction has read it running.
+        self.env.cr.execute(SQL("UPDATE %s SET state = 'cancelled' WHERE id = %s", SQL.identifier(run._table), run.id))
+
+        self.job._handle_onboarding_crawl(item)
+
+        self.assertEqual(calls, [])
 
     def test_a_run_cancelled_during_a_fetch_stages_and_queues_nothing(self):
         self.serve({FOOD: page(method("TCVN 1"), links=[SECOND])})

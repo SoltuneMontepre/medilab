@@ -212,8 +212,8 @@ msgstr "Xác nhận khớp"
 #. module: sol_onboarding
 #. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
-msgid "Confirm or clear the suggested match first."
-msgstr "Hãy xác nhận hoặc bỏ gợi ý khớp trước."
+msgid "Confirm or clear the suggested match of %s first."
+msgstr "Hãy xác nhận hoặc bỏ gợi ý khớp của %s trước."
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_snapshot__content_type
@@ -488,6 +488,12 @@ msgid "No testing method has the code %s after the import."
 msgstr "Sau khi nhập, không có phương pháp thử nào mang mã %s."
 
 #. module: sol_onboarding
+#. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_run_crawl.py:0
+msgid "No turned-on source reads this organisation or these sectors."
+msgstr "Không có nguồn đang bật nào đọc tổ chức hoặc các ngành này."
+
+#. module: sol_onboarding
 #: model:ir.ui.menu,name:sol_onboarding.menu_master_data_onboarding
 msgid "Onboarding"
 msgstr "Thu thập dữ liệu"
@@ -628,11 +634,6 @@ msgstr "Trang đã bỏ qua"
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_review.py:0
 msgid "Parameter Key"
 msgstr "Khóa chỉ tiêu"
-
-#. module: sol_onboarding
-#: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__parameter_method
-msgid "Parameter Method"
-msgstr "Phương pháp của chỉ tiêu"
 
 #. module: sol_onboarding
 #: model:ir.model.fields,field_description:sol_onboarding.field_medilab_onboarding_staged_record__parent_id
@@ -925,6 +926,12 @@ msgstr "Bản ghi khớp không còn tồn tại. Hãy chọn lại bản ghi kh
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_matching.py:0
+msgid "The matched record of %s must be a record of its kind."
+msgstr "Bản ghi khớp của %s phải thuộc đúng loại của nó."
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/models/onboarding/onboarding_staged_record_acceptance.py:0
 msgid "The matched record of %s no longer exists. Set the match again."
 msgstr "Bản ghi khớp của %s không còn tồn tại. Hãy chọn lại bản ghi khớp."
@@ -989,6 +996,11 @@ msgstr "Giá trị"
 #: model_terms:ir.ui.view,arch_db:sol_onboarding.view_medilab_onboarding_staged_record_form
 msgid "Values"
 msgstr "Giá trị"
+
+#. module: sol_onboarding
+#: model:ir.model.fields.selection,name:sol_onboarding.selection__medilab_onboarding_staged_record__kind__parameter_method
+msgid "Way of Testing"
+msgstr "Cách Thử"
 
 #. module: sol_onboarding
 #. odoo-python

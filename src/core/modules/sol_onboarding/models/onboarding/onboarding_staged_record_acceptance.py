@@ -5,9 +5,10 @@ import psycopg2
 from odoo import fields, models
 from odoo.exceptions import UserError
 from odoo.fields import Command
-from odoo.tools import format_list
+from odoo.tools import format_list, mute_logger
 
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_ACCREDITATION_CERTIFICATE,
     MODEL_ACCREDITATION_CERTIFICATE_IMPORT,
     MODEL_TESTING_FIELD,
     MODEL_TESTING_METHOD,
@@ -86,7 +87,7 @@ class OnboardingStagedRecordAcceptance(models.Model):
             if record in to_review and record.state == STAGED_ACCEPTED:
                 continue
             try:
-                with self.env.cr.savepoint():
+                with self.env.cr.savepoint(), mute_logger("odoo.sql_db"):
                     record._accept_one()
             except psycopg2.IntegrityError as error:
                 record.error = self._constraint_message(error)
@@ -112,7 +113,7 @@ class OnboardingStagedRecordAcceptance(models.Model):
         if self.state != STAGED_TO_REVIEW:
             raise UserError(_("Only staged records to review can be accepted."))
         if self.match_suggested:
-            raise UserError(_("Confirm or clear the suggested match first."))
+            raise UserError(_("Confirm or clear the suggested match of %s first.", self._describe()))
         model = self.env[KIND_MODELS[self.kind]]
         for field, need in self._needs().items():
             if need.state == STAGED_TO_REVIEW:
@@ -130,6 +131,12 @@ class OnboardingStagedRecordAcceptance(models.Model):
             )
         record = self._accept_certificate(model) if self.kind == KIND_CERTIFICATE else self._laboratory_record(model)
         self._mark_accepted(record)
+        parent = self.parent_id
+        if self.kind == KIND_TESTING_METHOD and parent.kind == KIND_CERTIFICATE and parent.state == STAGED_ACCEPTED:
+            # Methods refuse certificate_ids, so the certificate links the method.
+            self.env[MODEL_ACCREDITATION_CERTIFICATE].browse(parent.record_id).exists().write(
+                {"method_ids": [Command.link(record.id)]}
+            )
 
     def _mark_accepted(self, record):
         self.write(
@@ -154,13 +161,18 @@ class OnboardingStagedRecordAcceptance(models.Model):
         )
 
     def _accept_certificate(self, model):
-        """Create, link or update the certificate, then link the to-review methods of its scope through Laboratory's
-        import, one import per testing field. Methods whose codes differ only in case and spaces make one line, under
-        a matched method's own code, so the import links it however the source wrote the code. The methods to create
-        or link are accepted with the certificate; one to update is linked but stays to review, so its changes are
-        accepted on their own."""
+        """Create, link or update the certificate, link the methods of its scope accepted before it, then link the
+        to-review ones through Laboratory's import, one import per testing field. Methods whose codes differ only in
+        case and spaces make one line, under a matched method's own code, so the import links it however the source
+        wrote the code. The methods to create or link are accepted with the certificate; one to update is linked but
+        stays to review, so its changes are accepted on their own."""
         _ = self.env._
         certificate = self._laboratory_record(model)
+        accepted = self.child_ids.filtered(
+            lambda child: child.kind == KIND_TESTING_METHOD and child.state == STAGED_ACCEPTED
+        )
+        if linked := self.env[MODEL_TESTING_METHOD].browse(accepted.mapped("record_id")).exists():
+            certificate.write({"method_ids": [Command.link(method.id) for method in linked]})
         methods = self._scope_methods()
         groups = defaultdict(self.browse)
         for method in methods:
@@ -237,7 +249,7 @@ class OnboardingStagedRecordAcceptance(models.Model):
             raise UserError(self.env._("The matched record no longer exists. Set the match again."))
         if self.action == ACTION_UPDATE:
             values = self._laboratory_values()
-            changed = {key: values[key] for key, _current, _wanted in self._differences(record._name, record.id)}
+            changed = {key: values[key] for key, _current, _wanted in self._differences(record.id)}
             record.write({key: value for key, value in changed.items() if key != "name"})
             if "name" in changed:
                 record.with_context(lang=self.lang).write({"name": changed["name"]})

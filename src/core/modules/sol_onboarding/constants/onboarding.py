@@ -77,6 +77,7 @@ ASKED_KEYS = {
 
 MAX_BYTES = 10 * 1024 * 1024
 TIMEOUT_SECONDS = 30
+CONNECT_TIMEOUT_SECONDS = 10
 MAX_REDIRECTS = 5
 # Media types the fetcher accepts, with the content type of the fetched document.
 CONTENT_TYPES = {"text/html": "html", "application/pdf": "pdf", "application/json": "json"}

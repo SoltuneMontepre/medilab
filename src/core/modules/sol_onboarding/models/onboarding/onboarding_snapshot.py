@@ -2,6 +2,7 @@ import hashlib
 
 from odoo import fields, models
 
+from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ATTACHMENT
 from odoo.addons.sol_onboarding.constants.models import (
     MODEL_ONBOARDING_RUN,
     MODEL_ONBOARDING_SNAPSHOT,
@@ -33,12 +34,12 @@ class OnboardingSnapshot(models.Model):
     # SHA-256 of the bytes, in hexadecimal.
     checksum = fields.Char(string="Checksum", required=True)
     # The attachment holding the bytes.
-    attachment_id = fields.Many2one("ir.attachment", string="Attachment", required=True, ondelete="restrict")
+    attachment_id = fields.Many2one(MODEL_IR_ATTACHMENT, string="Attachment", required=True, ondelete="restrict")
 
     def _keep(self, run, source, fetched: Fetched):
         """Keep the fetched bytes unchanged in an attachment and return the snapshot."""
         attachment = (
-            self.env["ir.attachment"]
+            self.env[MODEL_IR_ATTACHMENT]
             .sudo()
             .create({"name": fetched.url[-120:], "raw": fetched.body, "res_model": self._name})
         )

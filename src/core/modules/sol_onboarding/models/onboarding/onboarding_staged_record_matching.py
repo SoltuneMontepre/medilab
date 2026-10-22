@@ -1,4 +1,7 @@
-from odoo import fields, models
+import unicodedata
+
+from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 from odoo.tools import SQL
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD
@@ -33,8 +36,9 @@ COMPARED_KEYS = {
 }
 
 
+# Folds compatibility forms, such as full-width digits, only for comparing; staged values keep the source's characters.
 def normalize_code(value: str) -> str:
-    return "".join(clean_text(value).split()).lower()
+    return "".join(unicodedata.normalize("NFKC", clean_text(value)).split()).lower()
 
 
 def is_iso_date(value: str) -> bool:
@@ -51,9 +55,17 @@ class OnboardingStagedRecordMatching(models.Model):
 
     def write(self, vals):
         result = super().write(vals)
-        if "edited_values" in vals and "record_model" not in vals and "record_id" not in vals:
+        if "edited_values" in vals and not {"record_model", "record_id", "match_ref"} & set(vals):
             self._match()
         return result
+
+    @api.constrains("record_model", "kind")
+    def _check_record_model(self):
+        for record in self:
+            if record.record_model and record.record_model != KIND_MODELS[record.kind]:
+                raise ValidationError(
+                    self.env._("The matched record of %s must be a record of its kind.", record._describe())
+                )
 
     def _effective_values(self) -> dict:
         self.ensure_one()
@@ -78,7 +90,7 @@ class OnboardingStagedRecordMatching(models.Model):
         matches of its parameter and method."""
         for record in self.sorted(lambda staged: staged.kind == KIND_PARAMETER_METHOD):
             model, matched_id, suggested = record._find_match()
-            action = record._proposed_action(model, matched_id)
+            action = record._proposed_action(matched_id)
             record.write(
                 {
                     "record_model": model if matched_id else False,
@@ -100,7 +112,8 @@ class OnboardingStagedRecordMatching(models.Model):
         code = values.get("code")
         if self.kind in CODE_KINDS or (self.kind == KIND_TESTING_FIELD and code):
             query = SQL(
-                r"SELECT id FROM %s WHERE lower(regexp_replace(code, '\s', '', 'g')) = %s ORDER BY id LIMIT 1",
+                r"SELECT id FROM %s WHERE lower(regexp_replace(normalize(code, NFKC), '\s', '', 'g')) = %s "
+                "ORDER BY id LIMIT 1",
                 SQL.identifier(table),
                 normalize_code(code or ""),
             )
@@ -140,25 +153,26 @@ class OnboardingStagedRecordMatching(models.Model):
     def _matched_record(self):
         """The Laboratory record it matches, empty when there is none or it was deleted."""
         self.ensure_one()
+        model = self.env[KIND_MODELS[self.kind]]
         if not self.record_id:
-            return self.env[KIND_MODELS[self.kind]]
-        return self.env[self.record_model].sudo().browse(self.record_id).exists()
+            return model
+        return model.sudo().browse(self.record_id).exists()
 
-    def _proposed_action(self, model, matched_id) -> str:
+    def _proposed_action(self, matched_id) -> str:
         if not matched_id:
             return ACTION_CREATE
-        return ACTION_LINK if self._same_values(model, matched_id) else ACTION_UPDATE
+        return ACTION_LINK if self._same_values(matched_id) else ACTION_UPDATE
 
-    def _same_values(self, model, matched_id) -> bool:
-        return not self._differences(model, matched_id)
+    def _same_values(self, matched_id) -> bool:
+        return not self._differences(matched_id)
 
-    def _differences(self, model, matched_id) -> list:
+    def _differences(self, matched_id) -> list:
         """The compared values of the matched record that differ, as (key, current, wanted), the record read in the
         staged language. A way of testing has nothing but its pair, so it never differs, and a value the staged record
         does not give, or gives as a date that is not ISO, is no change."""
         if self.kind == KIND_PARAMETER_METHOD:
             return []
-        record = self.env[model].sudo().browse(matched_id).exists()
+        record = self.env[KIND_MODELS[self.kind]].sudo().browse(matched_id).exists()
         if not record:
             return []
         record = record.with_context(lang=self.lang, active_test=False)

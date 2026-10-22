@@ -148,5 +148,11 @@ class TestMatching(OnboardingCase):
         method = self.lab_method(code="TCVN 9883:2011")
         staged = self.stage(KIND_TESTING_METHOD, code="TCVN 9883：２011", name=method.name, field_key="x")
 
-        self.assertEqual(staged.source_values["code"], "TCVN 9883:2011")
+        self.assertEqual(staged.source_values["code"], "TCVN 9883\uff1a\uff12011")
         self.assertEqual((staged.record_id, staged.action, staged.match_suggested), (method.id, "link", False))
+
+    def test_a_laboratory_code_kept_with_full_width_characters_links(self):
+        method = self.lab_method(code="TCVN 9884：２011")
+        staged = self.stage(KIND_TESTING_METHOD, code="tcvn 9884:2011", name=method.name, field_key="x")
+
+        self.assertEqual((staged.record_id, staged.action), (method.id, "link"))
