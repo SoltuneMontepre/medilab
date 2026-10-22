@@ -42,9 +42,10 @@ An adapter never makes a request itself. It only returns addresses, and the fetc
 
 The module ships these adapters:
 
-| Adapter | Reads                                                                                               | Stages                                                                                                                                                           |
-| ------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `boa`   | The organisation search, page by page; an organisation's page; the PDFs of its accreditation scope. | Organisations; the certificate, from the organisation's page; the testing fields and methods of the list of accredited tests, each method under its certificate. |
+| Adapter   | Reads                                                                                               | Stages                                                                                                                                                           |
+| --------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `boa`     | The organisation search, page by page; an organisation's page; the PDFs of its accreditation scope. | Organisations; the certificate, from the organisation's page; the testing fields and methods of the list of accredited tests, each method under its certificate. |
+| `fda_bam` | The chapter index of the Bacteriological Analytical Manual, for food and cosmetics.                 | The `Microbiology` field and one method per current chapter.                                                                                                     |
 
 The `boa` adapter reads BoA's pages as follows:
 
@@ -53,6 +54,8 @@ The `boa` adapter reads BoA's pages as follows:
 - Both PDFs of the scope are fetched, since their addresses do not tell them apart. One whose text holds `LIST OF ACCREDITED TESTS` stages its testing fields and methods, in English; any other, such as the decision, stages nothing.
 - A testing field's key is its Vietnamese name, such as `Hóa`, and its name the English one, such as `Chemical`; it has no code. A method belongs to the field of the last field header before its row.
 - A method's key is its code: the standard body, the number without inner spaces, the version after `-` or `:`, and the reapproval year in parentheses when printed, such as `ASTM D525-12a (2019)`. Its name is the English test name of its row, else its code. A code listed in several rows is staged once, with its first row's name, under the certificate whose code the scope gives.
+
+The `fda_bam` adapter reads one page, the chapter index, for food and for cosmetics alike, and lists no organisations. A chapter's key is `FDA BAM Ch. <number>`, such as `FDA BAM Ch. 4A`, and its name the chapter link's text. Every chapter is a method of the one field `Microbiology`, staged in English with the run's sector. Appendices and the archived chapters are skipped.
 
 ### Fetching
 

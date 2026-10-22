@@ -5,6 +5,7 @@ from . import (
     test_audit_documents,
     test_boa_adapter,
     test_crawl,
+    test_fda_bam_adapter,
     test_fetcher,
     test_matching,
     test_organisations,
