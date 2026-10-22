@@ -19,7 +19,7 @@ class CustomerOrder(http.Controller):
     def order(self, order_id, **kwargs):
         order = self._order(order_id)
         if not order:
-            return request.not_found()
+            raise request.not_found()
         return request.render(
             "sol_commerce.order_page",
             {
@@ -34,7 +34,7 @@ class CustomerOrder(http.Controller):
     def cancel(self, order_id, **kwargs):
         order = self._order(order_id)
         if not order:
-            return request.not_found()
+            raise request.not_found()
         try:
             order.action_customer_cancel()
         except UserError as error:
@@ -45,7 +45,7 @@ class CustomerOrder(http.Controller):
     def reorder(self, order_id, **kwargs):
         order = self._order(order_id)
         if not order:
-            return request.not_found()
+            raise request.not_found()
         new = order.action_reorder()
         request.session[CART_SESSION] = new.id
         return request.redirect(f"/orders/{new.id}")
@@ -54,7 +54,7 @@ class CustomerOrder(http.Controller):
     def cancellation(self, order_id, reason=None, **kwargs):
         order = self._order(order_id)
         if not order:
-            return request.not_found()
+            raise request.not_found()
         try:
             order.action_request_cancellation(reason)
         except UserError as error:
@@ -66,7 +66,7 @@ class CustomerOrder(http.Controller):
         order = self._order(order_id)
         request_ = order.open_cancellation_request() if order else None
         if not request_:
-            return request.not_found()
+            raise request.not_found()
         try:
             request_.action_withdraw()
         except UserError as error:
@@ -77,7 +77,7 @@ class CustomerOrder(http.Controller):
     def feedback(self, order_id, rating=None, comment=None, **kwargs):
         order = self._order(order_id)
         if not order:
-            return request.not_found()
+            raise request.not_found()
         try:
             order.action_give_feedback(rating, comment)
         except UserError as error:
@@ -89,7 +89,7 @@ class CustomerOrder(http.Controller):
         order = self._order(order_id)
         current = order._latest_quotation() if order else None
         if not current:
-            return request.not_found()
+            raise request.not_found()
         return request.render(
             "sol_commerce.quotation_page",
             {
@@ -106,7 +106,7 @@ class CustomerOrder(http.Controller):
         order = self._order(order_id)
         current = order._latest_quotation() if order else None
         if not current:
-            return request.not_found()
+            raise request.not_found()
         try:
             current.action_accept()
         except UserError as error:
@@ -118,7 +118,7 @@ class CustomerOrder(http.Controller):
         order = self._order(order_id)
         current = order._latest_quotation() if order else None
         if not current:
-            return request.not_found()
+            raise request.not_found()
         try:
             current.action_decline(reason)
         except UserError as error:
@@ -130,7 +130,7 @@ class CustomerOrder(http.Controller):
         order = self._order(order_id)
         sent = order.quotation_ids.filtered(lambda item: item.id == quotation_id) if order else None
         if not sent:
-            return request.not_found()
+            raise request.not_found()
         sent._audit("download")
         stream = request_env()["ir.binary"]._get_stream_from(sent.attachment_id, "raw", filename_field="name")
         return stream.get_response(as_attachment=True)

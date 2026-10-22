@@ -44,7 +44,7 @@ class CustomerSupport(http.Controller):
     def page(self, request_id, **kwargs):
         support_request = request_env()[MODEL_SUPPORT_REQUEST].portal_request(request_id)
         if not support_request:
-            return request.not_found()
+            raise request.not_found()
         return request.render(
             "sol_commerce.support_page",
             {

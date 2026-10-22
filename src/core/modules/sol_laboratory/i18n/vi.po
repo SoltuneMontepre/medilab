@@ -6473,6 +6473,11 @@ msgid "Purpose"
 msgstr "Mục đích"
 
 #. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_ir_qweb
+msgid "Qweb"
+msgstr "Mẫu QWeb"
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_quality_registration
 msgid "Quality Registration"
 msgstr "Hồ Sơ Đăng Ký Chất Lượng"

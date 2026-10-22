@@ -15,7 +15,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
     PUBLIC_URL_VARIABLE,
 )
 
-SECRET = "test-secret-of-the-editing-service-0123456789"
+SECRET = "test-secret-of-the-editing-service-0123456789-0123456789-0123456789"
 PUBLIC_URL = "https://docs.lab.example"
 INTERNAL_URL = "http://onlyoffice"
 # The module whose health check opening a file asks.
@@ -75,13 +75,17 @@ class LocalEditingService:
                 if "Content-Length" not in headers and "Transfer-Encoding" not in headers:
                     self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
-                if headers.get("Transfer-Encoding") == "chunked":
-                    for start in range(0, len(body), 1024):
-                        part = body[start : start + 1024]
-                        self.wfile.write(f"{len(part):x}\r\n".encode() + part + b"\r\n")
-                    self.wfile.write(b"0\r\n\r\n")
-                else:
-                    self.wfile.write(body)
+                try:
+                    if headers.get("Transfer-Encoding") == "chunked":
+                        for start in range(0, len(body), 1024):
+                            part = body[start : start + 1024]
+                            self.wfile.write(f"{len(part):x}\r\n".encode() + part + b"\r\n")
+                        self.wfile.write(b"0\r\n\r\n")
+                    else:
+                        self.wfile.write(body)
+                except (BrokenPipeError, ConnectionResetError):
+                    # A size limit or timeout makes the client close the stream before the server finishes.
+                    return
 
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         thread = threading.Thread(target=self.server.serve_forever, daemon=True)

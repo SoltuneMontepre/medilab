@@ -208,6 +208,8 @@ class ScheduledJob(models.Model):
         job = self.sudo()
         now = fields.Datetime.now()
         run = job._current_run(now)
+        # Finding work can queue items after the run started; claim against the time after they were queued.
+        now = fields.Datetime.now()
         # The audit entries written while the run works link it.
         job = job.with_context(**{JOB_RUN_CONTEXT: run.id})
         job._release_abandoned(run, now)

@@ -2,7 +2,9 @@
 # Needs MODULES and TEST_RUN_DIR.
 
 install_coverage() {
-  pip install -q --root-user-action=ignore --break-system-packages --only-binary :all: coverage
+  local coverage_packages=/tmp/medilab-coverage
+  pip install -q --root-user-action=ignore --only-binary :all: --no-deps --target "$coverage_packages" coverage || return $?
+  export PYTHONPATH="$coverage_packages${PYTHONPATH:+:$PYTHONPATH}"
   return $?
 }
 

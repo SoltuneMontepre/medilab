@@ -211,7 +211,8 @@ class DigitalSigningMixin(models.AbstractModel):
             )
         )
         self._audit("integration", self.env._("Viettel Sign signed the PDF with the certificate %s", certificate.name))
-        self.invalidate_recordset(["digital_signature_id", "digital_signing_pending"])
+        self.digital_signature_id = signature
+        self.invalidate_recordset(["digital_signing_pending"])
         self._digital_signing_done(signature)
         return signature
 
