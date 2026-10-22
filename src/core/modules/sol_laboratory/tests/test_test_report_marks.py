@@ -11,6 +11,7 @@ from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT
 
 NOTE_VI = "(TP) Chỉ tiêu do nhà thầu phụ thực hiện"
 NOTE_EN = "Tested by a subcontractor"
+SUBCONTRACTOR = "Northern Testing Laboratory"
 
 
 @tagged("post_install", "-at_install")
@@ -20,7 +21,7 @@ class TestTestReportMarks(ChangeRequestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        northern = cls.env[MODEL_SUBCONTRACTOR].create({"name": "Northern Testing Laboratory"})
+        northern = cls.env[MODEL_SUBCONTRACTOR].create({"name": SUBCONTRACTOR})
         cls.northern_way = cls.env[MODEL_PARAMETER_METHOD].create(
             {
                 "parameter_id": cls.parameter.id,
@@ -53,6 +54,8 @@ class TestTestReportMarks(ChangeRequestCase):
         self.assertIn(f"{self.parameter.name} (TP)", printed)
         self.assertNotIn(f"{arsenic.parameter_id.name} (TP)", printed)
         self.assertIn(f"{NOTE_VI} / {NOTE_EN}", printed)
+        # Which subcontractor tested a result stays with the laboratory.
+        self.assertNotIn(SUBCONTRACTOR, printed)
 
     def test_an_english_report_marks_a_subcontracted_result_in_english(self):
         self.request.report_language = "en"

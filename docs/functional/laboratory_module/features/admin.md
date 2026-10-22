@@ -135,7 +135,7 @@ A subcontractor is a company contact with the details the laboratory needs to se
 | No expiry date        | A subcontractor with no accreditation expiry date can be chosen.                                  |
 | Contact person        | A subcontractor has a default contact person, usually one of its people; any person contact is allowed. |
 | Choosing the tester   | For each order, the scheduling system suggests which way of testing is used, in-house or by which subcontractor. The laboratory usually decides and can change it. |
-| Disclosure            | Results tested by a subcontractor are marked as subcontracted on the report: (TP) in Vietnamese and (S) in English after the parameter, in the report's first language, with a note under the results saying what the mark means. |
+| Disclosure            | Results tested by a subcontractor are marked as subcontracted on the report: (TP) in Vietnamese and (S) in English after the parameter, in the report's first language, with a note under the results saying what the mark means. The report does not name the subcontractor; the laboratory keeps which subcontractor tested a result on its sample test, its way of testing and its dispatch. |
 
 Acceptance criteria:
 
@@ -144,7 +144,7 @@ Acceptance criteria:
 - A subcontractor whose expiry date is renewed can be chosen again.
 - A pair keeps its subcontractor after the accreditation expires, and its other fields can still be edited.
 - An archived subcontractor does not appear in selection lists, and saving a pair with one is refused with a message naming it.
-- A result tested by a subcontractor is marked as subcontracted on the report, with a note saying what the mark means; a result tested in-house is not.
+- A result tested by a subcontractor is marked as subcontracted on the report, with a note saying what the mark means; a result tested in-house is not. The report never shows the subcontractor's name.
 
 ### 4. People and signing (US-AD13 to US-AD16)
 
