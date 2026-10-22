@@ -12,6 +12,6 @@ describe("Login", () => {
     cy.get("input[name=login]").type("admin");
     cy.get("input[name=password]").type("wrong-password{enter}");
 
-    cy.contains("Wrong login/password");
+    cy.contains("Wrong login/password").should("be.visible");
   });
 });

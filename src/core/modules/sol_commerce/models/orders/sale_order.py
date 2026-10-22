@@ -160,27 +160,35 @@ class SaleOrder(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        self._fill_create_values(vals_list)
+        wanted_users = [vals.get("user_id") for vals in vals_list]
+        orders = super().create(vals_list)
+        for order, user_id in zip(orders, wanted_users, strict=True):
+            order._settle_user(user_id)
+        orders.order_line._lock_catalog_price()
+        return orders
+
+    def _fill_create_values(self, vals_list):
+        """Default the source, salesperson and status of a sales order, and stamp the submission and claim times."""
         now = fields.Datetime.now()
-        if self.env.context.get("medilab_sales_order"):
-            for vals in vals_list:
+        sales = self.env.context.get("medilab_sales_order")
+        for vals in vals_list:
+            if sales:
                 vals.setdefault("source", SOURCE_SALES)
                 vals.setdefault("user_id", self.env.uid)
                 vals.setdefault("order_status", STATUS_CLAIMED)
-        for vals in vals_list:
             if vals.get("order_status") == STATUS_SUBMITTED and not vals.get("submitted_at"):
                 vals["submitted_at"] = now
             if vals.get("order_status") == STATUS_CLAIMED and not vals.get("claimed_at"):
                 vals["claimed_at"] = now
-        wanted_users = [vals.get("user_id") for vals in vals_list]
-        orders = super().create(vals_list)
-        for order, user_id in zip(orders, wanted_users, strict=True):
-            if order.source == SOURCE_PORTAL and order.order_status in (STATUS_DRAFT, STATUS_SUBMITTED):
-                if order.user_id:
-                    order.with_context(medilab_status_change=True).write({"user_id": False})
-            elif user_id and order.user_id.id != user_id:
-                order.write({"user_id": user_id})
-        orders.order_line._lock_catalog_price()
-        return orders
+
+    def _settle_user(self, user_id):
+        """Leave a portal order unassigned until it is claimed; give any other order the salesperson asked for."""
+        if self.source == SOURCE_PORTAL and self.order_status in (STATUS_DRAFT, STATUS_SUBMITTED):
+            if self.user_id:
+                self.with_context(medilab_status_change=True).write({"user_id": False})
+        elif user_id and self.user_id.id != user_id:
+            self.write({"user_id": user_id})
 
     def write(self, vals):
         self._check_portal_write(vals)
