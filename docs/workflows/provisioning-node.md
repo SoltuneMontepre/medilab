@@ -63,7 +63,7 @@ Once, on the first node, Argo CD starts deploying `infra/cluster/`:
 13. **Store the cluster's secrets** in the Doppler dashboard, in `infra`:
     - `CLUSTER_DOPPLER_TOKEN`: a service token of `infra` with read access, valid for a year, created under the config's **Access** tab.
     - `ODOO_ADMIN_PASSWORD`: the output of `openssl rand -hex 32` in the console, which you clear afterwards.
-    - `CLOUDFLARE_TUNNEL_TOKEN`: the token of the tunnel, from the Cloudflare dashboard.
+    - `CLOUDFLARE_TUNNEL_TOKEN`: the token of the tunnel, from the `tunnel_token` Terraform output; see [Secrets](../infrastructure/secrets.md).
 14. **Turn on the root application:** set `argocd_root_application_enabled: true` in `infra/ansible/inventories/production/group_vars/k3s_servers.yml` through a pull request, then run `cd-ansible` with `check` and `apply`. Argo CD syncs the applications in [Cluster](../infrastructure/cluster.md) wave by wave.
 
 To renew `CLUSTER_DOPPLER_TOKEN` before it expires, create a new service token, replace the secret in Doppler, then run `cd-ansible` with `apply`.
