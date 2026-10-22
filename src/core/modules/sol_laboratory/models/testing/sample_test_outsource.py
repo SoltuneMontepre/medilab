@@ -12,8 +12,10 @@ class SampleTestOutsource(models.TransientModel):
     _name = MODEL_SAMPLE_TEST_OUTSOURCE
     _description = "Outsource a Sample Test"
 
-    # The sample test suggested for outsourcing.
+    # The sample test sent to a subcontractor.
     sample_test_id = fields.Many2one(MODEL_SAMPLE_TEST, required=True, ondelete="cascade")
+    # True when the scheduler suggests outsourcing the test; otherwise it is outsourced straight away.
+    outsourcing_suggested = fields.Boolean(related="sample_test_id.outsourcing_suggested")
     # The subcontracted ways of testing it can go through.
     subcontracted_method_ids = fields.Many2many(related="sample_test_id.subcontracted_method_ids")
     # The way of testing it is sent through; the first subcontracted way by default.
@@ -27,6 +29,8 @@ class SampleTestOutsource(models.TransientModel):
         readonly=False,
         domain="[('id', 'in', subcontracted_method_ids)]",
     )
+    # Why the test is outsourced straight away, without an outsourcing suggestion.
+    reason = fields.Text()
 
     @api.depends("sample_test_id")
     def _compute_parameter_method_id(self):
@@ -35,7 +39,12 @@ class SampleTestOutsource(models.TransientModel):
 
     def action_outsource(self):
         self.ensure_one()
-        dispatch = self.sample_test_id._accept_outsourcing(self.parameter_method_id)
+        # A test without a suggestion needs the reason; a reason given is never dropped.
+        test = self.sample_test_id
+        if self.reason or not test.outsourcing_suggested:
+            dispatch = test._outsource_now(self.parameter_method_id, self.reason)
+        else:
+            dispatch = test._accept_outsourcing(self.parameter_method_id)
         return {
             "type": "ir.actions.act_window",
             "res_model": dispatch._name,

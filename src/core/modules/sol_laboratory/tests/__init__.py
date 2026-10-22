@@ -34,6 +34,7 @@ from . import (
     test_customer_profile,
     test_customer_signup,
     test_digital_signing,
+    test_direct_outsourcing,
     test_dispatch_portal,
     test_document_locking,
     test_editing_service_health,
