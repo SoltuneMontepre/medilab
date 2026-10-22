@@ -71,7 +71,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 
 ## Ingress
 
-`cloudflared` connects the remotely managed tunnel of `CLOUDFLARE_TUNNEL_TOKEN`. The tunnel's public hostnames are configured in Cloudflare and send every request to `http://traefik.kube-system.svc.cluster.local:80`.
+`cloudflared` connects the remotely managed tunnel of `CLOUDFLARE_TUNNEL_TOKEN`. Terraform creates the tunnel and its public hostnames, which send every request to `http://traefik.kube-system.svc.cluster.local:80`.
 
 ## Related documents
 
