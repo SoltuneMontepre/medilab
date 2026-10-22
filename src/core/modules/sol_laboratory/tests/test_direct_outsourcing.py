@@ -82,6 +82,9 @@ class TestDirectOutsourcing(AuditLookup, DispatchCase):
             permissions=("sample_test.read.all", "sample_test.edit.all", *DISPATCH_PERMISSIONS),
         )
 
+        # The form shows the Outsource button for a test with no suggestion only to the department testing it.
+        self.assertTrue(self.as_person(self.test, self.head).tested_by_my_department)
+        self.assertFalse(self.as_person(self.test, outsider).tested_by_my_department)
         with self.assertRaises(UserError):
             self.outsource_now(person=outsider)
         with self.assertRaises(AccessError):

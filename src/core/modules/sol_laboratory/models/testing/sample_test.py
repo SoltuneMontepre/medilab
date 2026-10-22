@@ -97,6 +97,9 @@ class SampleTest(models.Model):
     subcontracted_method_ids = fields.Many2many(
         MODEL_PARAMETER_METHOD, string="Subcontracted Ways", compute="_compute_subcontracted_method_ids"
     )
+    # True when the current person belongs to the department of the test's testing task, which may outsource it
+    # straight away.
+    tested_by_my_department = fields.Boolean(compute="_compute_tested_by_my_department")
     # The subcontractor that tests it; empty when the laboratory tests it in-house.
     subcontractor_id = fields.Many2one(related="parameter_method_id.subcontractor_id")
     # Dispatches that send the test to a subcontractor.
@@ -152,6 +155,12 @@ class SampleTest(models.Model):
             test.subcontracted_method_ids = test.parameter_id.method_ids.filtered(
                 lambda way: way.subcontractor_id._can_be_chosen()
             )
+
+    @api.depends_context("uid")
+    def _compute_tested_by_my_department(self):
+        person = self.env[MODEL_PERSON]._current()
+        for test in self:
+            test.tested_by_my_department = test._tested_by_department_of(person)
 
     def _compute_recommendation(self):
         bookings = self.env[MODEL_MACHINE_BOOKING]

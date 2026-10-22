@@ -14215,3 +14215,8 @@ msgstr ""
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid "Only the department testing %s can outsource it straight away."
 msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__tested_by_my_department
+msgid "Tested By My Department"
+msgstr ""

@@ -14405,3 +14405,8 @@ msgstr "Chỉ gửi thầu phụ ngay được chỉ tiêu của mẫu đang ch�
 #: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid "Only the department testing %s can outsource it straight away."
 msgstr "Chỉ phòng ban đang thử nghiệm %s mới gửi thầu phụ ngay được chỉ tiêu này."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__tested_by_my_department
+msgid "Tested By My Department"
+msgstr "Do phòng ban của tôi thử nghiệm"
