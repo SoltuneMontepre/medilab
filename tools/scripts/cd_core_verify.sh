@@ -15,12 +15,10 @@ while (( SECONDS < deadline )); do
 
     git fetch -q origin main
     if [[ -n "$revision" ]] && git merge-base --is-ancestor "$RELEASE_COMMIT" "$revision" 2> /dev/null; then
-      case "$phase" in
-        Failed | Error)
-          echo "The sync of the release failed: $(jq -r '.status.operationState.message' <<< "$state")" >&2
-          exit 1
-          ;;
-      esac
+      if [[ "$phase" == Failed || "$phase" == Error ]]; then
+        echo "The sync of the release failed: $(jq -r '.status.operationState.message' <<< "$state")" >&2
+        exit 1
+      fi
       if [[ "$health" == Degraded ]]; then
         echo "The release is degraded: $(jq -r '.status.health.message // ""' <<< "$state")" >&2
         exit 1

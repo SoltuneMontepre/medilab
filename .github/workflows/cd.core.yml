@@ -133,7 +133,7 @@ jobs:
 
       - name: Install the Argo CD CLI
         run: |
-          curl -sSfL -o /usr/local/bin/argocd "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64"
+          curl -sSfL --proto '=https' --tlsv1.2 -o /usr/local/bin/argocd "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64"
           chmod +x /usr/local/bin/argocd
         env:
           ARGOCD_VERSION: v3.5.5
@@ -165,7 +165,7 @@ jobs:
 
       - name: Install the Argo CD CLI
         run: |
-          curl -sSfL -o /usr/local/bin/argocd "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64"
+          curl -sSfL --proto '=https' --tlsv1.2 -o /usr/local/bin/argocd "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64"
           chmod +x /usr/local/bin/argocd
         env:
           ARGOCD_VERSION: v3.5.5
