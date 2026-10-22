@@ -24,7 +24,7 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md). It bui
 
 ### II. Quotation Management
 
-- Sales turns a submitted order into a quotation, reviews the parameters and prices, and sends it to the customer.
+- Sales prepares parameters, ways and prices. A discount or total exceeding a threshold set by the Head of Sales needs their approval before sending; below the thresholds Sales sends it alone. Confirmed-order approval remains a separate step.
 - Quotations can be revised; each revision keeps a link to the one it replaces.
 - The customer accepts a quotation by paying the advance invoice, or declines it with a reason.
 - A confirmed quotation becomes a sale order that goes through an internal approval chain (sales, then Head of Sales) before the laboratory collects samples.
@@ -33,7 +33,7 @@ Dependencies: [core laboratory module](../laboratory_module/overview.md). It bui
 
 - A confirmed sale order produces the test request that the laboratory core works on.
 - Sales owns the commercial side of the request (customer, prices, payment status, approval); the core owns the testing side (samples, parameters, results).
-- Sales follows the progress of each request and can cancel it while the laboratory has not completed any testing.
+- Sales follows progress and handles whole-order cancellations or cancellation of an unfulfillable part. Completed results and unaffected work are preserved; signed orders follow their change-request rules.
 
 ### IV. Invoices and Payments
 
@@ -60,17 +60,17 @@ The tables are drawn in [ecommerce.prisma](../../infrastructure/database/ecommer
 | Rule             | Description                                                                                                                                    |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cart             | A customer's or visitor's draft order is their cart. Submitting it puts it in the sales queue; a visitor gives their details and e-mail address first. |
-| Order lines      | An order line is one parameter or one package, with a quantity.                                                                                |
+| Order lines | An order line selects a parameter or whole service package, a sample type and a quantity. Each parameter has the chosen or default way explicitly applicable to that sample type; accepted selections change only by revised quotation and customer agreement. |
 | Order lifecycle  | An order is draft, submitted, claimed, confirmed, completed or cancelled. Confirming it creates its test request in the Laboratory module; it is completed when that request's report is issued. Its approval by the Head of Sales follows its signatures. |
 | Quotation lines  | When a quotation is priced, each line copies its catalog price, discount, tax and the tax rate in force on the quotation date, so a sent quotation never changes with the catalog. |
-| Samples          | Sales groups a quotation's lines into the samples the customer will send; each line is tested on one sample. Confirming the order creates the test request with those samples. |
+| Samples | Sampling requirements determine the expected physical samples, containers and amounts shown when ordering. For each type, objects equal the largest line quantity, and expected samples equal objects times compatible sampling groups. Confirming creates these expected samples and their sample tests; collection staff adjust them at handover for customer confirmation. |
 | Revisions        | A revision is a new quotation that replaces the previous one; the previous one becomes read-only.                                              |
 | Numbers          | Orders, quotations, invoices and receipts get numbers from sequences whose format the administrator configures, such as `0001 26/BG-VTT` for quotations. Quotation, invoice and receipt numbers start again each year. |
 | Invoices         | An invoice is an advance, final or adjustment invoice, and uses its quotation's prices and tax rates. The final invoice deducts the advance on a line of its own. A posted invoice is never edited; an adjustment invoice corrects it with only the difference. Invoices are Odoo invoices and are not issued through an e-invoice provider. |
 | Payments         | A payment is pending, confirmed or rejected; only confirmed payments count toward an invoice's paid amount. Each confirmed payment gets a receipt number. The order keeps its payment status (not paid, partially paid, paid) up to date. |
 | Online payment   | Each online payment is a PayOS payment link for an invoice with a unique order code, so a repeated PayOS notification never records a second payment. |
 | Templates        | An order template belongs to one customer and holds parameters, packages and quantities, without prices.                                      |
-| Cancellation     | An order has at most one open cancellation request.                                                                                           |
+| Cancellation | An order has at most one open cancellation request. A request may cover the whole order or an unfulfillable part; Sales records its decision and preserves work outside the accepted cancellation scope. |
 | Support          | A support request is a conversation of messages between the customer and sales, optionally about one order.                       |
 | Feedback         | A completed order has at most one feedback, a rating from 1 to 5 with a comment.                                                              |
 

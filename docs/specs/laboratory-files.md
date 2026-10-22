@@ -60,9 +60,11 @@ Administrators administer folders in the back office; each action checks `admini
 
 ### Back office
 
-The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Editing Sessions, Folder Members, Sync Rules and Computers. Files, versions, locks and editing sessions are only read there; a folder's form lists its files, and a file's form its versions and editing sessions. A version's form downloads it, for a member of its folder, through the same presigned address as the API, opened in a new tab. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and change nothing else: owners manage their folders from Medilab Sync. A sample's folders are created from the sample ([Creating a sample's folders](#creating-a-samples-folders)); otherwise only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
+The Documents menu of the Laboratory app lists Folders, Files, File Versions, File Locks, Editing Sessions, Folder Members, Sync Rules and Computers. Files, versions, locks and editing sessions are only read there; the back office has no Edit online button or close-session action; a folder's form lists its files, and a file's form its versions and editing sessions. A version's form downloads it, for a member of its folder, through the same presigned address as the API, opened in a new tab. People with the laboratory files permission see their folders, with their members and rules, and their own computers there. They create folders of their own, as Medilab Sync does, and change nothing else: owners manage their folders from Medilab Sync. A sample's folders are created from the sample ([Creating a sample's folders](#creating-a-samples-folders)); otherwise only administrators create a folder for someone else or set a folder's sample. Administrators see and change them all: they turn folders off and on, archive them, change their owner, add and remove members, change rules and revoke computers. Members are added on their folder; the Folder Members list removes them, from an archived folder too.
 
 A folder of a sample, its members, sync rules, files, versions, locks, editing sessions and changes are shown only to people who see the sample, administrators included; see [Sample folders](#sample-folders).
+
+When upgrading to unique sync rules, keep the oldest rule for each folder, kind and pattern, remove duplicates and log each removed rule with its flags.
 
 ### Members
 
@@ -160,6 +162,8 @@ A person editing a file in their own program locks it (`medilab.laboratory.file.
 - **API.** A computer locks, renews and unlocks a file through `/folders/{folder_id}/files/{file_id}/lock`, after `read` on the folder and once the file is found in it: a file of another folder, or of no id, is `not_found`. The lock records the computer of the key, never one the request names. Locking a file one holds again renews the lock, renewing a lock that expired is `not_locked`, and unlocking with no lock answers 204, so each has the effect of one run when repeated. An administrator's release of someone else's lock is done in the back office only. A file's answer shows the lock in force on it with its holder and when it expires, never the computer of another person's lock.
 - **Back office.** File Locks lists the active locks by default, with their released and expired history, and a file shows who holds its lock in force and until when, in its list and its form, with the file's locks. Folder administrators release a lock someone left: the release checks `administer` on the file's folder, and a lock already past its expiry is recorded as expired instead.
 - **Audit.** Locks are audited as parts of their file, so the file's history shows them: taking a lock is the creation of the lock, and unlocking, expiring and an administrator's release are edits of its status, the release naming the administrator. Renewing a lock writes no entry, as when a lock expires is left out of the trail.
+
+A holder losing folder membership or the laboratory files permission does not release the lock. It remains until it expires or an administrator releases it.
 
 #### Two locks at once
 
@@ -369,7 +373,7 @@ A folder of a sample holds the files of one category of its work: raw data, work
 
 ### Signing versions
 
-A version of a result file is approved by signing it through the [approval and signing chain](../business/approval-and-signing-chain.md) of laboratory file versions, `medilab.laboratory.file.version`: each version is a document of the chain, signed level after level by the roles its levels name, and the signature belongs to that version and its content. The chain is set up by administrators; without it, signing a version is refused.
+A version of a result file is approved by signing it through the [approval and signing chain](../business/approval-and-signing-chain.md) of laboratory file versions, `medilab.laboratory.file.version`: each version is a document of the chain, signed level after level by the roles its levels name, and the signature belongs to that version and its content. The chain is set up by administrators and is supplied only with demo data; without it, signing a version is refused.
 
 | Step        | Who and what                                                                                                                                                                                                                                                                                                                       |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -387,6 +391,10 @@ A version of a result file is approved by signing it through the [approval and s
 - Signing, approving, rejecting and withdrawing are recorded in the [audit trail](audit-trail.md) on the version.
 - In the back office, a version's form signs it, rejects it with a reason and withdraws a signature, each button shown only to the person who may use it now, and shows its signing state; its signatures are listed to people who read signatures. Lists of files and versions show the signing state of each, and filter versions that are signed, being signed or rejected.
 - Whether a signed version is also digitally signed through Viettel Sign, and whether the person who saved a version may sign it, are open questions. Until they are answered, versions are not signed through Viettel Sign and the person who saved a version may sign it; both are provisional, not decided.
+
+## Demo coverage
+
+The laboratory-files foundation includes demo files with several versions and a conflict. Upload examples also include restored versions, shared content and the stored bytes, following the [demo-data convention](../conventions/demo_data.md).
 
 ## Related documents
 

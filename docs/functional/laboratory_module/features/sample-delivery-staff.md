@@ -10,7 +10,7 @@ Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the cus
 - **US-SD02** As sample delivery staff, I want to be reminded before a collection starts, so that I am not late.
 - **US-SD03** As sample delivery staff, I want to mark a collection task done when the samples are collected, so that the laboratory expects them.
 - **US-SD04** As sample delivery staff, I want to take photos of a sample when I collect or receive it, so that its state is on record.
-- **US-SD05** As sample delivery staff, I want the customer to sign a handover record on my phone when they hand samples over, so that both sides have proof of what was handed over.
+- **US-SD05** As sample delivery staff, I want the customer to sign a handover record when they hand samples over, so that both sides have proof of what was handed over.
 
 ### Receiving samples
 
@@ -39,17 +39,22 @@ Sample collection tasks follow [SH-10](../../shared.md#sh-10-tasks-and-to-do-lis
 | Rule           | Description                                                                                                       |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Scheduled task | Sales schedules a sample collection task on an order. A head of department's request to collect a sample again schedules one too. |
+| Travel time | Reserve a configurable travel buffer between collection appointments, 60 minutes by default, when checking whether the staff member can take them. |
 | Done by hand   | The task is marked done once the samples are collected.                                                           |
-| Photos         | Photos of a sample are attached when it is collected or received, on the web or the mobile app. Testers never see them. |
+| Photos | Attach sample photos through the web interface when collecting or receiving a sample. Testers never see them. |
 | Sampling location | When a sample is collected or received, the location it was taken from, such as sampling point RO-01, can be chosen from the locations. |
-| Handover record | The handover record lists each sample with the amount and condition handed over, who handed it over for the customer and who took it. The customer signs by hand on the mobile app; the signed PDF is emailed to the customer. A signed record cannot be edited; a correction is a new record. |
+| Handover record | Record the staff member, appointment and collection time, actual samples and amounts, conditions, differences from the order and the customer's signature. A request can have several collections. Email the signed PDF; correct a signed record by a new record, preserving the old one. |
+| Actual samples | Adjust the expected samples calculated from method sampling requirements to what is actually handed over for customer confirmation. Fewer samples wait for another collection or Sales cancels the missing part. Hold extras pending a revised quotation and customer agreement before testing them. |
 
 Acceptance criteria:
 
 - A collection task assigned to sample delivery staff appears on their personal schedule and in their to-do list.
 - A reminder arrives before the collection starts.
 - A collection task created by a request to collect again shows the sample it is for.
-- A photo taken on the mobile app appears on the sample on the web.
+- A photo attached at collection appears on the sample for authorized readers.
+- Two collection appointments that leave less than the configured travel buffer are not offered as feasible.
+- One request can record several collections and their differences from expected samples.
+- Extra samples cannot start testing before customer agreement on the revised quotation.
 - Signing a handover record stores the signature, when and on which device it was signed, and emails the PDF to the customer.
 - A signed handover record cannot be edited.
 
@@ -59,7 +64,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Test request  | Without an order, sample delivery staff create the test request: customer, samples with their sample type, physical state and regulation, the parameters of each sample, expected date, report language, delivery method and report recipient. |
+| Test request | Without an order, create a request with customer, samples and their types, optional regulation comparison, each sample's parameters and selected ways, expected date, report language, delivery method and recipient. |
 | Return estimate | The test request shows the estimated return date of its samples and parameters, and an earlier expected date is checked as a [priority request](../overview.md#testing-work-and-scheduling) before it is accepted. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
 | Receipt       | Receipt records when and by whom the sample was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |

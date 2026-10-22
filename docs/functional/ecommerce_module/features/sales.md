@@ -67,7 +67,7 @@ Acceptance criteria:
 ```mermaid
 stateDiagram-v2
     [*] --> draft: order claimed or created
-    draft --> sent: send with advance payment request
+    draft --> sent: required quotation approval complete; send with advance request
     sent --> accepted: customer pays the advance
     sent --> declined: customer declines
     sent --> expired: payment deadline passes
@@ -79,8 +79,10 @@ stateDiagram-v2
 | Rule             | Description                                                                                                                                                                                       |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Parameters       | A quotation needs at least one parameter or service package. Sales may add or remove parameters and packages; the customer sees the change on the quotation. A package is added or removed whole. |
-| Samples          | Sales groups the quotation into the samples the customer will send. Each sample has the customer's name for it, its sample type, its physical state and the regulation its results are compared with, if any. Each line is tested on one sample; a parameter tested on two samples is two lines. Sales can copy a sample with its lines. A draft can be saved before its samples are set, but every line must be on a sample before the quotation is sent. |
-| Prices           | Prices come from the catalog: per parameter, and per package for a package line. All prices are in VND. Sales may apply a discount (percentage or fixed) to a line or to the whole quotation; special prices for partners or promotions are given this way. |
+| Samples | Each line names its sample type and quantity. Expected physical samples, containers and amounts are calculated from the methods' sampling requirements and shown to the customer. The customer does not declare physical samples. Collection staff adjust expected samples to the actual handover and obtain customer confirmation. |
+| Prices | Use catalog prices per parameter or package in VND. Discounts are percentages only: on a line, or a whole-quotation discount line calculated from a percentage. Fixed-amount discounts and separate customer price lists are not offered. |
+| Quotation approval | If the quotation discount or total exceeds a threshold set by the Head of Sales, their approval is required before Send. Below the thresholds Sales may send it alone. This gate is separate from approval of the confirmed order. |
+| Selected ways | The customer may choose each parameter's way, and Sales may choose or change it before acceptance. Otherwise fill the unique default for the parameter and sample type. Offer only viable ways under the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). If the default is unavailable, show its reason and alternatives for explicit selection; with none, that pair cannot be ordered. After acceptance, a way changes only through a revised quotation and customer agreement. |
 | Tax              | Each line takes the tax of its parameter or package, at the rate in force on the quotation date. Sales can change a line's tax, such as 0% for a foreign customer. The system adds the tax. |
 | Advance payment  | When sending, sales chooses the collection method (online, bank transfer, cash) and the amount (full, percentage, fixed). The system creates the advance invoice and sends it with the quotation. |
 | Manager shortcut | The Head of Sales can send without an advance payment, for customers with an agreement.                                                                                                           |
@@ -88,13 +90,18 @@ stateDiagram-v2
 | Revisions        | A revision copies the quotation into a new draft linked to the one it replaces. The old version becomes read-only and the customer sees the revision list.                                        |
 | Templates        | A returning customer's order can be saved as a template (named set of parameters and packages) to create their next orders faster. A template has no price of its own; a new order takes current catalog prices. Templates are never sent or confirmed. |
 | Return estimate  | The quotation shows the [estimated return date](../../laboratory_module/overview.md#testing-work-and-scheduling) of its samples and parameters, worked out again when they change. The expected result date defaults to it, and the customer sees it on the quotation. |
-| Priority order   | When the customer wants results earlier than the estimate, sales checks the date; the order becomes a priority order only when the laboratory can meet it, outsourcing included. Its tests are urgent once the test request is created. |
+| Changed return date | When a promised date is at risk, Sales informs the customer and proposes the earliest feasible replacement. Save a changed promised date only with customer agreement, recording old date, new date and confirmation. If the customer refuses, Sales handles a cancellation request for the unfulfillable part; never cancel automatically or change the agreed way. Internal-only due-date changes do not trigger customer notice. |
+| Priority order | A customer may request priority on the portal. Sales checks resource feasibility, including outsourced turnaround, and accepts or declines it on the quotation. Accept only a date the laboratory can meet; accepted priority makes the request's tests urgent. |
 | Acceptance       | There is no customer signature. Payment of the advance invoice means acceptance. A declined quotation carries the customer's reason and notifies sales.                                           |
 
 Acceptance criteria:
 
 - A quotation without parameters or packages cannot be sent.
-- A quotation with a line that is not on a sample cannot be sent.
+- A quotation carries each parameter's sample type and selected or default way and shows expected sampling needs before sending.
+- Send is blocked above the Head of Sales's thresholds until they approve; below them Sales can send alone.
+- An unavailable default is explained and is never silently replaced.
+- An accepted way cannot be edited directly; its replacement needs a revised quotation and customer agreement.
+- A proposed later return date does not overwrite the customer's promised date before agreement.
 - Sending a quotation with an advance request creates exactly one advance invoice and one notification to the customer.
 - A revised quotation cannot be sent or confirmed in its old version.
 - Sales sees at a glance whether a sent quotation is unpaid, paid, declined or expired.
@@ -114,7 +121,7 @@ Sales saves an accessible order as a named template from **Save as template**. T
 | Handover | Reassigning the source order transfers template access. Its customer and source references cannot be edited on the template. If the source changes customer, ordinary Sales cannot access the template. Nobody can reuse it while the customers differ. |
 | Administrative recovery | Head of Sales and administrators with source-order read access and the relevant template permissions can find inconsistent templates with the Customer mismatch filter. They can inspect, archive or delete them, and save a replacement from the correct order. The form explains the mismatch. Deletion releases the source-order reference and preserves audit history. Archived records are found with the Archived filter. |
 | Source lifecycle | A completed or signed order can be read to save, edit or reuse a template without changing the source. A source order cannot be deleted while any template refers to it. |
-| Reuse | Create a fresh Sales draft: native state draft, order status claimed, owned by the acting salesperson. Current customer contact and fiscal-position rules apply. Sales assigns samples and follows the ordinary quotation workflow. |
+| Reuse | Create a fresh Sales draft: native state draft, order status claimed, owned by the acting salesperson. Current customer contact and fiscal-position rules apply. Sales checks sample types, ways and expected sampling needs and follows the ordinary quotation workflow. |
 | Current catalog | Use current catalog prices and current package composition. A template stores only package identity and quantity. No historical financial values, signatures, payments or laboratory documents are copied. |
 | Unavailable selections | Skip archived or unavailable products, variants, parameters, prices or packages. An unavailable required component skips its whole package. The new order permanently lists skipped names and reasons. |
 | Empty result | If every selection is unavailable, explain why and create no order. Unexpected errors roll back the complete creation. |
@@ -148,7 +155,7 @@ stateDiagram-v2
 
 | Rule           | Description                                                                                                                                                                                                                                                                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Test request   | Confirming creates the order's test request with one expected sample for each sample on the accepted quotation, and a sample test for each of its parameters; a package line becomes the parameters of its package. Sales sets the expected date, report language, delivery method and report recipient on it. |
+| Test request | Confirming creates a test request with at least one expected sample, calculated from the accepted order's sampling requirements, and each sample's tests with their required selected ways. Sales sets expected date, report language, delivery method and recipient. Collection staff record actual samples; fewer samples wait or the missing part is cancelled, and extra samples wait for an agreed revision before testing. |
 | Confirm        | Confirming does not wait for approval or payment. An order with no payment shows a warning, because the customer may have an agreement.                                                                                                                                                                                                                |
 | Credit gate    | The laboratory core cannot confirm the test request of an order that has no payment unless the customer is marked as allowed to order on credit. Only the Head of Sales sets that flag.                                                                                                                                                                |
 | Approval       | Two levels: the salesperson requests, the Head of Sales signs or rejects. Approval can only be requested on a confirmed order.                                                                                                                                                                                                                         |
@@ -166,8 +173,8 @@ Acceptance criteria:
 ### 5. Cancellation (US-S16, US-S17)
 
 - A customer's [cancellation request](customer.md#request-cancel-us-c12) reaches the owning salesperson as a task with the customer's reason.
-- Sales accepts or declines and writes a reply to the customer. Accepting cancels the order and everything the laboratory created for it.
-- Cancellation is blocked once any testing is completed or its results are released, or while the approval is still signed.
+- Sales accepts or declines and writes a reply to the customer. Accepting a whole-order request cancels the order and its laboratory work. A request for the unfulfillable part cancels only that part, retaining other work and completed results.
+- Whole-order cancellation is blocked once any testing is completed or results are released. Cancellation of an unfulfillable part preserves completed work; the affected work must meet the cancellation rules. A fully signed order requires an approved change request.
 - If an advance was paid, cancelling does not return the money automatically. The money stays on the invoice and is settled outside the system.
 
 ### 6. Follow-up and analytics (US-S18, US-S19)
