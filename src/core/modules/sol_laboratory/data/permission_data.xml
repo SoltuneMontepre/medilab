@@ -445,6 +445,50 @@
         <field name="document_model">medilab.chemical</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_lab_location_create_all" model="medilab.permission">
+        <field name="name">Create company locations</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_lab_location_edit_all" model="medilab.permission">
+        <field name="name">Edit company locations</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_lab_location_archive_all" model="medilab.permission">
+        <field name="name">Archive company locations</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_lab_location_delete_all" model="medilab.permission">
+        <field name="name">Delete company locations</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_lab_location_create_own_department" model="medilab.permission">
+        <field name="name">Create company locations of their department</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_lab_location_edit_own_department" model="medilab.permission">
+        <field name="name">Edit company locations of their department</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_lab_location_archive_own_department" model="medilab.permission">
+        <field name="name">Archive company locations of their department</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">archive</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_lab_location_delete_own_department" model="medilab.permission">
+        <field name="name">Delete company locations of their department</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
     <record id="permission_machine_create_all" model="medilab.permission">
         <field name="name">Create machines</field>
         <field name="document_model">medilab.machine</field>

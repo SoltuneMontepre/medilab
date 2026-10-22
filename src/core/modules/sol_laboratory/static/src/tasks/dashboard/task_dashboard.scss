@@ -294,6 +294,14 @@
         color: $o-main-color-muted;
     }
 
+    .o_task_row_location {
+        overflow: hidden;
+        font-size: 0.8125rem;
+        color: $o-main-color-muted;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .o_task_row_overdue .o_task_row_due {
         font-weight: 600;
         color: $o-danger;

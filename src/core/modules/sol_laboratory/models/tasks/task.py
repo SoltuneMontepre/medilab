@@ -9,6 +9,7 @@ from odoo.addons.sol_laboratory.constants.departments import DEPARTMENT_DOMAIN
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_LOCATION,
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE_BOOKING,
     MODEL_PERMISSION_MIXIN,
@@ -86,7 +87,11 @@ class Task(models.Model):
     booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "task_id", string="Bookings")
     # Steps of the testing method of a testing task's sample test; empty for any other task.
     method_step_ids = fields.Many2many(
-        MODEL_TESTING_METHOD_STEP, compute="_compute_method_step_ids", string="Method Steps"
+        MODEL_TESTING_METHOD_STEP, compute="_compute_sample_test_details", string="Method Steps"
+    )
+    # The location a testing task's sample was taken from; empty for any other task.
+    sampling_location_id = fields.Many2one(
+        MODEL_LOCATION, compute="_compute_sample_test_details", string="Sampling Location"
     )
     # True when the system closes the task once its work is done, rather than the assignee.
     closed_by_system = fields.Boolean(compute="_compute_closed_by_system")
@@ -104,16 +109,20 @@ class Task(models.Model):
     )
 
     @api.depends("document_model", "document_id", "action", "type_id", "linked_by_system")
-    def _compute_method_step_ids(self):
+    def _compute_sample_test_details(self):
         # A person reads the tasks assigned to them or queued for their department without reading the sample
-        # test, so only the hop to its method runs as superuser; the steps are master data every internal user
-        # reads, and nothing else of the test is returned.
+        # test, so only the hops to its method and its sample's location run as superuser; steps and locations are
+        # master data every internal user reads, and nothing else of the test is returned.
         testing = self.filtered_domain(self._testing_domain())
         tests = self.env[MODEL_SAMPLE_TEST].sudo().browse(testing.mapped("document_id")).exists()
         steps_by_test = {test.id: test.parameter_method_id.method_id.step_ids.ids for test in tests}
+        location_by_test = {test.id: test.sample_id.sampling_location_id.id for test in tests}
         steps = self.env[MODEL_TESTING_METHOD_STEP]
+        locations = self.env[MODEL_LOCATION]
         for task in self:
-            task.method_step_ids = steps.browse(steps_by_test.get(task.document_id, []) if task in testing else [])
+            test_id = task.document_id if task in testing else 0
+            task.method_step_ids = steps.browse(steps_by_test.get(test_id, []))
+            task.sampling_location_id = locations.browse(location_by_test.get(test_id))
 
     @api.model
     def _testing_domain(self):
@@ -308,6 +317,7 @@ class Task(models.Model):
                 "user_id": user.id,
                 "partner_ids": [Command.set([user.partner_id.id])],
                 "alarm_ids": [Command.clear()],
+                "location": task.sampling_location_id.display_name or False,
             }
             if event:
                 event.with_context(medilab_skip_calendar_sync=True).write(values)
@@ -448,6 +458,7 @@ class Task(models.Model):
                 "closed_by_system": task.closed_by_system,
                 "has_document": bool(task.document_id),
                 "department": task.sudo().department_id.display_name or "",
+                "location": task.sampling_location_id.display_name or "",
             }
             for task in self
         ]

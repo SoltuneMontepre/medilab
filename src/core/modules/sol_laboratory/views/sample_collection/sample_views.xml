@@ -92,6 +92,7 @@
                             <field name="condition" readonly="status != 'expected'" />
                             <field name="condition_note" readonly="status != 'expected'" />
                             <field name="storage_location" readonly="status not in ('expected', 'on_hold')" />
+                            <field name="sampling_location_id" readonly="status != 'expected'" />
                         </group>
                         <group>
                             <field name="received_at" />

@@ -11,6 +11,17 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_location_booking_reminder" model="mail.message.subtype">
+        <field name="name">Location booking reminder</field>
+        <field name="description">A location you booked or are invited to is about to be used</field>
+        <field name="code">location_booking.reminder</field>
+        <field name="res_model">calendar.event</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_sample_insufficient" model="mail.message.subtype">
         <field name="name">Sample insufficient</field>
         <field name="description">A sample arrived insufficient and is on hold</field>

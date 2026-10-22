@@ -304,9 +304,9 @@ class TestReport(models.Model):
     def _notify_issued(self):
         """Tell the customer the results are released, once for each issued report."""
         self.ensure_one()
-        document, partner, body = self._issued_notice()
+        event, document, partner, body = self._issued_notice()
         self.env[MODEL_MAIL_MESSAGE].raise_event(
-            EVENT_TEST_REPORT_ISSUED,
+            event,
             document,
             f"test_report:{self.id}:issued",
             body,
@@ -315,8 +315,8 @@ class TestReport(models.Model):
         )
 
     def _issued_notice(self):
-        """The document the results are released on, the contact told and the text in their language. E-commerce
-        releases the results of an order on the order, to its contact."""
+        """The event raised, the document the results are released on, the contact told and the text in their
+        language. E-commerce releases the results of an order on the order, to its contact."""
         request = self.request_id
         partner = request.customer_id.partner_id
         body = self.with_context(lang=partner.lang).env._(
@@ -324,7 +324,7 @@ class TestReport(models.Model):
             request=request.code,
             report=self.code,
         )
-        return self, partner, body
+        return EVENT_TEST_REPORT_ISSUED, self, partner, body
 
     @api.model
     def _portal_domain(self, user):
