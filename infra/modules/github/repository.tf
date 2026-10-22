@@ -10,7 +10,7 @@ resource "github_repository_ruleset" "main" {
   }
 
   bypass_actors {
-    actor_id    = 15368
+    actor_id    = var.release_app_id
     actor_type  = "Integration"
     bypass_mode = "always"
   }
@@ -45,10 +45,4 @@ resource "github_repository_ruleset" "main" {
       }
     }
   }
-}
-
-resource "github_workflow_repository_permissions" "this" {
-  repository                       = var.repository_name
-  default_workflow_permissions     = "read"
-  can_approve_pull_request_reviews = true
 }

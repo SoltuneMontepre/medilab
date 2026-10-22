@@ -17,6 +17,9 @@ module "github_actions" {
 
     ARGOCD_AUTH_TOKEN = module.secrets.argocd_auth_token
 
+    RELEASE_APP_ID          = module.secrets.release_app_id
+    RELEASE_APP_PRIVATE_KEY = module.secrets.release_app_private_key
+
     CF_ACCESS_CLIENT_ID     = module.argocd_access.client_id
     CF_ACCESS_CLIENT_SECRET = module.argocd_access.client_secret
   }
@@ -29,6 +32,7 @@ module "github_actions" {
   }
 
   required_checks = var.required_checks
+  release_app_id  = tonumber(nonsensitive(module.secrets.release_app_id))
 
   environments = {
     ansible = {
