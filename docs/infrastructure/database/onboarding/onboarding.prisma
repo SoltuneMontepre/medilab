@@ -103,7 +103,7 @@ model OnboardingRun {
   ended_at        DateTime?                @db.Timestamp(6)
   /// Pages the run fetched.
   page_count      Int                      @default(0)
-  /// Pages the run skipped, for robots.txt, another host, the page limit or the content type.
+  /// Pages the run skipped, for robots.txt, another host, a refused content type or size, or a PDF without text; pages over the page limit are logged, not counted.
   skipped_count   Int                      @default(0)
   /// Records the run staged.
   staged_count    Int                      @default(0)
