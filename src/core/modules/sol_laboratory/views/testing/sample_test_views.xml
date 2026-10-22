@@ -110,7 +110,7 @@
                         >
                             <field name="dispatch_ids">
                                 <list>
-                                    <field name="code" />
+                                    <field name="code" required="0" />
                                     <field name="subcontractor_id" />
                                     <field name="sent_date" />
                                     <field name="expected_date" />
