@@ -6,10 +6,22 @@ Medilab Mobile is the phone app of the laboratory's staff. It brings the work do
 
 | Rule        | Description |
 | ----------- | ----------- |
-| Platforms   | Android and iOS phones and tablets, built with React Native and Expo from one TypeScript code base. |
+| Platforms   | Android and iOS phones and tablets, built with React Native and Expo from one TypeScript code base. The first release is for Android. |
+| Installing  | Staff install the Android app from an APK the laboratory publishes in its release bucket, not from Google Play. |
 | Languages   | Vietnamese by default, or English, chosen at sign-in or in the settings, and kept for the next start. |
 | Connection  | The app works online. An action that cannot reach MediLab is not done: the app says so and offers to retry. A photo or a signature not sent yet stays on the phone until it is sent or the person discards it. |
 | Modules     | A screen whose module is not installed is not shown, such as container scanning without Inventory or support requests without E-commerce ([SH-01](../../shared.md#sh-01-modular-installation-and-integration)). |
+
+## Updates
+
+| Rule        | Description |
+| ----------- | ----------- |
+| Checking    | The app asks MediLab whether it has an update when it starts and whenever it comes back to the foreground. |
+| Mandatory   | When MediLab has an update, the app shows an updating screen and cannot be used until the update is installed. The person cannot postpone it. |
+| Code only   | An update that changes only the app's code downloads, and the app restarts into it. |
+| New install | An update that needs a new install downloads the APK and opens Android's installer. |
+| Signed      | The app installs only updates signed with the laboratory's key. An unsigned or altered update is refused, and the app keeps the version it has. |
+| Releases    | An administrator stops or rolls back a release in MediLab and sets the oldest version MediLab still serves. A phone with an older version shows only the updating screen. |
 
 ## Signing in
 
@@ -95,6 +107,10 @@ Conversations follow [SH-12](../../shared.md#sh-12-conversations).
 - A handover record signed on the phone records the phone and emails the PDF; it cannot be changed afterwards.
 - An action without a connection is refused with a message and changes nothing; an unsent photo stays on the phone.
 - Container scanning is not shown when Inventory is not installed, and support requests are not shown when E-commerce is not installed.
+- A phone with an update waiting cannot be used until it has installed it.
+- An update not signed with the laboratory's key is refused, and the app keeps the version it has.
+- A phone with a version older than the oldest one MediLab serves shows only the updating screen.
+- After an administrator rolls back a release, phones return to the previous version at their next check.
 
 ## Related documents
 
