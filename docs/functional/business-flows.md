@@ -26,10 +26,10 @@ The core flows WF-01 to WF-06 carry a test request from order to report, and WF-
 ## WF-01 Order to approved test request
 
 - **Trigger:** a customer submits a cart on the portal, or sales creates an order for a customer.
-- **Result:** the order is approved and its test request is confirmed, with one expected sample for each sample on the quotation.
+- **Result:** the order is approved and its test request is confirmed, with expected samples and their selected ways calculated from the accepted order and sampling requirements.
 - **Stories:** US-C08, US-C09, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S10, US-S12, US-S13, US-S14, US-S15, US-A03, US-A06, US-A08.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
-- **Main path:** A customer orders on the portal; sales claims it, puts the lines on samples and sends the quotation with an advance; the customer pays online; sales confirms and requests approval; the Head of Sales signs.
+- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms and requests approval; the Head of Sales signs.
 - **Alternative paths:**
   - WF-01-A1: Sales creates the order for a customer who called, instead of the customer ordering on the portal.
   - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
@@ -41,7 +41,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report, and WF-
   - WF-01-A8: The Head of Sales rejects the approval with a reason; sales is told, corrects the order and requests approval again.
   - WF-01-A9: Sales withdraws the approval request to change the order, then requests it again.
 - **Exceptions:**
-  - WF-01-E1: A quotation with a line not on a sample cannot be sent.
+  - WF-01-E1: An unavailable default is never silently replaced; choose a viable alternative explicitly or do not order that parameter and sample type. A quotation above the approval thresholds cannot be sent before Head of Sales approval.
   - WF-01-E2: Submitting a cart without an e-mail address is refused.
   - WF-01-E3: The salesperson who requested approval cannot approve the order.
   - WF-01-E4: The old version of a revised quotation cannot be sent or confirmed.
@@ -58,8 +58,9 @@ flowchart TD
         c4 -->|decline with a reason| c6[Quotation declined]
     end
     subgraph lane2 ["Sales"]
-        s1[Claim the order] --> s2[Group lines into samples, price and discount]
-        s2 --> s3[Send the quotation with the advance request]
+        s1[Claim the order] --> s2[Confirm ways, expected samples, price and percentage discount]
+        s2 --> gate{Above quotation approval thresholds?}
+        gate -->|no| s3[Send the quotation with the advance request]
         s4[Confirm the order] --> s5[Request approval]
         s6[Revise the quotation]
     end
@@ -67,9 +68,11 @@ flowchart TD
         a1[Confirm a transfer or cash payment]
     end
     subgraph lane4 ["Head of Sales"]
-        h1{Sign the approval?}
+        h0[Approve the quotation before Send]
+        h1{Sign the order approval?}
     end
     c2 --> s1
+    gate -->|yes| h0 --> s3
     s3 --> c3
     c5 -->|online payment is matched automatically| s4
     c5 -->|transfer or cash| a1 --> s4
@@ -85,13 +88,15 @@ flowchart TD
 - **Result:** every sample is coded, labelled and received, and its testing tasks wait in the queue of each department that tests it.
 - **Stories:** US-SD01, US-SD02, US-SD03, US-SD04, US-SD05, US-SD06, US-SD07, US-SD08, US-SD09, US-SD10, US-SD11, US-SD12, US-HD06, US-HD07.
 - **Starts from:** an approved order whose test request expects its samples.
-- **Main path:** The customer brings the samples; sample delivery staff record each receipt in good condition, print its label, the customer signs the handover record and the department scans the label.
+- **Main path:** The customer brings the samples; sample delivery staff adjust the calculated expected samples to the actual handover, record conditions and differences, obtain the customer's signature, print labels and hand samples to their departments.
 - **Alternative paths:**
-  - WF-02-A1: Sample delivery staff collect the samples at the customer's site from their collection task, take photos and have the customer sign on the phone.
+  - WF-02-A1: Sample delivery staff collect the samples at the customer's site from their collection task, take photos through the web interface and obtain the customer's confirmation signature. Collection feasibility includes the configurable travel buffer, 60 minutes by default.
   - WF-02-A2: Sample delivery staff create a test request at reception for a customer without an order; it skips the paid step.
   - WF-02-A3: A sample tested by two departments is handed to both, and each records its own receipt.
   - WF-02-A4: An insufficient sample goes on hold; the head of department asks for more; the collection task brings it back to received.
   - WF-02-A5: A mistake in a signed handover record is corrected with a new record; the old one is kept.
+  - WF-02-A6: Fewer samples wait for another collection or Sales cancels the missing part; the final invoice reflects what was tested.
+  - WF-02-A7: Extra samples are held pending a revised quotation and customer agreement before testing.
 - **Exceptions:**
   - WF-02-E1: An unusable sample is rejected with its condition note and gets no testing task.
   - WF-02-E2: A person outside the department scanning the label is refused.
@@ -102,88 +107,94 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane5 ["Customer"]
-        c1[Hand the samples over] --> c2[Sign the handover record on the phone]
+        c1[Hand over the samples]
+        c2[Confirm actual samples and sign the record]
     end
     subgraph lane6 ["Sample delivery staff"]
-        d1[Collect or receive the samples] --> d2{Condition?}
-        d2 -->|good| d3[Record the receipt and where it is stored]
-        d3 --> d4[Print the label with lab code and QR code]
-        d4 --> d5[Hand the sample to each department]
-        d2 -->|unusable| d6[Reject with the condition note]
+        d1[Adjust expected samples and record differences] --> d2{Condition?}
+        d2 -->|good| d3[Record receipt, time, amount and storage]
+        d2 -->|unusable| d6[Reject with a condition note]
         d2 -->|insufficient| d7[Put on hold]
+        d4[Print label and hand accepted samples to departments]
         d8[Collect more sample]
     end
     subgraph lane7 ["Head of department"]
-        h1[Ask for the sample to be collected again]
-        h2[Scan the label to receive the sample]
+        h1[Ask for more sample]
+        h2[Scan the label to record department receipt]
     end
-    c2 --> d1
-    d7 --> h1 --> d8 --> d3
-    d5 --> h2 --> done([Testing tasks wait in the department queue])
+    c1 --> d1
+    d3 --> c2 --> d4 --> h2 --> done([Testing tasks in department queues])
+    d7 --> h1 --> d8 --> d1
+    d1 -->|extra samples| pending[Hold pending revised quotation and customer agreement]
 ```
 
 ## WF-03 Testing assignment and scheduling
 
 - **Trigger:** a testing task enters the queue of its department.
-- **Result:** the test is assigned and booked on a fit machine, and the rooms of its method's steps, before its due date.
+- **Result:** the test is assigned to an authorized person and planned in a run of its agreed way, reserving required locations and a fit machine only when needed.
 - **Stories:** US-HD01, US-HD02, US-HD03, US-HD04, US-HD05, US-HD12, US-HD14, US-T01, US-T02, US-T03, US-T04, US-T19, US-T20, US-T21.
-- **Starts from:** received samples whose testing tasks wait in the department queue, and fit machines.
-- **Main path:** The head of department assigns a sample to a tester; the tester books the recommended machine and slot, which shows on the schedule with a reminder.
+- **Starts from:** received samples with selected ways and department tasks, authorized people and available required resources.
+- **Main path:** The head assigns an authorized tester, or that tester claims the task; a run of the agreed way is planned within capacity for that person and the available resources, and receives a reminder. Lab Head's person-to-parameter authorization has no validity dates.
 - **Alternative paths:**
   - WF-03-A1: A tester claims an unassigned task of their department instead of waiting to be assigned.
   - WF-03-A2: The head of department moves a task to another person or department with a reason.
   - WF-03-A3: The tester moves or cancels a booking; the slot goes back to the queue.
-  - WF-03-A4: A sample test's due date is changed by hand; the scheduler says whether the new date can be met.
-  - WF-03-A5: A test with a step in a bookable room books the machine and the room together.
+  - WF-03-A4: The head changes an internal due date with a reason. Preserve it when the promised return date changes; recalculate only automatic dates. The feasibility check uses company working days, holidays and leave, proposes the earliest feasible date and moves no bookings. An infeasible date may be kept with a reason and risk flag.
+  - WF-03-A5: A run reserves its tester and required rooms, plus a machine only if needed. A no-machine way supplies its own duration and capacity, default capacity 1.
   - WF-03-A6: A tester marks a test urgent with a reason; it takes the next free slot first.
   - WF-03-A7: The head of department bumps an urgent test and decides what happens to the tests it would make late.
-  - WF-03-A8: A booking that ends after its due date makes the test at risk; its tester and head are told once.
+  - WF-03-A8: A booking that cannot meet its due date sends an initial risk notice and daily consolidated summaries to its tester and head until resolved. Sales notifies the customer if the promised date is affected or at risk.
+  - WF-03-A9: The head books outside working hours with a reason and records planned OverTime for the tester and outside-hours interval, without a prerequisite HR overtime shift.
+  - WF-03-A10: Approved leave or a room-unavailable interval returns overlapping not-started work to the queue for head assignment or authorized claiming.
+  - WF-03-A11: Moving a booking cancels its unsent old reminder and schedules the new one; send immediately inside the warning window and deduplicate the update.
 - **Exceptions:**
   - WF-03-E1: A second tester claiming the same task is told it is already claimed.
-  - WF-03-E2: Claiming a task of another department is refused.
+  - WF-03-E2: Claiming another department's task or a parameter the tester is not authorized for is refused.
   - WF-03-E3: Moving a task without a reason is refused.
   - WF-03-E4: Bumping without a reason, or bumping a test that is not urgent, is refused.
-- **Paths in other flows:** WF-05 when no machine can finish a test in time; SF-05 for machines past calibration or under repair.
-- **States:** sample test waiting → assigned → testing; machine booking queued → scheduled → in progress → done.
+- **Paths in other flows:** WF-05 for an agreed subcontracted way; SF-05 for machine disruption; SF-07 for a changed promised date. A schedule never silently changes the accepted way.
+- **States:** sample test waiting → assigned → testing; run queued → scheduled → in progress → done, with machine reservations only when needed.
 
 ```mermaid
 flowchart TD
     subgraph lane8 ["Head of department"]
-        h1[Assign the sample's tasks to a person] 
-        h2[Bump an urgent test with a reason]
-        h3[Decide on the outsourcing suggestion]
+        h1[Assign an authorized person]
+        h2[Review risk and feasible alternatives]
+        h3[Explicitly bump or book overtime with a reason]
     end
     subgraph lane9 ["Tester"]
-        t1[Claim an unassigned task]
-        t2[Open the recommendation] --> t3{Fit machine and slot before the due date?}
-        t3 -->|yes| t4[Book the slot]
-        t4 --> t5[Get the reminder and start the test]
-        t6["Warned: test at risk or machine due for calibration"]
+        t1[Claim an authorized department task]
+        t2[View resources for the agreed way] --> t3{Feasible run within capacity?}
+        t3 -->|yes| t4[Reserve tester, locations and machine if needed]
+        t4 --> t5[Receive reminder and run attempts]
     end
-    queue([Task in the department queue]) --> h1 --> t2
+    queue([Department queue]) --> h1 --> t2
     queue --> t1 --> t2
-    t3 -->|no| h3 --> wf05([WF-05 Outsourced testing])
-    t4 -.-> t6
-    t6 -.-> h2 --> t4
+    t3 -->|no| h2
+    h2 --> h3 --> t2
+    h2 --> sales[Sales obtains agreement for a changed date or revised quotation]
     t5 --> wf04([WF-04 Result entry and approval])
 ```
 
 ## WF-04 Result entry and approval
 
 - **Trigger:** a booked test is run.
-- **Result:** the reported result is approved against the sample's regulation limit, and the sample is completed once all its tests are.
-- **Stories:** US-T05, US-T06, US-T07, US-T08, US-T17, US-T22, US-HD08, US-HD09.
+- **Result:** the measured result is independently approved, with assessment only for requested regulation comparisons, and the sample completes when all its tests do.
+- **Stories:** US-T05, US-T06, US-T07, US-T08, US-T17, US-T22, US-HD08, US-HD09, US-LH05.
 - **Starts from:** sample tests in testing with their bookings, on samples with and without a regulation.
-- **Main path:** The tester follows the method's steps, enters a number and its conclusion, sends and signs it; the head approves it and the sample is completed.
+- **Main path:** The tester follows the agreed method, records an attempt in its run with the snapshotted unit and LOD/LOQ, assesses any requested comparison, then sends it for independent approval.
 - **Alternative paths:**
-  - WF-04-A1: The tester enters a text result, such as Not detected.
+  - WF-04-A1: The tester confirms text for a value below LOD/LOQ; the report prints the snapshot threshold and unit and keeps a raw number if available, never zero as a substitute.
   - WF-04-A2: The head rejects the result with a reason; the tester retests, the rejected result stays on record and the new one is approved.
   - WF-04-A3: The tester withdraws a result they sent before the head acts.
   - WF-04-A4: An unusual result warns before sending; the tester sends it anyway and the head sees the warning.
   - WF-04-A5: The head cancels a test that cannot be done, with a reason; the sample completes with its other tests approved.
+  - WF-04-A6: When the entrant is the department's only result signer, the Lab Head approves instead of the Head of Department.
+  - WF-04-A7: Without requested QCVN comparison, return measurements with no pass/fail conclusion. For requested scope, any assessed failure fails that scope; all required comparisons must pass to conclude pass; otherwise record insufficient basis.
+  - WF-04-A8: Changing a sample's regulation refreshes applicable limits only after confirmation and clears old comparison conversions and conclusions; signed results first require withdrawal where permitted, or change requests and new versions. Raw measurement, way and LOD/LOQ snapshots stay, and retesting requires professional assessment.
 - **Exceptions:**
   - WF-04-E1: The person who entered a result cannot approve it.
-  - WF-04-E2: A result on a sample with a regulation cannot be sent without a conclusion.
+  - WF-04-E2: A missing applicable limit or unresolved text assessment cannot be treated as a pass. Requested comparisons explicitly state insufficient basis when appropriate.
   - WF-04-E3: Cancelling a test without a reason, or a test with an approved result, is refused.
 - **Paths in other flows:** SF-03 for changing a result whose process is completed.
 - **States:** sample test testing → result entered → approved, or → testing when rejected; sample testing → awaiting approval → completed.
@@ -191,48 +202,56 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane10 ["Tester"]
-        t1[Follow the method's steps] --> t2[Enter the result in the method's unit]
-        t2 --> t3[Set the conclusion against the copied limit]
-        t3 --> t4{Unusual or near the limit?}
-        t4 -->|warned, check and send| t5[Send and sign]
-        t4 -->|no| t5
-        t6["Retest; the rejected result stays on record"]
+        t1[Follow the method and measure an attempt] --> t2[Record value with snapshot unit and LOD/LOQ]
+        t2 --> q{Regulation comparison requested?}
+        q -->|yes| t3[Assess exact type limit: pass, fail or insufficient basis]
+        q -->|no| t4[Check measurement and any sanity warning]
+        t3 --> t4 --> t5[Send and sign]
+        t6[Retest in a new attempt and run]
     end
     subgraph lane11 ["Head of department"]
+        h0{Entrant is the department's only result signer?}
         h1{Approve the result?}
-        h2[Cancel a test that cannot be done, with a reason]
     end
-    t5 --> h1
-    h1 -->|reject with a reason| t6 --> t2
-    h1 -->|approve| done(["Task done; sample completed when all its tests are"])
-    done --> wf06([WF-06 when every test of the request is approved or cancelled])
+    subgraph lane43 ["Lab Head"]
+        l1{Approve instead?}
+    end
+    t5 --> h0
+    h0 -->|no| h1
+    h0 -->|yes| l1
+    h1 -->|reject with reason| t6 --> t2
+    l1 -->|reject with reason| t6
+    h1 -->|approve| done([Reported result approved])
+    l1 -->|approve| done
+    done --> wf06([WF-06 when all required results are approved])
 ```
 
 ## WF-05 Outsourced testing
 
-- **Trigger:** no fit machine can finish a test before its due date, or the head of department outsources it straight away in an emergency.
+- **Trigger:** the agreed way is subcontracted, or a subcontracted alternative is proposed because in-house resources cannot meet the due date.
 - **Result:** the subcontractor's result is approved like any other result.
 - **Stories:** US-HD05, US-HD10, US-HD11, US-HD13, US-SD13, US-SUB01, US-SUB02, US-T09, US-HD08.
 - **Starts from:** sample tests with an outsourcing suggestion, and accredited subcontractors.
-- **Main path:** The head accepts the suggestion; sample delivery staff carry the dispatch; the subcontractor enters the result; the head approves it.
+- **Main path:** For the agreed subcontracted way, the head creates a dispatch of attempts with sending date, due date and returned report; staff carry it, results are entered and independently approved. Changing an accepted way first needs customer agreement through a revised quotation.
 - **Alternative paths:**
   - WF-05-A1: A dispatch goes by a delivery service with its tracking number.
   - WF-05-A2: A lab QA enters the results the subcontractor sent back.
-  - WF-05-A3: The head outsources a test straight away in an emergency, with a reason.
+  - WF-05-A3: The head initiates an urgent outsourcing proposal with a reason; Sales obtains an agreed revised quotation before replacing an accepted way.
   - WF-05-A4: The head rejects the subcontractor's result; the test goes back to outsourced and a new result is entered.
   - WF-05-A5: A dispatch is cancelled before any result; its tests stay outsourced for another dispatch.
 - **Exceptions:**
   - WF-05-E1: A dispatch whose tests have results cannot be cancelled.
   - WF-05-E2: A subcontractor user sees only its own dispatches and never a sample's customer.
-  - WF-05-E3: Outsourcing straight away without a reason, or a test already in testing, is refused.
+  - WF-05-E3: An emergency proposal needs a reason; a test already running cannot be outsourced directly, and an accepted way cannot change without customer agreement.
 - **Paths in other flows:** SF-06 for subcontractor accreditation expiry.
 - **States:** sample test waiting → outsourced → result entered → approved; dispatch draft → sent → received.
 
 ```mermaid
 flowchart TD
     subgraph lane12 ["Head of department"]
-        h1[Accept the outsourcing suggestion] --> h2[Put the tests in a dispatch]
-        h0[Outsource straight away with a reason] --> h2
+        h1[Review the outsourcing suggestion] --> agreed{Already the agreed way?}
+        h0[Propose urgent outsourcing with a reason] --> agreed
+        h2[Put the attempts in a dispatch]
         h3[Record when it is sent and the expected date]
         h4{Approve the result?}
     end
@@ -242,6 +261,8 @@ flowchart TD
     subgraph lane14 ["Subcontractor"]
         s1[See the dispatch and its tests] --> s2[Enter the results]
     end
+    agreed -->|yes| h2
+    agreed -->|no| revise[Sales obtains customer agreement through a revised quotation] --> h2
     h2 --> d1 --> h3 --> s1
     s2 --> h4
     h4 -->|reject| s2
@@ -254,13 +275,15 @@ flowchart TD
 - **Result:** the signed report is issued, delivered to the customer and downloadable on the portal.
 - **Stories:** US-LH01, US-LH02, US-SD14, US-C07, US-C18, US-C19.
 - **Starts from:** test requests whose sample tests are all approved or cancelled, with their draft reports.
-- **Main path:** The lab head signs the report; it gets a number and a signed PDF; staff record an e-mail delivery; the customer is notified and downloads it.
+- **Main path:** The Lab Head reviews the results and any requested regulation basis, signs the report, and releases its numbered signed PDF. Staff record delivery and the customer is notified once the PDF is ready.
 - **Alternative paths:**
   - WF-06-A1: The report is delivered in person or by post; recording it sends no e-mail.
   - WF-06-A2: The request asks for an English, a Vietnamese or a bilingual report.
   - WF-06-A3: The lab head rejects the report naming results and a reason; the results go back to the head of department's queue, are approved again and the lab head signs the new task.
   - WF-06-A4: A request with a cancelled test issues a report without it.
   - WF-06-A5: The lifecycle test: one order runs from the portal through reception, testing and approval to the issued report.
+  - WF-06-A6: A regulation expires during testing: testing continues, but before issue the Lab Head confirms the comparison basis. Sales obtains customer agreement for a changed scope; no regulation is switched or dropped automatically.
+  - WF-06-A7: A corrected result returns an initial or replacement report to draft; once corrected results are approved, a fresh signing task is created even if the request is already reported.
 - **Exceptions:**
   - WF-06-E1: With Viettel Sign unavailable the report is not marked signed, and signing is retried.
   - WF-06-E2: Rejecting a report without a reason or without naming a result is refused.
@@ -271,7 +294,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane15 ["Lab head"]
-        l1[Review the requests ready for release] --> l2{Sign the report?}
+        l1[Review approved results and confirm any expired regulation basis] --> l2{Sign the report?}
     end
     subgraph lane16 ["Head of department"]
         h1[Results sent back wait in the queue unassigned]
@@ -358,7 +381,7 @@ flowchart TD
   - SF-01-A5: An invoice unpaid after its due date reminds the customer at each interval.
   - SF-01-A6: A PayOS transaction with no payment is flagged; the accountant creates its payment, the flag clears and the day is locked.
 - **Exceptions:**
-  - SF-01-E1: A payment above the amount still owed is refused.
+  - SF-01-E1: A new payment amount above what is owed is refused. An already-arrived PayOS transfer is recorded in full, its excess flagged for the accountant, and is not automatically refunded.
   - SF-01-E2: A posted invoice cannot be edited.
   - SF-01-E3: An online payment of a locked day cannot be changed.
   - SF-01-E4: A repeated PayOS notification records no second payment.
@@ -367,7 +390,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane19 ["Accountant"]
-        a1["Create the final invoice: total minus the advance"] --> a2[E-mail the invoice]
+        a1["Bill actual agreed testing and deduct the advance"] --> a2[E-mail the invoice]
         a3{Confirm the payment?}
         a4[Reconcile the day's PayOS transactions] --> a5{All matched?}
         a5 -->|yes| a6[Lock the day]
@@ -393,7 +416,7 @@ flowchart TD
 ## SF-02 Order cancellation
 
 - **Trigger:** a customer wants to cancel an order.
-- **Result:** the order and everything the laboratory created for it are cancelled, or the request is declined with a reply.
+- **Result:** the accepted cancellation scope is cancelled, or Sales declines with a reply. Cancelling an unfulfillable part preserves other work and completed results.
 - **Stories:** US-C11, US-C12, US-S16, US-S17.
 - **Starts from:** orders in each status, some with completed tests.
 - **Main path:** A customer requests the cancellation of a confirmed order with a reason; sales accepts; the order and its test request are cancelled.
@@ -402,10 +425,11 @@ flowchart TD
   - SF-02-A2: Sales declines the request with a reply the customer sees on the order.
   - SF-02-A3: Sales cancels an order on their own while no testing is completed.
   - SF-02-A4: An approved order is cancelled through a change request the Head of Sales approves.
+  - SF-02-A5: The customer refuses a proposed later return date. Sales handles a request to cancel the unfulfillable part, keeps unaffected work and completed results, and tells the customer the decision.
 - **Exceptions:**
   - SF-02-E1: A request without a reason is refused.
-  - SF-02-E2: Cancelling an order with a completed test is blocked.
-- **States:** cancellation request open → accepted or declined; order → cancelled.
+  - SF-02-E2: Whole-order cancellation with a completed test is blocked. Cancelling an unfulfillable part must preserve completed results and follow the affected sample-test and signed-order rules.
+- **States:** cancellation request open → accepted or declined; whole-order cancellation → order cancelled, while partial cancellation leaves the remaining work active.
 
 ```mermaid
 flowchart TD
@@ -416,14 +440,14 @@ flowchart TD
         c4[Read the reply on the order]
     end
     subgraph lane23 ["Sales"]
-        s1{Any testing completed or results released?}
+        s1{Whole-order cancellation affects completed testing?}
         s1 -->|yes| s2[Decline with a reply]
         s1 -->|no| s3{Accept?}
         s3 -->|no| s2
     end
     c3 --> s1
     s2 --> c4
-    s3 -->|yes| cancel(["Order and its test request cancelled; a paid advance is settled outside the system"])
+    s3 -->|yes| cancel(["Cancel accepted scope and preserve other work; no automatic refund"])
     c2 --> cancel
 ```
 
@@ -438,6 +462,9 @@ flowchart TD
   - SF-03-A1: A change request on an issued report is approved by the lab head and creates a new report version.
   - SF-03-A2: The chain rejects a change request; the signed document stays unchanged and the reason is kept.
   - SF-03-A3: Before the process is completed, signers withdraw from the top level down and the document can be edited again.
+  - SF-03-A4: Correcting a result in an issued report automatically creates or links that report's open change request. Wait for its required approvals and all corrected results to be approved, then prepare a replacement draft and signing task. Notify the customer when its signed PDF is ready; only issue marks the old report replaced.
+  - SF-03-A5: A result correction may be proposed while a report awaits signature. Before applying it, stop signing and return the report to draft. Completed results retain their own change requests. A fresh signing task is created after correction approval for both initial and replacement reports; old tasks cannot sign stale content.
+  - SF-03-A6: Quotations and orders use change requests once their process is completed. Posted invoices use adjustment invoices or credit notes instead.
 - **Exceptions:**
   - SF-03-E1: A change request without what to change or why is refused.
   - SF-03-E2: Withdrawing a signature while a higher level still has one, or after the process is completed, is refused.
@@ -446,18 +473,26 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane24 ["Requester"]
-        r1["Raise a change request: what to change and why"]
-        r2[Follow its status]
+        r1[Raise correction with changes and reason]
     end
-    subgraph lane25 ["Signers of the change-request chain"]
-        s1{Sign each level in order?}
+    subgraph lane25 ["Required approvers"]
+        s1{Approve the change request?}
+        s2[Approve corrected results]
+    end
+    subgraph lane44 ["Lab Head"]
+        l1[Review replacement draft and sign through a fresh task]
     end
     r1 --> s1
-    s1 -->|reject with a reason| kept([Signed document unchanged])
-    s1 -->|last level signs| v[New unsigned version linked to the old one]
-    v --> old[Old version marked replaced, still readable]
-    v --> sign([New version signed through its own chain])
-    r1 -.-> r2
+    r1 -->|result in an issued report| link[Create or link the report change request]
+    r1 -->|report awaiting signature| stop[Stop pending signing before applying the correction]
+    s1 -->|reject| kept([Signed version unchanged])
+    s1 -->|approve result correction| result[Create unsigned corrected result version] --> s2
+    s2 --> ready{All corrected results and report correction approved?}
+    link --> ready
+    ready -->|yes| draft[Prepare replacement draft] --> l1
+    s1 -->|approve report-only correction| draft
+    l1 --> issued[Issue signed replacement and retain old report]
+    issued --> notice[Notify customer when the new PDF is ready]
 ```
 
 ## SF-04 Sample retention and disposal
@@ -490,38 +525,42 @@ flowchart TD
 
 ## SF-05 Machine calibration and unavailability
 
-- **Trigger:** a machine's calibration falls due, or a machine is under repair.
-- **Result:** no test runs on an unfit machine; its bookings move to other machines or are suggested for outsourcing, and the machine returns to use once serviced.
+- **Trigger:** calibration is absent or expired, maintenance is planned or overdue, or a machine breaks or enters repair.
+- **Result:** new bookings use fit machines; affected not-started work is replanned within the same way, interrupted measurements are retained for assessment, and unserviceable work remains visible in the queue.
 - **Stories:** US-AD09, US-AD10, US-T21, US-HD03, US-HD05.
 - **Starts from:** machines with scheduled bookings, calibration dates and service records.
-- **Main path:** The administrator sets a machine under repair; its bookings move to another fit machine and their testers are told; recording the repair makes it usable again.
+- **Main path:** The administrator records downtime; not-started bookings return to the queue and move to another suitable machine for the same way if available, with notices to the tester and head. Returning to use requires all calibration, maintenance and availability conditions to be satisfied.
 - **Alternative paths:**
-  - SF-05-A1: A machine passes its calibration date; it gets no new booking until a calibration is recorded.
-  - SF-05-A2: Booking a machine whose calibration is due soon, or that was repaired recently, warns and still books.
+  - SF-05-A1: A machine with no currently valid calibration, including a never-calibrated machine, gets no new booking until valid calibration is recorded.
+  - SF-05-A2: Separate windows warn 7 days before calibration, 7 days before maintenance and 7 days after repair by default; warnings do not override a block.
+  - SF-05-A3: Planned maintenance reserves downtime; overdue maintenance blocks new bookings until recorded completion.
+  - SF-05-A4: A fault interrupts a run: retain all data and let the head assess each attempt as usable, retest or more sample needed. Retesting creates new attempts in a new run linked to the interrupted one.
 - **Exceptions:**
-  - SF-05-E1: A moved booking that no other machine can finish in time gets an outsourcing suggestion.
+  - SF-05-E1: Without another suitable machine, keep work queued and notify its tester and head. Sales informs the customer if the promised date is affected. A different way needs an agreed revised quotation.
   - SF-05-E2: A machine with queued, scheduled or running bookings cannot be archived.
 - **States:** machine in use → under repair → in use; booking scheduled → queued → scheduled on another machine.
 
 ```mermaid
 flowchart TD
-    subgraph lane27 ["Tester"]
-        t1["Warned at booking: calibration due soon or recent repair"]
-        t2[Told that the booking moved]
+    subgraph lane29 ["Administrator"]
+        a1[Record calibration, maintenance or repair availability]
+        a2[Record service completion and valid calibration]
     end
     subgraph lane28 ["Head of department"]
-        h1[Decide on the outsourcing suggestions]
+        h1[Assess interrupted attempts: usable, retest or more sample]
+        h2[Review queued work and deadline risk]
     end
-    subgraph lane29 ["Administrator"]
-        a1[Record the repair status]
-        a2[Record the calibration or repair with the next due date]
+    subgraph lane27 ["Tester"]
+        t1[Receive revised schedule or risk notice]
+        t2[Retest in a new linked run when required]
     end
-    due([Calibration due within the warning days]) --> t1
-    over([Calibration overdue or machine under repair]) --> a1 --> q[Its bookings go back to the queue]
-    q --> other{Another fit machine in time?}
-    other -->|yes| t2
-    other -->|no| h1
-    a2 --> back([Machine usable again])
+    a1 --> q[Requeue affected not-started bookings]
+    a1 -->|run interrupted by fault| h1 -->|retest| t2
+    q --> other{Suitable machine for the same way?}
+    other -->|yes| t1
+    other -->|no| h2 --> wait[Stay queued; Sales handles customer impact]
+    a2 --> fit{All booking conditions satisfied?}
+    fit -->|yes| available[Machine can be booked]
 ```
 
 ## SF-06 Accreditation and registration renewal
@@ -530,25 +569,25 @@ flowchart TD
 - **Result:** reports carry the accredited and registered marks only while they are valid, and renewed dates restore them.
 - **Stories:** US-AD08, US-AD12, US-AD28.
 - **Starts from:** accreditation certificates, quality dossiers and subcontractors near and past their expiry.
-- **Main path:** The administrator imports a certificate's methods; the ways of testing are accredited while it is valid and lose it the day after its last valid day.
+- **Main path:** The administrator imports scope lines identifying methods, parameters and sample types. An in-house sample test is accredited only when a valid line covers all three, allowing an ancestor sample type for accreditation scope.
 - **Alternative paths:**
   - SF-06-A1: A quality dossier warns before and on its expiry day; after it, its mark is no longer printed; renewing it prints the mark again.
   - SF-06-A2: A subcontractor whose accreditation expired cannot be chosen; renewing the date makes it selectable again.
-  - SF-06-A3: Archiving a certificate removes the accreditation of its methods; restoring it gives it back.
+  - SF-06-A3: Archiving or restoring a certificate recomputes accreditation for matching sample tests; validity dates still apply.
 - **Exceptions:**
-  - SF-06-E1: Importing a row without a code or title is refused and creates nothing.
-  - SF-06-E2: A subcontracted way of testing is never accredited.
+  - SF-06-E1: Importing a row without a code is refused; an omitted title defaults to its code.
+  - SF-06-E2: A subcontracted sample test is not within the laboratory's own accreditation scope. A method match alone is insufficient for an in-house sample test.
 - **States:** certificate, dossier or subcontractor accreditation valid → expired → valid again when renewed.
 
 ```mermaid
 flowchart TD
     subgraph lane30 ["Administrator"]
-        a1[Record the certificate and import its methods]
+        a1[Import scope lines: method, parameters and sample types]
         a2[Record the dossier and the ways of testing it covers]
         a3[Warned days before a dossier expires and on the day]
         a4[Record the renewed dates]
     end
-    a1 --> acc[Ways of testing accredited while the certificate is valid]
+    a1 --> acc[Matching in-house sample tests accredited while the certificate is valid]
     a2 --> mark[Dossier mark printed on reports]
     mark --> a3
     acc --> exp{Past the last valid day?}
@@ -561,13 +600,14 @@ flowchart TD
 
 - **Trigger:** a customer asks for results earlier than the laboratory's estimate, or a test must go ahead of others.
 - **Result:** an order the laboratory can meet is accepted as a priority order, and its urgent tests are scheduled first.
-- **Stories:** US-S21, US-S22, US-T19, US-HD12, US-HD13, US-HD14.
-- **Starts from:** quotations in preparation and a laboratory schedule with free and busy machines.
-- **Main path:** The customer asks for an earlier date the laboratory can meet; sales accepts it as a priority order and its tests are urgent when created.
+- **Stories:** US-C22, US-S21, US-S22, US-T19, US-HD12, US-HD13, US-HD14.
+- **Starts from:** quotations in preparation, authorized people and required resource schedules, and outsourced ways with transport and processing turnaround.
+- **Main path:** The customer requests priority on the portal; Sales checks the date and accepts or declines priority on the quotation. The estimate includes every in-house and outsourced branch plus the safety margin, and reserves nothing. Accepted priority makes its tests urgent.
 - **Alternative paths:**
-  - SF-07-A1: Adding a parameter to the quotation updates the estimated return date.
+  - SF-07-A1: Adding a parameter updates the estimated return date.
+  - SF-07-A2: A promised date becomes infeasible: Sales offers the earliest feasible replacement and records old date, new date and customer confirmation before changing it. If refused, Sales handles a cancellation request for the unfulfillable part; no automatic cancellation or way change.
 - **Exceptions:**
-  - SF-07-E1: A date the laboratory cannot meet is not accepted, and the earliest possible date is shown.
+  - SF-07-E1: A date the laboratory cannot meet is not accepted as a customer promise; show the earliest feasible date. Missing outsourced turnaround means no complete estimate is available. An internal due-date override does not change the customer promise.
 - **Paths in other flows:** WF-03 for marking tests urgent and bumping; WF-05 for outsourcing straight away.
 - **States:** sample test created urgent; booking queued ahead of tests that are not urgent; bumped bookings planned again.
 
@@ -582,7 +622,7 @@ flowchart TD
     end
     subgraph lane33 ["Head of department"]
         h1[Bump an urgent test ahead of bookings not started]
-        h2[Outsource straight away with a reason]
+        h2[Propose outsourcing with a reason and obtain an agreed revised quotation]
     end
     subgraph lane34 ["Tester"]
         t1[Mark one of their tests urgent with a reason]
@@ -599,9 +639,9 @@ flowchart TD
 
 - **Trigger:** a laboratory starts using MediLab, or its catalog, people or rules change.
 - **Result:** everything an order needs exists: the catalog with its ways of testing, prices and taxes, people and roles, approval chains and settings.
-- **Stories:** US-AD01, US-AD02, US-AD03, US-AD04, US-AD05, US-AD06, US-AD07, US-AD09, US-AD10, US-AD11, US-AD13, US-AD14, US-AD15, US-AD16, US-AD17, US-AD18, US-AD19, US-AD20, US-AD26, US-AD27, SH-03.
+- **Stories:** US-AD01, US-AD02, US-AD03, US-AD04, US-AD05, US-AD06, US-AD07, US-AD09, US-AD10, US-AD11, US-AD13, US-AD14, US-AD15, US-AD16, US-AD17, US-AD18, US-AD19, US-AD20, US-AD26, US-AD27, US-LH04, SH-03.
 - **Starts from:** an empty laboratory with the modules installed.
-- **Main path:** The administrator creates a parameter with its way of testing, regulation limit and price; a customer can order it and a tester can run it.
+- **Main path:** The administrator configures parameters, ways, explicit sample-type applicability, sampling requirements and prices. The Lab Head authorizes testers per parameter without validity dates. Regulation comparison limits are optional; the measurement-to-report flow works without them.
 - **Alternative paths:**
   - SF-08-A1: The administrator creates a service package; the customer orders it whole at its own price.
   - SF-08-A2: The administrator gives a person a role; the person sees the menus of that role and no others.
@@ -616,16 +656,20 @@ flowchart TD
 flowchart TD
     subgraph lane35 ["Administrator"]
         a1[Units, sample types and parameter groups] --> a2[Test parameters]
-        a2 --> a3["Ways of testing: method, steps, machines, department or subcontractor"]
-        a3 --> a4[Regulations and their limits]
+        a2 --> a3[Ways and explicit type applicability: unit, LOD, LOQ and default]
+        a3 --> a4[Sampling requirements and required resources]
         a2 --> a5[Prices, taxes and service packages]
-        a6[Departments, teams and people] --> a7[Roles and permissions]
-        a7 --> a8[Approval chains and task routing]
-        a9["Settings: numbering, deadlines, thresholds"]
+        a3 -.-> optional[Optional regulations and limits per parameter and sample type]
+        a6[People, roles and approval chains]
+        a9[Settings: deadlines, travel buffer and warning windows]
     end
-    a4 --> ready([Ready to take orders])
+    subgraph lane45 ["Lab Head"]
+        l1[Authorize each tester's parameters without expiry]
+    end
+    a6 --> l1
+    a4 --> ready([Ready for testing and reports])
     a5 --> ready
-    a8 --> ready
+    l1 --> ready
     a9 --> ready
 ```
 

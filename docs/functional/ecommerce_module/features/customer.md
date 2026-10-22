@@ -22,6 +22,8 @@ The customer is an external user of the laboratory. A customer has an account li
 - **US-C11** As a customer, I want to cancel an order until the laboratory has confirmed it, so that I can correct a mistake.
 - **US-C12** As a customer, I want to request the cancellation of an order that the laboratory has already confirmed, so that I can withdraw it when my needs change, and be told whether the laboratory accepted.
 
+- **US-C22** As a customer, I want to request priority when ordering, so that Sales can confirm whether the laboratory can meet my earlier date.
+
 ### Quotation and payment
 
 - **US-C13** As a customer, I want to view the quotation the laboratory sends me, including parameters and prices, so that I know exactly what I will pay for.
@@ -106,7 +108,7 @@ Acceptance criteria:
 - A business can choose which of its contacts receives an event.
 - Identity fields already submitted are not asked again.
 
-### 2. Placing an order (US-C08 to US-C12)
+### 2. Placing an order (US-C08 to US-C12, US-C22)
 
 The customer builds an order from the test catalog, like a cart. The unit of selection is the **parameter** (test) or a **service package**: the customer searches the catalog and adds the parameters or packages they need to the cart. Sample types and other catalog categories are **filters** that narrow the catalog, not things the customer has to pick first. The total price is shown while composing.
 
@@ -152,6 +154,9 @@ stateDiagram-v2
 | Public catalog        | Anyone can browse the catalog and fill a cart without signing in.                                                                      |
 | Details on submit     | A visitor who is not signed in gives their details and e-mail address when submitting; they become the customer's contact.            |
 | Complete order        | Submitting requires at least one parameter or service package in the cart.                                                             |
+| Ways of testing | Select a sample type for each line and choose an applicable way for each parameter, or use its unique default. Only active ways the laboratory can perform are offered, following the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). An unavailable default shows a reason and viable alternatives for explicit selection; with none, the pair cannot be ordered. |
+| Expected samples | Show the expected sample count, containers and amounts calculated from method sampling requirements. The customer orders parameters and quantities, not physical samples; collection staff confirm the actual samples at handover. |
+| Priority request | The customer may mark the order as priority and request an earlier date. Sales accepts or declines priority on the quotation after the feasibility check; the request itself does not promise the date. |
 | Submit is not confirm | Submitting only puts the order in the sales queue. Sales then prepares the quotation.                                                  |
 | Cancel                | The customer can cancel until the order is confirmed; after that the customer can only [request cancellation](#request-cancel-us-c12). |
 | Reorder               | See [Reorder](#reorder-us-c10).                                                                                                        |
@@ -171,6 +176,9 @@ The customer opens a past order in the order history and chooses **Reorder**. Th
 Acceptance criteria:
 
 - A visitor who is not signed in can browse the catalog and fill a cart.
+- The customer can choose an applicable way or accept its sample-type default and sees expected sampling needs.
+- An unavailable default is never silently substituted.
+- A portal priority request reaches Sales for acceptance or refusal on the quotation.
 - Submitting without being signed in asks for the visitor's details and e-mail address, and is refused without an e-mail address.
 - Reordering a completed order creates a draft with the same parameters and packages at current prices.
 - The original order, its invoices and its results are unchanged.
@@ -182,7 +190,7 @@ After the order is confirmed the customer can no longer cancel it directly, beca
 ```mermaid
 stateDiagram-v2
     [*] --> requested: customer sends request with reason
-    requested --> accepted: sales accepts, order is cancelled
+    requested --> accepted: sales accepts the requested scope
     requested --> declined: sales declines, order continues
     requested --> withdrawn: customer withdraws the request
 ```
@@ -192,8 +200,8 @@ stateDiagram-v2
 | When                          | Only on a confirmed order that is not yet completed. Before confirmation the customer cancels directly.                                                                                                                                  |
 | Reason required               | The request needs a reason. The salesperson receives a to-do and the reason is kept in the order's history.                                                                                                                              |
 | One open request              | An order can have only one open request. The customer can withdraw it while it is undecided.                                                                                                                                             |
-| Sales decides                 | Sales accepts or declines, and a declined request carries a reply to the customer. Accepting cancels the order and everything the laboratory created for it.                                                                             |
-| Blocked cases                 | Cancellation cannot be accepted when any of its testing is already completed or its results have been released, or when the order is fully signed, in which case sales raises a change request instead. The customer is told that the laboratory will contact them. |
+| Sales decides | Sales accepts or declines with a reply. A whole-order cancellation cancels the order and its laboratory work. When a new promised date is refused, Sales handles a request for the unfulfillable part and retains the rest, including completed results. |
+| Blocked cases | Whole-order cancellation is blocked if any testing is completed or results released. Cancelling an unfulfillable part preserves completed work and follows the affected sample-test cancellation rules. A fully signed order needs an approved change request. Sales tells the customer the decision. |
 | Order keeps running meanwhile | A pending request does not pause the laboratory; testing continues until sales accepts.                                                                                                                                                  |
 | Money                         | There is no refund flow. If an advance was paid, the money stays on the invoice and sales settles it with the customer outside the system. The customer is told this when sending the request.                                           |
 | Notification                  | The customer gets an email when the request is accepted or declined.                                                                                                                                                                     |
@@ -202,7 +210,7 @@ Acceptance criteria:
 
 - A confirmed order shows **Request cancellation** instead of **Cancel**; an unconfirmed one shows **Cancel**.
 - Sending a request without a reason is refused.
-- Accepting cancels the order and everything under it, and the customer's status becomes Cancelled.
+- Accepting a whole-order request cancels the order and its laboratory work. Accepting cancellation of an unfulfillable part preserves the remaining work and completed results.
 - Declining leaves the order unchanged and shows the reply on the order page.
 
 ### 3. Quotation, acceptance and payment (US-C13 to US-C17)

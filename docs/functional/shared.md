@@ -64,7 +64,7 @@ Acceptance criteria:
 
 | Item             | Rule                                                                                                                                                                                                                     |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Who signs        | The role required by the document's approval chain, for example the Head of Sales for an order or the Lab Head for a test result. Chains can have several levels, each signing in turn.                                  |
+| Who signs        | The role required by the document's approval chain, for example the Head of Sales for an order or the Head of Department for a test result and the Lab Head for a test report. Chains can have several levels, each signing in turn. For a result entered by its department's only result signer, the Lab Head performs the result approval instead; the entrant cannot self-approve.                                  |
 | What is recorded | For every signature: the signer, their role and level, the time, and the document version signed, with the hash of its content for a document whose content has one, such as a laboratory file version. The signer is the logged-in user; signing needs a deliberate action (and confirmation), not just opening the document. |
 | Rejection        | A signer can reject with a reason instead of signing. The reason is kept and the requester is notified.                                                                                                                  |
 | Documents        | Invoices, quotations, orders, test results and any other document type that has an approval chain.                                                                                                                       |
@@ -130,9 +130,9 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 
 - From the first signature the document is read-only for everyone, including administrators.
 - **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature once every higher level has withdrawn theirs. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
-- **After the document's process is completed**, such as a test request completed, an order completed or an invoice paid, the document can no longer be reopened. To change it, a person who can edit that type of document raises a **change request** stating what to change and why.
-- The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Lab Head for a test result.
-- When the chain approves, the system creates a **new version** of the document, unsigned, linked to the signed one; the signed version is kept unchanged and marked as replaced. The new version must be signed again.
+- **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. A person allowed to edit that document type raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders. Posted invoices are corrected by adjustment invoices or credit notes instead.
+- The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Head of Department for a test result and the Lab Head for a test report.
+- When the chain approves, create an unsigned **new version** linked to the unchanged signed one, and sign the new version again. Results mark the previous version replaced at correction. An issued report remains the issued version until its signed replacement is released; [linked result and report corrections](laboratory_module/overview.md#reports-and-change-requests) wait for all required result approvals and use a fresh report signing task.
 - Anyone concerned can follow the status of the change request: requested, approved, rejected, applied.
 - A rejected request leaves the signed document untouched and records the reason.
 
@@ -226,24 +226,38 @@ Tasks with a planned time, machine bookings and location bookings appear on sche
 | Test request schedule | The tasks, bookings and due dates of the samples of one test request                     |
 | Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
 
-- **Built on Odoo Calendar.** A planned task and a machine booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a machine booking's event can only be moved where the scheduler finds the slot free. Working hours come from the person's working time (`resource.calendar`).
-- **Booking a location.** Anyone who works for the company can book a bookable [location](laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) for a time: the booking is an Odoo calendar event that names the location, with its organiser and attendees, so it shows on their calendars and on the location's schedule. Bookings of one location do not overlap; a location that is not bookable, or is archived, cannot be booked. The organiser moves or cancels the booking; an administrator can cancel any booking. Booking a location shows the free times of the locations under a chosen location, such as the rooms of a floor.
-- A reminder is sent a number of minutes before a planned task, a machine booking or a location booking starts, 15 by default, set by an administrator. It is raised once from the calendar event of the task or the booking, on the task the work belongs to, or on the event of a location booking to its organiser and attendees, and that event has no second Odoo alarm.
-- A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
+- **Built on Odoo Calendar.** A planned task and a test run, with a machine reservation when needed, each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a run's event can only move where its tester and all required resources are available. Working hours, holidays and approved leave come from the HR calendar. A no-machine run still has a personal event and any required location reservations.
+- **Booking a location.** Anyone who works for the company can book a bookable [location](laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) for a time: the booking is an Odoo calendar event that names the location, with its organiser and attendees, so it shows on their calendars and on the location's schedule. Bookings of one location do not overlap or fall within its unavailable intervals; a location that is not bookable, or is archived, cannot be booked. Newly recorded unavailability replans affected not-started bookings and notifies their responsible people. The organiser moves or cancels the booking; an administrator can cancel any booking. Booking a location shows the free times of the locations under a chosen location, such as the rooms of a floor.
+- A reminder is sent before a planned task, run or location booking starts, 15 minutes by default. Use its calendar event and notify the task assignee or location organiser and attendees, without a second Odoo alarm. Moving a booking cancels its unsent old reminder and schedules a reminder for the new time. If the new time is already inside the reminder window, notify immediately. Deduplicate each schedule update; never retract a reminder already delivered.
+- A reminder is shown in the application as a pop-up and sent by email through Brevo. Mobile-app delivery is deferred with Medilab Mobile.
 - **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.
 - **Recipients.** For each event, the administrator chooses who is notified: the holders of one or more roles, the people of one or more departments, or both, on top of the person the event concerns directly, such as the assignee of a task.
 - **Notifications.** Every notification belongs to an event, such as a booking reminder, and has a key, so the same notification is never created twice. It is delivered once on each channel the person keeps on for that event. Mandatory events, such as a password reset or a payment receipt, cannot be turned off.
-- **Built on Odoo Discuss.** A notification is an Odoo message (`mail.message`) on the document it is about, and an event is a message subtype (`mail.message.subtype`). In the application it is an Odoo inbox notification, shown as a pop-up through the bus. By e-mail it goes through Odoo's mail queue, which retries it. A push to Medilab Mobile is MediLab's own delivery, sent by a scheduled job (SH-09).
-- **Channel choices.** A person's choice of channels extends Odoo's own notification preference on their user: Odoo's choice, in the application or by e-mail, is their default for every event, and their preferences add a choice per event and channel, push included.
+- **Built on Odoo Discuss.** A notification is an Odoo message (`mail.message`) on the document it is about, and an event is a message subtype (`mail.message.subtype`). In the application it is an Odoo inbox notification, shown as a pop-up through the bus. By e-mail it goes through Odoo's mail queue, which retries it. Mobile-app pushes are outside the current delivery scope.
+- **Channel choices.** A person's choice of channels extends Odoo's own notification preference on their user: Odoo's choice, in the application or by e-mail, is their default for every event, and their preferences add a choice per event and supported channel.
 
 Acceptance criteria:
 
-- A booking appears on the personal schedule of the person who runs it and on the machine's schedule.
+- A run appears on its tester's personal schedule and on each required resource schedule; a no-machine run needs no machine reservation.
 - A location booking appears on the calendars of its organiser and attendees and on the location's schedule.
 - Booking a location for a time that overlaps another of its bookings is refused with a message naming the existing booking.
 - A location that is not bookable cannot be chosen for a booking.
-- A reminder arrives 15 minutes before a booking starts, once on each channel.
+- A reminder arrives 15 minutes before a booking starts, once on each selected channel.
+- Moving a booking cancels only unsent old reminders, schedules the new one and sends immediately if already inside the reminder window. Reprocessing the same update creates no duplicate.
+- A run cannot be planned during an unavailable interval of any required location.
 - An event the administrator turned off notifies nobody; turning it on again notifies the next occurrence.
+
+#### SH-12 Internal messaging
+
+| Rule | Description |
+| --- | --- |
+| Chat | Laboratory staff communicate through Odoo Discuss. |
+| Record discussion | Staff discuss an accessible record in its chatter, keeping the conversation with the work it concerns. Existing access permissions apply. |
+
+Acceptance criteria:
+
+- Staff can exchange messages in Discuss and discuss a record they may access in its chatter.
+- A record discussion does not grant access to records the participant cannot read.
 
 ## II. External systems integration
 
@@ -266,7 +280,7 @@ The system takes online payments through PayOS, added as a payment provider of O
 
 - Used for the advance and final invoices. The customer pays from the portal or from a payment link in an e-mail.
 - Payment methods are whatever PayOS offers (for example bank transfer by QR code); administrators enable or disable them in the settings, and the portal shows only those enabled.
-- A payment is confirmed only by the provider's signed notification, never by the customer's browser returning to the website. The signature is verified, and a repeated notification creates no second payment.
+- A verified signed notification or the provider status returned by a server-side query of pending payments confirms a payment. A browser return never does. Both confirmation paths deduplicate the payment.
 - A confirmed payment is recorded against the invoice and updates its payment status automatically; partial payments are supported.
 - The status of each payment (created, pending, paid, failed, cancelled, expired) is stored and shown to the accountant.
 - If notifications are missed, a scheduled job (SH-09) asks the provider for the status of pending payments.
@@ -284,7 +298,7 @@ The system digitally signs printed documents through Viettel Sign's remote signi
 
 ### 4. Firebase Cloud Messaging (mobile push)
 
-The system pushes reminders and notifications to the Medilab Mobile app through Firebase Cloud Messaging (SH-11).
+Firebase delivery is deferred with Medilab Mobile and is outside the current application scope. Its integration design is retained below for the later mobile application.
 
 - When a person signs in on the app, the app registers the device's token for their user; signing out turns the token off. Odoo's own push devices serve web browsers only, so mobile devices are MediLab's own records.
 - A push sent to a token Firebase reports as permanently invalid (`UNREGISTERED`, `SENDER_ID_MISMATCH`, or `INVALID_ARGUMENT` about the token) turns that token off. A timeout or a temporary error leaves the token on and the delivery is retried.
