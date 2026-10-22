@@ -10,6 +10,7 @@ Step-by-step procedures for recurring tasks.
 - [Syncing the database diagram](syncing-database-diagram.md): bring a module's Prisma diagram in line with the tables Odoo creates
 - [Reviewing a pull request](reviewing-pr.md): check a pull request against the conventions, business rules and database, and post the review
 - [Setting up](setting-up.md): install the modules and configure the company, languages, settings and code formats
+- [Running Medilab Mobile](running-mobile-app.md): run the mobile app on a phone, an emulator or a simulator against a MediLab server
 - [Provisioning a node](provisioning-node.md): give Ansible access to a machine from the VPS web console and Doppler, then check, inspect, preview and apply k3s and Argo CD with `cd-ansible`
 - [Moving a node](moving-node.md): replace a production node, such as the Azure witness, with another machine without stopping the system
 - [Odoo intelligence](odoo-intelligence.md): install and verify Odoo navigation across coding clients and isolated worktrees

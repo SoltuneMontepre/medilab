@@ -76,6 +76,8 @@ class SampleTest(models.Model):
     )
     # True when no machine can finish the test before its due date, so the scheduler suggests outsourcing it.
     outsourcing_suggested = fields.Boolean(readonly=True, copy=False, index=True)
+    # Why the head of department outsourced the test straight away instead of from an outsourcing suggestion.
+    emergency_outsource_reason = fields.Text(readonly=True, copy=False)
     # Machine bookings for the test.
     booking_ids = fields.One2many(MODEL_MACHINE_BOOKING, "sample_test_id", string="Bookings")
     # Results of the test, one per attempt.
@@ -95,6 +97,9 @@ class SampleTest(models.Model):
     subcontracted_method_ids = fields.Many2many(
         MODEL_PARAMETER_METHOD, string="Subcontracted Ways", compute="_compute_subcontracted_method_ids"
     )
+    # True when the current person belongs to the department of the test's testing task, which may outsource it
+    # straight away.
+    tested_by_my_department = fields.Boolean(compute="_compute_tested_by_my_department")
     # The subcontractor that tests it; empty when the laboratory tests it in-house.
     subcontractor_id = fields.Many2one(related="parameter_method_id.subcontractor_id")
     # Dispatches that send the test to a subcontractor.
@@ -150,6 +155,12 @@ class SampleTest(models.Model):
             test.subcontracted_method_ids = test.parameter_id.method_ids.filtered(
                 lambda way: way.subcontractor_id._can_be_chosen()
             )
+
+    @api.depends_context("uid")
+    def _compute_tested_by_my_department(self):
+        person = self.env[MODEL_PERSON]._current()
+        for test in self:
+            test.tested_by_my_department = test._tested_by_department_of(person)
 
     def _compute_recommendation(self):
         bookings = self.env[MODEL_MACHINE_BOOKING]
@@ -230,12 +241,42 @@ class SampleTest(models.Model):
         }
 
     def _accept_outsourcing(self, way):
-        """Send a test suggested for outsourcing to the subcontractor of the way of testing: it leaves the machine queue
-        and joins the subcontractor's draft dispatch, which is returned."""
+        """Send a test suggested for outsourcing to the subcontractor of the way of testing."""
         self.ensure_one()
         self._check_permission("edit")
         if not self.outsourcing_suggested or self.status not in ("waiting", "assigned"):
             raise UserError(self.env._("%s is not suggested for outsourcing.", self.display_name))
+        return self._send_to_subcontractor(way)
+
+    def _outsource_now(self, way, reason):
+        """The department testing a waiting or assigned test sends it to the subcontractor of the way of testing straight
+        away in an emergency, with a reason, without an outsourcing suggestion."""
+        self.ensure_one()
+        if not (reason or "").strip():
+            raise UserError(self.env._("Give a reason for outsourcing the test straight away."))
+        self._check_permission("edit")
+        if self.status not in ("waiting", "assigned"):
+            raise UserError(
+                self.env._(
+                    "Only a waiting or assigned sample test can be outsourced straight away: %s", self.display_name
+                )
+            )
+        if not self._tested_by_department_of(self.env[MODEL_PERSON]._current()):
+            raise UserError(
+                self.env._("Only the department testing %s can outsource it straight away.", self.display_name)
+            )
+        return self._send_to_subcontractor(way, reason)
+
+    def _tested_by_department_of(self, person):
+        """True when the person belongs to the department of the test's testing task."""
+        self.ensure_one()
+        department = self._testing_task().department_id
+        return bool(person and department and department == person.department_id)
+
+    def _send_to_subcontractor(self, way, emergency_reason=False):
+        """The test leaves the machine queue and joins the draft dispatch to the subcontractor of the way of testing,
+        which is returned. The reason is kept when the test is outsourced straight away."""
+        self.ensure_one()
         if way not in self.subcontracted_method_ids:
             raise UserError(
                 self.env._(
@@ -245,7 +286,13 @@ class SampleTest(models.Model):
                 )
             )
         test = self.sudo()
-        test.write({"parameter_method_id": way.id, "outsourcing_suggested": False})
+        test.write(
+            {
+                "parameter_method_id": way.id,
+                "outsourcing_suggested": False,
+                "emergency_outsource_reason": emergency_reason,
+            }
+        )
         test._release_bookings()
         test._progress("outsourced")
         dispatches = self.env[MODEL_SUBCONTRACT_DISPATCH]
@@ -268,8 +315,7 @@ class SampleTest(models.Model):
                         "Only a waiting, assigned or testing sample test can be cancelled: %s", test.display_name
                     )
                 )
-            department = test._testing_task().department_id
-            if not person or not department or department != person.department_id:
+            if not test._tested_by_department_of(person):
                 raise UserError(self.env._("Only the department testing %s can cancel it.", test.display_name))
         tests = self.sudo()
         tests.write({"cancel_reason": reason, "cancelled_by_id": person.id, "cancelled_at": fields.Datetime.now()})
