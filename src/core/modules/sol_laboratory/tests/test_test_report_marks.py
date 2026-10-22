@@ -1,8 +1,12 @@
 from odoo.tests import tagged
 
+from .change_request_case import ChangeRequestCase
 from .dispatch_case import DISPATCH_PERMISSIONS
-from .report_case import ReportCase
-from odoo.addons.sol_laboratory.constants.models import MODEL_PARAMETER_METHOD, MODEL_SUBCONTRACTOR
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_PARAMETER_METHOD,
+    MODEL_SUBCONTRACTOR,
+    MODEL_TEST_RESULT,
+)
 from odoo.addons.sol_laboratory.constants.xml_ids import TEST_REPORT_REPORT
 
 NOTE_VI = "(TP) Chỉ tiêu do nhà thầu phụ thực hiện"
@@ -10,7 +14,7 @@ NOTE_EN = "Tested by a subcontractor"
 
 
 @tagged("post_install", "-at_install")
-class TestTestReportMarks(ReportCase):
+class TestTestReportMarks(ChangeRequestCase):
     """Northern tests lead for the laboratory; arsenic is tested in-house."""
 
     @classmethod
@@ -59,6 +63,18 @@ class TestTestReportMarks(ReportCase):
         self.assertIn(f"{self.parameter.name} (S)", printed)
         self.assertIn(f"(S) {NOTE_EN}", printed)
         self.assertNotIn("(TP)", printed)
+
+    def test_a_new_version_of_a_subcontracted_result_keeps_its_mark(self):
+        self.complete_outsourced_and_in_house()
+        request = self.raise_on(self.test.result_ids)
+        self.sign(request)
+        version = self.env[MODEL_TEST_RESULT].browse(request.new_document_id)
+        self.send(version)
+        self.approve(version)
+
+        report = self.report()
+        self.assertIn(version, report.result_ids)
+        self.assertIn(f"{self.parameter.name} (TP)", self.html(report))
 
     def test_a_report_without_subcontracted_results_has_no_note(self):
         self.complete()
