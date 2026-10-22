@@ -1,8 +1,8 @@
-import hashlib
 import uuid
 
 from odoo.tests import tagged
 
+from .laboratory_files_case import stored_content
 from .laboratory_files_concurrency_case import LaboratoryFilesConcurrencyCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, EDITED_ONLINE, RESTORED, SYNCED
 from odoo.addons.sol_laboratory.constants.models import (
@@ -13,14 +13,8 @@ from odoo.addons.sol_laboratory.constants.models import (
 
 
 def save(file, content, source=SYNCED, **values):
-    sha256 = hashlib.sha256(content.encode()).hexdigest()
     return file._add_version(
-        sha256=sha256,
-        size=len(content),
-        storage_key=f"test/{sha256}",
-        source=source,
-        user=file.env.ref("base.user_admin"),
-        **values,
+        content=stored_content(file.env, content), source=source, user=file.env.ref("base.user_admin"), **values
     )
 
 
@@ -36,6 +30,7 @@ class TestLaboratoryFileVersionConcurrency(LaboratoryFilesConcurrencyCase):
     def prepare(self, env):
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_audit_entry")
         self.last_entry_id = env.cr.fetchone()[0]
+        self.last_content_id = self.last_content(env)
         folder = env[MODEL_LABORATORY_FOLDER].create(
             {"name": f"Concurrency {uuid.uuid4().hex[:8]}", "owner_id": env.ref("base.user_admin").id}
         )
@@ -63,6 +58,7 @@ class TestLaboratoryFileVersionConcurrency(LaboratoryFilesConcurrencyCase):
             "(SELECT id FROM medilab_laboratory_file WHERE folder_id = %s)",
             [self.folder_id],
         )
+        self.remove_contents(cr, self.last_content_id)
         cr.execute("DELETE FROM medilab_laboratory_file WHERE folder_id = %s", [self.folder_id])
         cr.execute("DELETE FROM medilab_laboratory_folder_member WHERE folder_id = %s", [self.folder_id])
         cr.execute("DELETE FROM medilab_laboratory_folder WHERE id = %s", [self.folder_id])
@@ -98,9 +94,6 @@ class TestLaboratoryFileVersionConcurrency(LaboratoryFilesConcurrencyCase):
         def restore(env):
             first = self.first_version(env)
             return self.file(env)._add_version(
-                sha256=first.sha256,
-                size=first.size,
-                storage_key=first.storage_key,
                 source=RESTORED,
                 user=env.ref("base.user_admin"),
                 restored_from=first,

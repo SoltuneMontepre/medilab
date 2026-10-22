@@ -2399,22 +2399,26 @@ model LaboratoryFileVersion {
   restored_from_id   Int?
   /// synced, conflict, restored or edited_online.
   source             String         @db.VarChar
-  /// Size of the content in bytes.
+  /// Size of the content in bytes, as the server computed it.
   size               BigInt
-  /// SHA-256 of the content, in hexadecimal.
+  /// SHA-256 of the content, in hexadecimal, as the server computed it.
   sha256             String         @db.VarChar
-  /// Key of the content in the bucket; versions with the same content share it.
-  storage_key        String         @db.VarChar
+  /// The verified content the version holds; versions with the same content share it.
+  content_id         Int
   /// The user who saved the version.
   user_id            Int
   /// The device it came from; empty for a version made online or by a restore in the back office.
   device_id          Int?
+  /// The Idempotency-Key the device sent with the request that restored the version; unique for the device where it is set (a partial unique index).
+  idempotency_key    String?        @db.VarChar
   /// none, requested, approved or rejected: where the version is in its signing.
   approval_state     String         @default("none") @db.VarChar
   /// Round of the version's signing that the next signature records; it grows when every signature is withdrawn.
   document_version   Int            @default(1)
   /// The file.
   file               LaboratoryFile @relation("FileVersions", fields: [file_id], references: [id], onDelete: Restrict)
+  /// The verified content the version holds.
+  content            LaboratoryContent @relation(fields: [content_id], references: [id], onDelete: Restrict)
   /// The file whose current version this is.
   current_of         LaboratoryFile? @relation("CurrentVersion")
   /// The version that was current when this one was made.
@@ -2441,48 +2445,78 @@ model LaboratoryFileVersion {
   saved_by_session   LaboratoryEditingSession? @relation("EditingResult")
 
   @@unique([file_id, number])
-  @@index([storage_key])
+  @@index([content_id])
   @@map("medilab_laboratory_file_version")
 }
 
-/// An upload of a file's content straight to the bucket in parts, from the version it was based on.
+/// One object of the laboratory files bucket, with the size and SHA-256 the server computed of it. Its object key and,
+/// once settled, its state, size and SHA-256 never change, and it is never deleted. Only full rights reach it.
+/// object_key is checked to be 32 lowercase hexadecimal digits, sha256 64; verified and duplicate content have a size
+/// and a SHA-256, and the SHA-256 is unique among verified content (a partial unique index).
+model LaboratoryContent {
+  /// Row identifier.
+  id         Int                     @id @default(autoincrement())
+  /// Key of the object in the bucket: 32 hexadecimal digits the server made, which tell nothing about the content.
+  object_key String                  @unique @db.VarChar
+  /// pending, verified, duplicate or failed.
+  state      String                  @default("pending") @db.VarChar
+  /// Size of the content in bytes, as the server computed it; empty while pending.
+  size       BigInt?
+  /// SHA-256 of the content in hexadecimal, as the server computed it; empty while pending.
+  sha256     String?                 @db.VarChar
+  /// The versions that hold this content.
+  versions   LaboratoryFileVersion[]
+  /// The uploads of this content's object.
+  uploads    LaboratoryUpload[]
+
+  @@map("medilab_laboratory_content")
+}
+
+/// An upload of a file's content straight to the bucket, in the parts of a multipart upload the server made, from the version the computer's file was based on. Its path, claims, content, object and person never change, and it is never deleted.
+/// claimed_sha256 is checked to be 64 lowercase hexadecimal digits and claimed_size to be from 0 to 5 GiB; idempotency_key is unique for the device where it is set (a partial unique index).
 model LaboratoryUpload {
   /// Row identifier.
   id              Int              @id @default(autoincrement())
   /// The folder uploaded to.
   folder_id       Int
-  /// The file, once known; empty for a new path until it is finalized.
+  /// The file, once known; empty for a new path until its version is stored.
   file_id         Int?
-  /// Path of the file relative to the folder.
+  /// Path of the file relative to the folder, in Unicode NFC.
   path            String           @db.VarChar
-  /// The version the device's file was based on; empty for a new file.
+  /// The version the computer's file was based on; empty for a new file.
   base_version_id Int?
-  /// Size of the content in bytes.
-  size            BigInt
-  /// SHA-256 the device computed.
-  sha256          String           @db.VarChar
-  /// Key the content is uploaded to in the bucket.
-  storage_key     String           @db.VarChar
-  /// The bucket's id of the multipart upload; empty when the content was already stored.
+  /// Size of the content in bytes, as the computer claims it.
+  claimed_size    BigInt
+  /// SHA-256 of the content in hexadecimal, as the computer claims it.
+  claimed_sha256  String           @db.VarChar
+  /// The content of the upload's own object; empty when the file already had the content and nothing was uploaded.
+  content_id      Int?
+  /// The bucket's id of the multipart upload; empty when nothing was uploaded in parts.
   multipart_id    String?          @db.VarChar
-  /// prepared, uploading, finalizing, completed, conflict, expired, aborted or failed.
-  status          String           @db.VarChar
-  /// True when the content already existed and no part was uploaded.
-  reused          Boolean          @default(false)
+  /// prepared, verifying, completed, conflict, unchanged, refused, failed or expired.
+  status          String           @default("prepared") @db.VarChar
+  /// Why the upload failed or was refused, as the code a computer acts on.
+  failure_code    String?          @db.VarChar
   /// The version the upload stored.
   version_id      Int?             @unique
   /// The user uploading.
   user_id         Int
   /// The device uploading.
   device_id       Int
-  /// When an unfinished upload expires and its parts are removed.
+  /// The Idempotency-Key the device sent with the request that prepared the upload.
+  idempotency_key String?          @db.VarChar
+  /// When an upload not finalized by then expires and its parts are removed.
   expires_at      DateTime
+  /// When the device last finalized the upload.
+  finalized_at    DateTime?
   /// The folder uploaded to.
   folder          LaboratoryFolder @relation(fields: [folder_id], references: [id], onDelete: Restrict)
   /// The file.
   file            LaboratoryFile?  @relation(fields: [file_id], references: [id], onDelete: Restrict)
-  /// The version the device's file was based on.
+  /// The version the computer's file was based on.
   base_version    LaboratoryFileVersion? @relation("UploadBase", fields: [base_version_id], references: [id], onDelete: Restrict)
+  /// The content of the upload's own object.
+  content         LaboratoryContent? @relation(fields: [content_id], references: [id], onDelete: Restrict)
   /// The version the upload stored.
   version         LaboratoryFileVersion? @relation("UploadResult", fields: [version_id], references: [id], onDelete: Restrict)
   /// The user uploading.

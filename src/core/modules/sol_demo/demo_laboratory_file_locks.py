@@ -1,9 +1,9 @@
-import hashlib
 from datetime import timedelta
 
 from odoo import fields
 from odoo.tools import SQL
 
+from .demo_laboratory_content import content_writer
 from odoo.addons.sol_laboratory.constants.laboratory_files import SYNCED
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FILE
 
@@ -28,12 +28,11 @@ def seed_laboratory_file_locks(env):
     hplc_pc = env.ref("sol_demo.demo_laboratory_device_hplc_pc")
     aas_pc = env.ref("sol_demo.demo_laboratory_device_aas_pc")
 
+    store = content_writer(env)
+
     def save(file, content, user, device):
-        sha256 = hashlib.sha256(content.encode()).hexdigest()
         return file._add_version(
-            sha256=sha256,
-            size=len(content.encode()),
-            storage_key=f"demo/{sha256}",
+            content=store(content),
             source=SYNCED,
             user=user,
             device=device,

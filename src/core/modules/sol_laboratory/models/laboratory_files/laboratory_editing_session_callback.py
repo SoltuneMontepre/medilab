@@ -13,7 +13,13 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
     EDITING_UNAVAILABLE,
     SAVED_STATUSES,
 )
-from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION, MODEL_RES_USERS
+from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LABORATORY_CONTENT,
+    MODEL_LABORATORY_EDITING_SESSION,
+    MODEL_RES_CONFIG_SETTINGS,
+    MODEL_RES_USERS,
+)
+from odoo.addons.sol_laboratory.services import laboratory_bucket
 from odoo.addons.sol_laboratory.services.editing_service_health import is_editing_service_up
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused, jwt_secret, sign, verify_callback
@@ -44,14 +50,17 @@ class LaboratoryEditingSession(models.Model):
                 self.env._("Online editing is unavailable right now. Syncing, history and restoring still work."),
             )
 
-    def _editor_config(self, user, document_url, callback_url, lifetime_seconds):
-        """The editor configuration of the session for the user, signed for lifetime_seconds: the editing service reads
-        the base version at document_url and calls back on callback_url. Force save is off."""
+    def _editor_config(self, user, callback_url):
+        """The editor configuration of the session for the user: the editing service reads the base version from a
+        presigned address of its content, never through Odoo, and calls back on callback_url. It is signed for as long
+        as that address lasts, the file address lifetime of the settings. Force save is off."""
         self.ensure_one()
         secret = jwt_secret()
         if not secret:
             raise LaboratoryFileError(EDITING_UNAVAILABLE, self.env._("Online editing is unavailable right now."))
         session = self.sudo()
+        lifetime_seconds = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("laboratory_file_url_minutes") * 60
+        document_url = session.base_version_id._read_address(lifetime_seconds)
         path = session.file_id.path
         extension = posixpath.splitext(path)[1].removeprefix(".").lower()
         config = {
@@ -130,18 +139,31 @@ class LaboratoryEditingSession(models.Model):
             self._fail(
                 self.env._(
                     "The editing service named nobody who can save the file; the saved content is kept under %s.",
-                    content["storage_key"],
+                    content.object_key,
                 )
             )
             return True
-        self._store_save(editor=editor, editors=editors, **content)
+        self._store_save(content=content, editor=editor, editors=editors)
         return True
 
     def _store_saved_document(self, chunks):
-        """Store the chunks of a saved document as new content and return its sha256, size and storage_key, as
-        _store_save() takes them. The laboratory files bucket stores it; without it nothing is stored, and the save
-        waits for the editing service to call back again."""
-        raise SavedDocumentUnavailable("Saved documents are not stored without the laboratory files bucket.")
+        """Write the chunks of a saved document to a new object, computing its size and SHA-256 on the way, and return
+        the verified content _store_save() takes: the new content, or the content already stored with that SHA-256.
+        While the bucket cannot be reached nothing is stored, and the save waits for the editing service to call back
+        again.
+
+        When Odoo runs the request again, the document is written again to another object; the first has no content
+        that counts, and reconciliation deletes it."""
+        content = self.env[MODEL_LABORATORY_CONTENT].sudo()._new_pending()
+        try:
+            size, sha256 = laboratory_bucket.write(content.object_key, chunks)
+        except laboratory_bucket.BucketUnavailable as error:
+            content._fail()
+            raise SavedDocumentUnavailable(str(error)) from error
+        except (SavedDocumentTooLarge, SavedDocumentUnavailable):
+            content._fail()
+            raise
+        return content._settle(sha256, size)
 
     def _editors_of(self, fields):
         """The person who saved, the last one the editing service names, and everyone who changed the document. The

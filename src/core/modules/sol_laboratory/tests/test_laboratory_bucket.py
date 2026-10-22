@@ -2,7 +2,6 @@ import base64
 import hashlib
 import os
 import re
-import socket
 import time
 import urllib.parse
 from unittest.mock import patch
@@ -13,7 +12,7 @@ from botocore.exceptions import ClientError
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
-from .laboratory_bucket_case import LaboratoryBucketCase
+from .laboratory_bucket_case import LaboratoryBucketCase, closed_port
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import ACCESS_KEY_VARIABLE, ADDRESS_VARIABLE, PART_SIZE
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 
@@ -21,13 +20,6 @@ from odoo.addons.sol_laboratory.services import laboratory_bucket
 # tools/infrastructure/docker-compose.yml).
 OTHER_BUCKET = "laboratory-files-other"
 MINUTE = 60
-
-
-def closed_port():
-    """A port of this machine nothing listens on, as the address of a bucket that is down."""
-    with socket.socket() as probe:
-        probe.bind(("127.0.0.1", 0))
-        return probe.getsockname()[1]
 
 
 def in_chunks(data, size=1024 * 1024):
@@ -63,7 +55,7 @@ class TestLaboratoryBucket(LaboratoryBucketCase):
 
         self.assertEqual([(number, part_size) for number, part_size, _etag in parts], [(1, PART_SIZE), (2, 1000)])
         self.assertEqual((size, again), (PART_SIZE + 1000, PART_SIZE + 1000))
-        self.assertEqual(self.stored(key), (hashlib.sha256(first + last).hexdigest(), PART_SIZE + 1000))
+        self.assertEqual(self.read_back(key), (hashlib.sha256(first + last).hexdigest(), PART_SIZE + 1000))
 
     def test_a_part_address_writes_nothing_once_its_upload_is_completed(self):
         key = self.new_key()
@@ -76,7 +68,7 @@ class TestLaboratoryBucket(LaboratoryBucketCase):
         response = self.call_presigned("PUT", url, b"another content")
 
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(self.stored(key), (hashlib.sha256(b"the content").hexdigest(), 11))
+        self.assertEqual(self.read_back(key), (hashlib.sha256(b"the content").hexdigest(), 11))
 
     def test_an_aborted_upload_is_gone_and_aborting_it_again_changes_nothing(self):
         key = self.new_key()
@@ -99,7 +91,7 @@ class TestLaboratoryBucket(LaboratoryBucketCase):
         size, sha256 = laboratory_bucket.write(key, in_chunks(data))
 
         self.assertEqual((size, sha256), (len(data), hashlib.sha256(data).hexdigest()))
-        self.assertEqual(self.stored(key), (sha256, size))
+        self.assertEqual(self.read_back(key), (sha256, size))
         self.assertEqual(laboratory_bucket.object_size(key), size)
 
     def test_empty_content_is_written_and_read_back(self):
@@ -109,7 +101,7 @@ class TestLaboratoryBucket(LaboratoryBucketCase):
 
         self.assertEqual((size, sha256), (0, hashlib.sha256(b"").hexdigest()))
         self.assertEqual(laboratory_bucket.object_size(key), 0)
-        self.assertEqual(self.stored(key), (sha256, 0))
+        self.assertEqual(self.read_back(key), (sha256, 0))
 
     def test_the_bucket_refuses_a_part_whose_sha256_is_not_its_content(self):
         bucket, client = laboratory_bucket._calls()
@@ -151,7 +143,7 @@ class TestLaboratoryBucket(LaboratoryBucketCase):
         self.assertEqual((read.status_code, read.content), (200, b"Pb: 0,004 mg/L"))
         self.assertIn(urllib.parse.quote("Kết quả HPLC.xlsx"), read.headers["Content-Disposition"])
         self.assertEqual(written.status_code, 403)
-        self.assertEqual(self.stored(key)[1], 14)
+        self.assertEqual(self.read_back(key)[1], 14)
 
     def test_a_read_address_stops_working_once_it_expires(self):
         key = self.new_key()

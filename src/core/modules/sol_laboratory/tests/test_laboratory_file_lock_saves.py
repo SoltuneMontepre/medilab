@@ -17,9 +17,6 @@ from odoo.addons.sol_laboratory.services.laboratory_file_error import Laboratory
 class TestLaboratoryFileLockSaves(LaboratoryFileLocksCase):
     def restore(self, file, user):
         return file._add_version(
-            sha256=self.first.sha256,
-            size=self.first.size,
-            storage_key=self.first.storage_key,
             source=RESTORED,
             user=user,
             restored_from=self.first,
