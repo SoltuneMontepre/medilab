@@ -25,11 +25,11 @@ def inline_report_assets(env, document):
         return document
     binary = isinstance(document, bytes)
     root = html.fromstring(document.decode() if binary else str(document))
-    for node in root.xpath("//link[@href]"):
+    for node in _elements(root, "link", "href"):
         _replace_link(env, node)
-    for node in root.xpath("//script[@src]"):
+    for node in _elements(root, "script", "src"):
         _replace_script(env, node)
-    for node in root.xpath("//base"):
+    for node in _elements(root, "base"):
         parent = node.getparent()
         if parent is not None:
             parent.remove(node)
@@ -39,6 +39,15 @@ def inline_report_assets(env, document):
     if isinstance(document, Markup):
         return Markup(rendered)
     return rendered
+
+
+def _elements(root, tag, attribute=None):
+    # Taken as a list first, because these nodes are replaced while the tree is walked.
+    found = []
+    for node in root.iter(tag):
+        if attribute is None or node.get(attribute) is not None:
+            found.append(node)
+    return found
 
 
 def _replace_link(env, node):
