@@ -42,8 +42,9 @@ def post_init_hook(env):
     seed_change_requests(env)
     seed_signing(env)
     seed_tracking(env)
-    seed_dispatches(env)
+    # Before the dispatches: its lead test is sent in a dispatch of its own, not in the draft one they leave.
     seed_subcontracted_report(env)
+    seed_dispatches(env)
     seed_finance(env)
     seed_audit(env)
     seed_locks(env)
