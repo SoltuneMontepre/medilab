@@ -10,7 +10,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | `ci-infra`      | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and `ansible-lint` when the Ansible code changes. |
 | `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
 | `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
-| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints, bundles and tests the mobile app when it changes.                                                |
+| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                    |
 | `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
 | `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
 | `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
@@ -112,10 +112,19 @@ flowchart LR
 
 The mobile app is the Expo app in `src/applications/medilab-mobile`.
 
-When the app or the workflow changes, `lint`, `build` and `test` run at once after `changes`. They are the required checks, the same names as in `ci-core`, and pass at once when nothing relevant changed.
+When the app or the workflow changes, its jobs run at once after `changes`:
+
+```mermaid
+flowchart LR
+    changes --> lint
+    changes --> compile["compile (Android), (iOS)"] --> build
+    changes --> test
+```
+
+`lint`, `build` and `test` are the required checks, the same names as in `ci-core`. When nothing relevant changed, they pass at once.
 
 - `lint` runs the type check with `tsc` and ESLint with Expo's rules.
-- `build` bundles the JavaScript for Android and iOS with `expo export`. It does not compile the native apps.
+- `compile` builds the development build of each platform, so a native dependency or a config plugin that breaks one platform fails here: it bundles the JavaScript with `expo export`, generates the native project with `expo prebuild`, then compiles it. Android builds a debug APK with Gradle and Java 17 on Ubuntu, for `arm64-v8a` only; iOS builds for the simulator with `xcodebuild` on `macos-26`, without signing. `build` fails unless both passed.
 - `test` runs the Jest tests.
 - Each job sets up Node 24, which Expo needs, and Bun, which installs the dependencies.
 - When any job fails, its last step cancels the whole run, as in `ci-core`.

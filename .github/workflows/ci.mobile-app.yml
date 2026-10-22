@@ -80,44 +80,105 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
 
-  build:
+  compile:
+    name: compile (${{ matrix.label }})
     needs: changes
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    if: needs.changes.outputs.relevant == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     permissions:
       contents: read
       actions: write
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - label: Android
+            platform: android
+            os: ubuntu-24.04
+          - label: iOS
+            platform: ios
+            os: macos-26
     defaults:
       run:
+        shell: bash
         working-directory: ${{ env.MOBILE_APP_DIR }}
     steps:
       - name: Checkout
-        if: needs.changes.outputs.relevant == 'true'
         uses: actions/checkout@v7
 
       - name: Set up Node
-        if: needs.changes.outputs.relevant == 'true'
         uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Set up Bun
-        if: needs.changes.outputs.relevant == 'true'
         uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        if: needs.changes.outputs.relevant == 'true'
         run: bun install --frozen-lockfile --ignore-scripts
 
-      - name: Bundle for Android and iOS
-        if: needs.changes.outputs.relevant == 'true'
-        run: bun x expo export --platform android --platform ios
+      - name: Bundle the JavaScript
+        run: bun x expo export --platform ${{ matrix.platform }}
+
+      - name: Generate the native project
+        run: bun x expo prebuild --platform ${{ matrix.platform }}
+
+      - name: Set up Java
+        if: matrix.platform == 'android'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        if: matrix.platform == 'android'
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build the Android app
+        if: matrix.platform == 'android'
+        working-directory: ${{ env.MOBILE_APP_DIR }}/android
+        run: ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a
+
+      - name: Build the iOS app
+        if: matrix.platform == 'ios'
+        working-directory: ${{ env.MOBILE_APP_DIR }}/ios
+        run: >-
+          xcodebuild build -quiet
+          -workspace MediLab.xcworkspace -scheme MediLab -configuration Debug
+          -sdk iphonesimulator -destination "generic/platform=iOS Simulator"
+          CODE_SIGNING_ALLOWED=NO
 
       - name: Stop the run
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh run cancel ${{ github.run_id }} --repo ${{ github.repository }}
+
+  build:
+    needs: [changes, compile]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check the change detection
+        env:
+          RESULT: ${{ needs.changes.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::The change detection finished with result $RESULT."
+            exit 1
+          fi
+
+      - name: Check the platform builds
+        if: needs.changes.outputs.relevant == 'true'
+        env:
+          RESULT: ${{ needs.compile.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::The platform builds finished with result $RESULT."
+            exit 1
+          fi
 
   test:
     needs: changes
