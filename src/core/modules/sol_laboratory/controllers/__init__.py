@@ -1,1 +1,19 @@
-from . import binary, brevo, dispatch_portal, mobile_device, portal, report, test_report, verify
+from . import (
+    binary,
+    brevo,
+    dispatch_portal,
+    laboratory_api_devices,
+    laboratory_api_file_locks,
+    laboratory_api_files,
+    laboratory_api_folder_members,
+    laboratory_api_folder_rules,
+    laboratory_api_folders,
+    laboratory_api_sign_in,
+    laboratory_api_status,
+    laboratory_api_uploads,
+    mobile_device,
+    portal,
+    report,
+    test_report,
+    verify,
+)

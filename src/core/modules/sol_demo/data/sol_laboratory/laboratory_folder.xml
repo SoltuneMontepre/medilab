@@ -21,4 +21,11 @@
         <field name="owner_id" ref="demo_res_users_tester" />
         <field name="sync_mode">two_way</field>
     </record>
+    <record id="demo_laboratory_folder_bottled_water_working" model="medilab.laboratory.folder">
+        <field name="name">Bảng tính chì nước đóng chai</field>
+        <field name="owner_id" ref="demo_res_users_tester" />
+        <field name="sample_id" ref="demo_sample_bottled_water_testing" />
+        <field name="category">working</field>
+        <field name="sync_mode">two_way</field>
+    </record>
 </odoo>

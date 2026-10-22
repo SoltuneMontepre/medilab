@@ -54,7 +54,7 @@ Medilab Sync is the desktop application that keeps folders on the laboratory's c
 | Conflicts         | A file whose upload became a conflict shows it in Status. Keep local file keeps the computer's file and hides the conflict. Use server version backs up the local file and downloads the current version. Both versions stay on the server. |
 | History           | Version history lists every version with its number, who saved it, the computer, the time and how it was made, and restores one as a new current version. |
 | Opening files     | The person opens a file in its own program from the application. |
-| Editing online    | Edit online opens an Office result or working file in the browser editor, showing step 1 of 2 while it connects to the editing service and step 2 of 2 while it opens the document. When the editing service is down the application says so at once; when the editor does not answer within a minute it shows an error with Retry. Syncing never depends on the editing service. |
+| Editing online    | Edit online opens an Office result or working file in the browser editor, on MediLab's editor page where the person is signed in, showing step 1 of 2 while it connects to the editing service and step 2 of 2 while it opens the document. When the editing service is down the application says so at once; when the editor does not answer within a minute it shows an error with Retry. Syncing never depends on the editing service. |
 
 ## Acceptance criteria
 

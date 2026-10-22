@@ -3,8 +3,17 @@ from odoo.tests import tagged
 
 from .laboratory_files_case import LaboratoryFilesCase
 from .request_case import RequestCase
-from odoo.addons.sol_laboratory.constants.laboratory_files import FOLDER_READ, NOT_FOUND
+from odoo.addons.sol_laboratory.constants.laboratory_files import (
+    FILE_READ,
+    FOLDER_ADMINISTER,
+    FOLDER_ARCHIVED,
+    FOLDER_READ,
+    FOLDER_SHARE,
+    NOT_FOUND,
+    RESULT,
+)
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_FOLDER
+from odoo.addons.sol_laboratory.constants.xml_ids import FOLDER_ADMINISTRATION_GROUP
 
 SAMPLE_READER_GROUP = "sol_laboratory.group_permission_sample_read_all"
 
@@ -17,6 +26,7 @@ class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
         cls.raw_data = cls.env[MODEL_LABORATORY_FOLDER].create(
             {"name": "Raw data", "owner_id": cls.tester.id, "sample_id": cls.sample.id, "category": "raw"}
         )
+        cls.folder_administrator = cls.create_user("lab.folders", FOLDER_ADMINISTRATION_GROUP)
 
     def test_a_member_who_cannot_see_the_sample_gets_nothing_from_its_folder(self):
         self.assertRefused(NOT_FOUND, self.raw_data.with_user(self.tester)._check_folder_access, FOLDER_READ)
@@ -25,3 +35,34 @@ class TestLaboratorySampleFolderAccess(LaboratoryFilesCase, RequestCase):
         self.tester.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
 
         self.raw_data.with_user(self.tester)._check_folder_access(FOLDER_READ)
+
+    def test_the_files_of_a_sample_folder_need_the_sample_too(self):
+        file = self.file_of("HPLC/run-01.csv", self.raw_data)
+
+        self.assertRefused(NOT_FOUND, file.with_user(self.tester)._check_file_access, FILE_READ)
+        self.tester.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        file.with_user(self.tester)._check_file_access(FILE_READ)
+        self.assertTrue(file._is_raw_data())
+
+    def test_a_folder_administrator_who_cannot_see_the_sample_neither_shares_nor_administers_its_folder(self):
+        archived = self.env[MODEL_LABORATORY_FOLDER].create(
+            {"name": "Results", "owner_id": self.tester.id, "sample_id": self.sample.id, "category": RESULT}
+        )
+        archived.archived_at = "2026-10-20 08:00:00"
+        raw_data = self.raw_data.with_user(self.folder_administrator)
+
+        for access in (FOLDER_SHARE, FOLDER_ADMINISTER):
+            with self.subTest(access=access):
+                self.assertRefused(NOT_FOUND, raw_data._check_folder_access, access)
+                self.assertRefused(
+                    NOT_FOUND, archived.with_user(self.folder_administrator)._check_folder_access, access
+                )
+        self.assertRefused(NOT_FOUND, raw_data.action_turn_off)
+
+        self.folder_administrator.group_ids = [Command.link(self.env.ref(SAMPLE_READER_GROUP).id)]
+        for access in (FOLDER_SHARE, FOLDER_ADMINISTER):
+            with self.subTest(access=access, sees_sample=True):
+                raw_data._check_folder_access(access)
+        self.assertRefused(
+            FOLDER_ARCHIVED, archived.with_user(self.folder_administrator)._check_folder_access, FOLDER_SHARE
+        )

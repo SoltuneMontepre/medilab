@@ -22,6 +22,7 @@ tools/
     ├── doppler.sh              Doppler login helper sourced by the tasks
     ├── ai_setup.sh             ai:setup prerequisites and environment
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
+    ├── compose_env.py          dev:compose-env: this checkout's compose project in tools/infrastructure/.env
     ├── test_apps.sh            test:apps
     ├── test_shards.py          splits the Odoo test classes into shards for test:core
     └── test_core_*.sh          test:core steps run inside a container

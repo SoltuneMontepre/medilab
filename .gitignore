@@ -62,6 +62,7 @@ env/
 
 # --- Odoo core reference mirror (task sync) ---
 src/reference/
+/medilab-past/
 
 # --- Odoo runtime / data ---
 *.log

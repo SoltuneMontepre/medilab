@@ -13,6 +13,7 @@ from odoo.addons.sol_laboratory.services.laboratory_paths import (
     is_name_pattern,
     is_name_prefix,
     normal_extension,
+    normal_text,
 )
 
 PATTERN_CHECKS = {"prefix": is_name_prefix, "glob": is_name_pattern, "extension": is_extension}
@@ -43,18 +44,31 @@ class LaboratorySyncRule(models.Model):
     # False when the rule is turned off.
     enabled = fields.Boolean(default=True)
 
+    _folder_kind_pattern_unique = models.Constraint(
+        "UNIQUE(folder_id, kind, pattern)", "The folder already has this sync rule."
+    )
+
     @api.model_create_multi
     def create(self, vals_list):
         self.env[MODEL_LABORATORY_FOLDER].browse(
             {vals["folder_id"] for vals in vals_list if vals.get("folder_id")}
         )._check_not_archived()
         for vals in vals_list:
-            if vals.get("kind", "prefix") == "extension" and vals.get("pattern"):
-                vals["pattern"] = normal_extension(vals["pattern"])
+            if vals.get("pattern"):
+                vals["pattern"] = self._normal_pattern(vals.get("kind", "prefix"), vals["pattern"])
         return super().create(vals_list)
+
+    @api.model
+    def _normal_pattern(self, kind, pattern):
+        """The pattern as a rule of the kind keeps it: in one Unicode form, and an extension without its dot and in
+        lowercase."""
+        pattern = normal_text(pattern)
+        return normal_extension(pattern) if kind == "extension" and pattern else pattern
 
     def write(self, vals):
         (self.folder_id | self.folder_id.browse(vals.get("folder_id") or []))._check_not_archived()
+        if vals.get("pattern"):
+            vals = {**vals, "pattern": normal_text(vals["pattern"])}
         if "pattern" not in vals and vals.get("kind") != "extension":
             return super().write(vals)
         # Each rule keeps its own pattern when only its kind changes, so an extension is made normal rule by rule.

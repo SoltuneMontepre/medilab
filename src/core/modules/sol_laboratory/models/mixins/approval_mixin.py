@@ -114,6 +114,11 @@ class ApprovalMixin(models.AbstractModel):
     def _approval_content_fields(self):
         return frozenset()
 
+    def _approval_document_hash(self):
+        """The SHA-256 of the content a signature binds to, which the signature records; empty for a document type
+        whose content has none."""
+        return False
+
     def _approval_process_completed(self):
         return False
 
@@ -219,6 +224,7 @@ class ApprovalMixin(models.AbstractModel):
                 "document_model": self._name,
                 "document_id": self.id,
                 "document_version": self.document_version,
+                "document_hash": self._approval_document_hash(),
                 "level_id": level.id,
                 "signer_id": person.id,
                 "signer_name": person.name,

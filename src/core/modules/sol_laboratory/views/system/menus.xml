@@ -73,6 +73,10 @@
         </menuitem>
         <menuitem id="menu_laboratory_documents" name="Documents" sequence="60">
             <menuitem id="menu_laboratory_folder" action="action_medilab_laboratory_folder" sequence="10" />
+            <menuitem id="menu_laboratory_file" action="action_medilab_laboratory_file" sequence="12" />
+            <menuitem id="menu_laboratory_file_version" action="action_medilab_laboratory_file_version" sequence="14" />
+            <menuitem id="menu_laboratory_file_lock" action="action_medilab_laboratory_file_lock" sequence="16" />
+            <menuitem id="menu_laboratory_editing_session" action="action_medilab_laboratory_editing_session" sequence="18" />
             <menuitem id="menu_laboratory_folder_member" action="action_medilab_laboratory_folder_member" sequence="20" />
             <menuitem id="menu_laboratory_sync_rule" action="action_medilab_laboratory_sync_rule" sequence="30" />
             <menuitem id="menu_laboratory_device" action="action_medilab_laboratory_device" sequence="40" />
