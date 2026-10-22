@@ -33,3 +33,9 @@ output "cloudflare_api_token" {
   value       = data.doppler_secrets.this.map["CLOUDFLARE_API_TOKEN"]
   sensitive   = true
 }
+
+output "argocd_auth_token" {
+  description = "Token of the Argo CD release account, published as the ARGOCD_AUTH_TOKEN Actions secret"
+  value       = data.doppler_secrets.this.map["ARGOCD_AUTH_TOKEN"]
+  sensitive   = true
+}
