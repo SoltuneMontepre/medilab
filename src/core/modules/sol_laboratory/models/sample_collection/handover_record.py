@@ -6,6 +6,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_CODE_MIXIN,
     MODEL_HANDOVER_RECORD,
     MODEL_HANDOVER_RECORD_SAMPLE,
+    MODEL_IR_ATTACHMENT,
     MODEL_LOCK_MIXIN,
     MODEL_MOBILE_DEVICE,
     MODEL_PERMISSION_MIXIN,
@@ -52,14 +53,14 @@ class HandoverRecord(models.Model):
     signed_at = fields.Datetime(readonly=True, copy=False)
     # Image of the customer's handwritten signature.
     signature_attachment_id = fields.Many2one(
-        "ir.attachment", string="Signature", readonly=True, copy=False, ondelete="restrict"
+        MODEL_IR_ATTACHMENT, string="Signature", readonly=True, copy=False, ondelete="restrict"
     )
     # The mobile device the customer signed on.
     signed_device_id = fields.Many2one(
         MODEL_MOBILE_DEVICE, string="Signed on Device", readonly=True, copy=False, ondelete="set null"
     )
     # The record's PDF.
-    attachment_id = fields.Many2one("ir.attachment", string="PDF", readonly=True, copy=False, ondelete="restrict")
+    attachment_id = fields.Many2one(MODEL_IR_ATTACHMENT, string="PDF", readonly=True, copy=False, ondelete="restrict")
     # When the PDF was emailed to the customer.
     sent_at = fields.Datetime(readonly=True, copy=False)
     # Samples on the record, with the amount and condition handed over.
@@ -99,7 +100,7 @@ class HandoverRecord(models.Model):
         if not self.sample_ids:
             raise UserError(self.env._("Add the samples to handover record %s before signing it.", self.code))
         self.check_access("write")
-        attachments = self.env["ir.attachment"]
+        attachments = self.env[MODEL_IR_ATTACHMENT]
         signature_attachment = attachments.create(
             {"name": f"{self.code}-signature.png", "raw": signature, "res_model": self._name, "res_id": self.id}
         )
