@@ -3,6 +3,7 @@ from . import (
     test_accepting_certificates,
     test_adapter_registry,
     test_audit_documents,
+    test_boa_adapter,
     test_crawl,
     test_fetcher,
     test_matching,

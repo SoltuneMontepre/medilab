@@ -40,6 +40,20 @@ An adapter is a Python class registered under a key, such as `boa`, that knows t
 
 An adapter never makes a request itself. It only returns addresses, and the fetcher below fetches them, so every adapter follows the same safety rules.
 
+The module ships these adapters:
+
+| Adapter | Reads                                                                                               | Stages                                                                                                                                                           |
+| ------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `boa`   | The organisation search, page by page; an organisation's page; the PDFs of its accreditation scope. | Organisations; the certificate, from the organisation's page; the testing fields and methods of the list of accredited tests, each method under its certificate. |
+
+The `boa` adapter reads BoA's pages as follows:
+
+- An organisation's key is the slug of its page, such as `phong-hoa-nghiem-xang-dau`, and its name is followed by its governing unit in parentheses when that is given and differs. BoA gives no tax ID. Every listed organisation is kept, whatever its status, and the next list page is the pager's `rel="next"` link.
+- The certificate is staged from the organisation's page only, in Vietnamese: its code is the accreditation number, its issuing body `BoA` and its end of validity the page's "Ngày hiệu lực". Its start of validity stays empty for the administrator to fill: the published decision and scope leave its day blank, and staging the certificate from a second document as well would give it two checksums, so every run would supersede it.
+- Both PDFs of the scope are fetched, since their addresses do not tell them apart. One whose text holds `LIST OF ACCREDITED TESTS` stages its testing fields and methods, in English; any other, such as the decision, stages nothing.
+- A testing field's key is its Vietnamese name, such as `Hóa`, and its name the English one, such as `Chemical`; it has no code. A method belongs to the field of the last field header before its row.
+- A method's key is its code: the standard body, the number without inner spaces, the version after `-` or `:`, and the reapproval year in parentheses when printed, such as `ASTM D525-12a (2019)`. Its name is the English test name of its row, else its code. A code listed in several rows is staged once, with its first row's name, under the certificate whose code the scope gives.
+
 ### Fetching
 
 The fetcher is the only code that makes outbound requests. It uses `requests`, which Odoo already depends on.
