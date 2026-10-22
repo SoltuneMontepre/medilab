@@ -4,17 +4,18 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow      | Runs on                                                                                 | Does                                                                                                                 |
-| ------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `ci-core`     | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
-| `ci-infra`    | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and `ansible-lint` when the Ansible code changes. |
-| `ci-tools`    | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
-| `ci-sync-app` | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
-| `cd-core`     | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
-| `cd-infra`    | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
-| `cd-ansible`  | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
-| `cd-sync-app` | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                      |
-| `cd-cleanup`  | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                              |
+| Workflow        | Runs on                                                                                 | Does                                                                                                                 |
+| --------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
+| `ci-infra`      | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and `ansible-lint` when the Ansible code changes. |
+| `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
+| `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
+| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                    |
+| `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
+| `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
+| `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
+| `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                      |
+| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                              |
 
 Every workflow can also be started by hand.
 
@@ -106,6 +107,27 @@ flowchart LR
 - The production Odoo address is built into the app from the `MEDILAB_SYNC_ODOO_URL` Actions variable. A tag build fails when it is not set or does not start with `https://`.
 - A manual run builds the packages without releasing them, to check a build before tagging.
 - The packages are not signed for automatic updates and are not uploaded to a bucket: the app checks for updates through an Odoo endpoint that does not exist yet.
+
+## ci-mobile-app
+
+The mobile app is the Expo app in `src/applications/medilab-mobile`.
+
+When the app or the workflow changes, its jobs run at once after `changes`:
+
+```mermaid
+flowchart LR
+    changes --> lint
+    changes --> compile["compile (Android), (iOS)"] --> build
+    changes --> test
+```
+
+`lint`, `build` and `test` are the required checks, the same names as in `ci-core`. When nothing relevant changed, they pass at once.
+
+- `lint` runs the type check with `tsc` and ESLint with Expo's rules.
+- `compile` builds the development build of each platform, so a native dependency or a config plugin that breaks one platform fails here: it bundles the JavaScript with `expo export`, generates the native project with `expo prebuild`, then compiles it. Android builds a debug APK with Gradle and Java 17 on Ubuntu, for `arm64-v8a` only; iOS builds for the simulator with `xcodebuild` on `macos-26`, without signing. `build` fails unless both passed.
+- `test` runs the Jest tests.
+- Each job sets up Node 24, which Expo needs, and Bun, which installs the dependencies.
+- When any job fails, its last step cancels the whole run, as in `ci-core`.
 
 ## cd-core
 
