@@ -10,9 +10,12 @@ from odoo.addons.sol_onboarding.constants.models import (
 from odoo.addons.sol_onboarding.constants.onboarding import CRAWL_JOB
 from odoo.addons.sol_onboarding.services.adapters.base import Fetched
 from odoo.addons.sol_onboarding.services.adapters.registry import adapter_for
+from odoo.addons.sol_onboarding.services.fetcher import PageSkipped
 from odoo.addons.sol_onboarding.tests.onboarding_case import OnboardingCase
 
 BAM = "https://www.fda.gov/food/laboratory-methods-food/bacteriological-analytical-manual-bam"
+CHARSET = '<meta charset="utf-8">'
+TABLE_HEAD = "<table><thead><tr><th>Chapter No.</th><th>Title</th></tr></thead>"
 
 
 def recorded(name):
@@ -39,6 +42,22 @@ class TestFdaBamAdapter(OnboardingCase):
                 }
             )
         )
+
+    def parse_body(self, body):
+        return adapter_for(self.fda).parse(Fetched(BAM, "html", body.encode(), fields.Datetime.now()), "food")
+
+    def test_a_wrapped_chapter_link_gives_the_title(self):
+        page = (
+            f"{CHARSET}{TABLE_HEAD}<tbody><tr><th>5</th><td><p><a href='/bam-5'>Salmonella</a></p>"
+            "<p>Updated: 01/2026</p></td></tr></tbody></table>"
+        )
+        _field, method = self.parse_body(page).records
+        self.assertEqual(method.values["name"], "Salmonella")
+
+    def test_a_page_without_chapters_is_skipped(self):
+        for page in (f"{CHARSET}<p>Page Not Found</p>", f"{CHARSET}{TABLE_HEAD}<tbody></tbody></table>"):
+            with self.subTest(page=page), self.assertRaises(PageSkipped):
+                self.parse_body(page)
 
     def test_stages_the_current_chapters_under_microbiology(self):
         fetched = Fetched(BAM, "html", recorded("bam.html"), fields.Datetime.now())

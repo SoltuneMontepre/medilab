@@ -163,9 +163,9 @@ class OnboardingStagedRecordAcceptance(models.Model):
     def _accept_certificate(self, model):
         """Create, link or update the certificate, link the methods of its scope accepted before it, then link the
         to-review ones through Laboratory's import, one import per testing field. Methods whose codes differ only in
-        case, spaces and compatibility forms make one line, under a matched method's own code, so the import links it however the source
-        wrote the code. The methods to create or link are accepted with the certificate; one to update is linked but
-        stays to review, so its changes are accepted on their own."""
+        case, spaces and compatibility forms make one line, under a matched method's own code, so the import links it
+        however the source wrote the code. The methods to create or link are accepted with the certificate; one to
+        update is linked but stays to review, so its changes are accepted on their own."""
         _ = self.env._
         certificate = self._laboratory_record(model)
         accepted = self.child_ids.filtered(

@@ -1043,6 +1043,12 @@ msgstr ""
 
 #. module: sol_onboarding
 #. odoo-python
+#: code:addons/sol_onboarding/services/adapters/fda_bam.py:0
+msgid "no chapter table"
+msgstr ""
+
+#. module: sol_onboarding
+#. odoo-python
 #: code:addons/sol_onboarding/services/fetcher.py:0
 msgid "not HTTPS"
 msgstr ""

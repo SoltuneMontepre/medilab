@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from datetime import datetime
 from itertools import pairwise, takewhile
 from urllib.parse import urljoin, urlsplit
@@ -20,8 +21,11 @@ VALID_UNTIL_LABEL = "Ngày hiệu lực"
 SCOPE_ID = "tochuc-congnhan"
 ANNEX_TITLE = "LIST OF ACCREDITED TESTS"
 METHOD_CODE = re.compile(
-    r"\b(TCVN|ISO|ASTM|GOST|AOAC|SMEWW|EN|IEC|EPA|USP|BS|DIN|JIS|NF)\s+"
-    r"([A-Z]{0,2}\s?\d+(?:[.\-]\d+)*)"  # number, such as D 1500, 9.054 or 6579-1
+    # Standard body, not right after "/" as in ISO/IEC; "Official Method" or "Method" after it is left out of the code.
+    r"(?<!/)\b((?:BS|DIN|NF)\s+EN|EN\s+ISO|TCVN|ISO|ASTM|GOST|AOAC|SMEWW|EN|IEC|EPA|USP|BS|DIN|JIS|NF)\s+"
+    r"(?:(?:Official\s+)?Method\s+)?"
+    # Number, such as D 1500, 3113B, 9.054, 6579-1 or 4500-NO3-.E; a numeric part never stops inside a version.
+    r"([A-Z]?\s?\d+[A-Z]?(?:[.\-]\d+(?![\da-z])|-[A-Z][A-Za-z\d]*[+\-]?|\.[A-Z](?![A-Za-z]))*)"
     r"(?:\s*([-:])\s*(\d{2,4}[a-z]*\d*))?"  # version, such as -12a, -21e1 or :2019
     r"(?:\s*\(\s*(e?\d{4})\s*\))?"  # reapproval year, such as (2019) or (e2003)
 )
@@ -76,26 +80,29 @@ class BoaAdapter(Adapter):
         for label in tree.find_class("label-maso"):
             value = label.getnext()
             labels[clean_text(label.text_content())] = "" if value is None else clean_text(value.text_content())
-        records = ()
-        if code := labels.get(CODE_LABEL):
-            values = {
-                "code": code,
-                "issuing_body": ISSUING_BODY,
-                "valid_from": "",
-                "valid_until": _iso_date(labels.get(VALID_UNTIL_LABEL, "")),
-            }
-            records = (StagedValues(KIND_CERTIFICATE, code, values, "vi_VN"),)
+        code = labels.get(CODE_LABEL)
+        if not code:
+            return Parsed()
+        values = {
+            "code": code,
+            "issuing_body": ISSUING_BODY,
+            "valid_from": "",
+            "valid_until": _iso_date(labels.get(VALID_UNTIL_LABEL, "")),
+        }
         scope = tree.get_element_by_id(SCOPE_ID, None)
         hrefs = [] if scope is None else [urljoin(url, a.get("href", "")) for a in scope.iter("a")]
         links = tuple(dict.fromkeys(href for href in hrefs if urlsplit(href).path.lower().endswith(".pdf")))
-        return Parsed(records, links=links)
+        # In English, since Laboratory's import writes the names of the scope's methods in the certificate's language.
+        return Parsed((StagedValues(KIND_CERTIFICATE, code, values, "en_US"),), links=links)
 
     def _annex(self, text: str) -> tuple[StagedValues, ...]:
         """The testing fields and methods of a list of accredited tests, fields first; nothing for any other text."""
+        text = unicodedata.normalize("NFC", text)
         if ANNEX_TITLE not in text:
             return ()
         certificate = CERTIFICATE_CODE.search(text)
-        parent = (KIND_CERTIFICATE, clean_text(certificate.group(1))) if certificate else None
+        certificate_code = clean_text(certificate.group(1)) if certificate else ""
+        parent = (KIND_CERTIFICATE, certificate_code) if certificate_code else None
         headers = [
             (match.start(), clean_text(match.group(1)), clean_text(match.group(2))) for match in FIELD.finditer(text)
         ]
@@ -110,8 +117,9 @@ class BoaAdapter(Adapter):
             title = _title(segment)
             for match in METHOD_CODE.finditer(segment):
                 code = _code(match)
+                key = f"{certificate_code}: {code}" if certificate_code else code
                 values = {"code": code, "name": title or code, "field_key": field_key}
-                methods.setdefault(code, StagedValues(KIND_TESTING_METHOD, code, values, "en_US", parent=parent))
+                methods.setdefault(code, StagedValues(KIND_TESTING_METHOD, key, values, "en_US", parent=parent))
         return (*testing_fields.values(), *methods.values())
 
 
@@ -128,7 +136,7 @@ def _iso_date(value: str) -> str:
 
 def _code(match: re.Match) -> str:
     body, number, separator, version, year = match.groups()
-    code = f"{body} {''.join(number.split())}"
+    code = f"{' '.join(body.split())} {''.join(number.split())}"
     if version:
         code += f"{separator}{version}"
     if year:

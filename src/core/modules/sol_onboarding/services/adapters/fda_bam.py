@@ -3,6 +3,7 @@ import re
 from odoo.addons.sol_onboarding.constants.onboarding import KIND_TESTING_FIELD, KIND_TESTING_METHOD
 from odoo.addons.sol_onboarding.services.adapters.base import Adapter, Fetched, Parsed, StagedValues
 from odoo.addons.sol_onboarding.services.adapters.registry import register
+from odoo.addons.sol_onboarding.services.fetcher import PageSkipped
 from odoo.addons.sol_onboarding.services.parsing import clean_text, html_tree
 
 FIELD_KEY = "Microbiology"
@@ -22,9 +23,12 @@ class FdaBamAdapter(Adapter):
         return [self.source.start_url]
 
     def parse(self, document: Fetched, sector: str | None) -> Parsed:
+        chapters = list(_chapters(html_tree(document.body)))
+        if not chapters:
+            raise PageSkipped(self.source.env._("no chapter table"))
         field = StagedValues(KIND_TESTING_FIELD, FIELD_KEY, {"code": "", "name": FIELD_KEY}, "en_US", sector)
         methods = []
-        for number, title in _chapters(html_tree(document.body)):
+        for number, title in chapters:
             code = f"FDA BAM Ch. {number}"
             values = {"code": code, "name": title, "field_key": FIELD_KEY}
             methods.append(StagedValues(KIND_TESTING_METHOD, code, values, "en_US", sector))
@@ -42,7 +46,7 @@ def _chapters(tree):
             if number is None or cell is None or row.getparent().tag != "tbody":
                 continue
             number = clean_text(number.text_content())
-            link = cell.find("a")
+            link = next(cell.iter("a"), None)
             title = clean_text((cell if link is None else link).text_content())
             if CHAPTER.fullmatch(number) and title:
                 yield number, title

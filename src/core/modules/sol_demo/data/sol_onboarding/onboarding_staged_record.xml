@@ -65,7 +65,7 @@
         <field name="source_id" ref="demo_onboarding_source_boa" />
         <field name="run_id" ref="demo_onboarding_run_done" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
-        <field name="external_key">tcvn 6492 : 2011</field>
+        <field name="external_key">VILAS 9901: tcvn 6492 : 2011</field>
         <field name="checksum">b4434efe0cf4ab67240d95124712e488e564503a352fbb2e2adcf43c67d39fff</field>
         <field name="source_values" eval="{'code': 'tcvn 6492 : 2011', 'name': 'Chất lượng nước — Xác định pH', 'field_key': ''}" />
         <field name="lang">vi_VN</field>
@@ -80,7 +80,7 @@
         <field name="source_id" ref="demo_onboarding_source_boa" />
         <field name="run_id" ref="demo_onboarding_run_done" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
-        <field name="external_key">TCVN 8126:2009</field>
+        <field name="external_key">VILAS 9901: TCVN 8126:2009</field>
         <field name="checksum">43d28f71f11e98d00834b0870a5c7dcf46b8d151fb587a47c13b5f7b640e8701</field>
         <field name="source_values" eval="{'code': 'TCVN 8126:2009', 'name': 'Thực phẩm — Xác định hàm lượng chì, cadimi, kẽm, đồng và sắt — Phương pháp quang phổ hấp thụ nguyên tử sau khi đã phân hủy bằng vi sóng', 'field_key': ''}" />
         <field name="lang">vi_VN</field>
@@ -93,7 +93,7 @@
         <field name="source_id" ref="demo_onboarding_source_boa" />
         <field name="run_id" ref="demo_onboarding_run_done" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
-        <field name="external_key">TCVN 6658:2000</field>
+        <field name="external_key">VILAS 9901: TCVN 6658:2000</field>
         <field name="checksum">3ff158b41d82eafc3d723273e3f173ccaf31d4510e4e06aae08e353dfdb204bf</field>
         <field name="source_values" eval="{'code': 'TCVN 6658:2000', 'name': 'Chất lượng nước — Xác định crom hóa trị sáu — Phương pháp đo phổ dùng 1,5-diphenylcacbazid', 'field_key': ''}" />
         <field name="lang">vi_VN</field>
@@ -148,7 +148,7 @@
         <field name="reviewed_by_id" ref="demo_res_users_administrator" />
         <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
     </record>
-    <!-- Superseded by the update on the food page; it moved to the renewed certificate with the earlier scope. -->
+    <!-- Superseded by the update on the food page. -->
     <record id="demo_onboarding_staged_record_testing_method_iso_4832_earlier" model="medilab.onboarding.staged.record">
         <field name="kind">testing_method</field>
         <field name="source_id" ref="demo_onboarding_source_boa" />
@@ -158,7 +158,6 @@
         <field name="checksum">17d6999e1c0a0e3b6a4c34dac9babd2655cbf2965c5610a8cb03e8d773a2efbb</field>
         <field name="source_values" eval="{'code': 'ISO 4832:2006', 'name': 'Vi sinh vật trong thực phẩm và thức ăn chăn nuôi — Định lượng coliform — Kỹ thuật đếm khuẩn lạc', 'field_key': 'Sinh'}" />
         <field name="lang">vi_VN</field>
-        <field name="parent_id" ref="demo_onboarding_staged_record_certificate_vilas_9901" />
         <field name="action">update</field>
         <field name="record_model">medilab.testing.method</field>
         <field name="record_id" eval="ref('demo_testing_method_iso_4832')" />
@@ -259,8 +258,8 @@
         <field name="run_id" ref="demo_onboarding_run_done" />
         <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
         <field name="external_key">9901#3</field>
-        <field name="checksum">b11ff57d909be09a6a5c23165325c9c0b43cd1f4b6f85be17e3f4d95625479c5</field>
-        <field name="source_values" eval="{'parameter_key': 'chì (pb)', 'method_key': 'TCVN 8126:2009'}" />
+        <field name="checksum">34cb3cc478a93224a01a6d7b7e65d462375ea332652722fcaad0a0eb96ceaaf9</field>
+        <field name="source_values" eval="{'parameter_key': 'chì (pb)', 'method_key': 'VILAS 9901: TCVN 8126:2009'}" />
         <field name="lang">vi_VN</field>
         <field name="action">create</field>
         <field name="state">to_review</field>
