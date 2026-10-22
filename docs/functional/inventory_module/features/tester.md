@@ -9,6 +9,7 @@ These are the Inventory module's additions to the [Laboratory tester](../../labo
 - **US-T14** As a tester, I want to scan the containers I use for a test when I enter its result, so that the result records exactly which containers and lots it used.
 - **US-T15** As a tester, I want to record a use outside testing, or waste such as a spill, with its reason, so that stock on hand stays right.
 - **US-T16** As a tester, I want to mark a container empty, so that it no longer counts as stock.
+- **US-T31** As a tester, I want to scan containers with my phone's camera when I open a bottle, prepare a solution or enter a result, so that I need no scanner at the bench.
 
 ## II. Feature details
 
@@ -31,6 +32,20 @@ Acceptance criteria:
 - A prepared solution's usable date is the earlier of its preparation date plus the recipe's shelf life and the usable dates of the containers it was made from.
 - Entering a result deducts the method's usual use from the scanned containers and links them to the result.
 - A container whose remaining amount reaches zero is depleted.
+
+### 2. Mobile (US-T31)
+
+Follows [Medilab Mobile](../../laboratory_module/applications/medilab-mobile.md#scanning-us-hd06-us-t30-us-t31).
+
+| Rule     | Description |
+| -------- | ----------- |
+| Scanning | The phone's camera reads a container's QR code wherever a container is scanned on the web: opening, preparation and test use. |
+| Labels   | The label of an opened bottle or a prepared solution opens as a PDF that the tester prints or shares from the phone. |
+
+Acceptance criteria:
+
+- Opening a sealed bottle by scanning it on the phone sets it opened with its opener and usable date, as on the web.
+- Scanning on the phone a container of another store for a test is refused.
 
 ## III. Related documents
 
