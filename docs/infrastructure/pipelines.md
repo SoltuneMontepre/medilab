@@ -161,9 +161,9 @@ flowchart LR
   2. Creates the branch `fix/redeploy-<short SHA>` from the new `main` and cherry-picks the commits of the release onto it, so the changes are kept.
   3. Opens a draft pull request from that branch, titled `[fix] Redeploy release <short SHA>`, assigned to the authors of the commits and labelled `failed-release`. Its body lists the commits, links the failed run, and holds the Argo CD status and the logs of the failed pods.
   4. Fails the run, so the failure shows on the release commit.
-- Commits and pull requests made with `GITHUB_TOKEN` start no workflows, so the rollback commit does not start `cd-core` again. The pipelines of the redeploy pull request run once someone pushes a fix to it.
+- The release and rollback commits on `main` carry `[skip ci]`, so they start no workflow and the rollback does not start `cd-core` again. The redeploy pull request's pipelines run as for any pull request.
 - A rollback does not restore the database. When the upgrade Job failed, Odoo rolled back its own transaction and the schema is unchanged. When the upgrade succeeded and the replicas then failed, the previous image runs on the newer schema; the pre-sync backup is there to restore by hand.
-- `release` and `rollback` push to `main` as `github-actions[bot]`, which the `main` ruleset lets bypass pull requests. Terraform allows GitHub Actions to create pull requests on the repository.
+- `release` and `rollback` act as the release GitHub App, through a token that `actions/create-github-app-token` makes from the `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` Actions secrets. The app commits as its bot user, pushes to `main`, which the `main` ruleset lets it bypass, and opens the redeploy pull request. It is installed on this repository only, with Contents and Pull requests read and write.
 - `verify` and `rollback` reach Argo CD at the `ARGOCD_SERVER` Actions variable through Cloudflare Access, with the `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` Actions secrets, and read it with `ARGOCD_AUTH_TOKEN`, a token of the `release` account, which can only read the `odoo` application and its logs. The argocd CLI they install matches the Argo CD version of the `argocd` role.
 - A failed `publish` stops the run; a `schedule` run skips `publish` and only releases.
 
