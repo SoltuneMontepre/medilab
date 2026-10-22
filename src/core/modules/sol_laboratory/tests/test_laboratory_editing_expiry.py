@@ -57,17 +57,13 @@ class TestLaboratoryEditingExpiry(LaboratoryEditingCase):
         self.run_job()
         self.assertEqual(self.session.status, EXPIRED)
 
-        version = self.session._store_save(
-            sha256=self.sha("bản thử lại"), size=11, storage_key="test/thu-lai", editor=self.tester, editors=self.tester
-        )
+        version = self.session._store_save(content=self.stored("bản thử lại"), editor=self.tester, editors=self.tester)
 
         self.assertEqual((version.source, self.file.current_version_id), (EDITED_ONLINE, version))
         self.assertEqual((self.session.status, self.session.committed_version_id), (COMMITTED, version))
 
     def test_a_session_ended_by_its_save_never_expires(self):
-        self.session._store_save(
-            sha256=self.sha("bản 2"), size=5, storage_key="test/bản-2", editor=self.tester, editors=self.tester
-        )
+        self.session._store_save(content=self.stored("bản 2"), editor=self.tester, editors=self.tester)
         self.idle(DEFAULT_LABORATORY_EDITING_IDLE_HOURS + 1)
 
         self.run_job()
@@ -91,9 +87,7 @@ class TestLaboratoryEditingExpiry(LaboratoryEditingCase):
         self.idle(DEFAULT_LABORATORY_EDITING_IDLE_HOURS + 1)
         self.run_job()
 
-        version = self.session._store_save(
-            sha256=self.sha("13 giờ sửa"), size=10, storage_key="test/13-gio", editor=self.tester, editors=self.tester
-        )
+        version = self.session._store_save(content=self.stored("13 giờ sửa"), editor=self.tester, editors=self.tester)
 
         self.assertEqual((self.session.status, self.file.current_version_id), (COMMITTED, version))
 

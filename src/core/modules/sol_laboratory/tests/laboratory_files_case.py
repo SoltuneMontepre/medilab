@@ -5,6 +5,7 @@ from odoo.tests import TransactionCase, new_test_user
 
 from odoo.addons.sol_laboratory.constants.laboratory_files import DEVICE_KEY_SCOPE, MEMBER_ROLE, SYNCED
 from odoo.addons.sol_laboratory.constants.models import (
+    MODEL_LABORATORY_CONTENT,
     MODEL_LABORATORY_DEVICE,
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FOLDER,
@@ -14,6 +15,13 @@ from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP, LA
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 
 PASSWORD = "Phong-thi-nghiem-2026"
+
+
+def stored_content(env, content):
+    """The verified content of the text, settled from the size and SHA-256 of its UTF-8 bytes, which are not written to
+    the bucket."""
+    data = content.encode()
+    return env[MODEL_LABORATORY_CONTENT].sudo()._new_pending()._settle(hashlib.sha256(data).hexdigest(), len(data))
 
 
 class LaboratoryFilesCase(TransactionCase):
@@ -64,13 +72,11 @@ class LaboratoryFilesCase(TransactionCase):
     def file_of(self, path, folder=None):
         return self.env[MODEL_LABORATORY_FILE]._get_or_create(folder or self.folder, path)
 
+    def stored(self, content):
+        """The verified content of the text, as the server records it once it has read the bytes; the bytes are not in
+        the bucket."""
+        return stored_content(self.env, content)
+
     def save(self, file, content, user=None, source=SYNCED, **values):
-        """Store the content as a version of the file, as a save from a computer does once its bytes are stored."""
-        return file._add_version(
-            sha256=self.sha(content),
-            size=len(content),
-            storage_key=f"test/{self.sha(content)}",
-            source=source,
-            user=user or self.tester,
-            **values,
-        )
+        """Store the content as a version of the file, as a save from a computer does once its bytes are verified."""
+        return file._add_version(content=self.stored(content), source=source, user=user or self.tester, **values)

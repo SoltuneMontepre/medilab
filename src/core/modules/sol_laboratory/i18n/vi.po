@@ -7268,11 +7268,6 @@ msgid "Storage Conditions"
 msgstr "Điều kiện bảo quản"
 
 #. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__storage_key
-msgid "Storage Key"
-msgstr "Khóa lưu trữ"
-
-#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__street
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__street
 msgid "Street"
@@ -13783,3 +13778,352 @@ msgstr "Bạn đã có thư mục tên %s."
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
 msgid "This file does not exist in the folder."
 msgstr "Tệp này không có trong thư mục."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_content
+msgid "Laboratory Content"
+msgstr "Nội dung lưu trữ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_content__object_key
+msgid "Object Key"
+msgstr "Khóa đối tượng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__content_id
+msgid "Content"
+msgstr "Nội dung"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_content__state__verified
+msgid "Verified"
+msgstr "Đã xác minh"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_content__state__duplicate
+msgid "Duplicate"
+msgstr "Trùng lặp"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_file_url_minutes
+msgid "File Addresses (minutes)"
+msgstr "Địa chỉ tệp (phút)"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_file_url_minutes
+msgid "Minutes an address that downloads a version of a laboratory file, or opens it in the online editor, keeps working once it is given."
+msgstr "Số phút một địa chỉ tải xuống phiên bản của tệp phòng thí nghiệm, hoặc mở tệp trong trình chỉnh sửa trực tuyến, còn dùng được kể từ khi được cấp."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_url_settings.py:0
+msgid "An address of a laboratory file lasts from 1 minute to 7 days, the longest the bucket takes."
+msgstr "Địa chỉ của tệp phòng thí nghiệm có hiệu lực từ 1 phút đến 7 ngày, thời gian dài nhất kho lưu trữ chấp nhận."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "A version holds verified content, with the size and SHA-256 the server computed."
+msgstr "Phiên bản chứa nội dung đã xác minh, với kích thước và SHA-256 do máy chủ tính."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "A SHA-256 is 64 lowercase hexadecimal digits."
+msgstr "SHA-256 gồm 64 chữ số thập lục phân viết thường."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "A content keeps the key of its object."
+msgstr "Nội dung luôn giữ khóa đối tượng của nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "A content's size cannot be negative."
+msgstr "Kích thước của nội dung không thể âm."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "An object key is 32 lowercase hexadecimal digits."
+msgstr "Khóa đối tượng gồm 32 chữ số thập lục phân viết thường."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content is pending until the server has computed its size and SHA-256."
+msgstr "Nội dung ở trạng thái chờ cho đến khi máy chủ tính xong kích thước và SHA-256 của nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content is settled by the server from its own reading of the bytes."
+msgstr "Nội dung chỉ được máy chủ xác lập từ chính việc đọc các byte của nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content with the same SHA-256 was stored meanwhile; it is settled again."
+msgstr "Nội dung có cùng SHA-256 vừa được lưu trong lúc này; nội dung được xác lập lại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content with this SHA-256 is already stored."
+msgstr "Nội dung có SHA-256 này đã được lưu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Each object of the bucket is one content."
+msgstr "Mỗi đối tượng trong kho lưu trữ là một nội dung."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Failed content is never verified."
+msgstr "Nội dung thất bại không bao giờ được xác minh."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Only pending content fails."
+msgstr "Chỉ nội dung đang chờ mới có thể thất bại."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Stored content is never deleted."
+msgstr "Nội dung lưu trữ không bao giờ bị xóa."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Verified content has the size and SHA-256 the server computed."
+msgstr "Nội dung đã xác minh có kích thước và SHA-256 do máy chủ tính."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "This computer already made a version with this Idempotency-Key."
+msgstr "Máy tính này đã tạo một phiên bản với Idempotency-Key này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+msgid "This version is not a version of the file."
+msgstr "Phiên bản này không phải là phiên bản của tệp."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+msgid "Version %s"
+msgstr "Phiên bản %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "A file uploaded is at most 5 GiB."
+msgstr "Tệp tải lên tối đa 5 GiB."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "A path is relative to its folder, such as HPLC/run-01.csv: %s"
+msgstr "Đường dẫn là tương đối với thư mục, ví dụ HPLC/run-01.csv: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "A version is stored by one upload only."
+msgstr "Một phiên bản chỉ được lưu bởi một lần tải lên."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_settings.py:0
+msgid "An unfinished upload lasts at least 1 hour and less than 7 days, when the bucket aborts it."
+msgstr "Lần tải lên chưa hoàn tất kéo dài ít nhất 1 giờ và ít hơn 7 ngày, khi kho lưu trữ hủy nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "An upload keeps its file."
+msgstr "Lần tải lên luôn giữ tệp của nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "An upload keeps what was asked to upload and the object it uploads to."
+msgstr "Lần tải lên luôn giữ nội dung được yêu cầu tải lên và đối tượng mà nó tải lên."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "An upload moves on only as the server verifies and stores it."
+msgstr "Lần tải lên chỉ chuyển trạng thái khi máy chủ xác minh và lưu nó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "Ask for at most %(most)s parts, numbered from 1 to %(count)s."
+msgstr "Yêu cầu tối đa %(most)s phần, đánh số từ 1 đến %(count)s."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__claimed_sha256
+msgid "Claimed SHA-256"
+msgstr "SHA-256 khai báo"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__claimed_size
+msgid "Claimed Size"
+msgstr "Kích thước khai báo"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "Empty content has the SHA-256 %s."
+msgstr "Nội dung rỗng có SHA-256 %s."
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_uploads_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_uploads_expire
+msgid "Expire unfinished uploads of laboratory files"
+msgstr "Hết hạn các lần tải lên chưa hoàn tất của tệp phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__expires_at
+msgid "Expires At"
+msgstr "Hết hạn lúc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__failure_code
+msgid "Failure Code"
+msgstr "Mã lỗi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__finalized_at
+msgid "Finalized At"
+msgstr "Hoàn tất lúc"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_upload_hours
+msgid "Hours a computer has to upload a laboratory file and finalize it; an upload not finalized by then expires and its parts are removed."
+msgstr "Số giờ máy tính có để tải lên và hoàn tất một tệp phòng thí nghiệm; lần tải lên chưa hoàn tất trước thời điểm đó sẽ hết hạn và các phần của nó bị xóa."
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_upload
+msgid "Laboratory Upload"
+msgstr "Tải lên tệp"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__multipart_id
+msgid "Multipart"
+msgstr "Tải lên nhiều phần"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_upload_read_all
+msgid "Permission: laboratory.upload.read.all"
+msgstr "Quyền: laboratory.upload.read.all"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__prepared
+msgid "Prepared"
+msgstr "Đã chuẩn bị"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_upload_read_all
+msgid "Read every upload of laboratory files"
+msgstr "Xem mọi lần tải lên tệp phòng thí nghiệm"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__refused
+msgid "Refused"
+msgstr "Bị từ chối"
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_uploads_store_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_uploads_store
+msgid "Store uploaded laboratory files"
+msgstr "Lưu các tệp phòng thí nghiệm đã tải lên"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "The base version is not a version of this file."
+msgstr "Phiên bản gốc không phải là phiên bản của tệp này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "The computer was revoked meanwhile."
+msgstr "Máy tính đã bị thu hồi trong lúc này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "The laboratory files bucket cannot be reached; try again shortly."
+msgstr "Không kết nối được kho lưu trữ tệp phòng thí nghiệm; hãy thử lại sau ít phút."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "This computer already prepared an upload with this Idempotency-Key."
+msgstr "Máy tính này đã chuẩn bị một lần tải lên với Idempotency-Key này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "This upload does not exist or you do not have access to it."
+msgstr "Lần tải lên này không tồn tại hoặc bạn không có quyền truy cập."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "This upload is closed; prepare the file again."
+msgstr "Lần tải lên này đã đóng; hãy chuẩn bị lại tệp."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "This upload takes no more parts."
+msgstr "Lần tải lên này không nhận thêm phần nào."
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__unchanged
+msgid "Unchanged"
+msgstr "Không thay đổi"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_upload_hours
+msgid "Unfinished Uploads (hours)"
+msgstr "Tải lên chưa hoàn tất (giờ)"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "Upload every part before finalizing: %s parts are expected."
+msgstr "Hãy tải lên mọi phần trước khi hoàn tất: cần %s phần."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__user_id
+msgid "Uploaded By"
+msgstr "Người tải lên"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "Uploads of laboratory files are never deleted."
+msgstr "Các lần tải lên tệp phòng thí nghiệm không bao giờ bị xóa."
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_contents_verify_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_contents_verify
+msgid "Verify uploaded laboratory files"
+msgstr "Xác minh các tệp phòng thí nghiệm đã tải lên"
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__verifying
+msgid "Verifying"
+msgstr "Đang xác minh"

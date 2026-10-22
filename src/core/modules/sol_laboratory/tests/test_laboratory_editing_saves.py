@@ -32,11 +32,7 @@ class TestLaboratoryEditingSaves(LaboratoryEditingCase):
         """The save of the editing service once its content is stored, as the callback makes it."""
         editor = editor or self.tester
         return (session or self.session)._store_save(
-            sha256=self.sha(content),
-            size=len(content),
-            storage_key=f"test/{self.sha(content)}",
-            editor=editor,
-            editors=editors or editor,
+            content=self.stored(content), editor=editor, editors=editors or editor
         )
 
     def test_saving_in_the_editor_adds_a_version_marked_edited_online_that_becomes_current(self):
@@ -127,7 +123,7 @@ class TestLaboratoryEditingSaves(LaboratoryEditingCase):
         self.assertEqual(len(self.file.version_ids), 1)
         self.assertEqual(self.session.status, ERROR)
         note = self.entries(self.session, "edit")[-1].note
-        self.assertIn(f"test/{self.sha('Kết quả, sửa trực tuyến')}", note)
+        self.assertIn(self.stored("Kết quả, sửa trực tuyến").object_key, note)
         self.assertIn(self.member.name, note)
 
     def test_a_save_into_a_turned_off_folder_ends_the_session_in_error(self):
