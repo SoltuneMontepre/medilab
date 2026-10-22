@@ -420,7 +420,8 @@ class TestReport(models.Model):
         ]
 
     def _print_marks(self, ways):
-        """The marks of the quality registrations valid on the report date, by the ways of testing they cover."""
+        """The marks printed after the parameter of each way of testing: those of the quality registrations valid on
+        the report date, then the subcontracted mark when a subcontractor tests it."""
         registrations = (
             self.env[MODEL_QUALITY_REGISTRATION]
             .sudo()
@@ -434,14 +435,28 @@ class TestReport(models.Model):
                 ]
             )
         )
-        return {
-            way: " ".join(
-                registration.report_mark
-                for registration in registrations.filtered(lambda r, way=way: way in r.parameter_method_ids)
-                if registration.report_mark
-            )
-            for way in ways
-        }
+        subcontracted = self._subcontracted_mark()
+
+        def marks(way):
+            found = [
+                registration.report_mark for registration in registrations if way in registration.parameter_method_ids
+            ]
+            if way.subcontractor_id:
+                found.append(subcontracted)
+            return " ".join(found)
+
+        return {way: marks(way) for way in ways}
+
+    def _subcontracted_mark(self):
+        """The mark of a result tested by a subcontractor, in the report's first language."""
+        return self._print_env()._("(S)")
+
+    def _print_subcontracted_note(self):
+        """What the subcontracted mark means, when a subcontractor tested a result of the report."""
+        if not self.sudo().result_ids.subcontractor_id:
+            return ""
+        meaning = self._in_langs(lambda env: env._("Tested by a subcontractor"))
+        return f"{self._subcontracted_mark()} {meaning}"
 
     def _print_conclusion(self, sample, results):
         regulation = sample.regulation_id

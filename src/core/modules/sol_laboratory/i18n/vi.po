@@ -14369,3 +14369,15 @@ msgstr "Xác minh các tệp phòng thí nghiệm đã tải lên"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__verifying
 msgid "Verifying"
 msgstr "Đang xác minh"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "(S)"
+msgstr "(TP)"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_report.py:0
+msgid "Tested by a subcontractor"
+msgstr "Chỉ tiêu do nhà thầu phụ thực hiện"

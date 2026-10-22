@@ -176,6 +176,7 @@ from . import (
     test_teams,
     test_test_report_delivery,
     test_test_report_drafting,
+    test_test_report_marks,
     test_test_report_portal,
     test_test_report_rejection,
     test_test_report_signing,

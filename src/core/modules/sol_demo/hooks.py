@@ -30,6 +30,7 @@ def post_init_hook(env):
     from .demo_reports import seed_reports
     from .demo_results import seed_results
     from .demo_signing import seed_signing
+    from .demo_subcontracted_report import seed_subcontracted_report
     from .demo_support import seed_support
     from .demo_tracking import seed_tracking
 
@@ -42,6 +43,7 @@ def post_init_hook(env):
     seed_signing(env)
     seed_tracking(env)
     seed_dispatches(env)
+    seed_subcontracted_report(env)
     seed_finance(env)
     seed_audit(env)
     seed_locks(env)

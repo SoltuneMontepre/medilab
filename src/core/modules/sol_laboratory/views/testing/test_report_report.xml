@@ -63,6 +63,8 @@
                     </table>
                 </div>
             </t>
+            <t t-set="subcontracted_note" t-value="report._print_subcontracted_note()" />
+            <div t-if="subcontracted_note" style="margin-top: 4mm; font-size: 9pt" t-out="subcontracted_note" />
             <div style="margin-top: 10mm; page-break-inside: avoid">
                 <strong t-out="labels['signatures']" />
                 <table style="width: 100%; margin-top: 2mm">
