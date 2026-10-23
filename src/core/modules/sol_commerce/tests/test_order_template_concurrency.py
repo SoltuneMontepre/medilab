@@ -122,12 +122,8 @@ class TestOrderTemplateConcurrency(BaseCase):
             self.assertEqual(len(first_lines), 2)
             first_lines[:1].unlink()
             first_cr.commit()
-            with self.assertLogs("odoo.sql_db", "ERROR") as logs:
-                with self.assertRaises(SerializationFailure):
-                    second_lines[1:].unlink()
-            self.assertEqual(len(logs.records), 1)
-            self.assertIn("medilab_order_template", logs.records[0].getMessage())
-            self.assertIn("could not serialize access due to concurrent update", logs.records[0].getMessage())
+            with self.assertRaises(SerializationFailure):
+                second_lines[1:].unlink()
             second_cr.rollback()
         with registry.cursor() as cr:
             env = api.Environment(cr, SUPERUSER_ID, {})

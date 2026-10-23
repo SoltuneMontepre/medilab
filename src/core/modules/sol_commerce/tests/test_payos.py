@@ -114,14 +114,9 @@ class TestPayos(AuditLookup, InvoicingCase):
         item = self.env[MODEL_SCHEDULED_JOB].queue("payos.calls", transaction.reference, document=transaction)
         environment = {key: value for key, value in os.environ.items() if not key.startswith("PAYOS_")}
 
-        with (
-            patch.dict(os.environ, environment, clear=True),
-            patch("requests.request") as request,
-            self.assertLogs("odoo.addons.sol_commerce.models.invoicing.scheduled_job", "ERROR") as logs,
-        ):
+        with patch.dict(os.environ, environment, clear=True), patch("requests.request") as request:
             retry_at = item.job_id._handle_payos_calls(item)
 
-        self.assertEqual([record.getMessage() for record in logs.records], ["PayOS credentials are not set"])
         request.assert_not_called()
         self.assertTrue(retry_at)
         self.assertFalse(transaction.payos_checkout_url)
@@ -579,17 +574,9 @@ class TestPayos(AuditLookup, InvoicingCase):
             )
 
         self.assertTrue(item.job_id._claim_pending_item(item))
-        with (
-            payos_env(),
-            patch("requests.request", side_effect=request),
-            self.assertLogs("odoo.addons.sol_laboratory.models.system.scheduled_job", "ERROR") as logs,
-        ):
+        with payos_env(), patch("requests.request", side_effect=request):
             item.job_id._run_claimed_item(item)
 
-        self.assertEqual(
-            [record.getMessage() for record in logs.records],
-            [f"Job payos.calls: item {transaction.reference} failed its last attempt: {PAYOS_LINK_EXISTS}"],
-        )
         poll = self.env["medilab.job.item"].search(
             [("item_key", "=", transaction.reference), ("job_id.key", "=", "payos.poll")]
         )
@@ -908,14 +895,10 @@ class TestPayosConcurrency(BaseCase):
                     inserted.append(suffix)
 
         threads = [threading.Thread(target=worker, args=(suffix,)) for suffix in ("-a", "-b")]
-        with self.assertLogs("odoo.sql_db", "ERROR") as logs:
-            for thread in threads:
-                thread.start()
-            for thread in threads:
-                thread.join(10)
-        self.assertEqual(len(logs.records), 1)
-        self.assertIn("duplicate key value violates unique constraint", logs.records[0].getMessage())
-        self.assertIn("payment_transaction_payos_transfer_unique", logs.records[0].getMessage())
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(10)
         self.assertEqual(len(inserted), 1)
         self.assertEqual(len(rejected), 1)
 

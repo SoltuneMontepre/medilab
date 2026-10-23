@@ -37,5 +37,5 @@ class MedilabTestReportPortal(CustomerPortal):
             Domain("id", "=", report_id) & reports._portal_domain(request_env().user), limit=1
         )
         if not report.attachment_id:
-            raise request.not_found()
+            return request.not_found()
         return request_env()["ir.binary"]._get_stream_from(report.attachment_id).get_response(as_attachment=True)

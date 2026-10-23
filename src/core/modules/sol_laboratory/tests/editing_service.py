@@ -15,7 +15,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
     PUBLIC_URL_VARIABLE,
 )
 
-SECRET = "test-secret-of-the-editing-service-0123456789-0123456789-0123456789"
+SECRET = "test-secret-of-the-editing-service-0123456789"
 PUBLIC_URL = "https://docs.lab.example"
 INTERNAL_URL = "http://onlyoffice"
 # The module whose health check opening a file asks.
@@ -57,7 +57,6 @@ class LocalEditingService:
     def __init__(self, case):
         self.answers = {}
         self.asked = []
-        self.connection_closed = []
         service = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -70,26 +69,19 @@ class LocalEditingService:
             def do_GET(self):
                 service.asked.append(self.path)
                 status, headers, body = service.answers.get(self.path.split("?")[0], (404, {}, b""))
-                self.close_connection = True
                 self.send_response(status)
                 for name, value in headers.items():
                     self.send_header(name, value)
-                self.send_header("Connection", "close")
                 if "Content-Length" not in headers and "Transfer-Encoding" not in headers:
                     self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
-                service.connection_closed.append(self.close_connection)
-                try:
-                    if headers.get("Transfer-Encoding") == "chunked":
-                        for start in range(0, len(body), 1024):
-                            part = body[start : start + 1024]
-                            self.wfile.write(f"{len(part):x}\r\n".encode() + part + b"\r\n")
-                        self.wfile.write(b"0\r\n\r\n")
-                    else:
-                        self.wfile.write(body)
-                except (BrokenPipeError, ConnectionResetError):
-                    # A size limit or timeout makes the client close the stream before the server finishes.
-                    return
+                if headers.get("Transfer-Encoding") == "chunked":
+                    for start in range(0, len(body), 1024):
+                        part = body[start : start + 1024]
+                        self.wfile.write(f"{len(part):x}\r\n".encode() + part + b"\r\n")
+                    self.wfile.write(b"0\r\n\r\n")
+                else:
+                    self.wfile.write(body)
 
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         thread = threading.Thread(target=self.server.serve_forever, daemon=True)

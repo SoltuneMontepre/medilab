@@ -28,22 +28,17 @@ class TestLaboratoryApiSampleFolders(LaboratoryApiCase, LaboratorySampleFolderCa
         listed = [folder["id"] for folder in self.api("GET", "/folders", key=self.outsiders_key).json()["folders"]]
 
         self.assertNotIn(self.results.id, listed)
-        with self.expected_http_warnings(*(["This laboratory folder does not exist or you do not have access to it."] * 3)):
-            for path in (
-                f"/folders/{self.results.id}",
-                f"/folders/{self.results.id}/members",
-                f"/folders/{self.results.id}/rules",
-            ):
-                with self.subTest(path=path):
-                    self.assertApiRefused(NOT_FOUND, self.api("GET", path, key=self.outsiders_key))
+        for path in (
+            f"/folders/{self.results.id}",
+            f"/folders/{self.results.id}/members",
+            f"/folders/{self.results.id}/rules",
+        ):
+            with self.subTest(path=path):
+                self.assertApiRefused(NOT_FOUND, self.api("GET", path, key=self.outsiders_key))
 
     def test_a_folder_created_through_the_api_has_no_sample_and_no_category(self):
         sample = self.results.sample_id.id
-        with self.expected_http_warnings(
-            "The request does not match the API: Additional properties are not allowed ('category' was unexpected)",
-            "The request does not match the API: Additional properties are not allowed ('sample_id' was unexpected)",
-        ):
-            for extra in ({"category": RESULT}, {"sample_id": sample}):
-                with self.subTest(extra=extra):
-                    created = self.api("POST", "/folders", {"name": "Mine", **extra}, key=self.key)
-                    self.assertApiRefused(INVALID_REQUEST, created)
+        for extra in ({"category": RESULT}, {"sample_id": sample}):
+            with self.subTest(extra=extra):
+                created = self.api("POST", "/folders", {"name": "Mine", **extra}, key=self.key)
+                self.assertApiRefused(INVALID_REQUEST, created)

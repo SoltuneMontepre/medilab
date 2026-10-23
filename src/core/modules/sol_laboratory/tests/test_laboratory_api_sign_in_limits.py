@@ -67,8 +67,7 @@ class TestLaboratoryApiSignInLimits(LaboratoryApiCase):
         self.fail_sign_ins(5)
         checked = len(self.checked)
 
-        with self.expected_http_warnings("Too many failed sign-ins with this login; try again in 1 seconds."):
-            response = self.api_sign_in(self.tester, "installation")
+        response = self.api_sign_in(self.tester, "installation")
 
         self.assertApiRefused(TOO_MANY_ATTEMPTS, response)
         self.assertEqual(response.headers["Retry-After"], "1")
@@ -77,18 +76,16 @@ class TestLaboratoryApiSignInLimits(LaboratoryApiCase):
 
     def test_the_delay_doubles_from_one_second_up_to_sixty(self):
         self.fail_sign_ins(5)
-        warning = "Too many failed sign-ins with this login; try again in 1 seconds."
-        with self.expected_http_warnings(*([warning] * len(DELAYS))):
-            for failures, delay in DELAYS.items():
-                with self.subTest(failures=failures):
-                    self.assertEqual(self.attempt().failures, failures)
-                    self.age_last_failure(delay - 0.5)
-                    early = self.api_sign_in(self.tester, "installation", password="wrong")
-                    self.assertApiRefused(TOO_MANY_ATTEMPTS, early)
-                    self.assertEqual(early.headers["Retry-After"], "1")
+        for failures, delay in DELAYS.items():
+            with self.subTest(failures=failures):
+                self.assertEqual(self.attempt().failures, failures)
+                self.age_last_failure(delay - 0.5)
+                early = self.api_sign_in(self.tester, "installation", password="wrong")
+                self.assertApiRefused(TOO_MANY_ATTEMPTS, early)
+                self.assertEqual(early.headers["Retry-After"], "1")
 
-                    self.age_last_failure(delay)
-                    self.fail_sign_ins(1)
+                self.age_last_failure(delay)
+                self.fail_sign_ins(1)
 
     def test_the_person_signs_in_once_the_delay_has_passed_and_that_clears_the_count(self):
         self.fail_sign_ins(7)
@@ -114,11 +111,10 @@ class TestLaboratoryApiSignInLimits(LaboratoryApiCase):
 
     def test_a_login_of_nobody_is_counted_and_slowed_the_same(self):
         body = {"login": "nobody", "password": "x", "client_uid": "installation", "name": "PC", "platform": "linux"}
-        with self.expected_http_warnings("Too many failed sign-ins with this login; try again in 1 seconds."):
-            for _attempt in range(5):
-                self.assertApiRefused(INVALID_CREDENTIALS, self.api("POST", "/sign-in", body))
+        for _attempt in range(5):
+            self.assertApiRefused(INVALID_CREDENTIALS, self.api("POST", "/sign-in", body))
 
-            self.assertApiRefused(TOO_MANY_ATTEMPTS, self.api("POST", "/sign-in", body))
+        self.assertApiRefused(TOO_MANY_ATTEMPTS, self.api("POST", "/sign-in", body))
         self.assertEqual(self.attempt("nobody").failures, 5)
         self.assertEqual(self.api_sign_in(self.tester, "installation").status_code, 200)
 
@@ -127,8 +123,7 @@ class TestLaboratoryApiSignInLimits(LaboratoryApiCase):
         self.registry._login_failures[TEST_ADDRESS] = (5, datetime.datetime.now())
         checked = len(self.checked)
 
-        with self.expected_http_warnings("Too many failed sign-ins from this address; try again in 60 seconds."):
-            response = self.api_sign_in(self.tester, "installation")
+        response = self.api_sign_in(self.tester, "installation")
 
         self.assertApiRefused(TOO_MANY_ATTEMPTS, response)
         self.assertLessEqual(int(response.headers["Retry-After"]), 60)

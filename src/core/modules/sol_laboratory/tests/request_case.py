@@ -15,9 +15,7 @@ class RequestCase(MasterDataCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.customer = cls.env[MODEL_CUSTOMER].create(
-            {"name": "An Phu Beverage Co., Ltd.", "is_company": True, "email": "lab@anphu.example.com"}
-        )
+        cls.customer = cls.env[MODEL_CUSTOMER].create({"name": "An Phu Beverage Co., Ltd.", "is_company": True})
         cls.sample_type = cls.env[MODEL_SAMPLE_TYPE].create({"name": "Bottled drinking water"})
         cls.request = cls.create_request()
         cls.sample = cls.request.sample_ids
@@ -47,7 +45,6 @@ class RequestCase(MasterDataCase):
             {
                 "name": "Le Thi Hoa",
                 "login": "hoa.head",
-                "work_email": "hoa.head@example.com",
                 "department_id": department.id,
                 "permission_ids": [
                     Command.set(

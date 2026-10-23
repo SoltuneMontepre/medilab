@@ -77,20 +77,9 @@ class TestLaboratoryContentMigration(LaboratoryFilesCase):
         )
 
     def test_an_upgraded_database_is_left_as_it_is(self):
-        with self.assertLogs(LOGGER, "WARNING") as logs:
-            self.migrate()
-        self.assertEqual(
-            [record.getMessage() for record in logs.records],
-            [
-                (
-                    f"Recorded {self.contents} laboratory file contents as verified for {self.version_count} versions; "
-                    "their bytes are not in the bucket."
-                )
-            ],
-        )
+        self.migrate()
         rows = self.migrated()
 
-        with self.assertNoLogs(LOGGER, "WARNING"):
-            self.migrate()
+        self.migrate()
 
         self.assertEqual(self.migrated(), rows)

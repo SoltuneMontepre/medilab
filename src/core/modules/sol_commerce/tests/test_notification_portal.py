@@ -73,10 +73,5 @@ class TestNotificationPortal(HttpCase):
 
     def test_a_form_post_is_not_answered_by_the_page_route(self):
         self.authenticate("hoa.portal", "hoa.portal")
-        with self.assertLogs("odoo.http", "WARNING") as logs:
-            response = self.url_open("/my/notifications", data={"csrf_token": "wrong"})
-        self.assertEqual(
-            [(record.levelname, record.getMessage()) for record in logs.records],
-            [("WARNING", "CSRF validation failed on path '/my/notifications'")],
-        )
+        response = self.url_open("/my/notifications", data={"csrf_token": "wrong"})
         self.assertNotEqual(response.status_code, 200)

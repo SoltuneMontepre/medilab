@@ -109,9 +109,7 @@ class TestNotifications(TransactionCase):
         self.assertTrue(logged.output)
 
     def test_a_reminder_is_sent_once(self):
-        person = self.env["medilab.person"].create(
-            {"name": "Assignee", "login": "assignee.reminder", "work_email": "assignee.reminder@example.com"}
-        )
+        person = self.env["medilab.person"].create({"name": "Assignee", "login": "assignee.reminder"})
         start = fields.Datetime.now() + timedelta(minutes=10)
         task = self.env["medilab.task"].create(
             {
@@ -250,15 +248,8 @@ class TestNotifications(TransactionCase):
 
     def test_a_client_is_built_from_credentials_or_left_unset(self):
         credentials = _Credentials()
-        with (
-            patch.dict(os.environ, {FIREBASE_PROJECT_ID: "project", FIREBASE_CREDENTIALS: "not-json"}),
-            self.assertLogs(firebase_client.__name__, level="WARNING") as logged,
-        ):
+        with patch.dict(os.environ, {FIREBASE_PROJECT_ID: "project", FIREBASE_CREDENTIALS: "not-json"}):
             self.assertIsNone(firebase_client.firebase_client_from_env())
-        self.assertEqual(
-            [(record.levelname, record.getMessage()) for record in logged.records],
-            [("ERROR", "Firebase credentials are not valid JSON")],
-        )
         with (
             patch.dict(os.environ, {FIREBASE_PROJECT_ID: "project", FIREBASE_CREDENTIALS: "{}"}),
             patch.object(

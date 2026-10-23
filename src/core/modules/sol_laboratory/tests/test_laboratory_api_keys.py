@@ -39,12 +39,7 @@ class TestLaboratoryApiKeys(LaboratoryApiCase):
     def test_a_signed_in_browser_session_never_takes_the_place_of_a_key(self):
         self.authenticate(self.tester.login, PASSWORD)
 
-        with self.expected_http_warnings(
-            "Sign this computer in: the call has no key.",
-            "Sign this computer in: the call has no key.",
-            "Sign this computer in: the call has no key.",
-        ):
-            self.assertEveryRouteRefuses(INVALID_KEY, headers=BROWSER_NAVIGATION)
+        self.assertEveryRouteRefuses(INVALID_KEY, headers=BROWSER_NAVIGATION)
         self.assertEqual(self.second.status, "signed_in")
 
     def test_a_key_of_another_scope_is_refused(self):
@@ -66,12 +61,7 @@ class TestLaboratoryApiKeys(LaboratoryApiCase):
     def test_a_key_with_the_session_of_another_person_is_refused(self):
         self.authenticate(self.member.login, PASSWORD)
 
-        with self.expected_http_warnings(
-            "Session user does not match the used apikey.",
-            "Session user does not match the used apikey.",
-            "Session user does not match the used apikey.",
-        ):
-            self.assertEveryRouteRefuses(INVALID_KEY, key=self.key)
+        self.assertEveryRouteRefuses(INVALID_KEY, key=self.key)
 
     def test_the_computer_of_a_call_is_the_one_of_its_key_whatever_the_request_names(self):
         named = {"X-Sync-Device-Id": str(self.second.id)}
@@ -86,8 +76,7 @@ class TestLaboratoryApiKeys(LaboratoryApiCase):
     def test_a_person_who_lost_the_laboratory_files_permission_lists_nothing_and_still_signs_out_and_revokes(self):
         self.tester.write({"group_ids": [Command.unlink(self.env.ref(LABORATORY_FILES_GROUP).id)]})
 
-        with self.expected_http_warnings("You do not have the laboratory files permission."):
-            self.assertApiRefused(PERMISSION_DENIED, self.api("GET", "/devices", key=self.key))
+        self.assertApiRefused(PERMISSION_DENIED, self.api("GET", "/devices", key=self.key))
         self.assertEqual(self.api("POST", f"/devices/{self.second.id}/revoke", key=self.key).status_code, 200)
         self.assertEqual(self.api("POST", "/sign-out", key=self.key).status_code, 204)
         self.assertEqual((self.first | self.second).mapped("status"), ["signed_out", "revoked"])

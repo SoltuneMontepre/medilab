@@ -39,18 +39,9 @@ class TestEditingServiceHealth(BaseCase):
         self.assertNotIn("/elsewhere", self.service.asked)
 
     def test_an_editing_service_that_does_not_answer_is_down(self):
-        logger = "odoo.addons.sol_laboratory.services.editing_service_health"
         for error in (requests.ConnectionError(), requests.Timeout()):
-            with (
-                self.subTest(error=type(error).__name__),
-                patch.object(requests, "get", side_effect=error),
-                self.assertLogs(logger, level="WARNING") as logged,
-            ):
+            with self.subTest(error=type(error).__name__), patch.object(requests, "get", side_effect=error):
                 self.assertFalse(is_editing_service_up())
-            self.assertEqual(
-                [(record.levelname, record.getMessage()) for record in logged.records],
-                [("WARNING", f"The editing service does not answer its health check: {type(error).__name__}")],
-            )
 
     def test_without_its_address_the_editing_service_is_down(self):
         self.service.answer(HEALTH_PATH, b"true")

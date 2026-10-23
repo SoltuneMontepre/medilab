@@ -40,10 +40,7 @@ class TestLaboratoryFileChanges(LaboratoryApiCase):
 
         self.assertEqual([change["id"] for change in first["changes"] + second["changes"]], sorted(ids))
         self.assertIsNone(second["next_after"])
-        with self.expected_http_warnings(
-            "The parameter limit does not match the API: '101' does not match '^(100|[1-9][0-9]?)$'"
-        ):
-            self.assertEqual(self.api("GET", f"{self.path}?limit=101", key=self.key).status_code, 400)
+        self.assertEqual(self.api("GET", f"{self.path}?limit=101", key=self.key).status_code, 400)
 
     def test_no_path_takes_the_folders_feed_lock_before_the_files_row_lock(self):
         file = self.file_of("HPLC/run-01.csv")

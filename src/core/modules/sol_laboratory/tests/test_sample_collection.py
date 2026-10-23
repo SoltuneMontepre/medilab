@@ -20,9 +20,7 @@ class TestSampleCollection(RequestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.staff = cls.env.ref("sol_laboratory.person_administrator")
-        cls.delivery = cls.env[MODEL_PERSON].create(
-            {"name": "Pham Van Giao", "login": "giao.pham", "work_email": "giao.pham@example.com"}
-        )
+        cls.delivery = cls.env[MODEL_PERSON].create({"name": "Pham Van Giao", "login": "giao.pham"})
         cls.delivery.user_id.notification_type = "inbox"
 
     def collection_task(self, start):

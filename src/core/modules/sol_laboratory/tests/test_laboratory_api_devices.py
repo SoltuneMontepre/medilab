@@ -50,14 +50,12 @@ class TestLaboratoryApiDevices(LaboratoryApiCase):
         self.assertEqual(self.second.revoked_at, revoked_at)
 
     def test_another_persons_computer_is_not_found_and_stays_signed_in(self):
-        with self.expected_http_warnings("This computer does not exist or is not one of yours."):
-            self.assertApiRefused(NOT_FOUND, self.revoke(self.members))
+        self.assertApiRefused(NOT_FOUND, self.revoke(self.members))
         self.assertApiRefused(NOT_FOUND, self.revoke(self.env[MODEL_LABORATORY_DEVICE].browse(0)))
         self.assertEqual(self.members.status, "signed_in")
 
     def test_administrators_revoke_other_peoples_computers_in_the_back_office_only(self):
         administrators_key = self.signed_in_key(self.administrator, "administrators-installation")
 
-        with self.expected_http_warnings("This computer does not exist or is not one of yours."):
-            self.assertApiRefused(NOT_FOUND, self.revoke(self.members, administrators_key))
+        self.assertApiRefused(NOT_FOUND, self.revoke(self.members, administrators_key))
         self.assertEqual(self.members.status, "signed_in")

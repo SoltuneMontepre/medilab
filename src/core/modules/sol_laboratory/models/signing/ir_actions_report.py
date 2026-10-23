@@ -3,7 +3,6 @@ from odoo.exceptions import UserError
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ACTIONS_REPORT
 from odoo.addons.sol_laboratory.constants.signing import UNSIGNED_PRINT_CONTEXT
-from odoo.addons.sol_laboratory.services.report_assets import inline_report_assets
 
 
 # Báo Cáo In: a fully signed document prints as its digitally signed PDF.
@@ -18,17 +17,6 @@ class IrActionsReport(models.Model):
             raise UserError(self.env._("Print digitally signed documents one at a time."))
         documents.check_access("read")
         return documents._digital_signed_pdf(), "pdf"
-
-    def _prepare_wkhtmltopdf_html(self, html, report_model=False):
-        """The HTML wkhtmltopdf prints, with its assets included while Odoo is installing and not listening."""
-        bodies, html_ids, header, footer, specific = super()._prepare_wkhtmltopdf_html(html, report_model=report_model)
-        return (
-            [inline_report_assets(self.env, body) for body in bodies],
-            html_ids,
-            inline_report_assets(self.env, header),
-            inline_report_assets(self.env, footer),
-            specific,
-        )
 
     def _digitally_signed_documents(self, report_ref, res_ids):
         """The documents printed with the report their type has Viettel Sign sign, when one of them is fully signed and

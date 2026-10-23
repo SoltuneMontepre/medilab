@@ -81,7 +81,7 @@ class ScheduledJob(models.Model):
     # False when the schedule is off: items wait until it is on again or the job is run by hand; kept on the cron.
     cron_active = fields.Boolean(related="cron_id.active", readonly=False, string="Active")
     # The most recent run.
-    last_run_id = fields.Many2one(MODEL_JOB_RUN, compute="_compute_last_run", store=True, index=True)
+    last_run_id = fields.Many2one(MODEL_JOB_RUN, compute="_compute_last_run")
     # Result of the most recent run.
     last_run_status = fields.Selection(related="last_run_id.status")
     # Seconds the most recent run took.
@@ -208,8 +208,6 @@ class ScheduledJob(models.Model):
         job = self.sudo()
         now = fields.Datetime.now()
         run = job._current_run(now)
-        # Finding work can queue items after the run started; claim against the time after they were queued.
-        now = fields.Datetime.now()
         # The audit entries written while the run works link it.
         job = job.with_context(**{JOB_RUN_CONTEXT: run.id})
         job._release_abandoned(run, now)

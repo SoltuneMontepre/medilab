@@ -20,10 +20,6 @@ USER root
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends locales \
-    && ln -s /usr/share/fonts/X11/Type1/NimbusMonoPS-Regular.pfb /usr/share/fonts/X11/Type1/n022003l.pfb \
-    && ln -s /usr/share/fonts/X11/Type1/NimbusMonoPS-Bold.pfb /usr/share/fonts/X11/Type1/n022004l.pfb \
-    && ln -s /usr/share/fonts/X11/Type1/NimbusMonoPS-Italic.pfb /usr/share/fonts/X11/Type1/n022023l.pfb \
-    && ln -s /usr/share/fonts/X11/Type1/NimbusMonoPS-BoldItalic.pfb /usr/share/fonts/X11/Type1/n022024l.pfb \
     && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' \
               -e 's/# vi_VN.UTF-8 UTF-8/vi_VN.UTF-8 UTF-8/' /etc/locale.gen \
     && locale-gen \

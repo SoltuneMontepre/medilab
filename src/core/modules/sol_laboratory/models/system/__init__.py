@@ -15,7 +15,6 @@ from . import (
     ir_binary,
     ir_config_parameter,
     ir_mail_server,
-    ir_qweb,
     ir_ui_menu,
     ir_ui_view,
     job_item,

@@ -20,7 +20,6 @@ services:
       USER: ${MEDILAB_DB_USER:-root}
       PASSWORD: ${MEDILAB_DB_PASSWORD:-root}
       MEDILAB_DEMO_PASSWORD: ${MEDILAB_DEMO_PASSWORD:-}
-      NO_COLOR: ${NO_COLOR:-}
       <<: *laboratory-bucket
       BUCKET_LABORATORY_ADDRESS: http://garage:3900
       BUCKET_LABORATORY_PUBLIC_ADDRESS: ${BUCKET_LABORATORY_PUBLIC_ADDRESS:-http://localhost:3900}

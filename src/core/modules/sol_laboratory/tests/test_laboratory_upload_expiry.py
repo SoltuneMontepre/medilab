@@ -65,8 +65,7 @@ class TestLaboratoryUploadExpiry(LaboratoryUploadCase):
         self.put_parts(upload, RUN)
         self.expire_now(upload)
 
-        with self.expected_http_warnings("This upload is closed; prepare the file again."):
-            self.assertApiRefused(UPLOAD_CLOSED, self.finalize(upload))
+        self.assertApiRefused(UPLOAD_CLOSED, self.finalize(upload))
 
     def test_a_refused_upload_expires_and_keeps_its_verified_content(self):
         file = self.file_of("HPLC/run-01.csv")

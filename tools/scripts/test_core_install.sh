@@ -6,8 +6,8 @@ set -e
 runuser -u odoo -- mkdir -p "$TEST_RUN_DIR/coverage" "$TEST_RUN_DIR/status"
 cd /mnt/extra-addons
 if [[ "$INSTALL_COVERAGE" = false ]]; then
-  odoo_without_coverage -d "$TEST_DB" -i "$MODULES" --test-tags "$TAGS,-post_install" --log-handler=odoo.tests.result:ERROR
+  odoo_without_coverage -d "$TEST_DB" -i "$MODULES" --test-tags "$TAGS,-post_install"
 else
   install_coverage
-  odoo_with_coverage -d "$TEST_DB" -i "$MODULES" --test-tags "$TAGS,-post_install" --log-handler=odoo.tests.result:ERROR
+  odoo_with_coverage -d "$TEST_DB" -i "$MODULES" --test-tags "$TAGS,-post_install"
 fi

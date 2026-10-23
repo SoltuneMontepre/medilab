@@ -21,7 +21,6 @@ class PeopleCase(TransactionCase):
         vals = {"name": name, "department_id": department.id if department else False}
         if login:
             vals["login"] = login
-            vals["work_email"] = f"{login}@example.com"
         if permissions:
             vals["permission_ids"] = [Command.set(cls.permissions(*permissions).ids)]
         if roles:

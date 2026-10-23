@@ -93,25 +93,17 @@ class TestLaboratoryApiSignIn(LaboratoryApiCase):
         self.assertEqual(self.api("GET", "/devices", key=new_key).status_code, 200)
 
     def test_a_computer_is_named_never_given_a_path(self):
-        with self.expected_http_warnings(
-            r"The request does not match the API: name: 'C:\\Users\\lab' does not match '^[^/\\\\:]+$'",
-            r"The request does not match the API: name: '/home/lab' does not match '^[^/\\\\:]+$'",
-            "A computer signs in with its installation id, its name and its platform.",
-            "A computer signs in with its installation id, its name and its platform.",
-            r"The request does not match the API: client_uid: 'C:\\Program Files\\Medilab Sync' does not match '^[^/\\\\:]+$'",
-            r"The request does not match the API: client_uid: '/opt/medilab-sync' does not match '^[^/\\\\:]+$'",
+        for field, value in (
+            ("name", "C:\\Users\\lab"),
+            ("name", "/home/lab"),
+            ("name", "~lab"),
+            ("name", ".."),
+            ("client_uid", "C:\\Program Files\\Medilab Sync"),
+            ("client_uid", "/opt/medilab-sync"),
         ):
-            for field, value in (
-                ("name", "C:\\Users\\lab"),
-                ("name", "/home/lab"),
-                ("name", "~lab"),
-                ("name", ".."),
-                ("client_uid", "C:\\Program Files\\Medilab Sync"),
-                ("client_uid", "/opt/medilab-sync"),
-            ):
-                with self.subTest(field=field, value=value):
-                    values = {"client_uid": "installation", "name": "HPLC-PC", field: value}
-                    self.assertApiRefused(INVALID_REQUEST, self.api_sign_in(self.tester, **values))
+            with self.subTest(field=field, value=value):
+                values = {"client_uid": "installation", "name": "HPLC-PC", field: value}
+                self.assertApiRefused(INVALID_REQUEST, self.api_sign_in(self.tester, **values))
         self.assertFalse(self.env[MODEL_LABORATORY_DEVICE].search([("user_id", "=", self.tester.id)]))
 
     def test_signing_out_stops_the_key_and_the_computer_signs_in_again(self):

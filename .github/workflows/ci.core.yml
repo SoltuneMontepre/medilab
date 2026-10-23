@@ -127,7 +127,6 @@ jobs:
         with:
           image: ${{ steps.odoo.outputs.image }}
           addons-path: src/core/modules
-          rcfile: src/core/.pylintrc
 
   build:
     needs: changes
@@ -157,7 +156,6 @@ jobs:
           tags: ${{ env.MEDILAB_ODOO_IMAGE }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          outputs: type=cacheonly
           provenance: false
           sbom: false
 
@@ -351,15 +349,6 @@ jobs:
         with:
           name: coverage
           path: src/core/modules
-
-      - name: Set up Bun
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.scan == 'true' || github.event_name != 'pull_request')
-        uses: oven-sh/setup-bun@v2
-
-      - name: Install mobile dependencies
-        if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.scan == 'true' || github.event_name != 'pull_request')
-        working-directory: src/applications/medilab-mobile
-        run: bun install --frozen-lockfile --ignore-scripts
 
       - name: SonarQube Cloud scan
         if: github.event.pull_request.head.repo.fork != true && (needs.changes.outputs.scan == 'true' || github.event_name != 'pull_request')

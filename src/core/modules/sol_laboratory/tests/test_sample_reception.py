@@ -121,12 +121,7 @@ class TestSampleReception(RequestCase):
 
     def test_insufficient_receipt_holds_the_sample_and_tells_the_head(self):
         head = self.env[MODEL_PERSON].create(
-            {
-                "name": "Le Thi Hoa",
-                "login": "hoa.le",
-                "work_email": "hoa.le@example.com",
-                "department_id": self.department.id,
-            }
+            {"name": "Le Thi Hoa", "login": "hoa.le", "department_id": self.department.id}
         )
         head.user_id.notification_type = "inbox"
         self.department.manager_id = head.employee_id

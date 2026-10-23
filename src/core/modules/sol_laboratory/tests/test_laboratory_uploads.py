@@ -126,8 +126,7 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
         )
         self.call_presigned("PUT", response.json()["parts"][0]["url"], data[:PART_SIZE])
 
-        with self.expected_http_warnings("Upload every part before finalizing: 2 parts are expected."):
-            self.assertApiRefused(UPLOAD_INCOMPLETE, self.finalize(upload))
+        self.assertApiRefused(UPLOAD_INCOMPLETE, self.finalize(upload))
 
         self.assertEqual(self.read(upload)["status"], PREPARED)
 
@@ -136,28 +135,21 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
 
         self.assertEqual((upload["status"], upload["part_count"], upload["version"]["size"]), (COMPLETED, 0, 0))
         wrong = {"path": "HPLC/other.csv", "size": 0, "sha256": "0" * 64}
-        with self.expected_http_warnings(
-            "Empty content has the SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855."
-        ):
-            response = self.api(
-                "POST", f"/folders/{self.folder.id}/uploads", wrong, key=self.key, headers={"Idempotency-Key": "empty-2"}
-            )
+        response = self.api(
+            "POST", f"/folders/{self.folder.id}/uploads", wrong, key=self.key, headers={"Idempotency-Key": "empty-2"}
+        )
         self.assertApiRefused(INVALID_REQUEST, response)
 
     def test_preparing_again_with_the_idempotency_key_answers_with_the_same_upload(self):
         first = self.prepare(RUN, idempotency_key="run-01-upload")
         again = self.prepare(RUN, idempotency_key="run-01-upload")
-        with self.expected_http_warnings(
-            "This Idempotency-Key was already sent with another request.",
-            "This route needs the parameter Idempotency-Key.",
-        ):
-            other = self.prepare(b"another run", idempotency_key="run-01-upload")
-            without = self.api(
-                "POST",
-                f"/folders/{self.folder.id}/uploads",
-                {"path": "HPLC/run-01.csv", "size": len(RUN), "sha256": hashlib.sha256(RUN).hexdigest()},
-                key=self.key,
-            )
+        other = self.prepare(b"another run", idempotency_key="run-01-upload")
+        without = self.api(
+            "POST",
+            f"/folders/{self.folder.id}/uploads",
+            {"path": "HPLC/run-01.csv", "size": len(RUN), "sha256": hashlib.sha256(RUN).hexdigest()},
+            key=self.key,
+        )
 
         self.assertEqual(again.json()["upload"]["id"], first.json()["upload"]["id"])
         self.assertApiRefused(IDEMPOTENCY_CONFLICT, other)
@@ -183,12 +175,7 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
         contents = self.env[MODEL_LABORATORY_CONTENT].sudo()
         last_id = contents.search([], order="id desc", limit=1).id or 0
 
-        locked_warning = self.timestamped_http_warning(
-            "lab.member (base.group_user,sol_laboratory.group_permission_laboratory_folder_create_all) "
-            "has locked HPLC/run-01.csv until "
-        )
-        with self.expected_http_warnings(locked_warning):
-            response = self.prepare(RUN)
+        response = self.prepare(RUN)
 
         self.assertApiRefused(LOCKED, response)
         self.assertFalse(contents.search([("id", ">", last_id)]))
@@ -200,12 +187,7 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
         self.save(file, "run 1")
         file.with_user(self.member)._lock()
 
-        locked_warning = self.timestamped_http_warning(
-            "lab.member (base.group_user,sol_laboratory.group_permission_laboratory_folder_create_all) "
-            "has locked HPLC/run-01.csv until "
-        )
-        with self.expected_http_warnings(locked_warning):
-            self.assertApiRefused(LOCKED, self.finalize(upload))
+        self.assertApiRefused(LOCKED, self.finalize(upload))
 
         self.assertEqual(self.read(upload)["status"], PREPARED)
 
@@ -214,24 +196,20 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
         other = self.signed_in_key(self.member, "member-installation")
         another_folder = self.env[MODEL_LABORATORY_FOLDER].create({"name": "AAS", "owner_id": self.tester.id})
 
-        warning = "This upload does not exist or you do not have access to it."
-        with self.expected_http_warnings(warning, warning):
-            for key, folder_id in ((other, self.folder.id), (self.key, another_folder.id)):
-                with self.subTest(folder_id=folder_id):
-                    response = self.api("GET", f"/folders/{folder_id}/uploads/{upload['id']}", key=key)
-                    self.assertApiRefused(NOT_FOUND, response)
+        for key, folder_id in ((other, self.folder.id), (self.key, another_folder.id)):
+            with self.subTest(folder_id=folder_id):
+                response = self.api("GET", f"/folders/{folder_id}/uploads/{upload['id']}", key=key)
+                self.assertApiRefused(NOT_FOUND, response)
 
     def test_part_addresses_are_for_the_parts_of_a_prepared_upload_only(self):
         upload = self.prepare(RUN).json()["upload"]
         path = f"/folders/{self.folder.id}/uploads/{upload['id']}/parts"
 
-        with self.expected_http_warnings("Ask for at most 100 parts, numbered from 1 to 1."):
-            refused = self.api("POST", path, {"part_numbers": [2]}, key=self.key)
+        refused = self.api("POST", path, {"part_numbers": [2]}, key=self.key)
         given = self.api("POST", path, {"part_numbers": [1]}, key=self.key)
         self.put_parts(upload, RUN)
         self.finalize(upload)
-        with self.expected_http_warnings("This upload is closed; prepare the file again."):
-            closed = self.api("POST", path, {"part_numbers": [1]}, key=self.key)
+        closed = self.api("POST", path, {"part_numbers": [1]}, key=self.key)
 
         self.assertApiRefused(INVALID_REQUEST, refused)
         self.assertEqual([part["number"] for part in given.json()["parts"]], [1])
@@ -253,9 +231,7 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
         self.assertEqual(self.read_back(content.object_key), (hashlib.sha256(RUN).hexdigest(), len(RUN)))
 
     def test_while_the_bucket_cannot_be_reached_preparing_is_answered_storage_unavailable(self):
-        with patch.dict(os.environ, {ADDRESS_VARIABLE: f"http://127.0.0.1:{closed_port()}"}), self.expected_http_warnings(
-            "The laboratory files bucket cannot be reached; try again shortly."
-        ):
+        with patch.dict(os.environ, {ADDRESS_VARIABLE: f"http://127.0.0.1:{closed_port()}"}):
             response = self.prepare(RUN)
 
         self.assertApiRefused(STORAGE_UNAVAILABLE, response)
@@ -274,8 +250,7 @@ class TestLaboratoryUploads(LaboratoryUploadCase):
         self.run_jobs()
         refused = self.read(garbage, key=outsider, folder=other_folder)
         honest = self.upload(RUN, path="run-01.csv", key=outsider, folder=other_folder)
-        with self.expected_http_warnings("This upload does not exist or you do not have access to it."):
-            theirs = self.api("GET", f"/folders/{self.folder.id}/uploads/{garbage['id']}", key=outsider)
+        theirs = self.api("GET", f"/folders/{self.folder.id}/uploads/{garbage['id']}", key=outsider)
 
         self.assertEqual((prepared.json()["upload"]["status"], garbage["part_count"]), (PREPARED, 1))
         self.assertEqual((refused["status"], refused["failure_code"]), (UPLOAD_FAILED, SHA256_MISMATCH))

@@ -89,7 +89,7 @@ tasks:
       - |
         set -e
         . {{.LOG}}
-        failed=$(docker compose run --rm -T --no-deps {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_status.sh)
+        failed=$(docker compose run --rm -T {{.TEST_ENV}} --entrypoint bash odoo {{.ODOO_SCRIPTS}}/test_core_status.sh)
         if [ -n "$failed" ]; then
           log_error "Odoo module tests failed in shard $failed. Search the output for [shard N]."
           exit 1

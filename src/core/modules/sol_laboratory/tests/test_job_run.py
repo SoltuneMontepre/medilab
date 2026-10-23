@@ -1,7 +1,4 @@
 from datetime import timedelta
-from unittest.mock import patch
-
-from freezegun import freeze_time
 
 from odoo import fields
 from odoo.exceptions import UserError
@@ -56,24 +53,6 @@ class TestJobRun(JobsCase):
         self.run_pass()
 
         self.assertEqual(self.job.run_ids.mapped("status"), ["succeeded"])
-
-    def test_work_found_after_the_batch_starts_runs_in_that_batch(self):
-        handled = self.record_handler()
-        with freeze_time("2026-10-22 12:00:00") as clock:
-            future = self.queue("later")
-            future.next_attempt_at = fields.Datetime.now() + timedelta(hours=1)
-
-            def find(job):
-                clock.tick(delta=timedelta(seconds=2))
-                job.queue(job.key, "found")
-
-            with patch.object(type(self.job), "_queue_test_echo", find, create=True):
-                run = self.job._run_batch()
-
-        self.assertEqual(handled, ["found"])
-        self.assertEqual(self.items("done").mapped("item_key"), ["found"])
-        self.assertEqual(future.status, "pending")
-        self.assertEqual((run.status, run.done_count), ("succeeded", 1))
 
     def test_a_missing_handler_fails_the_run_and_leaves_the_items(self):
         item = self.queue("a")
