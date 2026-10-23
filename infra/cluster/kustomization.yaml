@@ -9,4 +9,6 @@ resources:
   - applications/plugin-barman-cloud.yaml
   - applications/database.yaml
   - applications/cloudflared.yaml
+  - applications/mailpit.yaml
+  - applications/cloudbeaver.yaml
   - applications/odoo.yaml
