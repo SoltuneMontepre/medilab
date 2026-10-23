@@ -51,10 +51,10 @@ spec:
               value: "1"
           resources:
             requests:
-              cpu: 500m
-              memory: 1Gi
+              cpu: "3"
+              memory: 2Gi
             limits:
-              memory: 3Gi
+              memory: 4Gi
           volumeMounts:
             - name: config
               mountPath: /etc/odoo

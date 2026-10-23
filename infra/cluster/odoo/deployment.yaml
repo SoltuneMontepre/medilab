@@ -83,8 +83,8 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "1"
-              memory: 2Gi
+              cpu: "3"
+              memory: 4Gi
             limits:
               memory: 5Gi
           volumeMounts:

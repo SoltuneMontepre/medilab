@@ -1,7 +1,9 @@
 locals {
   web_hostnames = {
-    lims   = "lims.${var.cloudflare_zone_name}"
-    argocd = "argocd.${var.cloudflare_zone_name}"
+    lims        = "lims.${var.cloudflare_zone_name}"
+    argocd      = "argocd.${var.cloudflare_zone_name}"
+    mail        = "mail.${var.cloudflare_zone_name}"
+    cloudbeaver = "cloudbeaver.${var.cloudflare_zone_name}"
   }
 }
 
