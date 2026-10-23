@@ -56,10 +56,10 @@ done
 
 sed -i -E "s/^( *newTag: ).*/\1sha-$release/" "$KUSTOMIZATION"
 git add "$KUSTOMIZATION"
-git commit -q -m "[chore] Release ${release:0:7}"
+git commit -q -m "[chore] Release ${release:0:7}" -m "[skip ci]"
 for attempt in 1 2 3; do
   git push -q origin HEAD:main && break
-  (( attempt < 3 )) || { echo "Main kept moving; the release was not pushed." >&2; exit 1; }
+  (( attempt < 3 )) || { echo "The release could not be pushed to main." >&2; exit 1; }
   git pull -q --rebase origin main
 done
 
