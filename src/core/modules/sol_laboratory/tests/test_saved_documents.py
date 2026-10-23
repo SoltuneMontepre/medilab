@@ -88,6 +88,7 @@ class TestSavedDocuments(BaseCase):
                 received.extend(chunks)
 
         self.assertLessEqual(sum(map(len, received)), 2048)
+        self.assertEqual(self.service.connection_closed, [True])
 
     def test_the_whole_fetch_has_a_time_limit(self):
         self.service.answer(SAVED_PATH, CONTENT)

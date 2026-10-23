@@ -57,6 +57,7 @@ class LocalEditingService:
     def __init__(self, case):
         self.answers = {}
         self.asked = []
+        self.connection_closed = []
         service = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -69,12 +70,15 @@ class LocalEditingService:
             def do_GET(self):
                 service.asked.append(self.path)
                 status, headers, body = service.answers.get(self.path.split("?")[0], (404, {}, b""))
+                self.close_connection = True
                 self.send_response(status)
                 for name, value in headers.items():
                     self.send_header(name, value)
+                self.send_header("Connection", "close")
                 if "Content-Length" not in headers and "Transfer-Encoding" not in headers:
                     self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
+                service.connection_closed.append(self.close_connection)
                 try:
                     if headers.get("Transfer-Encoding") == "chunked":
                         for start in range(0, len(body), 1024):

@@ -200,12 +200,12 @@ if pattern.sub(lambda match: match.group(0), css) != css:
 """
         subprocess.run([sys.executable, "-c", code, str(source)], check=True, timeout=5, capture_output=True)
 
-    def test_odoo_prepares_printable_bodies_headers_and_footers_without_http_assets(self):
+    def test_odoo_prepares_wkhtmltopdf_bodies_headers_and_footers_without_http_assets(self):
         report = self.env.ref(TEST_REPORT_REPORT)
         page = '<html><main><div class="header">Header</div><div class="article">Result</div>'
         page += '<div class="footer">Footer</div></main></html>'
 
-        bodies, _ids, header, footer, _specific = report._prepare_html(page)
+        bodies, _ids, header, footer, _specific = report._prepare_wkhtmltopdf_html(page)
 
         for document in [*bodies, header, footer]:
             with self.subTest(document=document[:80]):
