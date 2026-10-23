@@ -22,7 +22,10 @@ tools/
     ├── doppler.sh              Doppler login helper sourced by the tasks
     ├── ai_setup.sh             ai:setup prerequisites and environment
     ├── odoo_source.sh          dev:odoo-source download and sparse checkout
+    ├── compose_down.sh         task stop and task reset: drop containers left on the project network, then compose down
     ├── compose_env.py          dev:compose-env: this checkout's compose project in tools/infrastructure/.env
+    ├── odoo_upgrade.sh         task upgrade: one-shot module install, then fail when that run logs a warning
+    ├── run_strict.sh           run a command and fail when its output contains a warning
     ├── test_apps.sh            test:apps
     ├── test_shards.py          splits the Odoo test classes into shards for test:core
     └── test_core_*.sh          test:core steps run inside a container
@@ -32,6 +35,8 @@ tools/
 - A new group of tasks gets its own `tools/taskfiles/<group>.taskfile.yml`, included the same way.
 - The `env:` block of an included taskfile applies to the tasks of every taskfile, and when two taskfiles set the same variable, which value a task gets changes from run to run. Set a variable there only to the value every taskfile uses, such as `COMPOSE_FILE` for the local infrastructure; a task that needs another compose file names it with `docker compose -f`, as the Ansible tasks do.
 - Shell code shared by several tasks goes in `tools/scripts/`, not copied between tasks.
+- `task up` and `task reset` set `BUILDAH_FORMAT=docker` on the image build only. That format is what lets Podman keep the base image shell. It stays off the taskfile `env:` block, which would apply it to every task.
+- `run_strict.sh` fails a command when its output contains a warning. `task upgrade` sources it, along with `odoo_upgrade.sh`, so the check runs in Task's shell on Linux and Windows. Color codes around the log level are ignored, so a colored warning still fails the command.
 
 ## Tasks
 
@@ -96,7 +101,7 @@ tasks:
 - A task that runs several steps or asks questions opens with `log_step`. A task that finishes something the developer waits for ends with `log_ok`. A task that only calls other tasks or one tool prints nothing itself.
 - Write messages as short sentences ending with a full stop. An error says what failed and what to do next: "doppler not found. Install: winget install Doppler.doppler".
 - Do not write color escape codes in the taskfiles; add a helper to `log.sh` when a new kind of line is needed.
-- Setting `NO_COLOR=1` prints every helper without colors, for logs and CI.
+- Setting `NO_COLOR=1` prints every helper without colors, for logs and CI. Odoo follows the same variable and leaves its log level uncolored.
 
 ## Related documents
 

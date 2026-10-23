@@ -18,7 +18,7 @@ tasks:
         if [ -n "${MEDILAB_ODOO_IMAGE:-}" ]; then
           docker compose up -d --no-build
         else
-          docker compose up -d --build
+          BUILDAH_FORMAT=docker . tools/scripts/run_strict.sh docker compose up -d --build
         fi
       - task: print
 
@@ -26,7 +26,7 @@ tasks:
     desc: "Stop the running container."
     silent: true
     cmds:
-      - docker compose down
+      - . tools/scripts/compose_down.sh
 
   restart:
     desc: "Restart Odoo after changing modules or config"
@@ -46,13 +46,14 @@ tasks:
       MODULES: '{{.MODULES | default "all"}}'
     cmds:
       - docker compose up -d postgres
-      - docker compose stop odoo
       - |
-        if [ "{{.MODULES}}" = "all" ]; then
-          docker compose run --rm -T odoo --stop-after-init -u all
-        else
-          docker compose run --rm -T odoo --stop-after-init -i "{{.MODULES | replace " " ","}}" -u "{{.MODULES | replace " " ","}}"
+        project="${COMPOSE_PROJECT_NAME:-medilab}"
+        running="$(docker ps -q --filter "label=io.podman.compose.project=${project}" --filter "label=io.podman.compose.service=odoo" --filter status=running)"
+        if [[ -n "$running" ]]; then
+          docker compose stop odoo
         fi
+      - |
+        . tools/scripts/odoo_upgrade.sh "{{.MODULES | replace " " ","}}"
       - docker compose up -d
       - . {{.LOG}} && log_ok "Modules upgraded ({{.MODULES}})."
       - task: print
@@ -62,8 +63,14 @@ tasks:
     desc: "Delete the database and volumes, then start from scratch"
     silent: true
     cmds:
-      - docker compose down -v
-      - task: up
+      - . tools/scripts/compose_down.sh -v
+      - |
+        if [[ -z "${MEDILAB_ODOO_IMAGE:-}" ]]; then
+          BUILDAH_FORMAT=docker . tools/scripts/run_strict.sh docker compose build odoo
+          docker compose up -d postgres garage garage-setup cloudbeaver
+        else
+          docker compose up -d --no-build postgres garage garage-setup cloudbeaver
+        fi
       - task: upgrade
 
   print:

@@ -55,7 +55,8 @@ class TestLaboratoryApiFolderRules(LaboratoryApiCase):
         self.add("prefix", "run-")
         other = self.add("prefix", "cal-").json()["rule"]
 
-        changed = self.api("PATCH", f"{self.path}/{other['id']}", {"pattern": "run-"}, key=self.key)
+        with self.expected_http_warnings("The folder already has this sync rule."):
+            changed = self.api("PATCH", f"{self.path}/{other['id']}", {"pattern": "run-"}, key=self.key)
 
         self.assertApiRefused(INVALID_REQUEST, changed)
         self.assertEqual(sorted(self.rules().mapped("pattern")), ["cal-", "run-"])
@@ -64,7 +65,8 @@ class TestLaboratoryApiFolderRules(LaboratoryApiCase):
         rule = self.add("prefix", "run-").json()["rule"]
         other = self.env[MODEL_LABORATORY_FOLDER].create({"name": "AAS", "owner_id": self.tester.id})
 
-        changed = self.api("PATCH", f"/folders/{other.id}/rules/{rule['id']}", {"enabled": False}, key=self.key)
+        with self.expected_http_warnings("This sync rule does not exist in the folder."):
+            changed = self.api("PATCH", f"/folders/{other.id}/rules/{rule['id']}", {"enabled": False}, key=self.key)
 
         self.assertApiRefused(NOT_FOUND, changed)
 
@@ -82,25 +84,44 @@ class TestLaboratoryApiFolderRules(LaboratoryApiCase):
             ("glob", "run-?.csv"),
             ("extension", "c/sv"),
         ):
-            with self.subTest(kind=kind, pattern=pattern):
+            message = (
+                "A name pattern is a file name with *, such as run-*.csv, without a path: run-?.csv"
+                if pattern == "run-?.csv"
+                else f"The request does not match the API: pattern: {pattern!r}" + r" does not match '^[^/\\\\:]+$'"
+            )
+            with self.subTest(kind=kind, pattern=pattern), self.expected_http_warnings(message):
                 self.assertApiRefused(INVALID_REQUEST, self.add(kind, pattern))
         rule = self.add("prefix", "run-").json()["rule"]
-        changed = self.api("PATCH", f"{self.path}/{rule['id']}", {"pattern": "D:\\run-"}, key=self.key)
+        with self.expected_http_warnings(
+            "The request does not match the API: pattern: 'D:\\\\run-' does not match '^[^/\\\\\\\\:]+$'"
+        ):
+            changed = self.api("PATCH", f"{self.path}/{rule['id']}", {"pattern": "D:\\run-"}, key=self.key)
         self.assertApiRefused(INVALID_REQUEST, changed)
         self.assertEqual(self.rules().mapped("pattern"), ["run-"])
 
     def test_a_member_who_does_not_own_the_folder_does_not_change_its_rules(self):
         rule = self.add("prefix", "run-").json()["rule"]
 
-        self.assertApiRefused(PERMISSION_DENIED, self.add("prefix", "cal-", self.members_key))
-        changed = self.api("PATCH", f"{self.path}/{rule['id']}", {"enabled": False}, key=self.members_key)
-        self.assertApiRefused(PERMISSION_DENIED, changed)
-        self.assertApiRefused(PERMISSION_DENIED, self.api("DELETE", f"{self.path}/{rule['id']}", key=self.members_key))
+        with self.expected_http_warnings(
+            "Only the owner of a laboratory folder and administrators can do this.",
+            "Only the owner of a laboratory folder and administrators can do this.",
+            "Only the owner of a laboratory folder and administrators can do this.",
+        ):
+            self.assertApiRefused(PERMISSION_DENIED, self.add("prefix", "cal-", self.members_key))
+            changed = self.api("PATCH", f"{self.path}/{rule['id']}", {"enabled": False}, key=self.members_key)
+            self.assertApiRefused(PERMISSION_DENIED, changed)
+            self.assertApiRefused(
+                PERMISSION_DENIED, self.api("DELETE", f"{self.path}/{rule['id']}", key=self.members_key)
+            )
 
     def test_the_rules_of_an_archived_folder_do_not_change(self):
         rule = self.add("prefix", "run-").json()["rule"]
         self.folder.with_user(self.administrator).action_archive_folder()
 
-        self.assertApiRefused(FOLDER_ARCHIVED, self.add("prefix", "cal-"))
-        self.assertApiRefused(FOLDER_ARCHIVED, self.api("DELETE", f"{self.path}/{rule['id']}", key=self.key))
+        with self.expected_http_warnings(
+            "This laboratory folder is archived: it is read, not changed.",
+            "This laboratory folder is archived: it is read, not changed.",
+        ):
+            self.assertApiRefused(FOLDER_ARCHIVED, self.add("prefix", "cal-"))
+            self.assertApiRefused(FOLDER_ARCHIVED, self.api("DELETE", f"{self.path}/{rule['id']}", key=self.key))
         self.assertEqual(len(self.api("GET", self.path, key=self.key).json()["rules"]), 1)

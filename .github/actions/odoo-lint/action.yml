@@ -21,6 +21,10 @@ inputs:
     description: "When true, pylint-odoo (pass 1, conventions) reports but does not fail the build. Core pylint (pass 2, real errors) always fails the build."
     required: false
     default: "true"
+  rcfile:
+    description: "Repository path of the pylint configuration."
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -34,6 +38,7 @@ runs:
         PYLINT_ODOO_VERSION: ${{ inputs.pylint-odoo-version }}
         ACTION_PATH: ${{ github.action_path }}
         ODOO_LINT_ADVISORY: ${{ inputs.advisory == 'true' && '1' || '' }}
+        RCFILE: ${{ inputs.rcfile }}
       run: |
         set -euo pipefail
         EXCLUDED_FILE="${{ github.workspace }}/tools/lint/excluded-modules.txt"
@@ -41,12 +46,22 @@ runs:
         if [ -f "$EXCLUDED_FILE" ]; then
           EXCLUDED_ARGS=(-v "${EXCLUDED_FILE}:/tmp/excluded-modules.txt:ro" -e EXCLUDED_MODULES_FILE=/tmp/excluded-modules.txt)
         fi
+        RCFILE_ARGS=()
+        if [ -n "$RCFILE" ]; then
+          RCFILE_ARGS=(-v "${{ github.workspace }}/${RCFILE}:/tmp/medilab.pylintrc:ro" -e PYLINT_RCFILE=/tmp/medilab.pylintrc)
+        fi
         docker run --rm -u root \
           -v "${{ github.workspace }}/${ADDONS}:/mnt/extra-addons:ro" \
           -v "${ACTION_PATH}/lint.sh:/tmp/lint.sh:ro" \
           "${EXCLUDED_ARGS[@]}" \
+          "${RCFILE_ARGS[@]}" \
           -e ODOO_VERSION \
           -e ODOO_LINT_ADVISORY \
+          -e PYLINT_ODOO_VERSION \
           --entrypoint bash \
           "${IMAGE}" \
-          -c "pip3 install --no-cache-dir --break-system-packages --quiet 'pylint-odoo${PYLINT_ODOO_VERSION}' && bash /tmp/lint.sh"
+          -c 'set -e
+            python3 -m venv --without-pip /tmp/medilab-lint
+            pip3 --python /tmp/medilab-lint install --no-cache-dir --quiet "pylint-odoo${PYLINT_ODOO_VERSION}"
+            export PYTHONPATH="$(/tmp/medilab-lint/bin/python -c '\''import site; print(":".join(site.getsitepackages()))'\'')${PYTHONPATH:+:$PYTHONPATH}"
+            bash /tmp/lint.sh'

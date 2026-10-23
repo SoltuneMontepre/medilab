@@ -21,8 +21,19 @@ day_in() {
   return 1
 }
 
+decimal() {
+  local value=$1
+  while [[ ${#value} -gt 1 && ${value:0:1} == 0 ]]; do
+    value=${value:1}
+  done
+  printf '%s' "$value"
+}
+
 hour_in() {
-  local hour=$((10#$1)) start=${2%-*} end=${2#*-}
+  local hour start end
+  hour=$(decimal "$1")
+  start=$(decimal "${2%-*}")
+  end=$(decimal "${2#*-}")
   if (( start <= end )); then
     (( hour >= start && hour < end ))
   else

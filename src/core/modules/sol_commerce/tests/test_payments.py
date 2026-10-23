@@ -1,4 +1,5 @@
 import re
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
@@ -257,7 +258,12 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
         self.authenticate(self.customer.login, self.customer.login)
         token = self.csrf_token()
 
-        refused = self.url_open(f"/my/invoices/{self.invoice.id}/pay", data={"amount": "1"}, allow_redirects=False)
+        with self.assertLogs("odoo.http", "WARNING") as logs:
+            refused = self.url_open(f"/my/invoices/{self.invoice.id}/pay", data={"amount": "1"}, allow_redirects=False)
+        self.assertEqual(
+            [(record.levelname, record.getMessage().splitlines()[0]) for record in logs.records],
+            [("WARNING", f"No CSRF validation token provided for path '/my/invoices/{self.invoice.id}/pay'")],
+        )
         self.assertEqual(refused.status_code, 400)
         self.assertFalse(
             self.env["account.payment"].search(
@@ -363,11 +369,12 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
 
         provider.is_published = True
         method.active = True
-        started = self.url_open(
-            f"/my/invoices/{self.invoice.id}/pay",
-            data={"csrf_token": token, "method": "payos"},
-            allow_redirects=False,
-        )
+        with self.without_payos_credentials(expected_count=1):
+            started = self.url_open(
+                f"/my/invoices/{self.invoice.id}/pay",
+                data={"csrf_token": token, "method": "payos"},
+                allow_redirects=False,
+            )
         transaction = self.env["payment.transaction"].search(
             [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
         )
@@ -392,6 +399,19 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
             f"/my/invoices/{invoice.id}/pay",
             data={"csrf_token": self.csrf_token(), "method": method},
             allow_redirects=False,
+        )
+
+    @contextmanager
+    def without_payos_credentials(self, expected_count):
+        logger = "odoo.addons.sol_commerce.models.invoicing.scheduled_job"
+        with (
+            patch(f"{logger}.payos_client_from_env", return_value=None),
+            self.assertLogs(logger, level="WARNING") as logged,
+        ):
+            yield
+        self.assertEqual(
+            [(record.levelname, record.getMessage()) for record in logged.records],
+            [("ERROR", "PayOS credentials are not set")] * expected_count,
         )
 
     def test_the_invoice_page_submits_payment_for_that_invoice(self):
@@ -433,8 +453,9 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
         method.active = True
         self.authenticate(self.customer.login, self.customer.login)
 
-        waiting = self._pay(self.invoice, "payos")
-        again = self._pay(self.invoice, "payos")
+        with self.without_payos_credentials(expected_count=2):
+            waiting = self._pay(self.invoice, "payos")
+            again = self._pay(self.invoice, "payos")
         transaction = self.env["payment.transaction"].search(
             [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
         )
@@ -535,6 +556,7 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
                 {"PAYOS_CLIENT_ID": "id", "PAYOS_API_KEY": "key", "PAYOS_CHECKSUM_KEY": "checksum-key"},
             ),
             patch("odoo.addons.sol_commerce.models.invoicing.scheduled_job.payos_client_from_env", return_value=client),
+            self.assertLogs("odoo.addons.sol_laboratory.models.system.scheduled_job", "WARNING") as logs,
         ):
             refused = self._pay(self.invoice, "payos")
 
@@ -542,6 +564,18 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
             [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
         )
         self.assertEqual(refused.status_code, 200)
+        self.assertEqual(
+            [(record.levelname, record.getMessage()) for record in logs.records],
+            [
+                (
+                    "ERROR",
+                    (
+                        f"Job payos.calls: item {transaction.reference} failed its last attempt: "
+                        "PayOS link does not match this payment"
+                    ),
+                )
+            ],
+        )
         self.assertIn('id="payos-unavailable"', refused.text)
         self.assertFalse(refused.headers.get("Location"))
         self.assertEqual(len(transaction), 1)
@@ -554,7 +588,8 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
         method.active = True
         self.authenticate(self.customer.login, self.customer.login)
 
-        waiting = self._pay(self.invoice, "payos")
+        with self.without_payos_credentials(expected_count=1):
+            waiting = self._pay(self.invoice, "payos")
         transaction = self.env["payment.transaction"].search(
             [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
         )
@@ -662,12 +697,25 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
                 {"PAYOS_CLIENT_ID": "id", "PAYOS_API_KEY": "key", "PAYOS_CHECKSUM_KEY": "checksum-key"},
             ),
             patch("requests.request", side_effect=request),
+            self.assertLogs("odoo.addons.sol_laboratory.models.system.scheduled_job", "WARNING") as logs,
         ):
             refused = self._pay(self.invoice, "payos")
             again = self._pay(self.invoice, "payos")
 
         transaction = self.env["payment.transaction"].search(
             [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
+        )
+        self.assertEqual(
+            [(record.levelname, record.getMessage()) for record in logs.records],
+            [
+                (
+                    "ERROR",
+                    (
+                        f"Job payos.calls: item {transaction.reference} failed its last attempt: "
+                        "PayOS already has this order and did not return a checkout URL. Another link was not created."
+                    ),
+                )
+            ],
         )
         self.assertEqual(calls, ["GET"])
         self.assertEqual(refused.status_code, 200)
@@ -684,7 +732,8 @@ class TestPaymentPortal(AuditLookup, InvoicingCase, HttpCase):
         provider.is_published = True
         method.active = True
         self.authenticate(self.customer.login, self.customer.login)
-        waiting = self._pay(self.invoice, "payos")
+        with self.without_payos_credentials(expected_count=1):
+            waiting = self._pay(self.invoice, "payos")
         transaction = self.env["payment.transaction"].search(
             [("invoice_ids", "in", self.invoice.id), ("provider_code", "=", "payos")]
         )

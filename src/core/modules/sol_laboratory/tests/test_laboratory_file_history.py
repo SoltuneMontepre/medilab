@@ -95,9 +95,11 @@ class TestLaboratoryFileHistory(AuditLookup, LaboratoryBucketTools, LaboratoryAp
         self.save(self.file, "run 1")
         outsider = self.signed_in_key(self.outsider, "aas-installation")
 
-        for path in (f"/folders/{self.folder.id}/files", self.versions_path(), f"/folders/{self.folder.id}/changes"):
-            with self.subTest(path=path):
-                self.assertApiRefused(NOT_FOUND, self.api("GET", path, key=outsider))
+        warning = "This laboratory folder does not exist or you do not have access to it."
+        with self.expected_http_warnings(warning, warning, warning):
+            for path in (f"/folders/{self.folder.id}/files", self.versions_path(), f"/folders/{self.folder.id}/changes"):
+                with self.subTest(path=path):
+                    self.assertApiRefused(NOT_FOUND, self.api("GET", path, key=outsider))
 
     def test_a_version_is_downloaded_straight_from_the_bucket_for_reading_only_and_the_download_is_audited(self):
         first = self.save_with_bytes(self.file, "mau,Pb\nLAB-26-0412,0.012")
@@ -122,12 +124,16 @@ class TestLaboratoryFileHistory(AuditLookup, LaboratoryBucketTools, LaboratoryAp
         self.save(other, "run 2")
         folder = self.folder.create({"name": "AAS", "owner_id": self.tester.id})
 
-        for path in (
-            f"{self.versions_path(other)}/{version.id}/download",
-            f"{self.versions_path(folder=folder)}/{version.id}/download",
+        with self.expected_http_warnings(
+            "This version is not a version of the file.",
+            "This file does not exist in the folder.",
         ):
-            with self.subTest(path=path):
-                self.assertApiRefused(NOT_FOUND, self.api("POST", path, key=self.key))
+            for path in (
+                f"{self.versions_path(other)}/{version.id}/download",
+                f"{self.versions_path(folder=folder)}/{version.id}/download",
+            ):
+                with self.subTest(path=path):
+                    self.assertApiRefused(NOT_FOUND, self.api("POST", path, key=self.key))
         self.assertFalse(self.entries(self.file, "download"))
 
     def test_restoring_version_3_of_5_adds_version_6_with_its_content(self):
@@ -147,7 +153,8 @@ class TestLaboratoryFileHistory(AuditLookup, LaboratoryBucketTools, LaboratoryAp
         first, second = self.save(self.file, "run 1"), self.save(self.file, "run 2")
 
         once, again = self.restore(first, idempotency_key="restore-1"), self.restore(first, idempotency_key="restore-1")
-        other = self.restore(second, idempotency_key="restore-1")
+        with self.expected_http_warnings("This Idempotency-Key was already sent with another request."):
+            other = self.restore(second, idempotency_key="restore-1")
         without = [self.restore(first) for _ in range(2)]
 
         self.assertEqual(once.json()["version"]["id"], again.json()["version"]["id"])
@@ -159,10 +166,16 @@ class TestLaboratoryFileHistory(AuditLookup, LaboratoryBucketTools, LaboratoryAp
         self.save(self.file, "run 2")
         self.file.with_user(self.member)._lock()
 
-        self.assertApiRefused(LOCKED, self.restore(first, idempotency_key=uuid.uuid4().hex))
+        locked_warning = self.timestamped_http_warning(
+            "lab.member (base.group_user,sol_laboratory.group_permission_laboratory_folder_create_all) "
+            "has locked HPLC/run-01.csv until "
+        )
+        with self.expected_http_warnings(locked_warning):
+            self.assertApiRefused(LOCKED, self.restore(first, idempotency_key=uuid.uuid4().hex))
         self.file.with_user(self.member)._unlock()
         self.folder.with_user(self.administrator).action_archive_folder()
-        self.assertApiRefused(FOLDER_ARCHIVED, self.restore(first))
+        with self.expected_http_warnings("This laboratory folder is archived: it is read, not changed."):
+            self.assertApiRefused(FOLDER_ARCHIVED, self.restore(first))
         self.assertEqual(len(self.file.version_ids), 2)
 
     def test_a_member_downloads_a_version_in_the_back_office_and_nobody_else_does(self):

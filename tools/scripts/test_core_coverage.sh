@@ -7,3 +7,4 @@ install_coverage
 cd /mnt/extra-addons
 python3 -m coverage combine -q --data-file="$1/.coverage" "$1"
 python3 -m coverage xml -q --data-file="$1/.coverage" -o coverage.xml
+sed -i 's|<source>/mnt/extra-addons</source>|<source>.</source>|' coverage.xml

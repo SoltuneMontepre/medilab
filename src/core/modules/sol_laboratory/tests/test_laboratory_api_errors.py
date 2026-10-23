@@ -32,9 +32,18 @@ class TestLaboratoryApiErrors(LaboratoryApiCase):
             ("a parameter the route does not take", "GET", "/devices?folder=1", {"key": key}),
             ("a body on a route without one", "POST", "/sign-out", {"key": key, "body": {"device": 1}}),
         )
-        for reason, method, path, request in refused:
-            with self.subTest(reason):
-                self.assertApiRefused(INVALID_REQUEST, self.api(method, path, **request))
+        with self.expected_http_warnings(
+            "The body is not valid JSON.",
+            "The body of this route is JSON.",
+            "The request does not match the API: 'platform' is a required property",
+            "The request does not match the API: Additional properties are not allowed ('x' was unexpected)",
+            "The request does not match the API: platform: 'macos' is not one of ['linux', 'windows']",
+            "This route takes no parameter folder.",
+            "This route takes no body.",
+        ):
+            for reason, method, path, request in refused:
+                with self.subTest(reason):
+                    self.assertApiRefused(INVALID_REQUEST, self.api(method, path, **request))
         self.assertEqual(self.api("GET", "/devices", key=key).status_code, 200)
 
     def test_a_path_the_api_does_not_have_is_not_found(self):
@@ -77,7 +86,8 @@ class TestLaboratoryApiErrors(LaboratoryApiCase):
             raise AccessError("You are not allowed to read this computer.")
 
         self.patch(devices, "_laboratory_api_values", unreadable)
-        response = self.api("GET", "/devices", key=key)
+        with self.expected_http_warnings("You are not allowed to read this computer."):
+            response = self.api("GET", "/devices", key=key)
 
         self.assertApiRefused(NOT_FOUND, response)
         self.assertNotIn("not allowed", response.json()["error"]["message"])
@@ -92,7 +102,8 @@ class TestLaboratoryApiErrors(LaboratoryApiCase):
             raise LaboratoryFileError(NOT_FOUND, "Refused after revoking.")
 
         self.patch(devices, "_laboratory_api_values", refuse)
-        response = self.api("POST", f"/devices/{second.id}/revoke", key=key)
+        with self.expected_http_warnings("Refused after revoking."):
+            response = self.api("POST", f"/devices/{second.id}/revoke", key=key)
 
         self.assertApiRefused(NOT_FOUND, response)
         self.assertEqual(second.status, "signed_in")

@@ -32,6 +32,7 @@ A fully signed document prints as a PDF that Viettel Sign digitally signed with 
 
 - Printing the report a document type named returns, for a fully signed document, its stored signed PDF, and signs it first when there is none yet. A document still under approval prints the report with its draft mark. Fully signed documents are printed one at a time, because merging PDFs breaks their signatures.
 - Digital signing is off until an administrator turns it on in the Laboratory settings. While it is off, a fully signed document prints without a digital signature and without the draft mark.
+- With `--stop-after-init`, report bodies, headers and footers embed their styles, scripts and local asset bytes so PDF generation does not need an HTTP listener.
 - A signed PDF prints the address of the verification page.
 
 ### Outage and retry
