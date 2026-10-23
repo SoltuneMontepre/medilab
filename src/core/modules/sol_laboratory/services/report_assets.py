@@ -8,15 +8,22 @@ import base64
 import mimetypes
 import re
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from lxml import etree, html
 from markupsafe import Markup
 
+from odoo.exceptions import MissingError, UserError
 from odoo.tools import config
+from odoo.tools.image import image_process
 from odoo.tools.misc import file_path
 
 _URL = re.compile(r"""url\(\s*(?P<target>"[^"]*"|'[^']*'|[^()\s'"]+)\s*\)""")
+_WEB_IMAGE = re.compile(
+    r"^/web/image/(?:(?P<model>[\w.]+)/(?P<record_id>\d+)/(?P<field>[\w_]+)"
+    r"|(?P<attachment_id>\d+)(?:-[^/]+)?|(?P<xmlid>[\w.]+))"
+    r"(?:/(?P<width>\d+)x(?P<height>\d+)(?:/[^/]+)?)?(?:/.*)?$"
+)
 
 
 def inline_report_assets(env, document):
@@ -29,6 +36,8 @@ def inline_report_assets(env, document):
         _replace_link(env, node)
     for node in _elements(root, "script", "src"):
         _replace_script(env, node)
+    for node in _elements(root, "img", "src"):
+        _replace_image(env, node)
     for node in _elements(root, "base"):
         parent = node.getparent()
         if parent is not None:
@@ -83,6 +92,22 @@ def _replace_script(env, node):
     parent.replace(node, script)
 
 
+def _replace_image(env, node):
+    src = node.get("src")
+    if not src or not _is_local(src):
+        return
+    image = _web_image(env, src)
+    if image is None:
+        payload = _static_bytes(env, src)
+        if payload:
+            image = (payload, mimetypes.guess_type(_parsed_path(src))[0] or "application/octet-stream")
+    if image is None:
+        node.attrib.pop("src", None)
+        return
+    content, mimetype = image
+    node.set("src", f"data:{mimetype};base64,{base64.b64encode(content).decode()}")
+
+
 def _bundle_text(env, url, kind):
     path = unquote(urlsplit(url).path)
     marker = "/web/assets/"
@@ -118,14 +143,15 @@ def _embed_url(env, match):
         target = target[1:-1]
     if target.startswith("data:"):
         return match.group(0)
-    payload = _static_bytes(env, target)
+    image = _web_image(env, target)
+    payload = image[0] if image else _static_bytes(env, target)
     if payload is None:
         # Anything still pointing at this machine would be refused. An address on another host stays.
         parsed = urlsplit(target)
         if parsed.scheme in ("http", "https") and parsed.hostname not in ("localhost", "127.0.0.1"):
             return match.group(0)
         return "url('data:,')"
-    mime = mimetypes.guess_type(_parsed_path(target))[0] or "application/octet-stream"
+    mime = image[1] if image else mimetypes.guess_type(_parsed_path(target))[0] or "application/octet-stream"
     return f"url('data:{mime};base64,{base64.b64encode(payload).decode()}')"
 
 
@@ -136,6 +162,35 @@ def _keep_open(text):
 
 def _parsed_path(url):
     return urlsplit(url).path
+
+
+def _web_image(env, url):
+    parsed = urlsplit(url)
+    match = _WEB_IMAGE.fullmatch(unquote(parsed.path))
+    if not match:
+        return None
+    values = match.groupdict()
+    model = values["model"] or "ir.attachment"
+    record_id = values["record_id"] or values["attachment_id"]
+    field = values["field"] or "raw"
+    query = parse_qs(parsed.query)
+    try:
+        record = env["ir.binary"]._find_record(
+            xmlid=values["xmlid"], res_model=model, res_id=int(record_id) if record_id else None, field=field
+        )
+        stream = env["ir.binary"]._get_stream_from(record, field)
+        if stream.type == "url":
+            return None
+        content = stream.read()
+        width = int(query.get("width", [values["width"] or 0])[0])
+        height = int(query.get("height", [values["height"] or 0])[0])
+        if width or height:
+            content = image_process(
+                content, size=(width, height), crop=query.get("crop", ["false"])[0].lower() == "true"
+            )
+    except (MissingError, UserError, FileNotFoundError, ValueError):
+        return None
+    return content, stream.mimetype or "application/octet-stream"
 
 
 def _static_bytes(env, url):

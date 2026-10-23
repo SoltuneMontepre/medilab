@@ -128,6 +128,21 @@ class TestReportAssets(TransactionCase):
                     root = html.fromstring(self.inline(self.page(f'<link href="{CSS_URL}"/>'), css=css))
                     self.assertIn(expected, root.findtext(".//style", default=""))
 
+    def test_report_images_are_embedded_from_local_image_routes(self):
+        attachment = self.attachment(IMAGE, "image/svg+xml")
+        expected = "data:image/svg+xml;base64," + base64.b64encode(IMAGE).decode()
+        for route in (f"ir.attachment/{attachment.id}/raw", str(attachment.id)):
+            with self.subTest(route=route):
+                image = f"http://localhost:8069/web/image/{route}"
+                root = html.fromstring(self.inline(self.page(f'<img src="{image}"/>')))
+
+                self.assertEqual(root.xpath("//img/@src"), [expected])
+
+    def test_unavailable_local_report_images_are_removed(self):
+        root = html.fromstring(self.inline(self.page('<img src="http://localhost:8069/web/image/ir.attachment/0/raw"/>')))
+
+        self.assertFalse(root.xpath("//img[@src]"))
+
     def test_a_quoted_image_address_can_contain_parentheses(self):
         self.attachment(IMAGE, "image/svg+xml", "/web/assets/report(copy).svg")
         css = b"body { background: url('/web/assets/report(copy).svg'); }"
