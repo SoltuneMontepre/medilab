@@ -17,6 +17,7 @@ The system consists of three modules (E-commerce, Inventory, Laboratory) that ca
 - When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
 - Each module can be upgraded without losing the data of the others.
 - The MediLab look is the optional Medilab Theme module (`sol_theme`), which depends on no other MediLab module and that no MediLab module depends on. Installing or removing it changes only how the system looks.
+- The Onboarding module (`sol_onboarding`) is optional: it depends on Laboratory and only the demo data module (`sol_demo`) depends on it. Uninstalling it leaves the master data it created.
 - Each module builds on Odoo Community apps and installs them with itself, as listed in [Module boundaries](../business/module-boundaries.md#odoo-apps). No module needs Odoo Enterprise.
 
 Acceptance criteria:
@@ -26,6 +27,7 @@ Acceptance criteria:
 - Every module installs on Odoo Community without any Enterprise app.
 - E-commerce and Inventory each install on top of Laboratory without the other being present.
 - Uninstalling E-commerce or Inventory leaves Laboratory data intact.
+- Uninstalling Onboarding leaves the master data accepted from it intact.
 
 #### SH-02 Simple installation and configuration
 
@@ -308,9 +310,19 @@ The system pushes reminders and notifications to the Medilab Mobile app through 
 - The access token is an OAuth token from Google Application Default Credentials or a service-account JSON in the environment, refreshed by `google-auth`. The credential value is not stored on a record and is not written to the log.
 - The Firebase credentials are configuration, not data (SH-03). SMTP and FCM do not provide exactly-once delivery. The records and the jobs are created once; a retry sends again only while the earlier attempt did not succeed.
 
+### 5. Trusted sources (master data)
+
+The Onboarding module reads public pages of trusted sources that the developers ship with it, such as the organisation search of the Bureau of Accreditation, and stages what it finds as master data to review.
+
+- Used for: filling the Laboratory master data of a new installation from the laboratory's accreditation scope and the sectors it tests in.
+- Sources are public: no credentials are kept. Each source is read only from its own host, at its own pace and following its `robots.txt`. Administrators do not see or change the sources.
+- Collections run as scheduled jobs (SH-09); a page that fails is retried, and what was staged is kept.
+- Nothing becomes master data until an administrator accepts it. [Onboarding crawler](../specs/onboarding-crawler.md) specifies the design.
+
 ## III. Related documents
 
 - [Overview](index.md)
 - [E-commerce module](ecommerce_module/overview.md)
 - [Inventory module](inventory_module/overview.md)
 - [Laboratory module](laboratory_module/overview.md)
+- [Onboarding module](onboarding_module/overview.md)

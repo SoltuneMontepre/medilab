@@ -20,6 +20,12 @@ The [global rules](../readme.md#global-rules) still hold for the administrator: 
 - Sees every laboratory file lock and releases one someone left, so others can save the file again; this is audited.
 - Changes the retention period of archived folders and how long a laboratory file lock lasts in the settings.
 
+## Onboarding
+
+- Starts, cancels and reviews collection runs, and accepts, edits, rejects and reopens staged records.
+- Refreshes the organisations of the sources by hand.
+- Never sees the sources.
+
 ## Related documents
 
 - [Security](../readme.md)

@@ -1,0 +1,259 @@
+// Onboarding module tables as the Odoo ORM creates them: trusted sources, the organisations they list, collection runs, fetched snapshots and staged master data records. Odoo owns the schema; this file only draws it.
+// Tables of Odoo and the Laboratory module appear only with the columns this module uses; the full Laboratory tables are in ../laboratory/laboratory.prisma.
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// A site the developers trust to collect master data from, shipped as module data (Nguồn tin cậy). No group has access to it; code reads it with sudo.
+model OnboardingSource {
+  /// Row identifier.
+  id                Int                      @id @default(autoincrement())
+  /// Source name in each language.
+  name              Json
+  /// Key of the adapter that reads the source, such as boa.
+  adapter           String                   @db.VarChar
+  /// The only host runs of the source read from, such as www.boa.gov.vn.
+  host              String                   @db.VarChar
+  /// HTTPS address runs and organisation refreshes start from.
+  start_url         String                   @db.VarChar
+  /// Least seconds between two requests to the source.
+  delay_seconds     Int                      @default(2)
+  /// Most pages one run fetches.
+  page_limit        Int                      @default(500)
+  /// True when the developers turned the source on; runs read only turned-on sources.
+  enabled           Boolean                  @default(false)
+  /// Time of the last request to the source, read and written under a row lock to keep the delay across workers.
+  last_request_at   DateTime?                @db.Timestamp(6)
+  /// Time the organisations of the source were last refreshed.
+  organisations_refreshed_at DateTime?       @db.Timestamp(6)
+  /// False when the developers retired the source; its snapshots and staged records keep it.
+  active            Boolean                  @default(true)
+  /// Organisations the source lists.
+  organisations     OnboardingOrganisation[]
+  /// Documents fetched from the source.
+  snapshots         OnboardingSnapshot[]
+  /// Records staged from the source.
+  staged_records    OnboardingStagedRecord[]
+
+  @@map("medilab_onboarding_source")
+}
+
+/// An organisation a source lists, such as an accredited laboratory (Tổ chức). Unique on (source_id, external_key). Trigram index on name serves the suggestion search.
+model OnboardingOrganisation {
+  /// Row identifier.
+  id                 Int             @id @default(autoincrement())
+  /// The source that lists the organisation.
+  source_id          Int
+  /// Key of the organisation at the source.
+  external_key       String          @db.VarChar
+  /// Organisation name as the source gives it.
+  name               String          @db.VarChar
+  /// Tax ID of the organisation, when the source gives it.
+  tax_id             String?         @db.VarChar
+  /// Accreditation number, such as VILAS 123, when the source gives it.
+  accreditation_code String?         @db.VarChar
+  /// Address of the organisation's page at the source.
+  url                String          @db.VarChar
+  /// Time the organisation was last seen at the source.
+  seen_at            DateTime        @db.Timestamp(6)
+  /// False when the source no longer lists the organisation.
+  active             Boolean         @default(true)
+  /// The source.
+  source             OnboardingSource @relation(fields: [source_id], references: [id], onDelete: Cascade)
+  /// Runs that collected for the organisation.
+  runs               OnboardingRun[]
+
+  @@unique([source_id, external_key])
+  @@index([tax_id])
+  @@map("medilab_onboarding_organisation")
+}
+
+/// A sector the laboratory can test in: food, cosmetics, pharmaceuticals or environment. Shipped data.
+model OnboardingSector {
+  /// Row identifier.
+  id             Int                      @id @default(autoincrement())
+  /// Unique key, such as food.
+  code           String                   @unique @db.VarChar
+  /// Sector name in each language.
+  name           Json
+  /// Runs that collect for the sector.
+  runs           OnboardingRunSector[]
+  /// Records staged for the sector.
+  staged_records OnboardingStagedRecord[]
+
+  @@map("medilab_onboarding_sector")
+}
+
+/// One collection from the trusted sources, for an organisation, sectors or both (Lượt thu thập).
+model OnboardingRun {
+  /// Row identifier.
+  id              Int                      @id @default(autoincrement())
+  /// Unique reference of the run, such as THU.2026.0001.
+  name            String                   @unique @db.VarChar
+  /// The organisation whose accreditation scope the run collects.
+  organisation_id Int?
+  /// Status: draft, running, done, failed or cancelled.
+  state           String                   @default("draft") @db.VarChar
+  /// The user who started the run and is notified when it ends.
+  requested_by_id Int
+  /// Time the run started.
+  started_at      DateTime?                @db.Timestamp(6)
+  /// Time the run ended.
+  ended_at        DateTime?                @db.Timestamp(6)
+  /// Pages the run fetched.
+  page_count      Int                      @default(0)
+  /// Pages the run skipped, for robots.txt, another host, not HTTPS, too many redirects, a refused content type or size, a PDF without text, or the source turned off; pages over the page limit are logged, not counted.
+  skipped_count   Int                      @default(0)
+  /// Records the run staged.
+  staged_count    Int                      @default(0)
+  /// One line per page: fetched, skipped with its reason, or failed with its error.
+  log             String?
+  /// The organisation.
+  organisation    OnboardingOrganisation?  @relation(fields: [organisation_id], references: [id], onDelete: Restrict)
+  /// The user who started the run.
+  requested_by    User                     @relation(fields: [requested_by_id], references: [id], onDelete: Restrict)
+  /// Sectors the run collects for.
+  sectors         OnboardingRunSector[]
+  /// Documents the run fetched.
+  snapshots       OnboardingSnapshot[]
+  /// Records the run staged.
+  staged_records  OnboardingStagedRecord[]
+
+  @@index([state])
+  @@map("medilab_onboarding_run")
+}
+
+/// Links a run to the sectors it collects for.
+model OnboardingRunSector {
+  /// The run.
+  run_id    Int
+  /// A sector it collects for.
+  sector_id Int
+  /// The run.
+  run       OnboardingRun    @relation(fields: [run_id], references: [id], onDelete: Cascade)
+  /// The sector.
+  sector    OnboardingSector @relation(fields: [sector_id], references: [id], onDelete: Restrict)
+
+  @@id([run_id, sector_id])
+  @@index([sector_id])
+  @@map("medilab_onboarding_run_sector_rel")
+}
+
+/// One document a run fetched, kept unchanged.
+model OnboardingSnapshot {
+  /// Row identifier.
+  id             Int                      @id @default(autoincrement())
+  /// The run that fetched it.
+  run_id         Int
+  /// The source it was fetched from.
+  source_id      Int
+  /// Address the document was fetched from.
+  url            String                   @db.VarChar
+  /// Time it was fetched.
+  fetched_at     DateTime                 @db.Timestamp(6)
+  /// Content type the source answered with: HTML, PDF or JSON.
+  content_type   String                   @db.VarChar
+  /// SHA-256 of the bytes, in hexadecimal.
+  checksum       String                   @db.VarChar
+  /// The attachment holding the bytes.
+  attachment_id  Int
+  /// The run.
+  run            OnboardingRun            @relation(fields: [run_id], references: [id], onDelete: Cascade)
+  /// The source.
+  source         OnboardingSource         @relation(fields: [source_id], references: [id], onDelete: Restrict)
+  /// The attachment.
+  attachment     Attachment               @relation(fields: [attachment_id], references: [id], onDelete: Restrict)
+  /// Records staged from the document.
+  staged_records OnboardingStagedRecord[]
+
+  @@index([run_id])
+  @@map("medilab_onboarding_snapshot")
+}
+
+/// One proposed master data record waiting for an administrator (Bản ghi chờ duyệt). Points to the Laboratory record it matches or became by record_model and record_id.
+model OnboardingStagedRecord {
+  /// Row identifier.
+  id               Int                      @id @default(autoincrement())
+  /// Kind: certificate, testing_field, testing_method, sample_type, test_parameter or parameter_method.
+  kind             String                   @db.VarChar
+  /// The source the record comes from.
+  source_id        Int
+  /// The run that staged it.
+  run_id           Int
+  /// The document it was read from.
+  snapshot_id      Int
+  /// Key of the record at the source, such as a method's standard code.
+  external_key     String                   @db.VarChar
+  /// SHA-256 of the source values, telling whether the source changed them.
+  checksum         String                   @db.VarChar
+  /// Values as the source gives them, unchanged.
+  source_values    Json
+  /// Values as the administrator edited them; empty until edited.
+  edited_values    Json?
+  /// Language of the source values, such as vi_VN.
+  lang             String                   @db.VarChar
+  /// The sector the source lists it for.
+  sector_id        Int?
+  /// The staged record it belongs to, such as the certificate of a method in its scope.
+  parent_id        Int?
+  /// Proposed action: create, link or update.
+  action           String                   @db.VarChar
+  /// Model of the Laboratory record it matches or became.
+  record_model     String?                  @db.VarChar
+  /// Row of the Laboratory record it matches or became.
+  record_id        Int?
+  /// True when the match is a name match the administrator has not confirmed.
+  match_suggested  Boolean                  @default(false)
+  /// Status: to_review, accepted, rejected or superseded.
+  state            String                   @default("to_review") @db.VarChar
+  /// Why the administrator rejected it.
+  reject_reason    String?
+  /// Message of the last refused accept.
+  error            String?
+  /// The user who accepted or rejected it.
+  reviewed_by_id   Int?
+  /// Time it was accepted or rejected.
+  reviewed_at      DateTime?                @db.Timestamp(6)
+  /// The source.
+  source           OnboardingSource         @relation(fields: [source_id], references: [id], onDelete: Restrict)
+  /// The run.
+  run              OnboardingRun            @relation(fields: [run_id], references: [id], onDelete: Restrict)
+  /// The snapshot.
+  snapshot         OnboardingSnapshot       @relation(fields: [snapshot_id], references: [id], onDelete: Restrict)
+  /// The sector.
+  sector           OnboardingSector?        @relation(fields: [sector_id], references: [id], onDelete: Restrict)
+  /// The staged record it belongs to.
+  parent           OnboardingStagedRecord?  @relation("StagedRecordParent", fields: [parent_id], references: [id], onDelete: Cascade)
+  /// Staged records that belong to it.
+  children         OnboardingStagedRecord[] @relation("StagedRecordParent")
+  /// The user who reviewed it.
+  reviewed_by      User?                    @relation("StagedRecordReviewer", fields: [reviewed_by_id], references: [id], onDelete: Restrict)
+
+  @@index([source_id, kind, external_key])
+  @@index([state])
+  @@index([record_model, record_id])
+  @@map("medilab_onboarding_staged_record")
+}
+
+/// Odoo's user table, shown with the columns this module uses.
+model User {
+  /// Row identifier.
+  id              Int                      @id @default(autoincrement())
+  /// Runs the user started.
+  onboarding_runs OnboardingRun[]
+  /// Staged records the user reviewed.
+  reviewed_staged_records OnboardingStagedRecord[] @relation("StagedRecordReviewer")
+
+  @@map("res_users")
+}
+
+/// Odoo's attachment table, shown with the columns this module uses.
+model Attachment {
+  /// Row identifier.
+  id        Int                  @id @default(autoincrement())
+  /// Snapshots whose bytes the attachment holds.
+  snapshots OnboardingSnapshot[]
+
+  @@map("ir_attachment")
+}

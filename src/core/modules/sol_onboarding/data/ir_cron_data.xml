@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="ir_cron_onboarding_organisations" model="ir.cron">
+        <field name="name">Onboarding organisations</field>
+        <field name="model_id" ref="sol_laboratory.model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("onboarding.organisations")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">weeks</field>
+    </record>
+    <record id="ir_cron_onboarding_crawl" model="ir.cron">
+        <field name="name">Onboarding crawl</field>
+        <field name="model_id" ref="sol_laboratory.model_medilab_scheduled_job" />
+        <field name="state">code</field>
+        <field name="code">model._run_key("onboarding.crawl")</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+    </record>
+</odoo>

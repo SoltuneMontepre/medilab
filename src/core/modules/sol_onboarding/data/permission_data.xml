@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="permission_onboarding_run_read_all" model="medilab.permission">
+        <field name="name">Read collection runs</field>
+        <field name="document_model">medilab.onboarding.run</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_onboarding_run_create_all" model="medilab.permission">
+        <field name="name">Create collection runs</field>
+        <field name="document_model">medilab.onboarding.run</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_onboarding_run_edit_all" model="medilab.permission">
+        <field name="name">Edit collection runs</field>
+        <field name="document_model">medilab.onboarding.run</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_onboarding_staged_record_read_all" model="medilab.permission">
+        <field name="name">Read staged records</field>
+        <field name="document_model">medilab.onboarding.staged.record</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_onboarding_staged_record_edit_all" model="medilab.permission">
+        <field name="name">Edit staged records</field>
+        <field name="document_model">medilab.onboarding.staged.record</field>
+        <field name="action">edit</field>
+    </record>
+</odoo>

@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Checksums are the SHA-256 of the source values, as staging computes them. -->
+<odoo noupdate="1">
+    <!-- The certificate the organisation's page listed before its renewal, superseded by the renewed one below. -->
+    <record id="demo_onboarding_staged_record_certificate_vilas_9901_earlier" model="medilab.onboarding.staged.record">
+        <field name="kind">certificate</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_failed" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation_earlier" />
+        <field name="external_key">VILAS 9901</field>
+        <field name="checksum">ce93638f30625674276f4940c3062c961b85ef4100b0934c4d5dcb3f38cdadab</field>
+        <field name="source_values" eval="{'code': 'VILAS 9901', 'issuing_body': 'BoA', 'valid_from': '2021-06-15', 'valid_until': '2026-06-14'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">create</field>
+        <field name="state">superseded</field>
+    </record>
+    <record id="demo_onboarding_staged_record_certificate_vilas_118" model="medilab.onboarding.staged.record">
+        <field name="kind">certificate</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">VILAS 118</field>
+        <field name="checksum">404f3a18082c7628f9e777fd54687c82a228617c998edcae0dd4075afeb6ca64</field>
+        <field name="source_values" eval="{'code': 'VILAS 118', 'issuing_body': 'BoA', 'valid_from': '2020-01-01', 'valid_until': '2099-12-31'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">link</field>
+        <field name="record_model">medilab.accreditation.certificate</field>
+        <field name="record_id" eval="ref('demo_accreditation_certificate_valid')" />
+        <field name="state">accepted</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_staged_record_certificate_vilas_117" model="medilab.onboarding.staged.record">
+        <field name="kind">certificate</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">VILAS 117</field>
+        <field name="checksum">7c031bec2fa721bac47322ee93a63e31b24e295f7ab0c1a9c17260691c961d3f</field>
+        <field name="source_values" eval="{'code': 'VILAS 117', 'issuing_body': 'BoA', 'valid_from': '2018-01-01', 'valid_until': '2019-12-31'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">link</field>
+        <field name="record_model">medilab.accreditation.certificate</field>
+        <field name="record_id" eval="ref('demo_accreditation_certificate_expired')" />
+        <field name="state">rejected</field>
+        <field name="reject_reason">Giấy chứng nhận đã hết hiệu lực từ 31/12/2019.</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_staged_record_certificate_vilas_9901" model="medilab.onboarding.staged.record">
+        <field name="kind">certificate</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">VILAS 9901</field>
+        <field name="checksum">8e750e481d8a20e2c02d4e90241c1998605f34b45fa18a17c596ad420bdf1778</field>
+        <field name="source_values" eval="{'code': 'VILAS 9901', 'issuing_body': 'BoA', 'valid_from': '2021-06-15', 'valid_until': '2031-06-14'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+    </record>
+    <!-- The scope of the renewed certificate: an existing method written differently, and two new ones without a field. -->
+    <record id="demo_onboarding_staged_record_testing_method_tcvn_6492" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">VILAS 9901: tcvn 6492 : 2011</field>
+        <field name="checksum">b4434efe0cf4ab67240d95124712e488e564503a352fbb2e2adcf43c67d39fff</field>
+        <field name="source_values" eval="{'code': 'tcvn 6492 : 2011', 'name': 'Chất lượng nước — Xác định pH', 'field_key': ''}" />
+        <field name="lang">vi_VN</field>
+        <field name="parent_id" ref="demo_onboarding_staged_record_certificate_vilas_9901" />
+        <field name="action">link</field>
+        <field name="record_model">medilab.testing.method</field>
+        <field name="record_id" eval="ref('demo_testing_method_tcvn_6492')" />
+        <field name="state">to_review</field>
+    </record>
+    <record id="demo_onboarding_staged_record_testing_method_tcvn_8126" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">VILAS 9901: TCVN 8126:2009</field>
+        <field name="checksum">43d28f71f11e98d00834b0870a5c7dcf46b8d151fb587a47c13b5f7b640e8701</field>
+        <field name="source_values" eval="{'code': 'TCVN 8126:2009', 'name': 'Thực phẩm — Xác định hàm lượng chì, cadimi, kẽm, đồng và sắt — Phương pháp quang phổ hấp thụ nguyên tử sau khi đã phân hủy bằng vi sóng', 'field_key': ''}" />
+        <field name="lang">vi_VN</field>
+        <field name="parent_id" ref="demo_onboarding_staged_record_certificate_vilas_9901" />
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+    </record>
+    <record id="demo_onboarding_staged_record_testing_method_tcvn_6658" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">VILAS 9901: TCVN 6658:2000</field>
+        <field name="checksum">3ff158b41d82eafc3d723273e3f173ccaf31d4510e4e06aae08e353dfdb204bf</field>
+        <field name="source_values" eval="{'code': 'TCVN 6658:2000', 'name': 'Chất lượng nước — Xác định crom hóa trị sáu — Phương pháp đo phổ dùng 1,5-diphenylcacbazid', 'field_key': ''}" />
+        <field name="lang">vi_VN</field>
+        <field name="parent_id" ref="demo_onboarding_staged_record_certificate_vilas_9901" />
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+    </record>
+    <record id="demo_onboarding_staged_record_testing_field_chemistry_earlier" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_field</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_failed" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation_earlier" />
+        <field name="external_key">Hóa</field>
+        <field name="checksum">52ba6d6cfa3d548febbe2efbc2666c936bd97ddbc0bb29c7fce0299300e5a270</field>
+        <field name="source_values" eval="{'code': 'HH', 'name': 'Hoá học'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">update</field>
+        <field name="record_model">medilab.testing.field</field>
+        <field name="record_id" eval="ref('demo_testing_field_chemistry')" />
+        <field name="state">superseded</field>
+    </record>
+    <record id="demo_onboarding_staged_record_testing_field_chemistry" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_field</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">Hóa</field>
+        <field name="checksum">c624acae195f274c252ee381d94814f4c5b59897f01cb8cf62a7c02627f20bd7</field>
+        <field name="source_values" eval="{'code': 'HH', 'name': 'Hóa học'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">link</field>
+        <field name="record_model">medilab.testing.field</field>
+        <field name="record_id" eval="ref('demo_testing_field_chemistry')" />
+        <field name="state">accepted</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_staged_record_testing_method_tcvn_7602" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_food" />
+        <field name="external_key">TCVN 7602:2007</field>
+        <field name="checksum">e2b85808e366110538429da4fb5eb3f9b7b9b65c979e4abcdd83485d16b67041</field>
+        <field name="source_values" eval="{'code': 'TCVN 7602:2007', 'name': 'Thực phẩm — Xác định hàm lượng chì bằng phương pháp quang phổ hấp thụ nguyên tử', 'field_key': 'Hóa'}" />
+        <field name="lang">vi_VN</field>
+        <field name="sector_id" ref="sol_onboarding.sector_food" />
+        <field name="action">link</field>
+        <field name="record_model">medilab.testing.method</field>
+        <field name="record_id" eval="ref('demo_testing_method_tcvn_7602')" />
+        <field name="state">accepted</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <!-- Superseded by the update on the food page. -->
+    <record id="demo_onboarding_staged_record_testing_method_iso_4832_earlier" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_failed" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation_earlier" />
+        <field name="external_key">ISO 4832:2006</field>
+        <field name="checksum">17d6999e1c0a0e3b6a4c34dac9babd2655cbf2965c5610a8cb03e8d773a2efbb</field>
+        <field name="source_values" eval="{'code': 'ISO 4832:2006', 'name': 'Vi sinh vật trong thực phẩm và thức ăn chăn nuôi — Định lượng coliform — Kỹ thuật đếm khuẩn lạc', 'field_key': 'Sinh'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">update</field>
+        <field name="record_model">medilab.testing.method</field>
+        <field name="record_id" eval="ref('demo_testing_method_iso_4832')" />
+        <field name="state">superseded</field>
+    </record>
+    <record id="demo_onboarding_staged_record_sample_type_surface_water_earlier" model="medilab.onboarding.staged.record">
+        <field name="kind">sample_type</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_failed" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation_earlier" />
+        <field name="external_key">nước mặt</field>
+        <field name="checksum">df7df099d7b48ee0c6d7de30a009ca4808a657f7d316581f009be621231f3f3c</field>
+        <field name="source_values" eval="{'name': 'Nước Mặt'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">update</field>
+        <field name="record_model">medilab.sample.type</field>
+        <field name="record_id" eval="ref('demo_sample_type_surface_water')" />
+        <field name="state">superseded</field>
+    </record>
+    <record id="demo_onboarding_staged_record_sample_type_surface_water" model="medilab.onboarding.staged.record">
+        <field name="kind">sample_type</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">nước mặt</field>
+        <field name="checksum">6a807fc1aec571298a60500b783a3db3946a5047c332475dfca3d7b850f2059b</field>
+        <field name="source_values" eval="{'name': 'Nước mặt'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">link</field>
+        <field name="record_model">medilab.sample.type</field>
+        <field name="record_id" eval="ref('demo_sample_type_surface_water')" />
+        <field name="state">accepted</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_staged_record_test_parameter_lead_earlier" model="medilab.onboarding.staged.record">
+        <field name="kind">test_parameter</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_failed" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation_earlier" />
+        <field name="external_key">chì (pb)</field>
+        <field name="checksum">30121cfed60c7467bfeef31f2699f19facbf74947ba0bf3379bc72a843c037c3</field>
+        <field name="source_values" eval="{'name': 'Chì (pb)'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">update</field>
+        <field name="record_model">medilab.test.parameter</field>
+        <field name="record_id" eval="ref('demo_test_parameter_lead')" />
+        <field name="state">superseded</field>
+    </record>
+    <record id="demo_onboarding_staged_record_test_parameter_lead" model="medilab.onboarding.staged.record">
+        <field name="kind">test_parameter</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">chì (pb)</field>
+        <field name="checksum">1fe78afa01e12bde47f276f8efa54c877e52dacb6b93dfd0538958bd3b1db5ef</field>
+        <field name="source_values" eval="{'name': 'Chì (Pb)'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">link</field>
+        <field name="record_model">medilab.test.parameter</field>
+        <field name="record_id" eval="ref('demo_test_parameter_lead')" />
+        <field name="state">accepted</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_staged_record_parameter_method_lead_aas" model="medilab.onboarding.staged.record">
+        <field name="kind">parameter_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">9901#1</field>
+        <field name="checksum">6b57cfe9d459d41b53253e6cfe3940d6b0e714629baf300dd0c54c988372b24f</field>
+        <field name="source_values" eval="{'parameter_key': 'chì (pb)', 'method_key': 'TCVN 7602:2007'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">link</field>
+        <field name="record_model">medilab.parameter.method</field>
+        <field name="record_id" eval="ref('demo_parameter_method_lead_aas')" />
+        <field name="state">accepted</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <!-- Row 3 of the scope moved to a newer method, so the earlier row is superseded. -->
+    <record id="demo_onboarding_staged_record_parameter_method_lead_microwave_earlier" model="medilab.onboarding.staged.record">
+        <field name="kind">parameter_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_failed" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation_earlier" />
+        <field name="external_key">9901#3</field>
+        <field name="checksum">4484ee3750bfa220e0224b19f0671feddaf99d789ec6ec71d158ea79527b277a</field>
+        <field name="source_values" eval="{'parameter_key': 'chì (pb)', 'method_key': 'ISO 17294-2:2016'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">create</field>
+        <field name="state">superseded</field>
+    </record>
+    <record id="demo_onboarding_staged_record_parameter_method_lead_microwave" model="medilab.onboarding.staged.record">
+        <field name="kind">parameter_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_organisation" />
+        <field name="external_key">9901#3</field>
+        <field name="checksum">34cb3cc478a93224a01a6d7b7e65d462375ea332652722fcaad0a0eb96ceaaf9</field>
+        <field name="source_values" eval="{'parameter_key': 'chì (pb)', 'method_key': 'VILAS 9901: TCVN 8126:2009'}" />
+        <field name="lang">vi_VN</field>
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+    </record>
+    <record id="demo_onboarding_staged_record_testing_method_iso_4832" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_food" />
+        <field name="external_key">ISO 4832:2006</field>
+        <field name="checksum">ee681a578ffff0a40dce7df099d379f40a8d368059c0fc26bb3f41dbad54a730</field>
+        <field name="source_values" eval="{'code': 'ISO 4832:2006', 'name': 'Vi sinh vật trong chuỗi thực phẩm — Phương pháp định lượng coliform — Kỹ thuật đếm khuẩn lạc', 'field_key': 'Sinh'}" />
+        <field name="lang">vi_VN</field>
+        <field name="sector_id" ref="sol_onboarding.sector_food" />
+        <field name="action">update</field>
+        <field name="record_model">medilab.testing.method</field>
+        <field name="record_id" eval="ref('demo_testing_method_iso_4832')" />
+        <field name="state">to_review</field>
+    </record>
+    <record id="demo_onboarding_staged_record_testing_field_sensory" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_field</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_food" />
+        <field name="external_key">Cảm quan</field>
+        <field name="checksum">ae10000201674c92672f138fc5b7370dfd805df70ba111cc37dee25fe4bffc1f</field>
+        <field name="source_values" eval="{'code': '', 'name': 'Cảm quan'}" />
+        <field name="lang">vi_VN</field>
+        <field name="sector_id" ref="sol_onboarding.sector_food" />
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+        <field name="error">Testing Field Cảm quan needs these values first: Code.</field>
+    </record>
+    <record id="demo_onboarding_staged_record_sample_type_leafy_vegetables" model="medilab.onboarding.staged.record">
+        <field name="kind">sample_type</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_food" />
+        <field name="external_key">rau ăn lá</field>
+        <field name="checksum">03f4c788956c75002133794e86d156b324c1db011f0aebe8f6c04d77331fa418</field>
+        <field name="source_values" eval="{'name': 'Rau ăn lá'}" />
+        <field name="edited_values" eval="{'name': 'Rau ăn lá các loại'}" />
+        <field name="lang">vi_VN</field>
+        <field name="sector_id" ref="sol_onboarding.sector_food" />
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+    </record>
+    <record id="demo_onboarding_staged_record_test_parameter_cadmium" model="medilab.onboarding.staged.record">
+        <field name="kind">test_parameter</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_food" />
+        <field name="external_key">cadimi</field>
+        <field name="checksum">544b9ade66112c7148c50982f214e469723c963168a5a91a1f985c37b39fb88f</field>
+        <field name="source_values" eval="{'name': 'Cadimi'}" />
+        <field name="lang">vi_VN</field>
+        <field name="sector_id" ref="sol_onboarding.sector_food" />
+        <field name="action">update</field>
+        <field name="record_model">medilab.test.parameter</field>
+        <field name="record_id" eval="ref('demo_test_parameter_cadmium')" />
+        <field name="match_suggested" eval="True" />
+        <field name="state">to_review</field>
+    </record>
+    <!-- The environment sector, in English; the laboratory does not test radioactivity. -->
+    <record id="demo_onboarding_staged_record_testing_field_radiation" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_field</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_environment" />
+        <field name="external_key">Phóng xạ</field>
+        <field name="checksum">c448d9fa29c4efd23423eb77adf6cf06096d4da44e8cc52d441220aa8abb3051</field>
+        <field name="source_values" eval="{'code': '', 'name': 'Radiation'}" />
+        <field name="lang">en_US</field>
+        <field name="sector_id" ref="sol_onboarding.sector_environment" />
+        <field name="action">create</field>
+        <field name="state">rejected</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_staged_record_testing_method_iso_9696" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_environment" />
+        <field name="external_key">ISO 9696:2017</field>
+        <field name="checksum">82ab28e7b5ff5caf3a1ffd3bade72d03b0fa9e2858be2324eb717bb9f1844448</field>
+        <field name="source_values" eval="{'code': 'ISO 9696:2017', 'name': 'Water quality — Gross alpha activity — Test method using thick source', 'field_key': 'Phóng xạ'}" />
+        <field name="lang">en_US</field>
+        <field name="sector_id" ref="sol_onboarding.sector_environment" />
+        <field name="action">create</field>
+        <field name="state">rejected</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_staged_record_sample_type_sediment" model="medilab.onboarding.staged.record">
+        <field name="kind">sample_type</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_environment" />
+        <field name="external_key">sediment</field>
+        <field name="checksum">e70a45ffa651cbadb1defb628d2bcd762c51fa8be73ca37f027ee2a3794be59e</field>
+        <field name="source_values" eval="{'name': 'Sediment'}" />
+        <field name="lang">en_US</field>
+        <field name="sector_id" ref="sol_onboarding.sector_environment" />
+        <field name="action">create</field>
+        <field name="state">rejected</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_staged_record_test_parameter_gross_alpha" model="medilab.onboarding.staged.record">
+        <field name="kind">test_parameter</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_environment" />
+        <field name="external_key">gross alpha activity</field>
+        <field name="checksum">13f081eaf967e3a5d65706d12dd57fd13c0a26b46922fdd9dbbaf3fd053ee74a</field>
+        <field name="source_values" eval="{'name': 'Gross alpha activity'}" />
+        <field name="lang">en_US</field>
+        <field name="sector_id" ref="sol_onboarding.sector_environment" />
+        <field name="action">create</field>
+        <field name="state">rejected</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <record id="demo_onboarding_staged_record_parameter_method_gross_alpha" model="medilab.onboarding.staged.record">
+        <field name="kind">parameter_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_done" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_environment" />
+        <field name="external_key">environment#4</field>
+        <field name="checksum">7a86f8697f9379fe5c8542d0fac901de72651d4732437c84293ad62e1e5d04e4</field>
+        <field name="source_values" eval="{'parameter_key': 'gross alpha activity', 'method_key': 'ISO 9696:2017'}" />
+        <field name="lang">en_US</field>
+        <field name="sector_id" ref="sol_onboarding.sector_environment" />
+        <field name="action">create</field>
+        <field name="state">rejected</field>
+        <field name="reviewed_by_id" ref="demo_res_users_administrator" />
+        <field name="reviewed_at" eval="(DateTime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')" />
+    </record>
+    <!-- What the cancelled run staged before it was cancelled stays to review. -->
+    <record id="demo_onboarding_staged_record_testing_method_acm_tha_05" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_cancelled" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_cosmetics" />
+        <field name="external_key">ACM THA 05</field>
+        <field name="checksum">fbb279aa841be0f893882ef3ebcd338f9db7b2ecdbc701d58d859f360e0ab8a7</field>
+        <field name="source_values" eval="{'code': 'ACM THA 05', 'name': 'Determination of heavy metals (arsenic, cadmium, lead and mercury) in cosmetic products', 'field_key': ''}" />
+        <field name="lang">en_US</field>
+        <field name="sector_id" ref="sol_onboarding.sector_cosmetics" />
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+    </record>
+    <record id="demo_onboarding_staged_record_testing_method_iso_21149" model="medilab.onboarding.staged.record">
+        <field name="kind">testing_method</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_cancelled" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_cosmetics" />
+        <field name="external_key">ISO 21149:2017</field>
+        <field name="checksum">58b438e0a5c3f69eaa19b5b97911be06d7364607890c0bbb519d0a13ed6ec62e</field>
+        <field name="source_values" eval="{'code': 'ISO 21149:2017', 'name': 'Cosmetics — Microbiology — Enumeration and detection of aerobic mesophilic bacteria', 'field_key': ''}" />
+        <field name="lang">en_US</field>
+        <field name="sector_id" ref="sol_onboarding.sector_cosmetics" />
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+    </record>
+    <record id="demo_onboarding_staged_record_test_parameter_mercury" model="medilab.onboarding.staged.record">
+        <field name="kind">test_parameter</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_cancelled" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_cosmetics" />
+        <field name="external_key">mercury (hg)</field>
+        <field name="checksum">934238cbb1206191bf8f0f79f83ced5d7e99e4a6c7baba0ec46fbcc8b6e2e4ba</field>
+        <field name="source_values" eval="{'name': 'Mercury (Hg)'}" />
+        <field name="lang">en_US</field>
+        <field name="sector_id" ref="sol_onboarding.sector_cosmetics" />
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+    </record>
+    <record id="demo_onboarding_staged_record_test_parameter_aerobic_bacteria" model="medilab.onboarding.staged.record">
+        <field name="kind">test_parameter</field>
+        <field name="source_id" ref="demo_onboarding_source_boa" />
+        <field name="run_id" ref="demo_onboarding_run_cancelled" />
+        <field name="snapshot_id" ref="demo_onboarding_snapshot_cosmetics" />
+        <field name="external_key">aerobic mesophilic bacteria</field>
+        <field name="checksum">2f6141169d56f6a44c6373758fc1982258daeb19c0ed51570c97d544107c549d</field>
+        <field name="source_values" eval="{'name': 'Aerobic mesophilic bacteria'}" />
+        <field name="lang">en_US</field>
+        <field name="sector_id" ref="sol_onboarding.sector_cosmetics" />
+        <field name="action">create</field>
+        <field name="state">to_review</field>
+    </record>
+</odoo>

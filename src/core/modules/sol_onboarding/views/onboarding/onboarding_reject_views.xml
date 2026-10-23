@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_onboarding_reject_form" model="ir.ui.view">
+        <field name="name">medilab.onboarding.reject.form</field>
+        <field name="model">medilab.onboarding.reject</field>
+        <field name="arch" type="xml">
+            <form string="Reject Staged Records">
+                <group>
+                    <field name="staged_record_ids" widget="many2many_tags" readonly="1" />
+                    <field name="reason" />
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Reject" class="btn-primary" />
+                    <button string="Cancel" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_onboarding_reject" model="ir.actions.act_window">
+        <field name="name">Reject Staged Records</field>
+        <field name="res_model">medilab.onboarding.reject</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
