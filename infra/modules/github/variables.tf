@@ -36,3 +36,8 @@ variable "required_checks" {
   description = "The status checks the default branch requires, as check name => the ID of the GitHub App that reports it"
   type        = map(number)
 }
+
+variable "release_app_id" {
+  description = "ID of the GitHub App that may push to the default branch without a pull request"
+  type        = number
+}

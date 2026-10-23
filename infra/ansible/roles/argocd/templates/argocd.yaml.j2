@@ -24,6 +24,7 @@ spec:
         server.insecure: true
       rbac:
         policy.csv: |
+          p, role:release, projects, get, default, allow
           p, role:release, applications, get, default/odoo, allow
           p, role:release, logs, get, default/odoo, allow
           g, release, role:release

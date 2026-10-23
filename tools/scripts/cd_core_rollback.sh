@@ -28,11 +28,13 @@ git add -A
     echo "Sets the image back to sha-$PREVIOUS and reverts:"
     git log --no-walk --format='- %h %s' "${commits[@]}"
   fi
+  echo
+  echo "[skip ci]"
 } > /tmp/rollback-message
 git commit -q -F /tmp/rollback-message
 for attempt in 1 2 3; do
   git push -q origin HEAD:main && break
-  (( attempt < 3 )) || { echo "Main kept moving; the rollback was not pushed." >&2; exit 1; }
+  (( attempt < 3 )) || { echo "The rollback could not be pushed to main." >&2; exit 1; }
   git pull -q --rebase origin main
 done
 

@@ -90,7 +90,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 
 | Bucket              | Holds                                 |
 | ------------------- | ------------------------------------- |
-| `medilab-filestore` | Odoo attachments                      |
+| `medilab-filestore` | Laboratory files and Odoo attachments |
 | `medilab-backups`   | Postgres WAL archive and base backups |
 
 ## Backups
@@ -106,7 +106,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 - Web traffic comes in only through Cloudflare Tunnel. `cloudflared` runs two replicas of the same tunnel, one per data site, and connects outbound.
 - Cloudflare routes requests to connected replicas, so a lost site stops receiving traffic.
 - Web DNS records in the `soltunemontepre.tech` zone, such as `lims.soltunemontepre.tech`, are proxied CNAMEs to `<tunnel-id>.cfargotunnel.com`; Cloudflare terminates TLS and `cloudflared` reaches Traefik over plain HTTP.
-- `argocd.soltunemontepre.tech` serves the Argo CD server through the same tunnel, behind a Cloudflare Access application that only admits the `argocd` service token, which `cd-core` uses to check a release.
+- `argocd.soltunemontepre.tech` serves the Argo CD server through the same tunnel.
 - Traefik's service is `ClusterIP` and ServiceLB is turned off, so no node opens ports 80 or 443.
 
 ## MQTT
@@ -120,7 +120,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 
 - Two replicas, spread over the data sites by preferred pod anti-affinity.
 - A release rolls out one replica at a time (`maxSurge: 1`, `maxUnavailable: 0`): a new replica must be ready before an old one stops, so users are not interrupted. The anti-affinity is preferred rather than required so that the extra replica can be placed during a rollout.
-- Attachments are stored in the `medilab-filestore` bucket, outside both servers, and mounted into every replica through an S3 CSI driver, so either replica serves every file.
+- Attachments are stored in the `medilab-filestore` bucket through the laboratory bucket service (`BUCKET_FILESTORE=1`) and cached on each replica's local disk, so either replica serves every file; see [Laboratory files](../specs/laboratory-files.md#filestore).
 - Sessions are stored on each replica's local disk; users log in again after a failover.
 - Module installs and upgrades run in a one-off Job per release, never at pod start.
 - Scheduled actions run on both replicas; Odoo locks each job so it runs once.
