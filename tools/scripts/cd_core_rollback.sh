@@ -21,7 +21,7 @@ git add -A
   echo "[fix] Roll back release $short"
   echo
   if [[ "$conflict" == true ]]; then
-    echo "Sets the image back to sha-$PREVIOUS. Reverting the release conflicted with a later commit, so its commits stay on main."
+    echo "Sets the image back to sha-$PREVIOUS; the release's commits stay on main."
   elif (( ${#commits[@]} == 0 )); then
     echo "Sets the image back to sha-$PREVIOUS."
   else
@@ -58,12 +58,12 @@ assignees=$(for commit in "${commits[@]}"; do
 done | sort -u | paste -sd, -)
 
 {
-  echo "Release \`sha-$RELEASE\` did not become healthy, so cd-core rolled \`main\` back to \`sha-$PREVIOUS\`: $RUN_URL"
+  echo "Release \`sha-$RELEASE\` was not healthy and was rolled back to \`sha-$PREVIOUS\`: $RUN_URL"
   echo
   if [[ "$conflict" == true ]]; then
-    echo "Reverting the release conflicted with a later commit, so its commits are still on \`main\` and only the image was set back. Releases wait until this pull request is merged or closed."
+    echo "Its commits stay on \`main\`. Releases wait until this pull request is merged or closed."
   else
-    echo "This branch puts back the release's commits. Push a fix to it, then mark it ready."
+    echo "Push a fix here, then mark it ready."
   fi
   echo
   if (( ${#commits[@]} > 0 )); then
