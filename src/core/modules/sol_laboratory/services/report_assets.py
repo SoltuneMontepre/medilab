@@ -16,7 +16,7 @@ from markupsafe import Markup
 from odoo.tools import config
 from odoo.tools.misc import file_path
 
-_URL = re.compile(r"url\(\s*(?P<q>['\"]?)(?P<target>[^)'\"]+)(?P=q)\s*\)")
+_URL = re.compile(r"""url\(\s*(?P<target>"[^"]*"|'[^']*'|[^()\s'"]+)\s*\)""")
 
 
 def inline_report_assets(env, document):
@@ -114,6 +114,8 @@ def _bundle_text(env, url, kind):
 
 def _embed_url(env, match):
     target = match.group("target").strip()
+    if target[0] in ("'", '"'):
+        target = target[1:-1]
     if target.startswith("data:"):
         return match.group(0)
     payload = _static_bytes(env, target)
@@ -145,7 +147,11 @@ def _static_bytes(env, url):
         try:
             return Path(file_path(relative)).read_bytes()
         except (FileNotFoundError, ValueError):
-            pass
+            return _attachment_bytes(env, path)
+    return _attachment_bytes(env, path)
+
+
+def _attachment_bytes(env, path):
     found = env["ir.attachment"].sudo().search([("url", "=", path)], limit=1)
     if not found or not found.raw:
         return None

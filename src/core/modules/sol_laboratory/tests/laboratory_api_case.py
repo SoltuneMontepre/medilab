@@ -1,4 +1,5 @@
 import re
+from contextlib import contextmanager
 from urllib.parse import urlsplit
 
 from odoo.tests import HttpCase
@@ -39,6 +40,26 @@ class LaboratoryApiCase(HttpCase, LaboratoryFilesCase):
         )
         self.assertMatchesDocument(method, path, response)
         return response
+
+    @contextmanager
+    def expected_http_warnings(self, *messages):
+        with self.assertLogs("odoo.http", level="WARNING") as logged:
+            yield
+        records = [(record.levelname, record.getMessage()) for record in logged.records]
+        if all(isinstance(message, str) for message in messages):
+            self.assertEqual(records, [("WARNING", message) for message in messages])
+            return
+        self.assertEqual(len(records), len(messages))
+        for (level, actual), expected in zip(records, messages, strict=True):
+            self.assertEqual(level, "WARNING")
+            if isinstance(expected, str):
+                self.assertEqual(actual, expected)
+            else:
+                self.assertIsNotNone(expected.fullmatch(actual), actual)
+
+    @staticmethod
+    def timestamped_http_warning(prefix):
+        return re.compile(re.escape(prefix) + r"\d{2}/\d{2}/\d{4} \d{2}:\d{2} [AP]M\.")
 
     def api_sign_in(self, user, client_uid, password=PASSWORD, name="HPLC-PC", platform="windows"):
         body = {"login": user.login, "password": password, "client_uid": client_uid, "name": name, "platform": platform}

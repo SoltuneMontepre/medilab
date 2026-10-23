@@ -114,7 +114,12 @@ class TestSupportPortalSecurity(HttpCase, SupportCase):
 
         for update in ({"body": "Changed", "rating_value": 1}, {"body": "", "rating_value": False}):
             with self.subTest(update=update):
-                self.jsonrpc("/mail/message/update_content", {"message_id": message.id, "update_data": update})
+                with self.assertLogs("odoo.http", "WARNING") as logs:
+                    self.jsonrpc("/mail/message/update_content", {"message_id": message.id, "update_data": update})
+                self.assertEqual(
+                    [(record.levelname, record.getMessage()) for record in logs.records],
+                    [("WARNING", "Feedback cannot be changed once it is given.")],
+                )
 
         self.env.invalidate_all()
         self.assertTrue(feedback.exists())
@@ -146,7 +151,12 @@ class TestSupportPortalSecurity(HttpCase, SupportCase):
             },
             files={"ufile": ("late.txt", b"late file")},
         )
-        self.jsonrpc("/mail/message/update_content", {"message_id": message.id, "update_data": {"body": "Edited"}})
+        with self.assertLogs("odoo.http", "WARNING") as logs:
+            self.jsonrpc("/mail/message/update_content", {"message_id": message.id, "update_data": {"body": "Edited"}})
+        self.assertEqual(
+            [(record.levelname, record.getMessage()) for record in logs.records],
+            [("WARNING", "This request is closed. Open a new request if you need more help.")],
+        )
 
         self.env.invalidate_all()
         attachments = self.env["ir.attachment"].search(
@@ -172,9 +182,14 @@ class TestSupportPortalSecurity(HttpCase, SupportCase):
 
         for token in (invitation, feedback.sudo().access_token):
             with self.subTest(token=token == invitation):
-                self.url_open(
-                    f"/rate/{token}/submit_feedback",
-                    data={"csrf_token": self.csrf_token(f"/rate/{token}/1"), "rate": 1, "feedback": "Forged"},
+                with self.assertLogs("odoo.http", "WARNING") as logs:
+                    self.url_open(
+                        f"/rate/{token}/submit_feedback",
+                        data={"csrf_token": self.csrf_token(f"/rate/{token}/1"), "rate": 1, "feedback": "Forged"},
+                    )
+                self.assertEqual(
+                    [(record.levelname, record.getMessage()) for record in logs.records],
+                    [("WARNING", "Feedback is given from the order's page in the portal.")],
                 )
 
         self.env.invalidate_all()

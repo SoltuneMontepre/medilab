@@ -19,9 +19,9 @@ class IrActionsReport(models.Model):
         documents.check_access("read")
         return documents._digital_signed_pdf(), "pdf"
 
-    def _prepare_wkhtmltopdf_html(self, html, report_model=False):
+    def _prepare_html(self, html, report_model=False):
         """The HTML wkhtmltopdf prints, with its assets included while Odoo is installing and not listening."""
-        bodies, html_ids, header, footer, specific = super()._prepare_wkhtmltopdf_html(html, report_model=report_model)
+        bodies, html_ids, header, footer, specific = super()._prepare_html(html, report_model=report_model)
         return (
             [inline_report_assets(self.env, body) for body in bodies],
             html_ids,

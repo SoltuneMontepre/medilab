@@ -63,8 +63,11 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
     def test_a_name_the_person_already_has_a_folder_of_is_refused_without_a_key(self):
         self.create("AAS")
 
-        self.assertApiRefused(FOLDER_EXISTS, self.create("AAS"))
-        self.assertApiRefused(FOLDER_EXISTS, self.create("HPLC"))
+        with self.expected_http_warnings(
+            "You already have a folder named AAS.", "You already have a folder named HPLC."
+        ):
+            self.assertApiRefused(FOLDER_EXISTS, self.create("AAS"))
+            self.assertApiRefused(FOLDER_EXISTS, self.create("HPLC"))
         self.assertEqual(self.create("AAS", key=self.members_key).status_code, 200)
 
     def test_a_creation_repeated_with_its_idempotency_key_answers_with_the_folder_it_created(self):
@@ -78,12 +81,22 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
     def test_an_idempotency_key_sent_with_another_request_is_refused(self):
         self.create("AAS", idempotency_key="create-1")
 
-        self.assertApiRefused(IDEMPOTENCY_CONFLICT, self.create("GC", idempotency_key="create-1"))
-        self.assertApiRefused(INVALID_REQUEST, self.create("GC", idempotency_key="a key with spaces"))
+        with self.expected_http_warnings(
+            "This Idempotency-Key was already sent with another request.",
+            "The parameter Idempotency-Key does not match the API: 'a key with spaces' "
+            "does not match '^[A-Za-z0-9._:-]{1,200}$'",
+        ):
+            self.assertApiRefused(IDEMPOTENCY_CONFLICT, self.create("GC", idempotency_key="create-1"))
+            self.assertApiRefused(INVALID_REQUEST, self.create("GC", idempotency_key="a key with spaces"))
 
     def test_a_folder_is_named_never_given_a_path(self):
         for name in ("C:\\Users\\lab\\HPLC", "/home/lab/HPLC", "HPLC/run-01", "..", "~lab"):
-            with self.subTest(name=name):
+            message = (
+                f"A folder is named, such as HPLC, never given a path on a computer: {name}"
+                if name in ("..", "~lab")
+                else f"The request does not match the API: name: {name!r}" + r" does not match '^[^/\\\\:]+$'"
+            )
+            with self.subTest(name=name), self.expected_http_warnings(message, message):
                 self.assertApiRefused(INVALID_REQUEST, self.create(name))
                 folder = self.api("PATCH", f"/folders/{self.folder.id}", {"name": name}, key=self.key)
                 self.assertApiRefused(INVALID_REQUEST, folder)
@@ -94,14 +107,20 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
 
         for method, path in (("GET", "/folders"), ("GET", f"/folders/{self.folder.id}")):
             with self.subTest(path=path):
-                self.assertApiRefused(PERMISSION_DENIED, self.api(method, path, key=self.key))
-        self.assertApiRefused(PERMISSION_DENIED, self.create("AAS"))
+                with self.expected_http_warnings("You do not have the laboratory files permission."):
+                    self.assertApiRefused(PERMISSION_DENIED, self.api(method, path, key=self.key))
+        with self.expected_http_warnings("You do not have the laboratory files permission."):
+            self.assertApiRefused(PERMISSION_DENIED, self.create("AAS"))
 
     def test_a_folder_the_person_is_not_a_member_of_is_not_found(self):
         for path in (f"/folders/{self.folder.id}", "/folders/0"):
             with self.subTest(path=path):
-                self.assertApiRefused(NOT_FOUND, self.api("GET", path, key=self.outsiders_key))
-        renamed = self.api("PATCH", f"/folders/{self.folder.id}", {"name": "Mine"}, key=self.outsiders_key)
+                with self.expected_http_warnings(
+                    "This laboratory folder does not exist or you do not have access to it."
+                ):
+                    self.assertApiRefused(NOT_FOUND, self.api("GET", path, key=self.outsiders_key))
+        with self.expected_http_warnings("This laboratory folder does not exist or you do not have access to it."):
+            renamed = self.api("PATCH", f"/folders/{self.folder.id}", {"name": "Mine"}, key=self.outsiders_key)
         self.assertApiRefused(NOT_FOUND, renamed)
 
     def test_the_owner_renames_a_folder_and_its_root_stays(self):
@@ -113,7 +132,8 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
         )
 
     def test_a_member_who_does_not_own_the_folder_does_not_rename_it(self):
-        renamed = self.api("PATCH", f"/folders/{self.folder.id}", {"name": "Mine"}, key=self.members_key)
+        with self.expected_http_warnings("Only the owner of a laboratory folder and administrators can do this."):
+            renamed = self.api("PATCH", f"/folders/{self.folder.id}", {"name": "Mine"}, key=self.members_key)
 
         self.assertApiRefused(PERMISSION_DENIED, renamed)
 
@@ -124,7 +144,8 @@ class TestLaboratoryApiFolders(LaboratoryApiCase):
         )
 
         self.folder.with_user(self.administrator).action_archive_folder()
-        archived = self.api("PATCH", f"/folders/{self.folder.id}", {"name": "Archived"}, key=self.key)
+        with self.expected_http_warnings("This laboratory folder is archived: it is read, not changed."):
+            archived = self.api("PATCH", f"/folders/{self.folder.id}", {"name": "Archived"}, key=self.key)
         self.assertApiRefused(FOLDER_ARCHIVED, archived)
         self.assertEqual(
             self.api("GET", f"/folders/{self.folder.id}", key=self.key).json()["folder"]["status"], "archived"

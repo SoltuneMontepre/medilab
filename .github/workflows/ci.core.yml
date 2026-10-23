@@ -127,6 +127,7 @@ jobs:
         with:
           image: ${{ steps.odoo.outputs.image }}
           addons-path: src/core/modules
+          rcfile: src/core/.pylintrc
 
   build:
     needs: changes
@@ -156,6 +157,7 @@ jobs:
           tags: ${{ env.MEDILAB_ODOO_IMAGE }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: type=cacheonly
           provenance: false
           sbom: false
 

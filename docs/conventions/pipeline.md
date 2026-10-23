@@ -42,12 +42,13 @@ A required check must always report, and a workflow that a `paths:` filter keeps
 - A job that needs secrets fails on a fork pull request with a message saying why, instead of being skipped: a skipped required check counts as passing.
 - A check with a pass or fail result elsewhere, such as the SonarQube Cloud quality gate, waits for that result and fails the job with it.
 - Use `defaults.run.working-directory` for a job that works in one folder, such as `infra`.
+- Odoo lint reads `src/core/.pylintrc`, as `task lint` does; a separate errors-only pass checks Python errors. A tool or configuration failure fails the job even when convention findings are advisory.
 - Name every step with a short action: "Terraform fmt check".
 - Pin actions to a major version tag: `actions/checkout@v7`. SonarQube ignores its rule S7637 (full commit SHA) for `.github/`, set in `sonar-project.properties`.
 
 ## Images and artifacts
 
-- Pass an image between jobs through the GitHub Actions build cache (`cache-to: type=gha,mode=max`, then `cache-from` with `load: true`), not through a registry or an artifact.
+- Pass an image between jobs through the GitHub Actions build cache (`outputs: type=cacheonly` and `cache-to: type=gha,mode=max`, then `cache-from` with `load: true`), not through a registry or an artifact.
 - Only `cd` workflows push images, tagged with the full commit SHA.
 - Set `DOCKER_BUILD_RECORD_UPLOAD: false` on `docker/build-push-action`.
 - Upload artifacts with `retention-days: 1`; they only pass files between jobs of one run.

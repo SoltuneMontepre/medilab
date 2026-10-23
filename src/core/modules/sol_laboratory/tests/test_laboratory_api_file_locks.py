@@ -77,8 +77,10 @@ class TestLaboratoryApiFileLocks(LaboratoryApiCase, LaboratoryFileLocksCase):
     def test_a_file_someone_else_holds_is_not_locked_or_renewed_meanwhile(self):
         self.lock()
 
-        self.assertApiRefused(LOCKED, self.lock(key=self.members_key))
-        self.assertApiRefused(LOCKED, self.api("POST", f"{self.path()}/renew", key=self.members_key))
+        warning = self.timestamped_http_warning(f"{self.tester.display_name} has locked {self.file.path} until ")
+        with self.expected_http_warnings(warning, warning):
+            self.assertApiRefused(LOCKED, self.lock(key=self.members_key))
+            self.assertApiRefused(LOCKED, self.api("POST", f"{self.path()}/renew", key=self.members_key))
         self.assertEqual(self.active_locks().user_id, self.tester)
 
     def test_the_holder_renews_a_lock_in_force_and_not_one_that_expired(self):
@@ -88,7 +90,8 @@ class TestLaboratoryApiFileLocks(LaboratoryApiCase, LaboratoryFileLocksCase):
         self.assertEqual(renewed.json()["lock"]["id"], self.active_locks().id)
 
         self.pass_expiry(self.active_locks())
-        self.assertApiRefused(NOT_LOCKED, self.api("POST", f"{self.path()}/renew", key=self.key))
+        with self.expected_http_warnings("You no longer hold a lock on HPLC/calibration.csv; lock it again."):
+            self.assertApiRefused(NOT_LOCKED, self.api("POST", f"{self.path()}/renew", key=self.key))
 
     def test_unlocking_twice_has_the_effect_of_once(self):
         self.lock()
@@ -101,20 +104,23 @@ class TestLaboratoryApiFileLocks(LaboratoryApiCase, LaboratoryFileLocksCase):
     def test_only_files_that_are_neither_raw_data_nor_office_documents_nor_reports_are_locked(self):
         for file in (self.file_in(RAW_DATA), self.file_in(REPORT), self.file_in("working", "report.docx")):
             with self.subTest(file=file.path, category=file.folder_id.category):
-                self.assertApiRefused(NOT_LOCKABLE, self.lock(file))
+                with self.expected_http_warnings("Raw data, Office documents and report files are not locked."):
+                    self.assertApiRefused(NOT_LOCKABLE, self.lock(file))
 
     def test_a_turned_off_folder_refuses_locks_and_its_holder_still_unlocks(self):
         self.lock()
         self.file.folder_id.with_user(self.administrator).action_turn_off()
 
-        self.assertApiRefused(FOLDER_DISABLED, self.lock())
+        with self.expected_http_warnings("This laboratory folder is turned off: its files are read, not changed."):
+            self.assertApiRefused(FOLDER_DISABLED, self.lock())
         self.assertEqual(self.api("DELETE", self.path(), key=self.key).status_code, 204)
         self.assertFalse(self.active_locks())
 
     def test_an_archived_folder_refuses_locks(self):
         self.file.folder_id.with_user(self.administrator).action_archive_folder()
 
-        self.assertApiRefused(FOLDER_ARCHIVED, self.lock())
+        with self.expected_http_warnings("This laboratory folder is archived: it is read, not changed."):
+            self.assertApiRefused(FOLDER_ARCHIVED, self.lock())
 
     def test_a_file_the_person_may_not_reach_is_not_found(self):
         outsiders_key = self.signed_in_key(self.outsider, "outsiders-installation")
@@ -129,7 +135,12 @@ class TestLaboratoryApiFileLocks(LaboratoryApiCase, LaboratoryFileLocksCase):
             ("no file", no_file, self.key),
             ("a sample the person does not see", self.path(unseen), outsiders_key),
         ):
-            with self.subTest(reason):
+            message = (
+                "This laboratory folder does not exist or you do not have access to it."
+                if reason in ("not a member", "a sample the person does not see")
+                else "This file does not exist in the folder."
+            )
+            with self.subTest(reason), self.expected_http_warnings(message, message, message):
                 self.assertApiRefused(NOT_FOUND, self.api("POST", path, key=key))
                 self.assertApiRefused(NOT_FOUND, self.api("DELETE", path, key=key))
                 self.assertApiRefused(NOT_FOUND, self.api("POST", f"{path}/renew", key=key))
@@ -137,7 +148,8 @@ class TestLaboratoryApiFileLocks(LaboratoryApiCase, LaboratoryFileLocksCase):
     def test_a_person_without_the_laboratory_files_permission_locks_nothing(self):
         self.tester.write({"group_ids": [Command.unlink(self.env.ref(LABORATORY_FILES_GROUP).id)]})
 
-        self.assertApiRefused(PERMISSION_DENIED, self.lock())
+        with self.expected_http_warnings("You do not have the laboratory files permission."):
+            self.assertApiRefused(PERMISSION_DENIED, self.lock())
         self.assertFalse(self.active_locks())
 
     def test_a_lock_run_again_by_odoos_retrying_locks_once(self):
