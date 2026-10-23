@@ -20,9 +20,7 @@ git add -A
 {
   echo "[fix] Roll back release $short"
   echo
-  if [[ "$conflict" == true ]]; then
-    echo "Sets the image back to sha-$PREVIOUS; the release's commits stay on main."
-  elif (( ${#commits[@]} == 0 )); then
+  if [[ "$conflict" == true ]] || (( ${#commits[@]} == 0 )); then
     echo "Sets the image back to sha-$PREVIOUS."
   else
     echo "Sets the image back to sha-$PREVIOUS and reverts:"
@@ -61,7 +59,7 @@ done | sort -u | paste -sd, -)
   echo "Release \`sha-$RELEASE\` was not healthy and was rolled back to \`sha-$PREVIOUS\`: $RUN_URL"
   echo
   if [[ "$conflict" == true ]]; then
-    echo "Its commits stay on \`main\`. Releases wait until this pull request is merged or closed."
+    echo "Releases wait until this pull request is merged or closed."
   else
     echo "Push a fix here, then mark it ready."
   fi
