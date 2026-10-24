@@ -36,7 +36,7 @@ async fn fixture(part_size: i64) -> Fixture {
     let db_path = dir.path().join("t.db");
     let db = Db::open(&db_path).unwrap();
     let local = dir.path().join("root");
-    std::fs::create_dir_all(&local).unwrap();
+    tokio::fs::create_dir_all(&local).await.unwrap();
     let folder_id = db
         .upsert_folder(local.to_str().unwrap(), "R", Some(7), true, &[])
         .unwrap();

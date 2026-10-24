@@ -19,6 +19,7 @@
         <field name="sequence">3</field>
         <field name="duration_minutes">30</field>
         <field name="instruction">Dissolve the ash in acid and make the solution up to volume.</field>
+        <field name="location_id" ref="demo_location_water_point" />
     </record>
     <record id="demo_testing_method_step_tcvn_7602_4" model="medilab.testing.method.step">
         <field name="method_id" ref="demo_testing_method_tcvn_7602" />
@@ -31,5 +32,25 @@
         <field name="sequence">5</field>
         <field name="duration_minutes">20</field>
         <field name="instruction">Measure the test solution and the blank, then calculate the lead content.</field>
+    </record>
+    <record id="demo_testing_method_step_iso_17294_2_1" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_iso_17294_2" />
+        <field name="sequence">1</field>
+        <field name="duration_minutes">15</field>
+        <field name="instruction">Filter the sample and acidify it with nitric acid.</field>
+    </record>
+    <record id="demo_testing_method_step_iso_17294_2_2" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_iso_17294_2" />
+        <field name="sequence">2</field>
+        <field name="duration_minutes">60</field>
+        <field name="instruction">Digest the test portion in the microwave digester.</field>
+        <field name="note">Let the vessels cool before opening them.</field>
+        <field name="location_id" ref="demo_location_preparation_room" />
+    </record>
+    <record id="demo_testing_method_step_iso_17294_2_3" model="medilab.testing.method.step">
+        <field name="method_id" ref="demo_testing_method_iso_17294_2" />
+        <field name="sequence">3</field>
+        <field name="duration_minutes">20</field>
+        <field name="instruction">Measure the digest and the blank on the ICP-MS.</field>
     </record>
 </odoo>

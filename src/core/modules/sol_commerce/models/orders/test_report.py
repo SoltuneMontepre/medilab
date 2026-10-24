@@ -1,9 +1,10 @@
 from odoo import models
 
+from odoo.addons.sol_commerce.constants.notifications import EVENT_RESULT_RELEASED
 from odoo.addons.sol_laboratory.constants.models import MODEL_TEST_REPORT
 
 
-# Phiếu Kết Quả: the results of an order are released on the order, to its contact.
+# Phiếu Kết Quả: the results of an order are released on the order, to its contact, through the channels they chose.
 class TestReport(models.Model):
     _inherit = MODEL_TEST_REPORT
 
@@ -17,4 +18,4 @@ class TestReport(models.Model):
             order=order.name,
             report=self.code,
         )
-        return order, contact, body
+        return EVENT_RESULT_RELEASED, order, contact, body

@@ -43,6 +43,10 @@ The tester, also called lab QA, runs the tests assigned to them on the laborator
 - **US-T28** As a tester, I want to share a folder I own with colleagues, so that we work on the same files.
 - **US-T29** As a tester, I want to browse and download the files of my samples in the back office, so that I can reach them from any computer.
 
+### Mobile
+
+- **US-T30** As a tester, I want to do my testing tasks on my phone at the bench: claim them by scanning the sample's label, follow the method's steps, and enter, send and sign the result, so that I do not go back to a computer between steps.
+
 ## II. Feature details
 
 ### 1. Planning (US-T01 to US-T04, US-T19 to US-T21)
@@ -158,6 +162,20 @@ Acceptance criteria:
 - Uploading a file someone else has locked is refused.
 - A tester who is not a member of a folder, or cannot see its sample, gets nothing from it.
 - Removing a member stops their uploads to the folder at once, and the files on their computer stay.
+
+### 6. Mobile (US-T30)
+
+Follows [Medilab Mobile](../applications/medilab-mobile.md#testing-at-the-bench-us-t30-us-hd17).
+
+| Rule     | Description |
+| -------- | ----------- |
+| Claiming | Scanning a sample's label lists the unassigned testing tasks of the tester's department on it; the tester claims one or more. |
+| Results  | Entering, sending and signing a result on the phone follow the [Results](#2-results-us-t05-to-us-t09-us-t17-us-t18-us-t22) rules. |
+
+Acceptance criteria:
+
+- Scanning the label of a sample offers none of the testing tasks of another department.
+- A result entered and signed on the phone shows on the web waiting for the head of department, with the tester's signature.
 
 ## III. Related documents
 

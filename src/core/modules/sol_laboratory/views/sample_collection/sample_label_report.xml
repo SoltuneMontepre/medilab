@@ -32,7 +32,7 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="sample">
                 <div
-                    class="page"
+                    class="article page"
                     t-attf-style="font-family: sans-serif; font-size: 9pt; {{ '' if sample_first else 'page-break-before: always' }}"
                 >
                     <table style="width: 100%; border-collapse: collapse">

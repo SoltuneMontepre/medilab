@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_location_list" model="ir.ui.view">
+        <field name="name">medilab.location.list</field>
+        <field name="model">medilab.location</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code" />
+                <field name="name" />
+                <field name="parent_id" />
+                <field name="department_id" optional="show" />
+                <field name="is_bookable" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medilab_location_form" model="ir.ui.view">
+        <field name="name">medilab.location.form</field>
+        <field name="model">medilab.location</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_bookings"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="calendar_today"
+                            string="Schedule"
+                            invisible="not id"
+                        />
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active" />
+                    <field name="active" invisible="1" />
+                    <field name="image_attachment_id" invisible="1" />
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1><field name="name" /></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" />
+                            <field name="parent_id" />
+                            <field name="department_id" />
+                        </group>
+                        <group>
+                            <field name="is_bookable" />
+                            <field name="image" widget="image" options="{'size': [0, 90]}" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Map" name="map" invisible="not image_attachment_id">
+                            <widget name="location_map" />
+                        </page>
+                        <page string="On the Map" name="position" invisible="not parent_id">
+                            <widget name="location_map" of_parent="1" />
+                        </page>
+                        <page string="Locations Inside" name="children" invisible="not child_ids">
+                            <field name="child_ids" readonly="1">
+                                <list>
+                                    <field name="code" />
+                                    <field name="name" />
+                                    <field name="department_id" optional="show" />
+                                    <field name="is_bookable" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medilab_location_search" model="ir.ui.view">
+        <field name="name">medilab.location.search</field>
+        <field name="model">medilab.location</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" string="Location" />
+                <field name="parent_id" operator="child_of" />
+                <field name="department_id" />
+                <filter name="bookable" string="Bookable" domain="[('is_bookable', '=', True)]" />
+                <separator />
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
+                <group>
+                    <filter name="group_parent" string="Inside" context="{'group_by': 'parent_id'}" />
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medilab_location" model="ir.actions.act_window">
+        <field name="name">Locations</field>
+        <field name="res_model">medilab.location</field>
+        <field name="path">lab-locations</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

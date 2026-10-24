@@ -74,6 +74,7 @@ tasks:
   dev:odoo-links:
     internal: true
     silent: true
+    interactive: true
     cmds:
       - "{{.UV}} run python {{.TYPECHECK_DIR}}/link_addons.py {{.ODOO_SOURCE_DIR}} {{.MODULES_DIR}} {{.ODOO_ADDONS | join \" \"}}"
 

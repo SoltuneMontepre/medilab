@@ -1,4 +1,5 @@
 # One instance while the cluster runs on Server A alone. Argo CD never prunes or deletes it.
+# Memory is requested at its limit, so the instance is never evicted; the parameters are sized for those 3 GiB on SSD.
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -18,7 +19,13 @@ spec:
   postgresql:
     parameters:
       max_connections: "200"
-      shared_buffers: 1GB
+      shared_buffers: 768MB
+      effective_cache_size: 2GB
+      work_mem: 8MB
+      maintenance_work_mem: 256MB
+      random_page_cost: "1.1"
+      effective_io_concurrency: "200"
+      max_wal_size: 2GB
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
@@ -26,7 +33,7 @@ spec:
         barmanObjectName: backups
   resources:
     requests:
-      cpu: 500m
-      memory: 2Gi
+      cpu: "1"
+      memory: 3Gi
     limits:
-      memory: 4Gi
+      memory: 3Gi
