@@ -1,5 +1,6 @@
 import json
 import os
+import runpy
 import socket
 import tempfile
 import unittest
@@ -21,6 +22,50 @@ from demo_bootstrap import (
     select,
     switch,
 )
+
+
+class SetCountryScriptTest(unittest.TestCase):
+    def test_refuses_to_commit_when_country_write_did_not_persist(self):
+        vietnam = type("Country", (), {"id": 240})()
+        previous = type("Country", (), {"id": 1})()
+
+        class Partner:
+            def __init__(self):
+                self.stored = previous
+                self.cached = previous
+
+            @property
+            def country_id(self):
+                return self.cached
+
+            @country_id.setter
+            def country_id(self, country):
+                self.cached = country
+
+            def invalidate_recordset(self, _fields):
+                self.cached = self.stored
+
+        partner = Partner()
+        cursor = type(
+            "Cursor", (), {"flush": lambda self: None, "commit": lambda self: None}
+        )()
+        company = type("Company", (), {"partner_id": partner})()
+        environment = type(
+            "Environment",
+            (),
+            {
+                "cr": cursor,
+                "ref": lambda self, xml_id: (
+                    company if xml_id == "base.main_company" else vietnam
+                ),
+            },
+        )()
+
+        with self.assertRaisesRegex(RuntimeError, "country was not set to Vietnam"):
+            runpy.run_path(
+                str(Path(__file__).with_name("demo_bootstrap_set_country.py")),
+                init_globals={"env": environment},
+            )
 
 
 class DemoBootstrapEnvironmentTest(unittest.TestCase):

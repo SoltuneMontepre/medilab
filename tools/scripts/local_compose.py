@@ -23,6 +23,40 @@ from demo_bootstrap import (
     _resources,
 )
 
+COMPOSE_COMMANDS = {"up", "down", "stop", "restart", "logs", "ps", "run", "exec"}
+COMPOSE_IDENTITY_OPTIONS = {
+    "-p",
+    "--project-name",
+    "-f",
+    "--file",
+    "--env-file",
+    "--project-directory",
+}
+
+
+def _checked_arguments(arguments):
+    if arguments[0] not in COMPOSE_COMMANDS:
+        raise BootstrapError(
+            f"Compose command {arguments[0]!r} is not supported by the local environment wrapper."
+        )
+    if arguments[0] == "down" and len(arguments) != 1:
+        raise BootstrapError(
+            "Compose down options are refused; use guarded `task reset` for disposable resources."
+        )
+    if any(
+        argument in COMPOSE_IDENTITY_OPTIONS
+        or any(
+            argument.startswith(option + "=")
+            for option in COMPOSE_IDENTITY_OPTIONS
+            if option.startswith("--")
+        )
+        for argument in arguments[1:]
+    ):
+        raise BootstrapError(
+            "Compose project and file overrides are refused by the local environment wrapper."
+        )
+    return arguments
+
 
 def _resolve(command):
     project = project_name()
@@ -165,7 +199,7 @@ def main():
                 raise SystemExit("Usage: local_compose.py guard-uninstall")
             guard_uninstall()
             return
-        arguments = sys.argv[1:]
+        arguments = _checked_arguments(sys.argv[1:])
         project, _marker, files, env = _resolve(arguments[0])
         command = ["docker", "compose", "-p", project, *files, *arguments]
         raise SystemExit(subprocess.run(command, env=env, check=False).returncode)

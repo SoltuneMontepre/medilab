@@ -3,10 +3,55 @@ import unittest
 from unittest.mock import patch
 
 from demo_bootstrap import BootstrapError
-from local_compose import _resolve, guard_demo_install, guard_e2e_app, guard_uninstall
+from local_compose import (
+    _resolve,
+    guard_demo_install,
+    guard_e2e_app,
+    guard_uninstall,
+    main,
+)
 
 
 class LocalComposeTest(unittest.TestCase):
+    def test_compose_wrapper_rejects_volume_deletion(self):
+        for flag in ("-v", "--volumes"):
+            with (
+                self.subTest(flag=flag),
+                patch("local_compose.sys.argv", ["local_compose.py", "down", flag]),
+                patch(
+                    "local_compose._resolve", return_value=("owned", None, [], {})
+                ) as resolve,
+                patch(
+                    "local_compose.subprocess.run",
+                    return_value=type("Result", (), {"returncode": 0})(),
+                ) as run,
+                self.assertRaises(SystemExit) as result,
+            ):
+                main()
+            self.assertEqual(result.exception.code, 1)
+            resolve.assert_not_called()
+            run.assert_not_called()
+
+    def test_compose_wrapper_rejects_project_override(self):
+        with (
+            patch(
+                "local_compose.sys.argv",
+                ["local_compose.py", "--project-name", "foreign", "up"],
+            ),
+            patch(
+                "local_compose._resolve", return_value=("owned", None, [], {})
+            ) as resolve,
+            patch(
+                "local_compose.subprocess.run",
+                return_value=type("Result", (), {"returncode": 0})(),
+            ) as run,
+            self.assertRaises(SystemExit) as result,
+        ):
+            main()
+        self.assertEqual(result.exception.code, 1)
+        resolve.assert_not_called()
+        run.assert_not_called()
+
     def test_completed_bootstrap_uses_owned_compose_configuration(self):
         config = {
             "COMPOSE_PROJECT_NAME": "medilab-test",
