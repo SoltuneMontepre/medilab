@@ -13,7 +13,7 @@ describe("Room bookings of method steps", () => {
   it("shows the room booking of a scheduled test on its booking and the tester's calendar", () => {
     demoId("demo_machine_booking_lead_room_booked").then((bookingId) => {
       cy.visit(`/odoo/machine-schedule/${bookingId}`);
-      cy.get(".o_notebook a[name=room_bookings]").click();
+      cy.get("button.nav-link[name=room_bookings]").click();
       cy.contains(".o_field_widget[name=room_event_ids] .o_data_row", ROOM).should("be.visible");
 
       call("medilab.machine.booking", "read", [[bookingId], ["room_event_ids"]]).then(([booking]) =>
