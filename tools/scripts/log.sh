@@ -1,12 +1,14 @@
 log__color_enabled() {
+  local stream="$1"
   if [[ -n "${NO_COLOR:-}" ]]; then
     return 1
   fi
   case "${FORCE_COLOR:-}" in
     0) return 1 ;;
     1|2|3) return 0 ;;
+    *) ;;
   esac
-  if [[ ! -t "$1" ]]; then
+  if [[ ! -t "$stream" ]]; then
     return 1
   fi
   if [[ -n "${TERM:-}" ]]; then
@@ -18,7 +20,8 @@ log__color_enabled() {
 }
 
 log__set_colors() {
-  if log__color_enabled "$1"; then
+  local stream="$1"
+  if log__color_enabled "$stream"; then
     C_RESET=$'\033[0m'
     C_BOLD=$'\033[1m'
     C_DIM=$'\033[2m'

@@ -623,10 +623,7 @@ tasks:
             threading.Thread(
                 target=lambda: prompt.put(process.stdout.read(13)), daemon=True
             ).start()
-            try:
-                first = prompt.get(timeout=0.5)
-            except queue.Empty:
-                self.fail("a numeric prompt was buffered until child exit")
+            first = prompt.get(timeout=0.5)
             self.assertEqual(first, b"1) Continue? ")
             process.communicate(timeout=5)
             self.assertEqual(process.returncode, 0)

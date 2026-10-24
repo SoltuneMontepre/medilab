@@ -13,7 +13,6 @@ import sys
 import time
 import uuid
 from pathlib import Path
-from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import urlopen
 
@@ -33,6 +32,17 @@ SWITCH_JOURNAL = ROOT / ".local/demo-bootstrap-switch.json"
 OWNER_LABEL = "com.medilab.bootstrap.owner"
 PROJECT_LABEL = "com.docker.compose.project"
 DATABASE = "medilab"
+ODOO_CONFIG_ARGUMENT = "--config=/etc/odoo/odoo.conf"
+ODOO_NO_CRON_ARGUMENT = "--max-cron-threads=0"
+ODOO_DATABASE_ARGUMENTS = (
+    "--db_host=postgres",
+    "--db_port=5432",
+    "--db_user=root",
+    "--db_password=root",
+)
+INTERRUPTED_SWITCH_ERROR = (
+    "An interrupted project switch exists; run `task setup:fresh:switch:recover`."
+)
 MODULES = [
     line.strip()
     for line in (ROOT / "src/core/modules.txt").read_text().splitlines()
@@ -55,6 +65,23 @@ def _is_local_engine_endpoint(endpoint):
     )
 
 
+def _assert_local_context(context, source):
+    result = _run(
+        ["docker", "context", "inspect", context],
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode:
+        raise BootstrapError(
+            "Could not verify that the selected container context is local."
+        )
+    host = json.loads(result.stdout)[0]["Endpoints"]["docker"]["Host"]
+    if not _is_local_engine_endpoint(host):
+        raise BootstrapError(
+            f"The {source} container context is not local; refusing fresh bootstrap."
+        )
+
+
 def _assert_local_engine():
     endpoint = os.environ.get("DOCKER_HOST")
     context = os.environ.get("DOCKER_CONTEXT")
@@ -63,38 +90,11 @@ def _assert_local_engine():
             "The configured container engine is not local; refusing fresh bootstrap."
         )
     if context:
-        result = _run(
-            ["docker", "context", "inspect", context],
-            capture_output=True,
-            check=False,
-        )
-        if result.returncode:
-            raise BootstrapError(
-                "Could not verify that the selected container context is local."
-            )
-        host = json.loads(result.stdout)[0]["Endpoints"]["docker"]["Host"]
-        if not _is_local_engine_endpoint(host):
-            raise BootstrapError(
-                "The configured container context is not local; refusing fresh bootstrap."
-            )
+        _assert_local_context(context, "configured")
     elif not endpoint:
         result = _run(["docker", "context", "show"], capture_output=True, check=False)
         if result.returncode == 0:
-            context = result.stdout.strip()
-            inspection = _run(
-                ["docker", "context", "inspect", context],
-                capture_output=True,
-                check=False,
-            )
-            if inspection.returncode:
-                raise BootstrapError(
-                    "Could not verify that the selected container context is local."
-                )
-            host = json.loads(inspection.stdout)[0]["Endpoints"]["docker"]["Host"]
-            if not _is_local_engine_endpoint(host):
-                raise BootstrapError(
-                    "The selected container context is not local; refusing fresh bootstrap."
-                )
+            _assert_local_context(result.stdout.strip(), "selected")
         else:
             version = _run(["docker", "--version"], capture_output=True, check=False)
             if "podman" not in version.stdout.lower():
@@ -226,9 +226,7 @@ def select(project):
         )
     _assert_local_engine()
     if SWITCH_JOURNAL.exists():
-        raise BootstrapError(
-            "An interrupted project switch exists; run `task setup:fresh:switch:recover`."
-        )
+        raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     existing = _read_marker()
     if existing:
         if (
@@ -416,9 +414,7 @@ def _write_switch_journal(current, target):
             output.flush()
             os.fsync(output.fileno())
     except FileExistsError as error:
-        raise BootstrapError(
-            "An interrupted project switch exists; run `task setup:fresh:switch:recover`."
-        ) from error
+        raise BootstrapError(INTERRUPTED_SWITCH_ERROR) from error
 
 
 def switch(project):
@@ -428,9 +424,7 @@ def switch(project):
         )
     _assert_local_engine()
     if SWITCH_JOURNAL.exists():
-        raise BootstrapError(
-            "An interrupted project switch exists; run `task setup:fresh:switch:recover`."
-        )
+        raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     current = _read_marker()
     if not current:
         raise BootstrapError("No completed selection exists in this worktree.")
@@ -626,12 +620,9 @@ def _run_oneoff_shell(project, owner, script, config):
             "odoo",
             "odoo",
             "shell",
-            "--config=/etc/odoo/odoo.conf",
-            "--max-cron-threads=0",
-            "--db_host=postgres",
-            "--db_port=5432",
-            "--db_user=root",
-            "--db_password=root",
+            ODOO_CONFIG_ARGUMENT,
+            ODOO_NO_CRON_ARGUMENT,
+            *ODOO_DATABASE_ARGUMENTS,
             "-d",
             DATABASE,
             stdin=source,
@@ -643,7 +634,7 @@ def _run_oneoff_shell(project, owner, script, config):
 
 
 def _prepare_accounting_foundation(project, owner, env):
-    common = ["--config=/etc/odoo/odoo.conf", "--max-cron-threads=0", "-d", DATABASE]
+    common = [ODOO_CONFIG_ARGUMENT, ODOO_NO_CRON_ARGUMENT, "-d", DATABASE]
     odoo_compose = _compose_args(project, owned=True, bootstrap=True)
     _run_odoo(
         [
@@ -852,7 +843,7 @@ def _assert_no_resources(project):
         )
 
 
-def _assert_owned_resources(project, owner, allow_normal=False):
+def _assert_owned_resources(project, owner):
     resources = _resources(project)
     named = _named_resources(project)
     for kind, items in resources.items():
@@ -914,7 +905,7 @@ def _normal_app_ready(project, owner, config):
                 if response.status == 200:
                     return
                 last_error = f"HTTP {response.status}"
-        except (HTTPError, URLError, TimeoutError, OSError) as error:
+        except OSError as error:
             last_error = type(error).__name__
         time.sleep(2)
     raise BootstrapError(
@@ -960,12 +951,9 @@ def _shell(project, owner, script, *, bootstrap, config):
         "odoo",
         "odoo",
         "shell",
-        "--config=/etc/odoo/odoo.conf",
-        "--max-cron-threads=0",
-        "--db_host=postgres",
-        "--db_port=5432",
-        "--db_user=root",
-        "--db_password=root",
+        ODOO_CONFIG_ARGUMENT,
+        ODOO_NO_CRON_ARGUMENT,
+        *ODOO_DATABASE_ARGUMENTS,
         "-d",
         DATABASE,
     ]
@@ -993,12 +981,9 @@ def _read_database_state(project, owner, config):
             "odoo",
             "odoo",
             "shell",
-            "--config=/etc/odoo/odoo.conf",
-            "--max-cron-threads=0",
-            "--db_host=postgres",
-            "--db_port=5432",
-            "--db_user=root",
-            "--db_password=root",
+            ODOO_CONFIG_ARGUMENT,
+            ODOO_NO_CRON_ARGUMENT,
+            *ODOO_DATABASE_ARGUMENTS,
             "-d",
             DATABASE,
             stdin=source,
@@ -1057,67 +1042,77 @@ def _handoff(project, owner, marker):
         _write_marker(marker)
 
 
+def _validate_setup_marker(project, marker):
+    if not marker:
+        return
+    if marker.get("project") != project:
+        raise BootstrapError(
+            "The local bootstrap marker belongs to a different Compose project."
+        )
+    if marker.get("lifecycle_version") != 2:
+        raise BootstrapError(
+            "This bootstrap was created by an older lifecycle and will not be adopted or resumed automatically. Its resources are preserved."
+        )
+    status = marker.get("status")
+    if status in ("creating", "installing", "running", "failed"):
+        raise BootstrapError(
+            f"A bootstrap attempt is {status}; do not retry it. Verify ownership and run `task setup:fresh:recover` first."
+        )
+    if status not in ("seeded", "handoff", "completed", "selected", "discarded"):
+        raise BootstrapError(
+            "The local bootstrap marker has an unknown state; refusing to adopt its resources."
+        )
+
+
+def _resume_setup(project, marker):
+    owner = marker["owner"]
+    config = marker["config"]
+    _assert_owned_resources(project, owner)
+    actual_volumes = set(_owned_volume_names(project, owner))
+    expected_volumes = {
+        config[key]
+        for key in (
+            "MEDILAB_DB_VOLUME",
+            "MEDILAB_GARAGE_VOLUME",
+            "MEDILAB_APP_VOLUME",
+            "MEDILAB_CLOUDBEAVER_VOLUME",
+        )
+    }
+    if actual_volumes != expected_volumes:
+        raise BootstrapError(
+            "The bootstrap volume identities differ from the saved environment configuration; refusing handoff."
+        )
+    if marker.get("status") == "seeded":
+        _compose(
+            project,
+            True,
+            "stop",
+            "odoo",
+            owner=owner,
+            owned=True,
+            config=config,
+        )
+        marker["status"] = "handoff"
+        _write_marker(marker)
+    if marker.get("status") == "completed":
+        _normal_app_ready(project, owner, config)
+        state = _read_database_state(project, owner, config)
+        if state.get("status") != "completed":
+            raise BootstrapError(
+                f"Database bootstrap state is {state.get('status')!r}; refusing normal startup."
+            )
+        return
+    _handoff(project, owner, marker)
+
+
 def setup():
     _assert_local_engine()
     project = project_name()
     marker = _read_marker()
-    if marker:
-        if marker.get("project") != project:
-            raise BootstrapError(
-                "The local bootstrap marker belongs to a different Compose project."
-            )
-        if marker.get("lifecycle_version") != 2:
-            raise BootstrapError(
-                "This bootstrap was created by an older lifecycle and will not be adopted or resumed automatically. Its resources are preserved."
-            )
-        if marker.get("status") in ("creating", "installing", "running", "failed"):
-            raise BootstrapError(
-                f"A bootstrap attempt is {marker['status']}; do not retry it. Verify ownership and run `task setup:fresh:recover` first."
-            )
-        if marker.get("status") in ("seeded", "handoff", "completed"):
-            owner = marker["owner"]
-            config = marker["config"]
-            _assert_owned_resources(project, owner)
-            actual_volumes = set(_owned_volume_names(project, owner))
-            expected_volumes = {
-                config[key]
-                for key in (
-                    "MEDILAB_DB_VOLUME",
-                    "MEDILAB_GARAGE_VOLUME",
-                    "MEDILAB_APP_VOLUME",
-                    "MEDILAB_CLOUDBEAVER_VOLUME",
-                )
-            }
-            if actual_volumes != expected_volumes:
-                raise BootstrapError(
-                    "The bootstrap volume identities differ from the saved environment configuration; refusing handoff."
-                )
-            if marker.get("status") == "seeded":
-                _compose(
-                    project,
-                    True,
-                    "stop",
-                    "odoo",
-                    owner=owner,
-                    owned=True,
-                    config=config,
-                )
-                marker["status"] = "handoff"
-                _write_marker(marker)
-            if marker.get("status") == "completed":
-                _normal_app_ready(project, owner, config)
-                state = _read_database_state(project, owner, config)
-                if state.get("status") != "completed":
-                    raise BootstrapError(
-                        f"Database bootstrap state is {state.get('status')!r}; refusing normal startup."
-                    )
-                return
-            _handoff(project, owner, marker)
-            return
-        if marker.get("status") not in ("selected", "discarded"):
-            raise BootstrapError(
-                "The local bootstrap marker has an unknown state; refusing to adopt its resources."
-            )
+    _validate_setup_marker(project, marker)
+    if marker and marker.get("status") in ("seeded", "handoff", "completed"):
+        _resume_setup(project, marker)
+        return
 
     _assert_no_resources(project)
     owner = (
@@ -1195,8 +1190,8 @@ def setup():
                 "--rm",
                 "--no-deps",
                 "odoo",
-                "--config=/etc/odoo/odoo.conf",
-                "--max-cron-threads=0",
+                ODOO_CONFIG_ARGUMENT,
+                ODOO_NO_CRON_ARGUMENT,
                 "-d",
                 DATABASE,
                 "-i",
@@ -1405,41 +1400,32 @@ def reset():
 
 
 def main():
-    if len(sys.argv) < 2 or sys.argv[1] not in (
-        "select",
-        "switch",
-        "switch-recover",
-        "setup",
-        "recover",
-        "check-normal",
-        "reset",
-    ):
+    commands = {
+        "select": select,
+        "switch": switch,
+        "switch-recover": recover_switch,
+        "setup": setup,
+        "recover": recover,
+        "check-normal": check_normal_setup,
+        "reset": reset,
+    }
+    if len(sys.argv) < 2 or sys.argv[1] not in commands:
         raise SystemExit(
             "Usage: python tools/scripts/demo_bootstrap.py select|switch|switch-recover|setup|recover|check-normal|reset"
         )
+    action = sys.argv[1]
     try:
-        if sys.argv[1] in ("select", "switch"):
-            if len(sys.argv) != 2:
-                raise BootstrapError(
-                    "Use `task setup:fresh:select PROJECT=medilab-bootstrap-test-01`."
-                )
-            project = os.environ.get("MEDILAB_SELECTED_PROJECT", "")
-            if sys.argv[1] == "switch":
-                switch(project)
-            else:
-                select(project)
-        elif len(sys.argv) != 2:
-            raise BootstrapError("This command takes no arguments.")
-        elif sys.argv[1] == "switch-recover":
-            recover_switch()
-        elif sys.argv[1] == "setup":
-            setup()
-        elif sys.argv[1] == "recover":
-            recover()
-        elif sys.argv[1] == "reset":
-            reset()
+        if len(sys.argv) != 2:
+            message = (
+                "Use `task setup:fresh:select PROJECT=medilab-bootstrap-test-01`."
+                if action in ("select", "switch")
+                else "This command takes no arguments."
+            )
+            raise BootstrapError(message)
+        if action in ("select", "switch"):
+            commands[action](os.environ.get("MEDILAB_SELECTED_PROJECT", ""))
         else:
-            check_normal_setup()
+            commands[action]()
     except (
         BootstrapError,
         ValueError,

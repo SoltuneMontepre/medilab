@@ -41,4 +41,5 @@ prepare_vietnamese_accounting() {
   runuser -u odoo -- python3 -m odoo shell \
     --db_host "$HOST" --db_user "$USER" --db_password "$PASSWORD" --data-dir "$TEST_RUN_DIR/data" \
     --stop-after-init -d "$TEST_DB" < "$scripts/demo_bootstrap_accounting.py"
+  return $?
 }

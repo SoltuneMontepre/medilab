@@ -5,7 +5,7 @@ import json
 import os
 import re
 import time
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 from urllib.parse import urljoin, urlsplit
 from urllib.request import urlopen
 
@@ -38,18 +38,7 @@ def fetch(url):
         raise RuntimeError(f"Asset request {url} returned HTTP {error.code}") from error
 
 
-def main(database):
-    config.parse_config(
-        [
-            "--config=/etc/odoo/odoo.conf",
-            "--db_host=" + os.environ["HOST"],
-            "--db_user=" + os.environ["USER"],
-            "--db_password=" + os.environ["PASSWORD"],
-            "-d",
-            database,
-        ],
-        setup_logging=True,
-    )
+def _wait_for_registry(database):
     readiness_url = f"{BASE_URL}/web/login?db={database}"
     last_error = "no response"
     for _attempt in range(120):
@@ -58,7 +47,7 @@ def main(database):
                 if response.status == 200:
                     break
                 last_error = f"HTTP {response.status}"
-        except (HTTPError, URLError, TimeoutError, OSError) as error:
+        except OSError as error:
             last_error = type(error).__name__
         time.sleep(1)
     else:
@@ -66,6 +55,8 @@ def main(database):
             f"Odoo registry did not become ready at {readiness_url}: {last_error}"
         )
 
+
+def _report_asset_paths(database):
     registry = Registry(database)
     with registry.cursor() as cursor:
         env = api.Environment(cursor, SUPERUSER_ID, {"lang": "en_US"})
@@ -88,6 +79,63 @@ def main(database):
             raise RuntimeError("Odoo returned no report asset URLs")
         cursor.commit()
 
+    return paths
+
+
+def _optional_font_fallback(url):
+    parsed = urlsplit(url)
+    return (
+        parsed.scheme == "https"
+        and parsed.netloc == "fonts.odoocdn.com"
+        and parsed.path.startswith("/fonts/noto/NotoSans")
+        and parsed.path.endswith((".woff2", ".woff", ".ttf"))
+    )
+
+
+def _css_asset(reference):
+    reference = reference.strip()
+    if reference.startswith(("data:", "#")):
+        return None
+    url = urljoin(BASE_URL, reference)
+    if urlsplit(url).path in OPTIONAL_UPSTREAM_MISSING_ASSETS:
+        # Odoo's module-description CSS references absent play-button images, unused by report templates.
+        return "optional_missing_assets", url
+    if urlsplit(url).netloc == urlsplit(BASE_URL).netloc:
+        return "dependencies", url
+    if _optional_font_fallback(url):
+        return "optional_font_fallbacks", url
+    raise RuntimeError(f"Report CSS references an external asset: {url}")
+
+
+def _css_dependencies(css):
+    assets = {
+        "dependencies": set(),
+        "optional_font_fallbacks": set(),
+        "optional_missing_assets": set(),
+    }
+    for text in css:
+        for reference in ASSET_URL.findall(text):
+            asset = _css_asset(reference)
+            if asset is not None:
+                kind, url = asset
+                assets[kind].add(url)
+    return assets
+
+
+def main(database):
+    config.parse_config(
+        [
+            "--config=/etc/odoo/odoo.conf",
+            "--db_host=" + os.environ["HOST"],
+            "--db_user=" + os.environ["USER"],
+            "--db_password=" + os.environ["PASSWORD"],
+            "-d",
+            database,
+        ],
+        setup_logging=True,
+    )
+    _wait_for_registry(database)
+    paths = _report_asset_paths(database)
     origin = urlsplit(BASE_URL).netloc
     fetched = {}
     for path in paths:
@@ -102,31 +150,10 @@ def main(database):
         for url, data in fetched.items()
         if urlsplit(url).path.endswith(".css")
     ]
-    dependencies = set()
-    optional_font_fallbacks = set()
-    optional_missing_assets = set()
-    for text in css:
-        for reference in ASSET_URL.findall(text):
-            reference = reference.strip()
-            if reference.startswith(("data:", "#")):
-                continue
-            url = urljoin(BASE_URL, reference)
-            if urlsplit(url).path in OPTIONAL_UPSTREAM_MISSING_ASSETS:
-                # Odoo's module-description CSS references absent play-button images, unused by report templates.
-                optional_missing_assets.add(url)
-                continue
-            if urlsplit(url).netloc != origin:
-                parsed = urlsplit(url)
-                if (
-                    parsed.scheme == "https"
-                    and parsed.netloc == "fonts.odoocdn.com"
-                    and parsed.path.startswith("/fonts/noto/NotoSans")
-                    and parsed.path.endswith((".woff2", ".woff", ".ttf"))
-                ):
-                    optional_font_fallbacks.add(url)
-                    continue
-                raise RuntimeError(f"Report CSS references an external asset: {url}")
-            dependencies.add(url)
+    css_assets = _css_dependencies(css)
+    dependencies = css_assets["dependencies"]
+    optional_font_fallbacks = css_assets["optional_font_fallbacks"]
+    optional_missing_assets = css_assets["optional_missing_assets"]
     for url in sorted(dependencies):
         fetched[url] = fetch(url)
     print(

@@ -25,7 +25,9 @@ def _database_names(database, app_database, shard_numbers):
     if not re.fullmatch(r"[a-z][a-z0-9_]{0,48}", database):
         raise CoreTestError("TEST_DB must be a PostgreSQL-safe lowercase name.")
     shards = shard_numbers.split()
-    if not shards or any(not re.fullmatch(r"[1-9][0-9]?", shard) for shard in shards):
+    if not shards or any(
+        not re.fullmatch(r"[1-9]\d?", shard, re.ASCII) for shard in shards
+    ):
         raise CoreTestError("SHARD_NUMBERS must contain positive shard numbers.")
     if len(shards) != len(set(shards)):
         raise CoreTestError("SHARD_NUMBERS contains a duplicate shard.")

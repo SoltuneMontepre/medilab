@@ -61,9 +61,10 @@ class SetCountryScriptTest(unittest.TestCase):
             },
         )()
 
+        script = str(Path(__file__).with_name("demo_bootstrap_set_country.py"))
         with self.assertRaisesRegex(RuntimeError, "country was not set to Vietnam"):
             runpy.run_path(
-                str(Path(__file__).with_name("demo_bootstrap_set_country.py")),
+                script,
                 init_globals={"env": environment},
             )
 
@@ -588,9 +589,9 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
                 side_effect=BootstrapError("already owns resources"),
             ),
             patch("demo_bootstrap._write_compose_env") as write_env,
-            self.assertRaisesRegex(BootstrapError, "already owns resources"),
         ):
-            select("medilab-bootstrap-test-01")
+            with self.assertRaisesRegex(BootstrapError, "already owns resources"):
+                select("medilab-bootstrap-test-01")
             write_env.assert_not_called()
 
     def test_select_persists_unique_project_owner_ports_and_image(self):

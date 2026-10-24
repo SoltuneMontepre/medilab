@@ -16,6 +16,7 @@ from odoo.addons.sol_laboratory.constants.settings import DIGITAL_SIGNING_PARAME
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 from odoo.addons.sol_laboratory.services.pdf_signing import check_pdf
 
+CONFIG_PARAMETER_MODEL = "ir.config_parameter"
 REPORT_URL_KEY = "report.url"
 REPORT_URL = "http://odoo:8069"
 LOCK_KEY = int.from_bytes(
@@ -24,13 +25,13 @@ LOCK_KEY = int.from_bytes(
 
 
 def _parameter(env, key):
-    records = env["ir.config_parameter"].sudo()
+    records = env[CONFIG_PARAMETER_MODEL].sudo()
     record = records.search([("key", "=", key)], limit=1)
     return (record.exists(), record.value if record else None)
 
 
 def _restore_parameter(env, key, snapshot):
-    records = env["ir.config_parameter"].sudo()
+    records = env[CONFIG_PARAMETER_MODEL].sudo()
     original, value = snapshot
     current = records.search([("key", "=", key)], limit=1)
     if original:
@@ -40,6 +41,19 @@ def _restore_parameter(env, key, snapshot):
             records.create({"key": key, "value": value})
     elif current:
         current.unlink()
+
+
+def _verify_bucket_content(content):
+    digest = hashlib.sha256()
+    size = 0
+    with laboratory_bucket.read(content.object_key) as chunks:
+        for chunk in chunks:
+            digest.update(chunk)
+            size += len(chunk)
+    if size != content.size or digest.hexdigest() != content.sha256:
+        raise RuntimeError(
+            f"Demo bucket content {content.id} did not match its recorded hash"
+        )
 
 
 def _verify_demo(env):
@@ -76,16 +90,7 @@ def _verify_demo(env):
         env["medilab.laboratory.content"].sudo().search([("state", "=", "verified")])
     )
     for content in contents:
-        digest = hashlib.sha256()
-        size = 0
-        with laboratory_bucket.read(content.object_key) as chunks:
-            for chunk in chunks:
-                digest.update(chunk)
-                size += len(chunk)
-        if size != content.size or digest.hexdigest() != content.sha256:
-            raise RuntimeError(
-                f"Demo bucket content {content.id} did not match its recorded hash"
-            )
+        _verify_bucket_content(content)
 
     uploads = (
         env["medilab.laboratory.upload"].sudo().search([("multipart_id", "!=", False)])
@@ -133,8 +138,10 @@ def run(env):
         report_url = _parameter(env, REPORT_URL_KEY)
         digital_signing = _parameter(env, DIGITAL_SIGNING_PARAMETER)
         try:
-            env["ir.config_parameter"].sudo().set_str(REPORT_URL_KEY, REPORT_URL)
-            env["ir.config_parameter"].sudo().set_bool(DIGITAL_SIGNING_PARAMETER, False)
+            env[CONFIG_PARAMETER_MODEL].sudo().set_str(REPORT_URL_KEY, REPORT_URL)
+            env[CONFIG_PARAMETER_MODEL].sudo().set_bool(
+                DIGITAL_SIGNING_PARAMETER, False
+            )
             seed_demo(env)
             result = _verify_demo(env)
             _restore_parameter(env, DIGITAL_SIGNING_PARAMETER, digital_signing)

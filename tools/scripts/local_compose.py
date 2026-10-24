@@ -58,6 +58,36 @@ def _checked_arguments(arguments):
     return arguments
 
 
+def _completed_configuration(project, marker):
+    config = marker.get("config") or {}
+    owner = marker.get("owner")
+    persisted = _read_compose_env()
+    missing = [key for key, value in config.items() if persisted.get(key) != value]
+    if missing:
+        raise BootstrapError(
+            f"Saved Compose configuration differs for {', '.join(missing)}; refusing to start or recreate services."
+        )
+    _assert_owned_resources(project, owner)
+    expected = {
+        config[key]
+        for key in (
+            "MEDILAB_DB_VOLUME",
+            "MEDILAB_GARAGE_VOLUME",
+            "MEDILAB_APP_VOLUME",
+            "MEDILAB_CLOUDBEAVER_VOLUME",
+        )
+    }
+    if set(_owned_volume_names(project, owner)) != expected:
+        raise BootstrapError(
+            "Owned volume identities do not match the saved Compose configuration."
+        )
+    files = ["-f", str(COMPOSE), "-f", str(OWNED_COMPOSE)]
+    environment = _compose_environment(project, owner, config)
+    if dev_mode := os.environ.get("ODOO_DEV"):
+        environment["ODOO_DEV"] = dev_mode
+    return project, marker, files, environment
+
+
 def _resolve(command):
     project = project_name()
     marker = _read_marker()
@@ -85,31 +115,7 @@ def _resolve(command):
     config = marker.get("config") or {}
     owner = marker.get("owner")
     if status == "completed":
-        persisted = _read_compose_env()
-        missing = [key for key, value in config.items() if persisted.get(key) != value]
-        if missing:
-            raise BootstrapError(
-                f"Saved Compose configuration differs for {', '.join(missing)}; refusing to start or recreate services."
-            )
-        resources = _assert_owned_resources(project, owner)
-        expected = {
-            config[key]
-            for key in (
-                "MEDILAB_DB_VOLUME",
-                "MEDILAB_GARAGE_VOLUME",
-                "MEDILAB_APP_VOLUME",
-                "MEDILAB_CLOUDBEAVER_VOLUME",
-            )
-        }
-        if set(_owned_volume_names(project, owner)) != expected:
-            raise BootstrapError(
-                "Owned volume identities do not match the saved Compose configuration."
-            )
-        files = ["-f", str(COMPOSE), "-f", str(OWNED_COMPOSE)]
-        environment = _compose_environment(project, owner, config)
-        if dev_mode := os.environ.get("ODOO_DEV"):
-            environment["ODOO_DEV"] = dev_mode
-        return project, marker, files, environment
+        return _completed_configuration(project, marker)
 
     if status in ("creating", "installing", "running", "seeded", "handoff", "failed"):
         if command not in ("stop", "down", "logs", "ps"):

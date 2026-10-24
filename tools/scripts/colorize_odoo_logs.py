@@ -13,15 +13,16 @@ ODOO_LEVEL = re.compile(
     rb"(?P<level>DEBUG|INFO|SUCCESS|WARNING|WARN|ERROR|CRITICAL|FATAL)"
     rb"(?P<after>(?:\x1b\[[0-9;]*m)*)(?=\s)"
 )
+ERROR_COLOR = b"\x1b[1;31m"
 LEVEL_COLORS = {
     b"DEBUG": b"\x1b[2;90m",
     b"INFO": b"\x1b[1;36m",
     b"SUCCESS": b"\x1b[1;32m",
     b"WARNING": b"\x1b[1;33m",
     b"WARN": b"\x1b[1;33m",
-    b"ERROR": b"\x1b[1;31m",
-    b"CRITICAL": b"\x1b[1;31m",
-    b"FATAL": b"\x1b[1;31m",
+    b"ERROR": ERROR_COLOR,
+    b"CRITICAL": ERROR_COLOR,
+    b"FATAL": ERROR_COLOR,
 }
 RESET = b"\x1b[0m"
 

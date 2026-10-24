@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.services.viettel_sign_client import ViettelSignE
 
 # Statuses of a signing job item that still waits: to be tried, being tried, or given up until someone retries it.
 QUEUED_STATUSES = ("pending", "running", "failed")
+NOT_IN_OPERATOR = "not in"
 
 
 # Ký số: a fully signed document prints as the PDF Viettel Sign signed.
@@ -88,7 +89,7 @@ class DigitalSigningMixin(models.AbstractModel):
         if operator in ("=", "!="):
             values = [value] if value else []
             includes_false = not value
-        elif operator in ("in", "not in"):
+        elif operator in ("in", NOT_IN_OPERATOR):
             values = list(value or [])
             includes_false = False in values
             values = [value for value in values if value]
@@ -106,14 +107,14 @@ class DigitalSigningMixin(models.AbstractModel):
             active_ids = self._current_signature_document_ids(
                 self.env[MODEL_DIGITAL_SIGNATURE].sudo().search([("document_model", "=", self._name)])
             )
-            return ["|", ("id", "in", sorted(matching_ids)), ("id", "not in", sorted(active_ids))]
+            return ["|", ("id", "in", sorted(matching_ids)), ("id", NOT_IN_OPERATOR, sorted(active_ids))]
 
         if includes_false:
             active_ids = self._current_signature_document_ids(
                 self.env[MODEL_DIGITAL_SIGNATURE].sudo().search([("document_model", "=", self._name)])
             )
             return [("id", "in", sorted(active_ids - matching_ids))]
-        return [("id", "not in", sorted(matching_ids))]
+        return [("id", NOT_IN_OPERATOR, sorted(matching_ids))]
 
     def _current_signature_document_ids(self, signatures):
         documents = self.sudo().browse(signatures.mapped("document_id")).exists()
