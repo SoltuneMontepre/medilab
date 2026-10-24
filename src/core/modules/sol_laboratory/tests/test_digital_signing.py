@@ -78,6 +78,9 @@ class TestDigitalSigning(SigningCase):
         self.assertTrue(signature)
         self.assertEqual(report.digital_signed_at, signature.signed_at)
         self.assertEqual(self.env[report._name].search([("digital_signature_id", "=", signature.id)]), report)
+        self.assertEqual(self.env[report._name].search([("digital_signature_id", "in", [signature.id])]), report)
+        self.assertIn(report, self.env[report._name].search([("digital_signature_id", "!=", False)]))
+        self.assertNotIn(report, self.env[report._name].search([("digital_signature_id", "not in", [signature.id])]))
 
         changed_at = fields.Datetime.subtract(signature.signed_at, minutes=1)
         signature.sudo().write({"signed_at": changed_at})
