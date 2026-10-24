@@ -8,6 +8,7 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_JOB_ITEM, MODEL_SC
 
 JOB_KEY = "test.echo"
 HANDLER = "_handle_test_echo"
+FINDER = "_queue_test_echo"
 JOB_LOGGER = "odoo.addons.sol_laboratory.models.system.scheduled_job"
 
 
@@ -21,6 +22,11 @@ class JobsCase(TransactionCase):
 
     def handle_with(self, handler):
         patcher = patch.object(type(self.env[MODEL_SCHEDULED_JOB]), HANDLER, handler, create=True)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def find_with(self, finder):
+        patcher = patch.object(type(self.env[MODEL_SCHEDULED_JOB]), FINDER, finder, create=True)
         patcher.start()
         self.addCleanup(patcher.stop)
 
