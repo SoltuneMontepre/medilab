@@ -1548,8 +1548,8 @@ model TaskReassignTask {
   @@map("medilab_task_medilab_task_reassign_rel")
 }
 
-/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task, a machine booking or a location booking on the attendees' calendars. Its alarm sends the reminder before it starts.
-/// Events that book one location do not overlap: an exclusion constraint on (location_id, time range) where location_id is set, using btree_gist.
+/// Odoo's calendar event (calendar.event), shown with the columns this schema uses: the planned time of a task, a machine booking or a location booking on the attendees' calendars. It has no Odoo alarm: the reminder job reminds of it before it starts.
+/// Events that book one location do not overlap: an exclusion constraint on (location_id, time range) where location_id is set and the event is active, using btree_gist.
 model CalendarEvent {
   /// Row identifier.
   id        Int             @id @default(autoincrement())

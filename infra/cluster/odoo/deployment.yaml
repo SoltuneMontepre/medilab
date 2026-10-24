@@ -1,5 +1,5 @@
 # One replica while the cluster runs on Server A alone. A release rolls out one replica at a time.
-# Sessions live in the emptyDir, so users log in again when a replica is replaced.
+# Sessions and cached attachments live in the emptyDir; attachments are backed by the medilab-filestore bucket.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,6 +36,9 @@ spec:
       containers:
         - name: odoo
           image: ghcr.io/soltunemontepre/medilab:sha-8e6924723d1121f7e90a11c5074220bac4e23a62
+          envFrom:
+            - secretRef:
+                name: filestore-bucket
           env:
             - name: HOST
               value: medilab-db-rw
@@ -49,6 +52,12 @@ spec:
                 secretKeyRef:
                   name: medilab-db-app
                   key: password
+            - name: BUCKET_LABORATORY_NAME
+              value: medilab-filestore
+            - name: BUCKET_LABORATORY_REGION
+              value: us-east-1
+            - name: BUCKET_FILESTORE
+              value: "1"
           ports:
             - name: http
               containerPort: 8069
@@ -74,8 +83,8 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "1"
-              memory: 2Gi
+              cpu: "3"
+              memory: 4Gi
             limits:
               memory: 5Gi
           volumeMounts:
@@ -84,14 +93,9 @@ spec:
               readOnly: true
             - name: data
               mountPath: /var/lib/odoo
-            - name: filestore
-              mountPath: /var/lib/odoo/filestore
       volumes:
         - name: config
           secret:
             secretName: odoo-config
         - name: data
           emptyDir: {}
-        - name: filestore
-          persistentVolumeClaim:
-            claimName: filestore

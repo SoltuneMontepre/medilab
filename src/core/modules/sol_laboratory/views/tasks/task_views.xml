@@ -10,6 +10,7 @@
                 <field name="type_id" optional="show" />
                 <field name="deadline" widget="remaining_days" invisible="status in ('done', 'cancelled')" />
                 <field name="planned_start" optional="hide" />
+                <field name="sampling_location_id" optional="show" />
                 <field name="department_id" optional="show" groups="sol_laboratory.group_permission_task_read_all" />
                 <field name="assignee_id" optional="show" />
                 <field name="done_at" optional="hide" />
@@ -120,6 +121,7 @@
                             <field name="department_id" readonly="id" />
                             <field name="assignee_id" readonly="id" required="not id" />
                             <field name="assigned_by_id" invisible="not assigned_by_id" />
+                            <field name="sampling_location_id" invisible="not sampling_location_id" />
                         </group>
                         <group>
                             <field name="deadline" required="not id" />
@@ -139,6 +141,7 @@
                                     <field name="sequence" />
                                     <field name="duration_minutes" />
                                     <field name="instruction" />
+                                    <field name="location_id" />
                                     <field name="note" />
                                 </list>
                             </field>
@@ -167,6 +170,7 @@
                 <field name="status" />
                 <field name="deadline" />
                 <field name="assignee_id" />
+                <field name="sampling_location_id" invisible="not sampling_location_id" />
             </calendar>
         </field>
     </record>
@@ -181,6 +185,7 @@
                 date_deadline="deadline"
                 status_field="status"
                 row_field="assignee_id"
+                subtitle_field="sampling_location_id"
                 open_action="action_open_document"
                 scale="week"
             >

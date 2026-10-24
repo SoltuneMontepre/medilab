@@ -2051,88 +2051,28 @@ pub(crate) async fn run_upload_job_with(
             // Session cũ: dùng đúng part size server đã cấp lúc prepare (lưu cùng session).
             (existing, job.part_size.unwrap_or(LEGACY_PART_SIZE))
         }
-        _ => {
-            // Hash có thể lâu: kiểm lại quyền sở hữu ngay trước khi mở session trên server.
-            ensure_owned(db, owned)?;
-            let prepared = client
-                .prepare(
-                    remote_folder_id,
-                    &job.relative_path,
-                    size,
-                    &expected,
-                    job.remote_version_id.unwrap_or(0),
-                )
-                .await?;
-            if prepared.deduplicated {
-                verify_content_without_stream(db, owned, &path, &expected).await?;
-                // Hash của job và hoàn tất trong CÙNG transaction đã kiểm quyền sở hữu.
-                db.with_running_job(owned, |conn| {
-                    set_job_content_hash_on(conn, owned.job_id, &expected)?;
-                    transition_running_job_on(
-                        conn,
-                        owned.job_id,
-                        "completed",
-                        None,
-                        job.attempt_count,
-                        None,
-                        Some(prepared.file_id),
-                        prepared.version_id,
-                    )
-                })?
-                .ok_or(AppError::Superseded)?;
-                let local_changed_after_read =
-                    local_changed_after_read(db, owned, &path, &initial, &expected);
-                return Ok(UploadReport {
-                    outcome: UploadOutcome::Deduplicated,
-                    content_hash: expected,
-                    parts_uploaded: 0,
-                    total_parts: 0,
-                    local_changed_after_read,
-                });
+        _ => match start_upload_session(
+            client,
+            db,
+            job,
+            owned,
+            remote_folder_id,
+            &path,
+            &initial,
+            &expected,
+            size,
+        )
+        .await?
+        {
+            SessionStart::Finished(report) => return Ok(report),
+            SessionStart::Open {
+                session_id,
+                part_size,
+            } => {
+                etags.clear();
+                (session_id, part_size)
             }
-            let session_id = prepared
-                .session_id
-                .ok_or_else(|| AppError::Message("Thiếu phiên tải lên".into()))?;
-            if prepared.object_reused {
-                verify_content_without_stream(db, owned, &path, &expected).await?;
-                // Lưu session chỉ khi còn sở hữu job; không thì không finalize.
-                db.with_running_job(owned, |conn| {
-                    save_job_session_on(conn, owned.job_id, session_id, "[]", &expected, None)
-                })?
-                .ok_or(AppError::Superseded)?;
-                let finalized = client.finalize(session_id, &[]).await?;
-                record_finalize_result(db, job, owned, &finalized)?;
-                let local_changed_after_read =
-                    local_changed_after_read(db, owned, &path, &initial, &expected);
-                return Ok(UploadReport {
-                    outcome: UploadOutcome::Finalized(finalized),
-                    content_hash: expected,
-                    parts_uploaded: 0,
-                    total_parts: 0,
-                    local_changed_after_read,
-                });
-            }
-            etags.clear();
-            db.with_running_job(owned, |conn| {
-                save_job_session_on(
-                    conn,
-                    owned.job_id,
-                    session_id,
-                    "[]",
-                    &expected,
-                    Some(prepared.part_size.max(1)),
-                )
-            })?
-            .ok_or(AppError::Superseded)?;
-            tracing::info!(
-                job_id = job.id,
-                logical_path = %job.relative_path,
-                upload_session_id = session_id,
-                file_id = prepared.file_id,
-                "prepare completed"
-            );
-            (session_id, prepared.part_size.max(1))
-        }
+        },
     };
     let total_parts = ((size + part_size - 1) / part_size).max(1);
     tracing::Span::current().record("part_count", total_parts);
@@ -2246,32 +2186,26 @@ pub(crate) async fn run_upload_job_with(
         // Presign sát lúc dùng, cho các part còn thiếu của cửa sổ sắp tới, và xin lại khi URL sắp
         // hết hạn theo tuổi thật của nó.
         if !urls.contains_key(&part_number) || Instant::now() >= urls_valid_until {
-            let batch = window.max(PRESIGN_BATCH) as i64;
-            let batch_end = (part_number + batch - 1).min(total_parts);
-            let numbers: Vec<i64> = missing_part_numbers(batch_end, &done_parts)
-                .into_iter()
-                .filter(|number| *number >= part_number)
-                .collect();
-            tracing::info!(
-                job_id = job.id,
-                logical_path = %job.relative_path,
-                upload_session_id = session_id,
-                part_numbers = ?numbers,
-                "presigning parts"
-            );
-            let presigned_at = Instant::now();
-            let parts = match client.presign(session_id, &numbers).await {
-                Ok(parts) => parts,
+            match presign_window(
+                client,
+                job,
+                session_id,
+                part_number,
+                window,
+                total_parts,
+                &done_parts,
+            )
+            .await
+            {
+                Ok((fresh, valid_until)) => {
+                    urls = fresh;
+                    urls_valid_until = valid_until;
+                }
                 Err(err) => {
                     failure = Some(err);
                     break;
                 }
-            };
-            urls_valid_until = presigned_at + presigned_urls_lifetime(&parts);
-            urls = parts
-                .into_iter()
-                .map(|part| (part.part_number, part.url))
-                .collect();
+            }
         }
         let Some(part_url) = urls.remove(&part_number) else {
             failure = Some(AppError::Message(format!(
@@ -2298,18 +2232,8 @@ pub(crate) async fn run_upload_job_with(
         ));
     }
     if let Some(err) = failure {
-        // Giữ ETag của các PUT đã xong nhưng chưa kịp ghi; không chờ PUT còn dở. Drop
-        // `in_flight` hủy các PUT dở (không có ETag, sẽ gửi lại khi resume).
-        while let Some(result) = in_flight.try_join_next() {
-            if let Ok((part_number, etag, len)) = flatten_part_result(result) {
-                completed.insert(part_number, etag);
-                done += len;
-            }
-        }
-        in_flight.abort_all();
-        drop(in_flight);
-        persist_upload_progress(
-            db, owned, session_id, &completed, &expected, part_size, done,
+        save_progress_after_failure(
+            db, owned, session_id, completed, done, in_flight, &expected, part_size,
         )
         .await?;
         return Err(err);
@@ -2350,6 +2274,168 @@ pub(crate) async fn run_upload_job_with(
         total_parts,
         local_changed_after_read,
     })
+}
+
+/// Kết quả mở session của một lượt upload.
+#[allow(clippy::large_enum_variant)]
+enum SessionStart {
+    /// Server đã có nội dung (dedup) hoặc object đã có sẵn: lượt upload kết thúc không cần PUT part.
+    Finished(UploadReport),
+    /// Session mới đã lưu, upload từng part theo `part_size`.
+    Open { session_id: i64, part_size: i64 },
+}
+
+/// Hỏi server mở session cho nội dung `expected` của tệp.
+#[allow(clippy::too_many_arguments)]
+async fn start_upload_session(
+    client: &ApiClient,
+    db: &Db,
+    job: &JobRow,
+    owned: &RunningJob,
+    remote_folder_id: i64,
+    path: &Path,
+    initial: &LocalMetadata,
+    expected: &str,
+    size: i64,
+) -> AppResult<SessionStart> {
+    // Hash có thể lâu: kiểm lại quyền sở hữu ngay trước khi mở session trên server.
+    ensure_owned(db, owned)?;
+    let prepared = client
+        .prepare(
+            remote_folder_id,
+            &job.relative_path,
+            size,
+            expected,
+            job.remote_version_id.unwrap_or(0),
+        )
+        .await?;
+    if prepared.deduplicated {
+        verify_content_without_stream(db, owned, path, expected).await?;
+        // Hash của job và hoàn tất trong CÙNG transaction đã kiểm quyền sở hữu.
+        db.with_running_job(owned, |conn| {
+            set_job_content_hash_on(conn, owned.job_id, expected)?;
+            transition_running_job_on(
+                conn,
+                owned.job_id,
+                "completed",
+                None,
+                job.attempt_count,
+                None,
+                Some(prepared.file_id),
+                prepared.version_id,
+            )
+        })?
+        .ok_or(AppError::Superseded)?;
+        let local_changed_after_read = local_changed_after_read(db, owned, path, initial, expected);
+        return Ok(SessionStart::Finished(UploadReport {
+            outcome: UploadOutcome::Deduplicated,
+            content_hash: expected.to_string(),
+            parts_uploaded: 0,
+            total_parts: 0,
+            local_changed_after_read,
+        }));
+    }
+    let session_id = prepared
+        .session_id
+        .ok_or_else(|| AppError::Message("Thiếu phiên tải lên".into()))?;
+    if prepared.object_reused {
+        verify_content_without_stream(db, owned, path, expected).await?;
+        // Lưu session chỉ khi còn sở hữu job; không thì không finalize.
+        db.with_running_job(owned, |conn| {
+            save_job_session_on(conn, owned.job_id, session_id, "[]", expected, None)
+        })?
+        .ok_or(AppError::Superseded)?;
+        let finalized = client.finalize(session_id, &[]).await?;
+        record_finalize_result(db, job, owned, &finalized)?;
+        let local_changed_after_read = local_changed_after_read(db, owned, path, initial, expected);
+        return Ok(SessionStart::Finished(UploadReport {
+            outcome: UploadOutcome::Finalized(finalized),
+            content_hash: expected.to_string(),
+            parts_uploaded: 0,
+            total_parts: 0,
+            local_changed_after_read,
+        }));
+    }
+    db.with_running_job(owned, |conn| {
+        save_job_session_on(
+            conn,
+            owned.job_id,
+            session_id,
+            "[]",
+            expected,
+            Some(prepared.part_size.max(1)),
+        )
+    })?
+    .ok_or(AppError::Superseded)?;
+    tracing::info!(
+        job_id = job.id,
+        logical_path = %job.relative_path,
+        upload_session_id = session_id,
+        file_id = prepared.file_id,
+        "prepare completed"
+    );
+    Ok(SessionStart::Open {
+        session_id,
+        part_size: prepared.part_size.max(1),
+    })
+}
+
+/// Xin URL presigned cho các part còn thiếu của cửa sổ bắt đầu từ `part_number`, và trả cùng thời
+/// điểm lô URL hết hạn.
+async fn presign_window(
+    client: &ApiClient,
+    job: &JobRow,
+    session_id: i64,
+    part_number: i64,
+    window: usize,
+    total_parts: i64,
+    done_parts: &HashSet<i64>,
+) -> AppResult<(HashMap<i64, String>, Instant)> {
+    let batch = window.max(PRESIGN_BATCH) as i64;
+    let batch_end = (part_number + batch - 1).min(total_parts);
+    let numbers: Vec<i64> = missing_part_numbers(batch_end, done_parts)
+        .into_iter()
+        .filter(|number| *number >= part_number)
+        .collect();
+    tracing::info!(
+        job_id = job.id,
+        logical_path = %job.relative_path,
+        upload_session_id = session_id,
+        part_numbers = ?numbers,
+        "presigning parts"
+    );
+    let presigned_at = Instant::now();
+    let parts = client.presign(session_id, &numbers).await?;
+    let valid_until = presigned_at + presigned_urls_lifetime(&parts);
+    let urls = parts
+        .into_iter()
+        .map(|part| (part.part_number, part.url))
+        .collect();
+    Ok((urls, valid_until))
+}
+
+/// Lượt upload dừng giữa chừng: ghi các PUT đã xong nhưng chưa kịp ghi; không chờ PUT còn dở.
+/// Drop `in_flight` hủy các PUT dở (không có ETag, sẽ gửi lại khi resume).
+#[allow(clippy::too_many_arguments)]
+async fn save_progress_after_failure(
+    db: &Db,
+    owned: &RunningJob,
+    session_id: i64,
+    mut completed: BTreeMap<i64, String>,
+    mut done: i64,
+    mut in_flight: JoinSet<AppResult<(i64, String, i64)>>,
+    expected: &str,
+    part_size: i64,
+) -> AppResult<()> {
+    while let Some(result) = in_flight.try_join_next() {
+        if let Ok((part_number, etag, len)) = flatten_part_result(result) {
+            completed.insert(part_number, etag);
+            done += len;
+        }
+    }
+    in_flight.abort_all();
+    drop(in_flight);
+    persist_upload_progress(db, owned, session_id, &completed, expected, part_size, done).await
 }
 
 /// Báo cáo một lượt download: số byte đã tiếp tục bằng Range (0 nếu tải từ đầu hoặc không cần

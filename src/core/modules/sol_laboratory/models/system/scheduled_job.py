@@ -83,9 +83,13 @@ class ScheduledJob(models.Model):
     # The most recent run.
     last_run_id = fields.Many2one(MODEL_JOB_RUN, compute="_compute_last_run")
     # Result of the most recent run.
-    last_run_status = fields.Selection(related="last_run_id.status")
+    last_run_status = fields.Selection(
+        selection=lambda model: model.env[MODEL_JOB_RUN]._fields["status"]._description_selection(model.env),
+        compute="_compute_last_run_status",
+        string="Last Run Status",
+    )
     # Seconds the most recent run took.
-    last_run_duration = fields.Float(related="last_run_id.duration")
+    last_run_duration = fields.Float(compute="_compute_last_run_duration", string="Last Run Duration")
     # Items waiting to be done.
     pending_count = fields.Integer(compute="_compute_counts")
     # Items that failed their last attempt.
@@ -105,6 +109,16 @@ class ScheduledJob(models.Model):
     def _compute_last_run(self):
         for job in self:
             job.last_run_id = job.run_ids.sorted(key=lambda run: (run.started_at, run.id), reverse=True)[:1]
+
+    @api.depends("run_ids.started_at", "run_ids.status")
+    def _compute_last_run_status(self):
+        for job in self:
+            job.last_run_status = job.last_run_id.status or False
+
+    @api.depends("run_ids.started_at", "run_ids.ended_at")
+    def _compute_last_run_duration(self):
+        for job in self:
+            job.last_run_duration = job.last_run_id.duration
 
     def _compute_counts(self):
         counts = {
@@ -217,7 +231,8 @@ class ScheduledJob(models.Model):
             job._progress(remaining=0)
             return run
         try:
-            items = job._claim(now)
+            # The items the run's finder queued may be stamped a second after now.
+            items = job._claim(fields.Datetime.now())
         except Exception:
             run._finish("failed", traceback.format_exc())
             _logger.exception("Job %s could not claim its items", job.key)
@@ -258,7 +273,7 @@ class ScheduledJob(models.Model):
         )
         if self.run_requested_by_id:
             self.write({"run_requested_by_id": False, "run_requested_at": False})
-        self._progress(remaining=self._due_count(now))
+        self._progress(remaining=self._due_count(fields.Datetime.now()))
         return run
 
     def _release_abandoned(self, run, now):
@@ -274,19 +289,21 @@ class ScheduledJob(models.Model):
 
     def _claim(self, now):
         # The ORM cannot express SKIP LOCKED, which lets two workers claim different items without waiting.
+        # ARRAY() selects the batch once: under IN, a nested loop plan runs the select again for each row, its lock
+        # skips the rows this update already claimed, and the update claims more than the batch size.
         items = self.env[MODEL_JOB_ITEM]
         items.flush_model()
         self.env.cr.execute(
             SQL(
                 """
                 UPDATE %(table)s SET status = 'running', claimed_at = %(now)s
-                WHERE id IN (
+                WHERE id = ANY(ARRAY(
                     SELECT id FROM %(table)s
                     WHERE job_id = %(job)s AND status = 'pending' AND next_attempt_at <= %(now)s
                     ORDER BY next_attempt_at, id
                     LIMIT %(limit)s
                     FOR UPDATE SKIP LOCKED
-                )
+                ))
                 RETURNING id
                 """,
                 table=SQL.identifier(items._table),

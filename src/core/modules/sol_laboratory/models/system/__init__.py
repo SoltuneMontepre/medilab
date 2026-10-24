@@ -11,6 +11,7 @@ from . import (
     ir_access,
     ir_actions_act_window_view,
     ir_actions_report,
+    ir_attachment,
     ir_binary,
     ir_config_parameter,
     ir_mail_server,

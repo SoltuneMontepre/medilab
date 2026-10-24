@@ -31,6 +31,7 @@
         "views/master_data/accreditation_certificate_import_views.xml",
         "views/master_data/chemical_views.xml",
         "views/master_data/customer_views.xml",
+        "views/master_data/location_views.xml",
         "views/master_data/machine_views.xml",
         "views/master_data/measurement_unit_views.xml",
         "views/master_data/parameter_group_views.xml",
@@ -80,6 +81,7 @@
         "views/system/hr_department_views.xml",
         "views/system/person_views.xml",
         "views/system/role_views.xml",
+        "views/tasks/calendar_event_views.xml",
         "views/tasks/task_type_views.xml",
         "views/tasks/task_reassign_views.xml",
         "views/tasks/task_views.xml",
@@ -109,6 +111,7 @@
     "assets": {
         "web.assets_backend": [
             "sol_laboratory/static/src/fields/*",
+            "sol_laboratory/static/src/master_data/location_map/*",
             "sol_laboratory/static/src/views/control_panel/*",
             "sol_laboratory/static/src/views/form/*",
             "sol_laboratory/static/src/views/timeline/*",

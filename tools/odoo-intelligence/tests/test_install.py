@@ -43,6 +43,46 @@ def test_verified_archive_is_published_with_contents(tmp_path):
     assert (tmp_path / "release/stdlib/builtins.pyi").read_text() == "class object: ..."
 
 
+def test_install_can_leave_its_success_message_to_the_task_logger(tmp_path, monkeypatch, capsys):
+    import odoo_intelligence.install as installer
+
+    monkeypatch.setattr(installer, "install_release", lambda workspace: None)
+    monkeypatch.setattr(installer, "install_source", lambda workspace: None)
+    monkeypatch.setattr("odoo_intelligence.prerequisites.install_terraform", lambda workspace: None)
+
+    installer.install(tmp_path, report_status=False)
+
+    assert capsys.readouterr().out == ""
+
+
+def test_install_reports_success_by_default(tmp_path, monkeypatch, capsys):
+    import odoo_intelligence.install as installer
+    from odoo_intelligence.workspace import RELEASE
+
+    monkeypatch.setattr(installer, "install_release", lambda workspace: None)
+    monkeypatch.setattr(installer, "install_source", lambda workspace: None)
+    monkeypatch.setattr("odoo_intelligence.prerequisites.install_terraform", lambda workspace: None)
+
+    installer.install(tmp_path)
+
+    assert capsys.readouterr().out == (
+        f"OdooLS {RELEASE['version']} and Odoo source ready in {tmp_path / '.local' / 'odoo-intelligence'}.\n"
+    )
+
+
+def test_install_cli_can_suppress_only_its_success_status(tmp_path, monkeypatch):
+    import sys
+    from unittest.mock import patch
+
+    from odoo_intelligence import cli
+
+    monkeypatch.setattr(sys, "argv", ["medilab-odoo", "install", "--root", str(tmp_path), "--quiet-status"])
+    with patch("odoo_intelligence.install.install") as install:
+        cli.main()
+
+    install.assert_called_once_with(tmp_path, report_status=False)
+
+
 def test_an_existing_mirror_must_contain_all_tracked_addons(tmp_path, monkeypatch):
     import subprocess
 

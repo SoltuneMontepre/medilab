@@ -22,9 +22,18 @@ tasks:
       - task: dev:compose-env
 
   dev:compose-env:
-    desc: "Set this checkout's compose project in tools/infrastructure/.env from its folder name, so a worktree's containers never take the main checkout's"
+    desc: "Save this checkout's Compose project or preserve its explicitly selected fresh demo identity"
+    silent: true
     cmds:
-      - "{{.UV}} run python tools/scripts/compose_env.py"
+      - |
+        . {{.LOG}}
+        if message=$({{.UV}} run python tools/scripts/compose_env.py); then
+          log_info "$message"
+        else
+          status=$?
+          log_error "Could not set the Compose project for this checkout."
+          exit "$status"
+        fi
 
   doppler:
     desc: "Authenticate Doppler (paste token or browser login) and select the project and config"
@@ -74,8 +83,16 @@ tasks:
   dev:odoo-links:
     internal: true
     silent: true
+    interactive: true
     cmds:
-      - "{{.UV}} run python {{.TYPECHECK_DIR}}/link_addons.py {{.ODOO_SOURCE_DIR}} {{.MODULES_DIR}} {{.ODOO_ADDONS | join \" \"}}"
+      - |
+        . {{.LOG}}
+        {{.UV}} run python {{.TYPECHECK_DIR}}/link_addons.py {{.ODOO_SOURCE_DIR}} {{.MODULES_DIR}} {{.ODOO_ADDONS | join " "}}
+        status=$?
+        if [ "$status" -ne 0 ]; then
+          log_error "Could not link the Odoo addons and MediLab modules."
+          exit "$status"
+        fi
 
   typecheck:
     desc: "Type check the modules with pyright"

@@ -135,7 +135,6 @@ A subcontractor is a company contact with the details the laboratory needs to se
 | No expiry date        | A subcontractor with no accreditation expiry date can be chosen.                                  |
 | Contact person        | A subcontractor has a default contact person, usually one of its people; any person contact is allowed. |
 | Choosing the tester   | For each order, the scheduling system suggests which way of testing is used, in-house or by which subcontractor. The laboratory usually decides and can change it. |
-| Disclosure            | Results tested by a subcontractor are marked as subcontracted on the report.                       |
 
 Acceptance criteria:
 

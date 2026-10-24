@@ -52,10 +52,10 @@
                                     <button type="button" class="o_task_ribbon_block"
                                             t-att-class="'o_task_status_' + block.status"
                                             t-att-style="block.style"
-                                            t-att-title="block.name + ' ' + block.time"
+                                            t-att-title="block.name + ' ' + block.detail"
                                             t-on-click="() => this.openTask(block)">
                                         <span class="o_task_ribbon_block_name text-truncate" t-out="block.name"/>
-                                        <span class="o_task_ribbon_block_time text-truncate" t-out="block.time"/>
+                                        <span class="o_task_ribbon_block_time text-truncate" t-out="block.detail"/>
                                     </button>
                                 </t>
                                 <p t-if="!ribbon.blocks.length" class="o_task_ribbon_empty">
@@ -73,6 +73,10 @@
                                     <button type="button" class="o_task_row_main" t-on-click="() => this.openTask(task)">
                                         <span class="o_task_row_name" t-out="task.name"/>
                                         <span class="o_task_row_due" t-out="this.dueLabel(task)"/>
+                                        <span t-if="task.location" class="o_task_row_location">
+                                            <i class="oi" data-icon="location_on" aria-hidden="true"/>
+                                            <t t-out="task.location"/>
+                                        </span>
                                     </button>
                                     <button t-if="next" type="button" class="btn btn-sm"
                                             t-att-class="next.className"

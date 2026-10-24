@@ -21,12 +21,15 @@ from odoo.addons.sol_laboratory.services.laboratory_file_error import Laboratory
 class LaboratoryFileHistory(models.Model):
     _inherit = MODEL_LABORATORY_FILE
 
+    def _not_a_version(self):
+        return LaboratoryFileError(NOT_FOUND, self.env._("This version is not a version of the file."))
+
     def _version_of(self, version_id):
         """The version of the id of this file; a version of another file, or of no id, is not found."""
         self.ensure_one()
         version = self.sudo().version_ids.filtered(lambda row: row.id == version_id)
         if not version:
-            raise LaboratoryFileError(NOT_FOUND, self.env._("This version is not a version of the file."))
+            raise self._not_a_version()
         return version.with_env(self.env)
 
     def _download_address(self, version):
@@ -36,7 +39,7 @@ class LaboratoryFileHistory(models.Model):
         self.ensure_one()
         self._check_file_access(FILE_READ)
         if version.sudo().file_id != self.sudo():
-            raise LaboratoryFileError(NOT_FOUND, self.env._("This version is not a version of the file."))
+            raise self._not_a_version()
         minutes = self.env[MODEL_RES_CONFIG_SETTINGS]._get_parameter("laboratory_file_url_minutes")
         address = version._read_address(minutes * 60)
         self.sudo()._audit("download", self.env._("Version %s", version.sudo().number))
@@ -49,7 +52,7 @@ class LaboratoryFileHistory(models.Model):
         self.ensure_one()
         self._check_file_access(FILE_WRITE)
         if version.sudo().file_id != self.sudo():
-            raise LaboratoryFileError(NOT_FOUND, self.env._("This version is not a version of the file."))
+            raise self._not_a_version()
         versions = self.env[MODEL_LABORATORY_FILE_VERSION]
         if device and key:
             restored = versions._created_with_key(device, key)

@@ -62,7 +62,7 @@
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <h1><field name="code" /></h1>
+                        <h1><field name="code" required="0" placeholder="Filled from the sequence when left empty" /></h1>
                     </div>
                     <group>
                         <group>

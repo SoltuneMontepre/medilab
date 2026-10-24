@@ -1,4 +1,4 @@
-"""The laboratory files bucket: a private S3-compatible bucket used for nothing else.
+"""The laboratory files bucket: a private S3-compatible bucket that also holds Odoo's filestore when it is turned on.
 
 Odoo calls it at its address with a key that reaches this bucket only. Computers and the editing service never get a
 key, only presigned addresses on the bucket's public address. Every object is written once, under a random key the
@@ -33,6 +33,7 @@ from odoo.http.stream import content_disposition
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import (
     ACCESS_KEY_VARIABLE,
     ADDRESS_VARIABLE,
+    FILESTORE_VARIABLE,
     NAME_VARIABLE,
     PART_SIZE,
     PUBLIC_ADDRESS_VARIABLE,
@@ -89,6 +90,10 @@ def settings():
         )
     ]
     return Settings(*values) if all(values) else None
+
+
+def filestore_enabled():
+    return os.environ.get(FILESTORE_VARIABLE) == "1" and settings() is not None
 
 
 @functools.lru_cache(maxsize=8)
@@ -321,7 +326,27 @@ def _write_part(client, bucket, key, upload_id, number, data):
         etag = client.upload_part(
             Bucket=bucket.name, Key=key, UploadId=upload_id, PartNumber=number, Body=data, ChecksumSHA256=checksum
         )["ETag"]
-    return {"PartNumber": number, "ETag": etag, "ChecksumSHA256": checksum}
+    return {"PartNumber": number, "ETag": etag}
+
+
+def save(key, file):
+    try:
+        with read(key) as chunks:
+            for chunk in chunks:
+                file.write(chunk)
+    except ClientError as error:
+        if _code(error) in NOT_FOUND:
+            return False
+        raise
+    return True
+
+
+def keys(prefix):
+    bucket, client = _calls()
+    with _reaching():
+        for page in client.get_paginator("list_objects_v2").paginate(Bucket=bucket.name, Prefix=prefix):
+            for item in page.get("Contents", []):
+                yield item["Key"], item["LastModified"]
 
 
 def objects():

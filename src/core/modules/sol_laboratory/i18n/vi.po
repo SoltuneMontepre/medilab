@@ -35,6 +35,13 @@ msgstr "%(document_type)s không có quyền %(action)s."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid ""
+"%(location)s is already booked from %(start)s to %(stop)s: %(booking)s."
+msgstr "%(location)s đã được đặt từ %(start)s đến %(stop)s: %(booking)s."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
 msgid "%(path)s, %(status)s"
 msgstr "%(path)s, %(status)s"
@@ -69,6 +76,12 @@ msgstr "%(user)s đã khóa %(file)s đến %(until)s."
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "%s cannot be booked."
+msgstr "Không thể đặt %s."
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
 "%s does not tell editing from archiving yet, so it has no edit or "
@@ -90,6 +103,12 @@ msgid ""
 msgstr ""
 "%s không có phòng ban, nên quyền trên loại chứng từ này không thể "
 "giới hạn trong phòng ban của nhân sự."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/master_data/location_map/location_map.js:0
+msgid "%s has no map. Add its picture to place the locations inside it."
+msgstr "%s chưa có bản đồ. Thêm hình ảnh để đặt các vị trí bên trong lên đó."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -213,6 +232,11 @@ msgid "'Label %s' % object.code"
 msgstr "'Tem %s' % object.code"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_calendar_event_form_quick_create_location
+msgid "<i class=\"oi oi-filled\" data-icon=\"meeting_room\" title=\"Booked Location\"/>"
+msgstr "<i class=\"oi oi-filled\" data-icon=\"meeting_room\" title=\"Vị trí được đặt\"/>"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_sample_label
 msgid "<span>Due</span>"
 msgstr "<span>Hạn</span>"
@@ -317,6 +341,11 @@ msgid "A level with signatures cannot be deleted. Signatures: %s"
 msgstr "Không thể xóa cấp đã có chữ ký. Chữ ký: %s"
 
 #. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_location_booking_reminder
+msgid "A location you booked or are invited to is about to be used"
+msgstr "Vị trí bạn đã đặt hoặc được mời sắp đến giờ sử dụng"
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock_settings.py:0
 msgid "A lock on a laboratory file must last at least 1 minute."
@@ -376,6 +405,11 @@ msgstr "Một nhân sự"
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid "A person who signed cannot be deleted; archive them instead. Signatures: %s"
 msgstr "Không thể xóa nhân sự đã ký; hãy lưu trữ nhân sự. Chữ ký: %s"
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_map_point_range
+msgid "A point on a map lies between 0 and 1 of the image's width and height."
+msgstr "Một điểm trên bản đồ phải nằm trong khoảng từ 0 đến 1 theo chiều rộng và chiều cao của hình ảnh."
 
 #. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_regulation_limit_regulation_parameter_unique
@@ -570,6 +604,7 @@ msgstr "Giao diện của hành động cửa sổ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__active
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__active
 msgid "Active"
 msgstr "Đang hoạt động"
 
@@ -858,6 +893,16 @@ msgid "Archive chemicals"
 msgstr "Lưu trữ hóa chất"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_archive_all
+msgid "Archive company locations"
+msgstr "Lưu trữ vị trí của công ty"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_archive_own_department
+msgid "Archive company locations of their department"
+msgstr "Lưu trữ vị trí của công ty thuộc phòng ban mình"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_archive_all
 msgid "Archive customers"
 msgstr "Lưu trữ khách hàng"
@@ -976,6 +1021,8 @@ msgstr "Lưu trữ cách thử của phòng ban mình"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__archived
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Archived"
 msgstr "Đã lưu trữ"
 
@@ -1198,6 +1245,22 @@ msgid "Blacklisted Phone is Phone"
 msgstr "Số bị chặn là số điện thoại bàn"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__is_bookable
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
+msgid "Bookable"
+msgstr "Có thể đặt chỗ"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_calendar_event_form_quick_create_location
+msgid "Bookable location"
+msgstr "Vị trí có thể đặt chỗ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__location_id
+msgid "Booked Location"
+msgstr "Vị trí được đặt"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_bounce
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_bounce
 msgid "Bounce"
@@ -1395,6 +1458,12 @@ msgid "Claimed At"
 msgstr "Nhận Lúc"
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/master_data/location_map/location_map.js:0
+msgid "Click the map of %s where this location is."
+msgstr "Bấm vào bản đồ của %s tại chỗ của vị trí này."
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__closed
 msgid "Closed"
 msgstr "Đã đóng"
@@ -1429,6 +1498,7 @@ msgstr "Người huấn luyện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__code
 msgid "Code"
 msgstr "Mã"
 
@@ -1659,6 +1729,16 @@ msgid "Create chemicals"
 msgstr "Tạo hóa chất"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_create_all
+msgid "Create company locations"
+msgstr "Tạo vị trí của công ty"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_create_own_department
+msgid "Create company locations of their department"
+msgstr "Tạo vị trí của công ty thuộc phòng ban mình"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_create_all
 msgid "Create customers"
 msgstr "Tạo khách hàng"
@@ -1866,6 +1946,7 @@ msgstr "Tạo từ máy tính"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_uid
 msgid "Created by"
 msgstr "Người tạo"
 
@@ -1937,6 +2018,7 @@ msgstr "Người tạo"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_date
 msgid "Created on"
 msgstr "Ngày tạo"
 
@@ -2161,6 +2243,16 @@ msgid "Delete chemicals"
 msgstr "Xóa hóa chất"
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_delete_all
+msgid "Delete company locations"
+msgstr "Xóa vị trí của công ty"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_delete_own_department
+msgid "Delete company locations of their department"
+msgstr "Xóa vị trí của công ty thuộc phòng ban mình"
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_delete_all
 msgid "Delete customers"
 msgstr "Xóa khách hàng"
@@ -2288,6 +2380,8 @@ msgstr "Ghi chú gửi phiếu"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__department_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Department"
 msgstr "Phòng Ban"
 
@@ -2477,6 +2571,7 @@ msgstr "Hiển thị báo cáo PDF mẫu hóa đơn"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__display_name
 msgid "Display Name"
 msgstr "Tên hiển thị"
 
@@ -2692,6 +2787,16 @@ msgstr "Sửa cấp phê duyệt"
 #: model:medilab.permission,name:sol_laboratory.permission_chemical_edit_all
 msgid "Edit chemicals"
 msgstr "Sửa hóa chất"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_edit_all
+msgid "Edit company locations"
+msgstr "Sửa vị trí của công ty"
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_edit_own_department
+msgid "Edit company locations of their department"
+msgstr "Sửa vị trí của công ty thuộc phòng ban mình"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_edit_all
@@ -3275,6 +3380,7 @@ msgstr "Thứ Sáu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__global_location_number
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__global_location_number
 msgid "GLN"
 msgstr "GLN"
 
@@ -3314,6 +3420,7 @@ msgstr "Được cấp khi lưu mẫu"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__global_location_number
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__global_location_number
 msgid "Global Location Number"
 msgstr "Mã địa điểm toàn cầu"
 
@@ -3539,6 +3646,7 @@ msgstr "Hr trạng thái hiện diện"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__id
 msgid "ID"
 msgstr "ID"
 
@@ -3647,6 +3755,7 @@ msgstr "Bỏ qua ngày lập hoá đơn bất thường"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__image_1920
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__image_1920
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__image_1920
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__image
 msgid "Image"
 msgstr "Hình ảnh"
 
@@ -3677,6 +3786,11 @@ msgstr "Hình ảnh 256"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__image_512
 msgid "Image 512"
 msgstr "Hình ảnh 512"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__image_attachment_id
+msgid "Image File"
+msgstr "Tệp hình ảnh"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__in_my_queue
@@ -3741,6 +3855,12 @@ msgstr "Số cấp dưới gián tiếp"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__industry_id
 msgid "Industry"
 msgstr "Ngành"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__parent_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
+msgid "Inside"
+msgstr "Thuộc"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__client_uid
@@ -4122,6 +4242,16 @@ msgid "Last Run"
 msgstr "Lượt Chạy Cuối"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_duration
+msgid "Last Run Duration"
+msgstr "Thời Lượng Lần Chạy Cuối"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_status
+msgid "Last Run Status"
+msgstr "Trạng Thái Lần Chạy Cuối"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Last Saved"
@@ -4205,6 +4335,7 @@ msgstr "Hoạt động gần nhất"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_uid
 msgid "Last Updated by"
 msgstr "Cập nhật lần cuối bởi"
 
@@ -4276,6 +4407,7 @@ msgstr "Cập nhật lần cuối bởi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_date
 msgid "Last Updated on"
 msgstr "Cập nhật lần cuối vào"
 
@@ -4349,8 +4481,36 @@ msgstr "Danh sách"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location
+#: model:ir.model,name:sol_laboratory.model_medilab_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__location_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Location"
 msgstr "Vị trí"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_location_booking
+#: model:ir.ui.menu,name:sol_laboratory.menu_location_booking
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_calendar_event_location_calendar
+msgid "Location Bookings"
+msgstr "Lịch đặt vị trí"
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_location_booking_reminder
+msgid "Location booking reminder"
+msgstr "Nhắc lịch đặt vị trí"
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_location
+#: model:ir.ui.menu,name:sol_laboratory.menu_location
+msgid "Locations"
+msgstr "Vị trí"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__child_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "Locations Inside"
+msgstr "Các vị trí bên trong"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_job_run__log
@@ -4437,6 +4597,21 @@ msgstr "Quản lý"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__manufacturer
 msgid "Manufacturer"
 msgstr "Nhà sản xuất"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "Map"
+msgstr "Bản đồ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__map_x
+msgid "Map X"
+msgstr "Tọa độ X trên bản đồ"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__map_y
+msgid "Map Y"
+msgstr "Tọa độ Y trên bản đồ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__marital
@@ -4684,6 +4859,7 @@ msgstr "Nhiệm vụ của tôi"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__name
 msgid "Name"
 msgstr "Tên"
 
@@ -4921,6 +5097,11 @@ msgid "On Hold"
 msgstr "Tạm giữ"
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "On the Map"
+msgstr "Trên bản đồ"
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_editing.py:0
 msgid ""
@@ -4984,6 +5165,18 @@ msgstr "Chỉ nhân sự có vai trò %s mới có thể thao tác ở cấp nà
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the assignee of %s can do this."
 msgstr "Chỉ người thực hiện %s mới có thể làm việc này."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Only the organiser can change %s."
+msgstr "Chỉ người tổ chức mới có thể thay đổi %s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Only the organiser or an administrator can cancel %s."
+msgstr "Chỉ người tổ chức hoặc quản trị viên mới có thể hủy %s."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -5132,6 +5325,7 @@ msgstr "Công ty mẹ"
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__parent_path
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__parent_path
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__parent_path
 msgid "Parent Path"
 msgstr "Đường dẫn cấp cha"
 
@@ -5469,6 +5663,46 @@ msgid "Permission: job.run.read.all"
 msgstr "Quyền: job.run.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_archive_all
+msgid "Permission: lab_location.archive.all"
+msgstr "Quyền: lab_location.archive.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_archive_own_department
+msgid "Permission: lab_location.archive.own_department"
+msgstr "Quyền: lab_location.archive.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_create_all
+msgid "Permission: lab_location.create.all"
+msgstr "Quyền: lab_location.create.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_create_own_department
+msgid "Permission: lab_location.create.own_department"
+msgstr "Quyền: lab_location.create.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_delete_all
+msgid "Permission: lab_location.delete.all"
+msgstr "Quyền: lab_location.delete.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_delete_own_department
+msgid "Permission: lab_location.delete.own_department"
+msgstr "Quyền: lab_location.delete.own_department"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_edit_all
+msgid "Permission: lab_location.edit.all"
+msgstr "Quyền: lab_location.edit.all"
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_edit_own_department
+msgid "Permission: lab_location.edit.own_department"
+msgstr "Quyền: lab_location.edit.own_department"
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_laboratory_device_edit_all
 msgid "Permission: laboratory.device.edit.all"
 msgstr "Quyền: laboratory.device.edit.all"
@@ -5549,22 +5783,27 @@ msgid "Permission: laboratory.sync.rule.read.all"
 msgstr "Quyền: laboratory.sync.rule.read.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_archive_all
 msgid "Permission: location.archive.all"
 msgstr "Quyền: location.archive.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_create_all
 msgid "Permission: location.create.all"
 msgstr "Quyền: location.create.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_delete_all
 msgid "Permission: location.delete.all"
 msgstr "Quyền: location.delete.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_edit_all
 msgid "Permission: location.edit.all"
 msgstr "Quyền: location.edit.all"
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_read_all
 msgid "Permission: location.read.all"
 msgstr "Quyền: location.read.all"
 
@@ -6425,6 +6664,8 @@ msgstr "Xem quy tắc đồng bộ của mọi thư mục phòng thí nghiệm"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__reason
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Reason"
 msgstr "Lý do"
 
@@ -6515,6 +6756,12 @@ msgstr "Nhân viên liên quan theo địa chỉ riêng"
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__user_id
 msgid "Related user name for the resource to manage its access."
 msgstr "Người dùng liên quan đến tài nguyên để quản lý sự truy cập."
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/master_data/location_map/location_map.xml:0
+msgid "Remove from the map"
+msgstr "Gỡ khỏi bản đồ"
 
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_laboratory_folder_member_delete_all
@@ -6859,6 +7106,12 @@ msgid "Samples"
 msgstr "Mẫu"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sampling_location_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__sampling_location_id
+msgid "Sampling Location"
+msgstr "Vị trí lấy mẫu"
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__sampling_requirements
 msgid "Sampling Requirements"
 msgstr "Yêu cầu lấy mẫu"
@@ -6921,6 +7174,7 @@ msgstr "Tỷ lệ"
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model:ir.ui.menu,name:sol_laboratory.menu_laboratory_schedule
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
 msgid "Schedule"
 msgstr "Lịch"
 
@@ -7165,6 +7419,12 @@ msgstr "Bắt đầu"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_test_result__started_at
 msgid "Started At"
 msgstr "Bắt Đầu Lúc"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Starts at %(start)s in %(location)s."
+msgstr "Bắt đầu lúc %(start)s tại %(location)s."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__state_id
@@ -7581,6 +7841,11 @@ msgid "The code of a customer must be unique."
 msgstr "Mã khách hàng không được trùng."
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_code_unique
+msgid "The code of a location must be unique."
+msgstr "Mã vị trí không được trùng."
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_code_unique
 msgid "The code of a machine must be unique."
 msgstr "Mã máy phải là duy nhất."
@@ -7760,6 +8025,12 @@ msgstr "Giới hạn của %s cần có giá trị tối thiểu, tối đa ho�
 #: code:addons/sol_laboratory/models/master_data/regulation_limit.py:0
 msgid "The limit for %s needs a unit for its minimum or maximum."
 msgstr "Giới hạn của %s cần đơn vị cho giá trị tối thiểu hoặc tối đa."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "The location is already booked at that time."
+msgstr "Vị trí đã được đặt vào thời gian đó."
 
 #. module: sol_laboratory
 #. odoo-python
@@ -8318,6 +8589,7 @@ msgstr "Incoterm của nhà cung cấp"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__purchase_incoterm_location
 msgid "Vendor Incoterm Location"
 msgstr "Địa điểm Incoterm của nhà cung cấp"
 
@@ -10325,6 +10597,7 @@ msgstr "Gửi thầu phụ"
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__outsourcing_suggested
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__outsourcing_suggested
 msgid "Outsourcing Suggested"
 msgstr "Đề xuất gửi thầu phụ"
 
@@ -12815,6 +13088,7 @@ msgstr "Đang chỉnh sửa"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_message
 msgid "Editing Lock"
 msgstr "Khóa chỉnh sửa"
 
@@ -13024,6 +13298,7 @@ msgstr "Người chờ"
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_watched
 msgid "Watching Lock"
 msgstr "Đang chờ mở khóa"
 
@@ -14107,6 +14382,44 @@ msgstr "Xác minh các tệp phòng thí nghiệm đã tải lên"
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__verifying
 msgid "Verifying"
 msgstr "Đang xác minh"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__emergency_outsource_reason
+msgid "Emergency Outsource Reason"
+msgstr "Lý do gửi thầu phụ khẩn cấp"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Emergency Outsourcing"
+msgstr "Gửi thầu phụ khẩn cấp"
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
+msgid "No outsourcing suggestion: give the reason for outsourcing the test straight away."
+msgstr "Chỉ tiêu không có đề xuất gửi thầu phụ: nhập lý do gửi thầu phụ ngay."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Give a reason for outsourcing the test straight away."
+msgstr "Nhập lý do gửi thầu phụ ngay chỉ tiêu."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only a waiting or assigned sample test can be outsourced straight away: %s"
+msgstr "Chỉ gửi thầu phụ ngay được chỉ tiêu của mẫu đang chờ hoặc đã phân công: %s"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only the department testing %s can outsource it straight away."
+msgstr "Chỉ phòng ban đang thử nghiệm %s mới gửi thầu phụ ngay được chỉ tiêu này."
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__tested_by_my_department
+msgid "Tested By My Department"
+msgstr "Do phòng ban của tôi thử nghiệm"
 
 #. module: sol_laboratory
 #: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_contents_reconcile_ir_actions_server

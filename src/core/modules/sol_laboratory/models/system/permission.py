@@ -13,7 +13,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ROLE,
 )
 from odoo.addons.sol_laboratory.constants.permissions import (
-    ODOO_DOCUMENT_TYPES,
+    DOCUMENT_TYPES,
     OPERATIONS,
     SCOPE_DOMAINS,
     SCOPE_FIELDS,
@@ -94,7 +94,7 @@ class Permission(models.Model):
         names = [
             name
             for name, model in self.env.registry.items()
-            if (name.startswith(DOCUMENT_MODEL_PREFIX) or name in ODOO_DOCUMENT_TYPES)
+            if (name.startswith(DOCUMENT_MODEL_PREFIX) or name in DOCUMENT_TYPES)
             and not model._abstract
             and not model._transient
         ]
@@ -110,7 +110,7 @@ class Permission(models.Model):
 
     @api.model
     def _make_code(self, document_model, action, scope):
-        document_type = ODOO_DOCUMENT_TYPES.get(document_model) or document_model.removeprefix(DOCUMENT_MODEL_PREFIX)
+        document_type = DOCUMENT_TYPES.get(document_model) or document_model.removeprefix(DOCUMENT_MODEL_PREFIX)
         return f"{document_type}.{action}.{scope}"
 
     @api.depends("document_model", "action", "scope")

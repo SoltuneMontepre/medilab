@@ -203,7 +203,7 @@ class TestMethodStepsInTesting(SchedulingCase):
                 self.assertEqual([steps.get(flag) for flag in ("create", "delete", "edit")], ["0"] * 3)
                 self.assertEqual(
                     [column.get("name") for column in steps.iterfind("field")],
-                    ["sequence", "duration_minutes", "instruction", "note"],
+                    ["sequence", "duration_minutes", "instruction", "location_id", "note"],
                 )
 
     def test_the_administrator_edits_steps_on_the_method_form(self):
@@ -215,7 +215,7 @@ class TestMethodStepsInTesting(SchedulingCase):
         self.assertEqual(steps.get("editable"), "bottom")
         self.assertEqual(
             [column.get("name") for column in steps.iterfind("field")],
-            ["sequence", "duration_minutes", "instruction", "note"],
+            ["sequence", "duration_minutes", "instruction", "location_id", "note"],
         )
         self.assertIsNone(form.get("edit"))
         tester_form = methods.with_user(self.runner.user_id).get_views([(False, "form")])["views"]["form"]["arch"]
