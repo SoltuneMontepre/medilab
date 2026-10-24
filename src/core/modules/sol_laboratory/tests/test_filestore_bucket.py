@@ -40,9 +40,9 @@ class TestFilestoreBucket(LaboratoryBucketCase):
         content = os.urandom(5000)
         attachment = self.new_attachment(content)
         self.remove_local_copy(attachment)
-        attachment.invalidate_recordset(["raw", "datas"])
+        attachment.invalidate_recordset(["raw"])
 
-        self.assertEqual(attachment.raw, content)
+        self.assertEqual(bytes(attachment.raw), content)
         self.assertTrue(os.path.exists(self.attachments._full_path(attachment.store_fname)))
 
     def test_a_file_missing_on_this_server_is_streamed_from_the_bucket(self):
@@ -60,9 +60,9 @@ class TestFilestoreBucket(LaboratoryBucketCase):
         attachment = self.new_attachment(os.urandom(100))
         self.remove_local_copy(attachment)
         laboratory_bucket.delete(self.attachments._bucket_key(attachment.store_fname))
-        attachment.invalidate_recordset(["raw", "datas"])
+        attachment.invalidate_recordset(["raw"])
 
-        self.assertFalse(attachment.datas)
+        self.assertFalse(attachment.raw)
 
     def test_an_install_or_update_writes_the_files_odoo_wrote_before_this_module_loaded(self):
         content = os.urandom(3000)

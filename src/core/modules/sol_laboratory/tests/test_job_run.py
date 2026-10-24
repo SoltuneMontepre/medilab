@@ -1,11 +1,12 @@
 from datetime import timedelta
+from freezegun import freeze_time
 
 from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.tools import mute_logger
 
-from .jobs_case import JOB_LOGGER, JobsCase
+from .jobs_case import JOB_KEY, JOB_LOGGER, JobsCase
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_CRON_TRIGGER
 
 
@@ -36,6 +37,21 @@ class TestJobRun(JobsCase):
         run = self.job.run_ids
         self.assertEqual((run.status, run.done_count, run.failed_count), ("succeeded", 5, 0))
         self.assertEqual(run.log.count(": done"), 5)
+
+    def test_the_items_the_finder_queues_are_done_in_the_same_run(self):
+        handled = self.record_handler()
+        with freeze_time("2026-10-20 08:00:00") as clock:
+
+            def finder(job):
+                # The clock reaches the next second after the run started.
+                clock.tick()
+                job.queue(JOB_KEY, "found")
+
+            self.find_with(finder)
+            self.job._run_batch()
+
+        self.assertEqual(handled, ["found"])
+        self.assertEqual(self.items("done").mapped("item_key"), ["found"])
 
     def test_a_handler_returning_a_time_defers_the_item_without_an_attempt(self):
         later = fields.Datetime.now() + timedelta(hours=1)
