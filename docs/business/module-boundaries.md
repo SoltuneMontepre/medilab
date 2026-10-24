@@ -15,12 +15,14 @@ MediLab is built on Odoo Community and extends its apps where they hold a concep
 
 | Module     | Odoo apps it depends on                             |
 | ---------- | --------------------------------------------------- |
-| Laboratory | `hr`, `portal`, `calendar`                          |
+| Laboratory | `hr`, `hr_holidays`, `portal`, `calendar` |
 | E-commerce | `sale`, `l10n_vn`, `rating`                         |
 | Inventory  | `stock_account`, `product_expiry`, `purchase_stock` |
 | Theme      | `web`                                               |
 
 Each module also has every app its own apps depend on: `mail`, `bus` and `resource` through `hr`; `account`, `account_payment`, `payment` and `product` through `sale`; `account_qr_code_emv` through `l10n_vn`; `stock`, `uom` and `purchase` through Inventory's apps.
+
+Laboratory scheduling uses Time Off (`hr_holidays`) for approved employee leave and reacts when leave is approved. The scheduler implementation must declare this dependency in the Laboratory manifest.
 
 ### What each concept is built on
 
@@ -31,7 +33,7 @@ Each module also has every app its own apps depend on: `mail`, `bus` and `resour
 | Person                                    | `medilab.person`, delegating to `hr.employee` with `_inherits`: its table holds the team, roles and direct permissions, and the employee the name, user, work contact and department |
 | Role, permission                          | MediLab roles and permissions generating Odoo groups (`res.groups`) and accesses (`ir.access`), see [Permissions](../specs/permissions.md)                                           |
 | Customer, subcontractor, supplier         | `res.partner`, with the customer, subcontractor and supplier details MediLab keeps for it                                                                                            |
-| Personal schedule, reminders              | `calendar.event`: every planned task and machine booking has one, kept in step both ways with MediLab's task management; its alarm is the reminder                                   |
+| Personal schedule, reminders | `calendar.event`: planned tasks and test runs have personal events, including runs without machines; required machine and location reservations stay synchronized with the run; the event alarm is the reminder |
 | Notifications in the application, e-mail  | `mail.message` and `mail.notification` with pop-ups on `bus`; e-mail through Brevo as Odoo's outgoing mail server                                                                    |
 | Notification event                        | `mail.message.subtype`                                                                                                                                                               |
 | Files, photos, signed PDFs, archive files | `ir.attachment`                                                                                                                                                                      |

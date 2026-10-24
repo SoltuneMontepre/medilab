@@ -57,11 +57,11 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Marking urgent | The tester marks a test of their own testing task urgent, stating why, or removes the mark. A marked test is urgent whatever its due date. |
 | Deadline risk | Notify the tester and Head of Department when risk first appears, then include unresolved risks in a daily summary. Show the flag on tasks and schedules. Sales contacts the customer only when the promised return date is affected or at risk. |
 | Machine heads-up | Warn within the separate calibration, maintenance or recent-repair windows, each defaulting to 7 days. Valid warnings allow booking only while calibration, maintenance and availability requirements are satisfied. |
-| Adjusting      | Moving or cancelling a booking puts its slot back in the queue.                                                          |
+| Adjusting | Move or cancel a not-started booking through its run, keeping all required reservations synchronized under SH-11. Cancelling the run returns its attempts to the queue without cancelling their sample tests. |
 
 Acceptance criteria:
 
-- A run appears on the tester's schedule and to-do list and on the schedules of its required resources; a no-machine run is schedulable without a machine.
+- Each assigned testing task shows its run booking in the tester's to-do list; the run appears on the tester's schedule and on the schedules of its required resources; a no-machine run is schedulable without a machine.
 - Claiming a task assigns it to the tester; a second tester claiming it at the same time is told it is already claimed.
 - A tester cannot claim a task of another department.
 - A reminder arrives before the booking starts.

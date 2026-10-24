@@ -67,7 +67,7 @@ Acceptance criteria:
 ```mermaid
 stateDiagram-v2
     [*] --> draft: order claimed or created
-    draft --> sent: required quotation approval complete; send with advance request
+    draft --> sent: approval complete, send with advance or Head of Sales credit exception
     sent --> accepted: customer pays the advance
     sent --> declined: customer declines
     sent --> expired: payment deadline passes
@@ -97,7 +97,8 @@ stateDiagram-v2
 Acceptance criteria:
 
 - A quotation without parameters or packages cannot be sent.
-- A quotation carries each parameter's sample type and selected or default way and shows expected sampling needs before sending.
+- A quotation carries each parameter's sample type and selected or resolved default way, including a separate selection for every parameter of a package, and shows expected sampling needs before sending.
+- Changing catalog defaults or package membership does not rewrite an accepted quotation's selections; sample tests use those retained selections.
 - Send is blocked above the Head of Sales's thresholds until they approve; below them Sales can send alone.
 - An unavailable default is explained and is never silently replaced.
 - An accepted way cannot be edited directly; its replacement needs a revised quotation and customer agreement.

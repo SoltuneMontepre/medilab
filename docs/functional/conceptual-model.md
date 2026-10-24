@@ -24,8 +24,8 @@ erDiagram
     TESTING_METHOD }o--o{ CHEMICAL : consumes
     ACCREDITATION_CERTIFICATE ||--|{ ACCREDITATION_SCOPE_LINE : contains
     ACCREDITATION_SCOPE_LINE }o--|| TESTING_METHOD : covers
-    ACCREDITATION_SCOPE_LINE }o--o{ TEST_PARAMETER : covers
-    ACCREDITATION_SCOPE_LINE }o--o{ SAMPLE_TYPE : covers
+    ACCREDITATION_SCOPE_LINE }o--|{ TEST_PARAMETER : covers
+    ACCREDITATION_SCOPE_LINE }o--|{ SAMPLE_TYPE : covers
     REGULATION }o--o{ SAMPLE_TYPE : applies_to
     REGULATION }o--o{ TEST_PARAMETER : limits_by_sample_type
     CUSTOMER ||--o{ TEST_REQUEST : requests
@@ -68,9 +68,11 @@ erDiagram
     SAMPLE_COLLECTION }o--|| PERSON : collected_by
 ```
 
+Mermaid ER notation cannot express the exclusive ownership of an attempt: each `TEST_RESULT` belongs to exactly one `TEST_RUN` or one `SUBCONTRACT_DISPATCH`, never both or neither, as the Attempt rule above requires.
+
 A run has one way, one tester and one interval, and may combine attempts from several samples, customers and requests up to capacity. Its machine is optional when the way needs none; then duration and capacity belong to the way, with capacity 1 by default. A machine booking reserves the run. Staff shifts and approved leave come from HR; service records supply machine downtime. OverTime records the planned outside-hours interval, work, reason and assigner for a tester, without payroll or actual-hours confirmation.
 
-The Lab Head configures person-to-parameter authorization indefinitely, without start or expiry dates. The Head of Department assigns work and approves results; the Lab Head approves instead when the entrant is the department's only result signer. The Lab Head signs reports. A result correction and its affected issued report have linked change requests, and a replacement report needs fresh approval and signing before release.
+The Lab Head configures person-to-parameter authorization indefinitely, without start or expiry dates. The Head of Department assigns work and approves results, including their own entries. The Lab Head reviews the results and signs reports. A result correction and its affected issued report have linked change requests, and a replacement report needs fresh approval and signing before issue.
 
 ## Commerce and inventory
 
@@ -81,7 +83,9 @@ erDiagram
     CUSTOMER ||--o{ SALE_ORDER : places
     SALE_ORDER ||--|{ ORDER_LINE : selects
     ORDER_LINE }o--|| SAMPLE_TYPE : for
-    ORDER_LINE }o--o| PARAMETER_METHOD : chooses
+    ORDER_LINE ||--|{ ORDER_LINE_SELECTION : retains
+    ORDER_LINE_SELECTION }o--|| TEST_PARAMETER : for
+    ORDER_LINE_SELECTION }o--|| PARAMETER_METHOD : chooses
     ORDER_LINE }o--o| SERVICE_PACKAGE : buys_whole
     SERVICE_PACKAGE }o--o{ TEST_PARAMETER : contains
     SALE_ORDER ||--o{ QUOTATION : offers
@@ -96,7 +100,7 @@ erDiagram
     INTERNAL_MOVEMENT }o--|| STOCK_LOCATION : goes_to
 ```
 
-An order line contains a parameter with its selected or default way, or a whole package, with a sample type and quantity. Accepted ways change only through a revised quotation and customer agreement. Templates have no price of their own. Payments include gateway payments; posted invoices are corrected by adjustment invoices or credit notes, while completed orders, quotations, results and reports use change requests.
+An order line contains a parameter or a whole package, with a sample type and quantity. Its selections retain one parameter and its selected or resolved default way per included parameter: one selection for a parameter line and one for every parameter in a package line. Each quotation version keeps those selections; later catalog membership or default changes do not rewrite the accepted version. Sample tests use its retained selections. A package line keeps the package price. Accepted ways change only through a revised quotation and customer agreement. Templates have no price of their own. Payments include gateway payments; posted invoices are corrected by adjustment invoices or credit notes, while completed orders, quotations, results and reports use change requests.
 
 ## Related documents
 

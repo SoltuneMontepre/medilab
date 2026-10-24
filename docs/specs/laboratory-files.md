@@ -64,7 +64,7 @@ The Documents menu of the Laboratory app lists Folders, Files, File Versions, Fi
 
 A folder of a sample, its members, sync rules, files, versions, locks, editing sessions and changes are shown only to people who see the sample, administrators included; see [Sample folders](#sample-folders).
 
-When upgrading to unique sync rules, keep the oldest rule for each folder, kind and pattern, remove duplicates and log each removed rule with its flags.
+Before upgrading to unique sync rules, inspect all duplicate groups by folder, kind and normalized pattern. Collapse a group only when all its rules have identical `enabled` and `recursive` flags, keeping the oldest rule and logging the removed IDs and flags. If any group has conflicting flags, refuse the upgrade before deleting any rule and list the folder, kind, pattern, rule IDs and flag values for an administrator to resolve. Never merge flags or choose a conflicting rule automatically; retry the upgrade after the conflicts are resolved.
 
 ### Members
 

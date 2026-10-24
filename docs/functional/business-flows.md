@@ -179,21 +179,21 @@ flowchart TD
 ## WF-04 Result entry and approval
 
 - **Trigger:** a booked test is run.
-- **Result:** the measured result is independently approved, with assessment only for requested regulation comparisons, and the sample completes when all its tests do.
+- **Result:** the Head of Department approves the measured result, with assessment only for requested regulation comparisons, and the sample completes when all its tests do.
 - **Stories:** US-T05, US-T06, US-T07, US-T08, US-T17, US-T22, US-HD08, US-HD09, US-LH05.
 - **Starts from:** sample tests in testing with their bookings, on samples with and without a regulation.
-- **Main path:** The tester follows the agreed method, records an attempt in its run with the snapshotted unit and LOD/LOQ, assesses any requested comparison, then sends it for independent approval.
+- **Main path:** The tester follows the agreed method, records an attempt in its run with the snapshotted unit and LOD/LOQ, assesses any requested comparison, then sends it to the Head of Department for approval.
 - **Alternative paths:**
   - WF-04-A1: The tester confirms text for a value below LOD/LOQ; the report prints the snapshot threshold and unit and keeps a raw number if available, never zero as a substitute.
   - WF-04-A2: The head rejects the result with a reason; the tester retests, the rejected result stays on record and the new one is approved.
   - WF-04-A3: The tester withdraws a result they sent before the head acts.
   - WF-04-A4: An unusual result warns before sending; the tester sends it anyway and the head sees the warning.
   - WF-04-A5: The head cancels a test that cannot be done, with a reason; the sample completes with its other tests approved.
-  - WF-04-A6: When the entrant is the department's only result signer, the Lab Head approves instead of the Head of Department.
+  - WF-04-A6: The Head of Department may enter and approve their own result; the Lab Head reviews it when signing the report before issue.
   - WF-04-A7: Without requested QCVN comparison, return measurements with no pass/fail conclusion. For requested scope, any assessed failure fails that scope; all required comparisons must pass to conclude pass; otherwise record insufficient basis.
   - WF-04-A8: Changing a sample's regulation refreshes applicable limits only after confirmation and clears old comparison conversions and conclusions; signed results first require withdrawal where permitted, or change requests and new versions. Raw measurement, way and LOD/LOQ snapshots stay, and retesting requires professional assessment.
 - **Exceptions:**
-  - WF-04-E1: The person who entered a result cannot approve it.
+  - WF-04-E1: An entrant other than the Head of Department cannot approve their own result.
   - WF-04-E2: A missing applicable limit or unresolved text assessment cannot be treated as a pass. Requested comparisons explicitly state insufficient basis when appropriate.
   - WF-04-E3: Cancelling a test without a reason, or a test with an approved result, is refused.
 - **Paths in other flows:** SF-03 for changing a result whose process is completed.
@@ -210,19 +210,11 @@ flowchart TD
         t6[Retest in a new attempt and run]
     end
     subgraph lane11 ["Head of department"]
-        h0{Entrant is the department's only result signer?}
-        h1{Approve the result?}
+        h1{Approve the result, including own entry?}
     end
-    subgraph lane43 ["Lab Head"]
-        l1{Approve instead?}
-    end
-    t5 --> h0
-    h0 -->|no| h1
-    h0 -->|yes| l1
+    t5 --> h1
     h1 -->|reject with reason| t6 --> t2
-    l1 -->|reject with reason| t6
     h1 -->|approve| done([Reported result approved])
-    l1 -->|approve| done
     done --> wf06([WF-06 when all required results are approved])
 ```
 
@@ -582,18 +574,25 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane30 ["Administrator"]
-        a1[Import scope lines: method, parameters and sample types]
-        a2[Record the dossier and the ways of testing it covers]
-        a3[Warned days before a dossier expires and on the day]
-        a4[Record the renewed dates]
+        a1[Import certificate scope lines]
+        a2[Record quality dossier]
+        a3[Record subcontractor accreditation]
+        r1[Renew certificate dates]
+        r2[Renew dossier dates]
+        r3[Renew subcontractor accreditation]
     end
-    a1 --> acc[Matching in-house sample tests accredited while the certificate is valid]
-    a2 --> mark[Dossier mark printed on reports]
-    mark --> a3
-    acc --> exp{Past the last valid day?}
-    a3 --> exp
-    exp -->|yes| off["Not accredited; mark not printed; subcontractor cannot be chosen"]
-    off --> a4 --> valid([Valid again])
+    a1 --> c{Certificate valid and active?}
+    c -->|yes| acc[Matching in-house sample tests accredited]
+    c -->|no| noacc[Recompute test accreditation from remaining valid certificates; method remains usable]
+    noacc --> r1 --> c
+    a2 --> d{Dossier valid?}
+    d -->|yes| mark[Dossier mark printed on reports]
+    d -->|no| nomark[Dossier mark not printed]
+    nomark --> r2 --> d
+    a3 --> s{Subcontractor accreditation valid?}
+    s -->|yes| selectable[Subcontractor selectable if other conditions hold]
+    s -->|no| blocked[Subcontractor cannot be chosen]
+    blocked --> r3 --> s
 ```
 
 ## SF-07 Priority order and urgent tests

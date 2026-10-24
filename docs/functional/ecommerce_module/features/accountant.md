@@ -42,8 +42,9 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 - An advance invoice is posted automatically; the accountant does not need to create or post it.
 - The final invoice reflects what was actually tested under the agreed quotation and revisions, deducting the advance already paid. Missing cancelled samples are not billed as performed work; extras are tested and billed only after the agreed revision.
 - Invoices are sent by email with the PDF attached, and can be downloaded at any time. Customers see their posted invoices on the portal.
+- If the paid advance exceeds the total payable for performed work, collect nothing further and record the excess for the accountant to refund manually. Correct posted invoices with credit notes as needed and link the refund to the order and original payment; do not automatically refund it or carry it forward as customer credit.
 - Tax follows the tax of each quotation line: the parameter's or package's tax, or the one sales set on the quotation. Prices in the catalog exclude VAT; the invoice shows net, tax and total separately.
-- A posted invoice cannot be edited. The accountant corrects it with an adjustment invoice that holds only the difference, as positive or negative lines. It is posted, emailed and shown on the portal like any other invoice, and the amount owed on the corrected invoice includes its adjustments.
+- A posted invoice cannot be edited. The accountant corrects it with an adjustment invoice that holds only the difference, as positive or negative lines. A raising adjustment is posted, emailed and listed on the portal as a separate invoice with its own amount to pay. A lowering credit note reduces the corrected invoice's residual when reconciled. Order and customer debt totals include outstanding raising adjustments; an invoice payment never includes another invoice's residual.
 
 Acceptance criteria:
 
@@ -51,6 +52,8 @@ Acceptance criteria:
 - For fully performed work, the final invoice equals its agreed total minus the advance. If fewer samples are tested and the missing part is cancelled, bill only the work performed.
 - An adjustment invoice of −500,000 VND on a 5,000,000 VND invoice leaves 4,500,000 VND owed, and the original invoice is unchanged.
 - A posted invoice cannot be edited; only an adjustment invoice changes what is owed.
+- An 8,000,000 VND paid advance against 5,000,000 VND of actual total payable leaves 3,000,000 VND to refund manually, with no negative charge to the customer.
+- An original invoice owing 5,000,000 VND and a raising adjustment owing 2,000,000 VND show 7,000,000 VND in total debt, with separate payment actions limited to 5,000,000 VND and 2,000,000 VND.
 - An invoice shows net, tax and total, and can be downloaded as PDF.
 
 ### 2. Payments (US-A06 to US-A13)

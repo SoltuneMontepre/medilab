@@ -5,6 +5,8 @@
 
 - **Cancelling an attempt in a running shared run.** When one sample test is cancelled after its shared run starts, how is that attempt stopped or recorded while the other attempts continue? Cancelling it must not cancel the other sample tests or release their required reservations. (blocks US-HD09)
 
+- **Attempts in a run.** When may an attempt be put in a test run? Proposed answer, not decided: only when its sample was received by the department, is not held waiting for the customer's agreement and its sample test is not cancelled.
+
 ## Related documents
 
 - [Testing work and scheduling](../docs/functional/laboratory_module/overview.md#testing-work-and-scheduling)

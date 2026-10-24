@@ -8,6 +8,8 @@
 - **Subcontractor contact people.** The subcontractor permissions create and change the subcontractor's company contact, but creating a new contact person from the subcontractor form still needs Odoo's contact rights, which only administrators hold. Should the subcontractor permissions let people create its contact people too? (blocks US-AD12)
 - **Records without a department.** A permission limited to the person's department does not show records that have no department. Should such records be visible to everyone with that permission instead? (blocks US-AD15)
 
+- **Internal users without a person.** Must internal users be created only through people? Proposed answer, not decided: yes; administrators see the internal users not linked to a person, to link or archive them.
+
 ## Related documents
 
 - [Administrator permissions](../docs/security/permissions/admin.md)

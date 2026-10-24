@@ -44,7 +44,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Queue | Testing tasks queue by department. The head assigns them or an authorized tester claims them; team membership does not create a separate testing queue. |
 | Assignment | The head assigns a sample's department tasks or one task to a person authorized by the Lab Head for each parameter. The scheduler recommends resources and a slot for the agreed way. Reassignment to another person or department requires a reason. |
-| Adjusting           | The head can move or cancel any booking of the department; the slot goes back to the queue.                            |
+| Adjusting | The head moves or cancels not-started runs of the department through the run. Changes synchronize its tester, machine when needed and required location reservations; cancelling returns its not-started attempts to the queue, without cancelling their sample tests. |
 | Marking urgent      | The head can mark any test of the department urgent, stating why, or remove the mark, as the tester does ([US-T19](tester.md#1-planning-us-t01-to-us-t04-us-t19-to-us-t21)). |
 | Outsourcing | The scheduler suggests viable subcontracted ways when in-house resources cannot meet the due date. The head reviews them; changing an accepted way requires a revised quotation and customer agreement through Sales. |
 | Bumping             | The head bumps an urgent test of the department to the earliest slot on a machine fit to run it, with a reason. Bookings in that slot that have not started go back to the queue and are planned again; a running booking is never interrupted, so the bumped test starts when it ends. |
@@ -78,7 +78,7 @@ Follows [Reception](../overview.md#reception), [Results](../overview.md#results)
 | ------------- | ------------------------------------------------------------------------------------------------------------ |
 | Handover | A person of the department records when and by whom it received a sample by scanning its label through the web interface. |
 | Collect again | Asking for an insufficient sample to be collected again schedules a sample collection task for sample delivery staff. |
-| Approval | The head signs or rejects results at the result approval level, recording a rejection reason. They cannot approve a result they entered. When its entrant is the department's only result signer, the Lab Head performs that approval instead. |
+| Approval | The head signs or rejects results at the result approval level, recording a rejection reason. They may approve a result they entered, including when they are the department's only result signer. The Lab Head reviews the approved results and signs the report before issue. |
 | Cancelling    | The head cancels a sample test of the department that has no approved result, with a reason. Its testing task and its own planned work are cancelled, and the report leaves it out. Other attempts and reservations still needed by a shared run are preserved. |
 
 Acceptance criteria:
@@ -87,7 +87,7 @@ Acceptance criteria:
 - Asking for a sample to be collected again creates a sample collection task and records who asked and when.
 - Rejecting a result sends its sample test back to testing and tells the tester the reason.
 - Once every result of a sample is approved, the sample is completed.
-- A head cannot approve a result they entered.
+- A head can explicitly approve a result they entered; it still needs the Lab Head's report signature before issue.
 - A result sent with a sanity warning shows the warning to the head who approves it.
 - Cancelling a sample test without a reason is refused; a cancelled test does not appear on the report.
 - A sample whose remaining tests are all approved is completed even if others were cancelled.
