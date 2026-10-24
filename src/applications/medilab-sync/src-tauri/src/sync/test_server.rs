@@ -184,58 +184,11 @@ impl MockSyncServer {
     /// Phục vụ các request trên một kết nối keep-alive cho tới khi client đóng.
     async fn serve(&self, stream: TcpStream) {
         let mut reader = BufReader::new(stream);
-        loop {
-            let mut request_line = String::new();
-            if reader.read_line(&mut request_line).await.unwrap_or(0) == 0 {
-                return;
-            }
-            let mut content_length = 0usize;
-            loop {
-                let mut header = String::new();
-                if reader.read_line(&mut header).await.unwrap_or(0) == 0 {
-                    return;
-                }
-                let header = header.trim_end();
-                if header.is_empty() {
-                    break;
-                }
-                if let Some((name, value)) = header.split_once(':') {
-                    if name.eq_ignore_ascii_case("content-length") {
-                        content_length = value.trim().parse().unwrap_or(0);
-                    }
-                }
-            }
-            let mut body = vec![0u8; content_length];
-            if reader.read_exact(&mut body).await.is_err() {
-                return;
-            }
+        while let Some((request_line, body)) = read_request(&mut reader).await {
             let mut parts = request_line.split_whitespace();
             let method = parts.next().unwrap_or_default().to_string();
             let path = parts.next().unwrap_or_default().to_string();
-            let put_part = put_part_number(&method, &path);
-            if let Some(part) = put_part {
-                let mut state = self.state.lock().unwrap();
-                state.puts_in_flight += 1;
-                state.max_puts_in_flight = state.max_puts_in_flight.max(state.puts_in_flight);
-                state.put_arrivals.push(part);
-            }
-            if let Some(hold) = self.take_hold(&method, &path) {
-                hold.started.notify_one();
-                hold.release.notified().await;
-            }
-            let delay =
-                put_part.and_then(|part| self.state.lock().unwrap().delayed_parts.remove(&part));
-            if let Some(millis) = delay {
-                tokio::time::sleep(std::time::Duration::from_millis(millis)).await;
-            }
-            let (status, extra_headers, response_body) = self.route(&method, &path, &body);
-            if let Some(part) = put_part {
-                let mut state = self.state.lock().unwrap();
-                state.puts_in_flight -= 1;
-                if status.starts_with("200") {
-                    state.put_completions.push(part);
-                }
-            }
+            let (status, extra_headers, response_body) = self.respond(&method, &path, &body).await;
             let head = format!(
                 "HTTP/1.1 {status}\r\ncontent-type: application/json\r\ncontent-length: {}\r\n{extra_headers}\r\n",
                 response_body.len()
@@ -247,6 +200,36 @@ impl MockSyncServer {
                 return;
             }
         }
+    }
+
+    /// Trả lời một request: ghi nhận PUT part đang bay, chờ hold hoặc độ trễ nếu test đặt, rồi
+    /// định tuyến.
+    async fn respond(&self, method: &str, path: &str, body: &[u8]) -> (String, String, String) {
+        let put_part = put_part_number(method, path);
+        if let Some(part) = put_part {
+            let mut state = self.state.lock().unwrap();
+            state.puts_in_flight += 1;
+            state.max_puts_in_flight = state.max_puts_in_flight.max(state.puts_in_flight);
+            state.put_arrivals.push(part);
+        }
+        if let Some(hold) = self.take_hold(method, path) {
+            hold.started.notify_one();
+            hold.release.notified().await;
+        }
+        let delay =
+            put_part.and_then(|part| self.state.lock().unwrap().delayed_parts.remove(&part));
+        if let Some(millis) = delay {
+            tokio::time::sleep(std::time::Duration::from_millis(millis)).await;
+        }
+        let (status, extra_headers, response_body) = self.route(method, path, body);
+        if let Some(part) = put_part {
+            let mut state = self.state.lock().unwrap();
+            state.puts_in_flight -= 1;
+            if status.starts_with("200") {
+                state.put_completions.push(part);
+            }
+        }
+        (status, extra_headers, response_body)
     }
 
     /// Đặt `content` làm version chuẩn `version_id` của tệp remote `remote_file_id` để client tải
@@ -435,6 +418,33 @@ impl MockSyncServer {
             _ => ("404 Not Found".into(), String::new(), "{}".into()),
         }
     }
+}
+
+/// Đọc request line, header và body của một request; `None` khi client đóng kết nối hoặc lỗi đọc.
+async fn read_request(reader: &mut BufReader<TcpStream>) -> Option<(String, Vec<u8>)> {
+    let mut request_line = String::new();
+    if reader.read_line(&mut request_line).await.unwrap_or(0) == 0 {
+        return None;
+    }
+    let mut content_length = 0usize;
+    loop {
+        let mut header = String::new();
+        if reader.read_line(&mut header).await.unwrap_or(0) == 0 {
+            return None;
+        }
+        let header = header.trim_end();
+        if header.is_empty() {
+            break;
+        }
+        if let Some((name, value)) = header.split_once(':') {
+            if name.eq_ignore_ascii_case("content-length") {
+                content_length = value.trim().parse().unwrap_or(0);
+            }
+        }
+    }
+    let mut body = vec![0u8; content_length];
+    reader.read_exact(&mut body).await.ok()?;
+    Some((request_line, body))
 }
 
 /// Part number của một request PUT part (`/s3/{session}/{part}?…`), `None` với request khác.

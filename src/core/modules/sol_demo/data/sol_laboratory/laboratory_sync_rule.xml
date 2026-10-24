@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- The AAS computer saves each run as run-<number>.csv in the folder, with its logs in subfolders. -->
+    <record id="demo_laboratory_sync_rule_aas_runs" model="medilab.laboratory.sync.rule">
+        <field name="folder_id" ref="demo_laboratory_folder_aas_raw_data" />
+        <field name="kind">prefix</field>
+        <field name="pattern">run-</field>
+        <field name="recursive" eval="False" />
+    </record>
+    <record id="demo_laboratory_sync_rule_aas_csv" model="medilab.laboratory.sync.rule">
+        <field name="folder_id" ref="demo_laboratory_folder_aas_raw_data" />
+        <field name="kind">extension</field>
+        <field name="pattern">csv</field>
+    </record>
+    <record id="demo_laboratory_sync_rule_hplc_reports" model="medilab.laboratory.sync.rule">
+        <field name="folder_id" ref="demo_laboratory_folder_hplc_results" />
+        <field name="kind">glob</field>
+        <field name="pattern">*-ket-qua.xlsx</field>
+    </record>
+</odoo>

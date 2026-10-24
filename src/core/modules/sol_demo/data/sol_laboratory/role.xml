@@ -132,6 +132,7 @@
                 ref('sol_laboratory.permission_test_result_create_all'),
                 ref('sol_laboratory.permission_test_result_edit_all'),
                 ref('sol_laboratory.permission_test_result_sign_all'),
+                ref('sol_laboratory.permission_laboratory_folder_create_all'),
             ])]"
         />
     </record>
@@ -162,6 +163,8 @@
                 ref('sol_laboratory.permission_subcontract_dispatch_read_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_create_all'),
                 ref('sol_laboratory.permission_subcontract_dispatch_edit_all'),
+                ref('sol_laboratory.permission_laboratory_file_version_sign_all'),
+                ref('sol_laboratory.permission_signature_read_all'),
             ])]"
         />
     </record>

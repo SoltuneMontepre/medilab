@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sol_laboratory.LocationMap">
+        <div class="o_location_map">
+            <t t-if="this.state.map and this.state.map.image_id">
+                <div class="o_location_map_canvas" t-att-class="{ o_location_map_placeable: this.canPlace }"
+                     t-on-click="this.place">
+                    <img t-att-src="this.imageUrl" t-att-alt="this.state.map.name" draggable="false"/>
+                    <t t-foreach="this.points" t-as="point" t-key="point.id">
+                        <button type="button" class="o_location_map_point"
+                                t-att-class="{ o_location_map_point_current: point.current }"
+                                t-att-style="this.pointStyle(point)"
+                                t-att-title="point.name"
+                                t-on-click.stop="() => this.openLocation(point)">
+                            <span class="o_location_map_label" t-out="point.code"/>
+                        </button>
+                    </t>
+                </div>
+                <div t-if="this.canPlace" class="o_location_map_hint">
+                    <span t-out="this.placeHint"/>
+                    <button t-if="this.current" type="button" class="btn btn-secondary btn-sm"
+                            t-on-click="this.removeFromMap">Remove from the map</button>
+                </div>
+            </t>
+            <p t-elif="this.state.map" class="o_location_map_hint" t-out="this.noMapHint"/>
+        </div>
+    </t>
+
+</templates>

@@ -2,6 +2,7 @@ from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from .result_case import ResultCase
+from odoo.addons.sol_laboratory.constants.models import MODEL_SIGNATURE
 
 
 @tagged("post_install", "-at_install")
@@ -31,6 +32,16 @@ class TestTestResultApproval(ResultCase):
 
         self.assertEqual(self.sample.status, "completed")
         self.assertEqual(self.request.status, "completed")
+
+    def test_the_signatures_of_a_result_record_no_document_hash(self):
+        result = self.enter()
+        self.send(result)
+
+        signatures = self.env[MODEL_SIGNATURE].search(
+            [("document_model", "=", result._name), ("document_id", "=", result.id)]
+        )
+        self.assertTrue(signatures)
+        self.assertFalse(any(signatures.mapped("document_hash")))
 
     def test_a_head_cannot_approve_a_result_they_entered(self):
         result = self.enter(person=self.head)

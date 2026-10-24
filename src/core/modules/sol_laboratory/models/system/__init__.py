@@ -11,6 +11,7 @@ from . import (
     ir_access,
     ir_actions_act_window_view,
     ir_actions_report,
+    ir_attachment,
     ir_binary,
     ir_config_parameter,
     ir_mail_server,
@@ -28,6 +29,12 @@ from . import (
     signature,
 )
 
-# Accreditation job handlers inherit medilab.scheduled.job; load after the base model.
+# Accreditation, laboratory file lock, editing session and upload job handlers inherit medilab.scheduled.job; load
+# after the base model.
 # isort: split
-from . import accreditation_scheduled_job
+from . import (
+    accreditation_scheduled_job,
+    laboratory_editing_scheduled_job,
+    laboratory_file_lock_scheduled_job,
+    laboratory_upload_scheduled_job,
+)

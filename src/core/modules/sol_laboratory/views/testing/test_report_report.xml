@@ -12,7 +12,10 @@
     <template id="report_test_report">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="report">
-                <t t-call="sol_laboratory.report_test_report_document" t-lang="report._print_langs()[0]" />
+                <!-- The PDF engine only declares UTF-8 when it wraps an article. A bare page is read as Latin-1. -->
+                <div class="article" t-att-data-oe-model="report._name" t-att-data-oe-id="report.id">
+                    <t t-call="sol_laboratory.report_test_report_document" t-lang="report._print_langs()[0]" />
+                </div>
             </t>
         </t>
     </template>

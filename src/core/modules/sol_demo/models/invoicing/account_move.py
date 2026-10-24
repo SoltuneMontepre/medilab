@@ -15,6 +15,8 @@ MODEL_TAX = "account.tax"
 MODEL_TRANSACTION = "payment.transaction"
 LEAD_IN_WATER = "Lead in water"
 VAT_EIGHT = "VAT 8%"
+# The English and Vietnamese names of the journals the payment demo collects into, by journal type.
+PAYMENT_JOURNALS = {"cash": ("Cash", "Tiền mặt"), "bank": ("Bank", "Ngân hàng")}
 
 
 class AccountMove(models.Model):
@@ -74,14 +76,7 @@ class AccountMove(models.Model):
         lowering = final.action_adjust(-100_000)
         draft = self._demo_invoice(green, product, vat10, "draft")
         cancelled = self._demo_invoice(green, product, vat10, "cancel")
-        payments = self.env[MODEL_ACCOUNT_PAYMENT]
-        cash = payments.create_pending_payment(advance, 1_000_000, "cash")
-        cash.action_post()
-        transfer = payments.create_pending_payment(advance, 500_000, "bank_transfer")
-        pending = payments.create_pending_payment(final, 200_000, "bank_transfer")
-        rejected = payments.create_pending_payment(final, 100_000, "cash")
-        rejected.rejection_reason = "The cash was not received"
-        rejected.action_reject_payment()
+        cash, transfer, pending, rejected = self._demo_payments(advance, final)
         yesterday = datetime.now(ZoneInfo(VIETNAM_ZONE)).date() - timedelta(days=2)
         overdue = self._demo_invoice(an_phu, product, vat8, "draft")
         overdue.invoice_date_due = yesterday
@@ -156,6 +151,31 @@ class AccountMove(models.Model):
         elif state == "cancel":
             invoice.button_cancel()
         return invoice
+
+    def _demo_payments(self, advance, final):
+        """A confirmed cash payment, a pending transfer on each invoice and a rejected cash payment."""
+        for journal_type in PAYMENT_JOURNALS:
+            self._demo_journal(journal_type)
+        payments = self.env[MODEL_ACCOUNT_PAYMENT]
+        cash = payments.create_pending_payment(advance, 1_000_000, "cash")
+        cash.action_post()
+        transfer = payments.create_pending_payment(advance, 500_000, "bank_transfer")
+        pending = payments.create_pending_payment(final, 200_000, "bank_transfer")
+        rejected = payments.create_pending_payment(final, 100_000, "cash")
+        rejected.rejection_reason = "The cash was not received"
+        rejected.action_reject_payment()
+        return cash, transfer, pending, rejected
+
+    def _demo_journal(self, journal_type):
+        """Add the company's journal of this type when its chart has none, as Odoo's generic chart has no cash one."""
+        company = self.env.company
+        journals = self.env["account.journal"]
+        if journals.search([("type", "=", journal_type), ("company_id", "=", company.id)], limit=1):
+            return
+        name, vietnamese = PAYMENT_JOURNALS[journal_type]
+        journal = journals.create({"name": name, "type": journal_type, "company_id": company.id})
+        journal.with_context(lang="vi_VN").name = vietnamese
+        self._remember({f"demo_account_journal_{journal_type}": journal})
 
     def _demo_payos_days(self, invoice):
         provider = self.env.ref("sol_commerce.payment_provider_payos", raise_if_not_found=False)

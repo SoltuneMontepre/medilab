@@ -9,3 +9,4 @@
 - [Provisioning](provisioning.md): what Ansible in `infra/ansible/` installs on a node, k3s and Argo CD, how it leaves other programs alone, and how `cd-ansible` runs it
 - [Pipelines](pipelines.md): what each GitHub Actions workflow does, images, artifacts and caches
 - [Secrets](secrets.md): Doppler config and the secrets published to GitHub
+- [Terraform](terraform.md): what `infra/` creates in Cloudflare and GitHub

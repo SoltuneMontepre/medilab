@@ -218,7 +218,7 @@ flowchart LR
 | Suggest outsourcing | When no machine that can run a test is available, or none has a free slot that finishes before the test's due date, the scheduler suggests outsourcing it through one of the parameter's subcontracted ways of testing. |
 | Machine unavailable | When a machine becomes under repair or overdue for calibration, its scheduled bookings go back to the queue and are rescheduled on other machines; those that cannot finish in time get an outsourcing suggestion. |
 | Locations          | A step of a testing method can name the [location](features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) where it is done, such as a fume hood or a water point. A sample can name the location it was taken from. The person running a test sees the locations of its steps and of its sample, on the testing task, the schedule, the to-do list and the timeline of their day, and opens it on its parent location's map. A bookable location, such as a shared room, is booked on the calendar ([SH-11](../shared.md#sh-11-schedules-and-reminders)), by people or by the scheduler for a step done in it. |
-| Rooms              | When a step of the way of testing's method is done in a bookable location, the scheduler books that location for the step's time along with the machine, and plans the test only when the machine and every such location are free. Steps run in step number order from the start of the test, each for its duration rounded up to whole slots of 15 minutes. Each location booking is a calendar event on the person's calendar and the location's schedule ([SH-11](../shared.md#sh-11-schedules-and-reminders)). Moving, cancelling or rescheduling the machine booking moves or cancels its location bookings with it. |
+| Rooms              | When a step of the way of testing's method is done in a bookable location, the scheduler books that location for the step's time along with the machine, and plans the test only when the machine and every such location are free. Steps run in step number order from the start of the test, each for its duration rounded up to whole slots of 15 minutes. Each location booking is a calendar event on the person's calendar and the location's schedule ([SH-11](../shared.md#sh-11-schedules-and-reminders)). Moving, cancelling or rescheduling the machine booking moves or cancels its location bookings with it; those location bookings are not moved or cancelled on their own. |
 | Adjusting          | The person running a test, and the head of their department, can move or cancel its booking; the slot goes back to the queue.                 |
 | Bumping            | The head of department can bump an urgent test to the earliest slot on a machine fit to run it, with a reason. Bookings in that slot that have not started go back to the queue and are planned again, and their people are notified; a running booking is never interrupted. When the bump would make other tests miss their due date, the head chooses: let them run late, outsource them straight away, or not bump. |
 | Changing a due date | A sample test's due date can be changed by hand; the date from the safety margin is its default. |
@@ -241,12 +241,12 @@ Laboratory files are the files the testing work produces and uses outside MediLa
 | Members         | The owner and the people they add can read and write the folder: see, download and upload its files and restore their versions. There is no read-only member. The owner and administrators add and remove members; only administrators change the owner, and the previous owner stays a member. |
 | Sync rules      | A folder can limit which files are synced by name prefix, name pattern with `*`, or extension, with or without subfolders. With no rule every file is synced. |
 | Versions        | Saving a changed file adds a version: a number that never changes, who saved it, from which device, when, its size and SHA-256 hash, and how it was made: synced, restored, edited online, or kept from a conflict. A version is never edited or deleted. The file's current version is the one people get. Two versions with the same content share the stored bytes. |
-| Uploads         | A file is uploaded straight to the bucket in parts through short-lived signed addresses, never through Odoo, up to 5 GiB in parts of 16 MiB. The server checks the hash before the version counts. An upload left unfinished expires and its parts are removed. |
+| Uploads         | A file is uploaded straight to the bucket in parts through short-lived signed addresses, never through Odoo, up to 5 GiB in parts of 16 MiB. The server checks the hash and size of the stored bytes before the version counts. An upload left unfinished expires and its parts are removed. |
 | Conflicts       | An upload made from a version that is no longer the current one is kept as a conflict version, never written over the current one. The person chooses to keep their own file or take the server's; both versions stay in the history. |
 | Restore         | Restoring an earlier version adds a new current version with its content; history is never rewritten. |
 | Raw data        | Raw-data files are evidence: each save adds a version, they are not edited online and they are not locked. |
 | Online editing  | Word, Excel and PowerPoint result and working files are edited together in the browser through ONLYOFFICE. One editing session is open per file; saving it adds a version. When the editing service is down, sync, download, history and restore keep working. |
-| Locks           | A working or result file that is not an Office document can be locked by one person while they edit it, for 30 minutes unless renewed. Others cannot upload it meanwhile; an administrator can release a lock someone left. |
+| Locks           | A working, result or uncategorized file that is not an Office document can be locked by one person while they edit it, for 30 minutes unless renewed; the duration is a system parameter. Others cannot upload it meanwhile; an administrator can release a lock someone left. |
 | Signing         | A version of a result file is approved by signing it through the approval chain of laboratory files ([SH-04](../shared.md#sh-04-signatures-and-digital-signing)). The signature belongs to that version and its hash; a newer version needs its own. |
 | Devices         | Each computer signs in once with the person's MediLab login and gets its own key; the password is never stored on it. An administrator sees every device and revokes one, which stops it at once without removing the person's folder memberships. |
 | Turning off     | An administrator can turn a folder off: nobody can upload to it, and its files can still be read and downloaded. |
@@ -260,7 +260,7 @@ Laboratory files are the files the testing work produces and uses outside MediLa
 stateDiagram-v2
     [*] --> prepared: upload asked for
     prepared --> uploading: first part sent
-    prepared --> completed: same content already stored
+    prepared --> completed: the file already has this content
     uploading --> finalizing: every part sent
     finalizing --> completed: hash checked, new current version
     finalizing --> conflict: made from an older version
@@ -279,9 +279,13 @@ stateDiagram-v2
     open --> saving: the editor saves
     saving --> committed: new version added
     saving --> conflict: the file changed meanwhile
+    saving --> closed: the file already has this content
     open --> closed: everyone left without changes
     open --> expired: no activity for 12 hours
-    saving --> error: the editor's file cannot be read
+    saving --> expired: no activity for 12 hours
+    expired --> committed: a save arrives later
+    expired --> conflict: a save arrives later, the file changed meanwhile
+    saving --> error: the editor's file cannot be read, or the editor can no longer write the file
 ```
 
 ### Lock

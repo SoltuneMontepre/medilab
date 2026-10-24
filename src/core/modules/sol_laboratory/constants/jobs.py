@@ -4,6 +4,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_DOCUMENT_LOCK,
     MODEL_JOB_ITEM,
     MODEL_JOB_RUN,
+    MODEL_LABORATORY_FILE_LOCK,
     MODEL_MAIL_NOTIFICATION,
     MODEL_MOBILE_DEVICE,
 )
@@ -21,6 +22,7 @@ CLEANUP_KINDS = {
     "locks": (MODEL_DOCUMENT_LOCK, "lock_retention_days"),
     "notifications": (MODEL_MAIL_NOTIFICATION, "notification_retention_days"),
     "devices": (MODEL_MOBILE_DEVICE, "device_retention_days"),
+    "laboratory_file_locks": (MODEL_LABORATORY_FILE_LOCK, "lock_retention_days"),
 }
 # Kind of the archive files the cleanup job writes of audit entries.
 AUDIT_KIND = "audit_entry"

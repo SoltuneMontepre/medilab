@@ -4,7 +4,7 @@ vars:
   PROJECT_DIR: src/core
   UV: uv --project {{.PROJECT_DIR}}
   ODOO_SOURCE_DIR: .local/odoo-source
-  ODOO_SOURCE_REVISION: 17ff827a18248397342e73bb2bcac48e2b8e1027
+  ODOO_SOURCE_REVISION: 7434faa93558d4f46fdda77acd1be4dfc663ea7c
   ODOO_ADDONS: [web, account, auth_signup, portal]
   MODULES_DIR: src/core/modules
   LINT_TARGET: "{{.MODULES_DIR}}"
@@ -15,10 +15,16 @@ vars:
 tasks:
   dev:setup:
     aliases: [setup-dev]
-    desc: "Sync the uv environment and fetch the Odoo source for type checking"
+    desc: "Sync the uv environment, fetch the Odoo source for type checking and set this checkout's compose project"
     cmds:
       - task: dev:sync
       - task: dev:odoo-source
+      - task: dev:compose-env
+
+  dev:compose-env:
+    desc: "Set this checkout's compose project in tools/infrastructure/.env from its folder name, so a worktree's containers never take the main checkout's"
+    cmds:
+      - "{{.UV}} run python tools/scripts/compose_env.py"
 
   doppler:
     desc: "Authenticate Doppler (paste token or browser login) and select the project and config"
@@ -68,6 +74,7 @@ tasks:
   dev:odoo-links:
     internal: true
     silent: true
+    interactive: true
     cmds:
       - "{{.UV}} run python {{.TYPECHECK_DIR}}/link_addons.py {{.ODOO_SOURCE_DIR}} {{.MODULES_DIR}} {{.ODOO_ADDONS | join \" \"}}"
 

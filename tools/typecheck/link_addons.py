@@ -3,12 +3,13 @@
 pyright finds odoo.addons.<name> only inside odoo/addons. A link shows the current code of a module, unlike a copy:
 a symbolic link on Linux and macOS, a directory junction on Windows, which needs no administrator rights.
 The links this script made are recorded in medilab-links.json of the Odoo source. Only those are replaced or removed;
-other links and folders in odoo/addons are left alone.
+other links in odoo/addons are left alone, and a folder under a name it needs is replaced only after the user confirms.
 """
 
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -60,12 +61,21 @@ def valid_name(name):
     )
 
 
+def ask_to_replace(folder):
+    """Ask whether to delete folder and link its name instead. Without a terminal, the answer is no."""
+    if not sys.stdin.isatty():
+        return False
+    answer = input(f"{folder} is a folder, not a link. Delete it and link the name instead? [y/N] ")
+    return answer.strip().lower() in ("y", "yes")
+
+
 class Links:
     """The links in an odoo/addons folder, and which of them this script made."""
 
-    def __init__(self, folder, record):
+    def __init__(self, folder, record, confirm=ask_to_replace):
         self.folder = folder
         self.record = record
+        self.confirm = confirm
         try:
             self.made = json.loads(record.read_text(encoding="utf-8")) if record.exists() else {}
         except (OSError, ValueError) as error:
@@ -93,7 +103,9 @@ class Links:
                 )
             remove_link(link)
         elif link.exists():
-            raise LinkError(f"{link} is a folder, not a link. Move it out of {self.folder} and run again.")
+            if not self.confirm(link):
+                raise LinkError(f"{link} is a folder, not a link. Delete it or confirm its replacement, and run again.")
+            shutil.rmtree(link)
         create_link(link, target)
         self.made[name] = os.readlink(link)
 
@@ -111,7 +123,7 @@ class Links:
             self.record.write_text(content, encoding="utf-8")
 
 
-def link_addons(source, modules, addons):
+def link_addons(source, modules, addons, confirm=ask_to_replace):
     """Link each Odoo addon in addons and each module in the modules folder into source/odoo/addons."""
     addons_folder = source / "odoo" / "addons"
     if not addons_folder.is_dir():
@@ -123,7 +135,7 @@ def link_addons(source, modules, addons):
     for target in targets.values():
         if not target.is_dir():
             raise LinkError(f"{target} not found. Run: task dev:odoo-source")
-    links = Links(addons_folder, source / RECORD)
+    links = Links(addons_folder, source / RECORD, confirm)
     try:
         for name, target in targets.items():
             links.place(name, target.resolve())

@@ -11,6 +11,17 @@
         <field name="enabled" eval="True" />
     </record>
 
+    <record id="event_location_booking_reminder" model="mail.message.subtype">
+        <field name="name">Location booking reminder</field>
+        <field name="description">A location you booked or are invited to is about to be used</field>
+        <field name="code">location_booking.reminder</field>
+        <field name="res_model">calendar.event</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="False" />
+        <field name="enabled" eval="True" />
+    </record>
+
     <record id="event_sample_insufficient" model="mail.message.subtype">
         <field name="name">Sample insufficient</field>
         <field name="description">A sample arrived insufficient and is on hold</field>
@@ -103,6 +114,17 @@
         <field name="description">The laboratory's signing certificate expires soon, has expired or was revoked</field>
         <field name="code">signing_certificate.alert</field>
         <field name="res_model">medilab.signing.certificate</field>
+        <field name="internal" eval="True" />
+        <field name="default" eval="False" />
+        <field name="mandatory" eval="True" />
+        <field name="enabled" eval="True" />
+    </record>
+
+    <record id="event_laboratory_file_version_rejected" model="mail.message.subtype">
+        <field name="name">Laboratory file version rejected</field>
+        <field name="description">A version of a laboratory file you saved was rejected</field>
+        <field name="code">laboratory_file_version.rejected</field>
+        <field name="res_model">medilab.laboratory.file.version</field>
         <field name="internal" eval="True" />
         <field name="default" eval="False" />
         <field name="mandatory" eval="True" />

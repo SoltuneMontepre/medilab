@@ -445,6 +445,50 @@
         <field name="document_model">medilab.chemical</field>
         <field name="action">delete</field>
     </record>
+    <record id="permission_lab_location_create_all" model="medilab.permission">
+        <field name="name">Create company locations</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_lab_location_edit_all" model="medilab.permission">
+        <field name="name">Edit company locations</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_lab_location_archive_all" model="medilab.permission">
+        <field name="name">Archive company locations</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">archive</field>
+    </record>
+    <record id="permission_lab_location_delete_all" model="medilab.permission">
+        <field name="name">Delete company locations</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_lab_location_create_own_department" model="medilab.permission">
+        <field name="name">Create company locations of their department</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">create</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_lab_location_edit_own_department" model="medilab.permission">
+        <field name="name">Edit company locations of their department</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">edit</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_lab_location_archive_own_department" model="medilab.permission">
+        <field name="name">Archive company locations of their department</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">archive</field>
+        <field name="scope">own_department</field>
+    </record>
+    <record id="permission_lab_location_delete_own_department" model="medilab.permission">
+        <field name="name">Delete company locations of their department</field>
+        <field name="document_model">medilab.location</field>
+        <field name="action">delete</field>
+        <field name="scope">own_department</field>
+    </record>
     <record id="permission_machine_create_all" model="medilab.permission">
         <field name="name">Create machines</field>
         <field name="document_model">medilab.machine</field>
@@ -948,5 +992,101 @@
         <field name="name">Release document locks</field>
         <field name="document_model">medilab.document.lock</field>
         <field name="action">edit</field>
+    </record>
+    <record id="permission_laboratory_folder_read_all" model="medilab.permission">
+        <field name="name">Read every laboratory folder</field>
+        <field name="document_model">medilab.laboratory.folder</field>
+        <field name="action">read</field>
+    </record>
+    <!-- The laboratory files permission: signing computers in and working in the folders the person is a member of. -->
+    <record id="permission_laboratory_folder_create_all" model="medilab.permission">
+        <field name="name">Use laboratory files</field>
+        <field name="document_model">medilab.laboratory.folder</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_laboratory_folder_edit_all" model="medilab.permission">
+        <field name="name">Administer laboratory folders</field>
+        <field name="document_model">medilab.laboratory.folder</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_laboratory_folder_member_read_all" model="medilab.permission">
+        <field name="name">Read the members of every laboratory folder</field>
+        <field name="document_model">medilab.laboratory.folder.member</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_folder_member_create_all" model="medilab.permission">
+        <field name="name">Add members to any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.folder.member</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_laboratory_folder_member_delete_all" model="medilab.permission">
+        <field name="name">Remove members from any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.folder.member</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_laboratory_sync_rule_read_all" model="medilab.permission">
+        <field name="name">Read the sync rules of every laboratory folder</field>
+        <field name="document_model">medilab.laboratory.sync.rule</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_sync_rule_create_all" model="medilab.permission">
+        <field name="name">Add sync rules to any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.sync.rule</field>
+        <field name="action">create</field>
+    </record>
+    <record id="permission_laboratory_sync_rule_edit_all" model="medilab.permission">
+        <field name="name">Edit the sync rules of any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.sync.rule</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_laboratory_sync_rule_delete_all" model="medilab.permission">
+        <field name="name">Remove sync rules from any laboratory folder</field>
+        <field name="document_model">medilab.laboratory.sync.rule</field>
+        <field name="action">delete</field>
+    </record>
+    <record id="permission_laboratory_device_read_all" model="medilab.permission">
+        <field name="name">Read every computer signed in to laboratory folders</field>
+        <field name="document_model">medilab.laboratory.device</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_device_edit_all" model="medilab.permission">
+        <field name="name">Revoke computers signed in to laboratory folders</field>
+        <field name="document_model">medilab.laboratory.device</field>
+        <field name="action">edit</field>
+    </record>
+    <record id="permission_laboratory_file_read_all" model="medilab.permission">
+        <field name="name">Read every laboratory file</field>
+        <field name="document_model">medilab.laboratory.file</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_file_version_read_all" model="medilab.permission">
+        <field name="name">Read every version of laboratory files</field>
+        <field name="document_model">medilab.laboratory.file.version</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_file_change_read_all" model="medilab.permission">
+        <field name="name">Read the changes of every laboratory folder</field>
+        <field name="document_model">medilab.laboratory.file.change</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_file_lock_read_all" model="medilab.permission">
+        <field name="name">Read every laboratory file lock</field>
+        <field name="document_model">medilab.laboratory.file.lock</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_upload_read_all" model="medilab.permission">
+        <field name="name">Read every upload of laboratory files</field>
+        <field name="document_model">medilab.laboratory.upload</field>
+        <field name="action">read</field>
+    </record>
+    <record id="permission_laboratory_file_version_sign_all" model="medilab.permission">
+        <field name="name">Sign versions of laboratory files</field>
+        <field name="document_model">medilab.laboratory.file.version</field>
+        <field name="action">sign</field>
+    </record>
+    <record id="permission_laboratory_editing_session_read_all" model="medilab.permission">
+        <field name="name">Read every online editing session of laboratory files</field>
+        <field name="document_model">medilab.laboratory.editing.session</field>
+        <field name="action">read</field>
     </record>
 </odoo>

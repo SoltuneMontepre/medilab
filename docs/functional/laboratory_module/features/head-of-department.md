@@ -32,6 +32,10 @@ The head of department runs the testing work of one department: they assign its 
 - **US-HD15** As a head of department, I want to create the raw-data and result folders of a sample, so that its testers save their files in the right place.
 - **US-HD16** As a head of department, I want to sign or reject a version of a result file with a reason, so that the file a report relies on is approved.
 
+### Mobile
+
+- **US-HD17** As a head of department, I want to assign my department's tasks and sign or reject its results on my phone, so that work and results do not wait while I am away from my desk.
+
 ## II. Feature details
 
 ### 1. Work and schedule (US-HD01 to US-HD05, US-HD12, US-HD14)
@@ -98,7 +102,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Accept      | Accepting a suggestion marks its sample tests as outsourced through the suggested subcontracted way of testing, or another of the parameter's subcontracted ways the head chooses, and puts them in the subcontractor's draft dispatch. |
 | Dispatch    | Outsourced sample tests for one subcontractor go in a dispatch: date sent, date results are expected back, and sample delivery staff (nhân viên giao nhận mẫu) or a delivery service with its tracking number. |
 | Accreditation | A subcontractor whose accreditation has expired cannot be chosen.                                                          |
-| Emergency   | The head outsources a waiting or assigned test of the department straight away, with a reason, through one of the parameter's subcontracted ways of testing. Its bookings that have not started are cancelled, and it goes in the subcontractor's draft dispatch as an accepted suggestion does. |
+| Emergency   | The head outsources a waiting or assigned test of the department straight away, with a reason, through one of the parameter's subcontracted ways of testing. Its bookings that have not started are cancelled, and it goes in the subcontractor's draft dispatch as an accepted suggestion does. Outsourcing a test asks for the reason only when the test has no outsourcing suggestion, and the reason shows on the test. Only the department testing a test with no suggestion sees the action. |
 
 Acceptance criteria:
 
@@ -121,6 +125,20 @@ Acceptance criteria:
 - Creating a sample's folders twice adds no second folder of the same category.
 - Signing a file version records the signer, the version and its hash; a newer version of the file shows as not signed.
 - Rejecting a version without a reason is refused.
+
+### 5. Mobile (US-HD17)
+
+Follows [Medilab Mobile](../applications/medilab-mobile.md#tasks-and-notifications-sh-10-sh-11-us-hd17).
+
+| Rule    | Description |
+| ------- | ----------- |
+| Tasks   | The head assigns their department's waiting tasks and reassigns them with a reason on the phone, as in the department's queue on the web. |
+| Results | The head signs or rejects their department's results on the phone at their level of the approval chain, following [Samples and results](#2-samples-and-results-us-hd06-to-us-hd09). |
+
+Acceptance criteria:
+
+- Rejecting a result on the phone without a reason is refused.
+- A head cannot approve on the phone a result they entered.
 
 ## III. Related documents
 
