@@ -38,6 +38,9 @@ class TestYamlDuplicateKeys(unittest.TestCase):
             yaml_duplicate_keys.duplicate_keys(text), [("b", 3, 2), ("e", 7, 6)]
         )
 
+    def test_a_document_outside_the_repository_is_refused(self):
+        self.assertEqual(self.run_main("../outside.yaml")[0], 2)
+
     def test_the_laboratory_files_api_document_has_no_duplicate_key(self):
         self.assertEqual(self.run_main(OPENAPI_DOCUMENT), (0, ""))
 
