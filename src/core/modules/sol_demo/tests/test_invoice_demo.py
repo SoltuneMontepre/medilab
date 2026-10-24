@@ -24,3 +24,29 @@ class TestDemoInvoiceSeed(TransactionCase):
         self.assertEqual(self.env.ref("sol_demo.demo_payment_transaction_payos_advance").state, "done")
         self.assertEqual(failed.status, "failed")
         self.assertTrue(failed.error)
+
+    def test_the_payment_demo_adds_the_journals_the_chart_lacks(self):
+        # Odoo's generic chart, which a company outside Vietnam gets when account is installed, has no cash journal.
+        journals = self.env["account.journal"]
+        journals.search([("type", "in", ("cash", "bank")), ("company_id", "=", self.env.company.id)]).action_archive()
+        moves = self.env["account.move"]
+        product = self.env["product.product"].create(
+            {"name": "Lead in water", "type": "service", "list_price": 5_000_000, "invoice_policy": "order"}
+        )
+        order = moves._demo_order(self.env.ref("sol_demo.demo_res_partner_an_phu"), product, self.env["account.tax"])
+        advance = order.create_advance_invoice(amount=2_500_000)
+        final = order.create_final_invoice()
+        final.action_post()
+
+        cash, transfer, pending, rejected = moves._demo_payments(advance, final)
+
+        cash_journal = self.env.ref("sol_demo.demo_account_journal_cash")
+        bank_journal = self.env.ref("sol_demo.demo_account_journal_bank")
+        self.assertEqual((cash | rejected).journal_id, cash_journal)
+        self.assertEqual((transfer | pending).journal_id, bank_journal)
+        self.assertEqual(cash_journal.type, "cash")
+        self.assertEqual(bank_journal.type, "bank")
+        self.assertEqual(cash_journal.with_context(lang="vi_VN").name, "Tiền mặt")
+        self.assertEqual(bank_journal.with_context(lang="vi_VN").name, "Ngân hàng")
+        self.assertNotEqual(cash.state, "draft")
+        self.assertEqual(rejected.state, "canceled")
