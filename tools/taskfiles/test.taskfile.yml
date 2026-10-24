@@ -140,8 +140,10 @@ tasks:
       - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
 
   test:openapi:
-    desc: "Lint the OpenAPI document of the laboratory files API and refuse a change that breaks it against main unless its version changes; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
+    desc: "Lint the OpenAPI document of the laboratory files API, refuse a duplicate key in it, and refuse a change that breaks it against main unless its version changes; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
     cmds:
+      - "{{.UV}} run python -m unittest discover -s tools/scripts/tests -t tools/scripts"
+      - "{{.UV}} run python tools/scripts/yaml_duplicate_keys.py {{.OPENAPI_DOCUMENT}}"
       - "{{.UV}} run openapi-spec-validator {{.OPENAPI_DOCUMENT}}"
       - "{{.UV}} run python tools/scripts/test_openapi.py {{.OPENAPI_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
 
