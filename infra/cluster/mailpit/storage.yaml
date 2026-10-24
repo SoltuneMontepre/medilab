@@ -1,9 +1,8 @@
+# Synced with the Deployment: local-path binds the claim only once a pod uses it.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mailpit-data
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1"
 spec:
   accessModes:
     - ReadWriteOnce
