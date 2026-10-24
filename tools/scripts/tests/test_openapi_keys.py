@@ -1,11 +1,11 @@
-"""yaml_duplicate_keys.py refuses a document that defines a key twice in one mapping, naming the key and its line."""
+"""test_openapi_keys.py refuses a document that defines a key twice in one mapping, naming the key and its line."""
 
 import contextlib
 import io
 import unittest
 from pathlib import Path
 
-import yaml_duplicate_keys
+import test_openapi_keys
 
 FIXTURES = Path(__file__).parent / "fixtures"
 OPENAPI_DOCUMENT = (
@@ -13,11 +13,11 @@ OPENAPI_DOCUMENT = (
 )
 
 
-class TestYamlDuplicateKeys(unittest.TestCase):
+class TestOpenapiKeys(unittest.TestCase):
     def run_main(self, document):
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
-            code = yaml_duplicate_keys.main(str(document))
+            code = test_openapi_keys.main(str(document))
         return code, output.getvalue()
 
     def test_a_duplicate_schema_is_refused_with_its_key_and_line(self):
@@ -30,12 +30,12 @@ class TestYamlDuplicateKeys(unittest.TestCase):
 
     def test_the_same_key_in_different_mappings_is_accepted(self):
         text = "a:\n  name: x\nb:\n  name: y\nitems:\n  - name: x\n  - name: y\n"
-        self.assertEqual(yaml_duplicate_keys.duplicate_keys(text), [])
+        self.assertEqual(test_openapi_keys.duplicate_keys(text), [])
 
     def test_duplicates_in_nested_mappings_and_sequences_are_found(self):
         text = "a:\n  - b: 1\n    b: 2\nc:\n  d:\n    e: 1\n    e: 2\n"
         self.assertEqual(
-            yaml_duplicate_keys.duplicate_keys(text), [("b", 3, 2), ("e", 7, 6)]
+            test_openapi_keys.duplicate_keys(text), [("b", 3, 2), ("e", 7, 6)]
         )
 
     def test_a_document_outside_the_repository_is_refused(self):

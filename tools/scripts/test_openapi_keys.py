@@ -1,7 +1,7 @@
 """test:openapi: refuse a YAML document in which a mapping has the same key twice. YAML loaders keep the last value of
 a duplicate key, so the document still parses and validates without it.
 
-Usage: yaml_duplicate_keys.py <document in the repository>
+Usage: test_openapi_keys.py <document in the repository>
 """
 
 import pathlib
