@@ -131,7 +131,7 @@ Acceptance criteria:
 Once a document is signed it cannot be modified. Because approving is signing (SH-04), this applies from the first signature of the approval chain.
 
 - From the first signature the document is read-only for everyone, including administrators.
-- **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature once every higher level has withdrawn theirs. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
+- **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature while they can still sign it, holding the permission and the role of their level, and once every signature given after theirs is withdrawn. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
 - **After the document's process is completed**, such as a test request completed, an order completed or an invoice paid, the document can no longer be reopened. To change it, a person who can edit that type of document raises a **change request** stating what to change and why.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Lab Head for a test result.
 - When the chain approves, the system creates a **new version** of the document, unsigned, linked to the signed one; the signed version is kept unchanged and marked as replaced. The new version must be signed again.
@@ -141,7 +141,8 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 Acceptance criteria:
 
 - No screen or API changes a signed document.
-- A signer can withdraw their signature only while no higher level has a standing signature and the document's process is not completed, and the document is then editable again.
+- A signer can withdraw their signature only while they can still sign it, no signature given after theirs stands and the document's process is not completed, and the document is then editable again.
+- A signer who has lost the permission or the role of their level cannot withdraw.
 - After the document's process is completed, no signature can be withdrawn.
 - An approved change request produces a new version linked to the old one; the old one stays readable.
 - The status of a change request is visible to the requester at every step.

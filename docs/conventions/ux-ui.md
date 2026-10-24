@@ -25,6 +25,7 @@ Rules every screen follows, so the interface reads as one product. Colors by mea
 - **Action beside its content.** A button sits next to the data it changes: row actions on the row, section actions in the section header.
 - **Show the outcome first.** Totals, counts and the effect of an action update as the user edits, and a confirmation dialog states what will change before it is confirmed.
 - **Sticky controls.** The status bar, the main action buttons and a list's column headers stay visible while the page scrolls.
+- **Resizable chatter.** On a wide window, dragging the bar between a form and its chatter resizes the chatter, and the bar collapses the chatter to give the form the full width. The width and whether it is collapsed are kept in the browser's local storage only.
 - **Predefined options.** Offer the common choices as one-click filters, groupings, default values or quick picks, and keep a custom option for anything else.
 
 ## Checking a screen
