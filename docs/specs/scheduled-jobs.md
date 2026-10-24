@@ -18,11 +18,11 @@ Recurring work runs by itself in batches, is safe to run twice, retries what fai
 
 `queue(key, item_key, document=None, payload=None)` queues work once. The same item key is returned unchanged, and the unique constraint on the job and the item key settles a race.
 
-The work of a job is `_handle_<key with dots replaced by underscores>(self, item)` on `medilab.scheduled.job`. A feature module adds it by extending the model. A job that finds its own work, such as the samples whose retention ends soon or the stale document locks, also defines `_queue_<key with dots replaced by underscores>(self)`, which runs once as each run starts, before the run claims items. The handler returns nothing when the item is done, returns a `datetime` to defer the item without counting an attempt, raises `PermanentJobError` for a failure a retry cannot fix, and raises any other exception for a failure worth retrying.
+The work of a job is `_handle_<key with dots replaced by underscores>(self, item)` on `medilab.scheduled.job`. A feature module adds it by extending the model. A job that finds its own work, such as the samples whose retention ends soon or the stale document locks, also defines `_queue_<key with dots replaced by underscores>(self)`, which runs once as each run starts, before the run claims items, so the run also takes the items it queued. The handler returns nothing when the item is done, returns a `datetime` to defer the item without counting an attempt, raises `PermanentJobError` for a failure a retry cannot fix, and raises any other exception for a failure worth retrying.
 
 ### Claiming and retries
 
-A batch claims due items with `FOR UPDATE SKIP LOCKED`, handles each one in a savepoint, and retries a failure with a delay that doubles up to the job's attempts. The item is then marked failed and an activity is created for the administrator. Abandoned claims, an item still running after the claim timeout, count an attempt. A second cron pass waits on Odoo's own scheduler lock.
+A batch claims due items with `FOR UPDATE SKIP LOCKED`, handles each one in a savepoint, and retries a failure with a delay that doubles up to the job's attempts. The item is then marked failed and an activity is created for the administrator. Under the cron, the batch commits its claims before it handles any item, so a worker killed or a connection lost in a handler leaves its items running. Abandoned claims, an item still running after the claim timeout, count an attempt. A second cron pass waits on Odoo's own scheduler lock.
 
 Run now asks the cron worker to run the job and records who asked.
 

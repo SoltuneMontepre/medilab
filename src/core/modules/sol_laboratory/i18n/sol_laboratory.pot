@@ -34,6 +34,13 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid ""
+"%(location)s is already booked from %(start)s to %(stop)s: %(booking)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_editing_session.py:0
 msgid "%(path)s, %(status)s"
 msgstr ""
@@ -66,6 +73,12 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "%s cannot be booked."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
 #: code:addons/sol_laboratory/models/system/permission.py:0
 msgid ""
 "%s does not tell editing from archiving yet, so it has no edit or "
@@ -84,6 +97,12 @@ msgstr ""
 msgid ""
 "%s has no department, so a permission on it cannot be limited to the "
 "person's department."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/master_data/location_map/location_map.js:0
+msgid "%s has no map. Add its picture to place the locations inside it."
 msgstr ""
 
 #. module: sol_laboratory
@@ -203,6 +222,11 @@ msgid "'Label %s' % object.code"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_calendar_event_form_quick_create_location
+msgid "<i class=\"oi oi-filled\" data-icon=\"meeting_room\" title=\"Booked Location\"/>"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.report_sample_label
 msgid "<span>Due</span>"
 msgstr ""
@@ -298,6 +322,11 @@ msgid "A level with signatures cannot be deleted. Signatures: %s"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:mail.message.subtype,description:sol_laboratory.event_location_booking_reminder
+msgid "A location you booked or are invited to is about to be used"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_lock_settings.py:0
 msgid "A lock on a laboratory file must last at least 1 minute."
@@ -354,6 +383,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/person.py:0
 msgid "A person who signed cannot be deleted; archive them instead. Signatures: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_map_point_range
+msgid "A point on a map lies between 0 and 1 of the image's width and height."
 msgstr ""
 
 #. module: sol_laboratory
@@ -547,6 +581,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_document_lock_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_file_lock__status__active
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_lock_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__active
 msgid "Active"
 msgstr ""
 
@@ -830,6 +865,16 @@ msgid "Archive chemicals"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_archive_all
+msgid "Archive company locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_archive_own_department
+msgid "Archive company locations of their department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_archive_all
 msgid "Archive customers"
 msgstr ""
@@ -948,6 +993,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_unit_category_search
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_folder__status__archived
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_search
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Archived"
 msgstr ""
 
@@ -1168,6 +1215,22 @@ msgid "Blacklisted Phone is Phone"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__is_bookable
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
+msgid "Bookable"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_calendar_event_form_quick_create_location
+msgid "Bookable location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__location_id
+msgid "Booked Location"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__message_bounce
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__message_bounce
 msgid "Bounce"
@@ -1363,6 +1426,12 @@ msgid "Claimed At"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/master_data/location_map/location_map.js:0
+msgid "Click the map of %s where this location is."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_editing_session__status__closed
 msgid "Closed"
 msgstr ""
@@ -1397,6 +1466,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__code
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__code
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__code
 msgid "Code"
 msgstr ""
 
@@ -1627,6 +1697,16 @@ msgid "Create chemicals"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_create_all
+msgid "Create company locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_create_own_department
+msgid "Create company locations of their department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_create_all
 msgid "Create customers"
 msgstr ""
@@ -1834,6 +1914,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_uid
 msgid "Created by"
 msgstr ""
 
@@ -1905,6 +1986,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__create_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__create_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__create_date
 msgid "Created on"
 msgstr ""
 
@@ -2121,6 +2203,16 @@ msgid "Delete chemicals"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_delete_all
+msgid "Delete company locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_delete_own_department
+msgid "Delete company locations of their department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_customer_delete_all
 msgid "Delete customers"
 msgstr ""
@@ -2248,6 +2340,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_person_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_handover_search
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_task_search
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__department_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Department"
 msgstr ""
 
@@ -2437,6 +2531,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__display_name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__display_name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2651,6 +2746,16 @@ msgstr ""
 #. module: sol_laboratory
 #: model:medilab.permission,name:sol_laboratory.permission_chemical_edit_all
 msgid "Edit chemicals"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_edit_all
+msgid "Edit company locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_lab_location_edit_own_department
+msgid "Edit company locations of their department"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3226,6 +3331,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__global_location_number
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__global_location_number
 msgid "GLN"
 msgstr ""
 
@@ -3265,6 +3371,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_subcontractor__global_location_number
+#: model:ir.model.fields,help:sol_laboratory.field_medilab_customer__global_location_number
 msgid "Global Location Number"
 msgstr ""
 
@@ -3477,6 +3584,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__id
 msgid "ID"
 msgstr ""
 
@@ -3579,6 +3687,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__image_1920
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__image_1920
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__image_1920
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__image
 msgid "Image"
 msgstr ""
 
@@ -3608,6 +3717,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_person__image_512
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__image_512
 msgid "Image 512"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__image_attachment_id
+msgid "Image File"
 msgstr ""
 
 #. module: sol_laboratory
@@ -3668,6 +3782,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__industry_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__industry_id
 msgid "Industry"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__parent_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
+msgid "Inside"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4046,6 +4166,16 @@ msgid "Last Run"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_duration
+msgid "Last Run Duration"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_status
+msgid "Last Run Status"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Last Saved"
@@ -4129,6 +4259,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_uid
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_uid
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_uid
 msgid "Last Updated by"
 msgstr ""
 
@@ -4200,6 +4331,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_lock__write_date
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_editing_session__write_date
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -4273,7 +4405,35 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location
+#: model:ir.model,name:sol_laboratory.model_medilab_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__location_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_testing_method_step__location_id
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_search
 msgid "Location"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_location_booking
+#: model:ir.ui.menu,name:sol_laboratory.menu_location_booking
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_calendar_event_location_calendar
+msgid "Location Bookings"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:mail.message.subtype,name:sol_laboratory.event_location_booking_reminder
+msgid "Location booking reminder"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.act_window,name:sol_laboratory.action_medilab_location
+#: model:ir.ui.menu,name:sol_laboratory.menu_location
+msgid "Locations"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__child_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "Locations Inside"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4360,6 +4520,21 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine__manufacturer
 msgid "Manufacturer"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "Map"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__map_x
+msgid "Map X"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__map_y
+msgid "Map Y"
 msgstr ""
 
 #. module: sol_laboratory
@@ -4606,6 +4781,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signing_certificate__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__name
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__name
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__name
 msgid "Name"
 msgstr ""
 
@@ -4837,6 +5013,11 @@ msgid "On Hold"
 msgstr ""
 
 #. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
+msgid "On the Map"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_editing.py:0
 msgid ""
@@ -4896,6 +5077,18 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/tasks/task.py:0
 msgid "Only the assignee of %s can do this."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Only the organiser can change %s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Only the organiser or an administrator can cancel %s."
 msgstr ""
 
 #. module: sol_laboratory
@@ -5041,6 +5234,7 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_group__parent_path
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__parent_path
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__parent_path
 msgid "Parent Path"
 msgstr ""
 
@@ -5378,6 +5572,46 @@ msgid "Permission: job.run.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_archive_all
+msgid "Permission: lab_location.archive.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_archive_own_department
+msgid "Permission: lab_location.archive.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_create_all
+msgid "Permission: lab_location.create.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_create_own_department
+msgid "Permission: lab_location.create.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_delete_all
+msgid "Permission: lab_location.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_delete_own_department
+msgid "Permission: lab_location.delete.own_department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_edit_all
+msgid "Permission: lab_location.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_lab_location_edit_own_department
+msgid "Permission: lab_location.edit.own_department"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_laboratory_device_edit_all
 msgid "Permission: laboratory.device.edit.all"
 msgstr ""
@@ -5458,22 +5692,27 @@ msgid "Permission: laboratory.sync.rule.read.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_archive_all
 msgid "Permission: location.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_create_all
 msgid "Permission: location.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_delete_all
 msgid "Permission: location.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_edit_all
 msgid "Permission: location.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_location_read_all
 msgid "Permission: location.read.all"
 msgstr ""
 
@@ -6318,6 +6557,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_raise__reason
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_change_request_reject__reason
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__reason
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 msgid "Reason"
 msgstr ""
 
@@ -6407,6 +6648,12 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,help:sol_laboratory.field_medilab_person__user_id
 msgid "Related user name for the resource to manage its access."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-javascript
+#: code:addons/sol_laboratory/static/src/master_data/location_map/location_map.xml:0
+msgid "Remove from the map"
 msgstr ""
 
 #. module: sol_laboratory
@@ -6751,6 +6998,12 @@ msgid "Samples"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample__sampling_location_id
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_task__sampling_location_id
+msgid "Sampling Location"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__sampling_requirements
 msgid "Sampling Requirements"
 msgstr ""
@@ -6812,6 +7065,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_form_bookings
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_scheduled_job_form
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_location_form
 msgid "Schedule"
 msgstr ""
 
@@ -7056,6 +7310,12 @@ msgid "Started At"
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/notifications/scheduled_job.py:0
+msgid "Starts at %(start)s in %(location)s."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__state_id
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__state_id
 msgid "State"
@@ -7132,11 +7392,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_chemical__storage_conditions
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_type__storage_conditions
 msgid "Storage Conditions"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__storage_key
-msgid "Storage Key"
 msgstr ""
 
 #. module: sol_laboratory
@@ -7461,6 +7716,11 @@ msgid "The code of a customer must be unique."
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_location_code_unique
+msgid "The code of a location must be unique."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_machine_code_unique
 msgid "The code of a machine must be unique."
 msgstr ""
@@ -7629,6 +7889,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/regulation_limit.py:0
 msgid "The limit for %s needs a unit for its minimum or maximum."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "The location is already booked at that time."
 msgstr ""
 
 #. module: sol_laboratory
@@ -8161,6 +8427,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontractor__purchase_incoterm_location
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_customer__purchase_incoterm_location
 msgid "Vendor Incoterm Location"
 msgstr ""
 
@@ -10168,6 +10435,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__outsourcing_suggested
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test_outsource__outsourcing_suggested
 msgid "Outsourcing Suggested"
 msgstr ""
 
@@ -12636,6 +12904,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_message
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_message
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_message
 msgid "Editing Lock"
 msgstr ""
 
@@ -12845,6 +13114,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_device__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_folder__lock_watched
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_sync_rule__lock_watched
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_location__lock_watched
 msgid "Watching Lock"
 msgstr ""
 
@@ -13572,4 +13842,421 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_folder_api.py:0
 msgid "This file does not exist in the folder."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_content
+msgid "Laboratory Content"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_content__object_key
+msgid "Object Key"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_file_version__content_id
+msgid "Content"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_content__state__verified
+msgid "Verified"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_content__state__duplicate
+msgid "Duplicate"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_file_url_minutes
+msgid "File Addresses (minutes)"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_file_url_minutes
+msgid "Minutes an address that downloads a version of a laboratory file, or opens it in the online editor, keeps working once it is given."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_url_settings.py:0
+msgid "An address of a laboratory file lasts from 1 minute to 7 days, the longest the bucket takes."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "A version holds verified content, with the size and SHA-256 the server computed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "A SHA-256 is 64 lowercase hexadecimal digits."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "A content keeps the key of its object."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "A content's size cannot be negative."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "An object key is 32 lowercase hexadecimal digits."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content is pending until the server has computed its size and SHA-256."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content is settled by the server from its own reading of the bytes."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content with the same SHA-256 was stored meanwhile; it is settled again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Content with this SHA-256 is already stored."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Each object of the bucket is one content."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Failed content is never verified."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Only pending content fails."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Stored content is never deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content.py:0
+msgid "Verified content has the size and SHA-256 the server computed."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_version.py:0
+msgid "This computer already made a version with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+msgid "This version is not a version of the file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_file_history.py:0
+msgid "Version %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "A file uploaded is at most 5 GiB."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "A path is relative to its folder, such as HPLC/run-01.csv: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "A version is stored by one upload only."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_settings.py:0
+msgid "An unfinished upload lasts at least 1 hour and less than 7 days, when the bucket aborts it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "An upload keeps its file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "An upload keeps what was asked to upload and the object it uploads to."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "An upload moves on only as the server verifies and stores it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "Ask for at most %(most)s parts, numbered from 1 to %(count)s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__claimed_sha256
+msgid "Claimed SHA-256"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__claimed_size
+msgid "Claimed Size"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "Empty content has the SHA-256 %s."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_uploads_expire_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_uploads_expire
+msgid "Expire unfinished uploads of laboratory files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__expires_at
+msgid "Expires At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__failure_code
+msgid "Failure Code"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__finalized_at
+msgid "Finalized At"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__laboratory_upload_hours
+msgid "Hours a computer has to upload a laboratory file and finalize it; an upload not finalized by then expires and its parts are removed."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model,name:sol_laboratory.model_medilab_laboratory_upload
+msgid "Laboratory Upload"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__multipart_id
+msgid "Multipart"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_laboratory_upload_read_all
+msgid "Permission: laboratory.upload.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__prepared
+msgid "Prepared"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_laboratory_upload_read_all
+msgid "Read every upload of laboratory files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__refused
+msgid "Refused"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_uploads_store_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_uploads_store
+msgid "Store uploaded laboratory files"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "The base version is not a version of this file."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "The computer was revoked meanwhile."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "The laboratory files bucket cannot be reached; try again shortly."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "This computer already prepared an upload with this Idempotency-Key."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "This upload does not exist or you do not have access to it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "This upload is closed; prepare the file again."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "This upload takes no more parts."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__unchanged
+msgid "Unchanged"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__laboratory_upload_hours
+msgid "Unfinished Uploads (hours)"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload_flow.py:0
+msgid "Upload every part before finalizing: %s parts are expected."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_laboratory_upload__user_id
+msgid "Uploaded By"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_upload.py:0
+msgid "Uploads of laboratory files are never deleted."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_contents_verify_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_contents_verify
+msgid "Verify uploaded laboratory files"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields.selection,name:sol_laboratory.selection__medilab_laboratory_upload__status__verifying
+msgid "Verifying"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__emergency_outsource_reason
+msgid "Emergency Outsource Reason"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_form
+msgid "Emergency Outsourcing"
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_sample_test_outsource_form
+msgid "No outsourcing suggestion: give the reason for outsourcing the test straight away."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Give a reason for outsourcing the test straight away."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only a waiting or assigned sample test can be outsourced straight away: %s"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid "Only the department testing %s can outsource it straight away."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__tested_by_my_department
+msgid "Tested By My Department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_contents_reconcile_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_contents_reconcile
+msgid "Reconcile the laboratory files bucket"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The laboratory files bucket belongs to the database %(uuid)s, so reconciliation deletes nothing in it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The object %(key)s of verified laboratory file content is missing from the bucket."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The object %(key)s of verified laboratory file content has %(size)s bytes instead of %(expected)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The laboratory file content %(key)s is still pending a day after it was made, and no open upload holds it."
 msgstr ""

@@ -139,24 +139,16 @@ class TestInvoices(InvoicingCase):
             invoice.with_user(clerk).action_print_invoice()
 
     def test_two_tax_rates_are_added_on_the_invoice_and_its_pdf(self):
-        vat8 = self.env["account.tax"].create(
-            {
-                "name": "VAT 8%",
-                "amount": 8,
-                "amount_type": "percent",
-                "type_tax_use": "sale",
-                "price_include_override": "tax_excluded",
-            }
-        )
-        vat10 = self.env["account.tax"].create(
-            {
-                "name": "VAT 10%",
-                "amount": 10,
-                "amount_type": "percent",
-                "type_tax_use": "sale",
-                "price_include_override": "tax_excluded",
-            }
-        )
+        tax_domain = [
+            ("company_id", "=", self.env.company.id),
+            ("country_id", "=", self.env.company.account_fiscal_country_id.id),
+            ("type_tax_use", "=", "sale"),
+            ("amount_type", "=", "percent"),
+        ]
+        vat8 = self.env["account.tax"].search([*tax_domain, ("amount", "=", 8)], limit=1)
+        vat10 = self.env["account.tax"].search([*tax_domain, ("amount", "=", 10)], limit=1)
+        self.assertTrue(vat8, "The Vietnamese chart must provide a sales VAT 8% tax")
+        self.assertTrue(vat10, "The Vietnamese chart must provide a sales VAT 10% tax")
         invoice = self.env["account.move"].create(
             {
                 "move_type": "out_invoice",

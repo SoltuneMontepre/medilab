@@ -9,4 +9,4 @@ Follow [.agent/skills/sync-database/SKILL.md](../../../.agent/skills/sync-databa
 
 In Claude Code:
 
-- Read the schema with the `postgres` MCP server; when it is not connected, say so and use `docker exec medilab-postgres psql` instead.
+- Read the schema with the `postgres` MCP server; when it is not connected, say so and use `docker compose -f tools/infrastructure/docker-compose.yml exec -T postgres psql` instead.

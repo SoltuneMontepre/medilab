@@ -48,13 +48,13 @@ class TestLinkAddons(unittest.TestCase):
     def add_module(self, folder, name):
         self.write(folder / name / "__manifest__.py", f"{{'name': '{name}'}}\n")
 
-    def link(self, modules=None):
-        """Run the linking. The linked folders hold the same files afterwards."""
+    def link(self, modules=None, confirm=lambda folder: False):
+        """Run the linking, declining to replace folders unless confirm says so. The linked folders hold the same files afterwards."""
         modules = modules or self.modules
         linked = (modules, self.source / "addons", self.addons / "base")
         before = snapshot(*linked)
         try:
-            link_addons.link_addons(self.source, modules, ODOO_ADDONS)
+            link_addons.link_addons(self.source, modules, ODOO_ADDONS, confirm)
         finally:
             self.assertEqual(snapshot(*linked), before, "linking changed a linked folder")
 
@@ -161,7 +161,7 @@ class TestLinkAddons(unittest.TestCase):
             self.link()
         self.assertEqual(os.readlink(self.addons / "sol_a"), target)
 
-    def test_a_folder_under_a_module_name_is_kept_and_reported(self):
+    def test_a_folder_under_a_module_name_is_kept_when_replacing_it_is_declined(self):
         self.write(self.addons / "sol_a" / "work.py", "KEEP = 1\n")
         with self.assertRaisesRegex(LinkError, "is a folder, not a link"):
             self.link()
@@ -170,6 +170,19 @@ class TestLinkAddons(unittest.TestCase):
             "KEEP = 1\n",
         )
         self.assertFalse((self.addons / "sol_a").is_symlink())
+
+    def test_a_folder_is_replaced_by_a_link_after_confirmation(self):
+        self.write(self.addons / "sol_a" / "work.py", "OLD = 1\n")
+        asked = []
+        self.link(confirm=lambda folder: asked.append(folder.name) or True)
+        self.assertEqual(asked, ["sol_a"])
+        self.assert_linked("sol_a", self.modules / "sol_a")
+        self.assertIn("sol_a", self.record())
+        self.assertTrue((self.modules / "sol_a" / "__manifest__.py").is_file())
+
+    def test_a_folder_is_declined_without_a_terminal(self):
+        with mock.patch.object(link_addons.sys.stdin, "isatty", return_value=False):
+            self.assertFalse(link_addons.ask_to_replace(self.addons / "sol_a"))
 
     def test_an_identical_odoo_addon_directory_is_kept_and_reported(self):
         shutil.copytree(self.source / "addons" / "web", self.addons / "web")
@@ -196,7 +209,16 @@ class TestLinkAddons(unittest.TestCase):
         self.assertTrue(link_addons.is_link(outside))
 
     def test_invalid_record_names_are_rejected_before_any_links_are_created(self):
-        for name in ("/outside", "..\\outside", "C:outside", ".", "..", "", ".. ", "..."):
+        for name in (
+            "/outside",
+            "..\\outside",
+            "C:outside",
+            ".",
+            "..",
+            "",
+            ".. ",
+            "...",
+        ):
             with self.subTest(name=name):
                 (self.source / RECORD).write_text(json.dumps({name: "target"}), encoding="utf-8")
                 with self.assertRaises(LinkError):

@@ -284,6 +284,7 @@
     </record>
     <record id="demo_sample_lead_today" model="medilab.sample">
         <field name="request_id" ref="demo_test_request_reception" />
+        <field name="sampling_location_id" ref="demo_location_ro_01" />
         <field name="customer_sample_name">Nước uống đóng bình Hòa Bình 19 L</field>
         <field name="sample_type_id" ref="demo_sample_type_bottled_water" />
         <field name="physical_state">liquid</field>

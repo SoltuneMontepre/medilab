@@ -75,7 +75,7 @@ class LaboratoryFilesConcurrencyCase(TransactionCase):
                         second_acting.set()
                     return second_action(env).id
 
-                with mute_logger("odoo.sql_db", "odoo.http.retrying"):
+                with mute_logger("odoo.sql_db", "odoo.http"):
                     try:
                         result = retrying(run, env)
                     except UserError as refusal:
@@ -87,6 +87,18 @@ class LaboratoryFilesConcurrencyCase(TransactionCase):
         self.assertFalse(thread.is_alive())
         self.assertFalse(errors, errors)
         return len(attempts), result
+
+    @staticmethod
+    def last_content(env):
+        """The id of the last content recorded so far, from which remove_contents() removes what a test committed."""
+        env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_laboratory_content")
+        return env.cr.fetchone()[0]
+
+    @staticmethod
+    def remove_contents(cr, last_content_id):
+        """Remove the contents recorded after last_content_id, once the versions referring to them are removed. Content
+        refuses deletion, so it is removed with SQL; its bytes were never written to the bucket."""
+        cr.execute("DELETE FROM medilab_laboratory_content WHERE id > %s", [last_content_id])
 
     @staticmethod
     def create_sample(env):

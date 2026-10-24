@@ -1,0 +1,12 @@
+# Synced with the Deployment: local-path binds the claim only once a pod uses it.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mailpit-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi

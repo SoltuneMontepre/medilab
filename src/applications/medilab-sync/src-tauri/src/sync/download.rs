@@ -162,17 +162,18 @@ pub async fn download_object(
     expected_size: i64,
     is_paused: impl Fn() -> bool,
 ) -> AppResult<DownloadedObject> {
-    let existing = fs::metadata(temp)
+    let existing = tokio::fs::metadata(temp)
+        .await
         .ok()
         .map(|meta| meta.len() as i64)
         .unwrap_or(0);
     tracing::Span::current().record("resumed_byte_count", existing);
     let resume = existing > 0 && existing < expected_size;
     if existing > expected_size {
-        let _ = fs::remove_file(temp);
+        let _ = tokio::fs::remove_file(temp).await;
     }
     if let Some(parent) = temp.parent() {
-        fs::create_dir_all(parent)?;
+        tokio::fs::create_dir_all(parent).await?;
     }
     let mut request = crate::api::storage_download_http()?.get(url);
     if resume {
@@ -181,7 +182,7 @@ pub async fn download_object(
     let response = request.send().await?;
     let status = response.status();
     if status.as_u16() == 416 {
-        let _ = fs::remove_file(temp);
+        let _ = tokio::fs::remove_file(temp).await;
         return Err(AppError::Message("Tải xuống cần bắt đầu lại".into()));
     }
     if !status.is_success() {

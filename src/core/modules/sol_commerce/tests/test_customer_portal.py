@@ -171,3 +171,45 @@ class TestCustomerPortal(HttpCase, OrderCase):
 
         self.post("/my/logo/remove", {})
         self.assertFalse(self.customer.image_128)
+
+    def location(self, response):
+        return response.headers["Location"]
+
+    def test_a_customer_who_is_not_a_business_is_sent_back_to_the_account_page_from_the_contacts(self):
+        self.customer.vat = False
+        self.authenticate(self.portal.login, PASSWORD)
+
+        for url in ("/my/contacts", "/my/contacts/new"):
+            with self.subTest(url=url):
+                self.assertTrue(self.location(self.url_open(url, allow_redirects=False)).endswith("/my/account"))
+        saved = self.post("/my/contacts/save", {"name": "Ngo Thi Lan"})
+        self.assertTrue(self.location(saved).endswith("/my/account"))
+
+    def test_an_unknown_contact_sends_a_business_back_to_its_contacts(self):
+        self.authenticate(self.portal.login, PASSWORD)
+
+        unknown = self.url_open("/my/contacts/999999", allow_redirects=False)
+        self.assertTrue(self.location(unknown).endswith("/my/contacts"))
+        removed = self.post("/my/contacts/999999/remove", {}, page="/my/contacts")
+        self.assertTrue(self.location(removed).endswith("/my/contacts"))
+
+    def test_the_identity_form_and_an_empty_logo_answer_on_the_account_page(self):
+        self.authenticate(self.portal.login, PASSWORD)
+
+        identity = self.post("/my/identity", {"citizen_id": "079012345678"})
+        self.assertIn("/my/account", self.location(identity))
+        empty = self.post("/my/logo", {})
+        self.assertIn("/my/account?error=", self.location(empty))
+
+    def test_a_cart_line_is_changed_or_ignored_when_it_is_not_in_the_cart(self):
+        self.authenticate(self.portal.login, PASSWORD)
+        self.post("/catalog/add", {"product_tmpl_id": self.lead_product.id}, page="/catalog")
+        order = self.env["sale.order"].search([("customer_id", "=", self.customer.id)], order="id desc", limit=1)
+        line = order._catalog_lines()[:1]
+
+        unknown = self.post("/cart/line", {"line_id": 0, "quantity": 2}, page="/cart")
+        self.assertTrue(self.location(unknown).endswith("/cart"))
+        self.assertEqual(line.product_uom_qty, 1)
+        changed = self.post("/cart/line", {"line_id": line.id, "quantity": 3}, page="/cart")
+        self.assertTrue(self.location(changed).endswith("/cart"))
+        self.assertEqual(line.product_uom_qty, 3)

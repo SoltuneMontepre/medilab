@@ -1,6 +1,6 @@
 """Actions, scopes and access domains of permissions."""
 
-from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT
+from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_LOCATION
 
 DEPARTMENT_FIELD = "department_id"
 TEAM_FIELD = "team_id"
@@ -12,8 +12,10 @@ SCOPE_DOMAINS = {
 }
 # The field a document type needs for a permission limited to the scope.
 SCOPE_FIELDS = {"own_department": DEPARTMENT_FIELD, "own_team": TEAM_FIELD}
-# Document type names of the Odoo models permissions apply to, which carry no medilab. prefix.
-ODOO_DOCUMENT_TYPES = {
+# Document type names that are not the model name without medilab.: those of the Odoo models permissions apply to, and
+# of MediLab models whose name an Odoo model's document type already has.
+DOCUMENT_TYPES = {
+    MODEL_LOCATION: "lab_location",
     MODEL_DEPARTMENT: "department",
     "sale.order": "order",
     "stock.location": "location",

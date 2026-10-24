@@ -1,8 +1,8 @@
-import hashlib
 import uuid
 
 from odoo.tests import tagged
 
+from .laboratory_files_case import stored_content
 from .laboratory_files_concurrency_case import LaboratoryFilesConcurrencyCase
 from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, EDITED_ONLINE, RESTORED, SYNCED
 from odoo.addons.sol_laboratory.constants.models import (
@@ -13,14 +13,8 @@ from odoo.addons.sol_laboratory.constants.models import (
 
 
 def save(file, content, source=SYNCED, **values):
-    sha256 = hashlib.sha256(content.encode()).hexdigest()
     return file._add_version(
-        sha256=sha256,
-        size=len(content),
-        storage_key=f"test/{sha256}",
-        source=source,
-        user=file.env.ref("base.user_admin"),
-        **values,
+        content=stored_content(file.env, content), source=source, user=file.env.ref("base.user_admin"), **values
     )
 
 
@@ -36,6 +30,7 @@ class TestLaboratoryFileVersionConcurrency(LaboratoryFilesConcurrencyCase):
     def prepare(self, env):
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_audit_entry")
         self.last_entry_id = env.cr.fetchone()[0]
+        self.last_content_id = self.last_content(env)
         folder = env[MODEL_LABORATORY_FOLDER].create(
             {"name": f"Concurrency {uuid.uuid4().hex[:8]}", "owner_id": env.ref("base.user_admin").id}
         )
@@ -63,6 +58,7 @@ class TestLaboratoryFileVersionConcurrency(LaboratoryFilesConcurrencyCase):
             "(SELECT id FROM medilab_laboratory_file WHERE folder_id = %s)",
             [self.folder_id],
         )
+        self.remove_contents(cr, self.last_content_id)
         cr.execute("DELETE FROM medilab_laboratory_file WHERE folder_id = %s", [self.folder_id])
         cr.execute("DELETE FROM medilab_laboratory_folder_member WHERE folder_id = %s", [self.folder_id])
         cr.execute("DELETE FROM medilab_laboratory_folder WHERE id = %s", [self.folder_id])
@@ -83,10 +79,12 @@ class TestLaboratoryFileVersionConcurrency(LaboratoryFilesConcurrencyCase):
         return env[MODEL_LABORATORY_FILE_VERSION].browse(self.first_id)
 
     def test_an_upload_and_an_online_save_at_once_get_the_next_two_numbers(self):
-        attempts, _second = self.race(
-            lambda env: save(self.file(env), "uploaded", base_version=self.first_version(env)),
-            lambda env: save(self.file(env), "edited", EDITED_ONLINE, base_version=self.first_version(env)),
-        )
+        # The race mutes the logger Odoo's retrying writes to, so a race that runs again logs nothing.
+        with self.assertNoLogs("odoo.http", "INFO"):
+            attempts, _second = self.race(
+                lambda env: save(self.file(env), "uploaded", base_version=self.first_version(env)),
+                lambda env: save(self.file(env), "edited", EDITED_ONLINE, base_version=self.first_version(env)),
+            )
 
         self.assertEqual(attempts, 2)
         # The online save was made from version 1, which was no longer current once the upload committed.
@@ -96,9 +94,6 @@ class TestLaboratoryFileVersionConcurrency(LaboratoryFilesConcurrencyCase):
         def restore(env):
             first = self.first_version(env)
             return self.file(env)._add_version(
-                sha256=first.sha256,
-                size=first.size,
-                storage_key=first.storage_key,
                 source=RESTORED,
                 user=env.ref("base.user_admin"),
                 restored_from=first,
