@@ -11,6 +11,9 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
 from odoo.addons.sol_laboratory.constants.routes import FRONTEND_PAGE
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
+ACCOUNT_PATH = "/my/account"
+CONTACTS_PATH = "/my/contacts"
+
 
 class CustomerAccount(CustomerPortal):
     """The customer's profile on Odoo's account page: identity, logo, order history and the people of a business."""
@@ -42,26 +45,24 @@ class CustomerAccount(CustomerPortal):
 
     @http.route("/my/identity", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def identity(self, citizen_id=None, **kwargs):
-        return self._run(lambda customer: customer.set_citizen_id(citizen_id), "/my/account")
+        return self._run(lambda customer: customer.set_citizen_id(citizen_id), ACCOUNT_PATH)
 
     @http.route("/my/logo", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def logo(self, logo=None, **kwargs):
         data = logo.read() if logo else b""
         if not data:
-            return request.redirect(f"/my/account?error={quote(request_env()._('Choose a logo to upload.'))}")
-        return self._run(
-            lambda customer: customer.write({"image_1920": base64.b64encode(data).decode()}), "/my/account"
-        )
+            return request.redirect(f"{ACCOUNT_PATH}?error={quote(request_env()._('Choose a logo to upload.'))}")
+        return self._run(lambda customer: customer.write({"image_1920": base64.b64encode(data).decode()}), ACCOUNT_PATH)
 
     @http.route("/my/logo/remove", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def remove_logo(self, **kwargs):
-        return self._run(lambda customer: customer.write({"image_1920": False}), "/my/account")
+        return self._run(lambda customer: customer.write({"image_1920": False}), ACCOUNT_PATH)
 
-    @http.route("/my/contacts", type="http", auth="user", **FRONTEND_PAGE)
+    @http.route(CONTACTS_PATH, type="http", auth="user", **FRONTEND_PAGE)
     def contacts(self, error=None, **kwargs):
         customer = self._business()
         if not customer:
-            return request.redirect("/my/account")
+            return request.redirect(ACCOUNT_PATH)
         return request.render(
             "sol_commerce.contact_list", {"customer": customer, "contacts": customer._contacts(), "error": error}
         )
@@ -70,24 +71,24 @@ class CustomerAccount(CustomerPortal):
     def contact(self, contact_id=None, error=None, **kwargs):
         customer = self._business()
         if not customer:
-            return request.redirect("/my/account")
+            return request.redirect(ACCOUNT_PATH)
         contact = self._contact(customer, contact_id) if contact_id else request_env()["res.partner"]
         if contact_id and not contact:
-            return request.redirect("/my/contacts")
+            return request.redirect(CONTACTS_PATH)
         return request.render("sol_commerce.contact_form", {"contact": contact, "error": error})
 
     @http.route("/my/contacts/save", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def save_contact(self, contact_id=None, **form):
         customer = self._business()
         if not customer:
-            return request.redirect("/my/account")
+            return request.redirect(ACCOUNT_PATH)
         contact = self._contact(customer, int(contact_id)) if contact_id else None
         try:
             customer.save_contact(form, contact)
         except (AccessError, UserError) as error:
             back = f"/my/contacts/{contact_id}" if contact_id else "/my/contacts/new"
             return request.redirect(f"{back}?error={quote(str(error))}")
-        return request.redirect("/my/contacts")
+        return request.redirect(CONTACTS_PATH)
 
     @http.route("/my/contacts/<int:contact_id>/remove", type="http", auth="user", methods=["POST"], **FRONTEND_PAGE)
     def remove_contact(self, contact_id, **kwargs):
@@ -121,9 +122,9 @@ class CustomerAccount(CustomerPortal):
         customer = self._business()
         contact = self._contact(customer, contact_id) if customer else None
         if not contact:
-            return request.redirect("/my/contacts")
+            return request.redirect(CONTACTS_PATH)
         try:
             action(customer, contact)
         except (AccessError, UserError) as error:
             return request.redirect(f"/my/contacts?error={quote(str(error))}")
-        return request.redirect("/my/contacts")
+        return request.redirect(CONTACTS_PATH)

@@ -9,7 +9,7 @@ metadata:
 spec:
   retentionPolicy: 30d
   configuration:
-    destinationPath: s3://backups/postgres
+    destinationPath: s3://medilab-backups/postgres
     s3Credentials:
       accessKeyId:
         name: backup-bucket
@@ -30,3 +30,7 @@ spec:
           secretKeyRef:
             name: backup-bucket
             key: ENDPOINT
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: when_required
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: when_required

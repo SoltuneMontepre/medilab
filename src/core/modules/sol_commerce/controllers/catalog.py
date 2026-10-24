@@ -11,6 +11,7 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_CUSTOMER
 from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CART_SESSION = "medilab_cart_id"
+CART_PATH = "/cart"
 
 
 class Catalog(http.Controller):
@@ -48,9 +49,9 @@ class Catalog(http.Controller):
             self._get_or_create_cart().add_catalog_product(product, self._quantity(quantity))
         except UserError as error:
             return request.redirect(f"/catalog?error={quote(str(error))}")
-        return request.redirect("/cart")
+        return request.redirect(CART_PATH)
 
-    @http.route("/cart", type="http", auth="public")
+    @http.route(CART_PATH, type="http", auth="public")
     def cart(self, error=None, message=None, **kwargs):
         order = self._cart()
         contacts = order._contact_choices() if order else request_env()["res.partner"]
@@ -76,14 +77,14 @@ class Catalog(http.Controller):
         order = self._cart()
         line = order._catalog_lines().filtered(lambda item: item.id == int(line_id))[:1]
         if not line:
-            return request.redirect("/cart")
+            return request.redirect(CART_PATH)
         qty = self._quantity(quantity, allow_zero=True)
         if qty == 0:
             line.sudo().unlink()
         else:
             line.sudo().product_uom_qty = qty
             line._lock_catalog_price()
-        return request.redirect("/cart")
+        return request.redirect(CART_PATH)
 
     @http.route("/cart/save", type="http", auth="public", methods=["POST"])
     def save(self, contact_id=None, **kwargs):

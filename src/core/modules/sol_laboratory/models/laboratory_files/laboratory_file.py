@@ -1,3 +1,4 @@
+import functools
 import posixpath
 
 from psycopg2 import IntegrityError, errorcodes
@@ -9,6 +10,7 @@ from odoo.tools import SQL, mute_logger
 from odoo.addons.sol_laboratory.constants.laboratory_files import (
     CONFLICT,
     EDITED_ONLINE,
+    FEED_LOCK_SCOPE,
     FILE_READ,
     FILE_WRITE,
     FOLDER_READ,
@@ -17,10 +19,13 @@ from odoo.addons.sol_laboratory.constants.laboratory_files import (
     OFFICE_EXTENSIONS,
     RAW_DATA,
     RESTORED,
+    ROW_LOCKED_FILES,
     SYNCED,
+    VERIFIED,
 )
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
+    MODEL_LABORATORY_CONTENT,
     MODEL_LABORATORY_FILE,
     MODEL_LABORATORY_FILE_CHANGE,
     MODEL_LABORATORY_FILE_VERSION,
@@ -157,9 +162,12 @@ class LaboratoryFile(models.Model):
         folders._check_enabled()
 
     def _add_version(
-        self, *, sha256, size, storage_key, source, user, device=None, base_version=None, restored_from=None
+        self, *, source, user, content=None, device=None, base_version=None, restored_from=None, idempotency_key=None
     ):
         """Store a version of the file, the one way versions are made, and return it.
+
+        A save stores content the server verified, and the version records that content's SHA-256 and size; a restore
+        takes them from the version it restores. Values a computer sent are never stored.
 
         The version is numbered after the file's last one and becomes current, with a change row, unless it is made
         from a base version that is no longer current: then it is kept as a conflict and the current version stays.
@@ -167,17 +175,15 @@ class LaboratoryFile(models.Model):
         adds a version, with the content of the version it restores.
 
         A concurrent save of the same file makes Odoo run the whole request again, so whatever the caller does before
-        in the same request must be safe to run twice."""
+        in the same request must be safe to run twice. A computer's Idempotency-Key is kept on the version, so a request
+        it repeats finds it."""
         self.ensure_one()
         self._check_can_add_version(user, device)
-        if source not in (SYNCED, EDITED_ONLINE, RESTORED) or (source == RESTORED) != bool(restored_from):
-            raise ValueError("A version is synced or edited online, or restored from a version.")
-        if (base_version and base_version.file_id != self) or (restored_from and restored_from.file_id != self):
-            raise ValueError("A version is made from a version of the same file.")
+        content = self._content_of_new_version(source, content, base_version, restored_from)
         file = self.sudo()
         file._lock_for_new_version()
         current = file.current_version_id
-        if source != RESTORED and current.sha256 == sha256:
+        if source != RESTORED and current.content_id == content:
             return current.with_env(self.env)
         if source != RESTORED and base_version and base_version != current:
             source = CONFLICT
@@ -191,17 +197,34 @@ class LaboratoryFile(models.Model):
                     "parent_version_id": current.id,
                     "restored_from_id": restored_from.id if restored_from else False,
                     "source": source,
-                    "size": size,
-                    "sha256": sha256,
-                    "storage_key": storage_key,
+                    "content_id": content.id,
+                    "size": content.size,
+                    "sha256": content.sha256,
                     "user_id": user.id,
                     "device_id": device.id if device else False,
+                    "idempotency_key": idempotency_key or False,
                 }
             )
         )
         if source != CONFLICT:
             file._make_current(version)
         return version.with_env(self.env)
+
+    def _content_of_new_version(self, source, content, base_version, restored_from):
+        """Refuse a version made the wrong way, and return the verified content it stores: the content given, or for a
+        restore the content of the version it restores."""
+        if source not in (SYNCED, EDITED_ONLINE, RESTORED) or (source == RESTORED) != bool(restored_from):
+            raise ValueError("A version is synced or edited online, or restored from a version.")
+        if (base_version and base_version.file_id != self) or (restored_from and restored_from.file_id != self):
+            raise ValueError("A version is made from a version of the same file.")
+        if restored_from:
+            if content:
+                raise ValueError("A restore stores the content of the version it restores.")
+            content = restored_from.sudo().content_id
+        content = (content or self.env[MODEL_LABORATORY_CONTENT]).sudo()
+        if len(content) != 1 or content.state != VERIFIED:
+            raise ValueError("A version stores content the server verified.")
+        return content
 
     def _lock_for_new_version(self):
         # Every save updates the file's row, a conflict too, so a concurrent save of the file waits for this one and
@@ -218,6 +241,27 @@ class LaboratoryFile(models.Model):
             )
         )
         self.invalidate_recordset(["write_date", "write_uid"])
+        self._row_locked_ids().add(self.id)
+
+    def _row_locked_ids(self):
+        # The files whose rows this transaction updated for a new version, forgotten once it commits or rolls back.
+        cr = self.env.cr
+        locked = cr.cache.get(ROW_LOCKED_FILES)
+        if locked is None:
+            locked = cr.cache[ROW_LOCKED_FILES] = set()
+            forget = functools.partial(cr.cache.pop, ROW_LOCKED_FILES, None)
+            cr.postcommit.add(forget)
+            cr.postrollback.add(forget)
+        return locked
+
+    def _lock_feed(self):
+        # A computer reads a folder's changes after the last id it saw, so a change must never commit after one of a
+        # higher id: it would be skipped. Each save takes its folder's feed lock before it inserts its change, and holds
+        # it until it commits, so the next save of the folder inserts its change once this one is committed. The file's
+        # row is always locked first, so two saves never wait on each other's locks in opposite orders.
+        if self.id not in self._row_locked_ids():
+            raise RuntimeError("A file's row is locked for its new version before its folder's change feed.")
+        self.env.cr.execute(SQL("SELECT pg_advisory_xact_lock(%s, %s)", FEED_LOCK_SCOPE, self.folder_id.id))
 
     def _last_number(self):
         versions = self.env[MODEL_LABORATORY_FILE_VERSION].sudo()
@@ -229,7 +273,12 @@ class LaboratoryFile(models.Model):
         current = self.current_version_id
         if version.file_id != self or (current and version.number <= current.number):
             raise UserError(self.env._("A file's current version only moves on to a newer version of the file."))
+        self._lock_feed()
         self.with_context(**{MOVE_CURRENT_CONTEXT: True}).write({"current_version_id": version.id})
-        self.env[MODEL_LABORATORY_FILE_CHANGE].sudo().create(
-            {"folder_id": self.folder_id.id, "file_id": self.id, "version_id": version.id}
+        change = (
+            self.env[MODEL_LABORATORY_FILE_CHANGE]
+            .sudo()
+            .create({"folder_id": self.folder_id.id, "file_id": self.id, "version_id": version.id})
         )
+        # Its id is taken now, while the folder's feed lock is held.
+        change.flush_recordset()

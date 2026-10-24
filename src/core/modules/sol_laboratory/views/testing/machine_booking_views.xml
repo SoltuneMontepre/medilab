@@ -74,6 +74,7 @@
                                     <field name="sequence" />
                                     <field name="duration_minutes" />
                                     <field name="instruction" />
+                                    <field name="location_id" />
                                     <field name="note" />
                                 </list>
                             </field>

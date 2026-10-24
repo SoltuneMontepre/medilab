@@ -11,9 +11,10 @@ class InvoicingCase(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         company = cls.env.company
-        # Installing account loads Odoo's generic chart in USD when no localisation is guessed; VND has no decimals.
         if company.chart_template != "vn":
-            cls.env["account.chart.template"].try_loading("vn", company)
+            raise AssertionError(
+                "The core test database must load the Vietnamese chart before installing commerce tests."
+            )
         cls.partner = cls.env["res.partner"].create({"name": "Nguyen Van An"})
         cls.product = cls.env["product.product"].create(
             {
@@ -42,12 +43,8 @@ class InvoicingCase(TransactionCase):
         # A portal draft drops the salesperson. The invoice still needs one, so a rejected payment can tell them.
         cls.order.write({"user_id": cls.env.user.id})
         cls.confirm_sale(cls.order)
-        if not cls.env["account.journal"].search(
-            [("type", "=", "cash"), ("company_id", "=", company.id)], limit=1
-        ):
-            cls.env["account.journal"].create(
-                {"name": "Cash", "type": "cash", "code": "CSH", "company_id": company.id}
-            )
+        if not cls.env["account.journal"].search([("type", "=", "cash"), ("company_id", "=", company.id)], limit=1):
+            cls.env["account.journal"].create({"name": "Cash", "type": "cash", "code": "CSH", "company_id": company.id})
 
     @classmethod
     def confirm_sale(cls, order):

@@ -73,12 +73,34 @@ def seed_quotations(env):
 def _sales_tax(env, rate):
     """The company's sales VAT of the rate; the chart of accounts may not have it, so it is added to a tax group."""
     taxes = env["account.tax"]
-    tax = taxes.search([("type_tax_use", "=", "sale"), ("amount_type", "=", "percent"), ("amount", "=", rate)], limit=1)
+    company = env.company
+    country = company.account_fiscal_country_id
+    domain = [
+        ("company_id", "=", company.id),
+        ("country_id", "=", country.id),
+        ("type_tax_use", "=", "sale"),
+        ("amount_type", "=", "percent"),
+        ("amount", "=", rate),
+    ]
+    tax = taxes.search(domain, limit=1)
     if tax:
         return tax
-    country = env.company.account_fiscal_country_id or env.ref("base.vn")
     groups = env["account.tax.group"]
-    group = groups.search([("country_id", "in", [False, country.id])], limit=1) or groups.create({"name": "VAT"})
+    group = groups.search(
+        [
+            ("country_id", "=", country.id),
+            ("company_id", "=", company.id),
+        ],
+        limit=1,
+    )
+    if not group:
+        group = groups.create(
+            {
+                "name": "VAT",
+                "country_id": country.id,
+                "company_id": company.id,
+            }
+        )
     return taxes.create(
         {
             "name": f"VAT {rate}%",
@@ -86,6 +108,7 @@ def _sales_tax(env, rate):
             "amount_type": "percent",
             "type_tax_use": "sale",
             "country_id": country.id,
+            "company_id": company.id,
             "tax_group_id": group.id,
         }
     )

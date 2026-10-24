@@ -1,10 +1,30 @@
 import os
+import uuid
+
+from .bootstrap import (
+    BOOTSTRAP_MODE_VARIABLE,
+    BOOTSTRAP_OWNER_VARIABLE,
+    set_bootstrap_state,
+)
 
 DEMO_PASSWORD_VARIABLE = "MEDILAB_DEMO_PASSWORD"
 DEFAULT_DEMO_PASSWORD = "demo"
 
 
 def post_init_hook(env):
+    if os.environ.get(BOOTSTRAP_MODE_VARIABLE) == "1":
+        owner = os.environ.get(BOOTSTRAP_OWNER_VARIABLE, "")
+        try:
+            uuid.UUID(owner)
+        except ValueError as error:
+            raise ValueError(f"{BOOTSTRAP_OWNER_VARIABLE} must identify this fresh bootstrap attempt") from error
+        set_bootstrap_state(env, {"owner": owner, "status": "pending"})
+        return
+
+    seed_demo(env)
+
+
+def seed_demo(env):
     password = os.environ.get(DEMO_PASSWORD_VARIABLE) or DEFAULT_DEMO_PASSWORD
     user_ids = env["ir.model.data"].search([("module", "=", "sol_demo"), ("model", "=", "res.users")]).mapped("res_id")
     for user in env["res.users"].browse(user_ids):
@@ -16,7 +36,13 @@ def post_init_hook(env):
     from .demo_finance import seed_finance
     from .demo_laboratory_editing import seed_laboratory_editing
     from .demo_laboratory_file_locks import seed_laboratory_file_locks
-    from .demo_laboratory_files import seed_laboratory_file_versions, seed_laboratory_files, seed_sample_folders
+    from .demo_laboratory_files import (
+        seed_laboratory_file_restores,
+        seed_laboratory_file_versions,
+        seed_laboratory_files,
+        seed_sample_folders,
+    )
+    from .demo_laboratory_uploads import seed_laboratory_uploads
     from .demo_locks import seed_locks
     from .demo_order_templates import seed_order_templates
     from .demo_orders import seed_orders
@@ -41,7 +67,9 @@ def post_init_hook(env):
     seed_locks(env)
     seed_laboratory_files(env)
     seed_laboratory_file_versions(env)
+    seed_laboratory_file_restores(env)
     seed_laboratory_file_locks(env)
+    seed_laboratory_uploads(env)
     seed_sample_folders(env)
     seed_laboratory_editing(env)
     seed_cleanup(env)

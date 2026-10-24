@@ -1,0 +1,62 @@
+.o_location_map {
+    // Labels of points near the right edge stay inside, so a narrow screen never scrolls sideways.
+    overflow: hidden;
+
+    .o_location_map_canvas {
+        position: relative;
+        display: inline-block;
+        max-width: 100%;
+
+        img {
+            display: block;
+            max-width: 100%;
+            border: 1px solid $border-color;
+            user-select: none;
+        }
+
+        &.o_location_map_placeable {
+            cursor: crosshair;
+        }
+    }
+
+    .o_location_map_point {
+        position: absolute;
+        width: 0.9rem;
+        height: 0.9rem;
+        padding: 0;
+        border: 2px solid $o-view-background-color;
+        border-radius: 50%;
+        background: $o-brand-primary;
+        transform: translate(-50%, -50%);
+
+        &.o_location_map_point_current {
+            width: 1.25rem;
+            height: 1.25rem;
+            background: $danger;
+            cursor: default;
+        }
+    }
+
+    .o_location_map_label {
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        margin-left: 0.3rem;
+        padding: 0 0.3rem;
+        transform: translateY(-50%);
+        border-radius: 0.2rem;
+        background: rgba($o-view-background-color, 0.85);
+        color: $o-main-text-color;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .o_location_map_hint {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        color: $o-main-color-muted;
+    }
+}

@@ -66,7 +66,7 @@ async fn live(base: &str) -> Live {
     let db_path = dir.path().join("t.db");
     let db = Db::open(&db_path).unwrap();
     let local = dir.path().join("up");
-    std::fs::create_dir_all(&local).unwrap();
+    tokio::fs::create_dir_all(&local).await.unwrap();
     let folder_id = db
         .upsert_folder(local.to_str().unwrap(), &root, Some(remote.id), true, &[])
         .unwrap();
@@ -192,7 +192,7 @@ impl Live {
             expected,
             "MinIO object SHA-256"
         );
-        std::fs::remove_file(temp).unwrap();
+        tokio::fs::remove_file(temp).await.unwrap();
         (item.id, current.id)
     }
 
@@ -587,56 +587,9 @@ async fn proxy_connection(client: TcpStream, rate: Arc<AtomicU64>, stats: Arc<Mu
     let mut upstream_write: Option<tokio::net::tcp::OwnedWriteHalf> = None;
     let mut upstream_host = String::new();
     loop {
-        let mut head = Vec::new();
-        let mut content_length = 0usize;
-        let mut request = ProxiedRequest {
-            host: String::new(),
-            method: String::new(),
-            has_authorization: false,
-            has_cookie: false,
-            part_number: None,
-            path: String::new(),
+        let Some((head, content_length, request)) = read_proxied_request(&mut reader).await else {
+            return;
         };
-        loop {
-            let mut line = String::new();
-            if reader.read_line(&mut line).await.unwrap_or(0) == 0 {
-                return;
-            }
-            if head.is_empty() {
-                let mut parts = line.split_whitespace();
-                request.method = parts.next().unwrap_or_default().to_string();
-                let target = parts.next().unwrap_or_default();
-                request.part_number = target
-                    .split(['?', '&'])
-                    .find_map(|pair| pair.strip_prefix("partNumber="))
-                    .and_then(|number| number.parse().ok());
-                let without_scheme = target.trim_start_matches("http://");
-                request.host = without_scheme
-                    .split('/')
-                    .next()
-                    .unwrap_or_default()
-                    .to_string();
-                request.path = without_scheme
-                    .find('/')
-                    .map(|start| &without_scheme[start..])
-                    .unwrap_or("/")
-                    .split('?')
-                    .next()
-                    .unwrap_or_default()
-                    .to_string();
-            } else if let Some((name, value)) = line.trim_end().split_once(':') {
-                let name = name.to_ascii_lowercase();
-                if name == "content-length" {
-                    content_length = value.trim().parse().unwrap_or(0);
-                }
-                request.has_authorization |= name == "authorization";
-                request.has_cookie |= name == "cookie";
-            }
-            head.extend_from_slice(line.as_bytes());
-            if line == "\r\n" {
-                break;
-            }
-        }
         if upstream_write.is_none() {
             let upstream = TcpStream::connect(&request.host).await.unwrap();
             let (mut upstream_read, write) = upstream.into_split();
@@ -671,28 +624,104 @@ async fn proxy_connection(client: TcpStream, rate: Arc<AtomicU64>, stats: Arc<Mu
         if upstream.write_all(&head).await.is_err() {
             return;
         }
-        let started = Instant::now();
-        let mut sent = 0u64;
-        let mut remaining = content_length;
-        let mut buf = vec![0u8; 16 * 1024];
-        while remaining > 0 {
-            let want = remaining.min(buf.len());
-            if reader.read_exact(&mut buf[..want]).await.is_err()
-                || upstream.write_all(&buf[..want]).await.is_err()
-            {
-                return;
+        if !forward_body(&mut reader, upstream, content_length, &rate).await {
+            return;
+        }
+    }
+}
+
+/// Đọc request line và header của một request; trả đầu request nguyên văn, `Content-Length` và
+/// các thông tin proxy ghi lại, hoặc `None` khi client đóng kết nối.
+async fn read_proxied_request(
+    reader: &mut BufReader<tokio::net::tcp::OwnedReadHalf>,
+) -> Option<(Vec<u8>, usize, ProxiedRequest)> {
+    let mut head = Vec::new();
+    let mut content_length = 0usize;
+    let mut request = ProxiedRequest {
+        host: String::new(),
+        method: String::new(),
+        has_authorization: false,
+        has_cookie: false,
+        part_number: None,
+        path: String::new(),
+    };
+    loop {
+        let mut line = String::new();
+        if reader.read_line(&mut line).await.unwrap_or(0) == 0 {
+            return None;
+        }
+        if head.is_empty() {
+            read_request_line(&line, &mut request);
+        } else if let Some((name, value)) = line.trim_end().split_once(':') {
+            let name = name.to_ascii_lowercase();
+            if name == "content-length" {
+                content_length = value.trim().parse().unwrap_or(0);
             }
-            remaining -= want;
-            sent += want as u64;
-            let limit = rate.load(Ordering::SeqCst);
-            if limit > 0 {
-                let due = Duration::from_secs_f64(sent as f64 / limit as f64);
-                if let Some(wait) = due.checked_sub(started.elapsed()) {
-                    tokio::time::sleep(wait).await;
-                }
+            request.has_authorization |= name == "authorization";
+            request.has_cookie |= name == "cookie";
+        }
+        head.extend_from_slice(line.as_bytes());
+        if line == "\r\n" {
+            return Some((head, content_length, request));
+        }
+    }
+}
+
+/// Lấy method, host đích, đường dẫn và số part của dòng đầu request (absolute-form).
+fn read_request_line(line: &str, request: &mut ProxiedRequest) {
+    let mut parts = line.split_whitespace();
+    request.method = parts.next().unwrap_or_default().to_string();
+    let target = parts.next().unwrap_or_default();
+    request.part_number = target
+        .split(['?', '&'])
+        .find_map(|pair| pair.strip_prefix("partNumber="))
+        .and_then(|number| number.parse().ok());
+    let without_scheme = target.trim_start_matches("http://");
+    request.host = without_scheme
+        .split('/')
+        .next()
+        .unwrap_or_default()
+        .to_string();
+    request.path = without_scheme
+        .find('/')
+        .map(|start| &without_scheme[start..])
+        .unwrap_or("/")
+        .split('?')
+        .next()
+        .unwrap_or_default()
+        .to_string();
+}
+
+/// Chép `content_length` byte body từ client sang upstream theo giới hạn tốc độ; `false` khi một
+/// bên đóng kết nối.
+async fn forward_body(
+    reader: &mut BufReader<tokio::net::tcp::OwnedReadHalf>,
+    upstream: &mut tokio::net::tcp::OwnedWriteHalf,
+    content_length: usize,
+    rate: &AtomicU64,
+) -> bool {
+    let started = Instant::now();
+    let mut sent = 0u64;
+    let mut remaining = content_length;
+    let mut buf = vec![0u8; 16 * 1024];
+    while remaining > 0 {
+        let want = remaining.min(buf.len());
+        if reader.read_exact(&mut buf[..want]).await.is_err()
+            || upstream.write_all(&buf[..want]).await.is_err()
+        {
+            return false;
+        }
+        remaining -= want;
+        sent += want as u64;
+        let limit = rate.load(Ordering::SeqCst);
+        if limit > 0 {
+            let due = Duration::from_secs_f64(sent as f64 / limit as f64);
+            if let Some(wait) = due.checked_sub(started.elapsed()) {
+                tokio::time::sleep(wait).await;
             }
         }
     }
+    true
 }
 
 /// Qua proxy thật: (1) 3 client HTTP dùng chung tái sử dụng kết nối và không lộ header xác thực
@@ -1392,7 +1421,7 @@ async fn attach_second_device(base: &str, first: &Live) -> Live {
     let db_path = dir.path().join("b.db");
     let db = Db::open(&db_path).unwrap();
     let local = dir.path().join("b");
-    std::fs::create_dir_all(&local).unwrap();
+    tokio::fs::create_dir_all(&local).await.unwrap();
     let folder_id = db
         .upsert_folder(
             local.to_str().unwrap(),
@@ -1986,7 +2015,7 @@ async fn live_multipart_pause_resume_and_process_kill() {
     // 4. Kill TIẾN TRÌNH giữa multipart: worker con claim job và upload qua cùng proxy.
     let bytes = random_bytes(KILL_TEST_PARTS as usize * 16 * MIB);
     let job_id = lv.write_and_enqueue_pending("process-kill.bin", &bytes);
-    let mut child = std::process::Command::new(std::env::current_exe().unwrap())
+    let mut child = tokio::process::Command::new(std::env::current_exe().unwrap())
         .args([
             "--ignored",
             "--exact",
@@ -2012,8 +2041,8 @@ async fn live_multipart_pause_resume_and_process_kill() {
         }
         tokio::time::sleep(Duration::from_millis(50)).await;
     }
-    child.kill().unwrap();
-    let status = child.wait().unwrap();
+    child.start_kill().unwrap();
+    let status = child.wait().await.unwrap();
     #[cfg(unix)]
     {
         use std::os::unix::process::ExitStatusExt;

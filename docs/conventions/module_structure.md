@@ -12,7 +12,7 @@ How code inside an Odoo module is laid out.
 
 | Concern             | Contains                                                                                                                                                                         |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `master_data`       | What the laboratory can test and with what: parameters, groups, sample types, methods, units, regulations, quality registrations, machines, chemicals, subcontractors, customers |
+| `master_data`       | What the laboratory can test and with what: parameters, groups, sample types, methods, units, regulations, quality registrations, locations, machines, chemicals, subcontractors, customers |
 | `sample_collection` | Test requests and samples: reception, handover, recollection, subcontract dispatches, and creating a sample's laboratory folders                                                  |
 | `testing`           | Sample tests, results, machine bookings, test reports, change requests                                                                                                           |
 | `tasks`             | Task types and tasks                                                                                                                                                             |
@@ -30,6 +30,7 @@ How code inside an Odoo module is laid out.
 | `purchasing`        | Purchase orders, their lines and signing, and receipts with what each lot line brings in                                                                                         |
 | `stock`             | Lots and containers, their statuses and QR labels                                                                                                                                |
 | `recipes`           | Recipes of prepared solutions and their ingredients                                                                                                                              |
+| `onboarding`        | Trusted sources, the organisations they list, sectors, collection runs, snapshots and staged records                                                                             |
 
 ## Files
 

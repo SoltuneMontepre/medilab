@@ -37,36 +37,59 @@ Open http://localhost:8069. The `medilab` database is created by the first `task
 
 ## Services
 
-| Service     | URL                   | Notes                                 |
-| ----------- | --------------------- | ------------------------------------- |
-| Odoo        | http://localhost:8069 |                                       |
-| Postgres    | `localhost:15432`     | see [Environment](#environment)       |
-| CloudBeaver | http://localhost:8978 | `medilab` / `admin` unless overridden |
+| Service     | URL                   | Notes                                                                                                                           |
+| ----------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Odoo        | http://localhost:8069 | port `MEDILAB_ODOO_PORT`                                                                                                        |
+| Postgres    | `localhost:15432`     | port `MEDILAB_DB_PORT`; see [Environment](#environment)                                                                         |
+| CloudBeaver | http://localhost:8978 | port `MEDILAB_CLOUDBEAVER_PORT`; `medilab` / `admin` unless overridden                                                          |
+| Garage      | http://localhost:3900 | the laboratory files bucket, port `MEDILAB_GARAGE_PORT`; its admin API is on `127.0.0.1:3903`, port `MEDILAB_GARAGE_ADMIN_PORT` |
+
+### A second stack from a worktree
+
+Each checkout runs its own compose project, named after its folder: the main checkout's is `medilab`, a worktree in `medilab-api` gets `medilab-api`. Containers, network and volumes are named after the project, such as `medilab-api_postgres_1`, so starting or stopping a worktree's stack, with `task` or with `docker compose` or `podman-compose` directly, never touches another checkout's.
+
+- `task dev:setup` writes the project into `tools/infrastructure/.env`, which compose reads wherever it is run from, and keeps the other lines of the file. The file is not committed.
+- A worktree that runs its own stack next to the main one adds its ports, and an image tag of its own so its build does not replace the main checkout's `medilab-odoo:local`, to that file:
+
+```sh
+MEDILAB_ODOO_PORT=8169
+MEDILAB_DB_PORT=25432
+MEDILAB_CLOUDBEAVER_PORT=18978
+MEDILAB_GARAGE_PORT=13900
+MEDILAB_GARAGE_ADMIN_PORT=13903
+BUCKET_LABORATORY_PUBLIC_ADDRESS=http://localhost:13900
+MEDILAB_ODOO_IMAGE=medilab-odoo:medilab-api
+```
+
+- `BUCKET_LABORATORY_PUBLIC_ADDRESS` follows `MEDILAB_GARAGE_PORT`, since it is the address the browser uploads to.
+- With `MEDILAB_ODOO_IMAGE` set, `task up` does not build, so build the worktree's image once, and after a change of dependencies: `docker compose -f tools/infrastructure/docker-compose.yml build odoo`.
+- The `postgres` MCP server connects to `localhost:15432`; for a worktree's database, set `DATABASE_URI` to its port, as [Odoo intelligence](docs/workflows/odoo-intelligence.md#database-access) says.
+- Commands that reach a container go through the project, never a container name: `docker compose -f tools/infrastructure/docker-compose.yml exec -T postgres psql -U root -d medilab`.
 
 ## Commands
 
-| Command                    | Purpose                                                                                                  |
-| -------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `task`                     | List all tasks                                                                                           |
-| `task setup`               | Run `doppler`, `dev:setup`, `ai:setup` and `upgrade`                                                     |
-| `task up`                  | Start Odoo, Postgres and CloudBeaver                                                                     |
-| `task doppler`             | Log the Doppler CLI in and select project `medilab`, config `dev`                                        |
-| `task stop`                | Stop the containers and keep the volumes                                                                 |
-| `task restart`             | Restart Odoo after changing Python, XML or config                                                        |
-| `task logs`                | Follow the Odoo log                                                                                      |
-| `task upgrade`             | Upgrade all installed modules                                                                            |
-| `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                   |
-| `task reset`               | Delete the database and volumes, then start again                                                        |
-| `task dev:setup`           | Sync `src/core/.venv` from `uv.lock`, fetch the Odoo source and link the modules into it for type checks |
-| `task ai:setup`            | Install Serena, OdooLS and its Odoo source in this worktree for the coding clients                       |
-| `task ai:odoo-ls`          | Install the pinned OdooLS release, typeshed and Odoo source that the `odoo` MCP server uses              |
-| `task ai:test`             | Run the AI tooling tests and lint checks                                                                 |
-| `task ai:verify`           | Check Odoo model and field navigation through the `odoo` MCP server                                      |
-| `task ai:cursor-setup`     | Install the official Odoo extension into an isolated Cursor profile                                      |
-| `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                      |
-| `task lint`                | Run ruff and pylint-odoo on `src/core/modules`                                                           |
-| `task format`              | Format `src/core/modules` with ruff                                                                      |
-| `task typecheck`           | Type check the modules with pyright                                                                      |
+| Command                    | Purpose                                                                                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`                     | List all tasks                                                                                                                                    |
+| `task setup`               | Run `doppler`, `dev:setup`, `ai:setup` and `upgrade`                                                                                              |
+| `task up`                  | Start Odoo, Postgres, Garage and CloudBeaver                                                                                                      |
+| `task doppler`             | Log the Doppler CLI in and select project `medilab`, config `dev`                                                                                 |
+| `task stop`                | Stop the containers and keep the volumes                                                                                                          |
+| `task restart`             | Restart Odoo after changing Python, XML or config                                                                                                 |
+| `task logs`                | Follow the Odoo log                                                                                                                               |
+| `task upgrade`             | Upgrade all installed modules                                                                                                                     |
+| `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                                                            |
+| `task reset`               | Delete the database and volumes, then start again                                                                                                 |
+| `task dev:setup`           | Sync `src/core/.venv` from `uv.lock`, fetch the Odoo source and link the modules into it for type checks, and set this checkout's compose project |
+| `task ai:setup`            | Install Serena, OdooLS and its Odoo source in this worktree for the coding clients                                                                |
+| `task ai:odoo-ls`          | Install the pinned OdooLS release, typeshed and Odoo source that the `odoo` MCP server uses                                                       |
+| `task ai:test`             | Run the AI tooling tests and lint checks                                                                                                          |
+| `task ai:verify`           | Check Odoo model and field navigation through the `odoo` MCP server                                                                               |
+| `task ai:cursor-setup`     | Install the official Odoo extension into an isolated Cursor profile                                                                               |
+| `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                                                               |
+| `task lint`                | Run ruff and pylint-odoo on `src/core/modules`                                                                                                    |
+| `task format`              | Format `src/core/modules` with ruff                                                                                                               |
+| `task typecheck`           | Type check the modules with pyright                                                                                                               |
 
 Every task loads `src/core/.env.local`. To run a tool outside Task: `uv run --project src/core --env-file src/core/.env.local <command>`.
 
@@ -89,7 +112,7 @@ medilab/
       medilab-sync/
   tools/
     dockerfiles/                # prod.dockerfile
-    infrastructure/             # docker-compose.yml and CloudBeaver config
+    infrastructure/             # docker-compose.yml, the CloudBeaver config and the Garage setup
     taskfiles/                  # app.taskfile.yml, dev.taskfile.yml
     typecheck/                  # pyright runner and the links into the Odoo source
   .github/                      # CI workflow and odoo-lint action

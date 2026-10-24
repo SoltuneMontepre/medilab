@@ -81,7 +81,7 @@
                         <page string="Samples" name="samples">
                             <field name="sample_ids">
                                 <list>
-                                    <field name="code" />
+                                    <field name="code" required="0" />
                                     <field name="customer_sample_name" />
                                     <field name="sample_type_id" />
                                     <field name="physical_state" />

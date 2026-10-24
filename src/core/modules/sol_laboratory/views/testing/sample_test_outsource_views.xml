@@ -6,10 +6,13 @@
         <field name="arch" type="xml">
             <form>
                 <p>The test leaves the machine queue and joins the draft dispatch to the subcontractor of the way of testing.</p>
+                <p invisible="outsourcing_suggested">No outsourcing suggestion: give the reason for outsourcing the test straight away.</p>
                 <group>
                     <field name="sample_test_id" invisible="1" />
+                    <field name="outsourcing_suggested" invisible="1" />
                     <field name="subcontracted_method_ids" invisible="1" />
                     <field name="parameter_method_id" options="{'no_create': True}" />
+                    <field name="reason" invisible="outsourcing_suggested" required="not outsourcing_suggested" />
                 </group>
                 <footer>
                     <button name="action_outsource" type="object" string="Outsource" class="btn-success" />

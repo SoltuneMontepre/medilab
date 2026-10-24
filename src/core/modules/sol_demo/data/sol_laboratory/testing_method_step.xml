@@ -19,6 +19,7 @@
         <field name="sequence">3</field>
         <field name="duration_minutes">30</field>
         <field name="instruction">Dissolve the ash in acid and make the solution up to volume.</field>
+        <field name="location_id" ref="demo_location_water_point" />
     </record>
     <record id="demo_testing_method_step_tcvn_7602_4" model="medilab.testing.method.step">
         <field name="method_id" ref="demo_testing_method_tcvn_7602" />

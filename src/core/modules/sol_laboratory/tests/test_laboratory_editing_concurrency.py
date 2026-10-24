@@ -7,6 +7,7 @@ from odoo import fields
 from odoo.tests import tagged
 
 from .editing_service import PUBLIC_URL, LocalEditingService, callback, use_editing_service
+from .laboratory_files_case import stored_content
 from .laboratory_files_concurrency_case import LaboratoryFilesConcurrencyCase
 from odoo.addons.sol_laboratory.constants.laboratory_editing import COMMITTED, OPEN, SESSION_CONFLICT
 from odoo.addons.sol_laboratory.constants.laboratory_files import CONFLICT, EDITED_ONLINE, SYNCED
@@ -36,6 +37,7 @@ class TestLaboratoryEditingConcurrency(LaboratoryFilesConcurrencyCase):
     def prepare(self, env):
         env.cr.execute("SELECT COALESCE(MAX(id), 0) FROM medilab_audit_entry")
         self.last_entry_id = env.cr.fetchone()[0]
+        self.last_content_id = self.last_content(env)
         folder = env[MODEL_LABORATORY_FOLDER].create(
             {"name": f"Concurrency {uuid.uuid4().hex[:8]}", "owner_id": env.ref("base.user_admin").id}
         )
@@ -69,17 +71,14 @@ class TestLaboratoryEditingConcurrency(LaboratoryFilesConcurrencyCase):
             "(SELECT id FROM medilab_laboratory_file WHERE folder_id = %s)",
             [self.folder_id],
         )
+        self.remove_contents(cr, self.last_content_id)
         cr.execute("DELETE FROM medilab_laboratory_file WHERE folder_id = %s", [self.folder_id])
         cr.execute("DELETE FROM medilab_laboratory_folder_member WHERE folder_id = %s", [self.folder_id])
         cr.execute("DELETE FROM medilab_laboratory_folder WHERE id = %s", [self.folder_id])
 
     def upload(self, file, content):
         return file._add_version(
-            sha256=sha(content),
-            size=len(content),
-            storage_key=f"test/{sha(content)}",
-            source=SYNCED,
-            user=file.env.ref("base.user_admin"),
+            content=stored_content(file.env, content), source=SYNCED, user=file.env.ref("base.user_admin")
         )
 
     def file(self, env):
@@ -93,9 +92,7 @@ class TestLaboratoryEditingConcurrency(LaboratoryFilesConcurrencyCase):
 
     def store(self, env, content):
         admin = env.ref("base.user_admin")
-        return self.session(env)._store_save(
-            sha256=sha(content), size=len(content), storage_key=f"test/{sha(content)}", editor=admin, editors=admin
-        )
+        return self.session(env)._store_save(content=stored_content(env, content), editor=admin, editors=admin)
 
     def expire(self, env):
         session = self.session(env)
@@ -166,15 +163,13 @@ class TestLaboratoryEditingConcurrency(LaboratoryFilesConcurrencyCase):
         self.assertEqual(self.state(), ([(1, SYNCED), (2, EDITED_ONLINE)], [(COMMITTED, 2)]))
 
     def serve_saved_document(self, content):
-        """The editing service giving the saved document, and a bucket storing it under its SHA-256."""
+        """The editing service giving the saved document, and its content recorded as verified without the bucket."""
         service = LocalEditingService(self)
         service.answer("/cache/output.xlsx", content.encode())
         use_editing_service(self, internal_url=service.url)
 
         def store(session, chunks):
-            data = b"".join(chunks)
-            digest = hashlib.sha256(data).hexdigest()
-            return {"sha256": digest, "size": len(data), "storage_key": f"test/{digest}"}
+            return stored_content(session.env, b"".join(chunks).decode())
 
         bucket = patch.object(
             type(self.env[MODEL_LABORATORY_EDITING_SESSION]), "_store_saved_document", autospec=True, side_effect=store

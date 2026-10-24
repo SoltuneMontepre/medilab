@@ -6,7 +6,7 @@ How a module's Prisma diagram is brought in line with the tables Odoo creates. O
 
 1. **Read the conventions** before anything else: [Database](../conventions/database.md) for how diagrams are written, [Documentation](../conventions/documentation.md) and [Infrastructure](../infrastructure/readme.md) for where they live.
 2. **Upgrade the local database** to the code being compared: `task upgrade`. A database that was not upgraded shows an older schema. Say in the reply that the upgrade ran, and on which branch.
-3. **Read the live schema** with the `postgres` MCP, or when it is not connected with `docker exec medilab-postgres psql -U root -d medilab -c "<query>"`. Query:
+3. **Read the live schema** with the `postgres` MCP, or when it is not connected with `docker compose -f tools/infrastructure/docker-compose.yml exec -T postgres psql -U root -d medilab -c "<query>"`. Query:
    - Columns: `information_schema.columns` for tables named `medilab\_%`, leaving out `create_uid`, `write_uid`, `create_date` and `write_date`.
    - Foreign keys and their delete rules: `pg_constraint` where `contype = 'f'`; `confdeltype` is `r` restrict, `c` cascade, `n` set null.
    - Check constraints: `pg_constraint` where `contype = 'c'`.

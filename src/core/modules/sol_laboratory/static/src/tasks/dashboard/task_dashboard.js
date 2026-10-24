@@ -108,9 +108,10 @@ export class TaskDashboard extends Component {
       blocks: blocks.map((block) => {
         const left = percentOf(block.start, start, end);
         const right = percentOf(block.end, start, end);
+        const time = `${block.startAt.toFormat("HH:mm")}–${block.endAt.toFormat("HH:mm")}`;
         return {
           ...block,
-          time: `${block.startAt.toFormat("HH:mm")}–${block.endAt.toFormat("HH:mm")}`,
+          detail: block.location ? `${time} · ${block.location}` : time,
           style: `left: ${left}%; width: ${right - left}%; top: ${block.lane * RIBBON_LANE_HEIGHT + 4}px`,
         };
       }),

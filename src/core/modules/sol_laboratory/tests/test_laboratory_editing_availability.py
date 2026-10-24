@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 
 import jwt
 
@@ -13,8 +14,12 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
 )
 from odoo.addons.sol_laboratory.constants.laboratory_files import NOT_FOUND
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION
+from odoo.addons.sol_laboratory.constants.settings import (
+    DEFAULT_LABORATORY_FILE_URL_MINUTES,
+    LABORATORY_FILE_URL_PARAMETER,
+)
+from odoo.addons.sol_laboratory.services import laboratory_bucket
 
-DOCUMENT_URL = "https://bucket.lab.example/objects/0f1e2d3c?X-Amz-Signature=abc"
 CALLBACK_URL = "https://lab.example/medilab/editing/callback/token"
 
 
@@ -55,21 +60,23 @@ class TestLaboratoryEditingAvailability(LaboratoryEditingCase):
     def test_the_editor_configuration_is_signed_with_force_save_off(self):
         session = self.open(self.tester)
 
-        config = session._editor_config(self.tester, DOCUMENT_URL, CALLBACK_URL, 900)
+        config = session._editor_config(self.tester, CALLBACK_URL)
 
         claims = jwt.decode(config.pop("token"), SECRET, algorithms=["HS256"])
-        self.assertEqual(claims["exp"] - claims["iat"], 900)
+        self.assertEqual(claims["exp"] - claims["iat"], DEFAULT_LABORATORY_FILE_URL_MINUTES * 60)
         self.assertEqual({key: claims[key] for key in config}, config)
+        document = dict(config["document"])
+        address = urllib.parse.urlsplit(document.pop("url"))
         self.assertEqual(
-            config["document"],
+            document,
             {
                 "fileType": "xlsx",
                 "key": session.sudo().document_key,
                 "title": "Kết quả HPLC tháng 10.xlsx",
-                "url": DOCUMENT_URL,
                 "permissions": {"edit": True},
             },
         )
+        self.assertBaseVersionAddress(address, session, DEFAULT_LABORATORY_FILE_URL_MINUTES * 60)
         self.assertEqual(config["documentType"], "cell")
         self.assertEqual(config["editorConfig"]["callbackUrl"], CALLBACK_URL)
         self.assertEqual(config["editorConfig"]["user"], {"id": str(self.tester.id), "name": self.tester.name})
@@ -80,11 +87,34 @@ class TestLaboratoryEditingAvailability(LaboratoryEditingCase):
             with self.subTest(path=path):
                 file = self.file_of(path)
                 self.save(file, path)
-                config = self.open(self.tester, file)._editor_config(self.tester, DOCUMENT_URL, CALLBACK_URL, 900)
+                config = self.open(self.tester, file)._editor_config(self.tester, CALLBACK_URL)
                 self.assertEqual(config["documentType"], document_type)
 
     def test_without_the_secret_no_editor_configuration_is_made(self):
         session = self.open(self.tester)
         os.environ.pop(JWT_SECRET_VARIABLE)
 
-        self.assertRefused(EDITING_UNAVAILABLE, session._editor_config, self.tester, DOCUMENT_URL, CALLBACK_URL, 900)
+        self.assertRefused(EDITING_UNAVAILABLE, session._editor_config, self.tester, CALLBACK_URL)
+
+    def test_the_editor_reads_the_base_version_for_as_long_as_the_settings_say(self):
+        self.env["ir.config_parameter"].set_int(LABORATORY_FILE_URL_PARAMETER, 30)
+        session = self.open(self.tester)
+
+        config = session._editor_config(self.tester, CALLBACK_URL)
+
+        claims = jwt.decode(config["token"], SECRET, algorithms=["HS256"])
+        self.assertEqual(claims["exp"] - claims["iat"], 1800)
+        self.assertBaseVersionAddress(urllib.parse.urlsplit(config["document"]["url"]), session, 1800)
+
+    def assertBaseVersionAddress(self, address, session, seconds):
+        """The address is a presigned read of the object of the session's base version, on the bucket's public
+        address, for seconds."""
+        bucket = laboratory_bucket.settings()
+        if bucket is None:
+            self.fail("The laboratory files bucket is not configured.")
+        query = urllib.parse.parse_qs(address.query)
+        key = session.sudo().base_version_id.content_id.object_key
+        self.assertEqual(address.netloc, urllib.parse.urlsplit(bucket.public_address).netloc)
+        self.assertEqual(address.path, f"/{bucket.name}/{key}")
+        self.assertEqual(query["X-Amz-Expires"], [str(seconds)])
+        self.assertIn("attachment", query["response-content-disposition"][0])

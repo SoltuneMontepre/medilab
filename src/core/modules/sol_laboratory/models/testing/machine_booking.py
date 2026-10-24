@@ -213,6 +213,7 @@ class MachineBooking(models.Model):
                 "user_id": user.id,
                 "partner_ids": [Command.set(user.partner_id.ids)],
                 "alarm_ids": [Command.clear()],
+                "location": booking.sample_test_id.sample_id.sampling_location_id.display_name or False,
             }
             if event:
                 event.write(values)

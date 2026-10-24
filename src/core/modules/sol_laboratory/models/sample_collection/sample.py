@@ -10,6 +10,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_CODE_MIXIN,
     MODEL_DEPARTMENT,
+    MODEL_LOCATION,
     MODEL_LOCK_MIXIN,
     MODEL_PARAMETER_METHOD,
     MODEL_PERMISSION_MIXIN,
@@ -118,6 +119,10 @@ class Sample(models.Model):
     condition_note = fields.Text(string="Condition Note")
     # Where the sample is stored, such as "Fridge 2, shelf B".
     storage_location = fields.Char(string="Storage Location")
+    # The location the sample was taken from, such as a sampling point.
+    sampling_location_id = fields.Many2one(
+        MODEL_LOCATION, string="Sampling Location", ondelete="restrict", index="btree_not_null"
+    )
     # When the head of department asked for the sample to be collected again.
     recollection_requested_at = fields.Datetime(readonly=True, copy=False)
     # Head of department who asked for the sample to be collected again.
