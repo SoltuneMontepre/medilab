@@ -63,7 +63,6 @@
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
                 <field name="can_save_order_template" invisible="1" />
-                <button name="action_save_as_template" type="object" string="Save as template" class="btn-secondary" invisible="not can_save_order_template" groups="sol_laboratory.group_permission_order_template_create_all" />
                 <field name="order_status" widget="statusbar" statusbar_visible="draft,submitted,claimed,confirmed,completed" />
                 <button
                     name="action_claim"
@@ -90,7 +89,7 @@
                     name="action_confirm_order"
                     type="object"
                     string="Confirm order"
-                    class="btn-primary"
+                    class="btn-success"
                     invisible="order_status != 'claimed' or quotation_follow_up != 'paid'"
                 />
                 <button
@@ -104,7 +103,7 @@
                     name="action_sign"
                     type="object"
                     string="Approve"
-                    class="btn-primary"
+                    class="btn-success"
                     invisible="order_status != 'confirmed' or approval_status != 'requested' or not approval_can_sign"
                 />
                 <button
@@ -129,6 +128,7 @@
                     class="btn-primary"
                     invisible="order_status != 'confirmed' or approval_status != 'approved'"
                 />
+                <button name="action_save_as_template" type="object" string="Save as template" class="btn-secondary" invisible="not can_save_order_template" groups="sol_laboratory.group_permission_order_template_create_all" />
                 <button
                     name="action_sales_cancel"
                     type="object"
@@ -138,8 +138,39 @@
                     confirm="Cancel this order?"
                 />
             </xpath>
-            <xpath expr="//field[@name='partner_id']" position="attributes">
-                <attribute name="domain">[('id', 'child_of', customer_id)] if customer_id else []</attribute>
+            <!-- Odoo's own sending, confirming, cancelling and state go around MediLab's flow, which the buttons above follow. -->
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='quotation_send_primary']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='quotation_send']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='send_proforma_primary']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='send_proforma']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='action_confirm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_confirm'][not(@id)]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='sale.action_report_saleorder']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_preview_sale_order']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_cancel']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_draft']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//sheet" position="before">
                 <div class="alert alert-warning" role="alert" invisible="not template_omission_note" groups="base.group_user">
@@ -154,39 +185,99 @@
                     Nothing has been paid on this order. It can still be confirmed.
                 </div>
             </xpath>
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="customer_id" />
+            <xpath expr="//div[hasclass('oe_title')]" position="inside">
+                <div class="d-flex flex-wrap gap-2">
+                    <field
+                        name="customer_status"
+                        string="Progress"
+                        widget="badge"
+                        decoration-info="customer_status in ('quoted', 'waiting', 'testing')"
+                        decoration-success="customer_status == 'completed'"
+                        decoration-danger="customer_status == 'cancelled'"
+                    />
+                    <field
+                        name="quotation_follow_up"
+                        widget="badge"
+                        decoration-warning="quotation_follow_up == 'unpaid'"
+                        decoration-success="quotation_follow_up == 'paid'"
+                        decoration-danger="quotation_follow_up in ('declined', 'expired')"
+                        invisible="not quotation_follow_up"
+                    />
+                    <field
+                        name="approval_status"
+                        widget="badge"
+                        decoration-warning="approval_status == 'requested'"
+                        decoration-success="approval_status == 'approved'"
+                        decoration-danger="approval_status == 'rejected'"
+                        invisible="approval_status == 'none'"
+                    />
+                </div>
+            </xpath>
+            <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
+                <field name="customer_id" domain="[('customer_ids', '!=', False)]" />
+                <field name="customer_is_company" invisible="1" />
+            </xpath>
+            <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="attributes">
+                <attribute name="domain">[('id', 'child_of', customer_id)]</attribute>
+                <attribute name="invisible">customer_id and not customer_is_company</attribute>
+                <attribute name="readonly">not customer_id or state in ['cancel', 'sale']</attribute>
+            </xpath>
+            <xpath expr="//group[@name='partner_details']" position="inside">
                 <field name="source" readonly="1" />
                 <field name="expected_result_date" />
-                <field name="payment_deadline" />
-                <field name="advance_method" />
-                <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
-                <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
-                <field name="quotation_follow_up" />
-                <field name="payment_status" />
-                <field name="pending_amount" />
-                <field name="submitted_at" readonly="1" />
-                <field name="claimed_at" readonly="1" />
-                <field name="quoted_at" invisible="not quoted_at" />
-                <field name="accepted_at" invisible="not accepted_at" />
-                <field name="reordered_from_id" readonly="1" />
-                <field name="approval_status" readonly="1" />
-                <field name="approved_at" invisible="not approved_at" />
-                <field name="document_version" readonly="1" />
-                <field name="customer_status" string="Progress" />
+                <field name="reordered_from_id" readonly="1" invisible="not reordered_from_id" />
                 <field name="test_request_id" readonly="1" invisible="not test_request_id" />
                 <field name="test_request_status" invisible="not test_request_id" />
                 <field name="show_unpaid_warning" invisible="1" />
                 <field name="approval_can_sign" invisible="1" />
                 <field name="approval_can_reject" invisible="1" />
                 <field name="approval_can_withdraw" invisible="1" />
-                <field name="currency_id" invisible="1" />
-                <field name="catalog_total" />
+            </xpath>
+            <xpath expr="//group[@name='order_details']/field[@name='validity_date']" position="after">
+                <field name="payment_deadline" />
+            </xpath>
+            <!-- There are no customer price lists: special prices are discounts on the quotation. -->
+            <xpath expr="//group[@name='order_details']/label[@for='pricelist_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='order_details']/div[field[@name='pricelist_id']]" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//list[@name='sol_list']/field[@name='currency_id']" position="after">
                 <field name="sample_id" domain="[('order_id', '=', parent.id)]" />
             </xpath>
+            <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="attributes">
+                <attribute name="string">Parameter or package</attribute>
+            </xpath>
             <xpath expr="//notebook" position="inside">
+                <page string="Payment" name="payment">
+                    <group>
+                        <group>
+                            <field name="advance_method" />
+                            <field name="advance_mode" invisible="not advance_method or advance_method == 'none'" />
+                            <field name="advance_value" invisible="advance_mode not in ('percentage', 'fixed')" />
+                        </group>
+                        <group>
+                            <field name="payment_status" />
+                            <field name="pending_amount" />
+                            <field name="catalog_total" />
+                        </group>
+                    </group>
+                </page>
+                <page string="Tracking" name="tracking">
+                    <group>
+                        <group>
+                            <field name="submitted_at" readonly="1" />
+                            <field name="claimed_at" readonly="1" />
+                            <field name="quoted_at" invisible="not quoted_at" />
+                            <field name="accepted_at" invisible="not accepted_at" />
+                        </group>
+                        <group>
+                            <field name="approved_at" invisible="not approved_at" />
+                            <field name="document_version" readonly="1" />
+                        </group>
+                    </group>
+                </page>
                 <page string="Samples" name="samples">
                     <field name="sample_ids">
                         <list editable="bottom">
