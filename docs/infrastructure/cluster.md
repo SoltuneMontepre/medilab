@@ -18,6 +18,9 @@ What Argo CD deploys from `infra/cluster/` onto the cluster in [Architecture](ar
 | `mailpit`             | Mailpit, which catches the e-mail Odoo sends                               | `infra/cluster/mailpit`      | `medilab`          | 1    |
 | `cloudbeaver`         | CloudBeaver, connected to the `medilab` database                           | `infra/cluster/cloudbeaver`  | `medilab`          | 1    |
 | `odoo`                | Odoo, the pre-sync backup and the upgrade Job                              | `infra/cluster/odoo`         | `medilab`          | 1    |
+| `loki`                | Loki, which stores the logs of every pod                                   | `loki` chart                 | `monitoring`       | 1    |
+| `alloy`               | Alloy, which sends the logs of every pod to Loki                           | `alloy` chart                | `monitoring`       | 2    |
+| `grafana`             | Grafana, which shows the logs in Loki                                      | `grafana` chart              | `monitoring`       | 2    |
 
 - The root application syncs the applications wave by wave and waits until every application of a wave is healthy before the next. Argo CD has no health check for an `Application` by default; the `argocd` role adds one.
 - Every application syncs automatically, prunes what was removed from Git and reverts changes made by hand. Every application except `odoo` retries a failed sync five times, so the first install settles while operators and their CRDs come up.
@@ -37,6 +40,9 @@ Every chart and image is pinned and upgraded by changing it in `infra/cluster/`:
 | `cloudflared` image       | 2026.9.3 | `cloudflared/deployment.yaml`           |
 | Mailpit image             | v1.31.6  | `mailpit/deployment.yaml`               |
 | CloudBeaver image         | 26.2.2   | `cloudbeaver/deployment.yaml`           |
+| Loki chart                | 7.5.0    | `applications/loki.yaml`                |
+| Alloy chart               | 1.14.3   | `applications/alloy.yaml`               |
+| Grafana chart             | 14.0.1   | `applications/grafana.yaml`             |
 | MediLab image             | released | `newTag` in `odoo/kustomization.yaml`   |
 
 `cd-core` releases the MediLab image by committing its tag to `newTag`; see [Pipelines](pipelines.md#cd-core).
@@ -53,6 +59,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 | `odoo-config`        | `ODOO_ADMIN_PASSWORD`, written into `odoo.conf`                          | Odoo and the upgrade Job   |
 | `mailpit-ui-auth`    | `MAILPIT_UI_AUTH`                                                        | Mailpit                    |
 | `cloudbeaver-admin`  | `CLOUDBEAVER_ADMIN_NAME`, `CLOUDBEAVER_ADMIN_PASSWORD`                   | CloudBeaver                |
+| `grafana-admin`      | `GRAFANA_ADMIN_USER`, `GRAFANA_ADMIN_PASSWORD`                           | Grafana                    |
 
 `BUCKET_ADDRESS` gets `https://` in front when Doppler holds it without a scheme. The database password is not in Doppler: CloudNativePG creates it in the `medilab-db-app` Secret.
 
@@ -87,6 +94,13 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - CloudBeaver keeps its users and settings in a 1 GiB `local-path` workspace. On its first start it creates the administrator in the `cloudbeaver-admin` Secret; anonymous access is off.
 - Every start writes the shared `MediLab` connection to the `medilab` database through `medilab-db-rw`, with the saved user and password of `medilab-db-app`.
 - Traefik routes `cloudbeaver.soltunemontepre.tech` to it.
+
+## Logs
+
+- Alloy reads the logs of every pod through the Kubernetes API and sends them to Loki, labelled with `namespace`, `pod`, `container` and `app`. Odoo's lines also get their `level`, such as `INFO`, `WARNING` or `ERROR`, and its `/web/health` requests, which the probes make every few seconds, are dropped.
+- Loki runs as one process and keeps the logs for 14 days on a 10 GiB `local-path` volume.
+- Grafana has Loki as its data source and keeps its dashboards in a 1 GiB `local-path` volume. It asks for the administrator in the `grafana-admin` Secret; sign-up and anonymous access are off.
+- Traefik routes `grafana.soltunemontepre.tech` to Grafana. Odoo's logs are under **Explore** with `{app="odoo"}`, and its errors with `{app="odoo", level="ERROR"}`.
 
 ## Ingress
 
