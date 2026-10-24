@@ -31,6 +31,7 @@ vars:
   SYNC_APP_DIR: src/applications/medilab-sync
   MOBILE_APP_DIR: src/applications/medilab-mobile
   TYPECHECK_DIR: tools/typecheck
+  SCRIPT_TESTS_DIR: tools/scripts/tests
   UV: uv --project src/core
   OPENAPI_DOCUMENT: src/core/modules/sol_laboratory/api/openapi.yaml
   OASDIFF_IMAGE: docker.io/tufin/oasdiff:v1.33.0@sha256:6263a96dd2ef0726c54e21fea9b8e1607eac4841add0079324b424c1f52b819c
@@ -140,8 +141,10 @@ tasks:
       - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
 
   test:openapi:
-    desc: "Lint the OpenAPI document of the laboratory files API and refuse a change that breaks it against main unless its version changes; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
+    desc: "Lint the OpenAPI document of the laboratory files API, refuse a duplicate key in it, and refuse a change that breaks it against main unless its version changes; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
     cmds:
+      - "{{.UV}} run python -m unittest discover -s {{.SCRIPT_TESTS_DIR}} -t tools/scripts"
+      - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.OPENAPI_DOCUMENT}}"
       - "{{.UV}} run openapi-spec-validator {{.OPENAPI_DOCUMENT}}"
       - "{{.UV}} run python tools/scripts/test_openapi.py {{.OPENAPI_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
 
