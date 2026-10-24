@@ -10,6 +10,7 @@
 - **Package revenue over time.** The revenue report spreads a package line over its parameters by the package's parameters and prices of today, so a later change to a package or a parameter price moves past revenue between groups. Is that acceptable, or must each invoice line keep the spread of the day it was invoiced? (US-A14)
 - **Support request deadline.** A support request's task is due 24 elapsed hours after it reaches the salesperson, nights and weekends included, and the administrator can change the default on the task type. This is the provisional default; it awaits formal confirmation, including whether only working hours should count. (blocks US-S20)
 - **Priority surcharge.** A priority order makes its tests urgent. Does it cost more, and is the surcharge a line on the quotation?
+- **Quotation layout.** What does the laboratory's báo giá show, and in what order: the header, the customer and contact, the salesperson, the lines by sample, the totals, the advance payment, the payment deadline and the signatures? A sample of the current paper form settles it. (blocks US-S07, asked of @nnh53)
 
 ## Related documents
 
