@@ -4166,6 +4166,16 @@ msgid "Last Run"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_duration
+msgid "Last Run Duration"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_status
+msgid "Last Run Status"
+msgstr ""
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Last Saved"
@@ -14219,4 +14229,34 @@ msgstr ""
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__tested_by_my_department
 msgid "Tested By My Department"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_contents_reconcile_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_contents_reconcile
+msgid "Reconcile the laboratory files bucket"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The laboratory files bucket belongs to the database %(uuid)s, so reconciliation deletes nothing in it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The object %(key)s of verified laboratory file content is missing from the bucket."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The object %(key)s of verified laboratory file content has %(size)s bytes instead of %(expected)s."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The laboratory file content %(key)s is still pending a day after it was made, and no open upload holds it."
 msgstr ""

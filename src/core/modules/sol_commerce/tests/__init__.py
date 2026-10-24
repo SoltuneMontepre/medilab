@@ -1,4 +1,5 @@
 from . import (
+    test_accounting_localization,
     test_audit_documents,
     test_audit_pricing,
     test_audit_signatures,

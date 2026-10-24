@@ -65,6 +65,11 @@ Acceptance criteria:
 - A running booking is not moved by a bump.
 - A bump that would make other tests miss their due date is not done until the head chooses what happens to them.
 - A test of the department that becomes at risk notifies the head once and appears in the list of tests at risk.
+- A sample test's due date can be changed by hand.
+- A due date on a Saturday, a Sunday or a public holiday is reported as not a working day; a public holiday the administrator marked as a working day is accepted.
+- A due date the test has a free slot to finish before is accepted.
+- A due date that can be met only by moving other bookings is accepted, and none of the moved bookings misses its own due date.
+- A due date with no free slot, and no bookings that can move to make room, is reported as one that cannot be met.
 
 ### 2. Samples and results (US-HD06 to US-HD09)
 
