@@ -12,4 +12,4 @@ resources:
   - ingress-route.yaml
 images:
   - name: ghcr.io/soltunemontepre/medilab
-    newTag: sha-2fd8d72016bd312dee2d66322c65ae57e53e56c0
+    newTag: sha-f422aaaba612c1bc938f1b81b5423d6de5bafbb7
