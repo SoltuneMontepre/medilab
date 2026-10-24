@@ -70,35 +70,39 @@ class SetCountryScriptTest(unittest.TestCase):
 
 
 class DemoBootstrapEnvironmentTest(unittest.TestCase):
+    def completed_selection(self, root):
+        project = "medilab-bootstrap-test-01"
+        config = {
+            "COMPOSE_PROJECT_NAME": project,
+            **{
+                key: f"{project}_{suffix}_owner"
+                for key, suffix in (
+                    ("MEDILAB_DB_VOLUME", "db"),
+                    ("MEDILAB_GARAGE_VOLUME", "garage"),
+                    ("MEDILAB_APP_VOLUME", "app"),
+                    ("MEDILAB_CLOUDBEAVER_VOLUME", "cloudbeaver"),
+                )
+            },
+        }
+        marker = {
+            "project": project,
+            "owner": "owner",
+            "status": "completed",
+            "handoff_verified": True,
+            "selected_project": True,
+            "worktree": str(Path(__file__).resolve().parents[2]),
+            "lifecycle_version": 2,
+            "config": config,
+        }
+        marker_path = root / "marker.json"
+        marker_path.write_text(json.dumps(marker), encoding="utf-8")
+        return project, config, marker, marker_path
+
     def test_switch_archives_verified_selection_before_selecting_empty_project(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            project = "medilab-bootstrap-test-01"
+            project, config, marker, marker_path = self.completed_selection(root)
             target = "medilab-bootstrap-reset-check"
-            config = {
-                "COMPOSE_PROJECT_NAME": project,
-                **{
-                    key: f"{project}_{suffix}_owner"
-                    for key, suffix in (
-                        ("MEDILAB_DB_VOLUME", "db"),
-                        ("MEDILAB_GARAGE_VOLUME", "garage"),
-                        ("MEDILAB_APP_VOLUME", "app"),
-                        ("MEDILAB_CLOUDBEAVER_VOLUME", "cloudbeaver"),
-                    )
-                },
-            }
-            marker = {
-                "project": project,
-                "owner": "owner",
-                "status": "completed",
-                "handoff_verified": True,
-                "selected_project": True,
-                "worktree": str(Path(__file__).resolve().parents[2]),
-                "lifecycle_version": 2,
-                "config": config,
-            }
-            marker_path = root / "marker.json"
-            marker_path.write_text(json.dumps(marker), encoding="utf-8")
             fresh_config = {"COMPOSE_PROJECT_NAME": target}
             with (
                 patch("demo_bootstrap.MARKER", marker_path),
@@ -136,32 +140,8 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
     def test_switch_preserves_completed_selection_and_refuses_target_resources(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            project = "medilab-bootstrap-test-01"
+            _project, config, marker, marker_path = self.completed_selection(root)
             target = "medilab-bootstrap-reset-check"
-            config = {
-                "COMPOSE_PROJECT_NAME": project,
-                **{
-                    key: f"{project}_{suffix}_owner"
-                    for key, suffix in (
-                        ("MEDILAB_DB_VOLUME", "db"),
-                        ("MEDILAB_GARAGE_VOLUME", "garage"),
-                        ("MEDILAB_APP_VOLUME", "app"),
-                        ("MEDILAB_CLOUDBEAVER_VOLUME", "cloudbeaver"),
-                    )
-                },
-            }
-            marker = {
-                "project": project,
-                "owner": "owner",
-                "status": "completed",
-                "handoff_verified": True,
-                "selected_project": True,
-                "worktree": str(Path(__file__).resolve().parents[2]),
-                "lifecycle_version": 2,
-                "config": config,
-            }
-            marker_path = root / "marker.json"
-            marker_path.write_text(json.dumps(marker), encoding="utf-8")
             with (
                 patch("demo_bootstrap.MARKER", marker_path),
                 patch("demo_bootstrap.SELECTIONS", root / "selections"),

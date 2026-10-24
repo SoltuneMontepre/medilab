@@ -141,6 +141,36 @@ tasks:
             **kwargs,
         )
 
+    def run_emit_on_stdout_tty(self, **overrides):
+        master, slave = pty.openpty()
+        process = subprocess.Popen(
+            ["task", "--taskfile", str(self.taskfile), "--force", "emit"],
+            cwd=ROOT,
+            env=self._terminal_env(**overrides),
+            stdin=subprocess.DEVNULL,
+            stdout=slave,
+            stderr=subprocess.PIPE,
+        )
+        os.close(slave)
+        try:
+            _, stderr = process.communicate(timeout=10)
+            output = bytearray()
+            while True:
+                ready, _, _ = select.select([master], [], [], 0.1)
+                if not ready:
+                    break
+                try:
+                    output.extend(os.read(master, 65536))
+                except OSError:
+                    break
+        finally:
+            os.close(master)
+        return (
+            process.returncode,
+            output.decode(errors="replace"),
+            stderr.decode(errors="replace"),
+        )
+
     def test_redirected_output_is_plain_and_preserves_severity_streams(self):
         result = self.run_task("emit", env={"TERM": "xterm-256color"})
 
@@ -254,32 +284,9 @@ tasks:
         overrides = ({"FORCE_COLOR": "0"}, {"NO_COLOR": "1", "FORCE_COLOR": "1"})
         for override in overrides:
             with self.subTest(override=override):
-                master, slave = pty.openpty()
-                process = subprocess.Popen(
-                    ["task", "--taskfile", str(self.taskfile), "--force", "emit"],
-                    cwd=ROOT,
-                    env=self._terminal_env(**override),
-                    stdin=subprocess.DEVNULL,
-                    stdout=slave,
-                    stderr=subprocess.PIPE,
-                )
-                os.close(slave)
-                try:
-                    _, stderr = process.communicate(timeout=10)
-                    output = bytearray()
-                    while True:
-                        ready, _, _ = select.select([master], [], [], 0.1)
-                        if not ready:
-                            break
-                        try:
-                            output.extend(os.read(master, 65536))
-                        except OSError:
-                            break
-                finally:
-                    os.close(master)
-
-                self.assertEqual(process.returncode, 0, stderr.decode(errors="replace"))
-                self.assertNotIn(ANSI, output.decode(errors="replace"))
+                returncode, output, stderr = self.run_emit_on_stdout_tty(**override)
+                self.assertEqual(returncode, 0, stderr)
+                self.assertNotIn(ANSI, output)
 
     @unittest.skipUnless(
         os.name == "posix", "Pseudo-terminal capability checks require POSIX ptys."
@@ -288,32 +295,9 @@ tasks:
         cases = (({"FORCE_COLOR": "invalid"}, True), ({"TERM": "dumb"}, False))
         for overrides, expect_color in cases:
             with self.subTest(overrides=overrides):
-                master, slave = pty.openpty()
-                process = subprocess.Popen(
-                    ["task", "--taskfile", str(self.taskfile), "--force", "emit"],
-                    cwd=ROOT,
-                    env=self._terminal_env(**overrides),
-                    stdin=subprocess.DEVNULL,
-                    stdout=slave,
-                    stderr=subprocess.PIPE,
-                )
-                os.close(slave)
-                try:
-                    _, stderr = process.communicate(timeout=10)
-                    output = bytearray()
-                    while True:
-                        ready, _, _ = select.select([master], [], [], 0.1)
-                        if not ready:
-                            break
-                        try:
-                            output.extend(os.read(master, 65536))
-                        except OSError:
-                            break
-                finally:
-                    os.close(master)
-
-                self.assertEqual(process.returncode, 0, stderr.decode(errors="replace"))
-                self.assertEqual(ANSI in output.decode(errors="replace"), expect_color)
+                returncode, output, stderr = self.run_emit_on_stdout_tty(**overrides)
+                self.assertEqual(returncode, 0, stderr)
+                self.assertEqual(ANSI in output, expect_color)
 
     @unittest.skipUnless(
         os.name == "posix", "Interactive pseudo-terminal checks require POSIX ptys."
