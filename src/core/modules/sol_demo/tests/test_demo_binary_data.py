@@ -20,7 +20,7 @@ class TestDemoBinaryData(TransactionCase):
             with self.subTest(record=record_id):
                 xml = etree.parse(module_dir / data_path)
                 binary_field = xml.find(f'.//record[@id="{record_id}"]/field[@name="{field_name}"]')
-                self.assertIsNotNone(binary_field)
+                assert binary_field is not None, f"Missing {field_name} on {record_id}"
                 self.assertEqual(binary_field.get("type"), "bytes")
 
                 with file_open(f"sol_demo/static/img/{file_name}", "rb") as expected_file:

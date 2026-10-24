@@ -1,4 +1,4 @@
-from odoo import Command
+from odoo.fields import Command
 from odoo.tests import TransactionCase
 
 
