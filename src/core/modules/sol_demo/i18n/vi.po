@@ -669,8 +669,3 @@ msgstr "Ký đơn mua hàng"
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_laboratory_file_version_signing
 msgid "Laboratory file signing"
 msgstr "Ký tệp phòng thí nghiệm"
-
-#. module: sol_demo
-#: model:medilab.location,name:sol_demo.demo_location_preparation_room
-msgid "Sample preparation room"
-msgstr "Phòng chuẩn bị mẫu"

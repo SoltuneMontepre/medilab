@@ -9,7 +9,6 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCATION,
     MODEL_MACHINE_BOOKING,
     MODEL_TASK,
-    MODEL_TESTING_METHOD_STEP,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
 
@@ -35,12 +34,6 @@ class CalendarEvent(models.Model):
         index="btree_not_null",
         domain="[('is_bookable', '=', True)]",
     )
-    # The machine booking whose step the location booking is for; empty for a booking people made.
-    machine_booking_id = fields.Many2one(
-        MODEL_MACHINE_BOOKING, ondelete="cascade", index="btree_not_null", readonly=True, copy=False
-    )
-    # The method step the location booking is for.
-    step_id = fields.Many2one(MODEL_TESTING_METHOD_STEP, string="Method Step", ondelete="restrict", readonly=True)
 
     _location_no_overlap = models.Constraint(
         "EXCLUDE USING gist (location_id WITH =, tsrange(start, stop) WITH &&, id WITH <>) "
@@ -68,16 +61,13 @@ class CalendarEvent(models.Model):
             booking=booking.display_name,
         )
 
-    @api.depends("location_id", "user_id", "machine_booking_id")
+    @api.depends("location_id", "user_id")
     def _compute_user_can_edit(self):
         super()._compute_user_can_edit()
-        # A room booking of a machine booking follows it, so the form leaves it read-only to everyone.
-        for event in self.filtered("machine_booking_id"):
-            event.user_can_edit = False
         # The form leaves a location booking read-only to anyone but its organiser; an administrator opens it to cancel.
         if self.env.user.has_group(ADMINISTRATOR_GROUP):
             return
-        for event in self.filtered(lambda event: event.location_id and not event.machine_booking_id):
+        for event in self.filtered("location_id"):
             event.user_can_edit = event.user_can_edit and event.user_id == self.env.user
 
     @api.constrains("location_id")
@@ -99,8 +89,6 @@ class CalendarEvent(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        if BOOKING_FIELDS & set(vals) or vals.get("active") is False:
-            self._check_not_scheduled()
         bookings = self if vals.get("location_id") else self.filtered("location_id")
         if bookings and BOOKING_FIELDS & set(vals):
             bookings._check_organiser()
@@ -128,12 +116,6 @@ class CalendarEvent(models.Model):
         location = self.env[MODEL_LOCATION].browse(location_id)
         return {"alarm_ids": [Command.clear()], "location": location.display_name}
 
-    def _check_not_scheduled(self):
-        """The scheduler moves and cancels the room bookings of a machine booking with it."""
-        scheduled = self.filtered("machine_booking_id")
-        if scheduled and not self.env.context.get(SKIP_SYNC):
-            raise UserError(self.env._("Move or cancel the machine booking of %s instead.", scheduled[0].display_name))
-
     def _check_organiser(self, cancelling=False):
         """The organiser moves or cancels a location booking; an administrator may also cancel it."""
         if self.env.su or (cancelling and self.env.user.has_group(ADMINISTRATOR_GROUP)):
@@ -160,7 +142,6 @@ class CalendarEvent(models.Model):
             booking.with_env(self.env)._move(booking.calendar_event_id.start)
 
     def unlink(self):
-        self._check_not_scheduled()
         self.filtered("location_id")._check_organiser(cancelling=True)
         tasks = self.medilab_task_id.with_context(**{SKIP_SYNC: True})
         result = super().unlink()

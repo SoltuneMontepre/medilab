@@ -49,26 +49,4 @@
         <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
         <field name="status">queued</field>
     </record>
-    <!-- Digesting in the preparation room books it from 15 minutes after the start for an hour. -->
-    <record id="demo_machine_booking_lead_room_booked" model="medilab.machine.booking">
-        <field name="machine_id" ref="demo_machine_icpms" />
-        <field name="sample_test_id" ref="demo_sample_test_lead_room_booked" />
-        <field name="task_id" ref="demo_task_sample_test_lead_room_booked" />
-        <field name="person_id" ref="demo_person_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=1, hour=1, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=1, hour=1, minute=30, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="status">scheduled</field>
-    </record>
-    <!-- The machine is free from 01:30, but the room is booked until 04:30, so the test starts at 04:15. -->
-    <record id="demo_machine_booking_lead_room_waiting" model="medilab.machine.booking">
-        <field name="machine_id" ref="demo_machine_icpms" />
-        <field name="sample_test_id" ref="demo_sample_test_lead_room_waiting" />
-        <field name="task_id" ref="demo_task_sample_test_lead_room_waiting" />
-        <field name="person_id" ref="demo_person_chemistry_tester" />
-        <field name="queued_at" eval="(DateTime.now() - relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="starts_at" eval="(DateTime.now() + relativedelta(days=1, hour=4, minute=15, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="ends_at" eval="(DateTime.now() + relativedelta(days=1, hour=4, minute=45, second=0)).strftime('%Y-%m-%d %H:%M:%S')" />
-        <field name="status">scheduled</field>
-    </record>
 </odoo>
