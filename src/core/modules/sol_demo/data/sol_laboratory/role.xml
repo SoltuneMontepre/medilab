@@ -133,6 +133,9 @@
                 ref('sol_laboratory.permission_test_result_edit_all'),
                 ref('sol_laboratory.permission_test_result_sign_all'),
                 ref('sol_laboratory.permission_laboratory_folder_create_all'),
+                ref('sol_inventory.permission_container_edit_all'),
+                ref('sol_inventory.permission_preparation_create_all'),
+                ref('sol_inventory.permission_move_create_all'),
             ])]"
         />
     </record>
@@ -226,6 +229,7 @@
                 ref('sol_inventory.permission_receipt_edit_all'),
                 ref('sol_inventory.permission_receipt_delete_all'),
                 ref('sol_inventory.permission_lot_edit_all'),
+                ref('sol_inventory.permission_move_read_all'),
             ])]"
         />
     </record>

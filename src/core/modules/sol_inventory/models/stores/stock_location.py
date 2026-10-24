@@ -112,6 +112,15 @@ class StockLocation(models.Model):
             parent = parent.location_id
         return parent
 
+    def _holding_store(self):
+        """The store this location is, or the nearest store above it. A team store under a department store stays the
+        team's."""
+        self.ensure_one()
+        location = self.sudo()
+        while location and not location.is_store:
+            location = location.location_id
+        return location
+
     def _has_field_access(self, field, operation):
         if (
             field.name in STORE_FIELDS

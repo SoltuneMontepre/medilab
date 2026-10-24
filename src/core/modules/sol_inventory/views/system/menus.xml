@@ -35,7 +35,16 @@
         />
     </record>
     <record id="stock.menu_stock_root" model="ir.ui.menu">
-        <field name="group_ids" eval="[Command.link(ref('sol_laboratory.group_permission_receipt_read_all'))]" />
+        <field
+            name="group_ids"
+            eval="[
+                Command.link(ref('sol_laboratory.group_permission_receipt_read_all')),
+                Command.link(ref('sol_laboratory.group_permission_container_edit_all')),
+                Command.link(ref('sol_laboratory.group_permission_preparation_create_all')),
+                Command.link(ref('sol_laboratory.group_permission_move_create_all')),
+                Command.link(ref('sol_laboratory.group_permission_move_read_all')),
+            ]"
+        />
     </record>
     <!-- MediLab signs every order before it is sent, so Odoo's lists of quotation requests and of confirmed orders are
          left to Odoo's purchase users. -->
@@ -48,5 +57,58 @@
 
     <menuitem id="menu_purchase_order" parent="purchase.menu_procurement_management" action="action_medilab_purchase_order" sequence="1" />
     <menuitem id="menu_receipt" parent="stock.menu_stock_warehouse_mgmt" action="action_medilab_receipt" sequence="0" />
+    <menuitem
+        id="menu_container_scan"
+        name="Scan Container"
+        parent="stock.menu_stock_warehouse_mgmt"
+        action="action_medilab_container_scan"
+        sequence="20"
+        groups="sol_laboratory.group_permission_container_edit_all"
+    />
+    <menuitem
+        id="menu_prepare_solution"
+        name="Prepare Solution"
+        parent="stock.menu_stock_warehouse_mgmt"
+        action="action_medilab_preparation_make"
+        sequence="30"
+        groups="sol_laboratory.group_permission_preparation_create_all"
+    />
+    <menuitem
+        id="menu_record_use"
+        name="Record Use or Waste"
+        parent="stock.menu_stock_warehouse_mgmt"
+        action="action_medilab_stock_use"
+        sequence="40"
+        groups="sol_laboratory.group_permission_move_create_all"
+    />
+    <menuitem
+        id="menu_preparation"
+        name="Preparations"
+        parent="stock.menu_stock_warehouse_mgmt"
+        action="action_medilab_preparation"
+        sequence="50"
+    />
     <menuitem id="menu_container" parent="stock.menu_stock_inventory_control" action="action_medilab_container" sequence="101" />
+    <menuitem
+        id="menu_stock_move"
+        name="Moves"
+        parent="stock.menu_stock_inventory_control"
+        action="action_medilab_stock_move"
+        sequence="110"
+        groups="sol_laboratory.group_permission_move_read_all"
+    />
+    <!-- Odoo's own overview, transfers, adjustments and procurement are for its stock users; MediLab users record
+         use, waste and preparations through the menus above. -->
+    <record id="stock.stock_picking_type_menu" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_user')])]" />
+    </record>
+    <record id="stock.menu_stock_transfers" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_user')])]" />
+    </record>
+    <record id="stock.menu_stock_adjustments" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_user')])]" />
+    </record>
+    <record id="stock.menu_stock_procurement" model="ir.ui.menu">
+        <field name="group_ids" eval="[Command.set([ref('stock.group_stock_user')])]" />
+    </record>
 </odoo>

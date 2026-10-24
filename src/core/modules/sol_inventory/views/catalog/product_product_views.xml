@@ -47,7 +47,8 @@
                         <group>
                             <field name="item_tracking" widget="radio" required="1" />
                             <field name="use_expiration_date" invisible="item_tracking == 'quantity'" />
-                            <field name="shelf_life_after_opening_days" />
+                            <field name="use_shelf_life_after_opening" />
+                            <field name="shelf_life_after_opening_days" invisible="not use_shelf_life_after_opening" />
                         </group>
                     </group>
                     <notebook>

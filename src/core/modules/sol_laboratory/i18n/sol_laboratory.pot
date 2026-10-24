@@ -13253,6 +13253,13 @@ msgid "The audit retention period cannot be negative; 0 keeps entries for ever."
 msgstr ""
 
 #. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
+msgid ""
+"The first valid day of certificate %s cannot be after its last valid day."
+msgstr ""
+
+#. module: sol_laboratory
 #: model:ir.model,name:sol_laboratory.model_medilab_accreditation_certificate
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_accreditation_certificate_import__certificate_id
 msgid "Accreditation Certificate"
@@ -13284,14 +13291,14 @@ msgid "Accreditation refresh"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:medilab.permission,name:sol_laboratory.permission_accreditation_certificate_archive_all
-msgid "Archive accreditation certificates"
-msgstr ""
-
-#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
 msgid "Another transaction created testing method %s; the import will retry."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:medilab.permission,name:sol_laboratory.permission_accreditation_certificate_archive_all
+msgid "Archive accreditation certificates"
 msgstr ""
 
 #. module: sol_laboratory
@@ -13378,6 +13385,16 @@ msgid "Permission: accreditation.certificate.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_container_edit_all
+msgid "Permission: container.edit.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_read_all
+msgid "Permission: order.template.read.all"
+msgstr ""
+
+#. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/master_data/accreditation_certificate_import.py:0
 msgid "Row %(row)s has no code or title. Nothing was imported."
@@ -13391,13 +13408,6 @@ msgid ""
 msgstr ""
 
 #. module: sol_laboratory
-#. odoo-python
-#: code:addons/sol_laboratory/models/master_data/accreditation_certificate.py:0
-msgid ""
-"The first valid day of certificate %s cannot be after its last valid day."
-msgstr ""
-
-#. module: sol_laboratory
 #: model:ir.model.constraint,message:sol_laboratory.constraint_medilab_accreditation_certificate_code_unique
 msgid "The number of an accreditation certificate must be unique."
 msgstr ""
@@ -13408,18 +13418,13 @@ msgid "Title"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_order_template_read_all
-msgid "Permission: order.template.read.all"
+#: model:res.groups,name:sol_laboratory.group_permission_move_create_all
+msgid "Permission: move.create.all"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_order_template_create_all
-msgid "Permission: order.template.create.all"
-msgstr ""
-
-#. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_order_template_edit_all
-msgid "Permission: order.template.edit.all"
+#: model:res.groups,name:sol_laboratory.group_permission_move_read_all
+msgid "Permission: move.read.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -13428,13 +13433,18 @@ msgid "Permission: order.template.archive.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_create_all
+msgid "Permission: order.template.create.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_order_template_delete_all
 msgid "Permission: order.template.delete.all"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_read_all
-msgid "Permission: order.template.line.read.all"
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_edit_all
+msgid "Permission: order.template.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
@@ -13443,13 +13453,28 @@ msgid "Permission: order.template.line.create.all"
 msgstr ""
 
 #. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_delete_all
+msgid "Permission: order.template.line.delete.all"
+msgstr ""
+
+#. module: sol_laboratory
 #: model:res.groups,name:sol_laboratory.group_permission_order_template_line_edit_all
 msgid "Permission: order.template.line.edit.all"
 msgstr ""
 
 #. module: sol_laboratory
-#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_delete_all
-msgid "Permission: order.template.line.delete.all"
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_line_read_all
+msgid "Permission: order.template.line.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_order_template_read_all
+msgid "Permission: order.template.read.all"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:res.groups,name:sol_laboratory.group_permission_preparation_create_all
+msgid "Permission: preparation.create.all"
 msgstr ""
 
 #. module: sol_laboratory

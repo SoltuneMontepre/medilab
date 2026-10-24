@@ -71,6 +71,7 @@
         "data/sol_laboratory/laboratory_folder.xml",
         "data/sol_laboratory/laboratory_folder_member.xml",
         "data/sol_laboratory/laboratory_sync_rule.xml",
+        "data/stock/stock_package.xml",
     ],
     "post_init_hook": "post_init_hook",
     "application": True,

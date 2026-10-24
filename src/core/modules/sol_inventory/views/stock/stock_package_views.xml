@@ -33,6 +33,31 @@
         <field name="arch" type="xml">
             <form create="false" edit="false">
                 <header>
+                    <button
+                        name="action_open"
+                        type="object"
+                        string="Open"
+                        class="btn-primary"
+                        invisible="status != 'sealed'"
+                        groups="sol_laboratory.group_permission_container_edit_all"
+                    />
+                    <button
+                        name="%(sol_inventory.action_medilab_container_opening)d"
+                        type="action"
+                        string="Record opening"
+                        invisible="status != 'sealed'"
+                        context="{'default_container_id': id}"
+                        groups="sol_laboratory.group_permission_container_edit_all"
+                    />
+                    <button
+                        name="action_mark_empty"
+                        type="object"
+                        string="Mark empty"
+                        invisible="status != 'opened'"
+                        groups="sol_laboratory.group_permission_container_edit_all"
+                    />
+                    <button name="action_print_label" type="object" string="Print label" />
+                    <button name="action_print_label_small" type="object" string="Print small label" />
                     <field name="status" widget="statusbar" statusbar_visible="sealed,opened,depleted" />
                 </header>
                 <sheet>
@@ -49,8 +74,27 @@
                         <group>
                             <field name="location_id" readonly="1" />
                             <field name="usable_until" />
+                            <field name="opened_at" invisible="not opened_at" />
+                            <field name="opened_by_id" invisible="not opened_at" />
+                            <field name="opening_note" invisible="not opening_note" />
+                            <field name="preparation_id" invisible="not preparation_id" />
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Moves" name="moves">
+                            <field name="done_line_ids" readonly="1">
+                                <list create="false" edit="false" delete="false">
+                                    <field name="date" />
+                                    <field name="reference" />
+                                    <field name="quantity" />
+                                    <field name="uom_id" />
+                                    <field name="location_id" />
+                                    <field name="location_dest_id" />
+                                    <field name="lot_id" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>

@@ -74,6 +74,16 @@
                                 <div t-field="container.item_id.name" />
                                 <div><span>Lot</span> <span t-field="container.lot_id.name" /></div>
                                 <div><span>Use by</span> <span t-field="container.usable_until" /></div>
+                                <!-- The day in the laboratory's time zone, on a line of its own so the name fits. -->
+                                <div t-if="container.opened_at">
+                                    <span t-if="container.preparation_id">Prepared</span>
+                                    <span t-else="">Opened</span>
+                                    <span t-field="container.opened_on" />
+                                </div>
+                                <div t-if="container.opened_at">
+                                    <span>by</span>
+                                    <span t-field="container.opened_by_id" />
+                                </div>
                             </div>
                         </div>
                     </td>

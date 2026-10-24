@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_medilab_preparation_make_form" model="ir.ui.view">
+        <field name="name">medilab.preparation.make.form</field>
+        <field name="model">medilab.preparation.make</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="store_ids" invisible="1" />
+                    <field name="has_extra" invisible="1" />
+                    <field name="extra_reason_needed" invisible="1" />
+                    <field name="recipe_id" />
+                    <field name="location_id" />
+                    <field name="container_scan" placeholder="Scan or type the container code" />
+                    <field name="received_quantity" />
+                    <field name="uom_id" />
+                    <field
+                        name="scrap_reason_tag_ids"
+                        widget="many2many_tags"
+                        options="{'no_create': True}"
+                        invisible="not has_extra"
+                        required="has_extra"
+                    />
+                    <field name="extra_reason" invisible="not extra_reason_needed" required="extra_reason_needed" />
+                </group>
+                <field name="line_ids">
+                    <list create="false" delete="false">
+                        <field name="item_id" />
+                        <field name="recipe_quantity" />
+                        <field name="quantity" />
+                        <field name="uom_id" />
+                        <field name="container_codes" />
+                    </list>
+                    <form>
+                        <group>
+                            <field name="item_id" readonly="1" />
+                            <field name="recipe_quantity" readonly="1" />
+                            <field name="quantity" />
+                            <field name="uom_id" />
+                            <field name="container_scan" placeholder="Scan or type the container code" />
+                        </group>
+                        <field name="container_ids">
+                            <list create="false">
+                                <field name="sequence" widget="handle" />
+                                <field name="container_id" />
+                            </list>
+                        </field>
+                    </form>
+                </field>
+                <footer>
+                    <button name="action_prepare" type="object" string="Prepare" class="btn-primary" />
+                    <button string="Cancel" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_medilab_preparation_make" model="ir.actions.act_window">
+        <field name="name">Prepare Solution</field>
+        <field name="res_model">medilab.preparation.make</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="path">prepare-solution</field>
+    </record>
+</odoo>

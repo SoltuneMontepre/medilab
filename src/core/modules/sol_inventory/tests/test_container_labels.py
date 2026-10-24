@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.tests import tagged
 from odoo.tools import format_date
 from odoo.tools.safe_eval import safe_eval, time
@@ -31,6 +32,16 @@ class TestContainerLabels(PurchasingCase):
             self.receipt.action_print_small_container_labels(),
         ):
             self.assertEqual(action["context"]["active_ids"], self.receipt.container_ids.ids)
+
+    def test_an_opened_label_says_opened_and_who_opened_it(self):
+        container = self.receipt.container_ids[:1]
+        container.sudo().write({"status": "opened", "opened_at": fields.Datetime.now(), "opened_by_id": self.buyer.id})
+
+        html = self.env["ir.actions.report"]._render_qweb_html(CONTAINER_LABEL_REPORT, container.ids)[0].decode()
+
+        self.assertIn("Opened", html)
+        self.assertIn(self.buyer.name, html)
+        self.assertIn(format_date(self.env, container.opened_on), html)
 
     def test_the_labels_of_one_container_are_named_after_it(self):
         # Odoo names a downloaded report only when it holds one record, and gives the name only that record.

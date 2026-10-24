@@ -26,4 +26,6 @@ DOCUMENT_TYPES = {
     "purchase.order": "purchase_order",
     "stock.picking": "receipt",
     "stock.lot": "lot",
+    "stock.package": "container",
+    "stock.move": "move",
 }

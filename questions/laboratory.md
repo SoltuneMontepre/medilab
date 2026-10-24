@@ -42,6 +42,7 @@
 - **Office documents.** Decided: Word, Excel and PowerPoint documents are the files with the extensions `docx`, `xlsx` and `pptx`, in any letter case.
 - **Turned-off folders and online editing.** Decided: a turned-off folder refuses every new version, saves of the online editor included.
 - **Demo files.** Decided: the shared foundation of laboratory files brings a few demo files with versions and a conflict; the upload flow adds restores, shared content and the stored bytes.
+- **Lab tools.** A test also uses tools, such as pipettes, glassware and filters, that are neither stock items, machines nor chemicals, so nothing records what a test was done with. Should the laboratory record the tools a method or a test uses, and are they stocked, maintained or only listed?
 
 ## File locks (US-T27, US-AD31)
 

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Creating a move is for recording use and waste. Receipts and other operations keep their own accesses. -->
+    <record id="sol_laboratory.access_permission_move_create_all" model="ir.access">
+        <field name="domain">[("move_kind", "in", ("consumption", "waste"))]</field>
+    </record>
+
+    <!-- Whoever can read a result, a preparation or a container can read the moves that screen shows. -->
+    <record id="access_stock_move_followed_read" model="ir.access">
+        <field name="name">stock.move follows a result, preparation or container</field>
+        <field name="model_id" ref="stock.model_stock_move" />
+        <field name="group_id" ref="base.group_user" />
+        <field name="operation">r</field>
+        <field name="domain">[
+            "|", "|", "|",
+            ("test_result_id", "access", "read"),
+            ("preparation_id", "!=", False),
+            ("move_line_ids.package_id", "!=", False),
+            ("move_line_ids.result_package_id", "!=", False),
+        ]</field>
+    </record>
+
+    <!-- Odoo lets only its stock users read scrap reasons. Recording waste needs them. -->
+    <record id="access_stock_scrap_reason_tag_user" model="ir.access">
+        <field name="name">stock.scrap.reason.tag user</field>
+        <field name="model_id" ref="stock.model_stock_scrap_reason_tag" />
+        <field name="group_id" ref="base.group_user" />
+        <field name="operation">r</field>
+    </record>
+
+    <!-- The scanned containers of a result follow the result. -->
+    <record id="access_medilab_result_container_read" model="ir.access">
+        <field name="name">medilab.result.container follows the result</field>
+        <field name="model_id" ref="model_medilab_result_container" />
+        <field name="group_id" ref="base.group_user" />
+        <field name="operation">r</field>
+        <field name="domain">[("result_id", "access", "read")]</field>
+    </record>
+    <record id="access_medilab_result_container_edit" model="ir.access">
+        <field name="name">medilab.result.container follows result edit</field>
+        <field name="model_id" ref="model_medilab_result_container" />
+        <field name="group_id" ref="base.group_user" />
+        <field name="operation">cud</field>
+        <field name="domain">[("result_id", "access", "write")]</field>
+    </record>
+</odoo>

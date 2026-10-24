@@ -28,8 +28,8 @@ How code inside an Odoo module is laid out.
 | `costs`             | Cost centres                                                                                                                                                                     |
 | `catalog`           | Stock items with their minimum quantities, suppliers and the items they sell, and how much of each item a test uses                                                              |
 | `purchasing`        | Purchase orders, their lines and signing, and receipts with what each lot line brings in                                                                                         |
-| `stock`             | Lots and containers, their statuses and QR labels                                                                                                                                |
-| `recipes`           | Recipes of prepared solutions and their ingredients                                                                                                                              |
+| `stock`             | Lots and containers, opening them, their usable dates and labels, uses, waste and moves                                                                                          |
+| `recipes`           | Recipes of prepared solutions, their ingredients and the preparations made from them                                                                                             |
 
 ## Files
 
@@ -66,7 +66,7 @@ Technical names used in Python live in the `constants/` package at the root of t
 | `constants/jobs.py`        | Context keys of scheduled jobs and what the cleanup job removes, such as `CLEANUP_KINDS`    |
 | `constants/locks.py`       | The bus notification and release reasons of document locks, such as `LOCK_BUS_TYPE`         |
 | `constants/routes.py`      | Route options that `odoo.http` does not declare, such as `FRONTEND_PAGE` and `DEVICE_KEY`   |
-| `constants/stock.py`       | Statuses of lots and containers and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |
+| `constants/stock.py`       | Statuses of lots and containers, the kinds of moves and the Odoo states receipts rely on, such as `CONTAINER_SEALED` |
 | `constants/signing.py`     | Digital signing jobs, certificate statuses, contexts and paths, such as `DIGITAL_SIGNING_JOB` |
 | `constants/items.py`       | Kinds of stock items and how they are tracked, such as `KIND_SOLUTION`                      |
 | `constants/laboratory_files.py` | Member roles, sync modes and access levels of laboratory folders and files, the sources of file versions, Office extensions, and the codes of their refusals, such as `FOLDER_SHARE` |
