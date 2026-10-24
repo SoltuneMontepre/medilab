@@ -1,5 +1,6 @@
 id,name,model_id,group_id/id,operation,domain
 access_medilab_chemical_user,medilab.chemical user,medilab.chemical,base.group_user,r,
+access_medilab_location_user,medilab.location user,medilab.location,base.group_user,r,
 access_medilab_machine_user,medilab.machine user,medilab.machine,base.group_user,r,
 access_medilab_machine_service_user,medilab.machine.service user,medilab.machine.service,base.group_user,r,
 access_medilab_measurement_unit_user,medilab.measurement.unit user,medilab.measurement.unit,base.group_user,r,
@@ -41,3 +42,4 @@ access_medilab_machine_booking_person,medilab.machine.booking person,medilab.mac
 access_medilab_change_request_requester,medilab.change.request requester,medilab.change.request,base.group_user,r,"[('requested_by_id.user_id', '=', user.id)]"
 access_medilab_change_request_raise_user,medilab.change.request.raise user,medilab.change.request.raise,base.group_user,crud,
 access_medilab_change_request_reject_user,medilab.change.request.reject user,medilab.change.request.reject,base.group_user,crud,
+access_medilab_laboratory_file_version_reject_user,medilab.laboratory.file.version.reject user,medilab.laboratory.file.version.reject,base.group_user,crud,

@@ -65,7 +65,7 @@ Acceptance criteria:
 | Item             | Rule                                                                                                                                                                                                                     |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Who signs        | The role required by the document's approval chain, for example the Head of Sales for an order or the Lab Head for a test result. Chains can have several levels, each signing in turn.                                  |
-| What is recorded | For every signature: the signer, their role and level, the time, and the document version signed. The signer is the logged-in user; signing needs a deliberate action (and confirmation), not just opening the document. |
+| What is recorded | For every signature: the signer, their role and level, the time, and the document version signed, with the hash of its content for a document whose content has one, such as a laboratory file version. The signer is the logged-in user; signing needs a deliberate action (and confirmation), not just opening the document. |
 | Rejection        | A signer can reject with a reason instead of signing. The reason is kept and the requester is notified.                                                                                                                  |
 | Documents        | Invoices, quotations, orders, test results and any other document type that has an approval chain.                                                                                                                       |
 
@@ -228,7 +228,7 @@ Tasks with a planned time, machine bookings and location bookings appear on sche
 
 - **Built on Odoo Calendar.** A planned task and a machine booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a machine booking's event can only be moved where the scheduler finds the slot free. Working hours come from the person's working time (`resource.calendar`).
 - **Booking a location.** Anyone who works for the company can book a bookable [location](laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) for a time: the booking is an Odoo calendar event that names the location, with its organiser and attendees, so it shows on their calendars and on the location's schedule. Bookings of one location do not overlap; a location that is not bookable, or is archived, cannot be booked. The organiser moves or cancels the booking; an administrator can cancel any booking. Booking a location shows the free times of the locations under a chosen location, such as the rooms of a floor.
-- A reminder is sent a number of minutes before a planned task or a machine booking starts, 15 by default, set by an administrator. It is raised once from the calendar event of the task or the booking, on the task the work belongs to, and that event has no second Odoo alarm.
+- A reminder is sent a number of minutes before a planned task, a machine booking or a location booking starts, 15 by default, set by an administrator. It is raised once from the calendar event of the task or the booking, on the task the work belongs to, or on the event of a location booking to its organiser and attendees, and that event has no second Odoo alarm.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
 - **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.
 - **Recipients.** For each event, the administrator chooses who is notified: the holders of one or more roles, the people of one or more departments, or both, on top of the person the event concerns directly, such as the assignee of a task.
@@ -244,6 +244,23 @@ Acceptance criteria:
 - A location that is not bookable cannot be chosen for a booking.
 - A reminder arrives 15 minutes before a booking starts, once on each channel.
 - An event the administrator turned off notifies nobody; turning it on again notifies the next occurrence.
+
+#### SH-12 Conversations
+
+People of the laboratory write to each other in conversations, and about a document in its chatter, on the web and on [Medilab Mobile](laboratory_module/applications/medilab-mobile.md).
+
+- **Built on Odoo Discuss.** A conversation is an Odoo Discuss channel (`discuss.channel`): a direct conversation between two people, or a group conversation with a name and members. Its messages are Odoo messages (`mail.message`), with their files and photos as attachments. On the web, conversations are in Odoo's Discuss app.
+- **Internal.** Only people with an internal user take part in conversations. Customers and subcontractors never join one; a customer writes to sales through a support request.
+- **Chatter.** Messages about a document, such as a task, a sample or a test request, are posted in its chatter, where everyone who can read the document reads them.
+- **Mentions.** A message that mentions a person with @ notifies them on each channel they keep on (SH-11).
+- **Pushes.** A new message in a conversation is pushed to the Medilab Mobile devices of its members, except its author and the members who muted the conversation.
+
+Acceptance criteria:
+
+- A message sent in a conversation on the web appears on the phones of its members, and a message sent from a phone appears on the web.
+- A customer or a subcontractor cannot be added to a conversation.
+- Mentioning a person in a sample's chatter notifies them on each channel they keep on.
+- A message in a group conversation is pushed to every member except its author and those who muted it.
 
 ## II. External systems integration
 

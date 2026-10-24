@@ -58,7 +58,7 @@ Until Server B and the witness join, the cluster runs on Server A alone:
 
 - Server A is the only k3s server; it started the cluster with embedded etcd, so the other nodes join it later without moving any data.
 - The database `Cluster` has one instance, and Odoo, Traefik, `cloudflared` and EMQX one replica each.
-- Losing Server A stops the system. It is restored from the `backups` bucket: the etcd snapshots for the cluster, the WAL archive and base backups for the database.
+- Losing Server A stops the system. It is restored from the `medilab-backups` bucket: the etcd snapshots for the cluster, the WAL archive and base backups for the database.
 - `mqtt.soltunemontepre.tech` has a single A record.
 
 Server B and the witness join with [Moving a node](../workflows/moving-node.md); the instance and replica counts then become those of the sections below.
@@ -88,15 +88,15 @@ Server B and the witness join with [Moving a node](../workflows/moving-node.md);
 
 Two buckets, one per Object Storage Lite plan, with the same provider as the VPSes:
 
-| Bucket      | Holds                                 |
-| ----------- | ------------------------------------- |
-| `filestore` | Odoo attachments                      |
-| `backups`   | Postgres WAL archive and base backups |
+| Bucket              | Holds                                 |
+| ------------------- | ------------------------------------- |
+| `medilab-filestore` | Laboratory files and Odoo attachments |
+| `medilab-backups`   | Postgres WAL archive and base backups |
 
 ## Backups
 
-- k3s snapshots etcd every six hours to the `backups` bucket; see [Provisioning](provisioning.md#k3s).
-- CloudNativePG archives WAL continuously and takes a scheduled base backup to the `backups` bucket through the Barman Cloud plugin.
+- k3s snapshots etcd every six hours to the `medilab-backups` bucket; see [Provisioning](provisioning.md#k3s).
+- CloudNativePG archives WAL continuously and takes a scheduled base backup to the `medilab-backups` bucket through the Barman Cloud plugin.
 - The base backup schedule and the retention period are set in `infra/cluster/database/`: a base backup daily at 02:00 Asia/Ho_Chi_Minh, and backups kept for 30 days.
 - Every release takes an on-demand base backup before its module upgrade Job; see [Pipelines](pipelines.md#cd-core).
 - A restore creates a new cluster from the bucket, to any point in time the archive covers.
@@ -106,6 +106,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 - Web traffic comes in only through Cloudflare Tunnel. `cloudflared` runs two replicas of the same tunnel, one per data site, and connects outbound.
 - Cloudflare routes requests to connected replicas, so a lost site stops receiving traffic.
 - Web DNS records in the `soltunemontepre.tech` zone, such as `lims.soltunemontepre.tech`, are proxied CNAMEs to `<tunnel-id>.cfargotunnel.com`; Cloudflare terminates TLS and `cloudflared` reaches Traefik over plain HTTP.
+- `argocd.soltunemontepre.tech` serves the Argo CD server `mail.soltunemontepre.tech` the Mailpit web UI and `cloudbeaver.soltunemontepre.tech` CloudBeaver through the same tunnel.
 - Traefik's service is `ClusterIP` and ServiceLB is turned off, so no node opens ports 80 or 443.
 
 ## MQTT
@@ -119,7 +120,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 
 - Two replicas, spread over the data sites by preferred pod anti-affinity.
 - A release rolls out one replica at a time (`maxSurge: 1`, `maxUnavailable: 0`): a new replica must be ready before an old one stops, so users are not interrupted. The anti-affinity is preferred rather than required so that the extra replica can be placed during a rollout.
-- Attachments are stored in the `filestore` bucket, outside both servers, and mounted into every replica through an S3 CSI driver, so either replica serves every file.
+- Attachments are stored in the `medilab-filestore` bucket through the laboratory bucket service (`BUCKET_FILESTORE=1`) and cached on each replica's local disk, so either replica serves every file; see [Laboratory files](../specs/laboratory-files.md#filestore).
 - Sessions are stored on each replica's local disk; users log in again after a failover.
 - Module installs and upgrades run in a one-off Job per release, never at pod start.
 - Scheduled actions run on both replicas; Odoo locks each job so it runs once.

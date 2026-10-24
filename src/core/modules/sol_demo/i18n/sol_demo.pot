@@ -76,6 +76,22 @@ msgid "Auditor"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_chemistry_bench_1
+#: model:medilab.location,name:sol_demo.demo_location_microbiology_bench_1
+msgid "Bench 1"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_chemistry_bench_2
+msgid "Bench 2"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_chemistry_bench_3
+msgid "Bench 3"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.sample.type,name:sol_demo.demo_sample_type_bottled_water
 msgid "Bottled water"
 msgstr ""
@@ -108,6 +124,11 @@ msgid "Chemistry"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_chemistry_room
+msgid "Chemistry room"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_chlorpyrifos
 msgid "Chlorpyrifos"
 msgstr ""
@@ -130,6 +151,11 @@ msgstr ""
 #. module: sol_demo
 #: model:product.template,name:sol_demo.demo_product_product_cotton_swabs_product_template
 msgid "Cotton swabs, 15 cm"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_water_point
+msgid "Deionised water point"
 msgstr ""
 
 #. module: sol_demo
@@ -185,6 +211,16 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.chemical,storage_conditions:sol_demo.demo_chemical_acetonitrile
 msgid "Flammables cabinet"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_floor_1
+msgid "Floor 1"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_floor_2
+msgid "Floor 2"
 msgstr ""
 
 #. module: sol_demo
@@ -262,6 +298,11 @@ msgid "Lab head"
 msgstr ""
 
 #. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_lab_head_office
+msgid "Lab head's office"
+msgstr ""
+
+#. module: sol_demo
 #: model:medilab.test.parameter,name:sol_demo.demo_test_parameter_lead
 msgid "Lead (Pb)"
 msgstr ""
@@ -274,6 +315,11 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.chemical,name:sol_demo.demo_chemical_lead_standard
 msgid "Lead standard solution 1000 mg/L"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_building
+msgid "Main building"
 msgstr ""
 
 #. module: sol_demo
@@ -294,6 +340,16 @@ msgstr ""
 #. module: sol_demo
 #: model:ir.module.module,shortdesc:base.module_sol_demo
 msgid "Medilab - Testing Data"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_meeting_room_1
+msgid "Meeting room 1"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_meeting_room_2
+msgid "Meeting room 2"
 msgstr ""
 
 #. module: sol_demo
@@ -327,6 +383,11 @@ msgid ""
 "Microbiology of food and animal feeding stuffs — Enumeration of "
 "β-glucuronidase-positive Escherichia coli — Part 2: Colony-count technique "
 "at 44 °C"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_microbiology_room
+msgid "Microbiology room"
 msgstr ""
 
 #. module: sol_demo
@@ -397,6 +458,21 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.sample.type,disposal_method:sol_demo.demo_sample_type_bottled_water
 msgid "Pour into the drain and recycle the bottles."
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_ro_01
+msgid "RO water sampling point 1"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_ro_02
+msgid "RO water sampling point 2"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.location,name:sol_demo.demo_location_ro_03
+msgid "RO water sampling point 3"
 msgstr ""
 
 #. module: sol_demo
@@ -570,4 +646,9 @@ msgstr ""
 #. module: sol_demo
 #: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_purchase_order_signing
 msgid "Purchase order signing"
+msgstr ""
+
+#. module: sol_demo
+#: model:medilab.approval.chain,name:sol_demo.demo_approval_chain_laboratory_file_version_signing
+msgid "Laboratory file signing"
 msgstr ""

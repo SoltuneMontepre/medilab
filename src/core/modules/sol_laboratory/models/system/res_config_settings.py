@@ -42,12 +42,13 @@ class ResConfigSettings(models.TransientModel):
         help="Days done and cancelled job items and ended job runs are kept before the cleanup job removes them. "
         "A run that audit entries or archive files name stays as long as they do.",
     )
-    # Days released and expired document locks are kept before the cleanup job removes them.
+    # Days released and expired document locks and laboratory file locks are kept before the cleanup job removes them.
     lock_retention_days = fields.Integer(
         string="Lock History (days)",
         config_parameter=LOCK_RETENTION_PARAMETER,
         default=DEFAULT_RETENTION_DAYS,
-        help="Days released and expired document locks are kept before the cleanup job removes them.",
+        help="Days released and expired document locks and laboratory file locks are kept before the cleanup job "
+        "removes them.",
     )
     # Days read notifications are kept before the cleanup job removes them with their pushes.
     notification_retention_days = fields.Integer(

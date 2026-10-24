@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Holders of the laboratory files permission read the folders they are members of, with their members, sync rules,
-     files and versions, and the computers they signed in. They change them only through the checks of the laboratory files API. -->
+     files, versions, locks and editing sessions, and the computers they signed in. They change them only through the
+     checks of the laboratory files API. -->
 <odoo>
     <record id="access_laboratory_folder_member_of" model="ir.access">
         <field name="name">Laboratory folder: folders the user is a member of</field>
@@ -40,6 +41,20 @@
     <record id="access_laboratory_file_version_member_of" model="ir.access">
         <field name="name">Laboratory file version: versions of the user's folders</field>
         <field name="model_id" ref="model_medilab_laboratory_file_version" />
+        <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
+        <field name="operation">r</field>
+        <field name="domain">[('file_id.folder_id.member_ids.user_id', '=', user.id)]</field>
+    </record>
+    <record id="access_laboratory_file_lock_member_of" model="ir.access">
+        <field name="name">Laboratory file lock: locks of the user's folders</field>
+        <field name="model_id" ref="model_medilab_laboratory_file_lock" />
+        <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
+        <field name="operation">r</field>
+        <field name="domain">[('file_id.folder_id.member_ids.user_id', '=', user.id)]</field>
+    </record>
+    <record id="access_laboratory_editing_session_member_of" model="ir.access">
+        <field name="name">Laboratory editing session: sessions of the user's folders</field>
+        <field name="model_id" ref="model_medilab_laboratory_editing_session" />
         <field name="group_id" ref="group_permission_laboratory_folder_create_all" />
         <field name="operation">r</field>
         <field name="domain">[('file_id.folder_id.member_ids.user_id', '=', user.id)]</field>

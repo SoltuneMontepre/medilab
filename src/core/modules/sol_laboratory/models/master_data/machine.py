@@ -5,6 +5,7 @@ from odoo import api, fields, models
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_ARCHIVE_MIXIN,
     MODEL_AUDIT_MIXIN,
+    MODEL_LOCATION,
     MODEL_LOCK_MIXIN,
     MODEL_MACHINE,
     MODEL_MACHINE_BOOKING,
@@ -35,8 +36,8 @@ class Machine(models.Model):
     manufacturer = fields.Char()
     # Serial number given by the manufacturer.
     serial_number = fields.Char(index="trigram")
-    # Where the machine is, such as "Room 203, bench 2".
-    location = fields.Char()
+    # The location the machine stands in, such as a bench.
+    location_id = fields.Many2one(MODEL_LOCATION, string="Location", ondelete="restrict", index=True)
     # Whether the machine is in use, under repair or retired.
     status = fields.Selection(
         [("in_use", "In use"), ("under_repair", "Under repair"), ("retired", "Retired")],

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_location_building" model="medilab.location">
+        <field name="code">HQ</field>
+        <field name="name">Main building</field>
+    </record>
+    <record id="demo_location_floor_1" model="medilab.location">
+        <field name="code">HQ-T1</field>
+        <field name="name">Floor 1</field>
+        <field name="parent_id" ref="demo_location_building" />
+        <field name="image" type="base64" file="sol_demo/static/img/floor_plan_1.svg" />
+    </record>
+    <record id="demo_location_floor_2" model="medilab.location">
+        <field name="code">HQ-T2</field>
+        <field name="name">Floor 2</field>
+        <field name="parent_id" ref="demo_location_building" />
+    </record>
+    <record id="demo_location_chemistry_room" model="medilab.location">
+        <field name="code">P101</field>
+        <field name="name">Chemistry room</field>
+        <field name="parent_id" ref="demo_location_floor_1" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="map_x">0.22</field>
+        <field name="map_y">0.17</field>
+    </record>
+    <record id="demo_location_microbiology_room" model="medilab.location">
+        <field name="code">P102</field>
+        <field name="name">Microbiology room</field>
+        <field name="parent_id" ref="demo_location_floor_1" />
+        <field name="department_id" ref="demo_hr_department_microbiology" />
+        <field name="map_x">0.61</field>
+        <field name="map_y">0.17</field>
+    </record>
+    <record id="demo_location_lab_head_office" model="medilab.location">
+        <field name="code">P103</field>
+        <field name="name">Lab head's office</field>
+        <field name="parent_id" ref="demo_location_floor_1" />
+        <field name="map_x">0.89</field>
+        <field name="map_y">0.17</field>
+    </record>
+    <record id="demo_location_chemistry_bench_1" model="medilab.location">
+        <field name="code">P101-B1</field>
+        <field name="name">Bench 1</field>
+        <field name="parent_id" ref="demo_location_chemistry_room" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+    </record>
+    <record id="demo_location_chemistry_bench_2" model="medilab.location">
+        <field name="code">P101-B2</field>
+        <field name="name">Bench 2</field>
+        <field name="parent_id" ref="demo_location_chemistry_room" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+    </record>
+    <record id="demo_location_chemistry_bench_3" model="medilab.location">
+        <field name="code">P101-B3</field>
+        <field name="name">Bench 3</field>
+        <field name="parent_id" ref="demo_location_chemistry_room" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+    </record>
+    <record id="demo_location_microbiology_bench_1" model="medilab.location">
+        <field name="code">P102-B1</field>
+        <field name="name">Bench 1</field>
+        <field name="parent_id" ref="demo_location_microbiology_room" />
+        <field name="department_id" ref="demo_hr_department_microbiology" />
+    </record>
+    <record id="demo_location_ro_01" model="medilab.location">
+        <field name="code">RO-01</field>
+        <field name="name">RO water sampling point 1</field>
+        <field name="parent_id" ref="demo_location_floor_1" />
+        <field name="map_x">0.08</field>
+        <field name="map_y">0.75</field>
+    </record>
+    <record id="demo_location_ro_02" model="medilab.location">
+        <field name="code">RO-02</field>
+        <field name="name">RO water sampling point 2</field>
+        <field name="parent_id" ref="demo_location_floor_1" />
+        <field name="map_x">0.2</field>
+        <field name="map_y">0.75</field>
+    </record>
+    <record id="demo_location_ro_03" model="medilab.location">
+        <field name="code">RO-03</field>
+        <field name="name">RO water sampling point 3</field>
+        <field name="parent_id" ref="demo_location_floor_1" />
+        <field name="map_x">0.32</field>
+        <field name="map_y">0.75</field>
+    </record>
+    <record id="demo_location_water_point" model="medilab.location">
+        <field name="code">WP-01</field>
+        <field name="name">Deionised water point</field>
+        <field name="parent_id" ref="demo_location_floor_1" />
+        <field name="map_x">0.2</field>
+        <field name="map_y">0.9</field>
+    </record>
+    <record id="demo_location_meeting_room_1" model="medilab.location">
+        <field name="code">P201</field>
+        <field name="name">Meeting room 1</field>
+        <field name="parent_id" ref="demo_location_floor_2" />
+        <field name="is_bookable" eval="True" />
+    </record>
+    <record id="demo_location_meeting_room_2" model="medilab.location">
+        <field name="code">P202</field>
+        <field name="name">Meeting room 2</field>
+        <field name="parent_id" ref="demo_location_floor_2" />
+        <field name="is_bookable" eval="True" />
+    </record>
+</odoo>
