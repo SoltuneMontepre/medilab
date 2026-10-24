@@ -10,6 +10,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress-route.yaml
+  - network-policy.yaml
 images:
   - name: ghcr.io/soltunemontepre/medilab
-    newTag: sha-f422aaaba612c1bc938f1b81b5423d6de5bafbb7
+    newTag: sha-d8edc75d11fa67cfaabc6741de5607b2acd83251

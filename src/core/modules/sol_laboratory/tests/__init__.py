@@ -66,6 +66,7 @@ from . import (
     test_laboratory_content,
     test_laboratory_content_concurrency,
     test_laboratory_content_migration,
+    test_laboratory_content_reconcile,
     test_laboratory_device_audit,
     test_laboratory_device_revocation,
     test_laboratory_device_sign_in,

@@ -7,7 +7,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | Workflow        | Runs on                                                                                 | Does                                                                                                                 |
 | --------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
-| `ci-infra`      | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and `ansible-lint` when the Ansible code changes. |
+| `ci-infra`      | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and Ansible lint and origin isolation regression tests when their code changes. |
 | `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
 | `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
 | `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                     |
@@ -35,7 +35,7 @@ flowchart LR
 - A manual run ignores what `changes` decides and runs every job.
 - `lint` runs `task typecheck` and `task test:typecheck`, then `task test:openapi`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
 - `task test:openapi` lints the OpenAPI document of the laboratory files API with `openapi-spec-validator`, then compares it with the document on `main` with oasdiff, in its image pinned by digest. A change that breaks the document, such as removing a field or a route, fails unless it gives the document a new `info.version`. The tests of the routes check their answers against the same document; see [Testing](../conventions/testing.md#odoo-module-tests).
-- The test runners and `e2e` reach the laboratory files bucket of the Garage server that Docker Compose starts; `garage-setup` sets it up once per run, before the modules install.
+- The test runners and `e2e` reach the laboratory files bucket of the Garage server that Docker Compose starts; `garage-setup` sets it up once per run, before the modules install. It also adds `laboratory-files-other`, which Odoo's key may not reach, and `laboratory-files-reconcile`, which only the reconciliation tests use and empty, since the shards share one server. Production has neither ([#202](https://github.com/SoltuneMontepre/medilab/issues/202)).
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
 - Four test runners each build the image again from that cache and load it as `medilab-odoo:ci`, so the tests run on the image that ships, with its Python requirements. Each runs its own copy of the test database per shard, four shards at once, one per runner CPU, and uploads its raw coverage data as a `coverage-data-<n>` artifact. The runners skip when the change is not relevant.
   - `test (1/3)` to `test (3/3)` install every module except `sol_demo`, without coverage, and each run four of the twelve shards: `task test:core RUNNER=<n> RUNNERS=3 EXCLUDE=sol_demo INSTALL_COVERAGE=false`. No other module's tests use the demo data, and coverage makes the install about 60% slower.
@@ -60,7 +60,7 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
-- The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image, when `infra/ansible/` or `tools/ansible/` changes. It uses no secrets and never reaches a node.
+- The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image and the origin isolation script's syntax and regression tests, when `infra/ansible/`, `tools/ansible/`, the script or its tests change. It uses no secrets and never reaches a node.
 - `infrastructure` is the required check of `ci-infra`: it fails unless `terraform` and `ansible` both passed.
 
 ## cd-ansible

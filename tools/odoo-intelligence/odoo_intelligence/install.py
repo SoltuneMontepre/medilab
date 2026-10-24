@@ -116,7 +116,7 @@ def install_source(workspace: Workspace) -> None:
         source.rename(workspace.source)
 
 
-def install(root: Path) -> None:
+def install(root: Path, report_status: bool = True) -> None:
     workspace = Workspace(root)
     workspace.local.mkdir(parents=True, exist_ok=True)
     with FileLock(str(workspace.local / "install.lock"), timeout=1200):
@@ -125,4 +125,5 @@ def install(root: Path) -> None:
         from .prerequisites import install_terraform
 
         install_terraform(workspace)
-    print(f"OdooLS {RELEASE['version']} and Odoo source ready in {workspace.local}.")
+    if report_status:
+        print(f"OdooLS {RELEASE['version']} and Odoo source ready in {workspace.local}.")
