@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
@@ -55,12 +56,34 @@ class TestDigitalSigning(SigningCase):
         self.assertEqual(check.certificate, self.der)
         self.assertEqual(self.viettel.signings()[0][1]["credentialID"], CREDENTIAL)
         self.assertEqual(report.digital_signature_id, signature)
+        self.assertEqual(report.digital_signed_at, signature.signed_at)
         self.assertFalse(report.digital_signing_pending)
         self.assertEqual(len(self.issued_messages(report)), 1)
         entries = self.env[MODEL_AUDIT_ENTRY].search(
             [("document_model", "=", report._name), ("document_id", "=", report.id), ("action", "=", "integration")]
         )
         self.assertIn(signature.certificate_id.name, entries.note)
+
+    def test_signed_timestamp_tracks_signature_state_and_related_updates(self):
+        self.complete()
+        report = self.report()
+        self.assertFalse(report.digital_signature_id)
+        self.assertFalse(report.digital_signed_at)
+        self.assertIn(report, self.env[report._name].search([("digital_signature_id", "=", False)]))
+
+        self.sign(report)
+        self.print_pdf(report)
+        report.invalidate_recordset(["digital_signature_id", "digital_signed_at"])
+        signature = report.digital_signature_id
+        self.assertTrue(signature)
+        self.assertEqual(report.digital_signed_at, signature.signed_at)
+        self.assertEqual(self.env[report._name].search([("digital_signature_id", "=", signature.id)]), report)
+
+        changed_at = fields.Datetime.subtract(signature.signed_at, minutes=1)
+        signature.sudo().write({"signed_at": changed_at})
+
+        self.assertEqual(report.digital_signed_at, changed_at)
+        self.assertEqual(signature.document_version, report.document_version)
 
     def test_printing_a_fully_signed_report_returns_its_signed_pdf_every_time_without_an_extra_step(self):
         report = self.issue()

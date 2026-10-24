@@ -34,7 +34,10 @@ class DigitalSigningMixin(models.AbstractModel):
 
     # The digital signature of the document's current version; empty until Viettel Sign signed its PDF.
     digital_signature_id = fields.Many2one(
-        MODEL_DIGITAL_SIGNATURE, compute="_compute_digital_signature", compute_sudo=True
+        MODEL_DIGITAL_SIGNATURE,
+        compute="_compute_digital_signature",
+        compute_sudo=True,
+        search="_search_digital_signature_id",
     )
     # When Viettel Sign signed the PDF of the current version.
     digital_signed_at = fields.Datetime(related="digital_signature_id.signed_at", string="Digitally Signed At")
@@ -74,6 +77,52 @@ class DigitalSigningMixin(models.AbstractModel):
                 and not document.digital_signature_id
                 and document._digital_signing_key() in queued
             )
+
+    @api.model
+    def _search_digital_signature_id(self, operator, value):
+        if operator == "=?":
+            if not value:
+                return []
+            operator = "="
+
+        if operator in ("=", "!="):
+            values = [value] if value else []
+            includes_false = not value
+        elif operator in ("in", "not in"):
+            values = list(value or [])
+            includes_false = False in values
+            values = [value for value in values if value]
+        else:
+            raise NotImplementedError(f"Searching {self._name}.digital_signature_id with {operator!r} is unsupported")
+
+        signatures = (
+            self.env[MODEL_DIGITAL_SIGNATURE].sudo().search([("document_model", "=", self._name), ("id", "in", values)])
+        )
+        matching_ids = self._current_signature_document_ids(signatures)
+
+        if operator in ("=", "in"):
+            if not includes_false:
+                return [("id", "in", sorted(matching_ids))]
+            active_ids = self._current_signature_document_ids(
+                self.env[MODEL_DIGITAL_SIGNATURE].sudo().search([("document_model", "=", self._name)])
+            )
+            return ["|", ("id", "in", sorted(matching_ids)), ("id", "not in", sorted(active_ids))]
+
+        if includes_false:
+            active_ids = self._current_signature_document_ids(
+                self.env[MODEL_DIGITAL_SIGNATURE].sudo().search([("document_model", "=", self._name)])
+            )
+            return [("id", "in", sorted(active_ids - matching_ids))]
+        return [("id", "not in", sorted(matching_ids))]
+
+    def _current_signature_document_ids(self, signatures):
+        documents = self.sudo().browse(signatures.mapped("document_id")).exists()
+        versions = {document.id: document.document_version for document in documents}
+        return {
+            signature.document_id
+            for signature in signatures
+            if versions.get(signature.document_id) == signature.document_version
+        }
 
     @api.model
     def _digital_signing_enabled(self):
