@@ -4,6 +4,12 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 
 public final class Connections {
+    private static final class Blocked extends IllegalStateException {
+        Blocked(String reason) {
+            super(reason);
+        }
+    }
+
     public static void main(String[] args) {
         try {
             Workspace.state(Workspace.root());
@@ -14,13 +20,13 @@ public final class Connections {
                 try (var files = Files.newDirectoryStream(path.getParent(), "data-sources*.json")) {
                     for (Path file : files) {
                         if (Files.isSymbolicLink(file)) {
-                            throw new IllegalStateException();
+                            throw new Blocked("Symbolic link in data-sources");
                         }
                         JsonObject document = JsonFiles.read(file);
                         if (document.has("connections")) {
                             for (String identifier : document.getAsJsonObject("connections").keySet()) {
                                 if (!identifiers.add(identifier)) {
-                                    throw new IllegalStateException();
+                                    throw new Blocked("Duplicate connection identifier");
                                 }
                                 managed |= identifier.equals("medilab-postgres");
                             }
@@ -47,7 +53,7 @@ public final class Connections {
             String user = System.getenv("DB_USER");
             String password = System.getenv("DB_PASSWORD");
             if (user == null || user.isEmpty() || password == null || password.isEmpty()) {
-                throw new IllegalStateException();
+                throw new Blocked("DB_USER or DB_PASSWORD missing");
             }
             JsonObject auth = new JsonObject();
             auth.addProperty("userName", user);
@@ -75,7 +81,9 @@ public final class Connections {
             JsonFiles.write(path, data);
             System.out.println("Missing MediLab connection provisioned.");
         } catch (Exception e) {
-            System.err.println("CloudBeaver connection provisioning blocked. Review workspace JSON and Secret key presence; no existing connection was replaced.");
+            String reason = e instanceof Blocked ? e.getMessage() : e.getClass().getSimpleName();
+            System.err.println("CloudBeaver connection provisioning blocked (" + reason
+                + "). Review workspace JSON and Secret key presence; no existing connection was replaced.");
             System.exit(1);
         }
     }

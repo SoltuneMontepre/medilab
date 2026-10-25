@@ -63,7 +63,7 @@ final class JsonFiles {
         Path temporary = Files.createTempFile(path.getParent(), ".medilab-", ".tmp",
             PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
         try {
-            Files.writeString(temporary, new GsonBuilder().setPrettyPrinting().create().toJson(value) + "\n");
+            Files.writeString(temporary, new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(value) + "\n");
             sync(temporary);
             Files.move(temporary, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             sync(path.getParent());

@@ -18,6 +18,7 @@ spec:
         app.kubernetes.io/name: cloudbeaver
     spec:
       enableServiceLinks: false
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: 60
       initContainers:
         - name: prepare-workspace

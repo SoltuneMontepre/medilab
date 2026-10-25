@@ -14,6 +14,7 @@ import subprocess
 import sys
 
 from preflight_inventory import inventory
+from preflight_storage import METADATA_COMMAND, workspace_consumers, workspace_metadata
 
 
 def digest(value):
@@ -95,6 +96,7 @@ class Preflight:
             },
         }
         pods = self.get("pods", namespace=namespace)["items"]
+        result["workspace_consumers"] = workspace_consumers(pods, "cloudbeaver-workspace")
         pods = [pod for pod in pods if pod["metadata"].get("labels", {}).get("app.kubernetes.io/name") == "cloudbeaver"]
         result["pods"] = [
             {
@@ -204,15 +206,12 @@ class Preflight:
                 *prefix,
                 "/bin/bash",
                 "-c",
-                "stat -c '%n|%s|%u|%g|%a' workspace/.data/cb.h2v2.dat.mv.db "
-                "workspace/.data/.cloudbeaver.runtime.conf "
-                "workspace/.data/.database-credentials.dat 2>/dev/null || true",
+                METADATA_COMMAND,
                 optional=True,
             )
             runtime = self.run(*prefix, "cat", "workspace/.data/.cloudbeaver.runtime.conf", optional=True)
             result["workspace"] = {
-                "available": metadata is not None,
-                "file_metadata": (metadata or "").splitlines(),
+                **workspace_metadata(metadata),
                 "runtime_present": runtime is not None,
             }
             mount = self.run(

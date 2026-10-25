@@ -11,6 +11,8 @@ public final class AuthenticationTest {
         var authenticated = new AtomicBoolean(false);
         var failLogin = new AtomicBoolean(false);
         var failHealth = new AtomicBoolean(false);
+        var failIdentityOnce = new AtomicBoolean(false);
+        var healthMode = new AtomicInteger();
         var logins = new AtomicInteger();
         var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/api/gql", exchange -> {
@@ -26,9 +28,15 @@ public final class AuthenticationTest {
                     : "{\"data\":{\"authLogin\":{\"authStatus\":\"SUCCESS\"}}}";
             } else if (request.contains("adminUserInfo")) {
                 status = failHealth.get() ? 503 : 200;
-                body = "{\"data\":{\"adminUserInfo\":{\"enabled\":true},\"userConnections\":[]}}";
+                String enabled = healthMode.get() == 1 ? "false" : healthMode.get() == 2 ? "\"true\"" : "true";
+                String connections = healthMode.get() == 3 ? "null" : "[]";
+                body = "{\"data\":{\"adminUserInfo\":{\"enabled\":" + enabled
+                    + "},\"userConnections\":" + connections + "}}";
             } else {
                 boolean validCookie = "cb-session-id=verified".equals(exchange.getRequestHeaders().getFirst("Cookie"));
+                if (authenticated.get() && failIdentityOnce.getAndSet(false)) {
+                    status = 503;
+                }
                 body = authenticated.get() && validCookie
                     ? "{\"data\":{\"activeUser\":{\"userId\":\"operator\",\"isAnonymous\":false}}}"
                     : "{\"data\":{\"activeUser\":{\"userId\":\"@anonymous@\",\"isAnonymous\":true}}}";
@@ -56,11 +64,30 @@ public final class AuthenticationTest {
             }
             failHealth.set(false);
             Authentication.verify(client, failure);
+            for (int mode = 1; mode <= 3; mode++) {
+                healthMode.set(mode);
+                reject(client, failure);
+            }
+            healthMode.set(0);
+            Authentication.verify(client, failure);
+            if (logins.get() != 1) {
+                throw new AssertionError("Protected health failures must not trigger another login");
+            }
+            authenticated.set(false);
+            failIdentityOnce.set(true);
+            reject(client, failure);
+            if (!Files.exists(failure) || logins.get() != 2) {
+                throw new AssertionError("Uncertain post-login verification must latch without retrying");
+            }
+            Authentication.verify(client, failure);
+            if (Files.exists(failure) || logins.get() != 2) {
+                throw new AssertionError("A fully validated cached session must clear its uncertain-login latch");
+            }
             authenticated.set(false);
             failLogin.set(true);
             reject(client, failure);
             reject(client, failure);
-            if (!Files.exists(failure) || logins.get() != 2) {
+            if (!Files.exists(failure) || logins.get() != 3) {
                 throw new AssertionError("A failed login must not be retried by subsequent probes");
             }
         } finally {

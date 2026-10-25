@@ -1,6 +1,7 @@
 """Validate the local container executable boundary without starting an engine."""
 
 import os
+import subprocess
 import unittest
 from unittest.mock import Mock, patch
 
@@ -34,6 +35,23 @@ class TestRuntimeUnit(unittest.TestCase):
             run.return_value = Mock(returncode=0)
             engine("info")
             self.assertEqual(run.call_args.args[0], ["podman", "info"])
+
+    def test_container_timeout_is_bounded_and_redacts_arguments_and_output(self):
+        failure = subprocess.TimeoutExpired(
+            ["docker", "run", "SECRET-ARGUMENT"], 12, output="SECRET-OUTPUT", stderr="SECRET-ERROR"
+        )
+        with patch("runtime.subprocess.run", side_effect=failure) as run:
+            with self.assertRaisesRegex(RuntimeError, "run timed out after 12s") as caught:
+                engine("run", "SECRET-ARGUMENT", timeout=12)
+            self.assertEqual(run.call_args.kwargs["timeout"], 12)
+            self.assertNotIn("SECRET", str(caught.exception))
+            self.assertTrue(caught.exception.__suppress_context__)
+
+    def test_default_timeout_and_redacted_exit_failure(self):
+        with patch("runtime.subprocess.run", return_value=Mock(returncode=3)) as run:
+            with self.assertRaisesRegex(RuntimeError, "operation inspect failed \\(exit 3\\)"):
+                engine("inspect", "SECRET-ARGUMENT")
+            self.assertEqual(run.call_args.kwargs["timeout"], 600)
 
     def test_unknown_executables_and_embedded_arguments_are_rejected(self):
         for selected in ("sh", "/tmp/docker", "docker --context production", "podman --remote", ""):

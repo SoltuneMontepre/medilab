@@ -108,7 +108,7 @@ class TestCloudBeaver(unittest.TestCase):
         )
         self.assertNotEqual(runtime.prepare(check=False).returncode, 0)
         runtime.start()
-        result = engine("wait", runtime.name)
+        result = engine("wait", runtime.name, timeout=180)
         self.assertNotEqual(result.stdout.strip(), "0")
         self.assertEqual(runtime.helper("test ! -e workspace/.data/cb.h2v2.dat.mv.db").returncode, 0)
 
@@ -143,7 +143,7 @@ class TestCloudBeaver(unittest.TestCase):
         original = {
             "folders": {"custom": {"name": "Research"}},
             "connections": {"user-managed": {"name": "Private", "custom": [1, True, "unicode-ệ"]}},
-            "unknown": {"keep": True},
+            "unknown": {"keep": True, "explicit-null": None, "nested": [{"null": None}, None]},
         }
         runtime.write(path, json.dumps(original))
         runtime.write("GlobalConfiguration/.dbeaver/credentials-config.json", "encrypted-existing-credentials")

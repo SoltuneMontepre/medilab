@@ -3,7 +3,6 @@
 import json
 import os
 import subprocess
-import time
 import unittest
 
 from kube_cluster import cleanup_network, inspect, kube, setup_network, validate_cluster, wait_for
@@ -32,6 +31,14 @@ class TestKubernetes(unittest.TestCase):
         fixture = self.fixture()
         self.assertFalse(fixture.ready())
         fixture.wait_ready()
+        self.assertFalse(fixture.pods()[0]["spec"]["automountServiceAccountToken"])
+        self.assertFalse(
+            any(
+                source.get("serviceAccountToken") is not None
+                for volume in fixture.pods()[0]["spec"]["volumes"]
+                for source in volume.get("projected", {}).get("sources", [])
+            )
+        )
         wait_for(lambda: fixture.endpoints() == 1, "Ready Pod was not published.")
         wait_for(lambda: fixture.service_status() == 200, "Ready Service is unavailable.")
         wait_for(lambda: fixture.ingress_status() == 200, "Ready IngressRoute is unavailable.")
@@ -56,6 +63,8 @@ class TestKubernetes(unittest.TestCase):
         self.assertEqual(
             updated["metadata"]["annotations"]["argocd.argoproj.io/sync-options"], "Prune=false,Delete=false"
         )
+        for name, read_only in (("unlabelled-reader", True), ("unlabelled-writer", False)):
+            fixture.consumer(name, read_only)
         summary = subprocess.check_output(
             [
                 "python3",
@@ -72,6 +81,11 @@ class TestKubernetes(unittest.TestCase):
         self.assertNotIn(PASSWORD, summary)
         self.assertNotIn("LocalDatabase9", summary)
         self.assertTrue(json.loads(summary)["workspace"]["workspace_is_mountpoint"])
+        self.assertTrue(json.loads(summary)["workspace"]["available"])
+        consumers = {item["name"]: item for item in json.loads(summary)["workspace_consumers"]}
+        self.assertFalse(consumers["unlabelled-reader"]["has_writable_mount"])
+        self.assertTrue(consumers["unlabelled-writer"]["has_writable_mount"])
+        kube("delete", "pod", "unlabelled-reader", "unlabelled-writer", "-n", fixture.namespace, "--wait=true")
         with fixture.api() as api:
             self.assertEqual(api.login(), "operator")
             self.assertTrue(
@@ -151,11 +165,7 @@ class TestKubernetes(unittest.TestCase):
             "mv workspace/.data/.cloudbeaver.runtime.conf workspace/.data/review-runtime.saved"
         )
         fixture.scale(1)
-        wait_for(
-            lambda: bool(fixture.pods()) and bool(fixture.pods()[0].get("status", {}).get("initContainerStatuses")),
-            "Init status missing.",
-        )
-        time.sleep(3)
+        fixture.wait_guard_rejected("lost runtime configuration")
         self.assertFalse(fixture.ready())
         wait_for(lambda: fixture.endpoints() == 0, "Incomplete workspace has a Ready endpoint.")
         self.assertNotEqual(fixture.service_status(), 200)
@@ -177,7 +187,7 @@ class TestKubernetes(unittest.TestCase):
             "test ! -e workspace/.data/cb.h2v2.dat.mv.db; printf interrupted > workspace/.medilab-bootstrap-attempt"
         )
         fixture.scale(1)
-        time.sleep(5)
+        fixture.wait_guard_rejected("Interrupted bootstrap")
         self.assertFalse(fixture.ready())
         self.assertEqual(fixture.endpoints(), 0)
         self.assertNotEqual(fixture.service_status(), 200)
@@ -217,6 +227,7 @@ class TestKubernetes(unittest.TestCase):
         )
         with fixture.api() as api:
             api.wait(configuration_mode=True)
+        fixture.wait_readiness_rejected()
         self.assertFalse(fixture.ready())
         self.assertEqual(fixture.endpoints(), 0)
         self.assertNotEqual(fixture.service_status(), 200)
@@ -235,7 +246,7 @@ class TestKubernetes(unittest.TestCase):
         )
         with fixture.api() as api:
             api.wait()
-        time.sleep(4)
+        fixture.wait_readiness_rejected()
         self.assertFalse(fixture.ready())
         self.assertEqual(fixture.endpoints(), 0)
         self.assertIn(fixture.ingress_status(), (404, 502, 503))
@@ -256,7 +267,7 @@ class TestKubernetes(unittest.TestCase):
         with fixture.api() as api:
             api.wait()
             self.assertEqual(api.login(), "operator")
-        time.sleep(4)
+        fixture.wait_readiness_rejected()
         self.assertFalse(fixture.ready())
         self.assertEqual(fixture.endpoints(), 0)
         self.assertIn(fixture.ingress_status(), (404, 502, 503))

@@ -42,10 +42,10 @@ CB_REPORT_DIR=$(mktemp -d "${TMPDIR:-/tmp}/cloudbeaver-preflight.XXXXXX")
 python3 tools/cloudbeaver/preflight.py --context "$CB_CONTEXT" --kubeconfig "$CB_KUBECONFIG" > "$CB_REPORT_DIR/metadata.json"
 ```
 
-- [ ] Record actual Pod image IDs, node/Pod identities, restart counts and mounted claim references. Compare them with the applied Deployment and intended workspace claim; do not infer attachment solely from the desired manifest:
+- [ ] Record actual Pod image IDs, node/Pod identities, restart counts and mounted claim references across the entire namespace. The helper’s `workspace_consumers` includes unlabelled Jobs and pending/terminating Pods, with read-only versus writable mounts; `workspace.available` requires metadata for all three installation files and records explicit `missing|path` markers. Neither ReadWriteOnce nor the application lock excludes an unguarded same-node writer. Compare all consumers with the applied Deployment and intended claim:
 
 ```bash
-kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pods -n medilab -l app.kubernetes.io/name=cloudbeaver \
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pods -n medilab \
   -o 'custom-columns=NAME:.metadata.name,UID:.metadata.uid,NODE:.spec.nodeName,PHASE:.status.phase,RESTARTS:.status.containerStatuses[*].restartCount,IMAGES:.status.containerStatuses[*].imageID,CLAIMS:.spec.volumes[*].persistentVolumeClaim.claimName' \
   > "$CB_REPORT_DIR/pods.txt"
 kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pvc cloudbeaver-workspace -n medilab \
@@ -58,12 +58,29 @@ kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pv "$CB_PV" \
   > "$CB_REPORT_DIR/volume.txt"
 ```
 
+- [ ] Inventory dormant Jobs/CronJobs that can create another workspace consumer. Inspect owner references and the actual controller/bootstrap responsible for each. Before any later approved cold backup, establish that every writer has stopped and no controller can recreate one; a Pod-only inventory is a point-in-time observation. These commands do not suspend anything:
+
+```bash
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get jobs -n medilab \
+  -o 'custom-columns=NAME:.metadata.name,ACTIVE:.status.active,CLAIMS:.spec.template.spec.volumes[*].persistentVolumeClaim.claimName' \
+  > "$CB_REPORT_DIR/jobs.txt"
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get cronjobs -n medilab \
+  -o 'custom-columns=NAME:.metadata.name,SUSPENDED:.spec.suspend,CLAIMS:.spec.jobTemplate.spec.template.spec.volumes[*].persistentVolumeClaim.claimName' \
+  > "$CB_REPORT_DIR/cronjobs.txt"
+```
+
 - [ ] Check Argo's desired/applied revisions, live auto-sync/prune/self-heal and any pending operation. Confirm which Application or bootstrap mechanism owns the child before proposing a hold. The repository declares `main`; publishing a feature branch is not evidence that live Argo configuration matches Git. Inspect the child without printing repository credentials:
 
 ```bash
 kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get application.argoproj.io cloudbeaver -n argocd \
   -o 'jsonpath={.spec.source.targetRevision}{"\n"}{.status.sync.revision}{"\n"}{.status.sync.status}{"\n"}{.status.health.status}{"\n"}{.spec.syncPolicy.automated}{"\n"}{.status.operationState.phase}{"\n"}' \
   > "$CB_REPORT_DIR/argocd.txt"
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get application.argoproj.io cloudbeaver -n argocd \
+  -o 'jsonpath={.metadata.ownerReferences}{"\n"}{.metadata.labels.argocd\.argoproj\.io/instance}{"\n"}{.metadata.annotations.argocd\.argoproj\.io/tracking-id}{"\n"}{.metadata.managedFields[*].manager}{"\n"}' \
+  > "$CB_REPORT_DIR/application-owner.txt"
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get applications.argoproj.io -n argocd \
+  -o 'custom-columns=NAME:.metadata.name,REVISION:.spec.source.targetRevision,PATH:.spec.source.path,MULTISOURCE_PATHS:.spec.sources[*].path,AUTOMATED:.spec.syncPolicy.automated' \
+  > "$CB_REPORT_DIR/applications.txt"
 ```
 
 - [ ] Confirm ExternalSecret Ready/key presence, safe identifier checks and proven current verifier credential source. Never dump the Secret or try guessed passwords. If an existing approved session is available, rerun the helper with `--session-cookie-file "$CB_SESSION_COOKIE_FILE"`; keep that file private and do not create a production session solely for this checklist without approval.
@@ -103,16 +120,16 @@ No branch authorizes deleting a user/team, resetting H2, completing the public w
 
 ## Proposed GitOps rollout sequence
 
-`infra/cluster/applications/cloudbeaver.yaml` watches `main` with auto-sync, prune and self-heal. The root application also reconciles child Applications. **Merging the candidate to `main` is already a production deployment trigger.** A later promise to manually sync does not provide a gate.
+`infra/cluster/applications/cloudbeaver.yaml` watches `main` with auto-sync, prune and self-heal. Identify the live owner before relying on parent reconciliation: the Ansible root Application is opt-in (`argocd_root_application_enabled: false` by default), and an existing Argo installation can be left unmanaged by Ansible. A parent may reconcile the child, but repository templates do not establish live ownership. **Merging the candidate to `main` is already a production deployment trigger.** A later promise to manually sync does not provide a gate.
 
 After explicit authorization, use separate reviewed revisions in this order:
 
-1. From the verified production Git state, prepare a **hold revision containing only removal of `spec.syncPolicy.automated` from the CloudBeaver child Application** in `infra/cluster/applications/cloudbeaver.yaml`. Let the approved parent reconciliation apply this Git state. Confirm the live child has automation disabled and no running or queued sync/retry. Check installed Argo semantics and parent differences. Do not merge the candidate yet. Do not rely on a live UI toggle that parent self-heal can reverse.
+1. From the verified production Git state, prepare a **hold revision containing only removal of `spec.syncPolicy.automated` from the CloudBeaver child Application** in `infra/cluster/applications/cloudbeaver.yaml`. Have the verified declarative owner apply this Git state: parent reconciliation only if that parent actually manages this child; otherwise a separately reviewed bootstrap/adoption path. If no verified owner can deliver the hold, stop and review ownership before any candidate merge. Do not enable the optional root Application as an implicit recovery step. Confirm the live child has automation disabled and no running or queued sync/retry. Check installed Argo semantics and parent differences. Do not merge the candidate yet. Do not rely on a live UI toggle that parent self-heal can reverse.
 2. Prepare a holding application revision with the existing workload configuration, `replicas: 0` and PVC `Prune=false,Delete=false`. Review the complete diff against the actual applied revision. Through an approved manual sync, protect the **existing** claim and stop the writer. Confirm live protection, same PVC/PV UID, no app/backup/legacy writer and no usable public backend. No force, replace, namespace pruning, Secret changes or unrelated drift is permitted.
 3. Run the separately reviewed backup Job and restore test described above. Select A/B/C/D from actual evidence. Approve exact repair manifests only for B or C after clone proof; D does not proceed. Recovery Jobs remain outside `infra/cluster/cloudbeaver/kustomization.yaml`, without an automatic retry/sync hook.
 4. With child automation still held, approve the final candidate revision and complete diff. Keep the existing claim, storage class, capacity, mount, single replica/Recreate strategy and CloudBeaver 26.2.2. Compare production image digest with the tested digest; hold if different until validated. The JDBC change must target the **same** embedded path and existing management credential file with `WRITE_DELAY=0`, not a replacement database or supplied DB user/password. Verify `CB_VERIFY_*` Secret references against original login on the clone; do not reset the account. Confirm generated ConfigMap hash and Service readiness behavior. Candidate application manifests remain at zero replicas until any approved recovery completes.
 5. Apply the separately approved B/C action, if needed, with the application still stopped. Verify its stop criteria, save before/after evidence, and ensure the recovery writer has terminated. Approve and synchronize the final Git revision restoring only the guarded Deployment to one replica. Monitor initial startup and authenticated readiness. A failed verifier stays unavailable rather than changing an account; diagnose its source/latch before approving any restart.
-6. Validate all acceptance criteria below. Keep automation held if any fail. Only after acceptance, approve a Git revision restoring the child's normal auto-sync/prune/self-heal and reconcile it through the parent. Confirm live policy, synchronization, health and PVC protection. Retain backups and review evidence. Close #286 only after production acceptance is recorded.
+6. Validate all acceptance criteria below. Keep automation held if any fail. Only after acceptance, approve a Git revision restoring the child's normal auto-sync/prune/self-heal and reconcile it through the same verified declarative owner. Confirm live policy, synchronization, health and PVC protection. Retain backups and review evidence. Close #286 only after production acceptance is recorded.
 
 These are proposed operations, not executed recovery. Exact holding/repair commit IDs and Job parameters require the unavailable production evidence and approval. Do not reuse an old unconditional connection writer as a holding or rollback workload.
 
@@ -122,7 +139,8 @@ These are proposed operations, not executed recovery. Exact holding/repair commi
 2. Persisted runtime and H2 exist, GraphQL boolean `configurationMode=false`, the original administrator authenticates with the original password, and protected account/connection queries succeed. Full user/team/grant/project/settings/connection inventories match the backup. Existing saved connections remain accessible without credential overwrite. The readiness probe does not prove remote database availability; validate authorized connections separately.
 3. EndpointSlices publish only Ready backends. Service and public route provide the normal application. Setup-mode, accountless and wrong-verifier clones have no usable Service/IngressRoute backend. RBAC and network controls restrict direct Pod access; readiness alone is not network isolation.
 4. Separately approved restarts and Pod recreation retain the same PVC UID, original login, accounts, settings, connection credentials and nonconfiguration mode. No duplicate accounts, setup/security completion or collision errors appear. Prove abrupt-startup recovery and crash durability on the isolated clone; production fault injection is not implied.
-5. Argo CD is healthy and synchronized at the approved revision with the reviewed final automation. The live claim carries both protection options; no force/replace or namespace-deletion path is introduced. Backup restoration remains reproducible.
+5. Probe duration/error rates and storage I/O show no new timeout or durability errors under the reviewed workload; the synchronous H2 setting and repeated Java probes require production-like storage/resource validation on the clone.
+6. Argo CD is healthy and synchronized at the approved revision with the reviewed final automation. The live claim carries both protection options; no force/replace or namespace-deletion path is introduced. Backup restoration remains reproducible.
 
 ## Rollback and recovery
 
@@ -134,6 +152,7 @@ For B's file-only repair, restore the saved pre-repair runtime state while stopp
 
 ## Related documents
 
+- [Security and peer review](../reports/cloudbeaver-security-review.md)
 - [Cluster](../infrastructure/cluster.md#cloudbeaver)
 - [Secrets](../infrastructure/secrets.md)
 - [CloudBeaver review](../reports/cloudbeaver-review.md)

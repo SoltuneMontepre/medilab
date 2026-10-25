@@ -34,7 +34,6 @@ final class Authentication {
             if (!authenticated(client, name)) {
                 throw new IllegalStateException();
             }
-            Files.delete(failure);
         }
         JsonObject identity = new JsonObject();
         identity.addProperty("id", name.toLowerCase(Locale.ROOT));
@@ -45,6 +44,7 @@ final class Authentication {
             || data.getAsJsonArray("userConnections") == null) {
             throw new IllegalStateException();
         }
+        Files.deleteIfExists(failure);
     }
 
     private static boolean authenticated(GraphClient client, String name) throws Exception {

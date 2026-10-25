@@ -18,7 +18,7 @@ SPECIAL_USER = 'regression"\\user'
 SPECIAL_PASSWORD = "Regression9\"'\\\n\t$`unicode-ệ"
 
 
-def engine(*args, check=True, input=None):
+def engine(*args, check=True, input=None, timeout=600):
     selected = os.environ.get("CONTAINER_ENGINE", "docker")
     if selected == "docker":
         command = ["docker", *args]
@@ -26,13 +26,17 @@ def engine(*args, check=True, input=None):
         command = ["podman", *args]
     else:
         raise ValueError("CONTAINER_ENGINE must be docker or podman.")
-    result = subprocess.run(
-        command,
-        input=input,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            command,
+            input=input,
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(f"Container operation {args[0]} timed out after {timeout}s.") from None
     if check and result.returncode:
         # Container logs and command arguments can contain synthetic credentials.
         raise RuntimeError(f"Container operation {args[0]} failed (exit {result.returncode}).")
@@ -152,7 +156,7 @@ class Runtime:
             time.sleep(1)
         raise AssertionError("CloudBeaver did not reach expected configuration state within 100s.")
 
-    def login(self):
+    def login(self, password=PASSWORD):
         active = self.query("{ activeUser { userId } }")["data"]["activeUser"]
         if active and active["userId"] == "operator":
             return "operator"
@@ -165,7 +169,7 @@ class Runtime:
                     {
                         "credentials": {
                             "user": "operator",
-                            "password": hashlib.md5(PASSWORD.encode()).hexdigest().upper(),
+                            "password": hashlib.md5(password.encode()).hexdigest().upper(),
                         }
                     },
                 )

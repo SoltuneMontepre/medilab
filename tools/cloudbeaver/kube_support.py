@@ -87,6 +87,66 @@ class Fixture:
     def wait_ready(self):
         wait_for(self.ready, "CloudBeaver Pod did not become Ready.")
 
+    def wait_guard_rejected(self, reason):
+        def rejected():
+            for pod in self.pods():
+                for status in pod.get("status", {}).get("initContainerStatuses", []):
+                    failed = any(
+                        state.get("terminated", {}).get("exitCode", 0) != 0
+                        for state in (status.get("state", {}), status.get("lastState", {}))
+                    )
+                    if failed:
+                        logs = kube(
+                            "logs", "-n", self.namespace, pod["metadata"]["name"], "-c", status["name"], check=False
+                        ).stdout
+                        if "CloudBeaver startup blocked." in logs and reason in logs:
+                            return True
+            return False
+
+        wait_for(rejected, "Workspace preparation did not report the expected guard rejection.")
+
+    def wait_readiness_rejected(self):
+        def rejected():
+            for pod in self.pods():
+                events = inspect(
+                    "get",
+                    "events",
+                    "-n",
+                    self.namespace,
+                    "--field-selector",
+                    "involvedObject.uid=" + pod["metadata"]["uid"] + ",reason=Unhealthy",
+                )["items"]
+                if any("Readiness probe failed" in event.get("message", "") for event in events):
+                    return True
+            return False
+
+        wait_for(rejected, "Kubelet did not report an actual readiness probe rejection.")
+
+    def consumer(self, name, read_only):
+        pod = {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {"name": name, "namespace": self.namespace},
+            "spec": {
+                "restartPolicy": "Never",
+                "terminationGracePeriodSeconds": 1,
+                "containers": [
+                    {
+                        "name": "inspector",
+                        "image": IMAGE,
+                        "command": ["sleep", "600"],
+                        "volumeMounts": [{"name": "workspace", "mountPath": "/workspace", "readOnly": read_only}],
+                    }
+                ],
+                "volumes": [{"name": "workspace", "persistentVolumeClaim": {"claimName": "cloudbeaver-workspace"}}],
+            },
+        }
+        kube("create", "-f", "-", input=json.dumps(pod))
+        wait_for(
+            lambda: inspect("get", "pod", name, "-n", self.namespace).get("status", {}).get("phase") == "Running",
+            "Same-claim inspection fixture did not start.",
+        )
+
     def endpoints(self):
         slices = inspect("get", "endpointslices", "-n", self.namespace, "-l", "kubernetes.io/service-name=cloudbeaver")[
             "items"
