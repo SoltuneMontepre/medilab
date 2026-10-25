@@ -54,7 +54,13 @@ def command(args, **options):
 
 
 def compose(*args, **options):
-    return command([*DOCKER, "compose", "-p", PROJECT, "-f", str(COMPOSE), *args], env=DOCKER_ENV, **options)
+    invocation = [*DOCKER, "compose", "-p", PROJECT, "-f", str(COMPOSE)]
+    if extra := os.environ.get("ONLYOFFICE_COMPOSE_OVERRIDE"):
+        override = Path(extra).resolve()
+        if not override.is_relative_to(ROOT):
+            raise ValueError("The test override must belong to this worktree.")
+        invocation.extend(["-f", str(override)])
+    return command([*invocation, *args], env=DOCKER_ENV, **options)
 
 
 def write_result(name, result):
@@ -187,11 +193,40 @@ def verify_image():
 
 
 def start():
-    browser = command([*DOCKER, "image", "inspect", "localhost/medilab171-agent4-browser:local"], env=DOCKER_ENV)
-    if browser.returncode:
-        require_success(compose("build", "browser"), "Build test browser")
+    if f"/run/user/{os.getuid()}/podman/podman.sock" == SOCKET:
+        ca = os.environ.get("ONLYOFFICE_TEST_CA_BUNDLE", "/etc/ssl/certs/ca-certificates.crt")
+        require_success(
+            command(
+                [
+                    "podman",
+                    "build",
+                    "--secret",
+                    "id=proxy_ca,src=" + ca,
+                    "-f",
+                    str(COMPOSE.with_name("browser.Dockerfile")),
+                    "-t",
+                    "localhost/medilab171-agent4-browser:local",
+                    str(ROOT),
+                ],
+                timeout=600,
+            ),
+            "Build test browser",
+        )
+    else:
+        require_success(compose("build", "browser", timeout=600), "Build test browser")
     require_success(
-        compose("up", "-d", "--wait", "--wait-timeout", "660", "postgres", "garage", "documentserver", "browser"),
+        compose(
+            "up",
+            "-d",
+            "--wait",
+            "--wait-timeout",
+            "660",
+            "postgres",
+            "garage",
+            "documentserver",
+            "browser",
+            timeout=690,
+        ),
         "Start isolated services",
     )
     require_success(compose("run", "--rm", "garage-setup"), "Initialize isolated bucket")
@@ -276,9 +311,9 @@ def test():
             "real_service_executed": True,
             "passed": passed,
             "failed_tests": failed,
-            "passed_tests": [name for name in started if name in completed and name not in failed],
+            "passed_tests": sorted(name for name in completed if name not in failed),
             "blocked_tests": [name for name in started if name not in completed and name not in failed],
-            "not_started_tests": [name for name in expected_names if name not in started],
+            "not_started_tests": [name for name in expected_names if name not in started and name not in completed],
             "whole_runner_timeout_seconds": limit,
         },
     )
