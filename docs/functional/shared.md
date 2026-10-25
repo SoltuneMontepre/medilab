@@ -280,12 +280,12 @@ The system sends all e-mail through Brevo's SMTP relay, set as Odoo's outgoing m
 
 ### 2. PayOS (payments)
 
-The system takes online payments through PayOS, added as a payment provider of Odoo's payment framework (`payment.provider`). Each payment is an Odoo payment transaction, and a confirmed one posts an Odoo payment on the invoice. The PayOS keys come from the configuration file, not from the provider record.
+The system takes online payments through PayOS, added as a payment provider of Odoo's payment framework (`payment.provider`). Provider transactions retain the original payment target; a verified transfer records money received for its advance request or posted invoice. Receipt verification and allocation to a changed quotation are separate. The PayOS keys come from the configuration file, not from the provider record.
 
-- Used for the advance and final invoices. The customer pays from the portal or from a payment link in an e-mail.
+- Used for advance payment requests and posted customer invoices. The customer pays from the portal or a payment link in an email.
 - Payment methods are whatever PayOS offers (for example bank transfer by QR code); administrators enable or disable them in the settings, and the portal shows only those enabled.
 - A verified signed notification or the provider status returned by a server-side query of pending payments confirms a payment. A browser return never does. Both confirmation paths deduplicate the payment.
-- A confirmed payment is recorded against the invoice and updates its payment status automatically; partial payments are supported.
+- A verified receipt retains its original advance request or invoice and updates the relevant funding or invoice balance only when applied. Partial receipts are supported. An obsolete link can still produce a valid receipt, but application to a replacement request requires accountant review and does not itself accept changed quotation terms.
 - The status of each payment (created, pending, paid, failed, cancelled, expired) is stored and shown to the accountant.
 - If notifications are missed, a scheduled job (SH-09) asks the provider for the status of pending payments.
 - Refunds are outside this integration.

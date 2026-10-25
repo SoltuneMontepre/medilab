@@ -92,7 +92,8 @@ erDiagram
     SALE_ORDER ||--o| TEST_REQUEST : creates
     SALE_ORDER ||--o{ INVOICE : bills
     INVOICE }o--o{ TAX : applies
-    INVOICE ||--o{ PAYMENT : receives
+    SALE_ORDER ||--o{ PAYMENT : receives
+    QUOTATION ||--o{ PAYMENT_REQUEST : requests_advance
     CUSTOMER ||--o{ ORDER_TEMPLATE : reuses
     SALE_ORDER ||--o| FEEDBACK : receives
     CHEMICAL }o--|| MEASUREMENT_UNIT : measured_in
@@ -100,7 +101,7 @@ erDiagram
     INTERNAL_MOVEMENT }o--|| STOCK_LOCATION : goes_to
 ```
 
-An order line contains a parameter or a whole package, with a sample type and quantity. Its selections retain one parameter and its selected or resolved default way per included parameter: one selection for a parameter line and one for every parameter in a package line. Each quotation version keeps those selections; later catalog membership or default changes do not rewrite the accepted version. Sample tests use its retained selections. A package line keeps the package price. Accepted ways change only through a revised quotation and customer agreement. Templates have no price of their own. Payments include gateway payments; posted invoices are corrected by adjustment invoices or credit notes, while completed orders, quotations, results and reports use change requests.
+An order line contains a parameter or a whole package, with a sample type and quantity. Its selections retain one parameter and its selected or resolved default way per included parameter: one selection for a parameter line and one for every parameter in a package line. Each quotation version keeps those selections; later catalog membership or default changes do not rewrite the accepted version. Sample tests use its retained selections. A package line keeps the package price. Accepted ways change only through a revised quotation and customer agreement. Templates have no price of their own. Payment requests identify the quotation version and advance requested; they do not create invoices or revenue. Payments belong to the order and retain their original request or invoice references and allocation history. Verified receipts and customer agreement to a revision are separate facts. Posted invoices are corrected by adjustments or credit notes, while completed orders, quotations, results and reports use change requests.
 
 ## Related documents
 

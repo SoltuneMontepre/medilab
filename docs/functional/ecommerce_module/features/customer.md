@@ -27,7 +27,7 @@ The customer is an external user of the laboratory. A customer has an account li
 ### Quotation and payment
 
 - **US-C13** As a customer, I want to view the quotation the laboratory sends me, including parameters and prices, so that I know exactly what I will pay for.
-- **US-C14** As a customer, I want to accept a quotation by paying the advance invoice online or by bank transfer or cash, so that the order moves forward without a separate signing step.
+- **US-C14** As a customer, I want to pay the required advance and confirm changed terms when earlier money is reused, so that the laboratory proceeds only with the quotation I accepted.
 - **US-C15** As a customer, I want to decline a quotation and give a reason, so that the laboratory knows why I did not proceed.
 - **US-C16** As a customer, I want to view and download invoices for my orders, so that I can keep track of my payments and expenses.
 - **US-C17** As a customer, I want to pay an invoice online, in full or in part, so that I can settle my account conveniently.
@@ -203,7 +203,7 @@ stateDiagram-v2
 | Sales decides | Sales accepts or declines with a reply. A whole-order cancellation cancels the order and its laboratory work. When a new promised date is refused, Sales handles a request for the unfulfillable part and retains the rest, including completed results. |
 | Blocked cases | Whole-order cancellation is blocked if any testing is completed or results released. Cancelling an unfulfillable part preserves completed work and follows the affected sample-test cancellation rules. A fully signed order needs an approved change request. Sales tells the customer the decision. |
 | Order keeps running meanwhile | A pending request does not pause the laboratory; testing continues until sales accepts.                                                                                                                                                  |
-| Money                         | There is no refund flow. If an advance was paid, the money stays on the invoice and sales settles it with the customer outside the system. The customer is told this when sending the request.                                           |
+| Money | Cancellation does not itself transfer money. Verified receipts stay linked to the order. The accountant records any excess over the total payable after agreed cancellation for manual refund, with the original receipt and required credit notes; a credit note alone is not a completed refund. |
 | Notification                  | The customer gets an email when the request is accepted or declined.                                                                                                                                                                     |
 
 Acceptance criteria:
@@ -215,12 +215,13 @@ Acceptance criteria:
 
 ### 3. Quotation, acceptance and payment (US-C13 to US-C17)
 
-- The quotation page shows the parameters, prices, the payment deadline and the advance invoice.
-- **Acceptance is payment.**. Paying the advance invoice means the customer accepted.
+- The quotation page shows parameters, service prices, tax, total, payment deadline and advance payment request. It distinguishes verified money, money awaiting review and the further amount needed for the advance.
+- **Acceptance requires verified funding.** Partial payment does not accept the quotation. The full verified advance applied to the current version accepts it; if earlier money already covers a revision, the customer must also agree to the new version on the portal or through evidence saved by Sales.
 - The customer can decline a sent quotation with a reason; the salesperson is notified and the order is not cancelled.
 - When sales creates a new revision of a quotation, the customer sees a banner and the list of revisions.
 - The invoice list shows posted invoices only, with payment status and the amount still owed. The customer can print or download the invoice and, after payment, the payment receipt.
-- Online payment accepts any amount up to the remaining balance, so partial payments are possible.
+- Online payment accepts a positive amount up to the current request's remaining advance or the selected invoice's residual. Expired and superseded requests cannot initiate payment. Actual money received through old links remains visible while the accountant reviews its allocation.
+- Sending a new version or extending an expired quotation updates what the customer can pay; it never silently changes a downloaded sent quotation. Expiry alone does not mean a retained partial receipt has been refunded.
 
 ### 4. Tracking and results (US-C18, US-C19)
 
@@ -284,3 +285,4 @@ Acceptance criteria:
 ## IV. Related documents
 
 - [E-commerce module overview](../overview.md)
+- [Payment requests](../../../specs/payment-requests.md)

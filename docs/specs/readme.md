@@ -25,7 +25,8 @@ Stories: US-AD13, US-AD15
 - [Audit trail](audit-trail.md): how actions on documents are recorded, protected, gathered into a document's history and reported
 - [Digital signing](digital-signing.md): how Viettel Sign signs the PDF of a fully signed document, how the laboratory's certificate is read and watched, how outages are retried and how a signed PDF is verified
 - [Document locking](document-locking.md): how a document is locked while one user edits it or a long operation runs, how others see it, are told when it is free, and how locks are released
-- [Invoices](invoices.md): how advance, final and adjustment invoices use Odoo customer invoices, what is still owed, and who can post or correct them
+- [Invoices](invoices.md): service billing, application of advances, adjustments, manual refunds and access to internal Odoo invoices
+- [Payment requests](payment-requests.md): requesting advances, verified funding, revised quotation agreement, PayOS link replacement and expiry
 - [Laboratory files](laboratory-files.md): which permission opens the laboratory folders, what a person may do with a folder and its files, the names and paths that are never computer paths, how versions are stored and numbered when saves come at once, how content is stored and verified in its bucket, how the API under `/medilab/api/v1` authenticates and answers, and how computers sign in with their own key
 - [Odoo intelligence](odoo-intelligence.md): shared Odoo model and field navigation for editors and coding agents, with isolated worktree tooling
 - [Payments](payments.md): how cash, bank transfer and PayOS payments are confirmed, rejected, receipted and reconciled by day
