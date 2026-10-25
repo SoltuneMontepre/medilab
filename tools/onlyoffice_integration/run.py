@@ -227,8 +227,9 @@ def test():
     )
     selected = os.environ.get("ONLYOFFICE_TEST_METHOD")
     if selected:
-        expected_names = [name for name in expected_names if name == selected]
-        if not expected_names:
+        requested = set(selected.split(","))
+        expected_names = [name for name in expected_names if name in requested]
+        if len(expected_names) != len(requested):
             raise ValueError("The selected real-service test does not exist.")
     expected = len(expected_names)
     logs = result.stdout + result.stderr

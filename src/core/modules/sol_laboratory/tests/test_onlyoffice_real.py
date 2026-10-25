@@ -278,17 +278,21 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         self.assertEqual(self.committed(lambda env: self.file(env).current_version_id.sha256), digest)
 
     def test_docx_real_jwt_expiry_on_transaction_retry(self):
-        installed = False
+        ready = threading.Event()
+        installed = threading.Event()
 
         def inject_failure():
-            nonlocal installed
-            if not installed:
-                self.attempt_trigger(1, delay=370)
-                installed = True
+            if not installed.is_set():
+                ready.set()
+                if not installed.wait(30):
+                    raise AssertionError("The main test thread did not install the failure trigger.")
 
         self.relay.on_final = inject_failure
         self.relay.forward_timeout = 470
         self.edit_and_close()
+        self.assertTrue(ready.wait(30), "No final callback arrived to install the failure trigger.")
+        self.attempt_trigger(1, delay=370)
+        installed.set()
         events = self.wait_final(2, timeout=480)
         self.assertEqual([event["http"] for event in events], [503, 200])
         self.assertGreater(events[1]["body_iat"], events[0]["body_exp"] + 60)
