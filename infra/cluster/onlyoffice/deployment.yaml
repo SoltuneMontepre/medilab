@@ -1,4 +1,4 @@
-# Preserve all intended state paths; the pinned image dependency discrepancy is an activation gate in the runbook.
+# Community Edition omits the commercial PostgreSQL, RabbitMQ and Redis services.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -9,7 +9,7 @@ spec:
   replicas: 1
   strategy:
     type: Recreate
-  progressDeadlineSeconds: 900
+  progressDeadlineSeconds: 2700
   selector:
     matchLabels:
       app.kubernetes.io/name: onlyoffice
@@ -21,7 +21,7 @@ spec:
       hostname: onlyoffice
       automountServiceAccountToken: false
       enableServiceLinks: false
-      terminationGracePeriodSeconds: 1350
+      terminationGracePeriodSeconds: 1890
       securityContext:
         seccompProfile:
           type: RuntimeDefault
@@ -30,7 +30,7 @@ spec:
           image: docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212
           command: ["/bin/bash", "-ec"]
           args:
-            - mkdir -p /state/{lib,data,postgres,rabbitmq,redis,fonts}
+            - mkdir -p /state/{lib,data,fonts}
           resources:
             requests:
               cpu: 50m
@@ -38,6 +38,10 @@ spec:
             limits:
               cpu: "1"
               memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [NET_RAW]
           volumeMounts:
             - name: state
               mountPath: /state
@@ -57,25 +61,19 @@ spec:
             - name: https
               containerPort: 443
           startupProbe:
-            httpGet:
-              scheme: HTTPS
-              path: /healthcheck
-              port: https
+            exec:
+              command: ["/bin/bash", "/opt/medilab/onlyoffice/healthcheck.sh"]
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 8
             failureThreshold: 60
           readinessProbe:
-            httpGet:
-              scheme: HTTPS
-              path: /healthcheck
-              port: https
+            exec:
+              command: ["/bin/bash", "/opt/medilab/onlyoffice/healthcheck.sh"]
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 8
             failureThreshold: 3
           livenessProbe:
-            httpGet:
-              scheme: HTTPS
-              path: /healthcheck
+            tcpSocket:
               port: https
             periodSeconds: 30
             timeoutSeconds: 5
@@ -89,6 +87,10 @@ spec:
               cpu: "4"
               memory: 6Gi
               ephemeral-storage: 4Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [NET_RAW]
           volumeMounts:
             - name: runtime
               mountPath: /opt/medilab/onlyoffice
@@ -105,15 +107,6 @@ spec:
             - name: state
               mountPath: /var/www/onlyoffice/Data
               subPath: data
-            - name: state
-              mountPath: /var/lib/postgresql
-              subPath: postgres
-            - name: state
-              mountPath: /var/lib/rabbitmq
-              subPath: rabbitmq
-            - name: state
-              mountPath: /var/lib/redis
-              subPath: redis
             - name: state
               mountPath: /usr/share/fonts/truetype/custom
               subPath: fonts

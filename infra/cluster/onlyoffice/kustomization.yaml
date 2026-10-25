@@ -13,4 +13,6 @@ configMapGenerator:
   - name: onlyoffice-runtime
     files:
       - start.sh
+      - healthcheck.sh
+      - shutdown.sh
       - settings.json

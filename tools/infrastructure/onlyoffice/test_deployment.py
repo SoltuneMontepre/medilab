@@ -4,7 +4,10 @@ import base64
 import hashlib
 import hmac
 import json
+import os
+import re
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -106,9 +109,6 @@ class TestDeployment(unittest.TestCase):
             {
                 "/var/lib/onlyoffice",
                 "/var/www/onlyoffice/Data",
-                "/var/lib/postgresql",
-                "/var/lib/rabbitmq",
-                "/var/lib/redis",
                 "/usr/share/fonts/truetype/custom",
             },
         )
@@ -156,7 +156,7 @@ class TestDeployment(unittest.TestCase):
         self.assertNotIn("container_name", service)
         self.assertTrue(compose["networks"]["onlyoffice"]["internal"])
         self.assertTrue(service["ports"][0].startswith("127.0.0.1:"))
-        for name in ["start.sh", "settings.json"]:
+        for name in ["start.sh", "settings.json", "healthcheck.sh", "shutdown.sh"]:
             self.assertEqual(
                 (ROOT / "tools/infrastructure/onlyoffice" / name).read_bytes(),
                 (ROOT / "infra/cluster/onlyoffice" / name).read_bytes(),
@@ -165,6 +165,100 @@ class TestDeployment(unittest.TestCase):
             (ROOT / "tools/infrastructure/onlyoffice/probe.py").read_bytes(),
             (ROOT / "infra/cluster/onlyoffice-monitor/probe.py").read_bytes(),
         )
+
+    def test_drain_budget_and_probe_wiring(self):
+        deployment = named(self.server, "Deployment", "onlyoffice")["spec"]
+        pod = deployment["template"]["spec"]
+        container = pod["containers"][0]
+        self.assertGreaterEqual(pod["terminationGracePeriodSeconds"], 30 + 1.5 * (300 + 900) + 60)
+        self.assertGreaterEqual(deployment["progressDeadlineSeconds"], pod["terminationGracePeriodSeconds"] + 600)
+        command = ["/bin/bash", "/opt/medilab/onlyoffice/healthcheck.sh"]
+        for name in ["startupProbe", "readinessProbe"]:
+            self.assertEqual(container[name]["exec"]["command"], command)
+            self.assertGreaterEqual(container[name]["timeoutSeconds"], 8)
+        # Storage failure must refuse editing without automatically killing in-memory editing state.
+        self.assertEqual(container["livenessProbe"]["tcpSocket"], {"port": "https"})
+        compose = yaml.safe_load((ROOT / "src/applications/medilab-sync/docker-compose.yml").read_text())
+        local = compose["services"]["onlyoffice"]
+        self.assertEqual(local["stop_grace_period"], str(pod["terminationGracePeriodSeconds"]) + "s")
+        self.assertEqual(local["healthcheck"]["test"], ["CMD", *command])
+
+    def test_runtime_drops_raw_sockets_and_keeps_secret_file_private(self):
+        pod = named(self.server, "Deployment", "onlyoffice")["spec"]["template"]["spec"]
+        for container in [*pod["containers"], *pod["initContainers"]]:
+            self.assertFalse(container["securityContext"]["allowPrivilegeEscalation"])
+            self.assertIn("NET_RAW", container["securityContext"]["capabilities"]["drop"])
+        script = (ROOT / "tools/infrastructure/onlyoffice/start.sh").read_text()
+        self.assertIn("chmod 0600 /etc/onlyoffice/documentserver/local.json", script)
+        self.assertIn('sudo -u ds test -r "$NODE_EXTRA_CA_CERTS"', script)
+        self.assertIn("private_dir=/var/www/onlyoffice/Data/.private", script)
+        self.assertIn('secure_link_file="$private_dir/medilab-secure-link-secret"', script)
+        self.assertIn('export SECURE_LINK_SECRET="$(cat "$secure_link_file")"', script)
+
+    def test_health_body_and_required_process_failures_are_private(self):
+        with tempfile.TemporaryDirectory() as folder:
+            directory = Path(folder)
+            for name, source in {
+                "supervisorctl": '#!/bin/sh\nexit "${MOCK_PROCESS_EXIT:-0}"\n',
+                "curl": '#!/bin/sh\nprintf "%s" "$MOCK_HEALTH_BODY"\nexit "${MOCK_CURL_EXIT:-0}"\n',
+            }.items():
+                path = directory / name
+                path.write_text(source, encoding="utf-8")
+                path.chmod(0o700)
+            cases = [
+                ("true", "0", "0", 0),
+                ("false", "0", "0", 1),
+                ("", "0", "0", 1),
+                ("true extra", "0", "0", 1),
+                ("true", "3", "0", 1),
+                ("true", "0", "60", 1),
+            ]
+            for body, process_exit, curl_exit, expected in cases:
+                with self.subTest(body=body, process_exit=process_exit, curl_exit=curl_exit):
+                    env = dict(
+                        os.environ,
+                        PATH=str(directory) + os.pathsep + os.environ["PATH"],
+                        MOCK_HEALTH_BODY=body,
+                        MOCK_PROCESS_EXIT=process_exit,
+                        MOCK_CURL_EXIT=curl_exit,
+                    )
+                    result = subprocess.run(
+                        ["bash", str(ROOT / "tools/infrastructure/onlyoffice/healthcheck.sh")],
+                        env=env,
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    self.assertEqual(result.returncode == 0, expected == 0)
+                    self.assertEqual(result.stdout, "")
+                    self.assertEqual(result.stderr, "")
+
+    def test_shutdown_requires_successful_transport_and_true_drain(self):
+        with tempfile.TemporaryDirectory() as folder:
+            directory = Path(folder)
+            curl = directory / "curl"
+            curl.write_text('#!/bin/sh\nprintf "%s" "$MOCK_BODY"\nexit "$MOCK_CURL_EXIT"\n', encoding="utf-8")
+            curl.chmod(0o700)
+            for body, curl_exit, expected in [("true", "0", 0), ("false", "0", 1), ("true", "28", 1)]:
+                with self.subTest(body=body, curl_exit=curl_exit):
+                    env = dict(
+                        os.environ,
+                        PATH=str(directory) + os.pathsep + os.environ["PATH"],
+                        MOCK_BODY=body,
+                        MOCK_CURL_EXIT=curl_exit,
+                    )
+                    result = subprocess.run(
+                        ["bash", str(ROOT / "tools/infrastructure/onlyoffice/shutdown.sh")],
+                        env=env,
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    self.assertEqual(result.returncode == 0, expected == 0)
+                    self.assertEqual(result.stdout + result.stderr, "")
+        script = (ROOT / "tools/infrastructure/onlyoffice/shutdown.sh").read_text()
+        self.assertIn("--max-time 1860", script)
+        self.assertIn("--noproxy '*'", script)
 
     def test_no_automatic_activation(self):
         root = yaml.safe_load((ROOT / "infra/cluster/kustomization.yaml").read_text())
@@ -181,6 +275,20 @@ class TestDeployment(unittest.TestCase):
         script = (ROOT / "tools/infrastructure/onlyoffice/start.sh").read_text()
         for setting in ["DS_LOG_LEVEL=OFF", "NGINX_ACCESS_LOG=false", "error_log /dev/null crit", ">/dev/null 2>&1"]:
             self.assertIn(setting, script)
+
+    def test_public_route_excludes_command_aliases(self):
+        route = named(self.server, "IngressRoute", "onlyoffice")["spec"]["routes"][0]
+        pattern = route["match"].split("!PathRegexp(`", 1)[1].split("`)", 1)[0]
+        for path in [
+            "/command",
+            "/COMMAND",
+            "/coauthoring/CommandService.ashx",
+            "/9.4.0-129/command",
+            "/9.4.0-129/coauthoring/CommandService.ashx",
+        ]:
+            self.assertIsNotNone(re.search(pattern, path), path)
+        for path in ["/healthcheck", "/web-apps/apps/api/documents/api.js", "/9.4.0-129/doc/session/c"]:
+            self.assertIsNone(re.search(pattern, path), path)
 
     def test_recovery_only_uses_matching_https_origin(self):
         origin = "https://onlyoffice.medilab.svc.cluster.local"

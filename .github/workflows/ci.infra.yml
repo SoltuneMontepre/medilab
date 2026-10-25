@@ -137,7 +137,7 @@ jobs:
       - name: Check ONLYOFFICE configuration contracts
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          bash -n tools/infrastructure/onlyoffice/start.sh
+          for script in tools/infrastructure/onlyoffice/*.sh; do bash -n "$script"; done
           python3 -m unittest discover -s tools/infrastructure/onlyoffice -p test_deployment.py
           kubectl kustomize infra/cluster/onlyoffice > /tmp/onlyoffice.yaml
           kubectl kustomize infra/cluster/onlyoffice-integration > /tmp/onlyoffice-odoo.yaml

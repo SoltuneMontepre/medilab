@@ -112,7 +112,7 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 
 ## Online editing
 
-ONLYOFFICE Document Server runs as an optional service with its own health monitoring and persistent cache, forgotten files and bundled state. Browsers reach its approved public hostname through the tunnel; it calls only the dedicated internal TLS callback ingress and approved bucket endpoint. Odoo uses its verified internal HTTPS origin. The [deployment and recovery runbook](onlyoffice.md) defines isolation, secrets, timing, retention and activation gates. Local disk persistence is not a seven-day or node-loss recovery guarantee. Production waits for the licence review and staging acceptance.
+ONLYOFFICE Document Server runs as an optional service with its own health monitoring and persistent cache and forgotten files. Browsers reach its approved public hostname through the tunnel; it calls only the dedicated internal TLS callback ingress and approved bucket endpoint. Odoo uses its verified internal HTTPS origin. The [deployment and recovery runbook](onlyoffice.md) defines isolation, secrets, timing, retention and activation gates. Local disk persistence is not a seven-day or node-loss recovery guarantee. Production waits for the licence review and staging acceptance.
 
 ## MQTT
 

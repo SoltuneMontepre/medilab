@@ -15,6 +15,11 @@ services:
       JWT_IN_BODY: "false"
       USE_UNAUTHORIZED_STORAGE: "false"
       NGINX_WORKER_PROCESSES: "2"
+      ONLYOFFICE_PROBE_HOST: onlyoffice
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - NET_RAW
     networks:
       - onlyoffice
     volumes:
@@ -23,19 +28,16 @@ services:
       - ${ONLYOFFICE_CA_DIR:?Set the directory containing ca.crt}:/run/onlyoffice-ca:ro
       - onlyoffice-lib:/var/lib/onlyoffice
       - onlyoffice-data:/var/www/onlyoffice/Data
-      - onlyoffice-postgres:/var/lib/postgresql
-      - onlyoffice-rabbitmq:/var/lib/rabbitmq
-      - onlyoffice-redis:/var/lib/redis
       - onlyoffice-fonts:/usr/share/fonts/truetype/custom
     tmpfs:
       - /var/log/onlyoffice:size=134217728
     healthcheck:
-      test: ["CMD-SHELL", "curl --fail --silent --cacert /run/onlyoffice-ca/ca.crt https://onlyoffice/healthcheck | grep -qx true"]
+      test: ["CMD", "/bin/bash", "/opt/medilab/onlyoffice/healthcheck.sh"]
       interval: 10s
-      timeout: 5s
+      timeout: 8s
       retries: 6
       start_period: 120s
-    stop_grace_period: 1350s
+    stop_grace_period: 1890s
     cpus: 4
     mem_limit: 6g
     mem_reservation: 4g
@@ -47,7 +49,4 @@ networks:
 volumes:
   onlyoffice-lib:
   onlyoffice-data:
-  onlyoffice-postgres:
-  onlyoffice-rabbitmq:
-  onlyoffice-redis:
   onlyoffice-fonts:

@@ -32,7 +32,9 @@ spec:
   entryPoints: [web]
   routes:
     - kind: Rule
-      match: Host(`office.soltunemontepre.tech`) && !PathPrefix(`/command`) && !PathPrefix(`/coauthoring/CommandService`)
+      match: >-
+        Host(`office.soltunemontepre.tech`) &&
+        !PathRegexp(`(?i)^/(?:[0-9]+\.[0-9]+\.[0-9]+[.|-]\w+/)?(?:command|coauthoring/CommandService)(?:[/.]|$)`)
       observability:
         accessLogs: false
         tracing: false
