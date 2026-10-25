@@ -3,12 +3,12 @@ set -euo pipefail
 validation_dir=$(mktemp -d)
 trap 'rm -rf "$validation_dir"' EXIT
 validation_python=${ONLYOFFICE_VALIDATION_PYTHON:-python3}
-curl --fail --silent --show-error --location \
+curl --fail --silent --show-error --proto =https --proto-redir =https --location \
   https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-amd64.tar.gz \
   -o "$validation_dir/kubeconform.tgz"
 printf '%s  %s\n' c31518ddd122663b3f3aa874cfe8178cb0988de944f29c74a0b9260920d115d3 "$validation_dir/kubeconform.tgz" | sha256sum -c -
 tar -xzf "$validation_dir/kubeconform.tgz" -C "$validation_dir" kubeconform
-curl --fail --silent --show-error --location \
+curl --fail --silent --show-error --proto =https --proto-redir =https --location \
   https://github.com/cert-manager/cert-manager/releases/download/v1.21.2/cert-manager.crds.yaml \
   -o "$validation_dir/cert-manager.yaml"
 curl --fail --silent --show-error \

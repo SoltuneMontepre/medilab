@@ -51,7 +51,6 @@ def main():
     original = RUNTIME.read_bytes() if RUNTIME.exists() else None
     metadata = RUNTIME.stat() if original is not None else None
     identity = pwd.getpwnam("ds")
-    settings = SETTINGS.read_text(encoding="utf-8")
 
     def restore():
         if original is None:
@@ -92,10 +91,10 @@ def main():
                     "env",
                     "NODE_ENV=production-linux",
                     "NODE_CONFIG_DIR=/etc/onlyoffice/documentserver",
-                    "NODE_CONFIG=" + settings,
-                    "PKG_EXECPATH=" + binary,
+                    "/bin/bash",
+                    "/opt/medilab/onlyoffice/worker.sh",
+                    str(SETTINGS),
                     binary,
-                    "/opt/medilab/onlyoffice/worker-bootstrap.cjs",
                 ],
                 capture_output=True,
                 timeout=30,

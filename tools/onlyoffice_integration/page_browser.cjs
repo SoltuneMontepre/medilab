@@ -1,30 +1,13 @@
 // Released-page probe. Loopback proxies provide the isolated HTTP services at approved local origins.
 const http = require("node:http");
-const net = require("node:net");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
 const { chromium } = require("playwright");
+const { proxy } = require("./loopback_proxy.cjs");
 
-function proxy(port, host, upstreamPort) {
-  const server = http.createServer((req, res) => {
-    const upstream = http.request({ hostname: host, port: upstreamPort, path: req.url,
-      method: req.method, headers: req.headers }, answer => {
-      res.writeHead(answer.statusCode, answer.headers); answer.pipe(res);
-    });
-    upstream.on("error", () => { res.writeHead(502); res.end(); });
-    req.pipe(upstream);
-  });
-  server.on("upgrade", (req, socket, head) => {
-    const upstream = net.connect(upstreamPort, host, () => {
-      upstream.write(`${req.method} ${req.url} HTTP/${req.httpVersion}\r\n`);
-      for (const [name, value] of Object.entries(req.headers)) upstream.write(`${name}: ${value}\r\n`);
-      upstream.write("\r\n"); upstream.write(head); socket.pipe(upstream).pipe(socket);
-    });
-    upstream.on("error", () => socket.destroy());
-    socket.on("error", () => upstream.destroy());
-  });
-  server.listen(port, "127.0.0.1");
-}
-proxy(8081, "documentserver", 80);
-proxy(3900, "garage", 3900);
+proxy(8081);
+proxy(3900);
 
 async function openEditor(browser, input, credentials) {
   const context = await browser.newContext();
@@ -129,7 +112,8 @@ http.createServer(async (request, response) => {
     // Native error messages can contain capabilities; retain only the fixed stage and error type.
     const frames = [];
     if (page) {
-      await page.screenshot({ path: "/tmp/page-probe-failure.png" }).catch(() => {});
+      const diagnostic = fs.mkdtempSync(path.join(os.tmpdir(), "medilab-page-probe-"));
+      await page.screenshot({ path: path.join(diagnostic, "failure.png") }).catch(() => {});
       for (const frame of page.frames()) {
         frames.push(await frame.evaluate(() => Array.from(document.querySelectorAll("canvas, textarea, [contenteditable]"))
           .map(el => ({ tag: el.tagName, id: el.id, editable: el.getAttribute("contenteditable") })).slice(0, 20)).catch(() => []));

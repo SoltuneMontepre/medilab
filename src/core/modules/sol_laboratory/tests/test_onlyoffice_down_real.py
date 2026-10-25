@@ -72,7 +72,7 @@ class TestOnlyofficeDownReal(LaboratoryEditingHttpCase):
         self.assertEqual(ready.json()["status"], "pass")
         self.assertEqual(self.committed(lambda env: len(self.file(env).version_ids)), 1)
         directory = Path(os.environ["ONLYOFFICE_EVIDENCE_DIR"])
-        directory.mkdir(parents=True, exist_ok=True)
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         (directory / "service-down.json").write_text(
             json.dumps(
                 {

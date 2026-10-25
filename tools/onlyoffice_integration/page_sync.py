@@ -19,7 +19,7 @@ def main():
     if os.environ.get("ONLYOFFICE_DESKTOP_PROBE") != "1":
         raise ValueError("Enable the explicit desktop observation rendezvous.")
     process = subprocess.Popen([sys.executable, str(Path(run.__file__)), "test-native"])
-    ready_path = "/tmp/agent4-evidence/desktop-ready.json"
+    ready_path = run.EVIDENCE_DIRECTORY + "/desktop-ready.json"
     deadline = time.monotonic() + 300
     ready = None
     while process.poll() is None and time.monotonic() < deadline:
@@ -91,7 +91,7 @@ def main():
                     "-c",
                     (
                         "from pathlib import Path; import sys; "
-                        "p=Path('/tmp/agent4-evidence/desktop-result.json'); "
+                        f"p=Path({(run.EVIDENCE_DIRECTORY + '/desktop-result.json')!r}); "
                         "q=p.with_suffix('.tmp'); q.write_text(sys.argv[1]+chr(10)); q.replace(p)"
                     ),
                     outcome,

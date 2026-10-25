@@ -2,13 +2,36 @@
 
 import http.client
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
+
+
+def storage_path(raw):
+    if (
+        not raw.startswith("/")
+        or raw.startswith("//")
+        or any(ord(char) < 33 or ord(char) > 126 or char == "\\" for char in raw)
+    ):
+        raise ValueError("Invalid fixture request target")
+    parts = urlsplit(raw)
+    if parts.scheme or parts.netloc or parts.fragment:
+        raise ValueError("Invalid fixture origin")
+    return parts.path + ("?" + parts.query if parts.query else "")
 
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        host = self.headers.get("Host")
+        if host not in ("localhost:3900", "127.0.0.1:3900"):
+            self.send_error(400)
+            return
+        try:
+            path = storage_path(self.path)
+        except ValueError:
+            self.send_error(400)
+            return
         connection = http.client.HTTPConnection("garage", 3900, timeout=30)
         try:
-            connection.request("GET", self.path, headers={"Host": self.headers["Host"]})
+            connection.request("GET", path, headers={"Host": host})
             upstream = connection.getresponse()
             self.send_response(upstream.status)
             for name, value in upstream.getheaders():
@@ -21,7 +44,7 @@ class Handler(BaseHTTPRequestHandler):
             connection.close()
 
     def log_message(self, *_args):
-        pass
+        return
 
 
 if __name__ == "__main__":

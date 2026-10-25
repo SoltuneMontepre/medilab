@@ -94,7 +94,7 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
 
     def save_evidence(self):
         directory = Path(os.environ["ONLYOFFICE_EVIDENCE_DIR"])
-        directory.mkdir(parents=True, exist_ok=True)
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         messages = self.server_messages()
         sensitive = [self.callback_token, SECRET]
         for raw, headers in self.relay.deliveries:

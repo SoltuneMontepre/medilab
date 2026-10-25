@@ -14,6 +14,20 @@ ROOT = Path(__file__).resolve().parents[2]
 INFRASTRUCTURE_COMMIT = "5b42e14f5715f21f85f525911cd8f692ae51302e"
 
 
+def write_fixture(output, values):
+    private = ROOT / ".local"
+    if output.is_symlink():
+        raise ValueError("A fixture output cannot be a symbolic link.")
+    target = output.resolve()
+    if private.is_symlink() or not target.is_relative_to(private) or target == private:
+        raise ValueError("Write fixtures only beneath this worktree's .local directory.")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(descriptor, "w") as stream:
+        stream.write("".join(key + "=" + value + "\n" for key, value in values.items()))
+    return target
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--commit", default=INFRASTRUCTURE_COMMIT)
@@ -51,15 +65,11 @@ def main():
         "NGINX_ACCESS_LOG": "false",
         "NODE_CONFIG": json.dumps(settings, separators=(",", ":")),
     }
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    descriptor = os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
-    with os.fdopen(descriptor, "w") as stream:
-        stream.write("".join(key + "=" + value + "\n" for key, value in values.items()))
-    args.output.chmod(0o600)
+    output = write_fixture(args.output, values)
     sys.stdout.write(
         json.dumps(
             {
-                "output": str(args.output),
+                "output": str(output),
                 "infrastructure_commit": args.commit,
                 "settings_sha256": hashlib.sha256(result.stdout.encode()).hexdigest(),
             }

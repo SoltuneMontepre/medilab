@@ -67,10 +67,13 @@ def main():
         raise ValueError("Invalid secret")
     output = Path(args.output)
     output.mkdir(mode=0o700, parents=False, exist_ok=False)
+    context = ssl.create_default_context(cafile=args.ca)
+    context.check_hostname = True
+    context.verify_mode = ssl.CERT_REQUIRED
     opener = urllib.request.build_opener(
         urllib.request.ProxyHandler({}),
         NoRedirect(),
-        urllib.request.HTTPSHandler(context=ssl.create_default_context(cafile=args.ca)),
+        urllib.request.HTTPSHandler(context=context),
     )
     body = {"c": "getForgotten", "key": args.key} if args.key else {"c": "getForgottenList"}
     request = urllib.request.Request(

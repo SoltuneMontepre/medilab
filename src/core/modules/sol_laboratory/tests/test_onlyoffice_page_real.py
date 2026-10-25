@@ -60,7 +60,7 @@ class TestOnlyofficePageReal(LaboratoryEditingHttpCase):
 
     def save_diagnostics(self):
         directory = Path(os.environ["ONLYOFFICE_EVIDENCE_DIR"])
-        directory.mkdir(parents=True, exist_ok=True)
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         lines = [
             line.split("ONLYOFFICE callback ", 1)[1]
             for line in self.server_messages().splitlines()
@@ -150,7 +150,7 @@ class TestOnlyofficePageReal(LaboratoryEditingHttpCase):
         self.assertNotIn(capability, self.server_messages())
         self.assertNotIn(SECRET, self.server_messages())
         directory = Path(os.environ["ONLYOFFICE_EVIDENCE_DIR"])
-        directory.mkdir(parents=True, exist_ok=True)
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         if os.environ.get("ONLYOFFICE_DESKTOP_PROBE") == "1":
             (directory / "desktop-ready.json").write_text(
                 json.dumps(

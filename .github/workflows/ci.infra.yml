@@ -132,14 +132,14 @@ jobs:
 
       - name: Install validation dependencies
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
-        run: python3 -m pip install PyYAML==6.0.3 jsonschema==4.26.0
+        run: 'python3 -m pip install --only-binary :all: PyYAML==6.0.3 jsonschema==4.26.0'
 
       - name: Check ONLYOFFICE configuration contracts
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          for script in tools/infrastructure/onlyoffice/*.sh; do bash -n "$script"; done
+          for script in tools/infrastructure/onlyoffice/*.sh infra/cluster/onlyoffice/*.sh; do bash -n "$script"; done
           python3 -m unittest discover -s tools/infrastructure/onlyoffice -p 'test_*.py'
-          node --check tools/infrastructure/onlyoffice/worker-bootstrap.cjs
+          node --check infra/cluster/onlyoffice/worker-bootstrap.cjs
           node --test tools/infrastructure/onlyoffice/test_callback_signing.cjs
           kubectl kustomize infra/cluster/onlyoffice > /tmp/onlyoffice.yaml
           kubectl kustomize infra/cluster/onlyoffice-integration > /tmp/onlyoffice-odoo.yaml

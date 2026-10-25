@@ -98,7 +98,7 @@ services:
       PASSWORD: agent4-local-only
       ONLYOFFICE_REAL: "1"
       ONLYOFFICE_CALLBACK_TEST_BUCKET: ${ONLYOFFICE_CALLBACK_TEST_BUCKET:-laboratory-files-callback-http}
-      ONLYOFFICE_EVIDENCE_DIR: /tmp/agent4-evidence
+      ONLYOFFICE_EVIDENCE_DIR: /var/lib/odoo/onlyoffice-integration/${ONLYOFFICE_TEST_DATABASE:-medilab171agent4}
     command:
       - odoo
       - -d

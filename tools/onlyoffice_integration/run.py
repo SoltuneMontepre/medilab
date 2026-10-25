@@ -26,6 +26,7 @@ CONTAINER = PROJECT + "-acceptance" + ("-" + RUNNER_SUFFIX if RUNNER_SUFFIX else
 DATABASE = os.environ.get("ONLYOFFICE_TEST_DATABASE", "medilab171agent4")
 if not re.fullmatch(r"medilab171[a-z0-9_]{1,40}", DATABASE):
     raise ValueError("Select an isolated medilab171 test database.")
+EVIDENCE_DIRECTORY = "/var/lib/odoo/onlyoffice-integration/" + DATABASE
 DIGEST = "sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212"
 IMAGE = "docker.io/onlyoffice/documentserver:9.4.0.1@" + DIGEST
 RUN_ID = os.environ.get("ONLYOFFICE_RUN_ID", "current")
@@ -334,7 +335,9 @@ def test(*, native_only=False):
     logs_result = command([*DOCKER, "logs", CONTAINER], env=DOCKER_ENV)
     observe_logs(logs_result)
     result = subprocess.CompletedProcess(launch.args, code, logs_result.stdout, logs_result.stderr)
-    copy = command([*DOCKER, "cp", CONTAINER + ":/tmp/agent4-evidence/.", str(OUTPUT / "callbacks")], env=DOCKER_ENV)
+    copy = command(
+        [*DOCKER, "cp", CONTAINER + ":" + EVIDENCE_DIRECTORY + "/.", str(OUTPUT / "callbacks")], env=DOCKER_ENV
+    )
     files = sorted((OUTPUT / "callbacks").glob("test_*.json")) if copy.returncode == 0 else []
     # Do not persist raw Odoo/Document Server logs: inspect them locally under restricted access.
     source = ROOT / "src/core/modules/sol_laboratory/tests/test_onlyoffice_real.py"
