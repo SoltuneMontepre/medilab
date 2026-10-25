@@ -1,7 +1,7 @@
 import { call, signIn } from "../support/odoo";
 
 // This suite verifies the browser adapter with a DocsAPI test double. It does not establish a Document Server save.
-const FILE = "HPLC-ket-qua-thang-10.xlsx";
+const FILE = "2026/HPLC-ket-qua-thang-10.xlsx";
 const adapter = `
 window.DocsAPI = { DocEditor: function(id, config) {
     window.editorFixture = { config, creations: 1 };
@@ -12,18 +12,24 @@ window.DocsAPI = { DocEditor: function(id, config) {
 }};
 `;
 
+function signInForEditor() {
+  signIn("demo.tester");
+  // Leave the back office before changing cookies or user settings, which can invalidate its active RPCs.
+  cy.visit("/medilab/laboratory-files/0/edit", { failOnStatusCode: false });
+}
+
 describe("Laboratory browser editor adapter", () => {
   let user;
   let path;
 
   beforeEach(function () {
-    signIn("demo.tester");
+    signInForEditor();
     call("res.users", "search_read", [[["login", "=", "demo.tester"]], ["name", "lang"]]).then(([person]) => {
       user = person;
       call("res.users", "write", [[person.id], { lang: "en_US" }]);
     });
     cy.clearCookies();
-    signIn("demo.tester");
+    signInForEditor();
     call("medilab.laboratory.file", "search_read", [[["path", "=", FILE]], ["id"]]).then(([file]) => {
       expect(file, "demo results spreadsheet").to.exist;
       path = `/medilab/laboratory-files/${file.id}/edit`;
@@ -51,7 +57,7 @@ describe("Laboratory browser editor adapter", () => {
       it(`shows accessible progress in ${language} at ${width}px without claiming a save`, () => {
         call("res.users", "write", [[user.id], { lang: language }]);
         cy.clearCookies();
-        signIn("demo.tester");
+        signInForEditor();
         cy.viewport(width, height);
         cy.visit(path);
         cy.get("#editor-status[role=status][aria-live=polite]").should("contain", loading);

@@ -1,6 +1,6 @@
 # ONLYOFFICE callback integration tests
 
-This opt-in harness uses real browser editors, pinned Document Server, Odoo, PostgreSQL and Garage. It uses a private test editor page, not the #230 page or Sync. The reviewed callback base is `fa8031db9eee3108211d771e09a57f20c038e4ad`; the separate verification branch starts at the official security fix `a3cec45f17f2429f99ae8556391c5750e38cc80a` and preserves test commit `27fa44c8436206765dd5bfa9f12099761af3f712` through a cherry-pick.
+This opt-in harness uses real browser editors, pinned Document Server, Odoo, PostgreSQL and Garage. The callback stress cases use a private test editor page. The separate released-page probe below uses the actual #230 page and native browser keyboard input. Neither launches the complete native Sync UI. The reviewed callback base is `fa8031db9eee3108211d771e09a57f20c038e4ad`; the separate verification branch starts at the official security fix `a3cec45f17f2429f99ae8556391c5750e38cc80a` and preserves test commit `27fa44c8436206765dd5bfa9f12099761af3f712` through a cherry-pick.
 
 Required image:
 
@@ -93,6 +93,37 @@ docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_C
 ```
 
 It signs only getForgottenList/getForgotten, validates the returned origin, refuses redirects and reports hashes, size and actual Office markers. It has no delete or replay operation. It was executed against retained real failed-save outputs; it does not make dirty-edit recovery automatic.
+
+## Released editor page
+
+After starting an owned runtime project, add the page browser and Document Server loopback storage proxy:
+
+```bash
+docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
+  -f tools/onlyoffice_integration/compose.yml -f tools/onlyoffice_integration/compose.page.yml up -d page-browser
+podman exec -d "$ONLYOFFICE_COMPOSE_PROJECT-documentserver-1" \
+  python3 /opt/onlyoffice-integration/loopback_storage_proxy.py
+export ONLYOFFICE_CALLBACK_TEST_BUCKET=laboratory-files-integration-page
+docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
+  -f tools/onlyoffice_integration/compose.yml run --rm --no-deps garage-setup
+export ONLYOFFICE_COMPOSE_OVERRIDE="$PWD/tools/onlyoffice_integration/compose.page.yml"
+export ONLYOFFICE_REAL_TAGS=onlyoffice_page_real
+export ONLYOFFICE_RUN_ID=page
+export ONLYOFFICE_RUNNER_SUFFIX=page
+export ONLYOFFICE_TEST_DATABASE=medilab171page
+export ONLYOFFICE_RUN_TIMEOUT=480
+python3 tools/onlyoffice_integration/run.py test-native
+```
+
+Use fresh guarded identities and a bucket not owned by another active database. Serialize browser runners: the callback harness requires a `runner` DNS alias; native-only runners omit it. Callback origins use the fixture container's unique hostname because Document Server can cache service-name DNS across ephemeral runners. Do not restart or recreate another owner's services.
+
+The page probe starts with no editing session, follows native CSRF-protected admin login/return, loads the released signed configuration, types into the native DOCX canvas, closes, and checks one new immutable version, attribution, Office XML marker and actual Garage SHA-256. `page-docx.json` records the real-service result; `test-native` describes the Odoo runner and its summary, not a callback stress cohort. The loopback proxies keep the existing public-origin checks intact while using the isolated HTTP topology; they do not establish deployed TLS/CNI behavior. No production key, verifier bypass or resigned browser configuration is used.
+
+For a real elapsed credential-lifetime case, choose fresh run/database identities and set `ONLYOFFICE_PAGE_HOLD_SECONDS=920` and `ONLYOFFICE_RUN_TIMEOUT=1400`. The native editor holds its changes beyond the original fifteen-minute configuration lifetime before closing and saving. This does not simulate seven-day recovery, initial expired-token admission or a complete native desktop pilot. Browser failures retain a protected screenshot inside the owned page browser and fixed-stage diagnostics; never publish raw page configuration or callback logs.
+
+To observe the resulting page save with the actual Sync Rust client, use a fresh short-run identity, set `ONLYOFFICE_DESKTOP_PROBE=1` and `ONLYOFFICE_DESKTOP_CONTAINER` to an owned `medilab-integration-*` Rust fixture on the same private network. It must mount this checkout at `/workspace`, have the locked Rust dependencies/Linux libraries, and run `loopback_storage_proxy.py` for the test-only loopback download origin. Run `python3 -m tools.onlyoffice_integration.page_sync` instead of the direct runner. The bounded rendezvous occurs after database transactions close; the observer signs in with the disposable database's default administrator, checks file/history/hash/source and downloads the exact bytes through the normal contract-checked API client, then revokes its unique device. No key/callback authority is passed in the browser URL.
+
+The explicit `onlyoffice_down_real` case is run only after stopping this owned Document Server, with `ONLYOFFICE_PAGE_DOWN=1`. Use a fresh Compose runner/database/bucket, omit `--use-aliases`, and select that tag directly; `run.py` correctly requires a running pinned server and therefore is not the launcher for a stopped-server scenario. The case logs in through normal HTTP, verifies the real editor refusal and no session/version mutation, and checks API readiness while the service is unavailable. Restart the owned service, reattest its workers, compare retained output hashes and rerun normal saves before concluding local lifecycle acceptance.
 
 ## Local checks and evidence
 

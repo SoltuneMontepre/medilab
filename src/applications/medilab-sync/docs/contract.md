@@ -64,7 +64,7 @@ The client requests a version's presigned address through its folder-scoped down
 
 The application identifier, database location, credential-store service/account and installation UID stay stable. Successful sign-in to the new API migrates existing local state transactionally. Without verified old-to-new folder identities, old remote IDs are quarantined: folders are shown as not bound, queued jobs and local paths/files remain, and no upload is claimed until explicit rebinding. Old multipart sessions and remote cursors are not reused. Changing account or server also requires rebinding and preserves queued files.
 
-The new updater address is `<base>/medilab/api/v1/updates/<target>/<arch>/<version>`, with a versioned User-Agent. Its availability is a server integration dependency: it is not currently an operation in the device OpenAPI document.
+The new updater address is `<base>/medilab/api/v1/updates/<target>/<arch>/<version>`, with a versioned User-Agent. Its public contract is the separately versioned [Sync updates document](../../../../src/core/modules/sol_laboratory/api/sync-updates.openapi.yaml), independent of device authentication. [Sync updates](../../../../docs/specs/sync-updates.md) defines current/legacy artifact catalogs, 204 no-update, 400/405 refusals and 503 unavailable configuration.
 
 Production migration requires verified evidence before choosing either route:
 

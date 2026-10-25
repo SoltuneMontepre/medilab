@@ -4,7 +4,7 @@ from odoo import api, models
 from odoo.http import request
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_IR_HTTP
-from odoo.addons.sol_laboratory.services import laboratory_bucket
+from odoo.addons.sol_laboratory.services import laboratory_bucket, sync_update_http
 from odoo.addons.sol_laboratory.services import laboratory_editing_callback as editing_callback
 from odoo.addons.sol_laboratory.services.editing_callback_logging import install_filter
 from odoo.addons.sol_laboratory.services.laboratory_api import exception_answer, is_api_path
@@ -27,6 +27,8 @@ class IrHttp(models.AbstractModel):
         except MethodNotAllowed as error:
             if editing_callback.is_callback_path(path_info):
                 error.error_response = editing_callback.exception_answer(error)
+            elif sync_update_http.is_public_sync_path(path_info):
+                error.error_response = sync_update_http.exception_answer(error)
             elif is_api_path(path_info):
                 error.error_response = exception_answer(error)
             raise
@@ -35,6 +37,8 @@ class IrHttp(models.AbstractModel):
     def _handle_error(cls, exception):
         if editing_callback.is_callback_path(request.httprequest.path):
             return editing_callback.exception_answer(exception)
+        if sync_update_http.is_public_sync_path(request.httprequest.path):
+            return sync_update_http.exception_answer(exception)
         if is_api_path(request.httprequest.path):
             return exception_answer(exception)
         return super()._handle_error(exception)

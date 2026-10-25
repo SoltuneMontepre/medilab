@@ -35,6 +35,7 @@ vars:
   UV: uv --project src/core
   OPENAPI_DOCUMENT: src/core/modules/sol_laboratory/api/openapi.yaml
   CALLBACK_DOCUMENT: src/core/modules/sol_laboratory/api/onlyoffice-callback.openapi.yaml
+  UPDATES_DOCUMENT: src/core/modules/sol_laboratory/api/sync-updates.openapi.yaml
   OASDIFF_IMAGE: docker.io/tufin/oasdiff:v1.33.0@sha256:6263a96dd2ef0726c54e21fea9b8e1607eac4841add0079324b424c1f52b819c
   OPENAPI_BASE: '{{.OPENAPI_BASE | default "origin/main"}}'
   LOG: tools/scripts/log.sh
@@ -181,8 +182,10 @@ tasks:
     cmds:
       - "{{.UV}} run openapi-spec-validator {{.OPENAPI_DOCUMENT}}"
       - "{{.UV}} run openapi-spec-validator {{.CALLBACK_DOCUMENT}}"
+      - "{{.UV}} run openapi-spec-validator {{.UPDATES_DOCUMENT}}"
       - "{{.UV}} run python tools/scripts/test_openapi.py {{.OPENAPI_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
       - "{{.UV}} run python tools/scripts/test_openapi.py {{.CALLBACK_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
+      - "{{.UV}} run python tools/scripts/test_openapi.py {{.UPDATES_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
 
   test:e2e:
     desc: "Run the browser tests against the running Odoo; task test:e2e needs task up first"

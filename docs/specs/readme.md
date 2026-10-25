@@ -35,6 +35,7 @@ Stories: US-AD13, US-AD15
 - [Scheduled jobs](scheduled-jobs.md): how jobs, their item queues and runs work: handlers, claiming, retries, running by hand, the no-overlap rule, and the cleanup job with its archive files
 - [Settings](settings.md): how a module declares a system parameter with its default, how features read it, who changes settings and how modules install and uninstall independently
 - [Stock costing and charges](stock-costing.md): how moves are costed, stock is valued and charged to cost centres, budgets are used up and charges are exported
+- [Sync updates](sync-updates.md): public signed-artifact discovery, legacy refusals and separate current/legacy trust catalogs
 
 ## Related documents
 

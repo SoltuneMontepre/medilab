@@ -35,6 +35,7 @@ jobs:
             relevant:
               - "src/applications/medilab-sync/**"
               - "src/core/modules/sol_laboratory/api/openapi.yaml"
+              - "src/core/modules/sol_laboratory/api/sync-updates.openapi.yaml"
               - "src/applications/medilab-mobile/**"
               - "tools/scripts/test_apps.sh"
               - "tools/taskfiles/test.taskfile.yml"

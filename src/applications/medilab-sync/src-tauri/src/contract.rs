@@ -12,11 +12,67 @@ fn document() -> &'static Value {
     })
 }
 
+fn updater_document() -> &'static Value {
+    static DOC: OnceLock<Value> = OnceLock::new();
+    DOC.get_or_init(|| {
+        serde_yaml::from_str(include_str!(
+            "../../../../core/modules/sol_laboratory/api/sync-updates.openapi.yaml"
+        ))
+        .unwrap()
+    })
+}
+
+pub async fn updater_fetch(
+    client: &reqwest::Client,
+    builder: reqwest::RequestBuilder,
+) -> reqwest::Result<reqwest::Response> {
+    let request = builder.build()?;
+    let url = request.url().clone();
+    let headers = request
+        .headers()
+        .iter()
+        .map(|(name, value)| (name.to_string(), value.to_str().unwrap().into()))
+        .collect();
+    assert!(!request.headers().contains_key("authorization"));
+    let contract = Contract {
+        document: updater_document(),
+        strip_api_prefix: false,
+    };
+    contract.request("GET", &url, &headers, b"");
+    let response = client.execute(request).await?;
+    let status = response.status();
+    let headers = response.headers().clone();
+    let body = response.bytes().await?;
+    let values = headers
+        .iter()
+        .map(|(name, value)| (name.to_string(), value.to_str().unwrap().into()))
+        .collect();
+    contract.response("GET", url.path(), status.as_u16(), &values, &body);
+    let mut restored = http::Response::builder().status(status);
+    *restored.headers_mut().unwrap() = headers;
+    Ok(reqwest::Response::from(restored.body(body).unwrap()))
+}
+
 struct Contract<'a> {
     document: &'a Value,
+    strip_api_prefix: bool,
 }
 
 impl<'a> Contract<'a> {
+    fn operation_path<'b>(&self, path: &'b str) -> &'b str {
+        let prefix = "/medilab/api/v1";
+        path.rfind(prefix)
+            .map(|index| {
+                &path[index
+                    + if self.strip_api_prefix {
+                        prefix.len()
+                    } else {
+                        0
+                    }..]
+            })
+            .unwrap_or(path)
+    }
+
     fn resolved<'b>(&'b self, value: &'b Value) -> &'b Value {
         value
             .get("$ref")
@@ -89,7 +145,7 @@ impl<'a> Contract<'a> {
         headers: &HashMap<String, String>,
         body: &[u8],
     ) {
-        let path = url.path().rsplit_once("/medilab/api/v1").unwrap().1;
+        let path = self.operation_path(url.path());
         let (item, op, captured) = self.operation(method, path);
         assert_eq!(
             headers.get("user-agent").map(String::as_str),
@@ -181,7 +237,7 @@ impl<'a> Contract<'a> {
         headers: &HashMap<String, String>,
         body: &[u8],
     ) {
-        let path = path.rsplit_once("/medilab/api/v1").unwrap().1;
+        let path = self.operation_path(path);
         let (_, op, _) = self.operation(method, path);
         let response = &op["responses"][status.to_string()];
         assert!(
@@ -222,6 +278,7 @@ impl<'a> Contract<'a> {
 pub fn request(method: &str, url: &url::Url, headers: &HashMap<String, String>, body: &[u8]) {
     Contract {
         document: document(),
+        strip_api_prefix: true,
     }
     .request(method, url, headers, body);
 }
@@ -234,6 +291,7 @@ pub fn response(
 ) {
     Contract {
         document: document(),
+        strip_api_prefix: true,
     }
     .response(method, path, status, headers, body);
 }
@@ -250,6 +308,44 @@ mod tests {
             ("authorization".into(), "Bearer test".into()),
             ("content-type".into(), "application/json".into()),
         ])
+    }
+
+    #[test]
+    fn updater_uses_the_separate_shared_contract_and_detects_drift() {
+        let mut headers = headers();
+        headers.remove("authorization");
+        headers.insert("cache-control".into(), "no-store".into());
+        headers.insert("x-content-type-options".into(), "nosniff".into());
+        let url =
+            url::Url::parse("http://localhost/tenant/medilab/api/v1/updates/linux/x86_64/0.1.0")
+                .unwrap();
+        let contract = Contract {
+            document: updater_document(),
+            strip_api_prefix: false,
+        };
+        let body = br#"{"version":"0.2.0","url":"https://downloads.example/sync.tar.gz","signature":"Zml4dHVyZQ=="}"#;
+        contract.request("GET", &url, &headers, b"");
+        contract.response("GET", url.path(), 200, &headers, body);
+        let mut changed = updater_document().clone();
+        changed["components"]["schemas"]["Manifest"]["required"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!("pub_date"));
+        assert!(std::panic::catch_unwind(|| Contract {
+            document: &changed,
+            strip_api_prefix: false
+        }
+        .response("GET", url.path(), 200, &headers, body))
+        .is_err());
+        headers.remove("cache-control");
+        assert!(std::panic::catch_unwind(|| contract.response(
+            "GET",
+            url.path(),
+            200,
+            &headers,
+            body
+        ))
+        .is_err());
     }
 
     #[test]
@@ -295,55 +391,53 @@ mod tests {
         let body=br#"{"login":"tester","password":"fixture","client_uid":"pc","name":"PC","platform":"linux"}"#;
         let url = url::Url::parse("http://localhost/medilab/api/v1/sign-in").unwrap();
         request("POST", &url, &headers(), body);
-        assert!(
-            std::panic::catch_unwind(|| Contract { document: &changed }.request(
-                "POST",
-                &url,
-                &headers(),
-                body
-            ))
-            .is_err()
-        );
+        assert!(std::panic::catch_unwind(|| Contract {
+            document: &changed,
+            strip_api_prefix: true
+        }
+        .request("POST", &url, &headers(), body))
+        .is_err());
         changed = document().clone();
         changed["paths"]["/devices"]["get"]["parameters"] =
             json!([{"in":"query","name":"revision","required":true,"schema":{"type":"string"}}]);
         let url = url::Url::parse("http://localhost/medilab/api/v1/devices").unwrap();
-        assert!(
-            std::panic::catch_unwind(|| Contract { document: &changed }.request(
-                "GET",
-                &url,
-                &headers(),
-                b""
-            ))
-            .is_err()
-        );
+        assert!(std::panic::catch_unwind(|| Contract {
+            document: &changed,
+            strip_api_prefix: true
+        }
+        .request("GET", &url, &headers(), b""))
+        .is_err());
         changed = document().clone();
         changed["paths"]["/devices"]["get"]["responses"]["200"]["headers"] =
             json!({"X-Quota":{"schema":{"type":"integer"}}});
         let mut invalid = headers();
         invalid.insert("x-quota".into(), "not-an-integer".into());
-        assert!(
-            std::panic::catch_unwind(|| Contract { document: &changed }.response(
-                "GET",
-                "/medilab/api/v1/devices",
-                200,
-                &invalid,
-                br#"{"devices":[]}"#
-            ))
-            .is_err()
-        );
+        assert!(std::panic::catch_unwind(|| Contract {
+            document: &changed,
+            strip_api_prefix: true
+        }
+        .response(
+            "GET",
+            "/medilab/api/v1/devices",
+            200,
+            &invalid,
+            br#"{"devices":[]}"#
+        ))
+        .is_err());
         changed = document().clone();
         changed["components"]["schemas"]["DeviceList"]["properties"]["devices"]["minItems"] =
             json!(1);
-        assert!(
-            std::panic::catch_unwind(|| Contract { document: &changed }.response(
-                "GET",
-                "/medilab/api/v1/devices",
-                200,
-                &headers(),
-                br#"{"devices":[]}"#
-            ))
-            .is_err()
-        );
+        assert!(std::panic::catch_unwind(|| Contract {
+            document: &changed,
+            strip_api_prefix: true
+        }
+        .response(
+            "GET",
+            "/medilab/api/v1/devices",
+            200,
+            &headers(),
+            br#"{"devices":[]}"#
+        ))
+        .is_err());
     }
 }

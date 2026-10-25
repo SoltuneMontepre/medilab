@@ -2,6 +2,65 @@ use crate::api::{ApiClient, RuleDto};
 use crate::error::AppError;
 use sha2::{Digest, Sha256};
 
+#[tokio::test]
+#[ignore = "requires the owned released-page fixture and MEDILAB_E2E_EDITOR_* variables"]
+async fn live_editor_save_is_visible_to_desktop_client() {
+    let base = std::env::var("MEDILAB_E2E_URL").unwrap();
+    let folder = std::env::var("MEDILAB_E2E_EDITOR_FOLDER")
+        .unwrap()
+        .parse()
+        .unwrap();
+    let file = std::env::var("MEDILAB_E2E_EDITOR_FILE")
+        .unwrap()
+        .parse()
+        .unwrap();
+    let expected = std::env::var("MEDILAB_E2E_EDITOR_SHA256").unwrap();
+    let signed = ApiClient::login(
+        &base,
+        &std::env::var("MEDILAB_E2E_LOGIN").unwrap(),
+        &std::env::var("MEDILAB_E2E_PASSWORD").unwrap(),
+        "editor-acceptance",
+        "linux",
+        env!("CARGO_PKG_VERSION"),
+        &uuid::Uuid::new_v4().to_string(),
+    )
+    .await
+    .unwrap();
+    let client = ApiClient::new(&base, &signed.api_key, signed.device_id).unwrap();
+    let current = client
+        .get_file(folder, file)
+        .await
+        .unwrap()
+        .current_version
+        .unwrap();
+    assert_eq!(current.content_hash, expected);
+    assert_eq!(current.source, "edited_online");
+    let versions = client.get_file_versions(folder, file, 20, 0).await.unwrap();
+    assert_eq!(versions.total, 2);
+    assert_eq!(
+        versions
+            .items
+            .iter()
+            .filter(|v| v.content_hash == expected)
+            .count(),
+        1
+    );
+    let download = client
+        .authorize_download(folder, file, current.id)
+        .await
+        .unwrap();
+    let bytes = reqwest::get(download.url)
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap()
+        .bytes()
+        .await
+        .unwrap();
+    assert_eq!(hex::encode(Sha256::digest(&bytes)), expected);
+    client.revoke_device(signed.device_id).await.unwrap();
+}
+
 async fn finish(client: &ApiClient, folder: i64, upload: i64) -> crate::api::FinalizeResponse {
     for _ in 0..8 {
         match client.finalize(folder, upload, &[]).await {

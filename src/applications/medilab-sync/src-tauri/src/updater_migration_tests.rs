@@ -34,7 +34,7 @@ async fn server(
             )));
             let path = request.split_whitespace().nth(1).unwrap();
             let (status, body) = response(path);
-            socket.get_mut().write_all(format!("HTTP/1.1 {status} Fixture\r\nContent-Type: application/json\r\nConnection: close\r\nContent-Length: {}\r\n\r\n", body.len()).as_bytes()).await.unwrap();
+            socket.get_mut().write_all(format!("HTTP/1.1 {status} Fixture\r\nContent-Type: application/json\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nConnection: close\r\nContent-Length: {}\r\n\r\n", body.len()).as_bytes()).await.unwrap();
             socket.get_mut().write_all(&body).await.unwrap();
         }
     });
@@ -94,7 +94,7 @@ async fn signed_download(
             "/package" => (200, if corrupt { b"tampered fixture".to_vec() } else {payload.to_vec()}),
             _=>panic!("unexpected fixture request {path}"),
         }
-    }, 2).await;
+    }, 3).await;
     *download_base.lock() = base.clone();
     let mut context = tauri::test::mock_context(tauri::test::noop_assets());
     context
@@ -123,6 +123,13 @@ async fn signed_download(
         .unwrap()
         .build()
         .unwrap();
+    assert!(crate::client_migration::updater_requirement(
+        &base,
+        &format!("{base}/api/sync/v1/updates/linux/x86_64/0.1.0")
+    )
+    .await
+    .unwrap()
+    .is_none());
     let update = updater.check().await.unwrap().unwrap();
     let bytes = update.download(|_, _| {}, || {}).await;
     task.await.unwrap();
@@ -172,4 +179,137 @@ async fn existing_test_signing_key_installs_and_wrong_key_or_tampering_preserves
             );
         }
     }
+}
+
+#[tokio::test]
+#[ignore = "requires owned Odoo release catalog and MEDILAB_E2E_RELEASES_FILE"]
+async fn live_odoo_catalog_and_tauri_verifier_preserve_state_on_bad_downloads() {
+    use std::os::unix::fs::PermissionsExt;
+    let base = std::env::var("MEDILAB_E2E_URL").unwrap();
+    let catalog = std::env::var("MEDILAB_E2E_RELEASES_FILE").unwrap();
+    let signer = minisign::KeyPair::generate_unencrypted_keypair().unwrap();
+    let other = minisign::KeyPair::generate_unencrypted_keypair().unwrap();
+    let payload = b"#!/bin/sh\nprintf 'verified-live-fixture'\n";
+    let signature = minisign::sign(
+        Some(&signer.pk),
+        &signer.sk,
+        Cursor::new(payload),
+        Some("isolated fixture"),
+        None,
+    )
+    .unwrap()
+    .to_string();
+    let signature = base64::engine::general_purpose::STANDARD.encode(signature);
+    let mode = std::sync::Arc::new(std::sync::atomic::AtomicU8::new(0));
+    let serving_mode = mode.clone();
+    let (artifact, server) = server(
+        move |path| {
+            assert_eq!(path, "/package");
+            match serving_mode.load(std::sync::atomic::Ordering::SeqCst) {
+                1 => (200, b"tampered bytes".to_vec()),
+                2 => (404, b"unavailable".to_vec()),
+                _ => (200, payload.to_vec()),
+            }
+        },
+        4,
+    )
+    .await;
+    let releases: Vec<_> = ["current", "legacy"]
+        .into_iter()
+        .map(|trust| {
+            serde_json::json!({
+                "target":"linux", "arch":"x86_64", "channel":"stable", "trust":trust,
+                "version":"0.2.0", "url":format!("{artifact}/package"), "signature":signature,
+            })
+        })
+        .collect();
+    std::fs::write(
+        &catalog,
+        serde_json::to_vec(&serde_json::json!({"releases":releases})).unwrap(),
+    )
+    .unwrap();
+    for (key, mode_value, success) in [
+        (&signer.pk, 0, true),
+        (&other.pk, 0, false),
+        (&signer.pk, 1, false),
+        (&signer.pk, 2, false),
+    ] {
+        mode.store(mode_value, std::sync::atomic::Ordering::SeqCst);
+        let dir = tempfile::tempdir().unwrap();
+        let executable = dir.path().join("Sync.AppImage");
+        let local = dir.path().join("queued.docx");
+        std::fs::write(&executable, b"old fixture executable").unwrap();
+        std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o755)).unwrap();
+        std::fs::write(&local, b"preserved pending bytes").unwrap();
+        let database = crate::migration_tests::legacy_database(dir.path());
+        let original_database = std::fs::read(&database).unwrap();
+        let pubkey =
+            base64::engine::general_purpose::STANDARD.encode(key.to_box().unwrap().to_string());
+        let mut context = tauri::test::mock_context(tauri::test::noop_assets());
+        context
+            .config_mut()
+            .plugins
+            .0
+            .insert("updater".into(), serde_json::json!({"pubkey":pubkey}));
+        let app = tauri::test::mock_builder()
+            .plugin(tauri_plugin_updater::Builder::new().pubkey(pubkey).build())
+            .build(context)
+            .unwrap();
+        let prefix = if success {
+            "medilab/api/v1"
+        } else {
+            "api/sync/v1"
+        };
+        let endpoint = format!("{base}/{prefix}/updates/linux/x86_64/0.1.0");
+        assert!(
+            crate::client_migration::updater_requirement(&base, &endpoint)
+                .await
+                .unwrap()
+                .is_none()
+        );
+        let updater = app
+            .updater_builder()
+            .executable_path(&executable)
+            .no_proxy()
+            .header(
+                "User-Agent",
+                concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")),
+            )
+            .unwrap()
+            .endpoints(vec![endpoint.parse().unwrap()])
+            .unwrap()
+            .build()
+            .unwrap();
+        let update = updater.check().await.unwrap().unwrap();
+        let result = match update.download(|_, _| {}, || {}).await {
+            Ok(bytes) => update.install(bytes),
+            Err(error) => Err(error),
+        };
+        assert_eq!(result.is_ok(), success);
+        assert_eq!(std::fs::read(&database).unwrap(), original_database);
+        assert_eq!(std::fs::read(&local).unwrap(), b"preserved pending bytes");
+        if success {
+            assert_eq!(
+                std::process::Command::new(&executable)
+                    .output()
+                    .unwrap()
+                    .stdout,
+                b"verified-live-fixture"
+            );
+        } else {
+            assert_eq!(
+                std::fs::read(&executable).unwrap(),
+                b"old fixture executable"
+            );
+        }
+    }
+    server.await.unwrap();
+    let notice =
+        crate::client_migration::updater_requirement(&base, &format!("{base}/api/sync/v1/folders"))
+            .await
+            .unwrap()
+            .unwrap();
+    assert!(notice.download_url.is_some());
+    crate::client_migration::clear(&base);
+    std::fs::write(catalog, br#"{"releases":[]}"#).unwrap();
 }

@@ -108,7 +108,7 @@ flowchart LR
 - `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release.
 - The production Odoo address is built into the app from the `MEDILAB_SYNC_ODOO_URL` Actions variable. A tag build fails when it is not set or does not start with `https://`.
 - A manual run builds the packages without releasing them, to check a build before tagging.
-- The packages are not signed for automatic updates and are not uploaded to a bucket: the app checks for updates through an Odoo endpoint that does not exist yet.
+- The packages are not signed for automatic updates and are not uploaded to a bucket: the app checks the public Odoo updater, whose release catalog must be supplied only after artifact/signing-trust verification. See [Sync updates](../specs/sync-updates.md).
 
 ## ci-mobile-app
 

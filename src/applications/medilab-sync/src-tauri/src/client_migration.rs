@@ -114,14 +114,18 @@ pub async fn updater_requirement(
     base: &str,
     endpoint: &str,
 ) -> AppResult<Option<MigrationRequired>> {
-    let response = reqwest::Client::builder()
+    let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .timeout(std::time::Duration::from_secs(15))
-        .user_agent(concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")))
-        .build()?
-        .get(endpoint)
-        .send()
-        .await?;
+        .build()?;
+    let builder = client.get(endpoint).header(
+        "User-Agent",
+        concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")),
+    );
+    #[cfg(test)]
+    let response = crate::contract::updater_fetch(&client, builder).await?;
+    #[cfg(not(test))]
+    let response = builder.send().await?;
     let status = response.status().as_u16();
     if status == 410 {
         let body = response.text().await?;
