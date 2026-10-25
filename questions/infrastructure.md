@@ -20,6 +20,8 @@
 
 - **ONLYOFFICE callback compatibility.** If fresh-process tests of the exact committed NODE_CONFIG still reproduce the body-enabled runtime's large-history signature/payload disagreement, which remediation may be evaluated: an upstream final-payload-signing correction with a reviewed rebuild, a tested release, or a proven supported delivery mode? The purported JWT_IN_BODY=false reproduction was withdrawn because effective process configuration was not established. No image/digest change or authentication relaxation is authorized by that finding; source/licence and real callback acceptance remain required. (blocks EDT-02, EDT-05, EDT-11, EDT-12)
 
+- **Operator file access.** Recovery accepts explicit CA/secret/output paths, including protected absolute paths outside the checkout; offline schema validation reads operator-selected CRDs and manifests. Should these tools continue to run under the operator's filesystem permissions, or enforce a configured list of trusted read/write roots? Specify the allowed roots before restricting the documented recovery contract. SonarCloud reports pythonsecurity:S8707 on these CLI paths; security-owner review remains required and no finding is accepted or suppressed.
+
 ## Related documents
 
 - [Architecture](../docs/infrastructure/architecture.md)
