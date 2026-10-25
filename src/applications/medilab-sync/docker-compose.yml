@@ -23,7 +23,7 @@ services:
     networks:
       - onlyoffice
     volumes:
-      - ../../tools/infrastructure/onlyoffice:/opt/medilab/onlyoffice:ro
+      - ../../infra/cluster/onlyoffice:/opt/medilab/onlyoffice:ro
       - ${ONLYOFFICE_TLS_DIR:?Set the directory containing tls.crt and tls.key}:/run/onlyoffice-tls:ro
       - ${ONLYOFFICE_CA_DIR:?Set the directory containing ca.crt}:/run/onlyoffice-ca:ro
       - onlyoffice-lib:/var/lib/onlyoffice

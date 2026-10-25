@@ -6,9 +6,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import inspect_config
+from infra.cluster.onlyoffice import inspect_config
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(inspect_config.__file__).resolve().parent
 
 
 class TestInspectConfig(unittest.TestCase):

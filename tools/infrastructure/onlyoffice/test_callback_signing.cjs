@@ -2,12 +2,12 @@
 
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
-const fs = require("node:fs");
+const Module = require("node:module");
 const path = require("node:path");
 const test = require("node:test");
-const vm = require("node:vm");
 
-const SOURCE = fs.readFileSync(path.join(__dirname, "callback-signing.cjs"), "utf8");
+const SIGNING_SOURCE = path.resolve(__dirname, "../../../infra/cluster/onlyoffice/callback-signing.cjs");
+const { install } = require(SIGNING_SOURCE);
 const DOCS = "/snapshot/server/DocService/sources/DocsCoServer.js";
 const COMMON = "/snapshot/server/Common/sources/";
 const SECRET = "callback-signing-fixture-01234567890123456789";
@@ -79,13 +79,31 @@ function fixture({enabled = true, signingError = false, senderLength = 4} = {}) 
     _resolveFilename(name) { return name; },
   };
   const originalLoad = moduleLoader._load;
-  const context = {module: {exports: {}}, require(name) { assert.equal(name, "module"); return moduleLoader; }};
-  vm.runInNewContext(SOURCE, context, {filename: "callback-signing.cjs"});
-  const assertInstalled = context.module.exports.install();
+  function withModuleLoader(action) {
+    const realLoad = Module._load;
+    const realResolve = Module._resolveFilename;
+    Module._load = moduleLoader._load;
+    Module._resolveFilename = moduleLoader._resolveFilename;
+    try {
+      return action();
+    } finally {
+      Module._load = realLoad;
+      Module._resolveFilename = realResolve;
+    }
+  }
+  let hook;
+  const assertInstalled = withModuleLoader(() => {
+    const check = install();
+    hook = Module._load;
+    return check;
+  });
   function load() {
-    moduleLoader._load(DOCS, {}, false);
-    assertInstalled();
-    assert.equal(moduleLoader._load, originalLoad);
+    withModuleLoader(() => {
+      Module._load = hook;
+      Module._load(DOCS, {}, false);
+      assertInstalled();
+      assert.equal(Module._load, originalLoad);
+    });
   }
   function checkLength(authorization, data) {
     checks++;

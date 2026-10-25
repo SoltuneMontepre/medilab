@@ -18,7 +18,8 @@ services:
     tmpfs:
       - /var/log/onlyoffice:size=134217728
     volumes:
-      - ../infrastructure/onlyoffice:/opt/medilab/onlyoffice:ro
+      - ../../infra/cluster/onlyoffice:/opt/medilab/onlyoffice:ro
+      - ../infrastructure/onlyoffice:/opt/medilab/onlyoffice-tools:ro
       - .:/opt/onlyoffice-integration:ro
       - agent4-fonts:/usr/share/fonts/truetype/custom
 

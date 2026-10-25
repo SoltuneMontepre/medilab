@@ -147,6 +147,16 @@ tasks:
     cmds:
       - python tools/scripts/core_test_guard.py clean
 
+  test:onlyoffice:coverage:
+    desc: "Test the deployed ONLYOFFICE runtime helpers and report Python and signing-hook coverage"
+    cmds:
+      - mkdir -p .local/onlyoffice-coverage
+      - "{{.UV}} run --with coverage==7.10.7 python -m coverage run --branch --source=infra/cluster/onlyoffice,infra/cluster/onlyoffice-monitor --data-file=.local/onlyoffice-coverage/.coverage -m unittest discover -s tools/infrastructure/onlyoffice -p 'test_*.py'"
+      - "{{.UV}} run --with coverage==7.10.7 python -m coverage xml --data-file=.local/onlyoffice-coverage/.coverage -o .local/onlyoffice-coverage/coverage.xml"
+      - "{{.UV}} run python -m unittest discover -s tools/onlyoffice_integration -t . -p 'test_*.py'"
+      - node tools/onlyoffice_integration/test_loopback_proxy.cjs
+      - npm exec --yes --ignore-scripts --package=c8@10.1.3 -- c8 --include=infra/cluster/onlyoffice/callback-signing.cjs --reporter=lcov --reports-dir=.local/onlyoffice-coverage/js node tools/infrastructure/onlyoffice/test_callback_signing.cjs
+
   test:uninstall:
     desc: "Install the modules in a throwaway database, uninstall commerce and inventory and check that the Laboratory data is intact"
     silent: true

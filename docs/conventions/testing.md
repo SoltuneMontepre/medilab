@@ -62,6 +62,8 @@ How tests are written, where they live and how they run.
 
 `task ai:test` runs the tooling suite and lint checks; `ci-tools` runs it on pull requests that change the AI tooling. Live OdooLS tests run when `task ai:setup` has installed the binary and source; otherwise they report skips, as they do in CI. `task ai:verify` checks the Python and XML model and field definitions in `odoo_intelligence/navigation_cases.json` through MCP, plus completion, hover, references and symbols. [Odoo intelligence](../workflows/odoo-intelligence.md) explains the client and Cursor extension-host checks. These checks do not install application modules or alter a database.
 
+The independent callback HTTP worker uses the parent coverage settings and a parallel data file. Its server process must terminate normally so the callback paths reach the combined report. `task test:onlyoffice:coverage` runs the runtime and fixture security contracts and writes Python XML and signing-hook LCOV under `.local/onlyoffice-coverage`. CI publishes those reports alongside Odoo coverage; Sonar imports both. Runtime-only changes must keep the scan and runtime coverage jobs enabled.
+
 ## Related documents
 
 - [Pipelines](../infrastructure/pipelines.md)

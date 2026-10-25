@@ -16,6 +16,7 @@ from .editing_service import PUBLIC_URL, SECRET, LocalEditingService, callback
 from .laboratory_bucket_case import LaboratoryBucketTools, closed_port
 from .laboratory_bucket_proxy import LaboratoryBucketProxy
 from .laboratory_editing_concurrency_case import LaboratoryEditingConcurrencyCase
+from .laboratory_http_process import odoo_command
 from odoo.addons.sol_laboratory.constants.laboratory_bucket import ADDRESS_VARIABLE, NAME_VARIABLE
 from odoo.addons.sol_laboratory.constants.laboratory_editing import (
     CALLBACK_DOCUMENT_PATH,
@@ -71,10 +72,10 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
         cls.source = LocalEditingService(SimpleNamespace(addCleanup=cls.addClassCleanup))
         cls.server_log = cls.enterClassContext(tempfile.TemporaryFile(mode="w+b"))
         cls.http_url = f"http://127.0.0.1:{closed_port()}"
+        coverage = sys.modules.get("coverage")
+        tracing = coverage.Coverage.current() if coverage else None
         command = [
-            sys.executable,
-            "-m",
-            "odoo",
+            *odoo_command(tracing),
             "-d",
             cls.registry.db_name,
             f"--http-interface={cls.HTTP_INTERFACE}",

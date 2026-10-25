@@ -69,7 +69,7 @@ class TestDeployment(unittest.TestCase):
                 encoding="utf-8",
             )
             binary.chmod(0o700)
-            source = (ROOT / "tools/infrastructure/onlyoffice/worker.sh").read_text()
+            source = (ROOT / "infra/cluster/onlyoffice/worker.sh").read_text()
             source = source.replace("/opt/medilab/onlyoffice/settings.json", str(config))
             source = source.replace("/var/www/onlyoffice/documentserver/server/DocService/docservice", str(binary))
             source = source.replace("/opt/medilab/onlyoffice/worker-bootstrap.cjs", str(bootstrap))
@@ -88,7 +88,7 @@ class TestDeployment(unittest.TestCase):
                 {"config": expected, "pkg": str(binary), "args": [str(bootstrap), *arguments]},
             )
             self.assertEqual(result.stderr, "")
-        start = (ROOT / "tools/infrastructure/onlyoffice/start.sh").read_text()
+        start = (ROOT / "infra/cluster/onlyoffice/start.sh").read_text()
         self.assertNotIn("export NODE_CONFIG=", start)
         self.assertIn("for service in docservice converter", start)
         self.assertIn('grep -Fxq "$worker_command" "$supervisor_file"', start)
@@ -102,7 +102,7 @@ class TestDeployment(unittest.TestCase):
                 result = subprocess.run(
                     [
                         "bash",
-                        str(ROOT / "tools/infrastructure/onlyoffice/worker.sh"),
+                        str(ROOT / "infra/cluster/onlyoffice/worker.sh"),
                         str(config),
                         sys.executable,
                         "-c",
@@ -192,9 +192,7 @@ class TestDeployment(unittest.TestCase):
                 if e["name"] in ("JWT_SECRET", "ONLYOFFICE_JWT_SECRET")
             ]
         self.assertEqual(references, [{"name": "onlyoffice-jwt", "key": "jwt-secret"}] * 2)
-        settings = json.loads((ROOT / "tools/infrastructure/onlyoffice/settings.json").read_text())["services"][
-            "CoAuthoring"
-        ]
+        settings = json.loads((ROOT / "infra/cluster/onlyoffice/settings.json").read_text())["services"]["CoAuthoring"]
         self.assertTrue(settings["token"]["enable"]["browser"])
         self.assertEqual(settings["token"]["outbox"]["expires"], "5m")
         self.assertEqual(settings["token"]["outbox"]["urlExclusionRegex"], "")
@@ -209,7 +207,7 @@ class TestDeployment(unittest.TestCase):
         transport = named(self.server, "ServersTransport", "onlyoffice-tls")["spec"]
         self.assertEqual(transport["rootCAsSecrets"], ["onlyoffice-tls"])
         self.assertNotIn("insecureSkipVerify", transport)
-        settings = json.loads((ROOT / "tools/infrastructure/onlyoffice/settings.json").read_text())
+        settings = json.loads((ROOT / "infra/cluster/onlyoffice/settings.json").read_text())
         self.assertTrue(settings["services"]["CoAuthoring"]["requestDefaults"]["rejectUnauthorized"])
         self.assertFalse(settings["services"]["CoAuthoring"]["request-filtering-agent"]["allowMetaIPAddress"])
 
@@ -220,24 +218,12 @@ class TestDeployment(unittest.TestCase):
         self.assertNotIn("container_name", service)
         self.assertTrue(compose["networks"]["onlyoffice"]["internal"])
         self.assertTrue(service["ports"][0].startswith("127.0.0.1:"))
-        for name in [
-            "start.sh",
-            "settings.json",
-            "healthcheck.sh",
-            "shutdown.sh",
-            "worker.sh",
-            "worker-bootstrap.cjs",
-            "callback-signing.cjs",
-            "inspect_config.py",
-        ]:
-            self.assertEqual(
-                (ROOT / "tools/infrastructure/onlyoffice" / name).read_bytes(),
-                (ROOT / "infra/cluster/onlyoffice" / name).read_bytes(),
-            )
-        self.assertEqual(
-            (ROOT / "tools/infrastructure/onlyoffice/probe.py").read_bytes(),
-            (ROOT / "infra/cluster/onlyoffice-monitor/probe.py").read_bytes(),
-        )
+        mount = next(value for value in service["volumes"] if ":/opt/medilab/onlyoffice:ro" in value)
+        mounted = (ROOT / "tools/infrastructure" / mount.split(":", 1)[0]).resolve()
+        self.assertEqual(mounted, ROOT / "infra/cluster/onlyoffice")
+        config_map = next(resource for resource in self.server if resource["kind"] == "ConfigMap")
+        for name, content in config_map["data"].items():
+            self.assertEqual((mounted / name).read_text(), content)
 
     def test_drain_budget_and_probe_wiring(self):
         deployment = named(self.server, "Deployment", "onlyoffice")["spec"]
@@ -261,7 +247,7 @@ class TestDeployment(unittest.TestCase):
         for container in [*pod["containers"], *pod["initContainers"]]:
             self.assertFalse(container["securityContext"]["allowPrivilegeEscalation"])
             self.assertIn("NET_RAW", container["securityContext"]["capabilities"]["drop"])
-        script = (ROOT / "tools/infrastructure/onlyoffice/start.sh").read_text()
+        script = (ROOT / "infra/cluster/onlyoffice/start.sh").read_text()
         self.assertIn("chmod 0600 /etc/onlyoffice/documentserver/local.json", script)
         self.assertIn('sudo -u ds test -r "$NODE_EXTRA_CA_CERTS"', script)
         self.assertIn("private_dir=/var/www/onlyoffice/Data/.private", script)
@@ -299,7 +285,7 @@ class TestDeployment(unittest.TestCase):
                         MOCK_POLICY_EXIT=policy_exit,
                     )
                     result = subprocess.run(
-                        ["bash", str(ROOT / "tools/infrastructure/onlyoffice/healthcheck.sh")],
+                        ["bash", str(ROOT / "infra/cluster/onlyoffice/healthcheck.sh")],
                         env=env,
                         capture_output=True,
                         text=True,
@@ -324,7 +310,7 @@ class TestDeployment(unittest.TestCase):
                         MOCK_CURL_EXIT=curl_exit,
                     )
                     result = subprocess.run(
-                        ["bash", str(ROOT / "tools/infrastructure/onlyoffice/shutdown.sh")],
+                        ["bash", str(ROOT / "infra/cluster/onlyoffice/shutdown.sh")],
                         env=env,
                         capture_output=True,
                         text=True,
@@ -332,7 +318,7 @@ class TestDeployment(unittest.TestCase):
                     )
                     self.assertEqual(result.returncode == 0, expected == 0)
                     self.assertEqual(result.stdout + result.stderr, "")
-        script = (ROOT / "tools/infrastructure/onlyoffice/shutdown.sh").read_text()
+        script = (ROOT / "infra/cluster/onlyoffice/shutdown.sh").read_text()
         self.assertIn("--max-time 1860", script)
         self.assertIn("--noproxy '*'", script)
 
@@ -348,7 +334,7 @@ class TestDeployment(unittest.TestCase):
         for resources, name in [(self.server, "onlyoffice"), (self.odoo, "onlyoffice-callback")]:
             route = named(resources, "IngressRoute", name)["spec"]["routes"][0]
             self.assertEqual(route["observability"], {"accessLogs": False, "tracing": False})
-        script = (ROOT / "tools/infrastructure/onlyoffice/start.sh").read_text()
+        script = (ROOT / "infra/cluster/onlyoffice/start.sh").read_text()
         for setting in ["DS_LOG_LEVEL=OFF", "NGINX_ACCESS_LOG=false", "error_log /dev/null crit", ">/dev/null 2>&1"]:
             self.assertIn(setting, script)
 
