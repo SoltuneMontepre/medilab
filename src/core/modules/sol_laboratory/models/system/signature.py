@@ -3,7 +3,11 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
 
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
-from odoo.addons.sol_laboratory.constants.approvals import DECISION_REJECTED, DECISION_SIGNED
+from odoo.addons.sol_laboratory.constants.approvals import (
+    DECISION_REJECTED,
+    DECISION_SIGNED,
+    SIGNATURE_WITHDRAWAL_CONTEXT,
+)
 from odoo.addons.sol_laboratory.constants.models import (
     MODEL_APPROVAL_LEVEL,
     MODEL_PERMISSION_MIXIN,
@@ -59,6 +63,18 @@ class Signature(models.Model):
         for signature in self:
             signature.display_name = f"{signature.signer_name} - {signature.level_name}"
 
+    def write(self, vals):
+        # A signature proves what was signed, so even full rights only record its withdrawal, once.
+        if set(vals) - {"withdrawn_at"}:
+            raise UserError(self.env._("A signature cannot be changed once it is given."))
+        if "withdrawn_at" in vals and (
+            not self.env.context.get(SIGNATURE_WITHDRAWAL_CONTEXT) or self.filtered("withdrawn_at")
+        ):
+            raise UserError(
+                self.env._("A signature is withdrawn once, by withdrawing it or restarting its document's signing.")
+            )
+        return super().write(vals)
+
     def unlink(self):
         # Only uninstalling the module removes signatures.
         if not self.env.context.get(MODULE_UNINSTALL_FLAG):
@@ -73,7 +89,11 @@ class Signature(models.Model):
     def _withdraw(self, process_completed=False):
         for signature in self:
             signature._check_withdrawable(process_completed)
-        self.sudo().write({"withdrawn_at": fields.Datetime.now()})
+        self._record_withdrawal()
+
+    def _record_withdrawal(self):
+        # The only way a signature's withdrawal is recorded, at the current time.
+        self.sudo().with_context(**{SIGNATURE_WITHDRAWAL_CONTEXT: True}).write({"withdrawn_at": fields.Datetime.now()})
 
     def _check_withdrawable(self, process_completed=False):
         self.ensure_one()

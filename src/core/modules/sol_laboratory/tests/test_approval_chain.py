@@ -170,6 +170,50 @@ class TestApprovalChain(PeopleCase):
 
         self.assertTrue(signature.exists())
 
+    def test_a_signature_cannot_be_changed_with_full_rights(self):
+        signature = self.sign(self.chemist, self.sales_level, document_id=7).sudo()
+        changes = {
+            "document_model": "qa.other",
+            "document_id": 8,
+            "document_version": 2,
+            "document_hash": "0" * 64,
+            "level_id": self.head_level.id,
+            "signer_id": self.microbiologist.id,
+            "signer_name": "Someone else",
+            "signer_role": "Someone else's role",
+            "level_name": "Another level",
+            "decision": DECISION_REJECTED,
+            "reason": "Changed",
+        }
+
+        for field_name, value in changes.items():
+            with self.subTest(field=field_name), self.assertRaises(UserError):
+                signature.write({field_name: value})
+
+        self.assertEqual(signature.signer_id, self.chemist)
+        self.assertEqual(signature.decision, DECISION_SIGNED)
+        self.assertEqual(signature.document_id, 7)
+
+    def test_only_withdrawing_records_a_withdrawal(self):
+        signature = self.sign(self.chemist, self.sales_level)
+
+        with self.assertRaises(UserError):
+            signature.sudo().write({"withdrawn_at": "2020-01-01 00:00:00"})
+
+        self.assertFalse(signature.withdrawn_at)
+
+    def test_a_withdrawn_signature_is_never_withdrawn_again_or_put_back(self):
+        signature = self.sign(self.chemist, self.sales_level)
+        signature.with_user(self.chemist.user_id)._withdraw()
+        withdrawn_at = signature.withdrawn_at
+
+        with self.assertRaises(UserError):
+            signature.sudo().write({"withdrawn_at": False})
+        with self.assertRaises(UserError):
+            signature.sudo().write({"withdrawn_at": "2020-01-01 00:00:00"})
+
+        self.assertEqual(signature.withdrawn_at, withdrawn_at)
+
     def test_a_signature_of_a_completed_process_is_not_withdrawn(self):
         signature = self.sign(self.chemist, self.sales_level)
 

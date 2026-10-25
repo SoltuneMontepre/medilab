@@ -415,6 +415,18 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature cannot be changed once it is given."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
+msgid "A signature is withdrawn once, by withdrawing it or restarting its document's signing."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/system/signature.py:0
 msgid "A signature is withdrawn, not deleted."
 msgstr ""
 
