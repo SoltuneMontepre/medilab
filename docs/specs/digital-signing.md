@@ -23,10 +23,10 @@ A fully signed document prints as a PDF that Viettel Sign digitally signed with 
 
 ### Signing a PDF
 
-- Signing renders the document's report without a signature, adds an invisible PAdES signature field with Odoo's `odoo.tools.pdf.signature`, and sends the SHA-256 of the CMS signed attributes to Viettel Sign. The RSA signature it returns, with the certificate chain, makes the CMS that fills the field.
+- Signing takes the document version's unsigned PDF, adds an invisible PAdES signature field with Odoo's `odoo.tools.pdf.signature`, and sends the SHA-256 of the CMS signed attributes to Viettel Sign. The RSA signature it returns, with the certificate chain, makes the CMS that fills the field. A document type may render this source at signing; test reports supply the stored PDF prepared and reviewed before approval, as specified in [Test reports](test-reports.md#preparing-the-pdf).
 - The signed PDF is checked before it is stored: a signature the certificate does not verify counts as a signing Viettel Sign did not confirm, and is retried like an outage.
 - The signed file is stored as an attachment of the document, with a `medilab.digital.signature`: the document and its version, the certificate, when Viettel Sign signed and the SHA-256 of the file. A document version is signed once; the record is never edited or deleted. An `integration` audit entry on the document records the signing, and an `error` entry a signing that failed.
-- A document type takes part by inheriting `medilab.digital.signing.mixin`, naming its report in `_digital_signing_report` and saying when it is fully signed. The test report is fully signed once it is issued.
+- A document type takes part by inheriting `medilab.digital.signing.mixin`, naming its report in `_digital_signing_report` and saying when it is fully signed. Test reports also supply their prepared source PDF rather than rendering one again. The test report is fully signed once it is issued.
 
 ### Printing
 
@@ -41,8 +41,10 @@ A fully signed document prints as a PDF that Viettel Sign digitally signed with 
 
 ### Test reports
 
+- Approval and signing bind the prepared PDF and its DOCX, template and business-data versions. Digital signing and every retry use that same source; a template update or later editor save cannot change it. A marked draft preview is a separate copy and never replaces the prepared source.
 - With digital signing on, an issued report gets its PDF once Viettel Sign has signed it. Until then it is not listed for delivery and cannot be delivered, and the portal lists it without a download. The customer is told the results are released once the signed PDF is stored.
-- With digital signing off, the report stores its PDF without a digital signature when it is issued.
+- With digital signing off, the report stores its prepared PDF without a digital signature when it is issued.
+- Issued PDFs are downloaded and delivered from storage, including while ONLYOFFICE is unavailable. Internal DOCX drafts are not customer downloads.
 
 ### Verification
 
@@ -76,3 +78,4 @@ Until that run is done, signing against Viettel Sign is unverified. Tests with t
 - [Settings](settings.md)
 - [Audit trail](audit-trail.md)
 - [Database diagram](../infrastructure/database/laboratory/laboratory.prisma)
+- [Test reports](test-reports.md)

@@ -23,6 +23,7 @@ Stories: US-AD13, US-AD15
 ## Specs
 
 - [Audit trail](audit-trail.md): how actions on documents are recorded, protected, gathered into a document's history and reported
+- [Conformity assessments](conformity-assessments.md): unchanged preset reuse, approval of changed criteria, multiple regulatory bases, evidence and scoped conclusions
 - [Digital signing](digital-signing.md): how Viettel Sign signs the PDF of a fully signed document, how the laboratory's certificate is read and watched, how outages are retried and how a signed PDF is verified
 - [Document locking](document-locking.md): how a document is locked while one user edits it or a long operation runs, how others see it, are told when it is free, and how locks are released
 - [Invoices](invoices.md): how advance, final and adjustment invoices use Odoo customer invoices, what is still owed, and who can post or correct them
@@ -35,6 +36,7 @@ Stories: US-AD13, US-AD15
 - [Scheduled jobs](scheduled-jobs.md): how jobs, their item queues and runs work: handlers, claiming, retries, running by hand, the no-overlap rule, and the cleanup job with its archive files
 - [Settings](settings.md): how a module declares a system parameter with its default, how features read it, who changes settings and how modules install and uninstall independently
 - [Stock costing and charges](stock-costing.md): how moves are costed, stock is valued and charged to cost centres, budgets are used up and charges are exported
+- [Test reports](test-reports.md): versioned ONLYOFFICE templates, controlled DOCX drafts, protected business data and the saved PDF that approval and digital signing bind
 
 ## Related documents
 

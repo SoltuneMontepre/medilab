@@ -17,13 +17,13 @@ The tester, also called lab QA, runs assigned tests with a machine when the way 
 ### Results
 
 - **US-T05** As a tester, I want to enter a result as a number in the unit of the way of testing or as a text, so that the measurement is recorded as it was made.
-- **US-T06** As a tester, I want to assess requested regulation comparisons as pass, fail or insufficient basis, so that the report states only what its evidence supports.
+- **US-T06** As a tester, I want to assess the criteria in the laboratory-approved comparison plan as pass, fail or insufficient basis, so that the report states only what its evidence supports.
 - **US-T07** As a tester, I want to send my result for approval and sign it, so that the head of department can review it.
 - **US-T08** As a tester, I want to retest when a result is rejected, so that the reported result is correct, while the rejected one stays on record.
 - **US-T09** As a tester, I want to enter the results a subcontractor sends back for an outsourced test, so that they reach the report when the subcontractor does not enter them itself.
 - **US-T17** As a tester, I want to see the steps of the testing method of my test, each with how long it takes, what to do and its note, so that I run the test the way the laboratory defines it.
 - **US-T18** As a tester, I want to see where my sample was taken from and where each step of my test is done, so that I know where to go to get what I need.
-- **US-T22** As a tester, I want to be warned before sending a result that is unusual for its parameter and sample type or close to the regulation limit, so that I check it before it goes for approval.
+- **US-T22** As a tester, I want to be warned before sending a result that is unusual for its parameter and sample type or close to an applicable comparison limit, so that I check it before it goes for approval.
 
 ### Samples
 
@@ -87,11 +87,11 @@ Follows [Results](../overview.md#results) and [Signing](../overview.md#signing).
 
 | Rule        | Description                                                                                          |
 | ----------- | ---------------------------------------------------------------------------------------------------- |
-| Limit copy | Creating an attempt copies its unit, LOD and LOQ from its way and sample type. If comparison is requested, copy the exact regulation, parameter and sample-type limit and unit; missing configuration remains visible. |
+| Snapshots | Creating an attempt copies its unit, LOD and LOQ from its way and sample type. Requested assessments separately retain the approved plan version, its inherited or direct approval basis, criterion requirements and exact result versions used. Simple limits use the exact regulation, parameter and sample-type entry; missing configuration remains visible. Each assessment retains its own comparison value, unit and conversion basis without changing the measurement. |
 | Measurement | Each attempt belongs to exactly one run or subcontract dispatch. Its run supplies the performer, interval and machine when required; entering one attempt's result does not complete every other attempt in a shared run. |
-| Conclusion | No conclusion is needed without requested regulation comparison. For a requested comparison, the tester assesses pass, fail or insufficient basis. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. Reports show the threshold and unit from the attempt's snapshot. |
+| Conclusion | No conclusion is needed without requested comparison. Assess each approved criterion as pass, fail or insufficient basis, identifying its evidence and reasoning. One result may support several criteria only when technically suitable; a criterion may require several sampling units. Text and below-LOD/LOQ values need professional assessment, never automatic passing or substitution with zero. Incomplete evidence cannot pass, and a single tested portion does not establish a whole-lot conclusion. Reports show the threshold and unit from the attempt's snapshot. See [Conformity assessments](../../../specs/conformity-assessments.md). |
 | Retest | A retest is a new attempt in a new run; earlier attempts and the link to an interrupted run are retained. |
-| Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and the regulation limit. An unusual value shows a warning with the reason; the tester may still send it, and the warning stays on the result. |
+| Sanity check | Before a numeric result is sent for approval, it is compared with past approved results and applicable numeric limits in requested criteria. An unusual value shows a warning with the reason and criterion where relevant; the tester may still send it, and the warning stays on the result. |
 | Task done   | The testing task is done when the reported result is approved.                                       |
 | Outsourced  | The results of an outsourced test are entered by the subcontractor or by a lab QA; each result records who entered it. |
 | Method steps | A tester sees the steps of the testing method of the way of testing chosen for their sample test, in step number order, from the testing task and the booking. They only read them; the administrator maintains them ([Administrator](admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28)). |
@@ -101,9 +101,11 @@ Acceptance criteria:
 - A result identifies its run or subcontract dispatch, never both; a no-machine run has no machine.
 - A below-LOQ result preserves the raw number if available and prints the copied threshold and unit after tester confirmation.
 - Catalog changes do not rewrite an existing attempt's unit, LOD or LOQ.
-- A requested comparison shows its exact copied limit or missing basis; insufficient basis does not force pass/fail. A result outside comparison scope is sent without a conclusion.
+- A requested assessment shows its approved criterion, requirement snapshot and evidence or missing basis; insufficient basis does not force pass/fail. A result outside comparison scope is sent without a conclusion.
+- Two criteria can assess the same result against different applicable documents without overwriting each other's conversion or conclusion.
+- A criterion needing several sampling units cannot pass with incomplete evidence. Measurement approval can proceed while that assessment awaits the remaining results; the report waits for a recorded assessment outcome.
 - A numeric result far from the approved results of the same parameter, way of testing and sample type shows a warning before it is sent; sending it anyway keeps the warning on the result.
-- A numeric result within the margin of the regulation limit shows a warning.
+- A numeric result within the margin of an applicable criterion's numeric limit shows a warning identifying that criterion.
 - With fewer approved results than the minimum to compare, only the limit check runs; a text result is not checked.
 - The warning never names a customer or shows another customer's sample.
 - A tester opening a testing task sees the steps of its method with their number, duration, what to do and note, in step number order; a method without steps shows none.

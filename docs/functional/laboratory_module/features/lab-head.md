@@ -23,11 +23,14 @@ Follows [Reports and change requests](../overview.md#reports-and-change-requests
 | One report     | A test request has one report covering all its samples, in Vietnamese, English or both side by side, as the request asks.    |
 | Signing        | Samples have no sign-off of their own; once all results of a request are approved, the next signature is the lab head's on the report. |
 | Draft          | When every sample test of a request is approved or cancelled, the system creates the draft report and a signing task for the lab head. |
-| Content | The report identifies the customer, request, receipt and issue dates, report number, samples and lab codes, and prints parameter, measured result, unit and method. Comparison limits and conclusions appear only for the requested regulation scope, with wording limited to that scope and insufficient basis where applicable. Below-LOD/LOQ text prints the snapshot threshold and unit. Print the actual result approvers and the report signer; tester signatures stay internal. Cancelled tests are excluded. |
+| Authoring | Generate the DOCX draft from an available template version and approved business data. Authorized report editors use ONLYOFFICE for layout, explanatory text, comments and co-editing. Business values and approvers come from the structured records; their correction follows the result and report change rules. |
+| Review and freeze | Finish all editing sessions and store their final saves before preparing the PDF. Review that PDF, the approved comparison plan and its assessments before signing. A save conflict, incomplete save, unapproved basis, pending assessment or mismatch with approved data blocks signing. An explicit insufficient-basis assessment can be reported with its limitation. Approval binds the prepared PDF and its source versions as specified in [Test reports](../../../specs/test-reports.md). |
+| Draft correction | Before any signature, editing invalidates the prepared PDF and requires a new review. Once signed at any level, the draft stays locked until signatures are withdrawn in the permitted order. After issue, a change request and replacement report are required. |
+| Content | The report identifies the customer, request, receipt and issue dates, report number, samples and lab codes. For each sample, print its sample type, received amount and condition, recorded analysis start and end dates, and report-relevant request or sample notes when provided. The result table prints parameter, measured result, unit and method. Requested assessments identify each criterion's document, edition, clause, requirement, decision rule, evidence scope and outcome, with insufficient basis where applicable. Cross-reference shared measurements; keep conclusions limited to their assessed scope. Below-LOD/LOQ text prints the snapshot threshold and unit. Print the actual result approvers, including a Head of Department who approved their own result, and the report signer; tester signatures stay internal. Cancelled tests are excluded. |
 | Rejection      | The lab head can reject a report with a reason, naming the results to check again. Those results go back to the queue of their head of department, unassigned and unsigned: their signatures are withdrawn, their sample tests, samples and request go back to testing, and a new testing task with the reason waits unassigned in the queue of the department that tested them. The report waits until they are approved again; the lab head then gets a new signing task. |
-| Issued         | A signed report gets its report number and the digitally signed PDF.                                                          |
+| Issued | Before PDF review, reserve the report number as specified in [Test reports](../../../specs/test-reports.md#preparing-the-pdf). Issuance makes that number official and stores the PDF, digitally signed when signing is on. |
 | Change request | An issued report keeps its signed file while a change request is processed. Result corrections automatically create or link the report correction. After its required approvals and all corrected results are approved, create a replacement draft and a new signing task. Only issuing the signed replacement marks the old report replaced and notifies the customer that the new PDF is ready. |
-| Regulation basis | Before issue, check regulation validity for every requested comparison. If a regulation expired during testing, the Lab Head confirms the applicable basis; testing may continue, but comparison is never silently dropped or switched. Sales obtains agreement for a changed comparison scope. |
+| Comparison basis | An unchanged approved preset supplies the request plan's approval without another request signature. Authored or changed criteria need the configured laboratory technical approval before affected work starts. The plan may contain several QCVNs, standards or specifications. Before issue, review every requested criterion, its evidence and scoped outcome, and check each regulation's validity. If one expired during testing, the Lab Head confirms that basis; testing may continue, but criteria are never silently dropped or switched. Sales obtains agreement for a changed scope. See [Conformity assessments](../../../specs/conformity-assessments.md). |
 | Pending corrections | Before applying a result correction, stop the report's pending signing and return it to draft. Rebuild it and create a fresh signing task once all corrected results are approved, including replacement reports. Old tasks cannot sign obsolete content. |
 
 Acceptance criteria:
@@ -35,10 +38,18 @@ Acceptance criteria:
 - A test request whose results are not all approved has no report waiting for the lab head.
 - Approving the last result of a request, with its other tests approved or cancelled, creates the draft report and the lab head's signing task.
 - A report prints the actual result approvers and report signer, keeps tester signatures internal and leaves out cancelled tests.
-- A report without requested QCVN comparison contains measured results without a forced compliance conclusion.
+- Each sample's block prints its type, received amount and condition, recorded analysis start and end dates, and report-relevant notes when provided. Two samples with different details keep separate blocks.
+- A report editor can change layout or explanatory text in ONLYOFFICE, but cannot replace approved measurements or their basis by editing the document.
+- An unsaved draft, unresolved editing conflict or changed business-data snapshot cannot be signed.
+- Editing a draft invalidates its prepared PDF; the Lab Head reviews the newly prepared PDF before signing.
+- Digital signing uses the PDF reviewed for that version, and customer downloads return the issued PDF without exposing the internal DOCX draft.
+- A report without requested comparison contains measured results without a forced compliance conclusion, subject to applicable mandatory requirements.
 - A report with expired regulation basis cannot issue its conclusion until the Lab Head confirms that basis.
+- A report with criteria from several QCVNs identifies their separate bases and outcomes. A failure in one scope does not become an unqualified conclusion for another scope.
+- An unchanged preset's inherited approval satisfies the plan approval requirement. Authored or changed criteria awaiting approval, pending assessments or stale result versions block preparing and signing the report; an explicit insufficient-basis outcome prints its reason and limitation.
+- An assessment of one tested portion cannot print conformity of an entire lot or facility without the evidence required for that wider scope.
 - Rejecting a report without a reason or without naming a result is refused; the named results go back to their head of department's queue, unassigned.
-- Signing a report gives it a report number and a digitally signed PDF in the request's language.
+- Signing a report issues it under the number in its reviewed PDF, digitally signed when signing is on, in the request's language.
 - A corrected report is issued only after its corrected results and required change requests are approved and the Lab Head signs the replacement. The previous report is kept and marked replaced on issue.
 - Rejecting and correcting a replacement report creates a new signing task even when the request is already reported.
 
@@ -79,3 +90,4 @@ Acceptance criteria:
 - [Laboratory overview](../overview.md)
 - [Head of department](head-of-department.md)
 - [Approval and signing chain](../../../business/approval-and-signing-chain.md)
+- [Test reports](../../../specs/test-reports.md)
