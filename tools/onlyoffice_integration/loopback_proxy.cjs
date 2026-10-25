@@ -71,7 +71,12 @@ function proxy(port) {
       }
       answer.pipe(res);
     });
-    upstream.on("error", () => { if (!res.headersSent) res.writeHead(502); res.end(); });
+    upstream.on("error", () => {
+      if (!res.headersSent) {
+        res.writeHead(502);
+      }
+      res.end();
+    });
     req.pipe(upstream);
   });
   server.on("upgrade", (req, socket, head) => {

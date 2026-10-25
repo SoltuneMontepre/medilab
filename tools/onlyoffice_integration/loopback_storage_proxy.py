@@ -1,8 +1,11 @@
 """Expose the owned Garage fixture at Document Server's loopback presigned origin without logging requests."""
 
 import http.client
+import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
+
+BUCKET = re.compile(r"laboratory-files(?:-[a-z0-9-]{1,63})?")
 
 
 def storage_path(raw):
@@ -15,6 +18,13 @@ def storage_path(raw):
     parts = urlsplit(raw)
     if parts.scheme or parts.netloc or parts.fragment:
         raise ValueError("Invalid fixture origin")
+    segments = parts.path.split("/")[1:]
+    if len(segments) < 2 or not BUCKET.fullmatch(segments[0]):
+        raise ValueError("Invalid fixture bucket")
+    for segment in segments:
+        decoded = unquote(segment, errors="strict")
+        if decoded in (".", "..") or any(char in "/\\" or ord(char) < 32 or ord(char) == 127 for char in decoded):
+            raise ValueError("Invalid fixture object path")
     return parts.path + ("?" + parts.query if parts.query else "")
 
 
