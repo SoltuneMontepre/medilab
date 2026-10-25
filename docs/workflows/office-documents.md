@@ -8,15 +8,15 @@ How the `.docx`, `.xlsx` and `.pptx` files in `docs/`, such as the backlog in `d
 task docs:setup
 ```
 
-It installs [OfficeCLI](https://github.com/iOfficeAI/OfficeCLI) globally with npm at the version pinned in `tools/taskfiles/docs.taskfile.yml`, unless `officecli` is already on PATH. Its first run downloads the binary of that tag and checks its SHA256. `task setup` does not run it.
+It checks that `officecli --version` matches the version pinned in `tools/taskfiles/docs.taskfile.yml`. If OfficeCLI is absent, it installs [OfficeCLI](https://github.com/iOfficeAI/OfficeCLI) globally with npm; the first run downloads the binary of that tag and checks its SHA256. An installed version that differs fails setup: install the pinned npm package and ensure it is first on PATH. `task setup` does not run it.
 
 ## Use
 
-Agents use the `officecli` skill: the upstream `SKILL.md` of the pinned tag in `.agent/skills/officecli/`, which Claude Code loads through `.claude/skills/officecli/`. It runs `officecli` in the shell; no MCP server is configured for it.
+Agents use the `officecli` skill in `.agent/skills/officecli/`, derived from the upstream `SKILL.md` of the pinned tag with local installation and usage corrections. Claude Code loads it through `.claude/skills/officecli/`. It runs `officecli` in the shell; no MCP server is configured for it.
 
 - Read before editing: `officecli view <file> outline` lists the sheets, slides or headings; `officecli view <file> text` prints the content.
-- Close the file in Excel, Word or PowerPoint first. An open file is locked, and OfficeCLI cannot read or write it.
-- Changing the pinned version means copying the upstream `SKILL.md` of the same tag into `.agent/skills/officecli/`.
+- Close the file in the corresponding application (Excel, Word, PowerPoint, or WPS) first. An open file is locked, and OfficeCLI cannot read or write it.
+- When changing the pinned version, copy the upstream `SKILL.md` of the same tag into `.agent/skills/officecli/` and reapply the local installation and usage corrections, including Markdown table escaping.
 
 ## Related documents
 
