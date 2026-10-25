@@ -29,7 +29,7 @@ The joined worktree is `/home/leon/Projects/medilab-wt-onlyoffice-p1`, branch `f
 
 [Runtime identity](evidence/2026-10-25/p1/fixed/runtime.json) and the [source manifest](evidence/2026-10-25/p1/fixed/source-manifest.json) record the exact running binaries and mounted source hashes. The pinned executables were not modified. The source manifest captures the mounted harness changes that were uncommitted when the joined run started. Subsequent bounded HTTP-startup retry handling and runtime-file fingerprint checks have separate history-rerun and full-wrapper evidence; they are not silently attributed to workers that started before those changes.
 
-Only `/run/user/1000/podman/podman.sock` was used. The new projects have no public host ports or production connections. Test credentials and certificates are isolated fixtures. Original services, databases and volumes remain preserved.
+Only `/run/user/1000/podman/podman.sock` was used. The new projects have no public host ports or production connections. Test credentials and certificates are isolated fixtures. Original services, databases and volumes remain preserved. The 12 new joined-stack fixture services were stopped after verification; Document Server exited 0 with the 1890-second budget, and browser fixtures exited 143 on SIGTERM. All state and failed-attempt records remain preserved. [Owned fixture shutdown](evidence/2026-10-25/p1/cleanup/result.json), [full-wrapper fixture shutdown](evidence/2026-10-25/p1/worker/cleanup.json).
 
 ## Root cause and fix: large-history callbacks (#171/#203)
 
@@ -113,7 +113,7 @@ The 27-editor load case includes synthetic Document Server identities; it does n
 | Owned container recreation | PASS | New live workers retain the exact policy and all three state paths retain fixture markers; owned markers removed; [after recreation](evidence/2026-10-25/p1/worker/after-recreate.json) |
 | Runtime override despite correct environment | PASS | Both native executables reject the effective one-day override with exit 78 and credential-safe diagnostics; [drift proof](evidence/2026-10-25/p1/worker/native-drift.json) |
 | Runtime file change after startup | PASS | Readiness refuses stale attestation while both active worker PIDs remain unchanged; original file restored; [drift proof](evidence/2026-10-25/p1/worker/native-drift.json) |
-| Signed conversion through full TLS wrapper | PASS | Trusted HTTPS DOCX source converted to 1922 PDF bytes, fetched with certificate verification; SHA-256 `aeec2f067d99d34b7fd7b966f2669ff2b44f555ee9cfe9996bfee8ad551766ac`; [TLS conversion](evidence/2026-10-25/p1/worker/tls-conversion.json) |
+| Signed conversion through full TLS wrapper | PASS | Trusted HTTPS DOCX source converted to 1922 PDF bytes, fetched with certificate verification; SHA-256 `ab1bbceb34de830f0f24505cc51dfb56b69ea3595cecafaca43526f1ce99e738`; [TLS conversion](evidence/2026-10-25/p1/worker/tls-conversion.json) |
 
 The joined stack also retained two actual failed-save DOCX outputs across an owned graceful restart: the 58550-byte and 58554-byte outputs remained downloadable with markers and identical hashes. Stop completed with exit 0 within the configured 1890-second budget, and the complete restart took 35.67 seconds. Both restarted workers attested the final policy and unchanged runtime-file fingerprint. [Restart and retained-byte comparison](evidence/2026-10-25/p1/fixed/restart-and-recovery.json), [before](evidence/2026-10-25/p1/fixed/forgotten-before.json), [after](evidence/2026-10-25/p1/fixed/forgotten-after.json). No forgotten bytes were deleted.
 
@@ -174,6 +174,8 @@ Remaining release scenarios are explicitly not passing test coverage:
 | Ingress/Loki/APM/CDN credential sinks | NOT EXECUTED; #171/#203; available local log sinks only |
 | Failure alerts, terminal recovery classification and operator escalation in the joined environment | NOT EXECUTED; #203/#230 |
 | Remote CI quality gate and release acceptance | NOT EXECUTED; local checks and CI wiring are not a remote CI run |
+
+The intentionally chosen sender bootstrap retains upstream history trimming and strict receiver validation. Worker policy is loaded after the sanitized launch boundary and checked inside the native processes; runtime-file drift refuses readiness without terminating editors. Exact binary hashes make unsupported image upgrades fail closed.
 
 No production secrets or credentials were changed. No branch was pushed; no PR was created or merged; no issue was closed; no production deployment was attempted.
 

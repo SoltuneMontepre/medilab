@@ -1,0 +1,106 @@
+{
+  "test": "test_docx_bucket_failure_recovers_on_real_redelivery",
+  "extension": "docx",
+  "events": [
+    {
+      "at": 1792918858.962352,
+      "status": 1,
+      "bytes": 378,
+      "header_bytes": 287,
+      "body_token_bytes": 264,
+      "users_count": 1,
+      "history_json_bytes": 2,
+      "body_sha256": "363bd8f087ee28f040be9acd6385bd78c6ee6fff6373a879d5480389e6d9ddaa",
+      "body_iat": 1792918858,
+      "body_exp": 1792919158,
+      "body_history_json_bytes": 2,
+      "body_history_changes": 0,
+      "header_sha256": "413ddd6e913a9cc8a15936bc5a563f99b177494c99241b1f5f870146c2a5e7fb",
+      "header_iat": 1792918858,
+      "header_exp": 1792919158,
+      "header_history_json_bytes": 2,
+      "header_history_changes": 0,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    },
+    {
+      "at": 1792918867.0321712,
+      "status": 2,
+      "bytes": 2072,
+      "header_bytes": 1255,
+      "body_token_bytes": 1232,
+      "users_count": 1,
+      "history_json_bytes": 207,
+      "body_sha256": "e72f332bc5fdab8d47911d9e8dc35bfd996aa117b8edffe87a00ede6ff0ae70d",
+      "body_iat": 1792918867,
+      "body_exp": 1792919167,
+      "body_history_json_bytes": 207,
+      "body_history_changes": 1,
+      "header_sha256": "e29fb110998487d3f9fd25a112d6bbc7cba1f8b6bf673311f9a318269dcf2f6a",
+      "header_iat": 1792918867,
+      "header_exp": 1792919167,
+      "header_history_json_bytes": 207,
+      "header_history_changes": 1,
+      "jwt_consistent": true,
+      "http": 503,
+      "error": 1
+    },
+    {
+      "at": 1792918879.1195517,
+      "status": 2,
+      "bytes": 2072,
+      "header_bytes": 1255,
+      "body_token_bytes": 1232,
+      "users_count": 1,
+      "history_json_bytes": 207,
+      "body_sha256": "68763261735069756fe10684d8f2f4d91378b638fb927de687fffcb2e32c36b9",
+      "body_iat": 1792918879,
+      "body_exp": 1792919179,
+      "body_history_json_bytes": 207,
+      "body_history_changes": 1,
+      "header_sha256": "6c2f539a6f480035eda49687d5031e10bc6ae59f7c688682f24b3cc816e52509",
+      "header_iat": 1792918879,
+      "header_exp": 1792919179,
+      "header_history_json_bytes": 207,
+      "header_history_changes": 1,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    }
+  ],
+  "initial_sha256": "b9e45ae23c84b558533b75f13541083c8322a38078ce1751119e3f888d80cf81",
+  "saved": {
+    "sha256": "fbd5e1d4df936ea16f1beabee9f68b4e62f31a6b0b45bbe5e09f0eed1e948d21",
+    "bucket_sha256": "fbd5e1d4df936ea16f1beabee9f68b4e62f31a6b0b45bbe5e09f0eed1e948d21",
+    "size": 58554,
+    "session_status": "committed",
+    "version_count": 2,
+    "version_user_id": 2,
+    "marker_present": true
+  },
+  "final_state": [
+    [
+      [
+        1,
+        "synced"
+      ],
+      [
+        2,
+        "edited_online"
+      ]
+    ],
+    [
+      [
+        "committed",
+        2
+      ]
+    ]
+  ],
+  "odoo_sensitive_values_absent": true,
+  "browser": {
+    "edited": true,
+    "editorSessions": 1
+  },
+  "test_body_passed": true
+}
