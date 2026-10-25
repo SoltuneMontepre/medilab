@@ -10,9 +10,10 @@ from odoo import fields
 from odoo.tests import tagged
 
 from .laboratory_editing_http_case import LaboratoryEditingHttpCase
-from .laboratory_files_case import PASSWORD
 from odoo.addons.sol_laboratory.constants.laboratory_editing import EXPIRED, PUBLIC_URL_VARIABLE
 from odoo.addons.sol_laboratory.services.laboratory_editor_page import CALLBACK_ORIGIN_VARIABLE
+
+ADMIN_PASSWORD = "admin"
 
 
 @tagged("post_install", "-at_install")
@@ -28,7 +29,6 @@ class TestLaboratoryEditorHttp(LaboratoryEditingHttpCase):
 
     def prepare_session(self, env):
         admin = env.ref("base.user_admin")
-        admin.password = PASSWORD
         return 0, "", "", admin.id
 
     def setUp(self):
@@ -47,7 +47,7 @@ class TestLaboratoryEditorHttp(LaboratoryEditingHttpCase):
         token = token_input.get("value")
         response = client.post(
             self.http_url + "/web/login",
-            data={"login": "admin", "password": PASSWORD, "csrf_token": token, "redirect": self.path},
+            data={"login": "admin", "password": ADMIN_PASSWORD, "csrf_token": token, "redirect": self.path},
             allow_redirects=False,
             timeout=30,
         )

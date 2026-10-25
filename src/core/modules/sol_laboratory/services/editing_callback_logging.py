@@ -1,6 +1,7 @@
 """Keep the callback capability and debug request headers out of Odoo's HTTP access/error records."""
 
 import logging
+import re
 from urllib.parse import unquote
 
 from odoo.http import request
@@ -13,38 +14,46 @@ from odoo.addons.sol_laboratory.constants.laboratory_editing import (
 
 _logger = logging.getLogger(CALLBACK_LOGGER)
 NETWORK_LOGGERS = ("urllib3", "requests", "botocore", "boto3", "s3transfer")
+MAX_LOG_TEXT_LENGTH = 64 * 1024
+MAX_LOG_URL_DECODE_PASSES = 2
+PERCENT_ESCAPE = re.compile(r"%[0-9a-fA-F]{2}")
 
 
-def references_callback(text):
-    for _index in range(16):
+def _may_reference_callback(text):
+    # Fail closed rather than truncate a hidden reference or keep decoding untrusted diagnostics.
+    if len(text) > MAX_LOG_TEXT_LENGTH:
+        return True
+    for _depth in range(MAX_LOG_URL_DECODE_PASSES):
         if CALLBACK_PREFIX in text:
             return True
         decoded = unquote(text)
         if decoded == text:
             return False
         text = decoded
-    # Bound work on hostile input and redact when nested encoding remains ambiguous.
-    return True
+    return CALLBACK_PREFIX in text or PERCENT_ESCAPE.search(text) is not None
 
 
 def _references_callback(record):
     # Watchdogs run outside the request context and put thread URLs in message arguments or exception chains.
-    texts = [record.getMessage(), record.exc_text or "", record.stack_info or ""]
+    texts = [
+        record.getMessage(),
+        getattr(record, "http_request_line", ""),
+        getattr(record, "colored_message", ""),
+        record.exc_text or "",
+        record.stack_info or "",
+    ]
     if record.exc_info:
         texts.append(logging.Formatter().formatException(record.exc_info))
-    return any(references_callback(text) for text in texts)
+    return any(_may_reference_callback(text) for text in texts)
 
 
 class EditingCallbackFilter(logging.Filter):
     def filter(self, record):
-        line = getattr(record, "http_request_line", "")
         name = record.name or ""
         transport = any(name == prefix or name.startswith(prefix + ".") for prefix in ("odoo.http", *NETWORK_LOGGERS))
         callback = (
-            references_callback(line)
-            or (transport and request and request.httprequest.path.startswith(CALLBACK_PREFIX))
-            or _references_callback(record)
-        )
+            transport and request and request.httprequest.path.startswith(CALLBACK_PREFIX)
+        ) or _references_callback(record)
         if not callback:
             return True
         # The server already expanded debug headers and its colored message; replace all representations together.
