@@ -20,6 +20,8 @@ const CONTEXTS = {
 const CONFIG_MODULE = '/snapshot/server/Common/node_modules/config';
 const SETTINGS = '/opt/medilab/onlyoffice/settings.json';
 const REPORT_DIRECTORY = '/run/onlyoffice-runtime';
+const RUNTIME_CONFIG = '/var/www/onlyoffice/Data/runtime.json';
+let stage = 'context';
 
 function digest(filename) {
   const hash = crypto.createHash('sha256');
@@ -34,6 +36,15 @@ function digest(filename) {
     fs.closeSync(descriptor);
   }
   return hash.digest('hex');
+}
+
+function runtimeDigest() {
+  try {
+    return digest(RUNTIME_CONFIG);
+  } catch (error) {
+    if (error.code === 'ENOENT') return null;
+    throw error;
+  }
 }
 
 function checkPolicy(config, expected, prefix = '') {
@@ -60,6 +71,7 @@ function policy(config) {
     tlsVerification: get('requestDefaults.rejectUnauthorized'),
     callbackBackoffOptions: get('callbackBackoffOptions'),
     autoAssembly: get('autoAssembly.enable'),
+    runtimeConfigFile: path.resolve(config.get('runtimeConfig.filePath')),
   };
 }
 
@@ -70,19 +82,30 @@ function main() {
   assert.equal(process.argv[1], process.pkg.entrypoint);
   assert.equal(process.env.NODE_ENV, 'production-linux');
   assert.equal(process.env.NODE_CONFIG_DIR, '/etc/onlyoffice/documentserver');
+  stage = 'binary';
   assert.equal(digest(process.execPath), context.sha256);
+  stage = 'settings';
   const settings = fs.readFileSync(SETTINGS, 'utf8');
   const expected = JSON.parse(settings);
   assert.deepEqual(JSON.parse(process.env.NODE_CONFIG), expected);
+  assert.equal(path.resolve(require(CONFIG_MODULE).get('runtimeConfig.filePath')), RUNTIME_CONFIG);
+  const runtimeHash = runtimeDigest();
+  stage = 'sender';
   let assertSender = () => {};
   if (context.name === 'docservice') {
     assertSender = require('./callback-signing.cjs').install();
   }
+  stage = 'entry';
   require(context.entry);
   assertSender();
   // The original entrypoint has now applied ONLYOFFICE's runtime configuration merge.
   const config = require(CONFIG_MODULE);
+  stage = 'effective-policy';
   checkPolicy(config, expected);
+  stage = 'runtime-override';
+  assert.equal(path.resolve(config.get('runtimeConfig.filePath')), RUNTIME_CONFIG);
+  assert.equal(runtimeDigest(), runtimeHash);
+  stage = 'attestation';
   const stat = fs.readFileSync('/proc/self/stat', 'utf8');
   const report = {
     worker: context.name,
@@ -90,6 +113,7 @@ function main() {
     startTicks: stat.slice(stat.lastIndexOf(')') + 2).trim().split(/\s+/)[19],
     binarySha256: context.sha256,
     settingsSha256: crypto.createHash('sha256').update(settings).digest('hex'),
+    runtimeConfigSha256: runtimeHash,
     policy: policy(config),
   };
   const target = path.join(REPORT_DIRECTORY, `${context.name}-${process.pid}.json`);
@@ -101,6 +125,6 @@ function main() {
 try {
   main();
 } catch (_) {
-  process.stderr.write('ONLYOFFICE worker initialization refused: unsupported runtime or policy drift.\n');
+  process.stderr.write(`ONLYOFFICE worker initialization refused: ${stage}.\n`);
   process.exit(78);
 }

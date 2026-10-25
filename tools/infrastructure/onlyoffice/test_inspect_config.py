@@ -20,6 +20,7 @@ class TestInspectConfig(unittest.TestCase):
         self.reports = self.directory / "reports"
         self.processes.mkdir()
         self.reports.mkdir()
+        self.runtime = self.directory / "runtime.json"
         self.settings = self.directory / "settings.json"
         self.settings.write_bytes((ROOT / "settings.json").read_bytes())
         self.expected = json.loads(self.settings.read_bytes())
@@ -42,12 +43,13 @@ class TestInspectConfig(unittest.TestCase):
             "startTicks": "123456",
             "binarySha256": inspect_config.BINARIES[name],
             "settingsSha256": hashlib.sha256(self.settings.read_bytes()).hexdigest(),
+            "runtimeConfigSha256": None,
             "policy": inspect_config.selected_policy(self.expected),
         }
         (self.reports / f"{name}-{pid}.json").write_text(json.dumps(report))
 
     def inspect(self):
-        return inspect_config.inspect_workers(self.settings, self.reports, self.processes)
+        return inspect_config.inspect_workers(self.settings, self.reports, self.processes, self.runtime)
 
     def test_all_native_workers_and_converter_children_require_attestation(self):
         self.add_worker("converter", 103)
@@ -81,6 +83,13 @@ class TestInspectConfig(unittest.TestCase):
         self.settings.write_text(self.settings.read_text().replace("604800", "86400"))
         with self.assertRaises(RuntimeError):
             self.inspect()
+
+    def test_live_runtime_file_change_refuses_stale_attestation(self):
+        self.runtime.write_text('{"services":{"CoAuthoring":{"expire":{"files":86400}}}}')
+        with self.assertRaises(RuntimeError):
+            self.inspect()
+        self.runtime.unlink()
+        self.assertEqual(len(self.inspect()), 2)
 
     def test_missing_config_or_worker_is_refused(self):
         (self.processes / "101" / "environ").write_bytes(b"NODE_ENV=production-linux\0")

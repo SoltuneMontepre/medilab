@@ -7,6 +7,7 @@ from pathlib import Path
 
 SETTINGS = Path("/opt/medilab/onlyoffice/settings.json")
 REPORT_DIRECTORY = Path("/run/onlyoffice-runtime")
+RUNTIME_CONFIG = Path("/var/www/onlyoffice/Data/runtime.json")
 BINARIES = {
     "docservice": "556df4aab7b1a87123046a4459baee34e60f57deaf7bcd189bccd6f271bd8fcb",
     "converter": "ac76144203fd4e8fdee4cccac976697e87ec9b67b7bdf572e6ea1288524a8f80",
@@ -20,18 +21,36 @@ def selected_policy(settings):
         "callbackRequestTimeout": config["server"]["callbackRequestTimeout"],
         "cache_files": config["expire"]["files"],
         "outbox": {
-            key: outbox[key] for key in ["header", "prefix", "inBody", "algorithm", "expires", "urlExclusionRegex"]
+            key: outbox[key]
+            for key in [
+                "header",
+                "prefix",
+                "inBody",
+                "algorithm",
+                "expires",
+                "urlExclusionRegex",
+            ]
         },
         "tlsVerification": config["requestDefaults"]["rejectUnauthorized"],
         "callbackBackoffOptions": config["callbackBackoffOptions"],
         "autoAssembly": config["autoAssembly"]["enable"],
+        "runtimeConfigFile": str(RUNTIME_CONFIG),
     }
 
 
-def inspect_workers(settings_path=SETTINGS, report_directory=REPORT_DIRECTORY, process_root=Path("/proc")):
+def inspect_workers(
+    settings_path=SETTINGS,
+    report_directory=REPORT_DIRECTORY,
+    process_root=Path("/proc"),
+    runtime_config_path=RUNTIME_CONFIG,
+):
     settings_bytes = settings_path.read_bytes()
     expected = json.loads(settings_bytes)
     settings_hash = hashlib.sha256(settings_bytes).hexdigest()
+    try:
+        runtime_hash = hashlib.sha256(runtime_config_path.read_bytes()).hexdigest()
+    except FileNotFoundError:
+        runtime_hash = None
     reports = []
     found = set()
     for process in process_root.iterdir():
@@ -54,13 +73,17 @@ def inspect_workers(settings_path=SETTINGS, report_directory=REPORT_DIRECTORY, p
             or report["startTicks"] != start_ticks
             or report["binarySha256"] != BINARIES[name]
             or report["settingsSha256"] != settings_hash
+            or report["runtimeConfigSha256"] != runtime_hash
             or report["policy"] != selected_policy(expected)
             or env.get(b"NODE_ENV") != b"production-linux"
             or env.get(b"NODE_CONFIG_DIR") != b"/etc/onlyoffice/documentserver"
             or json.loads(env[b"NODE_CONFIG"]) != expected
         ):
             raise RuntimeError("Effective worker configuration differs from the committed settings")
-        reports.append(report)
+        safe_report = dict(report)
+        del safe_report["runtimeConfigSha256"]
+        safe_report["runtimeConfigUnchanged"] = True
+        reports.append(safe_report)
         found.add(name)
     if found != set(BINARIES):
         raise RuntimeError("Both workers must be running and inspectable")
@@ -75,6 +98,6 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
+    except (OSError, ValueError, KeyError, TypeError, RuntimeError):
         sys.stderr.write("Worker policy verification failed; inspect as ds without dumping credentials.\n")
         sys.exit(1)
