@@ -201,6 +201,8 @@ An editing session (`medilab.laboratory.editing.session`) is the editing of one 
 
 `file._check_can_edit_online()` refuses with `not_editable` a file that is not an Office document, a file of a raw-data folder and a file of a report folder. Office files of result and working folders and of folders without a category are edited online.
 
+Controlled test-report drafts also follow [Test reports](test-reports.md): opening, joining and accepting a save check the report's access and lock as well as the file's access. A folder member cannot use a file URL, upload or editor callback to bypass a report freeze. The workflow uses working DOCX files and keeps issued PDFs read-only; it does not allow editing in report folders. Template and report preparation use the stored final version only after their sessions finish saving.
+
 #### Opening and joining
 
 A person opens a file online on a page of Odoo, signed in with the browser's session; Medilab Sync's Edit online opens a link to that page in the browser (#230).

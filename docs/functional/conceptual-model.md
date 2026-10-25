@@ -38,6 +38,7 @@ erDiagram
     SAMPLE_TEST }o--|| PARAMETER_METHOD : uses_from_creation
     SAMPLE_TEST ||--o{ TEST_RESULT : has_attempts
     TEST_REQUEST ||--o{ TEST_REPORT : reports
+    REPORT_TEMPLATE ||--o{ TEST_REPORT : prepares
 ```
 
 | Relationship | Rule |
@@ -47,6 +48,7 @@ erDiagram
 | Accreditation | A sample test is accredited only when its in-house way's method, parameter and sample type or ancestor match a valid certificate scope line. A method outside accreditation can still be used. |
 | Regulation | Comparison is optional. Scope includes descendants; limits are explicit per regulation, parameter and sample type and never inherited. The selected method, such as a TCVN, determines how to test; a QCVN determines requested comparisons. |
 | Attempt | Each attempt keeps its unit and LOD/LOQ snapshot and any exact sample-type regulation limit snapshot. It belongs to exactly one run or subcontract dispatch. |
+| Report preparation | A report uses one template version and approved business data to create its internal draft. Approval binds the saved draft, result versions and prepared PDF; issued files stay unchanged. Template versions and working files are omitted at this conceptual level. |
 
 ## Runs and people
 

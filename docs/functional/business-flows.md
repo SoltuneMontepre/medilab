@@ -267,7 +267,7 @@ flowchart TD
 - **Result:** the signed report is issued, delivered to the customer and downloadable on the portal.
 - **Stories:** US-LH01, US-LH02, US-SD14, US-C07, US-C18, US-C19.
 - **Starts from:** test requests whose sample tests are all approved or cancelled, with their draft reports.
-- **Main path:** The Lab Head reviews the results and any requested regulation basis, signs the report, and releases its numbered signed PDF. Staff record delivery and the customer is notified once the PDF is ready.
+- **Main path:** MediLab fills the draft from an available template version and approved business data. Authorized editors prepare the layout and explanatory text in ONLYOFFICE, finish saving and prepare the PDF. The Lab Head reviews that PDF, its approved results and any requested regulation basis, signs the report, and releases its numbered signed PDF. Staff record delivery and the customer is notified once the PDF is ready.
 - **Alternative paths:**
   - WF-06-A1: The report is delivered in person or by post; recording it sends no e-mail.
   - WF-06-A2: The request asks for an English, a Vietnamese or a bilingual report.
@@ -276,17 +276,22 @@ flowchart TD
   - WF-06-A5: The lifecycle test: one order runs from the portal through reception, testing and approval to the issued report.
   - WF-06-A6: A regulation expires during testing: testing continues, but before issue the Lab Head confirms the comparison basis. Sales obtains customer agreement for a changed scope; no regulation is switched or dropped automatically.
   - WF-06-A7: A corrected result returns an initial or replacement report to draft; once corrected results are approved, a fresh signing task is created even if the request is already reported.
+  - WF-06-A8: Editing an unsigned draft or choosing a different available template invalidates its prepared PDF and requires fresh review. A draft with signatures must first follow the permitted withdrawal order.
 - **Exceptions:**
   - WF-06-E1: With Viettel Sign unavailable the report is not marked signed, and signing is retried.
   - WF-06-E2: Rejecting a report without a reason or without naming a result is refused.
   - WF-06-E3: An unissued report cannot be delivered, and a customer downloads only their own reports.
+  - WF-06-E4: A pending or failed save, editing conflict, business-data mismatch or conversion outage blocks preparing a new PDF. An ONLYOFFICE outage does not block delivery of an already issued PDF.
 - **Paths in other flows:** SF-03 for a change request on an issued report; SF-04 for the samples after the report.
 - **States:** test report draft → signing → issued; test request completed → reported; order completed.
 
 ```mermaid
 flowchart TD
+    subgraph report_editors ["Authorized report editors"]
+        p1[Edit the DOCX draft in ONLYOFFICE] --> p2[Finish saves, validate data and prepare the PDF]
+    end
     subgraph lane15 ["Lab head"]
-        l1[Review approved results and confirm any expired regulation basis] --> l2{Sign the report?}
+        l1[Review the PDF, approved results and any expired regulation basis] --> l2{Sign the report?}
     end
     subgraph lane16 ["Head of department"]
         h1[Results sent back wait in the queue unassigned]
@@ -297,6 +302,7 @@ flowchart TD
     subgraph lane18 ["Customer"]
         c1[Notified that the report is issued] --> c2[Download the report]
     end
+    p2 --> l1
     l2 -->|reject naming the results and the reason| h1 --> wf04([WF-04 approves them again])
     l2 -->|sign| issued[Report number and digitally signed PDF]
     issued --> d1

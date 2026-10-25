@@ -41,6 +41,10 @@ The administrator maintains the master data of the Laboratory module: test param
 - **US-AD30** As an administrator, I want to turn a folder off, change its owner and members, and archive it with its retention date, so that folders follow the laboratory's rules.
 - **US-AD31** As an administrator, I want to release a lock someone left, so that work on the file can go on.
 
+### Report templates
+
+- **US-AD36** As an administrator, I want to edit and version report templates in ONLYOFFICE and choose which versions are available, so that reports use approved layouts while issued files remain unchanged.
+
 ## II. Feature details
 
 ### 1. Catalog (US-AD01 to US-AD08, US-AD26 to US-AD28)
@@ -69,6 +73,7 @@ The administrator maintains the master data of the Laboratory module: test param
 | Unit conversion | Each unit has a category and a factor to its reference unit. The system ships common units and suggests a new unit's category and factor for the administrator to confirm. Automatic conversion is only within one category. Once a unit is used on a result, its factor is locked; a changed factor requires a replacement unit. |
 | Converted values | Within a category, conversion for comparison is suggested for the tester to confirm or edit. Across categories there is no automatic conversion: the tester enters the compared value, comparison unit and basis or reason. Keep the original measurement and audit the comparison and its changes. |
 | Regulations | A regulation, such as QCVN 6-1:2010/BYT, has validity dates and applies to named sample types and their descendants. New selections must be active, in force and applicable; the last valid day is included. Existing samples keep their reference and copied limits when it expires, with a warning. A limit is unique per regulation, parameter and sample type: numeric minimum, maximum or both with a unit, or text such as "Not detected". Zero is allowed and a numeric limit needs at least one bound. Scope inherits; limit values do not. A child type without an explicit limit shows missing configuration, never a limit from another type. |
+| Populate regulation rows | In a regulation form, select applicable sample types and add their explicitly offered parameters from the catalog in one action. Prepare one missing limit row per parameter and sample type; repeating the action adds no duplicate and preserves existing rows and limits. Suggest the unit from the catalog for the administrator to confirm. Leave numeric bounds and text limits for the administrator to enter; the action never infers regulatory limits. Rows remain form edits until saved, and incomplete limits cannot be saved. |
 | Quality registration | A dossier is registered with an authority, has validity dates and covers parameter and method pairs. Its mark is printed after the name of each covered parameter on the report. A dossier counts as expired after its last valid day, and its mark is no longer printed. |
 | Expiry warning       | Administrators are warned a number of days before a dossier expires and on the day it expires. The number of days is a system setting the administrator configures. |
 | Default replacement | Before archiving a default way, choose an active replacement for every parameter and sample type still offered. If no replacement exists, stop offering that pair first. Restoring a way never makes it the default automatically. |
@@ -99,6 +104,9 @@ Acceptance criteria:
 - A location that a step, a sample, a machine, a booking or another module refers to cannot be deleted, only archived.
 - A location cannot be its own ancestor, and two locations cannot share a code; both are refused with a message.
 - A regulation can give the same parameter different limits on two sample types, but cannot give that parameter and one type two limits.
+- Adding parameters for selected applicable sample types prepares all missing parameter and sample-type rows in one action, with units for confirmation and limits left for entry.
+- Repeating the action creates no duplicate and does not overwrite a limit already entered.
+- A generated row without a valid numeric or text limit is refused on save, as a manually added row is.
 - A child type without explicit technical applicability cannot be offered by inheriting its parent's way or default.
 - A child type in a regulation's scope but without its own limit shows missing configuration.
 - Negative LOD or LOQ, or LOD greater than LOQ, is refused; either limit may be absent.
@@ -207,6 +215,32 @@ Acceptance criteria:
 - Archiving a folder sets its retention date and keeps every version.
 - Releasing a lock lets others upload the file again and is recorded in the audit trail.
 
+### 6. Report templates (US-AD36)
+
+| Rule | Description |
+| --- | --- |
+| Template | Maintain DOCX templates for Vietnamese, English and bilingual reports. Edit, comment, co-edit and preview them in ONLYOFFICE. Template administration is a permission held by the administrator and assignable through roles. |
+| Version | Save a draft, validate its required business-data bindings and preview it before making the version available. An available version is immutable; editing creates a new draft version. |
+| Use | New reports use an available version matching their language. Archiving stops its use for new drafts. Existing reports keep the exact template version and business data used for them. |
+| History | Keep previous template versions and the reports that use them. A template change never regenerates an issued report. |
+
+```mermaid
+stateDiagram-v2
+    [*] --> draft
+    draft --> available: validate and make available
+    available --> archived: stop use for new drafts
+    available --> draft: create a separate new version
+    archived --> [*]
+```
+
+Acceptance criteria:
+
+- An administrator can edit and preview a template in the browser and make a saved, valid version available.
+- A template missing required data bindings cannot be made available.
+- Editing an available version creates another version and leaves reports using the earlier one unchanged.
+- An archived version cannot be selected for a new draft, and its earlier reports remain readable.
+- A person without template administration permission cannot change a template or its availability.
+
 ## III. Related documents
 
 - [Laboratory overview](../overview.md)
@@ -215,3 +249,4 @@ Acceptance criteria:
 - [Module boundaries](../../../business/module-boundaries.md)
 - [Database diagram](../../../infrastructure/database/laboratory/laboratory.prisma)
 - [Glossaries](../../../glossaries.md)
+- [Test reports](../../../specs/test-reports.md)
