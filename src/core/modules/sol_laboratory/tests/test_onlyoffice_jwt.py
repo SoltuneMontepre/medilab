@@ -111,6 +111,44 @@ class TestOnlyofficeJwt(BaseCase):
 
         self.assertRefused({"token": body["token"]}, header)
 
+    def test_large_history_signed_before_native_trimming_is_still_refused(self):
+        full = {
+            **FIELDS,
+            "changesurl": "http://onlyoffice/cache/changes.zip",
+            "history": {"changes": [{"user": {"id": "7", "name": "editor" * 20}}] * 2000},
+        }
+        original, _header = callback(full)
+        trimmed = {**FIELDS, "history": {}}
+        _body, header = callback(trimmed)
+
+        self.assertRefused({**trimmed, "token": original["token"]}, header)
+
+    def test_consistently_trimmed_history_keeps_security_fields_bound(self):
+        fields = {**FIELDS, "history": {}, "actions": [{"type": 0, "userid": "7"}]}
+        body, header = callback(fields)
+
+        self.assertEqual(verify_callback(body, header, SECRET), fields)
+        for key, value in (
+            ("key", "other-document"),
+            ("status", 4),
+            ("url", "http://attacker.example/output.xlsx"),
+            ("users", ["999"]),
+            ("actions", [{"type": 0, "userid": "999"}]),
+            ("history", {"changes": [{"user": {"id": "999"}}]}),
+        ):
+            with self.subTest(field=key):
+                self.assertRefused({**body, key: value}, header)
+
+    def test_large_history_does_not_hide_invalid_or_malformed_tokens(self):
+        fields = {**FIELDS, "history": {"changes": [{"user": {"id": "7", "name": "editor" * 20}}] * 2000}}
+        body, header = callback(fields)
+        invalid_body, invalid_header = callback(fields, secret="invalid-large-history-secret-01234567890123456789")
+        self.assertRefused(body, invalid_header)
+        self.assertRefused(invalid_body, header)
+        for token in ("invalid.jwt", body["token"][:-1], None, {"token": body["token"]}, [body["token"]]):
+            with self.subTest(token_type=type(token).__name__):
+                self.assertRefused({**body, "token": token}, header)
+
     def test_a_token_of_another_operation_than_a_callback_is_refused(self):
         exp = int(time.time()) + 300
         for operation, accepted in (("callback", True), ("download", False)):

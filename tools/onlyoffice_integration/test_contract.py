@@ -87,6 +87,42 @@ class TestContract(unittest.TestCase):
         self.refuse(body, trimmed)
         self.refuse(full, trimmed)
 
+    def test_native_trimmed_body_with_stale_full_history_token_is_refused(self):
+        full = {
+            **FIELDS,
+            "changesurl": "http://documentserver/cache/changes.zip",
+            "history": {"changes": [{"user": {"id": "7", "name": "editor" * 20}}] * 2000},
+        }
+        original, _ = signed(full)
+        trimmed = {**FIELDS, "history": {}}
+        _, header = signed(trimmed)
+        self.refuse({**trimmed, "token": original["token"]}, header)
+
+    def test_consistently_trimmed_history_keeps_every_security_field_bound(self):
+        fields = {**FIELDS, "history": {}, "actions": [{"type": 0, "userid": "7"}]}
+        body, header = signed(fields)
+        self.assertEqual(SERVICE.verify_callback(body, header, SECRET), fields)
+        for key, value in (
+            ("key", "other-document"),
+            ("status", 4),
+            ("url", "http://attacker.example/output.docx"),
+            ("users", ["999"]),
+            ("actions", [{"type": 0, "userid": "999"}]),
+            ("history", {"changes": [{"user": {"id": "999"}}]}),
+        ):
+            with self.subTest(field=key):
+                self.refuse({**body, key: value}, header)
+
+    def test_large_history_does_not_hide_invalid_or_malformed_tokens(self):
+        fields = {**FIELDS, "history": {"changes": [{"user": {"id": "7", "name": "editor" * 20}}] * 2000}}
+        body, header = signed(fields)
+        invalid_body, invalid_header = signed(fields, secret="invalid-large-history-secret-01234567890123456789")
+        self.refuse(body, invalid_header)
+        self.refuse(invalid_body, header)
+        for token in ("invalid.jwt", body["token"][:-1], None, {"token": body["token"]}, [body["token"]]):
+            with self.subTest(token_type=type(token).__name__):
+                self.refuse({**body, "token": token}, header)
+
     def test_both_trimmed_tokens_do_not_authenticate_extra_unsigned_users(self):
         body, header = signed(FIELDS)
         self.refuse({**body, "users": ["7", "999"]}, header)
