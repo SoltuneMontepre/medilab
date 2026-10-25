@@ -138,7 +138,9 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           for script in tools/infrastructure/onlyoffice/*.sh; do bash -n "$script"; done
-          python3 -m unittest discover -s tools/infrastructure/onlyoffice -p test_deployment.py
+          python3 -m unittest discover -s tools/infrastructure/onlyoffice -p 'test_*.py'
+          node --check tools/infrastructure/onlyoffice/worker-bootstrap.cjs
+          node --test tools/infrastructure/onlyoffice/test_callback_signing.cjs
           kubectl kustomize infra/cluster/onlyoffice > /tmp/onlyoffice.yaml
           kubectl kustomize infra/cluster/onlyoffice-integration > /tmp/onlyoffice-odoo.yaml
           kubectl kustomize infra/cluster/onlyoffice-edge > /tmp/onlyoffice-edge.yaml

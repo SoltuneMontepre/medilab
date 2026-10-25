@@ -61,7 +61,7 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
 - The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image and the origin isolation script's syntax and regression tests, when `infra/ansible/`, `tools/ansible/`, the script or its tests change. It uses no secrets and never reaches a node.
-- The `onlyoffice` job validates Kustomize candidates, core Kubernetes and pinned upstream CRD schemas, JWT/secret/network/storage contracts and the isolated Compose merge. It downloads checksum-verified validators and CRDs, uses no production credentials, and never reaches a cluster. The inherited Odoo Backup resource stays under its existing validation scope. These checks do not establish pinned-service or staging acceptance; see [ONLYOFFICE](onlyoffice.md).
+- The `onlyoffice` job validates Kustomize candidates, core Kubernetes and pinned upstream CRD schemas, JWT/secret/network/storage contracts, native-worker policy drift, sender signing boundaries and the isolated Compose merge. It downloads checksum-verified validators and CRDs, uses no production credentials, and never reaches a cluster. The inherited Odoo Backup resource stays under its existing validation scope. These checks do not establish pinned-service or staging acceptance; see [ONLYOFFICE](onlyoffice.md).
 - `infrastructure` is the required check of `ci-infra`: it fails unless `terraform`, `ansible` and `onlyoffice` passed.
 
 ## cd-ansible

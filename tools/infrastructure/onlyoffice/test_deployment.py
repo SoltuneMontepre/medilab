@@ -64,8 +64,8 @@ class TestDeployment(unittest.TestCase):
             binary.write_text(
                 "#!" + sys.executable + "\nimport json,os,sys\n"
                 "print(json.dumps({"
-                '\"config\":json.loads(os.environ[\"NODE_CONFIG\"]),'
-                '\"pkg\":os.environ[\"PKG_EXECPATH\"],\"args\":sys.argv[1:]}))\n',
+                '"config":json.loads(os.environ["NODE_CONFIG"]),'
+                '"pkg":os.environ["PKG_EXECPATH"],"args":sys.argv[1:]}))\n',
                 encoding="utf-8",
             )
             binary.chmod(0o700)
@@ -220,8 +220,16 @@ class TestDeployment(unittest.TestCase):
         self.assertNotIn("container_name", service)
         self.assertTrue(compose["networks"]["onlyoffice"]["internal"])
         self.assertTrue(service["ports"][0].startswith("127.0.0.1:"))
-        for name in ["start.sh", "settings.json", "healthcheck.sh", "shutdown.sh", "worker.sh",
-                     "worker-bootstrap.cjs", "callback-signing.cjs", "inspect_config.py"]:
+        for name in [
+            "start.sh",
+            "settings.json",
+            "healthcheck.sh",
+            "shutdown.sh",
+            "worker.sh",
+            "worker-bootstrap.cjs",
+            "callback-signing.cjs",
+            "inspect_config.py",
+        ]:
             self.assertEqual(
                 (ROOT / "tools/infrastructure/onlyoffice" / name).read_bytes(),
                 (ROOT / "infra/cluster/onlyoffice" / name).read_bytes(),
