@@ -17,6 +17,11 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sol_commerce
+#: model:ir.model,name:sol_commerce.model_mail_message
+msgid "Message"
+msgstr "Tin nhắn"
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/pricing/tax.py:0
 msgid "%(tax)s has no rate on %(date)s."
