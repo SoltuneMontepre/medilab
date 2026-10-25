@@ -1,0 +1,84 @@
+{
+  "test": "test_xlsx_save",
+  "extension": "xlsx",
+  "events": [
+    {
+      "at": 1792922812.8012629,
+      "status": 1,
+      "bytes": 378,
+      "header_bytes": 287,
+      "body_token_bytes": 264,
+      "users_count": 1,
+      "history_json_bytes": 2,
+      "body_sha256": "1624de93b5fae006c8e3d3c8b4995c63e79dcb93d0c6126c1ca611d2ae28cb76",
+      "body_iat": 1792922812,
+      "body_exp": 1792923112,
+      "body_history_json_bytes": 2,
+      "body_history_changes": 0,
+      "header_sha256": "e6de3c41c6a02a115224bd5bf0e6c734770acff5684994d4de472716576f0302",
+      "header_iat": 1792922812,
+      "header_exp": 1792923112,
+      "header_history_json_bytes": 2,
+      "header_history_changes": 0,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    },
+    {
+      "at": 1792922819.821521,
+      "status": 2,
+      "bytes": 2072,
+      "header_bytes": 1255,
+      "body_token_bytes": 1232,
+      "users_count": 1,
+      "history_json_bytes": 207,
+      "body_sha256": "95cf2126dfdc30af4005c6e3254e3df2cb98fe193170649766505ab9b980f8fa",
+      "body_iat": 1792922819,
+      "body_exp": 1792923119,
+      "body_history_json_bytes": 207,
+      "body_history_changes": 1,
+      "header_sha256": "b5a0311ad5bf4bd4220b7bf56afe9c433b263136dfb51d261d42ba23537bf3c3",
+      "header_iat": 1792922819,
+      "header_exp": 1792923119,
+      "header_history_json_bytes": 207,
+      "header_history_changes": 1,
+      "jwt_consistent": true,
+      "http": 200,
+      "error": 0
+    }
+  ],
+  "initial_sha256": "730a83841383c00f2815f86554eb99e9692ff0b84d428713946d8346f026d53f",
+  "saved": {
+    "sha256": "3d22cf16daf9a096f73dce7522d3612c4cf4308ab0e1d152f6d8c0634aadf324",
+    "bucket_sha256": "3d22cf16daf9a096f73dce7522d3612c4cf4308ab0e1d152f6d8c0634aadf324",
+    "size": 11191,
+    "session_status": "committed",
+    "version_count": 2,
+    "version_user_id": 2,
+    "marker_present": true
+  },
+  "final_state": [
+    [
+      [
+        1,
+        "synced"
+      ],
+      [
+        2,
+        "edited_online"
+      ]
+    ],
+    [
+      [
+        "committed",
+        2
+      ]
+    ]
+  ],
+  "odoo_sensitive_values_absent": true,
+  "browser": {
+    "edited": true,
+    "editorSessions": 1
+  },
+  "test_body_passed": true
+}

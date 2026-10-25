@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-25T15:07:41.907183+00:00",
+  "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44",
+  "python": "3.14.8",
+  "expected_image": "docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212",
+  "github": {
+    "verified": true,
+    "reason": "Exact account verified"
+  },
+  "real_service_executed": false,
+  "local_tcp": true,
+  "docker_available": true,
+  "docker_exit": 0,
+  "docker_version": {
+    "Client": {
+      "APIVersion": "6.1.4",
+      "Version": "6.1.4",
+      "GoVersion": "go1.27.2-X:nodwarf5",
+      "GitCommit": "464c15fec06f0074c916f9eff87c4806869c2833",
+      "BuiltTime": "Tue Oct 13 14:39:25 2026",
+      "Built": 1791877165,
+      "OsArch": "linux/amd64",
+      "Os": "linux"
+    },
+    "Server": {
+      "APIVersion": "6.1.4",
+      "Version": "6.1.4",
+      "GoVersion": "go1.27.2-X:nodwarf5",
+      "GitCommit": "464c15fec06f0074c916f9eff87c4806869c2833",
+      "BuiltTime": "Tue Oct 13 14:39:25 2026",
+      "Built": 1791877165,
+      "OsArch": "linux/amd64",
+      "Os": "linux"
+    }
+  },
+  "container_socket": "/run/user/1000/podman/podman.sock",
+  "ready": true
+}

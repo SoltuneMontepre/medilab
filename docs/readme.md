@@ -14,5 +14,6 @@ Open the index of the folder that matches what you are looking for; each index l
 - [Functional](functional/index.md): the project, its modules, actors and features, and shared technical features
 - [Specs](specs/readme.md): technical specifications of parts of the system
 - [Security](security/readme.md): roles and their permissions
+- [Integration](integration/readme.md): combined implementation and release verification
 - [Reports](reports/): everything else: documents, diagrams and supporting material
 - [Glossaries](glossaries.md): shared terms in English and Vietnamese

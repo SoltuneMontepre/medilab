@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-25T14:41:40.107859+00:00",
+  "runner_exit": 1,
+  "database": "medilab171verifycoedit",
+  "container": "medilab171-agent4-integration-verification-acceptance-page-coediting2",
+  "evidence_copy_exit": 0,
+  "evidence_files": [],
+  "runner_log_sha256": "63be7cb9e7ce9aa60e27c198d4293457e4fc0c938db39d426fb7a5c6e7244d4e",
+  "real_service_executed": false,
+  "native_odoo_executed": true,
+  "native_test_status": {
+    "TestOnlyofficePageReal.test_docx_login_page_keyboard_save": "BLOCKED",
+    "TestOnlyofficePageReal.test_docx_two_person_save": "BLOCKED",
+    "TestOnlyofficePageReal.test_pptx_two_person_save": "BLOCKED",
+    "TestOnlyofficePageReal.test_xlsx_two_person_save": "FAIL"
+  },
+  "native_summary": [
+    "1 failed, 0 error(s) of 4 tests when loading database 'medilab171verifycoedit'"
+  ],
+  "passed": false,
+  "failed_tests": [],
+  "passed_tests": [],
+  "unknown_outcome_tests": [],
+  "blocked_tests": [],
+  "not_started_tests": [],
+  "whole_runner_timeout_seconds": 720
+}
