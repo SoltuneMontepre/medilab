@@ -47,11 +47,17 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
     @classmethod
     def editing_public_url(cls):
         return PUBLIC_URL
+    bucket_name = CALLBACK_BUCKET
+    extra_log_handlers = ()
+
+    @classmethod
+    def server_environment(cls):
+        return {}
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.enterClassContext(patch.dict(os.environ, {NAME_VARIABLE: CALLBACK_BUCKET}))
+        cls.enterClassContext(patch.dict(os.environ, {NAME_VARIABLE: cls.bucket_name}))
         cls.bucket_owner = cls.env[MODEL_LABORATORY_CONTENT]._database_uuid()
         owner = laboratory_bucket.read_text(MARKER_KEY)
         if owner is not None and owner.strip() != cls.bucket_owner:
@@ -78,6 +84,7 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
             "--log-level=info",
             "--log-handler=odoo.http.server:DEBUG",
             "--log-handler=urllib3.connectionpool:DEBUG",
+            *(f"--log-handler={handler}" for handler in cls.extra_log_handlers),
         ]
         if cls.HTTP_LIMIT_TIME_REAL is not None:
             command.append(f"--limit-time-real={cls.HTTP_LIMIT_TIME_REAL}")
@@ -99,6 +106,7 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
                 INTERNAL_URL_VARIABLE: cls.editing_internal_url(),
                 PUBLIC_URL_VARIABLE: cls.editing_public_url(),
                 ADDRESS_VARIABLE: cls.bucket_proxy.url,
+                **cls.server_environment(),
             },
         )
         cls.addClassCleanup(cls.stop_server)

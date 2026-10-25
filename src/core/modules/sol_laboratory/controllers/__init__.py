@@ -12,6 +12,7 @@ from . import (
     laboratory_api_status,
     laboratory_api_uploads,
     laboratory_editing_callback,
+    laboratory_editor,
     mobile_device,
     portal,
     report,
