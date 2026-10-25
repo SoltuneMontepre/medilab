@@ -1,0 +1,114 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: https://grafana-community.github.io/helm-charts
+    chart: grafana
+    targetRevision: 14.0.1
+    helm:
+      releaseName: grafana
+      # Grafana with Loki as its data source. The administrator comes from Doppler; nobody signs up or browses anonymously.
+      valuesObject:
+        admin:
+          existingSecret: grafana-admin
+          userKey: admin-user
+          passwordKey: admin-password
+        grafana.ini:
+          server:
+            root_url: https://grafana.soltunemontepre.tech
+          users:
+            allow_sign_up: false
+          auth.anonymous:
+            enabled: false
+          analytics:
+            reporting_enabled: false
+            check_for_updates: false
+        testFramework:
+          enabled: false
+        persistence:
+          enabled: true
+          storageClassName: local-path
+          size: 1Gi
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        datasources:
+          datasources.yaml:
+            apiVersion: 1
+            datasources:
+              - name: Loki
+                uid: loki
+                type: loki
+                access: proxy
+                url: http://loki.monitoring.svc.cluster.local:3100
+                isDefault: true
+        dashboardProviders:
+          dashboardproviders.yaml:
+            apiVersion: 1
+            providers:
+              - name: medilab
+                folder: MediLab
+                type: file
+                disableDeletion: true
+                options:
+                  path: /var/lib/grafana/dashboards/medilab
+        dashboardsConfigMaps:
+          medilab: grafana-dashboards
+        extraObjects:
+          - apiVersion: external-secrets.io/v1
+            kind: ExternalSecret
+            metadata:
+              name: grafana-admin
+              annotations:
+                argocd.argoproj.io/sync-wave: "-1"
+            spec:
+              refreshInterval: 1h
+              secretStoreRef:
+                kind: ClusterSecretStore
+                name: doppler
+              target:
+                name: grafana-admin
+              data:
+                - secretKey: admin-user
+                  remoteRef:
+                    key: GRAFANA_ADMIN_USER
+                - secretKey: admin-password
+                  remoteRef:
+                    key: GRAFANA_ADMIN_PASSWORD
+          - apiVersion: traefik.io/v1alpha1
+            kind: IngressRoute
+            metadata:
+              name: grafana
+            spec:
+              entryPoints:
+                - web
+              routes:
+                - kind: Rule
+                  match: Host(`grafana.soltunemontepre.tech`)
+                  services:
+                    - name: grafana
+                      port: 80
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 5m
