@@ -194,6 +194,10 @@ window.editor = new DocsAPI.DocEditor('editor', config);
                 claims = jwt.decode(token, SECRET, algorithms=["HS256"])
                 event[name + "_iat"] = claims.get("iat")
                 event[name + "_exp"] = claims.get("exp")
+                signed_fields = claims.get("payload", claims)
+                history = signed_fields.get("history", {})
+                event[name + "_history_json_bytes"] = len(json.dumps(history).encode())
+                event[name + "_history_changes"] = len(history.get("changes", [])) if isinstance(history, dict) else 0
         try:
             verify_callback(fields, headers.get(JWT_HEADER), SECRET)
             event["jwt_consistent"] = True

@@ -215,7 +215,16 @@ def test():
     )
     if database.stdout.strip():
         raise RuntimeError("The test database already exists; preserve evidence before explicit cleanup.")
-    result = compose("run", "--name", CONTAINER, "--use-aliases", "--no-deps", "runner")
+    limit = int(os.environ.get("ONLYOFFICE_RUN_TIMEOUT", "1200"))
+    try:
+        result = compose("run", "--name", CONTAINER, "--use-aliases", "--no-deps", "runner", timeout=limit)
+    except subprocess.TimeoutExpired as error:
+        require_success(
+            command([*DOCKER, "stop", "--time", "10", CONTAINER], env=DOCKER_ENV), "Stop timed-out test runner"
+        )
+        stdout = error.stdout.decode(errors="replace") if isinstance(error.stdout, bytes) else error.stdout or ""
+        stderr = error.stderr.decode(errors="replace") if isinstance(error.stderr, bytes) else error.stderr or ""
+        result = subprocess.CompletedProcess(error.cmd, 124, stdout, stderr)
     copy = command([*DOCKER, "cp", CONTAINER + ":/tmp/agent4-evidence/.", str(OUTPUT / "callbacks")], env=DOCKER_ENV)
     files = sorted((OUTPUT / "callbacks").glob("test_*.json")) if copy.returncode == 0 else []
     # Do not persist raw Odoo/Document Server logs: inspect them locally under restricted access.
@@ -235,6 +244,7 @@ def test():
     logs = result.stdout + result.stderr
     failed = sorted(set(re.findall(r"(?:FAIL|ERROR): TestOnlyofficeReal\.(test_\w+)", logs)))
     started = sorted(set(re.findall(r"Starting TestOnlyofficeReal\.(test_\w+)", logs)))
+    completed = {path.stem for path in files}
     passed = (
         result.returncode == 0 and len(files) == expected and "0 failed, 0 error(s)" in result.stdout + result.stderr
     )
@@ -249,8 +259,10 @@ def test():
             "real_service_executed": True,
             "passed": passed,
             "failed_tests": failed,
-            "passed_tests": [name for name in started if name not in failed],
+            "passed_tests": [name for name in started if name in completed and name not in failed],
+            "blocked_tests": [name for name in started if name not in completed and name not in failed],
             "not_started_tests": [name for name in expected_names if name not in started],
+            "whole_runner_timeout_seconds": limit,
         },
     )
     if not passed:
