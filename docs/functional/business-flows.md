@@ -95,7 +95,7 @@ flowchart TD
   - WF-02-A3: A sample tested by two departments is handed to both, and each records its own receipt.
   - WF-02-A4: An insufficient sample goes on hold; the head of department asks for more; the collection task brings it back to received.
   - WF-02-A5: A mistake in a signed handover record is corrected with a new record; the old one is kept.
-  - WF-02-A6: Fewer samples wait for another collection or Sales cancels the missing part; the final invoice reflects what was tested.
+  - WF-02-A6: Fewer samples wait for another collection or Sales cancels the missing part.
   - WF-02-A7: Extra samples are held pending a revised quotation and customer agreement before testing.
 - **Exceptions:**
   - WF-02-E1: An unusable sample is rejected with its condition note and gets no testing task.
@@ -373,7 +373,7 @@ flowchart TD
   - SF-01-A5: An invoice unpaid after its due date reminds the customer at each interval.
   - SF-01-A6: A PayOS transaction with no payment is flagged; the accountant creates its payment, the flag clears and the day is locked.
 - **Exceptions:**
-  - SF-01-E1: A new payment amount above what is owed is refused. An already-arrived PayOS transfer is recorded in full, its excess flagged for the accountant, and is not automatically refunded.
+  - SF-01-E1: A payment above the amount still owed is refused.
   - SF-01-E2: A posted invoice cannot be edited.
   - SF-01-E3: An online payment of a locked day cannot be changed.
   - SF-01-E4: A repeated PayOS notification records no second payment.
@@ -382,7 +382,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane19 ["Accountant"]
-        a1["Bill actual agreed testing and deduct the advance"] --> a2[E-mail the invoice]
+        a1["Create the final invoice: total minus the advance"] --> a2[E-mail the invoice]
         a3{Confirm the payment?}
         a4[Reconcile the day's PayOS transactions] --> a5{All matched?}
         a5 -->|yes| a6[Lock the day]
@@ -439,7 +439,7 @@ flowchart TD
     end
     c3 --> s1
     s2 --> c4
-    s3 -->|yes| cancel(["Cancel accepted scope and preserve other work; no automatic refund"])
+    s3 -->|yes| cancel(["Cancel accepted scope and preserve other work; a paid advance is settled outside the system"])
     c2 --> cancel
 ```
 
@@ -456,7 +456,7 @@ flowchart TD
   - SF-03-A3: Before the process is completed, signers withdraw from the top level down and the document can be edited again.
   - SF-03-A4: Correcting a result in an issued report automatically creates or links that report's open change request. Wait for its required approvals and all corrected results to be approved, then prepare a replacement draft and signing task. Notify the customer when its signed PDF is ready; only issue marks the old report replaced.
   - SF-03-A5: A result correction may be proposed while a report awaits signature. Before applying it, stop signing and return the report to draft. Completed results retain their own change requests. A fresh signing task is created after correction approval for both initial and replacement reports; old tasks cannot sign stale content.
-  - SF-03-A6: Quotations and orders use change requests once their process is completed. Posted invoices use adjustment invoices or credit notes instead.
+  - SF-03-A6: Quotations and orders use change requests once their process is completed.
 - **Exceptions:**
   - SF-03-E1: A change request without what to change or why is refused.
   - SF-03-E2: Withdrawing a signature while a higher level still has one, or after the process is completed, is refused.

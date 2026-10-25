@@ -130,7 +130,7 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 
 - From the first signature the document is read-only for everyone, including administrators.
 - **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature once every higher level has withdrawn theirs. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
-- **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. A person allowed to edit that document type raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders. Posted invoices are corrected by adjustment invoices or credit notes instead.
+- **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. A person allowed to edit that document type raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Head of Department for a test result and the Lab Head for a test report.
 - When the chain approves, create an unsigned **new version** linked to the unchanged signed one, and sign the new version again. Results mark the previous version replaced at correction. An issued report remains the issued version until its signed replacement is issued; [linked result and report corrections](laboratory_module/overview.md#reports-and-change-requests) wait for all required result approvals and use a fresh report signing task.
 - Anyone concerned can follow the status of the change request: requested, approved, rejected, applied.
@@ -284,7 +284,7 @@ The system takes online payments through PayOS, added as a payment provider of O
 
 - Used for the advance and final invoices. The customer pays from the portal or from a payment link in an e-mail.
 - Payment methods are whatever PayOS offers (for example bank transfer by QR code); administrators enable or disable them in the settings, and the portal shows only those enabled.
-- A verified signed notification or the provider status returned by a server-side query of pending payments confirms a payment. A browser return never does. Both confirmation paths deduplicate the payment.
+- A payment is confirmed only by the provider's signed notification, never by the customer's browser returning to the website. The signature is verified, and a repeated notification creates no second payment.
 - A confirmed payment is recorded against the invoice and updates its payment status automatically; partial payments are supported.
 - The status of each payment (created, pending, paid, failed, cancelled, expired) is stored and shown to the accountant.
 - If notifications are missed, a scheduled job (SH-09) asks the provider for the status of pending payments.

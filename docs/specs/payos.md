@@ -4,7 +4,7 @@ Stories: US-A06
 
 ## Goal
 
-Customers pay an invoice through PayOS. The provider is Odoo's payment provider, the payment is a payment transaction, and a verified signed PayOS notification or the provider status returned to a server-side pending-payment query confirms it; a browser return never does.
+Customers pay an invoice through PayOS. The provider is Odoo's payment provider, the payment is a payment transaction, and only a signed notification from PayOS confirms it.
 
 ## Design
 

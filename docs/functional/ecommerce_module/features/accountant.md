@@ -40,20 +40,17 @@ The accountant is the laboratory's financial user. The accountant issues and tra
 | Adjustment invoice (hóa đơn điều chỉnh) | Accountant, from a posted invoice                            | Correct a posted invoice with only the difference, raising or lowering the amount        |
 
 - An advance invoice is posted automatically; the accountant does not need to create or post it.
-- The final invoice reflects what was actually tested under the agreed quotation and revisions, deducting the advance already paid. Missing cancelled samples are not billed as performed work; extras are tested and billed only after the agreed revision.
+- The final invoice deducts the advance already paid, so the customer is never billed twice for the same parameters.
 - Invoices are sent by email with the PDF attached, and can be downloaded at any time. Customers see their posted invoices on the portal.
-- If the paid advance exceeds the total payable for performed work, collect nothing further and record the excess for the accountant to refund manually. Correct posted invoices with credit notes as needed and link the refund to the order and original payment; do not automatically refund it or carry it forward as customer credit.
 - Tax follows the tax of each quotation line: the parameter's or package's tax, or the one sales set on the quotation. Prices in the catalog exclude VAT; the invoice shows net, tax and total separately.
-- A posted invoice cannot be edited. The accountant corrects it with an adjustment invoice that holds only the difference, as positive or negative lines. A raising adjustment is posted, emailed and listed on the portal as a separate invoice with its own amount to pay. A lowering credit note reduces the corrected invoice's residual when reconciled. Order and customer debt totals include outstanding raising adjustments; an invoice payment never includes another invoice's residual.
+- A posted invoice cannot be edited. The accountant corrects it with an adjustment invoice that holds only the difference, as positive or negative lines. It is posted, emailed and shown on the portal like any other invoice, and the amount owed on the corrected invoice includes its adjustments.
 
 Acceptance criteria:
 
 - Sending a quotation with an advance request creates one posted advance invoice.
-- For fully performed work, the final invoice equals its agreed total minus the advance. If fewer samples are tested and the missing part is cancelled, bill only the work performed.
+- The final invoice total equals the order total minus the advance.
 - An adjustment invoice of −500,000 VND on a 5,000,000 VND invoice leaves 4,500,000 VND owed, and the original invoice is unchanged.
 - A posted invoice cannot be edited; only an adjustment invoice changes what is owed.
-- An 8,000,000 VND paid advance against 5,000,000 VND of actual total payable leaves 3,000,000 VND to refund manually, with no negative charge to the customer.
-- An original invoice owing 5,000,000 VND and a raising adjustment owing 2,000,000 VND show 7,000,000 VND in total debt, with separate payment actions limited to 5,000,000 VND and 2,000,000 VND.
 - An invoice shows net, tax and total, and can be downloaded as PDF.
 
 ### 2. Payments (US-A06 to US-A13)
@@ -69,14 +66,14 @@ stateDiagram-v2
 
 | Source                                            | How it is recorded                                                                                                                                                                                                                                        |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Online payment | A verified signed PayOS notification or a server-side query of its pending-payment status confirms payment and matches it to the invoice. A browser return never confirms it. Repeated confirmation does not create a second payment. |
+| Online payment                                    | The gateway confirms the payment with a signed notification; the system records it and matches it to the invoice. Returning to the website without that confirmation does not count as payment. A repeated notification does not create a second payment. |
 | Cash or bank transfer, recorded by the accountant | The accountant selects the invoice, amount, date and method.                                                                                                                                                                                              |
 | Cash or bank transfer, recorded by sales          | Sales creates a pending record; it counts only after the accountant confirms it.                                                                                                                                                                          |
 | Bank transfer by QR code                          | Each invoice, on its PDF and in the portal, shows a VietQR code for the laboratory's bank account with the amount and invoice number, from Odoo's Vietnamese localisation. The customer pays by bank transfer; the accountant confirms the payment once it reaches the account. |
 
 Rules:
 
-- **Partial payments.** A payment can be less than the amount due; the invoice is then partially paid and the remaining amount stays open. A new manual payment or PayOS payment request cannot exceed the remaining amount. If a PayOS transfer has already arrived, record the full amount and flag its excess for the accountant; do not refund it automatically.
+- **Partial payments.** A payment can be less than the amount due; the invoice is then partially paid and the remaining amount stays open. A payment cannot exceed the remaining amount.
 - **Payment status.** Every order shows not paid, partially paid or paid, calculated from the confirmed payments on its posted invoices.
 - **Receipts.** A receipt is issued for each confirmed payment and is available to the customer.
 - **Pending amounts.** The accountant sees the pending amount per order so that a payment recorded by sales is not entered a second time.
@@ -88,7 +85,7 @@ Acceptance criteria:
 - A payment recorded by sales does not change the payment status until the accountant confirms it.
 - A rejected payment returns the invoice to its previous status and notifies the salesperson with the reason.
 - A repeated gateway notification for the same payment is ignored.
-- Initiating a payment larger than the remaining amount is refused; an already-arrived PayOS transfer is recorded in full and its excess flagged, without automatic refund.
+- A payment larger than the remaining amount is refused.
 
 #### Reconciliation (US-A13)
 

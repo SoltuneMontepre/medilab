@@ -4,9 +4,9 @@ The business concepts of Laboratory, E-commerce, Inventory and scheduling. Names
 
 ## Model scope
 
-Medilab Sync belongs to the product but is outside this conceptual model. Technical concepts and attribute-level details are omitted: audit entries, notification and email messages, notification preferences, signing certificates, payment methods, portal accounts, roles, document versions and signed PDFs. Portal identities belong to Customer or Person at this level.
+Medilab Sync belongs to the product but is outside this conceptual model. Technical concepts and attribute-level details are omitted: audit entries, notification and email messages, notification preferences, signing certificates, portal accounts, roles, document versions and signed PDFs. Portal identities belong to Customer or Person at this level.
 
-Gateway transactions are part of Payment, tax rates part of Tax, unit categories part of MeasurementUnit, parameter prices part of TestParameter, and subcontract costs part of ParameterMethod. Invoice lines are omitted. Service-package membership and chemical consumption are many-to-many relationships. Regulation limits are a Regulation–TestParameter relationship qualified by SampleType, not a single limit shared by all sample types.
+Unit categories are part of MeasurementUnit, parameter prices part of TestParameter, and subcontract costs part of ParameterMethod. Invoicing and payments are described in the E-commerce specifications. Service-package membership and chemical consumption are many-to-many relationships. Regulation limits are a Regulation–TestParameter relationship qualified by SampleType, not a single limit shared by all sample types.
 
 ## Catalog and laboratory work
 
@@ -90,9 +90,6 @@ erDiagram
     SERVICE_PACKAGE }o--o{ TEST_PARAMETER : contains
     SALE_ORDER ||--o{ QUOTATION : offers
     SALE_ORDER ||--o| TEST_REQUEST : creates
-    SALE_ORDER ||--o{ INVOICE : bills
-    INVOICE }o--o{ TAX : applies
-    INVOICE ||--o{ PAYMENT : receives
     CUSTOMER ||--o{ ORDER_TEMPLATE : reuses
     SALE_ORDER ||--o| FEEDBACK : receives
     CHEMICAL }o--|| MEASUREMENT_UNIT : measured_in
@@ -100,7 +97,7 @@ erDiagram
     INTERNAL_MOVEMENT }o--|| STOCK_LOCATION : goes_to
 ```
 
-An order line contains a parameter or a whole package, with a sample type and quantity. Its selections retain one parameter and its selected or resolved default way per included parameter: one selection for a parameter line and one for every parameter in a package line. Each quotation version keeps those selections; later catalog membership or default changes do not rewrite the accepted version. Sample tests use its retained selections. A package line keeps the package price. Accepted ways change only through a revised quotation and customer agreement. Templates have no price of their own. Payments include gateway payments; posted invoices are corrected by adjustment invoices or credit notes, while completed orders, quotations, results and reports use change requests.
+An order line contains a parameter or a whole package, with a sample type and quantity. Its selections retain one parameter and its selected or resolved default way per included parameter: one selection for a parameter line and one for every parameter in a package line. Each quotation version keeps those selections; later catalog membership or default changes do not rewrite the accepted version. Sample tests use its retained selections. A package line keeps the package price. Accepted ways change only through a revised quotation and customer agreement. Templates have no price of their own. Completed orders, quotations, results and reports use change requests.
 
 ## Related documents
 
