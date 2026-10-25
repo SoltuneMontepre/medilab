@@ -1,6 +1,7 @@
 import logging
 from types import SimpleNamespace
 from unittest.mock import patch
+from urllib.parse import quote
 
 from odoo.tests import TransactionCase, tagged
 
@@ -11,6 +12,19 @@ from odoo.addons.sol_laboratory.services.editing_callback_logging import Editing
 
 @tagged("post_install", "-at_install")
 class TestLaboratoryEditingLogging(TransactionCase):
+    def test_nested_callback_paths_are_redacted_in_access_and_worker_records(self):
+        url = "https://odoo.example" + CALLBACK_PREFIX + "secret-capability"
+        for depth in range(20):
+            for name in ("odoo.http.server", "odoo.tools.misc"):
+                with self.subTest(depth=depth, logger=name):
+                    record = logging.makeLogRecord({"name": name, "msg": "Thread (url:%s)", "args": (url,)})
+                    record.http_request_line = "GET " + url + " HTTP/1.1"
+                    with patch.object(editing_callback_logging, "request", None):
+                        self.assertTrue(EditingCallbackFilter().filter(record))
+                    self.assertNotIn("secret-capability", record.getMessage())
+                    self.assertNotIn("secret-capability", record.http_request_line)
+            url = quote(url, safe="")
+
     def test_debug_access_records_redact_every_expanded_representation(self):
         record = logging.makeLogRecord(
             {

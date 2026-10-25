@@ -15,12 +15,24 @@ _logger = logging.getLogger(CALLBACK_LOGGER)
 NETWORK_LOGGERS = ("urllib3", "requests", "botocore", "boto3", "s3transfer")
 
 
+def references_callback(text):
+    for _index in range(16):
+        if CALLBACK_PREFIX in text:
+            return True
+        decoded = unquote(text)
+        if decoded == text:
+            return False
+        text = decoded
+    # Bound work on hostile input and redact when nested encoding remains ambiguous.
+    return True
+
+
 def _references_callback(record):
     # Watchdogs run outside the request context and put thread URLs in message arguments or exception chains.
     texts = [record.getMessage(), record.exc_text or "", record.stack_info or ""]
     if record.exc_info:
         texts.append(logging.Formatter().formatException(record.exc_info))
-    return any(CALLBACK_PREFIX in unquote(text) for text in texts)
+    return any(references_callback(text) for text in texts)
 
 
 class EditingCallbackFilter(logging.Filter):
@@ -29,7 +41,7 @@ class EditingCallbackFilter(logging.Filter):
         name = record.name or ""
         transport = any(name == prefix or name.startswith(prefix + ".") for prefix in ("odoo.http", *NETWORK_LOGGERS))
         callback = (
-            CALLBACK_PREFIX in unquote(line)
+            references_callback(line)
             or (transport and request and request.httprequest.path.startswith(CALLBACK_PREFIX))
             or _references_callback(record)
         )
