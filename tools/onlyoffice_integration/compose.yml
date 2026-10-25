@@ -106,7 +106,7 @@ services:
       - --init=sol_laboratory
       - --without-demo=all
       - --test-enable
-      - --test-tags=onlyoffice_real
+      - --test-tags=${ONLYOFFICE_REAL_TAGS:-onlyoffice_real}
       - --stop-after-init
       - --max-cron-threads=0
       - --http-port=8069

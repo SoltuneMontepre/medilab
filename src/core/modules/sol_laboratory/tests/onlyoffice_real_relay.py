@@ -73,6 +73,7 @@ class OnlyofficeRealRelay:
         case.addCleanup(self.server.shutdown)
 
     def asset(self, path):
+        path = path.split("?", 1)[0]
         if path == "/editor":
             configuration = json.dumps(self.config).replace("<", "\\u003c")
             page = f"""<!doctype html><html><body style="margin:0"><div id="editor"></div>

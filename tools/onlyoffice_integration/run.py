@@ -15,7 +15,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE = Path(__file__).with_name("compose.yml")
-PROJECT = "medilab171-agent4"
+PROJECT = os.environ.get("ONLYOFFICE_COMPOSE_PROJECT", "medilab171-agent4")
+if not re.fullmatch(r"medilab171-agent4(?:-[a-z0-9-]+)?", PROJECT):
+    raise ValueError("Select an isolated Agent 4 Compose project.")
 CONTAINER = PROJECT + "-acceptance"
 DIGEST = "sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212"
 IMAGE = "docker.io/onlyoffice/documentserver:9.4.0.1@" + DIGEST
@@ -223,6 +225,11 @@ def test():
         for node in ast.walk(ast.parse(source.read_text()))
         if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
     )
+    selected = os.environ.get("ONLYOFFICE_TEST_METHOD")
+    if selected:
+        expected_names = [name for name in expected_names if name == selected]
+        if not expected_names:
+            raise ValueError("The selected real-service test does not exist.")
     expected = len(expected_names)
     logs = result.stdout + result.stderr
     failed = sorted(set(re.findall(r"(?:FAIL|ERROR): TestOnlyofficeReal\.(test_\w+)", logs)))
