@@ -7,7 +7,7 @@ The core flows WF-01 to WF-06 carry a test request from order to report, and WF-
 | Flow  | Name                                    | Actors                                                          |
 | ----- | --------------------------------------- | --------------------------------------------------------------- |
 | WF-01 | Order to approved test request          | Customer, Sales, Accountant, Head of Sales                      |
-| WF-02 | Sample reception and handover           | Customer, Sample delivery staff, Head of department             |
+| WF-02 | Sample reception and handover           | Customer, Sample delivery staff, Head of department, Sales, configured technical reviewers |
 | WF-03 | Testing assignment and scheduling       | Head of department, Tester                                      |
 | WF-04 | Result entry and approval               | Tester, Head of department                                      |
 | WF-05 | Outsourced testing                      | Head of department, Sample delivery staff, Subcontractor        |
@@ -97,6 +97,7 @@ flowchart TD
   - WF-02-A5: A mistake in a signed handover record is corrected with a new record; the old one is kept.
   - WF-02-A6: Fewer samples wait for another collection or Sales cancels the missing part.
   - WF-02-A7: Extra samples are held pending a revised quotation and customer agreement before testing.
+  - WF-02-A8: For requested conformity assessment, staff select a suitable approved preset or prepare explicit criteria. Applying the preset unchanged copies its criteria into the request plan and inherits its approval, with no separate request approval or signature. Assigning actual samples within the approved conditions is not a criterion edit. Authored or changed criteria go to the configured laboratory technical reviewers before affected work starts; Sales obtains customer agreement where required. Requests without comparison need no plan solely to return measurements, subject to mandatory applicable requirements.
 - **Exceptions:**
   - WF-02-E1: An unusable sample is rejected with its condition note and gets no testing task.
   - WF-02-E2: A person outside the department scanning the label is refused.
@@ -179,10 +180,10 @@ flowchart TD
 ## WF-04 Result entry and approval
 
 - **Trigger:** a booked test is run.
-- **Result:** the Head of Department approves the measured result, with assessment only for requested regulation comparisons, and the sample completes when all its tests do.
+- **Result:** the Head of Department approves the measured result, with separate assessments for the requested plan criteria, and the sample completes when all its tests do.
 - **Stories:** US-T05, US-T06, US-T07, US-T08, US-T17, US-T22, US-HD08, US-HD09, US-LH05.
-- **Starts from:** sample tests in testing with their bookings, on samples with and without a regulation.
-- **Main path:** The tester follows the agreed method, records an attempt in its run with the snapshotted unit and LOD/LOQ, assesses any requested comparison, then sends it to the Head of Department for approval.
+- **Starts from:** sample tests in testing with their bookings, with an approved request plan when comparison is requested.
+- **Main path:** The tester follows the agreed method and records an attempt in its run with the snapshotted unit and LOD/LOQ. They assess applicable approved criteria using suitable result evidence and send the measurement to the Head of Department for approval. Assessments requiring further sampling units wait for that evidence without blocking measurement approval; every requested assessment needs a recorded outcome before report preparation.
 - **Alternative paths:**
   - WF-04-A1: The tester confirms text for a value below LOD/LOQ; the report prints the snapshot threshold and unit and keeps a raw number if available, never zero as a substitute.
   - WF-04-A2: The head rejects the result with a reason; the tester retests, the rejected result stays on record and the new one is approved.
@@ -190,11 +191,11 @@ flowchart TD
   - WF-04-A4: An unusual result warns before sending; the tester sends it anyway and the head sees the warning.
   - WF-04-A5: The head cancels a test that cannot be done, with a reason; the sample completes with its other tests approved.
   - WF-04-A6: The Head of Department may enter and approve their own result; the Lab Head reviews it when signing the report before issue.
-  - WF-04-A7: Without requested QCVN comparison, return measurements with no pass/fail conclusion. For requested scope, any assessed failure fails that scope; all required comparisons must pass to conclude pass; otherwise record insufficient basis.
-  - WF-04-A8: Changing a sample's regulation refreshes applicable limits only after confirmation and clears old comparison conversions and conclusions; signed results first require withdrawal where permitted, or change requests and new versions. Raw measurement, way and LOD/LOQ snapshots stay, and retesting requires professional assessment.
+  - WF-04-A7: Without requested comparison, return measurements with no pass/fail conclusion, subject to mandatory applicable requirements. For each identified assessment scope, any assessed failure fails that scope; all required assessments must pass to conclude pass; otherwise record insufficient basis. Keep independent scopes separate and never infer complete lot conformity from one tested portion.
+  - WF-04-A8: A plan amendment records a reason and agreement where required. Unchanged reuse of a complete approved preset inherits its approval; authored or changed criteria need laboratory technical approval. Confirm affected requirement snapshots and clear obsolete comparison conversions and conclusions; signed results first require withdrawal where permitted, or change requests and new versions. Raw measurement, way and LOD/LOQ snapshots stay, and retesting requires professional assessment.
 - **Exceptions:**
   - WF-04-E1: An entrant other than the Head of Department cannot approve their own result.
-  - WF-04-E2: A missing applicable limit or unresolved text assessment cannot be treated as a pass. Requested comparisons explicitly state insufficient basis when appropriate.
+  - WF-04-E2: A missing applicable limit, incomplete sampling-unit group or unresolved assessment cannot be treated as a pass. Record insufficient basis with its reason when evidence cannot support a conclusion.
   - WF-04-E3: Cancelling a test without a reason, or a test with an approved result, is refused.
 - **Paths in other flows:** SF-03 for changing a result whose process is completed.
 - **States:** sample test testing → result entered → approved, or → testing when rejected; sample testing → awaiting approval → completed.
@@ -203,8 +204,8 @@ flowchart TD
 flowchart TD
     subgraph lane10 ["Tester"]
         t1[Follow the method and measure an attempt] --> t2[Record value with snapshot unit and LOD/LOQ]
-        t2 --> q{Regulation comparison requested?}
-        q -->|yes| t3[Assess exact type limit: pass, fail or insufficient basis]
+        t2 --> q{Comparison requested?}
+        q -->|yes| t3[Record criterion assessment or await required evidence]
         q -->|no| t4[Check measurement and any sanity warning]
         t3 --> t4 --> t5[Send and sign]
         t6[Retest in a new attempt and run]
@@ -215,7 +216,7 @@ flowchart TD
     t5 --> h1
     h1 -->|reject with reason| t6 --> t2
     h1 -->|approve| done([Reported result approved])
-    done --> wf06([WF-06 when all required results are approved])
+    done --> wf06([WF-06 prepares the PDF after required assessments have outcomes])
 ```
 
 ## WF-05 Outsourced testing
@@ -267,7 +268,7 @@ flowchart TD
 - **Result:** the signed report is issued, delivered to the customer and downloadable on the portal.
 - **Stories:** US-LH01, US-LH02, US-SD14, US-C07, US-C18, US-C19.
 - **Starts from:** test requests whose sample tests are all approved or cancelled, with their draft reports.
-- **Main path:** MediLab fills the draft from an available template version and approved business data. Authorized editors prepare the layout and explanatory text in ONLYOFFICE, finish saving and prepare the PDF. The Lab Head reviews that PDF, its approved results and any requested regulation basis, signs the report, and releases its numbered signed PDF. Staff record delivery and the customer is notified once the PDF is ready.
+- **Main path:** MediLab fills the draft from an available template version and approved business data. For requested comparison, the plan has inherited approval from unchanged preset reuse or direct technical approval, and each assessment has a recorded, reviewable outcome. Authorized editors prepare the layout and explanatory text in ONLYOFFICE, finish saving and prepare the PDF. The Lab Head reviews that PDF, its approved results, criterion bases, evidence and scoped conclusions, signs the report, and releases its numbered signed PDF. Staff record delivery and the customer is notified once the PDF is ready.
 - **Alternative paths:**
   - WF-06-A1: The report is delivered in person or by post; recording it sends no e-mail.
   - WF-06-A2: The request asks for an English, a Vietnamese or a bilingual report.
@@ -277,11 +278,13 @@ flowchart TD
   - WF-06-A6: A regulation expires during testing: testing continues, but before issue the Lab Head confirms the comparison basis. Sales obtains customer agreement for a changed scope; no regulation is switched or dropped automatically.
   - WF-06-A7: A corrected result returns an initial or replacement report to draft; once corrected results are approved, a fresh signing task is created even if the request is already reported.
   - WF-06-A8: Editing an unsigned draft or choosing a different available template invalidates its prepared PDF and requires fresh review. A draft with signatures must first follow the permitted withdrawal order.
+  - WF-06-A9: Several QCVNs or other specifications contribute separate criteria. The report identifies their editions, clauses, requirements, decision rules, evidence scopes and outcomes; an insufficient-basis outcome prints its reason and limitation.
 - **Exceptions:**
   - WF-06-E1: With Viettel Sign unavailable the report is not marked signed, and signing is retried.
   - WF-06-E2: Rejecting a report without a reason or without naming a result is refused.
   - WF-06-E3: An unissued report cannot be delivered, and a customer downloads only their own reports.
   - WF-06-E4: A pending or failed save, editing conflict, business-data mismatch or conversion outage blocks preparing a new PDF. An ONLYOFFICE outage does not block delivery of an already issued PDF.
+  - WF-06-E5: An unapproved plan, pending assessment or stale evidence blocks PDF preparation and signing. A plan amendment or changed assessment invalidates the affected candidate without changing an issued file.
 - **Paths in other flows:** SF-03 for a change request on an issued report; SF-04 for the samples after the report.
 - **States:** test report draft → signing → issued; test request completed → reported; order completed.
 
@@ -291,7 +294,7 @@ flowchart TD
         p1[Edit the DOCX draft in ONLYOFFICE] --> p2[Finish saves, validate data and prepare the PDF]
     end
     subgraph lane15 ["Lab head"]
-        l1[Review the PDF, approved results and any expired regulation basis] --> l2{Sign the report?}
+        l1[Review the PDF, approved plan, assessments and validity] --> l2{Sign the report?}
     end
     subgraph lane16 ["Head of department"]
         h1[Results sent back wait in the queue unassigned]
@@ -646,7 +649,7 @@ flowchart TD
 - **Result:** everything an order needs exists: the catalog with its ways of testing, prices and taxes, people and roles, approval chains and settings.
 - **Stories:** US-AD01, US-AD02, US-AD03, US-AD04, US-AD05, US-AD06, US-AD07, US-AD09, US-AD10, US-AD11, US-AD13, US-AD14, US-AD15, US-AD16, US-AD17, US-AD18, US-AD19, US-AD20, US-AD26, US-AD27, US-LH04, SH-03.
 - **Starts from:** an empty laboratory with the modules installed.
-- **Main path:** The administrator configures parameters, ways, explicit sample-type applicability, sampling requirements and prices. The Lab Head authorizes testers per parameter without validity dates. Regulation comparison limits are optional; the measurement-to-report flow works without them.
+- **Main path:** The administrator configures parameters, ways, explicit sample-type applicability, sampling requirements and prices. The Lab Head authorizes testers per parameter without validity dates. For conformity services, configure regulatory limits, comparison presets and the laboratory technical approval chain. The measurement-to-report flow works without requested comparison, subject to applicable mandatory requirements.
 - **Alternative paths:**
   - SF-08-A1: The administrator creates a service package; the customer orders it whole at its own price.
   - SF-08-A2: The administrator gives a person a role; the person sees the menus of that role and no others.
@@ -664,7 +667,7 @@ flowchart TD
         a2 --> a3[Ways and explicit type applicability: unit, LOD, LOQ and default]
         a3 --> a4[Sampling requirements and required resources]
         a2 --> a5[Prices, taxes and service packages]
-        a3 -.-> optional[Optional regulations and limits per parameter and sample type]
+        a3 -.-> optional[Comparison services: regulations, exact type limits and approved presets]
         a6[People, roles and approval chains]
         a9[Settings: deadlines, travel buffer and warning windows]
     end

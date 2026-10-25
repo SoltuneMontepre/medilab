@@ -31,9 +31,15 @@ erDiagram
     CUSTOMER ||--o{ TEST_REQUEST : requests
     TEST_REQUEST ||--|{ SAMPLE : includes
     TEST_REQUEST ||--o{ SAMPLE_COLLECTION : receives_through
+    TEST_REQUEST ||--o| COMPARISON_PLAN : optionally_assesses_under
+    COMPARISON_PRESET }o--o{ COMPARISON_PLAN : seeds
+    COMPARISON_PLAN ||--|{ COMPARISON_CRITERION : specifies
+    COMPARISON_CRITERION }o--o| REGULATION : cites_when_regulatory
+    COMPARISON_CRITERION }o--|{ SAMPLE : identifies_evidence_scope
+    COMPARISON_CRITERION ||--o{ CONFORMITY_ASSESSMENT : assessed_by
+    CONFORMITY_ASSESSMENT }o--o{ TEST_RESULT : uses_evidence
     SAMPLE_COLLECTION }o--o{ SAMPLE : records_actual_handover
     SAMPLE }o--|| SAMPLE_TYPE : has_type
-    SAMPLE }o--o| REGULATION : optionally_compares_against
     SAMPLE ||--|{ SAMPLE_TEST : carries
     SAMPLE_TEST }o--|| PARAMETER_METHOD : uses_from_creation
     SAMPLE_TEST ||--o{ TEST_RESULT : has_attempts
@@ -46,9 +52,10 @@ erDiagram
 | Way and sample type | A way has one parameter, method and performing party. Explicit applicability gives the unit, optional LOD/LOQ and display precision for one sample type. Each offered parameter and sample type has one default. Technical applicability does not inherit. |
 | Sampling | A method's sample-type requirement gives amount, container and preservation. Compatible container and preservation groups share a physical sample and their amounts add. Expected objects per type are the largest line quantity; objects times groups gives expected samples. Collection records the actual handover and customer confirmation. |
 | Accreditation | A sample test is accredited only when its in-house way's method, parameter and sample type or ancestor match a valid certificate scope line. A method outside accreditation can still be used. |
-| Regulation | Comparison is optional. Scope includes descendants; limits are explicit per regulation, parameter and sample type and never inherited. The selected method, such as a TCVN, determines how to test; a QCVN determines requested comparisons. |
-| Attempt | Each attempt keeps its unit and LOD/LOQ snapshot and any exact sample-type regulation limit snapshot. It belongs to exactly one run or subcontract dispatch. |
-| Report preparation | A report uses one template version and approved business data to create its internal draft. Approval binds the saved draft, result versions and prepared PDF; issued files stay unchanged. Template versions and working files are omitted at this conceptual level. |
+| Comparison plan | A request optionally has a plan whose approval is inherited from an unchanged approved preset or granted through technical review of authored or changed criteria. Unchanged reuse needs no separate request approval. Its criteria can cite several QCVNs, standards or specifications and identify one sample or a sampling-unit group. Plan versions are omitted at this level; earlier versions and their approval bases remain in history. See [Conformity assessments](../specs/conformity-assessments.md). |
+| Regulation | Regulatory scope includes descendants; simple limits are explicit per regulation, parameter and sample type and never inherited. The selected method, such as a TCVN, determines how to test; the approved plan determines requested assessments. Optional conformity reporting never overrides applicable mandatory requirements. |
+| Attempt and assessment | Each attempt keeps its original measurement, unit and LOD/LOQ snapshot and belongs to exactly one run or subcontract dispatch. Each assessment separately binds its criterion's requirement snapshot to the exact result versions used, retaining comparison values, reasoning and outcome. Several criteria can use one measurement; a criterion can need several results. |
+| Report preparation | A report uses one template version and approved business data to create its internal draft. Approval binds the saved draft, approved comparison plan, assessments, result versions and prepared PDF; issued files stay unchanged. Template versions and working files are omitted at this conceptual level. |
 
 ## Runs and people
 

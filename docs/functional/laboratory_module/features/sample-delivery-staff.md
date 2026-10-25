@@ -14,7 +14,7 @@ Sample delivery staff (nhân viên giao nhận mẫu) collect samples at the cus
 
 ### Receiving samples
 
-- **US-SD06** As sample delivery staff, I want to create a test request for a customer with its samples, parameters, expected date and report delivery, so that the laboratory can take work that does not come through an order.
+- **US-SD06** As sample delivery staff, I want to create a test request for a customer with its samples, parameters, requested comparison requirements, expected date and report delivery, so that the laboratory can take work that does not come through an order.
 - **US-SD07** As sample delivery staff, I want to see the samples expected for each test request, so that I know what should arrive.
 - **US-SD08** As sample delivery staff, I want to print a label for each sample with its lab code, test request, results due date and a QR code, so that the sample can be identified and scanned without showing the customer.
 - **US-SD09** As sample delivery staff, I want to record a sample's receipt with the amount, its condition and where it is stored, so that its state on arrival is on record.
@@ -64,8 +64,9 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Test request | Without an order, create a request with customer, samples and their types, optional regulation comparison, each sample's parameters and selected ways, expected date, report language, delivery method and recipient. |
+| Test request | Without an order, create a request with customer, samples and their types, any requested comparison scope, each sample's parameters and selected ways, expected date, report language, delivery method and recipient. |
 | Identification QR | Use only the sample's QR for identification and handover; test requests and handover documents have no separate identification QR. |
+| Comparison plan | When comparison is requested, select an approved preset matching the request's scope and name the samples or sampling-unit group assessed. Using the preset unchanged copies its criteria and inherits its approval; no separate request approval is needed. Binding actual samples within its conditions is not a criterion edit. Authored or changed criteria require laboratory technical approval before affected work starts. Multiple QCVNs are supported within the plan. Sales obtains customer agreement where required. See [Conformity assessments](../../../specs/conformity-assessments.md). |
 | Return estimate | The test request shows the estimated return date of its samples and parameters, and an earlier expected date is checked as a [priority request](../overview.md#testing-work-and-scheduling) before it is accepted. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
 | Receipt       | Receipt records when and by whom the sample was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
@@ -75,6 +76,9 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 Acceptance criteria:
 
 - A test request created by sample delivery staff skips the paid step.
+- Staff can use a complete approved preset containing several applicable documents without choosing one exclusive regulation for each sample or requesting another approval. The plan retains its source version and approval reference.
+- Changing or authoring criteria makes the plan a draft requiring the configured laboratory technical approval; assigning sample codes within unchanged requirements does not.
+- A request without requested comparison can proceed through testing and reporting without a comparison plan, subject to applicable mandatory requirements.
 - A sample's label shows its lab code, test request code, results due date and QR code, but not the customer or the customer's name for the sample.
 - Recording a sample's receipt sets it to received and creates its testing tasks in each department's queue.
 - A rejected sample keeps its condition note and gets no testing tasks.

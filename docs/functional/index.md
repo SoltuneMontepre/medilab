@@ -8,7 +8,7 @@ Each installation serves one laboratory company; there is no multi-company setup
 
 ## Scope
 
-The main laboratory flow is testing by the selected method, including TCVN methods, and returning measured results in a signed report. Comparison with QCVN regulations is optional.
+The main laboratory flow is testing by the selected method, including TCVN methods, and returning measured results in a signed report. Requested conformity assessments use a request plan that may combine several QCVNs, standards or specifications, with conclusions limited to the identified evidence scope. Reusing an approved preset unchanged needs no separate request approval; authored or changed criteria need technical approval. Optional conformity reporting never overrides applicable mandatory requirements. See [Conformity assessments](../specs/conformity-assessments.md).
 
 Customer complaint and nonconforming-work management, QC blanks and control samples, reference-material and proficiency-test tracking, measurement uncertainty, and recording room temperature or humidity are outside the current scope. Room availability and booking remain in scope. Medilab Mobile is deferred; the current collection and testing workflows use the web interface. Medilab Sync remains in scope.
 

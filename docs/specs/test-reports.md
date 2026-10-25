@@ -34,12 +34,14 @@ Once every sample test of the request is approved or cancelled, generate the rep
 
 - the request and report version;
 - the exact template version and language;
-- the approved result versions, customer and sample data, and requested regulation comparison data used;
+- the approved result versions, customer and sample data, comparison plan version and its inherited or direct approval basis, criterion snapshots and assessment records used;
 - every saved DOCX version and its editor and time.
 
 The functional report content rules determine which data is printed. Each sample's block binds its type, received amount and condition, recorded analysis start and end dates, and report-relevant request or sample notes when provided. Use the recorded dates for that sample, rather than replacing them with the report's receipt or issue date. Keep these printed values in the report's source snapshot. Template editing does not add new business fields or change which comparisons were requested.
 
-Editors may change layout and explanatory text. Generated customer and sample details, measurements, units, comparison limits, conclusions and approvers are bound to business data. Protect their bindings in the editor and validate their presence and values on the server before PDF preparation. A removed binding, altered value or stale source version blocks preparation; hiding the editor's controls is insufficient. Correct business data through its normal workflow, including change requests where required, then regenerate the draft and review it again.
+Editors may change layout and explanatory text. Generated customer and sample details, measurements, units, criterion requirements, comparison bases, decision rules, evidence scopes, assessment outcomes and approvers are bound to business data. Protect their bindings in the editor and validate their presence and values on the server before PDF preparation. A removed binding, altered value or stale source version blocks preparation; hiding the editor's controls is insufficient. Correct business data through its normal workflow, including change requests where required, then regenerate the draft and review it again.
+
+Requested comparisons follow [Conformity assessments](conformity-assessments.md). Print each criterion's document, edition and applicable clause with its requirement, decision rule, evidence scope and outcome. One report can reference several QCVNs; shared measurements can be cross-referenced without pretending they were measured again. Do not turn an assessment of a tested portion into an unqualified lot or facility conformity statement. An explicit insufficient-basis outcome states its reason and limitation.
 
 Use controlled working files for drafts, with immutable saved versions and the editing-session rules of [Laboratory files](laboratory-files.md#online-editing). Do not enable editing in raw-data or issued-report folders. Draft versions follow report locks and permissions even if a person may otherwise edit the working folder. This workflow creates its own working draft and issued PDF; it does not require general-purpose sample working and report folders.
 
@@ -49,12 +51,12 @@ Preparing a PDF freezes one candidate for approval:
 
 1. Stop new editing joins and finish the active editor sessions. Wait for MediLab to store the final save; closing a browser or an editor save notification alone is not confirmation.
 2. Refuse preparation while a save is pending or failed or a conflict remains unresolved. A late callback cannot change the selected immutable DOCX version or the candidate PDF.
-3. Validate the chosen template, required content and business-data versions. Check result versions and preserve the exact snapshot used, including customer details that actually print.
+3. Validate the chosen template, required content and business-data versions. For requested comparisons, accept the plan's inherited approval from an unchanged approved preset without requiring a request signature. Authored or changed criteria require direct technical approval. Require recorded outcomes for every assessment; pending assessments or criterion changes awaiting approval block preparation. Check criterion and result versions and preserve the exact snapshot used, including customer details that actually print.
 4. Resolve all printed issue metadata, including the report number and visible signer information, and store it in the final DOCX source version before conversion. Reserve the number for this report version before review; reservation does not issue the report. An abandoned reservation remains in history and is not assigned to another report.
 5. Convert that saved DOCX to PDF and store the candidate with its hash and the identifiers of its DOCX, template and data versions. Required generated metadata must be part of this candidate, rather than added by re-rendering after approval.
 6. Present that candidate for review. Its draft status is clear in the interface; a marked draft print is a separate preview copy, never the source used for digital signing.
 
-Signing checks that the reviewed candidate is still current and all required source approvals still stand. Changed source data invalidates the affected candidate. The deliberate signing action records its identity and content hash with the approval. An obsolete signing task or preview cannot approve another candidate. If a printed signer or issue detail changes, invalidate the candidate and review its replacement before signing.
+Signing checks that the reviewed candidate is still current and all required source approvals still stand, including the comparison plan and assessment evidence. Changed source data, including a plan amendment or changed assessment, invalidates the affected candidate. The deliberate signing action records its identity and content hash with the approval. An obsolete signing task or preview cannot approve another candidate. If a printed signer or issue detail changes, invalidate the candidate and review its replacement before signing.
 
 ### Changes, locks and issuance
 
@@ -72,6 +74,8 @@ An unavailable editor, failed save or failed conversion blocks preparation of a 
 
 - An administrator edits and previews a template in ONLYOFFICE and makes a valid saved version available; a missing required binding prevents availability.
 - Generating a report uses an available template in the request's language and the approved result versions, excluding cancelled tests.
+- A report can show criteria from several QCVNs with their own scopes, rules and outcomes. Inherited approval from unchanged preset reuse satisfies the plan approval requirement without a request signature. Authored or changed criteria awaiting approval, or a pending assessment, prevent PDF preparation and signing; an explicit insufficient-basis outcome can be printed with its limitation.
+- Changing a plan or assessment makes an affected prepared PDF stale; an issued version keeps its original plan, evidence and files and requires the replacement-report workflow for correction.
 - Two authorized editors can comment and co-edit the draft; history identifies the saved versions and editors.
 - Editing or removing a generated business value cannot produce a candidate ready for signature. Correcting it through business records requires regeneration and fresh review.
 - A pending, failed or conflicted save prevents PDF preparation. A late callback never changes a frozen candidate, and an old task cannot sign a new one.
@@ -90,4 +94,5 @@ An unavailable editor, failed save or failed conversion blocks preparation of a 
 - [Approval and signing chain](../business/approval-and-signing-chain.md)
 - [Laboratory files](laboratory-files.md)
 - [Digital signing](digital-signing.md)
+- [Conformity assessments](conformity-assessments.md)
 - [Shared technical implementations](../functional/shared.md)
