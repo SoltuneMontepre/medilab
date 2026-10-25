@@ -374,8 +374,34 @@ async fn uploads_and_downloads_run_together() {
     queue_upload(&db, folder, "u2", 10);
     queue_download(&db, folder, "d1", 10, 1);
     queue_download(&db, folder, "d2", 10, 1);
-    let tracker = run_fake(&db, limits(2, 2), Duration::ZERO, Duration::from_millis(80)).await;
+    let tracker = Arc::new(Tracker::default());
+    let ready = Arc::new(tokio::sync::Barrier::new(4));
+    let (runner_db, runner_tracker) = (db.clone(), tracker.clone());
+    let mut dispatcher = Dispatcher::new(db.clone(), limits(2, 2), move |job: JobRow| {
+        let (db, tracker, ready) = (runner_db.clone(), runner_tracker.clone(), ready.clone());
+        async move {
+            if job.relative_path == "u2" {
+                tokio::time::sleep(Duration::from_millis(120)).await;
+            }
+            tracker.start(&job);
+            tokio::time::timeout(Duration::from_secs(10), ready.wait())
+                .await
+                .expect("all four transfers must start before any finishes");
+            tracker.end(&job);
+            db.transition_running_job(job.id, "completed", None, 0, None, None, None)
+                .unwrap();
+        }
+    });
+    tokio::time::timeout(Duration::from_secs(15), dispatcher.run_until_idle())
+        .await
+        .expect("the concurrent transfers must complete")
+        .unwrap();
     assert_eq!(tracker.max.load(Ordering::SeqCst), 4);
+    assert!(db
+        .list_jobs()
+        .unwrap()
+        .iter()
+        .all(|job| job.status == "completed"));
 }
 
 /// 6 upload lớn xếp trước, rồi 1 download và 2 upload nhỏ: với giới hạn mặc định, download và
