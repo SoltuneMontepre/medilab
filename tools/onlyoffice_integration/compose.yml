@@ -76,6 +76,7 @@ services:
       - agent4-documentserver-data:/var/www/onlyoffice/Data
 
   browser:
+    image: localhost/medilab171-agent4-browser:local
     build:
       context: ../..
       dockerfile: tools/onlyoffice_integration/browser.Dockerfile
@@ -112,6 +113,7 @@ services:
     volumes:
       - ../../src/core/modules:/mnt/extra-addons:ro
       - ../../src/core/config:/etc/odoo:ro
+      - .:/opt/onlyoffice-integration:ro
       - agent4-odoo:/var/lib/odoo
 
 secrets:

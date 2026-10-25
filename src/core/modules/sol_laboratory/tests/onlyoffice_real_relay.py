@@ -148,7 +148,15 @@ window.editor = new DocsAPI.DocEditor('editor', config);
         headers = requests.structures.CaseInsensitiveDict(headers)
         fields = json.loads(body)
         final = fields.get("status") == 2
-        event = {"at": time.time(), "status": fields.get("status"), "bytes": len(body)}
+        event = {
+            "at": time.time(),
+            "status": fields.get("status"),
+            "bytes": len(body),
+            "header_bytes": len(headers.get(JWT_HEADER, "").encode()),
+            "body_token_bytes": len(fields.get("token", "").encode()),
+            "users_count": len(fields.get("users", [])),
+            "history_json_bytes": len(json.dumps(fields.get("history", {})).encode()),
+        }
         tokens = {"body": fields.get("token"), "header": headers.get(JWT_HEADER, "").removeprefix("Bearer ")}
         for name, token in tokens.items():
             if token:

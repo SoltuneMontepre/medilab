@@ -2,8 +2,10 @@
 
 import logging
 import os
+import secrets
 import time
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 from urllib.parse import quote
 
@@ -151,13 +153,44 @@ class TestContract(unittest.TestCase):
         LOGGING.EditingCallbackFilter().filter(record)
         self.assertIsNone(record.exc_info)
 
-    @unittest.expectedFailure
     def test_double_encoded_callback_reference_is_redacted(self):
-        reference = "https://odoo.example/medilab/laboratory-files/callback/private-capability"
+        capability = secrets.token_urlsafe(32)
+        reference = "https://odoo.example/medilab/laboratory-files/callback/" + capability
         encoded = quote(quote(reference, safe=""), safe="")
         record = logging.LogRecord("upstream.watchdog", logging.ERROR, __file__, 1, "failure %s", (encoded,), None)
         LOGGING.EditingCallbackFilter().filter(record)
-        self.assertNotIn("private-capability", record.getMessage())
+        self.assertTrue(capability not in record.getMessage(), "Callback diagnostic retained a capability")
+
+    def test_raw_encoded_and_malformed_urls_do_not_print_capabilities(self):
+        capability = secrets.token_urlsafe(32)
+        reference = "https://odoo.example/medilab/laboratory-files/callback/" + capability
+        variants = (
+            reference,
+            quote(reference, safe=""),
+            quote(quote(reference, safe=""), safe=""),
+            reference + "%ZZ%2",
+            quote(reference, safe="").replace("%2F", "%2f") + "%FF%",
+        )
+        for index, value in enumerate(variants):
+            with self.subTest(variant=index):
+                record = logging.LogRecord("watchdog", logging.ERROR, __file__, 1, "%s", (value,), None)
+                record.http_request_line = value
+                LOGGING.EditingCallbackFilter().filter(record)
+                self.assertTrue(
+                    capability not in logging.Formatter().format(record), "Diagnostic retained a capability"
+                )
+                self.assertTrue(capability not in record.http_request_line, "Request line retained a capability")
+
+    def test_trusted_incident_correlation_is_preserved(self):
+        evidence = {"session_id": 7, "validated_save": True, "correlation": "agent4-correlation-7"}
+        request = SimpleNamespace(httprequest=SimpleNamespace(environ={"medilab.editing_callback": evidence}))
+        with patch.object(LOGGING, "request", request), self.assertLogs(LOGGING._logger.name, level="INFO") as messages:
+            LOGGING.record_staged_document(7, "test-object", "a" * 64, 19)
+        self.assertEqual(len(messages.records), 1)
+        record = messages.records[0]
+        LOGGING.EditingCallbackFilter().filter(record)
+        self.assertIn("correlation_id=agent4-correlation-7", record.getMessage())
+        self.assertIn("session_id=7", record.getMessage())
 
     def test_unrelated_diagnostics_preserved(self):
         record = logging.LogRecord("cleanup", logging.WARNING, __file__, 1, "cleanup object %s", ("object-7",), None)

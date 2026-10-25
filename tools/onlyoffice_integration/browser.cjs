@@ -8,6 +8,14 @@ http.createServer(async (request, response) => {
     response.writeHead(404); return response.end("{}");
   }
   let browser;
+  let page;
+  let stage = "input";
+  const failures = [];
+  const pluginRequests = [];
+  const redact = value => String(value)
+    .replace(/https?:\/\/[^\s"'<>]+/g, "[url]")
+    .replace(/eyJ[A-Za-z0-9_.-]+/g, "[jwt]")
+    .replace(/\/medilab\/laboratory-files\/callback\/[^\s"'<>]+/g, "[callback]");
   try {
     let raw = "";
     for await (const part of request) {
@@ -18,20 +26,39 @@ http.createServer(async (request, response) => {
     if (target.hostname !== "runner" || target.protocol !== "http:" || target.pathname !== "/editor") {
       throw new Error("Unexpected test origin");
     }
+    stage = "launch";
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext();
-    const page = await context.newPage();
+    page = await context.newPage();
+    page.on("pageerror", error => failures.push(redact(error.message)));
+    page.on("requestfailed", request => failures.push(redact(request.failure()?.errorText || "request failed")));
+    page.on("request", request => {
+      const path = new URL(request.url()).pathname;
+      if (path.startsWith("/plugin/")) pluginRequests.push(path);
+    });
+    stage = "navigate";
     await page.goto(target.href);
-    await page.waitForFunction(async () => {
-      const state = await fetch("/state").then(result => result.json());
-      return state.edited && window.sawDirty && !window.dirty;
+    stage = "editor-save";
+    await page.evaluate(() => {
+      window.relayEdited = false;
+      window.relayPoll = setInterval(() => {
+        fetch("/state").then(result => result.json()).then(state => {
+          window.relayEdited = state.edited;
+        }).catch(() => {});
+      }, 100);
+    });
+    await page.waitForFunction(() => {
+      return window.relayEdited && window.sawDirty && !window.dirty;
     }, null, { timeout: 120000 });
     await page.evaluate(() => window.editor.destroyEditor());
     await context.close();
     response.end(JSON.stringify({ edited: true }));
-  } catch {
+  } catch (error) {
+    let state = {};
+    if (page) state = await page.evaluate(() => ({ dirty: window.dirty, sawDirty: window.sawDirty })).catch(() => ({}));
     response.writeHead(500);
-    response.end(JSON.stringify({ edited: false }));
+    response.end(JSON.stringify({ edited: false, stage, error: redact(error.message),
+      failures: failures.slice(-20), pluginRequests, state }));
   } finally {
     if (browser) await browser.close();
   }

@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import socket
 import subprocess
 import sys
@@ -18,7 +19,10 @@ PROJECT = "medilab171-agent4"
 CONTAINER = PROJECT + "-acceptance"
 DIGEST = "sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212"
 IMAGE = "docker.io/onlyoffice/documentserver:9.4.0.1@" + DIGEST
-OUTPUT = ROOT / ".local/onlyoffice-agent4"
+RUN_ID = os.environ.get("ONLYOFFICE_RUN_ID", "current")
+if not re.fullmatch(r"[a-zA-Z0-9_-]+", RUN_ID):
+    raise ValueError("ONLYOFFICE_RUN_ID must be a simple local directory name.")
+OUTPUT = ROOT / ".local/onlyoffice-agent4" / RUN_ID
 DOCKER_ENV = {
     key: value
     for key, value in os.environ.items()
@@ -31,7 +35,11 @@ DOCKER_ENV = {
         "DOCKER_CERT_PATH",
     )
 }
-DOCKER = ["docker", "--host=unix:///var/run/docker.sock"]
+SOCKET = os.environ.get("ONLYOFFICE_CONTAINER_SOCKET", "/var/run/docker.sock")
+if not SOCKET.startswith("/"):
+    raise ValueError("ONLYOFFICE_CONTAINER_SOCKET must be an absolute local Unix socket path.")
+DOCKER_ENV["DOCKER_HOST"] = "unix://" + SOCKET
+DOCKER = ["docker", "--host=unix://" + SOCKET]
 
 
 def command(args, **options):
@@ -92,12 +100,13 @@ def preflight():
     except OSError as error:
         result["local_tcp"] = False
         result["socket_error"] = {"type": type(error).__name__, "errno": error.errno}
-    runtime = command([*DOCKER, "info", "--format", "{{json .ServerVersion}}"], env=DOCKER_ENV)
+    runtime = command([*DOCKER, "version", "--format", "json"], env=DOCKER_ENV)
     result["docker_available"] = runtime.returncode == 0
     # Runtime errors may contain credential-bearing URLs; record only the exit status.
     result["docker_exit"] = runtime.returncode
     if runtime.returncode == 0:
-        result["docker_version"] = runtime.stdout.strip()
+        result["docker_version"] = json.loads(runtime.stdout)
+    result["container_socket"] = SOCKET
     result["ready"] = all((result["github"]["verified"], result["local_tcp"], result["docker_available"]))
     write_result("preflight.json", result)
     return result["ready"]
@@ -115,7 +124,7 @@ def verify_image():
     running = json.loads(inspection.stdout)[0]
     image = require_success(command([*DOCKER, "image", "inspect", running["Image"]], env=DOCKER_ENV), "Inspect image")
     metadata = json.loads(image.stdout)[0]
-    if running["Config"]["Image"] != IMAGE or not any(
+    if not running["Config"]["Image"].endswith("@" + DIGEST) or not any(
         value.endswith("@" + DIGEST) for value in metadata["RepoDigests"]
     ):
         raise RuntimeError("The running container does not match the exact pinned digest.")
@@ -123,7 +132,7 @@ def verify_image():
         compose("exec", "-T", "documentserver", "dpkg-query", "-W", "-f=${Version}", "onlyoffice-documentserver"),
         "Read package version",
     ).stdout.strip()
-    if version != "9.4.0-1":
+    if version != "9.4.0-129":
         raise RuntimeError("Unexpected Document Server package version: " + version)
     sources = require_success(
         compose(
@@ -131,8 +140,8 @@ def verify_image():
             "-T",
             "documentserver",
             "sha256sum",
-            "/var/www/onlyoffice/documentserver/server/Common/sources/utils.js",
-            "/var/www/onlyoffice/documentserver/server/DocService/sources/canvasservice.js",
+            "/var/www/onlyoffice/documentserver/server/DocService/docservice",
+            "/var/www/onlyoffice/documentserver/server/FileConverter/converter",
         ),
         "Hash upstream source",
     )
@@ -147,15 +156,31 @@ def verify_image():
             "os": metadata["Os"],
             "container_started": running["State"]["StartedAt"],
             "package_version": version,
-            "upstream_source_sha256": sources.stdout.splitlines(),
+            "upstream_binary_sha256": sources.stdout.splitlines(),
             "reviewed_base": "fa8031db9eee3108211d771e09a57f20c038e4ad",
             "harness_commit": command(["git", "rev-parse", "HEAD"], cwd=ROOT).stdout.strip(),
+            "callback_commit": command(
+                [
+                    "git",
+                    "log",
+                    "-1",
+                    "--format=%H",
+                    "--",
+                    "src/core/modules/sol_laboratory/services/editing_callback_logging.py",
+                ],
+                cwd=ROOT,
+            ).stdout.strip(),
+            "uncommitted_diff_sha256": hashlib.sha256(
+                command(["git", "diff", "HEAD"], cwd=ROOT).stdout.encode()
+            ).hexdigest(),
         },
     )
 
 
 def start():
-    require_success(compose("build", "browser"), "Build test browser")
+    browser = command([*DOCKER, "image", "inspect", "localhost/medilab171-agent4-browser:local"], env=DOCKER_ENV)
+    if browser.returncode:
+        require_success(compose("build", "browser"), "Build test browser")
     require_success(
         compose("up", "-d", "--wait", "--wait-timeout", "660", "postgres", "garage", "documentserver", "browser"),
         "Start isolated services",
@@ -166,6 +191,8 @@ def start():
 
 def test():
     verify_image()
+    if (OUTPUT / "callbacks").exists():
+        raise RuntimeError("This run already has callback evidence; select a new ONLYOFFICE_RUN_ID.")
     exists = command([*DOCKER, "inspect", CONTAINER], env=DOCKER_ENV)
     if exists.returncode == 0:
         raise RuntimeError("Acceptance container already exists; preserve evidence, then explicitly clean this stack.")
@@ -191,10 +218,15 @@ def test():
     files = sorted((OUTPUT / "callbacks").glob("test_*.json")) if copy.returncode == 0 else []
     # Do not persist raw Odoo/Document Server logs: inspect them locally under restricted access.
     source = ROOT / "src/core/modules/sol_laboratory/tests/test_onlyoffice_real.py"
-    expected = sum(
-        isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+    expected_names = sorted(
+        node.name
         for node in ast.walk(ast.parse(source.read_text()))
+        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
     )
+    expected = len(expected_names)
+    logs = result.stdout + result.stderr
+    failed = sorted(set(re.findall(r"(?:FAIL|ERROR): TestOnlyofficeReal\.(test_\w+)", logs)))
+    started = sorted(set(re.findall(r"Starting TestOnlyofficeReal\.(test_\w+)", logs)))
     passed = (
         result.returncode == 0 and len(files) == expected and "0 failed, 0 error(s)" in result.stdout + result.stderr
     )
@@ -208,6 +240,9 @@ def test():
             "runner_log_sha256": hashlib.sha256((result.stdout + result.stderr).encode()).hexdigest(),
             "real_service_executed": True,
             "passed": passed,
+            "failed_tests": failed,
+            "passed_tests": [name for name in started if name not in failed],
+            "not_started_tests": [name for name in expected_names if name not in started],
         },
     )
     if not passed:

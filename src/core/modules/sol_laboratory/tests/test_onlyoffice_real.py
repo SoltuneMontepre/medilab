@@ -92,6 +92,14 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
     def save_evidence(self):
         directory = Path(os.environ["ONLYOFFICE_EVIDENCE_DIR"])
         directory.mkdir(parents=True, exist_ok=True)
+        messages = self.server_messages()
+        sensitive = [self.callback_token, SECRET]
+        for raw, headers in self.relay.deliveries:
+            fields = json.loads(raw)
+            sensitive.extend(
+                value for value in (fields.get("token"), fields.get("url"), headers.get(JWT_HEADER)) if value
+            )
+        log_redacted = all(value not in messages for value in sensitive)
         result = {
             "test": self._testMethodName,
             "extension": self.extension,
@@ -99,11 +107,15 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
             "initial_sha256": hashlib.sha256(self.initial_bytes).hexdigest(),
             "saved": getattr(self, "saved_evidence", None),
             "final_state": self.state(),
+            "odoo_sensitive_values_absent": log_redacted,
+            "browser": getattr(self, "browser_result", None),
         }
         (directory / (self._testMethodName + ".json")).write_text(json.dumps(result, indent=2) + "\n")
+        self.assertTrue(log_redacted, "Odoo logs retained a sensitive callback value")
 
     def edit_and_close(self):
         response = requests.post("http://browser:3000/edit", json={"url": self.relay.url + "/editor"}, timeout=150)
+        self.browser_result = response.json()
         self.assertEqual(response.status_code, 200, "The test browser could not complete the editor plugin.")
         self.assertTrue(response.json().get("edited"))
 
@@ -181,6 +193,15 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         self.assert_saved()
 
     def test_pptx_save(self):
+        self.edit_and_close()
+        self.wait_final()
+        self.assert_saved()
+
+    def test_docx_large_history_header_compatibility(self):
+        configuration = dict(self.relay.config)
+        configuration.pop("token")
+        configuration["editorConfig"]["user"]["name"] = self.marker * 500
+        self.relay.config = {**configuration, "token": sign(configuration, SECRET, 900)}
         self.edit_and_close()
         self.wait_final()
         self.assert_saved()
