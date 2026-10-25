@@ -87,6 +87,7 @@ Acceptance criteria:
 - A signed PDF fails verification if any of its content is changed.
 - A provider outage leaves the document unsigned and retries it.
 - The signature record shows the signer, role, time and document version for every level.
+- A signature record never changes once it is given, not even by an administrator; only its withdrawal is recorded, once.
 
 #### SH-05 Audit trail
 
