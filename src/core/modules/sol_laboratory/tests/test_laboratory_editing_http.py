@@ -338,20 +338,36 @@ class TestLaboratoryEditingHttp(LaboratoryEditingHttpCase):
         self.assertFalse(marker in logs, "The saved URL query was logged.")
         self.assertNotRegex(logs, r"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.")
         self.assertIn(f"outcome=internal_error session_id={self.session_id} ", logs)
+        self.assertRegex(
+            logs,
+            rf"outcome=internal_error session_id={self.session_id} elapsed_seconds=\d+\.\d+ "
+            r"correlation_id=[0-9a-f]{32} error_type=\w+",
+        )
 
     def test_encoded_callback_path_keeps_native_contract_and_redacts_credentials(self):
         body, header = callback(self.fields(status=1))
         assert header is not None
         encoded = "/" + CALLBACK_PREFIX[1:].replace("/", "%2F")
-        self.assertAnswer(
-            requests.post(
-                self.http_url + encoded + self.callback_token, json=body, headers={JWT_HEADER: header}, timeout=30
-            ),
-            200,
+        for path in (CALLBACK_PREFIX, encoded, encoded.replace("%2F", "%2f")):
+            self.assertAnswer(
+                requests.post(
+                    self.http_url + path + self.callback_token, json=body, headers={JWT_HEADER: header}, timeout=30
+                ),
+                200,
+            )
+        # Logging normalization must not make a twice-encoded path a valid callback route.
+        response = requests.post(
+            self.http_url + encoded.replace("%", "%25") + self.callback_token,
+            json=body,
+            headers={JWT_HEADER: header},
+            timeout=30,
         )
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(self.state()[1], [(OPEN, False)])
         logs = self.server_messages()
         self.assertFalse(self.callback_token in logs, "An encoded callback path exposed its capability.")
         self.assertFalse(header in logs, "An encoded callback path exposed its JWT.")
+        self.assertFalse(body["token"] in logs, "An encoded callback path exposed its body JWT.")
 
     def test_odoo_stack_dump_during_a_callback_redacts_its_capability(self):
         entered, release = self.pause_fetch()
