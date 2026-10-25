@@ -65,6 +65,7 @@ Follows the reception rules and the sample lifecycle in the [Laboratory overview
 | Rule          | Description                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | Test request | Without an order, create a request with customer, samples and their types, optional regulation comparison, each sample's parameters and selected ways, expected date, report language, delivery method and recipient. |
+| Identification QR | Use only the sample's QR for identification and handover; test requests and handover documents have no separate identification QR. |
 | Return estimate | The test request shows the estimated return date of its samples and parameters, and an earlier expected date is checked as a [priority request](../overview.md#testing-work-and-scheduling) before it is accepted. |
 | Label         | The label shows the lab code, the test request's code, the date results are due and a QR code of the lab code, and nothing about the customer. |
 | Receipt       | Receipt records when and by whom the sample was received, the amount received, its condition (good, damaged or insufficient) with a note, and where it is stored. |
@@ -79,6 +80,7 @@ Acceptance criteria:
 - A rejected sample keeps its condition note and gets no testing tasks.
 - An insufficient sample is on hold, and its head of department is told.
 - A sample handed over to two departments shows both handovers and which department has received it.
+- Scanning identifies the individual sample; the test request and handover document do not add another identification QR.
 
 ### 3. Carrying outsourced samples (US-SD13)
 
