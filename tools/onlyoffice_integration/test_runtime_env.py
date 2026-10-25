@@ -1,6 +1,9 @@
 """A fixture generator cannot overwrite an existing file or escape its private worktree directory."""
 
+import json
 import stat
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -61,6 +64,33 @@ class TestRuntimeEnvironment(unittest.TestCase):
             runtime_env.write_fixture(alias, {"SETTING": "fixture"})
 
         self.assertFalse(target.exists())
+
+
+class TestRuntimeEnvironmentSource(unittest.TestCase):
+    def test_pinned_and_current_revisions_generate_the_verified_policy(self):
+        root = Path(runtime_env.__file__).resolve().parents[2]
+        revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True, timeout=5).strip()
+        private = root / ".local"
+        private.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix="runtime-env-contract-", dir=private) as directory:
+            for commit in (runtime_env.INFRASTRUCTURE_COMMIT, revision):
+                with self.subTest(commit=commit):
+                    output = Path(directory) / (commit + ".env")
+                    result = subprocess.run(
+                        [sys.executable, str(Path(runtime_env.__file__)), "--commit", commit, "--output", str(output)],
+                        cwd=root,
+                        capture_output=True,
+                        text=True,
+                        timeout=15,
+                    )
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    values = dict(line.split("=", 1) for line in output.read_text().splitlines())
+                    policy = json.loads(values["NODE_CONFIG"])["services"]["CoAuthoring"]
+                    self.assertEqual(policy["server"]["callbackRequestTimeout"]["wholeCycle"], "21m")
+                    self.assertEqual(policy["expire"]["files"], 604800)
+                    self.assertEqual(policy["token"]["outbox"]["expires"], "5m")
+                    self.assertTrue(policy["token"]["enable"]["request"]["outbox"])
+                    self.assertEqual(stat.S_IMODE(output.stat().st_mode), 0o600)
 
 
 if __name__ == "__main__":

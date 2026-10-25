@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-INFRASTRUCTURE_COMMIT = "5b42e14f5715f21f85f525911cd8f692ae51302e"
+INFRASTRUCTURE_COMMIT = "e6f24173c831eac945fc90cd50af4a6f788ba2c6"
 
 
 def write_fixture(output, values):
@@ -36,7 +36,7 @@ def main():
     if not re.fullmatch(r"[0-9a-f]{40}", args.commit):
         raise ValueError("Use an exact local infrastructure commit SHA.")
     result = subprocess.run(
-        ["git", "show", args.commit + ":tools/infrastructure/onlyoffice/settings.json"],
+        ["git", "show", args.commit + ":infra/cluster/onlyoffice/settings.json"],
         cwd=ROOT,
         text=True,
         capture_output=True,

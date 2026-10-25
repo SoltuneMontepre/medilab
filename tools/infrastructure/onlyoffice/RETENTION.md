@@ -12,7 +12,7 @@ timeout 45s podman --url unix:///run/user/1000/podman/podman.sock run --rm \
   --env MEDILAB_ONLYOFFICE_RETENTION_FIXTURE=isolated-empty \
   --entrypoint /bin/bash \
   --volume "$PWD/tools/infrastructure/onlyoffice:/opt/probe:ro" \
-  --volume "$PWD/tools/infrastructure/onlyoffice/settings.json:/opt/settings.json:ro" \
+  --volume "$PWD/infra/cluster/onlyoffice/settings.json:/opt/settings.json:ro" \
   docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212 \
   -c 'export NODE_CONFIG="$(cat /opt/settings.json)"; export PKG_EXECPATH=/var/www/onlyoffice/documentserver/server/DocService/docservice; exec "$PKG_EXECPATH" /opt/probe/retention_probe.cjs'
 ```
