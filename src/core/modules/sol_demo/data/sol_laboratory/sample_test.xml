@@ -50,4 +50,16 @@
         <field name="status">waiting</field>
         <field name="due_date" eval="(DateTime.now() + relativedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S')" />
     </record>
+    <record id="demo_sample_test_lead_room_booked" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_room_booked" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_icpms" />
+    </record>
+    <record id="demo_sample_test_lead_room_waiting" model="medilab.sample.test">
+        <field name="sample_id" ref="demo_sample_lead_room_waiting" />
+        <field name="parameter_id" ref="demo_test_parameter_lead" />
+        <field name="status">assigned</field>
+        <field name="parameter_method_id" ref="demo_parameter_method_lead_icpms" />
+    </record>
 </odoo>
