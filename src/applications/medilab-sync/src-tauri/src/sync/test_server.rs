@@ -243,6 +243,14 @@ impl MockSyncServer {
         body: &[u8],
         headers: &HashMap<String, String>,
     ) -> (String, String, String) {
+        if path.starts_with("/s3/") || path.starts_with("/objects/") {
+            assert_eq!(
+                headers.get("user-agent").map(String::as_str),
+                Some(concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")))
+            );
+            assert!(!headers.contains_key("authorization"));
+            assert!(!headers.contains_key("x-sync-device-id"));
+        }
         let put_part = put_part_number(method, path);
         if let Some(part) = put_part {
             let mut state = self.state.lock().unwrap();

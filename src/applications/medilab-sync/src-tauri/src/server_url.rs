@@ -1,6 +1,13 @@
 use crate::error::{AppError, AppResult};
 use url::Url;
 
+pub fn same_base(left: &str, right: &str) -> bool {
+    endpoint(left, "")
+        .ok()
+        .zip(endpoint(right, "").ok())
+        .is_some_and(|(left, right)| left == right)
+}
+
 pub fn endpoint(base: &str, path: &str) -> AppResult<Url> {
     let invalid = || AppError::Message("Địa chỉ máy chủ HTTP(S) không hợp lệ".into());
     if base

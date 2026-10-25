@@ -11,6 +11,10 @@ function viEn<V extends string, E extends string>(vi: V, en: E) {
 }
 
 const messages = {
+  "migration.required": { vi: "Cần cập nhật MediLab Sync", en: "MediLab Sync update required" },
+  "migration.preserve": { vi: "Tệp trên máy và hàng đợi được giữ nguyên. Giữ dữ liệu ứng dụng khi cài lại, rồi đăng nhập và gắn lại thư mục.", en: "Your local files and queued work are preserved. Keep application data when reinstalling, then sign in and rebind your folders." },
+  "migration.download": { vi: "Mở trang tải xuống", en: "Open download page" },
+  "migration.contact": { vi: "Liên hệ quản trị viên để nhận địa chỉ bộ cài an toàn.", en: "Contact your administrator for a safe installer address." },
   "app.title": { vi: "Đồng bộ tệp phòng lab", en: "Lab file sync" },
   "app.technician": { vi: "Kỹ thuật viên", en: "Technician" },
   "app.degraded": { vi: "Chế độ quét định kỳ", en: "Periodic scan mode" },

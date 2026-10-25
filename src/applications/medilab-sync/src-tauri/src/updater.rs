@@ -2,9 +2,8 @@
 //!
 //! Lấy manifest cập nhật từ endpoint backend Odoo
 //! `{odoo_url}/medilab/api/v1/updates/{target}/{arch}/{version}` lúc khởi động
-//! và mỗi khi frontend gọi `check_update`. Lượt kiểm chỉ best-effort: mọi thất
-//! bại được log và âm thầm bỏ qua để một update server hỏng không bao giờ
-//! ảnh hưởng tới sync.
+//! và mỗi khi frontend gọi `check_update`. Network/manifest failures are best effort;
+//! a typed migration refusal is surfaced separately and holds queued transfers.
 //!
 //! Signing keys are managed by the release owner; the desktop never replaces them.
 
@@ -105,6 +104,15 @@ pub async fn check_for_update(app: &AppHandle, odoo_url: &str) -> Option<UpdateA
         .map_err(|err| warn!("Invalid updater endpoint: {err}"))
         .ok()?;
 
+    match crate::client_migration::updater_requirement(odoo_url, &endpoint).await {
+        Ok(Some(_)) => return None,
+        Err(err) => {
+            warn!("Update preflight failed: {err}");
+            return None;
+        }
+        Ok(None) => {}
+    }
+
     let updater = match app
         .updater_builder()
         .header(
@@ -130,6 +138,7 @@ pub async fn check_for_update(app: &AppHandle, odoo_url: &str) -> Option<UpdateA
 
     match updater.check().await {
         Ok(Some(update)) => {
+            crate::client_migration::clear(odoo_url);
             info!("Update available: {} → {}", current, update.version);
             Some(UpdateAvailable {
                 current_version: current,
@@ -139,6 +148,7 @@ pub async fn check_for_update(app: &AppHandle, odoo_url: &str) -> Option<UpdateA
             })
         }
         Ok(None) => {
+            crate::client_migration::clear(odoo_url);
             info!("No update available (current: {current})");
             None
         }
@@ -163,6 +173,13 @@ pub async fn download_and_install(app: &AppHandle, odoo_url: &str) -> Result<(),
     let current = app.package_info().version.to_string();
 
     let endpoint = build_endpoint_url(odoo_url, target, arch, &current).map_err(String::from)?;
+
+    if let Some(notice) = crate::client_migration::updater_requirement(odoo_url, &endpoint)
+        .await
+        .map_err(String::from)?
+    {
+        return Err(notice.to_string());
+    }
 
     let updater = app
         .updater_builder()

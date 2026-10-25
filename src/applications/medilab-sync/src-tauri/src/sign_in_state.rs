@@ -33,7 +33,7 @@ impl PendingSignIn {
         if previous_login
             .as_deref()
             .is_some_and(|old| old != self.login)
-            || settings.odoo_url.trim_end_matches('/') != self.base.trim_end_matches('/')
+            || !crate::server_url::same_base(&settings.odoo_url, &self.base)
         {
             db.meta_set("laboratory_api_version", "rebind")?;
         }
@@ -63,9 +63,10 @@ pub fn recover(db: &Db, key: &str) -> AppResult<Option<AppSettings>> {
 
 fn validate_origin(db: &Db) -> AppResult<()> {
     let settings = db.load_settings()?;
-    if db.meta_get("credential_origin")?.is_some_and(|origin| {
-        origin.trim_end_matches('/') != settings.odoo_url.trim_end_matches('/')
-    }) {
+    if db
+        .meta_get("credential_origin")?
+        .is_some_and(|origin| !crate::server_url::same_base(&origin, &settings.odoo_url))
+    {
         return Err(crate::error::AppError::NotLoggedIn);
     }
     Ok(())
@@ -102,6 +103,10 @@ mod tests {
         assert_eq!(db.meta_get("device_id").unwrap().as_deref(), Some("9"));
         assert_eq!(db.list_folders().unwrap()[0].id, folder);
         assert_eq!(db.list_folders().unwrap()[0].remote_id, None);
+        assert!(recover(&db, "new-device-secret").unwrap().is_none());
+        let mut equivalent = db.load_settings().unwrap();
+        equivalent.odoo_url = "https://NEW.example:443/base/".into();
+        db.save_settings(&equivalent).unwrap();
         assert!(recover(&db, "new-device-secret").unwrap().is_none());
         let mut changed = db.load_settings().unwrap();
         changed.odoo_url = "https://unrelated.example".into();

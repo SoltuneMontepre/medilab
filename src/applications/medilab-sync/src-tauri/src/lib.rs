@@ -5,6 +5,7 @@ mod api_auth_tests;
 mod api_live_tests;
 mod auth;
 mod browser;
+mod client_migration;
 mod commands;
 mod config;
 #[cfg(test)]
@@ -17,6 +18,8 @@ mod sign_in_state;
 mod storage;
 mod sync;
 mod updater;
+#[cfg(test)]
+mod updater_migration_tests;
 mod wire;
 
 use crate::commands::AppState;
@@ -176,6 +179,11 @@ pub fn run() {
                 })
                 .build(app)?;
 
+            let migration_app = app.handle().clone();
+            client_migration::set_notifier(move || {
+                use tauri::Emitter;
+                let _ = migration_app.emit("client-migration-changed", ());
+            });
             let update_app = app.handle().clone();
             let update_odoo_url = settings.odoo_url.clone();
             tauri::async_runtime::spawn(async move {
@@ -232,6 +240,8 @@ pub fn run() {
             commands::list_sync_devices,
             commands::revoke_sync_device,
             commands::check_update,
+            commands::get_client_migration,
+            commands::open_client_download,
             commands::download_and_install_update,
             commands::dismiss_update_session,
         ]);

@@ -145,6 +145,7 @@ pub async fn login(state: State<'_, AppState>, args: LoginArgs) -> Result<Status
     auth::save_api_key(&response.api_key).map_err(String::from)?;
     let settings = pending.commit(&engine.db).map_err(String::from)?;
     *engine.settings.lock().await = settings;
+    crate::client_migration::clear(&args.odoo_url);
     engine.session.establish(response.api_key, "login");
     tracing::info!(device_id = response.device_id, "login succeeded");
     engine.emit_status();
@@ -595,7 +596,7 @@ pub async fn save_settings(
 ) -> Result<StatusDto, String> {
     crate::server_url::endpoint(&settings.odoo_url, "medilab/api/v1").map_err(String::from)?;
     let previous = state.engine.settings.lock().await.odoo_url.clone();
-    if previous.trim_end_matches('/') != settings.odoo_url.trim_end_matches('/') {
+    if !crate::server_url::same_base(&previous, &settings.odoo_url) {
         state
             .engine
             .db
@@ -913,9 +914,7 @@ pub async fn open_office_editor(
 
 /// Kiểm tra bản cập nhật mới trên endpoint Odoo đã cấu hình.
 ///
-/// Trả về `None` khi đã là bản mới nhất hoặc khi lượt kiểm thất bại vì bất kỳ lý do gì (lỗi mạng,
-/// endpoint không hợp lệ, ...). Lỗi chỉ được log, không bao giờ hiện thành error cho người dùng để
-/// tránh gây hoang mang vì một lượt kiểm nền định kỳ.
+/// Ordinary network/manifest failures are best effort; a typed migration refusal remains visible.
 #[tauri::command]
 #[tracing::instrument(level = "debug", skip_all, fields(command = "check_update"))]
 pub async fn check_update(
@@ -926,7 +925,11 @@ pub async fn check_update(
         let settings = state.engine.settings.lock().await;
         settings.odoo_url.clone()
     };
-    Ok(crate::updater::check_for_update(&app, &odoo_url).await)
+    let available = crate::updater::check_for_update(&app, &odoo_url).await;
+    if let Some(notice) = crate::client_migration::required(&odoo_url) {
+        return Err(notice.to_string());
+    }
+    Ok(available)
 }
 
 /// Tải và cài đặt bản cập nhật đang chờ.
@@ -999,6 +1002,37 @@ pub async fn revoke_sync_device(state: State<'_, AppState>, device_id: i64) -> R
         state.engine.emit_status();
     }
     Ok(())
+}
+
+#[tauri::command]
+pub async fn get_client_migration(
+    state: State<'_, AppState>,
+    server_url: Option<String>,
+) -> Result<Option<crate::client_migration::MigrationRequired>, String> {
+    let base = server_url
+        .filter(|url| !url.is_empty())
+        .unwrap_or(state.engine.settings.lock().await.odoo_url.clone());
+    crate::server_url::endpoint(&base, "medilab/api/v1").map_err(String::from)?;
+    Ok(crate::client_migration::required(&base))
+}
+
+#[tauri::command]
+pub async fn open_client_download(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    server_url: Option<String>,
+) -> Result<(), String> {
+    let base = server_url
+        .filter(|url| !url.is_empty())
+        .unwrap_or(state.engine.settings.lock().await.odoo_url.clone());
+    crate::server_url::endpoint(&base, "medilab/api/v1").map_err(String::from)?;
+    let url = crate::client_migration::required(&base)
+        .and_then(|notice| notice.download_url)
+        .and_then(|url| crate::client_migration::safe_download_url(&url))
+        .ok_or("No safe installer address is available")?;
+    app.opener()
+        .open_url(url, None::<&str>)
+        .map_err(|_| "Could not open the installer page. Try again.".into())
 }
 
 #[cfg(test)]

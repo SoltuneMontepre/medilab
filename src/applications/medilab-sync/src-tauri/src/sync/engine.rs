@@ -593,7 +593,12 @@ impl EngineHandle {
         });
         loop {
             dispatcher.reap();
-            if !self.paused.load(Ordering::SeqCst) && self.session.is_authenticated() {
+            let migration_required =
+                crate::client_migration::required(&self.settings.lock().await.odoo_url).is_some();
+            if !migration_required
+                && !self.paused.load(Ordering::SeqCst)
+                && self.session.is_authenticated()
+            {
                 match dispatcher.fill_slots().await {
                     Ok(started) if started > 0 => self.emit_status(),
                     Ok(_) => {}
@@ -646,7 +651,7 @@ impl EngineHandle {
                 log_superseded(&job, "upload");
                 return;
             }
-            if matches!(err, AppError::Paused) {
+            if matches!(err, AppError::Paused | AppError::ClientUpdateRequired(_)) {
                 self.requeue_paused_job(&job, &owned);
                 return;
             }
@@ -752,6 +757,9 @@ impl EngineHandle {
     pub async fn client(&self) -> AppResult<ApiClient> {
         let key = self.session.api_key().ok_or(AppError::NotLoggedIn)?;
         let settings = self.settings.lock().await.clone();
+        if let Some(notice) = crate::client_migration::required(&settings.odoo_url) {
+            return Err(AppError::ClientUpdateRequired(notice));
+        }
         let device_id = self
             .db
             .meta_get("device_id")?
@@ -888,7 +896,7 @@ impl EngineHandle {
                 log_superseded(&job, "download");
                 return;
             }
-            if matches!(err, AppError::Paused) {
+            if matches!(err, AppError::Paused | AppError::ClientUpdateRequired(_)) {
                 self.requeue_paused_job(&job, &owned);
                 return;
             }

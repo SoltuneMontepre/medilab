@@ -52,6 +52,7 @@ fn storage_upload_http() -> AppResult<reqwest::Client> {
     shared_client(&STORAGE_UPLOAD_HTTP, || {
         reqwest::Client::builder()
             .connect_timeout(CONNECT_TIMEOUT)
+            .user_agent(concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")))
             .redirect(reqwest::redirect::Policy::none())
             .build()
     })
@@ -63,6 +64,7 @@ pub(crate) fn storage_download_http() -> AppResult<reqwest::Client> {
     shared_client(&STORAGE_DOWNLOAD_HTTP, || {
         reqwest::Client::builder()
             .connect_timeout(CONNECT_TIMEOUT)
+            .user_agent(concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")))
             .redirect(reqwest::redirect::Policy::none())
             .read_timeout(STORAGE_READ_TIMEOUT)
             .build()
@@ -306,6 +308,17 @@ pub struct FileVersionListDto {
 }
 
 async fn send(request: reqwest::RequestBuilder) -> AppResult<reqwest::Response> {
+    let request_url = request
+        .try_clone()
+        .ok_or_else(|| AppError::Message("Cannot clone metadata request".into()))?
+        .build()?
+        .url()
+        .clone();
+    let base = request_url
+        .as_str()
+        .rsplit_once("/medilab/api/v1")
+        .map(|(base, _)| base)
+        .unwrap_or_default();
     for attempt in 1..=3 {
         let cloned = request
             .try_clone()
@@ -324,6 +337,10 @@ async fn send(request: reqwest::RequestBuilder) -> AppResult<reqwest::Response> 
             {
                 let delay = crate::sync::retry::backoff_secs(attempt).max(retry_after.unwrap_or(0));
                 tokio::time::sleep(Duration::from_secs(delay as u64)).await;
+            }
+            Err(AppError::ClientUpdateRequired(notice)) => {
+                crate::client_migration::record(base, notice.clone());
+                return Err(AppError::ClientUpdateRequired(notice));
             }
             Err(err) => return Err(err),
         }
@@ -1030,6 +1047,9 @@ impl ApiClient {
 /// do từ chối theo tình trạng mẫu (đã lưu trữ, đã kết thúc) mà server enforce, ở đây chỉ diễn
 /// giải lại, không tự quyết định.
 pub fn map_http_error(status: u16, body: &str) -> AppError {
+    if let Some(notice) = crate::client_migration::refusal(status, body) {
+        return AppError::ClientUpdateRequired(notice);
+    }
     #[derive(Deserialize)]
     struct ErrorBody {
         error: Refusal,
@@ -1048,9 +1068,6 @@ pub fn map_http_error(status: u16, body: &str) -> AppError {
         };
     };
     match (status, error.error.code.as_str()) {
-        (410, "client_update_required") => {
-            AppError::ClientUpdateRequired(crate::error::redact_url_queries(&error.error.message))
-        }
         (401, "invalid_key") | (403, "device_revoked") => AppError::Unauthenticated,
         (403, "permission_denied") | (404, "not_found") => AppError::Forbidden(status),
         _ => AppError::Api {

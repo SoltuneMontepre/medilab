@@ -268,3 +268,13 @@ export async function getAppVersion(): Promise<string> {
   return DEFAULT_APP_VERSION;
 }
 
+export type ClientMigration = { message: string; download_url: string | null };
+export function getClientMigration(serverUrl?: string): Promise<ClientMigration | null> {
+  return profiledInvoke<ClientMigration | null>("get_client_migration", { serverUrl });
+}
+export function openClientDownload(serverUrl?: string): Promise<void> {
+  return profiledInvoke<void>("open_client_download", { serverUrl });
+}
+export function onClientMigrationChanged(handler: () => void): Promise<UnlistenFn> {
+  return listen("client-migration-changed", handler);
+}

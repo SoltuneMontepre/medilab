@@ -1,3 +1,4 @@
+import { ClientMigrationNotice, useClientMigration } from "./features/update/ClientMigrationNotice";
 import { withSettingsPatch } from "./features/settings/settingsPatch";
 import {
   useCallback,
@@ -143,19 +144,19 @@ function AppBanners({
   const t = useT();
   return (
     <>
-      {error ? <p className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-      {notice ? <p className="mb-4 rounded bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p> : null}
-      {sessionExpired ? (
-        <p className="mb-4 rounded bg-amber-50 p-3 text-sm text-amber-800">{t("session.expiredBanner")}</p>
-      ) : null}
-      {conflict ? (
-        <p className="mb-4 flex items-start justify-between gap-3 rounded bg-amber-50 p-3 text-sm text-amber-800">
-          <span>{conflict}</span>
-          <button type="button" className="btn btn-secondary px-2 py-1" onClick={onDismissConflict}>
-            {t("conflict.dismiss")}
-          </button>
-        </p>
-      ) : null}
+        {error ? <p className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+        {notice ? <p className="mb-4 rounded bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p> : null}
+        {sessionExpired ? (
+          <p className="mb-4 rounded bg-amber-50 p-3 text-sm text-amber-800">{t("session.expiredBanner")}</p>
+        ) : null}
+        {conflict ? (
+          <p className="mb-4 flex items-start justify-between gap-3 rounded bg-amber-50 p-3 text-sm text-amber-800">
+            <span>{conflict}</span>
+            <button type="button" className="btn btn-secondary px-2 py-1" onClick={onDismissConflict}>
+              {t("conflict.dismiss")}
+            </button>
+          </p>
+        ) : null}
     </>
   );
 }
@@ -260,6 +261,7 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   // Người dùng chủ động chọn đăng nhập bằng mật khẩu thay vì mở khóa kho mật khẩu của OS.
   const [passwordLoginRequested, setPasswordLoginRequested] = useState(false);
   const [accessTarget, setAccessTarget] = useState<{ remoteId: number; label: string } | null>(null);
+  const migrationNotice = useClientMigration(odooUrl || status.odoo_url);
   const [pendingUpdate, setPendingUpdate] = useState<UpdateAvailable | null>(null);
   const run = useAsyncRunner(setBusy, setError);
   // Lệnh Tạm dừng/Tiếp tục có cờ bận riêng: không bị khóa bởi lệnh chạy lâu khác (xem AppHeader).
@@ -557,39 +559,46 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   // bắt đăng nhập lại bằng mật khẩu (và không nói dối là "phiên hết hạn").
   if (status.auth_state === "credential_store_locked" && !passwordLoginRequested) {
     return (
-      <CredentialStoreLockedScreen
-        busy={busy}
-        error={error}
-        onUsePassword={() => setPasswordLoginRequested(true)}
-        onRetry={() =>
-          void run(() => restoreSession()).then((next) => {
-            if (next) {
-              setStatus((prev) => mergeStatusSnapshot(prev, next));
-            }
-          })
-        }
-      />
+      <>
+        <ClientMigrationNotice notice={migrationNotice} serverUrl={odooUrl || status.odoo_url} />
+        <CredentialStoreLockedScreen
+          busy={busy}
+          error={error}
+          onUsePassword={() => setPasswordLoginRequested(true)}
+          onRetry={() =>
+            void run(() => restoreSession()).then((next) => {
+              if (next) {
+                setStatus((prev) => mergeStatusSnapshot(prev, next));
+              }
+            })
+          }
+        />
+      </>
     );
   }
 
   if (!status.logged_in) {
     return (
-      <LoginScreen
-        busy={busy}
-        error={error}
-        odooUrl={odooUrl}
-        odooUrlHistory={odooUrlHistory}
-        sessionExpired={status.session_expired}
-        locale={settings?.locale}
-        onOdooUrlChange={setOdooUrl}
-        onLocaleChange={(locale) => void changeLocale(locale)}
-        onSubmit={(credentials) => void onLogin(credentials)}
-      />
+      <>
+        <ClientMigrationNotice notice={migrationNotice} serverUrl={odooUrl || status.odoo_url} />
+        <LoginScreen
+          busy={busy}
+          error={error}
+          odooUrl={odooUrl}
+          odooUrlHistory={odooUrlHistory}
+          sessionExpired={status.session_expired}
+          locale={settings?.locale}
+          onOdooUrlChange={setOdooUrl}
+          onLocaleChange={(locale) => void changeLocale(locale)}
+          onSubmit={(credentials) => void onLogin(credentials)}
+        />
+      </>
     );
   }
 
   return (
     <main className="min-h-screen">
+      <ClientMigrationNotice notice={migrationNotice} serverUrl={odooUrl || status.odoo_url} />
       <AppHeader
         status={status}
         busy={busy}

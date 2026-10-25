@@ -30,7 +30,7 @@ pub enum AppError {
     #[error("{0}")]
     Message(String),
     #[error("{0}")]
-    ClientUpdateRequired(String),
+    ClientUpdateRequired(crate::client_migration::MigrationRequired),
     #[error("{message} ({code})")]
     Api {
         status: u16,
