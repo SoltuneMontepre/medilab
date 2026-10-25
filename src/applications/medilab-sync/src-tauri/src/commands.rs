@@ -1,6 +1,6 @@
 use crate::api::{
     folder_to_bind, unbound_folders, ApiClient, FileDetailDto, FileVersionDto, FileVersionListDto,
-    FolderMembersDto, MemberUserDto, OfficeSessionDto, UnboundFoldersDto,
+    FolderMembersDto, MemberUserDto, UnboundFoldersDto,
 };
 use crate::auth;
 use crate::config::AppSettings;
@@ -17,6 +17,7 @@ use std::process::Command;
 use tauri::{AppHandle, State};
 use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_opener::OpenerExt;
 
 /// State Tauri dùng chung cho mọi command: tay cầm tới engine đồng bộ đang chạy nền.
 pub struct AppState {
@@ -133,38 +134,20 @@ pub async fn login(state: State<'_, AppState>, args: LoginArgs) -> Result<Status
     )
     .await
     .map_err(String::from)?;
-    let previous_login = engine.db.meta_get("user_login").map_err(String::from)?;
-    if previous_login.as_deref() != Some(response.user_login.as_str()) {
-        engine
-            .db
-            .clear_account_local_state()
-            .map_err(String::from)?;
-    }
-    // Keyring là nơi lưu bền (bắt buộc ở production); key đang dùng được giữ trong bộ nhớ tiến
-    // trình để đồng bộ không bao giờ phải hỏi lại keyring.
+    let pending = crate::sign_in_state::PendingSignIn::save(
+        &engine.db,
+        &args.odoo_url,
+        &args.login,
+        response.device_id,
+        &response.api_key,
+    )
+    .map_err(String::from)?;
     auth::save_api_key(&response.api_key).map_err(String::from)?;
-    engine
-        .db
-        .meta_set("device_id", &response.device_id.to_string())
-        .map_err(String::from)?;
-    engine
-        .db
-        .meta_set("user_name", &response.user_name)
-        .map_err(String::from)?;
-    engine
-        .db
-        .meta_set("user_login", &response.user_login)
-        .map_err(String::from)?;
-    engine
-        .db
-        .meta_set("user_id", &response.user_id.to_string())
-        .map_err(String::from)?;
+    let settings = pending.commit(&engine.db).map_err(String::from)?;
+    *engine.settings.lock().await = settings;
+    crate::client_migration::clear(&args.odoo_url);
+    engine.session.establish(response.api_key, "login");
     tracing::info!(device_id = response.device_id, "login succeeded");
-    engine.session.establish(response.api_key.clone(), "login");
-    let mut settings = engine.settings.lock().await;
-    settings.odoo_url = args.odoo_url;
-    engine.db.save_settings(&settings).map_err(String::from)?;
-    drop(settings);
     engine.emit_status();
     let _ = engine.poll_remote_changes().await;
     engine.status_snapshot().map_err(String::from)
@@ -315,8 +298,7 @@ pub async fn register_sync_folder(
     let engine = state.engine.clone();
     let path = ensure_dir(&args.local_path).map_err(String::from)?;
     let client = engine.client().await.map_err(String::from)?;
-    // Luôn POST: server tự upsert folder của chủ sở hữu theo (user, logical_root). App không bao
-    // giờ bật/tắt folder trên server — đó là thao tác quản trị của Sync Manager trong Odoo.
+    // Creating a folder sends only its server name; binding existing folders uses their ID.
     let remote = client
         .create_folder(
             &args.logical_root,
@@ -496,7 +478,10 @@ pub async fn bind_shared_folder(
     let local_path = path.to_string_lossy().into_owned();
     // upsert theo local_path sẽ ghi đè binding cũ, nên chặn đường dẫn đã dùng.
     let folders = engine.db.list_folders().map_err(String::from)?;
-    if folders.iter().any(|folder| folder.local_path == local_path) {
+    if folders
+        .iter()
+        .any(|folder| folder.local_path == local_path && folder.remote_id.is_some())
+    {
         return Err("Thư mục trên máy này đã được dùng cho một thư mục đồng bộ khác".into());
     }
     let client = require_client(&engine).await?;
@@ -609,6 +594,26 @@ pub async fn save_settings(
     state: State<'_, AppState>,
     settings: AppSettings,
 ) -> Result<StatusDto, String> {
+    crate::server_url::endpoint(&settings.odoo_url, "medilab/api/v1").map_err(String::from)?;
+    let previous = state.engine.settings.lock().await.odoo_url.clone();
+    if !crate::server_url::same_base(&previous, &settings.odoo_url) {
+        state
+            .engine
+            .db
+            .meta_set("credential_origin", &previous)
+            .map_err(String::from)?;
+        state
+            .engine
+            .db
+            .meta_set("laboratory_api_version", "rebind")
+            .map_err(String::from)?;
+        state
+            .engine
+            .db
+            .migrate_laboratory_api()
+            .map_err(String::from)?;
+        state.engine.session.clear();
+    }
     state
         .engine
         .db
@@ -668,7 +673,7 @@ pub async fn update_sync_rules(
 /// kho mật khẩu). Đây là nơi DUY NHẤT đọc keyring: một lần, ngoài async runtime vì hộp thoại mở
 /// khóa của OS chặn luồng gọi tới khi người dùng trả lời. Sau đó key nằm trong bộ nhớ.
 /// - Kho khóa/hủy hộp thoại → `credential_store_locked`; không xóa, không thu hồi, không "hết hạn".
-/// - Odoo trả 401 cho `/me` → `session_expired`.
+/// - Odoo trả `invalid_key` khi gọi `/devices` → `session_expired`.
 /// - Mất mạng/5xx → vẫn `authenticated`, app chạy bình thường và tự thử lại.
 #[tauri::command]
 #[tracing::instrument(level = "debug", skip_all, fields(command = "restore_session"))]
@@ -676,16 +681,25 @@ pub async fn restore_session(state: State<'_, AppState>) -> Result<StatusDto, St
     let engine = state.engine.clone();
     if engine.session.api_key().is_none() && !engine.session.is_expired() {
         let session = engine.session.clone();
-        let _ = tokio::task::spawn_blocking(move || session.restore_with(auth::load_api_key)).await;
+        let db = engine.db.clone();
+        let _ = tokio::task::spawn_blocking(move || {
+            session.restore_with(|| match auth::load_api_key() {
+                auth::CredentialLoad::Found(key) => {
+                    match crate::sign_in_state::recover(&db, &key) {
+                        Ok(_) => auth::CredentialLoad::Found(key),
+                        Err(AppError::NotLoggedIn) => auth::CredentialLoad::Missing,
+                        Err(err) => auth::CredentialLoad::StoreLocked(err.to_string()),
+                    }
+                }
+                other => other,
+            })
+        })
+        .await;
+        *engine.settings.lock().await = engine.db.load_settings().map_err(String::from)?;
     }
     if let Ok(client) = engine.client().await {
         match client.me().await {
-            Ok(me) => {
-                engine
-                    .db
-                    .meta_set("user_name", &me.name)
-                    .map_err(String::from)?;
-            }
+            Ok(()) => {}
             Err(AppError::Unauthenticated) => {
                 engine.session.mark_expired("restore_session");
             }
@@ -716,6 +730,24 @@ async fn require_client(engine: &EngineHandle) -> Result<ApiClient, String> {
     engine.client().await.map_err(String::from)
 }
 
+fn remote_folder_for_file(engine: &EngineHandle, remote_file_id: i64) -> Result<i64, String> {
+    let file = engine
+        .db
+        .list_remote_files()
+        .map_err(String::from)?
+        .into_iter()
+        .find(|file| file.remote_file_id == Some(remote_file_id))
+        .ok_or("Không tìm thấy tệp đã gắn")?;
+    engine
+        .db
+        .list_folders()
+        .map_err(String::from)?
+        .into_iter()
+        .find(|f| f.id == file.folder_id)
+        .and_then(|f| f.remote_id)
+        .ok_or_else(|| "Thư mục chưa được gắn".into())
+}
+
 /// Command: trang lịch sử version của một tệp trên server.
 #[tauri::command]
 #[tracing::instrument(
@@ -734,7 +766,12 @@ pub async fn get_file_versions(
     }
     let client = require_client(&state.engine).await?;
     client
-        .get_file_versions(file_id, limit.unwrap_or(20), offset.unwrap_or(0))
+        .get_file_versions(
+            remote_folder_for_file(&state.engine, file_id)?,
+            file_id,
+            limit.unwrap_or(20),
+            offset.unwrap_or(0),
+        )
         .await
         .map_err(String::from)
 }
@@ -754,7 +791,10 @@ pub async fn get_sync_file(
         return Err("Thiếu mã tệp trên máy chủ".into());
     }
     let client = require_client(&state.engine).await?;
-    client.get_file(file_id).await.map_err(String::from)
+    client
+        .get_file(remote_folder_for_file(&state.engine, file_id)?, file_id)
+        .await
+        .map_err(String::from)
 }
 
 /// Command: chi tiết một version cụ thể của một tệp.
@@ -774,7 +814,11 @@ pub async fn get_file_version_detail(
     }
     let client = require_client(&state.engine).await?;
     client
-        .get_file_version(file_id, version_id)
+        .get_file_version(
+            remote_folder_for_file(&state.engine, file_id)?,
+            file_id,
+            version_id,
+        )
         .await
         .map_err(String::from)
 }
@@ -798,7 +842,11 @@ pub async fn restore_file_version(
     }
     let client = require_client(&state.engine).await?;
     let restored = client
-        .restore_file_version(file_id, version_id)
+        .restore_file_version(
+            remote_folder_for_file(&state.engine, file_id)?,
+            file_id,
+            version_id,
+        )
         .await
         .map_err(String::from)?;
     // Kích hoạt đối soát thay đổi máy chủ ngay lập tức để tải phiên bản chuẩn mới về thư mục
@@ -852,24 +900,17 @@ pub fn keep_local_conflict(state: State<'_, AppState>, file_id: i64) -> Result<S
     fields(command = "open_office_editor", file_id = file_id)
 )]
 pub async fn open_office_editor(
+    app: AppHandle,
     state: State<'_, AppState>,
     file_id: i64,
-) -> Result<OfficeSessionDto, String> {
-    if file_id <= 0 {
-        return Err("Thiếu mã tệp trên máy chủ".into());
-    }
-    let client = require_client(&state.engine).await?;
-    client
-        .open_office_session(file_id)
-        .await
-        .map_err(String::from)
+) -> Result<(), String> {
+    let base = state.engine.settings.lock().await.odoo_url.clone();
+    crate::browser::open_editor(&app, &base, file_id)
 }
 
 /// Kiểm tra bản cập nhật mới trên endpoint Odoo đã cấu hình.
 ///
-/// Trả về `None` khi đã là bản mới nhất hoặc khi lượt kiểm thất bại vì bất kỳ lý do gì (lỗi mạng,
-/// endpoint không hợp lệ, ...). Lỗi chỉ được log, không bao giờ hiện thành error cho người dùng để
-/// tránh gây hoang mang vì một lượt kiểm nền định kỳ.
+/// Ordinary network/manifest failures are best effort; a typed migration refusal remains visible.
 #[tauri::command]
 #[tracing::instrument(level = "debug", skip_all, fields(command = "check_update"))]
 pub async fn check_update(
@@ -880,7 +921,11 @@ pub async fn check_update(
         let settings = state.engine.settings.lock().await;
         settings.odoo_url.clone()
     };
-    Ok(crate::updater::check_for_update(&app, &odoo_url).await)
+    let available = crate::updater::check_for_update(&app, &odoo_url).await;
+    if let Some(notice) = crate::client_migration::required(&odoo_url) {
+        return Err(notice.to_string());
+    }
+    Ok(available)
 }
 
 /// Tải và cài đặt bản cập nhật đang chờ.
@@ -918,6 +963,72 @@ pub async fn download_and_install_update(
 #[tracing::instrument(level = "debug", skip_all, fields(command = "dismiss_update_session"))]
 pub fn dismiss_update_session() {
     crate::updater::dismiss_update();
+}
+
+#[tauri::command]
+pub async fn list_sync_devices(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::wire::Device>, String> {
+    require_client(&state.engine)
+        .await?
+        .devices()
+        .await
+        .map_err(String::from)
+}
+
+#[tauri::command]
+pub async fn revoke_sync_device(state: State<'_, AppState>, device_id: i64) -> Result<(), String> {
+    if device_id <= 0 {
+        return Err("Mã thiết bị không hợp lệ".into());
+    }
+    require_client(&state.engine)
+        .await?
+        .revoke_device(device_id)
+        .await
+        .map_err(String::from)?;
+    if state
+        .engine
+        .db
+        .meta_get("device_id")
+        .map_err(String::from)?
+        .as_deref()
+        == Some(&device_id.to_string())
+    {
+        state.engine.session.mark_expired("device_revoked");
+        state.engine.emit_status();
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_client_migration(
+    state: State<'_, AppState>,
+    server_url: Option<String>,
+) -> Result<Option<crate::client_migration::MigrationRequired>, String> {
+    let base = server_url
+        .filter(|url| !url.is_empty())
+        .unwrap_or(state.engine.settings.lock().await.odoo_url.clone());
+    crate::server_url::endpoint(&base, "medilab/api/v1").map_err(String::from)?;
+    Ok(crate::client_migration::required(&base))
+}
+
+#[tauri::command]
+pub async fn open_client_download(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    server_url: Option<String>,
+) -> Result<(), String> {
+    let base = server_url
+        .filter(|url| !url.is_empty())
+        .unwrap_or(state.engine.settings.lock().await.odoo_url.clone());
+    crate::server_url::endpoint(&base, "medilab/api/v1").map_err(String::from)?;
+    let url = crate::client_migration::required(&base)
+        .and_then(|notice| notice.download_url)
+        .and_then(|url| crate::client_migration::safe_download_url(&url))
+        .ok_or("No safe installer address is available")?;
+    app.opener()
+        .open_url(url, None::<&str>)
+        .map_err(|_| "Could not open the installer page. Try again.".into())
 }
 
 #[cfg(test)]

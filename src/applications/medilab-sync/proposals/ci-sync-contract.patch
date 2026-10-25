@@ -1,0 +1,19 @@
+--- a/.github/workflows/ci.sync-app.yml
++++ b/.github/workflows/ci.sync-app.yml
+@@ -34,6 +34,7 @@
+           filters: |
+             relevant:
+               - "src/applications/medilab-sync/**"
++              - "src/core/modules/sol_laboratory/api/openapi.yaml"
+               - ".github/workflows/ci.sync-app.yml"
+ 
+   lint:
+@@ -219,7 +220,7 @@
+ 
+       - name: Rust tests
+         if: matrix.part == 'backend'
+-        run: cargo test --manifest-path src-tauri/Cargo.toml
++        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+ 
+   test:
+     needs: [changes, test-runner]

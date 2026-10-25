@@ -1,21 +1,11 @@
 //! Kiểm tra cập nhật nền.
 //!
 //! Lấy manifest cập nhật từ endpoint backend Odoo
-//! `{odoo_url}/api/mobile/v1/updates/{target}/{arch}/{version}` lúc khởi động
-//! và mỗi khi frontend gọi `check_update`. Lượt kiểm chỉ best-effort: mọi thất
-//! bại được log và âm thầm bỏ qua để một update server hỏng không bao giờ
-//! ảnh hưởng tới sync.
+//! `{odoo_url}/medilab/api/v1/updates/{target}/{arch}/{version}` lúc khởi động
+//! và mỗi khi frontend gọi `check_update`. Network/manifest failures are best effort;
+//! a typed migration refusal is surfaced separately and holds queued transfers.
 //!
-//! # Sinh khóa
-//!
-//! Trước bản release đã ký đầu tiên, chạy:
-//! ```text
-//! cargo tauri signer generate
-//! ```
-//! Copy **khóa công khai** vào `tauri.conf.json` → `plugins.updater.pubkey`.
-//! Lưu **khóa riêng** vào Doppler (`ci_sync_app`) với tên
-//! `TAURI_SIGNING_PRIVATE_KEY`. Cả hai đều cần cho bước build gắn chữ ký vào
-//! installer bundle.
+//! Signing keys are managed by the release owner; the desktop never replaces them.
 
 use serde::Serialize;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -55,19 +45,30 @@ const UPDATE_CHANNEL: &str = match option_env!("MEDILAB_SYNC_UPDATE_CHANNEL") {
 
 /// Dựng URL endpoint kiểm tra cập nhật theo target/arch/version hiện tại, kèm channel nếu khác
 /// "stable".
-fn build_endpoint_url(odoo_url: &str, target: &str, arch: &str, current: &str) -> String {
-    let base = format!(
-        "{}/api/sync/v1/updates/{}/{}/{}",
-        odoo_url.trim_end_matches('/'),
-        target,
-        arch,
-        current,
-    );
-    if UPDATE_CHANNEL == "stable" {
-        base
-    } else {
-        format!("{base}?channel={UPDATE_CHANNEL}")
+fn build_endpoint_url(
+    odoo_url: &str,
+    target: &str,
+    arch: &str,
+    current: &str,
+) -> crate::error::AppResult<String> {
+    if [target, arch, current].iter().any(|part| {
+        part.is_empty()
+            || !part
+                .chars()
+                .all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, '.' | '-' | '_'))
+    }) {
+        return Err(crate::error::AppError::Message(
+            "Thông tin bản cập nhật không hợp lệ".into(),
+        ));
     }
+    let mut url = crate::server_url::endpoint(
+        odoo_url,
+        &format!("medilab/api/v1/updates/{target}/{arch}/{current}"),
+    )?;
+    if UPDATE_CHANNEL != "stable" {
+        url.query_pairs_mut().append_pair("channel", UPDATE_CHANNEL);
+    }
+    Ok(url.into())
 }
 
 /// Ánh xạ `std::env::consts::OS` sang chuỗi target mà update server mong đợi.
@@ -99,10 +100,27 @@ pub async fn check_for_update(app: &AppHandle, odoo_url: &str) -> Option<UpdateA
     let arch = std::env::consts::ARCH;
     let current = app.package_info().version.to_string();
 
-    let endpoint = build_endpoint_url(odoo_url, target, arch, &current);
+    let endpoint = build_endpoint_url(odoo_url, target, arch, &current)
+        .map_err(|err| warn!("Invalid updater endpoint: {err}"))
+        .ok()?;
+
+    match crate::client_migration::updater_requirement(odoo_url, &endpoint).await {
+        Ok(Some(_)) => return None,
+        Err(err) => {
+            warn!("Update preflight failed: {err}");
+            return None;
+        }
+        Ok(None) => {}
+    }
 
     let updater = match app
         .updater_builder()
+        .header(
+            "User-Agent",
+            concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")),
+        )
+        .map_err(|err| warn!("Invalid updater header: {err}"))
+        .ok()?
         .endpoints(vec![endpoint
             .parse()
             .map_err(|err| warn!("Invalid updater endpoint '{endpoint}': {err}"))
@@ -120,6 +138,7 @@ pub async fn check_for_update(app: &AppHandle, odoo_url: &str) -> Option<UpdateA
 
     match updater.check().await {
         Ok(Some(update)) => {
+            crate::client_migration::clear(odoo_url);
             info!("Update available: {} → {}", current, update.version);
             Some(UpdateAvailable {
                 current_version: current,
@@ -129,6 +148,7 @@ pub async fn check_for_update(app: &AppHandle, odoo_url: &str) -> Option<UpdateA
             })
         }
         Ok(None) => {
+            crate::client_migration::clear(odoo_url);
             info!("No update available (current: {current})");
             None
         }
@@ -152,10 +172,22 @@ pub async fn download_and_install(app: &AppHandle, odoo_url: &str) -> Result<(),
     let arch = std::env::consts::ARCH;
     let current = app.package_info().version.to_string();
 
-    let endpoint = build_endpoint_url(odoo_url, target, arch, &current);
+    let endpoint = build_endpoint_url(odoo_url, target, arch, &current).map_err(String::from)?;
+
+    if let Some(notice) = crate::client_migration::updater_requirement(odoo_url, &endpoint)
+        .await
+        .map_err(String::from)?
+    {
+        return Err(notice.to_string());
+    }
 
     let updater = app
         .updater_builder()
+        .header(
+            "User-Agent",
+            concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")),
+        )
+        .map_err(|err| format!("Không thể cấu hình cập nhật: {err}"))?
         .endpoints(vec![endpoint
             .parse()
             .map_err(|err| format!("URL cập nhật không hợp lệ: {err}"))?])
@@ -221,13 +253,14 @@ mod tests {
         assert_eq!(os_to_target("freebsd"), "linux");
     }
 
-    /// URL endpoint dựng ra phải đúng định dạng `{odoo_url}/api/sync/v1/updates/{target}/{arch}/{version}`.
+    /// URL endpoint dựng ra phải đúng định dạng `{odoo_url}/medilab/api/v1/updates/{target}/{arch}/{version}`.
     #[test]
     fn endpoint_url_format() {
         let url =
-            super::build_endpoint_url("https://odoo.example.com", "windows", "x86_64", "0.1.0");
+            super::build_endpoint_url("https://odoo.example.com", "windows", "x86_64", "0.1.0")
+                .unwrap();
         assert!(
-            url.starts_with("https://odoo.example.com/api/sync/v1/updates/windows/x86_64/0.1.0")
+            url.starts_with("https://odoo.example.com/medilab/api/v1/updates/windows/x86_64/0.1.0")
         );
     }
 }
