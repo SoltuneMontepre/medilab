@@ -30,7 +30,7 @@ from odoo.addons.sol_laboratory.constants.laboratory_reconciliation import MARKE
 from odoo.addons.sol_laboratory.constants.models import MODEL_AUDIT_ENTRY, MODEL_LABORATORY_CONTENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket, openapi_document
 
-CALLBACK_BUCKET = "laboratory-files-callback-http"
+CALLBACK_BUCKET = os.environ.get("ONLYOFFICE_CALLBACK_TEST_BUCKET", "laboratory-files-callback-http")
 
 
 class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurrencyCase):

@@ -49,7 +49,7 @@ services:
       GARAGE_ADMIN_URL: http://garage:3903
       GARAGE_ADMIN_TOKEN: agent4-local-only
       GARAGE_OTHER_BUCKET: laboratory-files-other
-      GARAGE_RECONCILE_BUCKET: laboratory-files-reconcile
+      GARAGE_RECONCILE_BUCKET: ${ONLYOFFICE_CALLBACK_TEST_BUCKET:-laboratory-files-reconcile}
     depends_on:
       garage:
         condition: service_healthy
@@ -97,6 +97,7 @@ services:
       USER: agent4
       PASSWORD: agent4-local-only
       ONLYOFFICE_REAL: "1"
+      ONLYOFFICE_CALLBACK_TEST_BUCKET: ${ONLYOFFICE_CALLBACK_TEST_BUCKET:-laboratory-files-callback-http}
       ONLYOFFICE_EVIDENCE_DIR: /tmp/agent4-evidence
     command:
       - odoo
