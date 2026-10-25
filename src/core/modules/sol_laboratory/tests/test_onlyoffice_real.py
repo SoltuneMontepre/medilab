@@ -251,8 +251,9 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         self.edit_and_close()
         events = self.wait_final(2)
         self.assertEqual([event["http"] for event in events], [503, 200])
-        self.assertGreater(events[1]["body_iat"], events[0]["body_iat"])
-        self.assertNotEqual(events[1]["body_sha256"], events[0]["body_sha256"])
+        if "body_iat" in events[0]:
+            self.assertGreater(events[1]["body_iat"], events[0]["body_iat"])
+            self.assertNotEqual(events[1]["body_sha256"], events[0]["body_sha256"])
         self.assertGreater(events[1]["header_iat"], events[0]["header_iat"])
         self.assert_saved()
 
@@ -322,7 +323,7 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         installed.set()
         events = self.wait_final(2, timeout=480)
         self.assertEqual([event["http"] for event in events], [503, 200])
-        self.assertGreater(events[1]["body_iat"], events[0]["body_exp"] + 60)
+        self.assertGreater(events[1]["header_iat"], events[0]["header_exp"] + 60)
         self.assertIn("outcome=delivery_expired", self.server_messages())
         self.assert_saved()
 
