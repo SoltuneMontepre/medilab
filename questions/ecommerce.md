@@ -11,6 +11,8 @@
 - **Support request deadline.** A support request's task is due 24 elapsed hours after it reaches the salesperson, nights and weekends included, and the administrator can change the default on the task type. This is the provisional default; it awaits formal confirmation, including whether only working hours should count. (blocks US-S20)
 - **Priority surcharge.** A priority order makes its tests urgent. Does it cost more, and is the surcharge a line on the quotation?
 - **Quotation layout.** What does the laboratory's báo giá show, and in what order: the header, the customer and contact, the salesperson, the lines by sample, the totals, the advance payment, the payment deadline and the signatures? A sample of the current paper form settles it. (blocks US-S07, asked of @nnh53)
+- **PayOS checkout transaction.** Must the first payment request redirect directly to a newly created PayOS link, or may it show the pending page while a committed background job creates the link? Direct creation needs a transaction boundary that releases the invoice lock before the external call and preserves request retry and duplicate-click guarantees.
+- **Catalog filter size.** Must the catalog offer every sample type and parameter group, including those without an offered product, or should those controls search or page a restricted set? A fixed result limit would hide existing choices.
 
 ## Related documents
 
