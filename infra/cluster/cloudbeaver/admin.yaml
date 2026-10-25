@@ -1,4 +1,4 @@
-# Bootstrap credentials: used only for a pristine workspace; never used to reset an existing account.
+# Administrator inputs serve fresh bootstrap and readiness; existing accounts are never reset.
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:

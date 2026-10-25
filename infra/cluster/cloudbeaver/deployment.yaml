@@ -63,6 +63,18 @@ spec:
             - secretRef:
                 name: cloudbeaver-admin
           env:
+            - name: CB_VERIFY_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: cloudbeaver-admin
+                  key: CB_ADMIN_NAME
+            - name: CB_VERIFY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloudbeaver-admin
+                  key: CB_ADMIN_PASSWORD
+            - name: CLOUDBEAVER_DB_URL
+              value: jdbc:h2:/opt/cloudbeaver/workspace/.data/cb.h2v2.dat;WRITE_DELAY=0
             - name: CB_SERVER_NAME
               value: MediLab
             - name: CB_SERVER_URL
@@ -83,8 +95,8 @@ spec:
           readinessProbe:
             exec:
               command: [/bin/bash, /bootstrap/ready.sh]
-            periodSeconds: 10
-            timeoutSeconds: 8
+            periodSeconds: 20
+            timeoutSeconds: 20
             failureThreshold: 1
           resources:
             requests:

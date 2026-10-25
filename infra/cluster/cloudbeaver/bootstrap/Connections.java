@@ -8,6 +8,30 @@ public final class Connections {
         try {
             Workspace.state(Workspace.root());
             Path path = Workspace.root().resolve("GlobalConfiguration/.dbeaver/data-sources.json");
+            if (Files.isDirectory(path.getParent())) {
+                var identifiers = new java.util.HashSet<String>();
+                boolean managed = false;
+                try (var files = Files.newDirectoryStream(path.getParent(), "data-sources*.json")) {
+                    for (Path file : files) {
+                        if (Files.isSymbolicLink(file)) {
+                            throw new IllegalStateException();
+                        }
+                        JsonObject document = JsonFiles.read(file);
+                        if (document.has("connections")) {
+                            for (String identifier : document.getAsJsonObject("connections").keySet()) {
+                                if (!identifiers.add(identifier)) {
+                                    throw new IllegalStateException();
+                                }
+                                managed |= identifier.equals("medilab-postgres");
+                            }
+                        }
+                    }
+                }
+                if (managed) {
+                    System.out.println("Existing MediLab connection preserved.");
+                    return;
+                }
+            }
             JsonObject data = Files.exists(path) ? JsonFiles.read(path) : new JsonObject();
             JsonObject connections;
             if (data.has("connections")) {
@@ -46,6 +70,7 @@ public final class Connections {
                 Path backup = Files.createTempFile(path.getParent(), ".medilab-before-provision-", ".json",
                     PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
                 Files.write(backup, Files.readAllBytes(path));
+                JsonFiles.sync(backup);
             }
             JsonFiles.write(path, data);
             System.out.println("Missing MediLab connection provisioned.");

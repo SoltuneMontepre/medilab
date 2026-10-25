@@ -5,6 +5,8 @@ configMapGenerator:
   - name: cloudbeaver-bootstrap
     files:
       - bootstrap/JsonFiles.java
+      - bootstrap/GraphClient.java
+      - bootstrap/Authentication.java
       - bootstrap/Workspace.java
       - bootstrap/Connections.java
       - bootstrap/Readiness.java

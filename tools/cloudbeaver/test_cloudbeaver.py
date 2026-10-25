@@ -135,6 +135,10 @@ class TestCloudBeaver(unittest.TestCase):
 
     def test_provisioning_preserves_custom_connections_and_escapes_credentials(self):
         runtime = self.runtime()
+        runtime.prepare()
+        runtime.start()
+        runtime.wait()
+        runtime.stop()
         path = "GlobalConfiguration/.dbeaver/data-sources.json"
         original = {
             "folders": {"custom": {"name": "Research"}},
@@ -285,7 +289,8 @@ class TestCloudBeaver(unittest.TestCase):
     def test_readiness_rejects_errors_invalid_types_and_unavailable_server(self):
         runtime = self.runtime()
         runtime.helper(
-            'gson=(server/plugins/com.google.gson_*.jar); javac -cp "${gson[0]}" -d /bootstrap-bin /bootstrap/*.java /regression/ReadinessTest.java; java -cp "/bootstrap-bin:${gson[0]}" ReadinessTest'
+            'gson=(server/plugins/com.google.gson_*.jar); javac -cp "${gson[0]}" -d /bootstrap-bin '
+            '/bootstrap/*.java /regression/ReadinessTest.java; java -cp "/bootstrap-bin:${gson[0]}" ReadinessTest'
         )
 
 

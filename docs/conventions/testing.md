@@ -28,6 +28,18 @@ How tests are written, where they live and how they run.
 - `task test:uninstall` installs Laboratory, E-commerce and Inventory in a guarded throwaway database, uninstalls E-commerce and Inventory, and checks that the Laboratory data is intact. It refuses a selected fresh demo because its standalone test uses the application's filestore.
 - `task test:core` also combines the coverage of the install and of every shard into the report `src/core/modules/coverage.xml`, which is not committed. Task installs its pinned Linux Python 3.12 coverage package into ignored `.local/core-test-coverage` on the host and mounts it read-only in test containers, so a container with restricted DNS can still run coverage without changing the saved application image.
 
+## CloudBeaver tests
+
+Run `python3 -m unittest discover -s tools/cloudbeaver -v` with a Docker-compatible engine and the pinned CloudBeaver/PostgreSQL images. It uses synthetic accounts and disposable volumes. Without `MEDILAB_KUBE_TEST_CONFIG`, the real Kubernetes cases report skips, not passes.
+
+For Pod/PVC/Service/IngressRoute lifecycle tests, create a disposable kind cluster named `medilab-286-review`, using the pinned node image and image-loading recipe in [ci-infra](../../.github/workflows/ci.infra.yml). Select its separate kubeconfig explicitly:
+
+```bash
+MEDILAB_KUBE_TEST_CONFIG=/path/to/disposable-kind-config python3 -m unittest discover -s tools/cloudbeaver -p test_kubernetes.py -v
+```
+
+The harness requires context `kind-medilab-286-review`, a loopback API server and the exact single disposable node name. It creates its own namespaces, synthetic Secrets, PVCs, Traefik CRDs and test routing. Never supply a production kubeconfig. For rootless Podman, create and load the cluster inside `systemd-run --user --scope -p Delegate=yes` as described in [kind's rootless documentation](https://kind.sigs.k8s.io/docs/user/rootless/). A control plane accepting manifests does not prove Pod lifecycle tests executed.
+
 ## Type checking tests
 
 - `task test:typecheck` checks that every module is linked into the Odoo source and that an import of a module's constant resolves.

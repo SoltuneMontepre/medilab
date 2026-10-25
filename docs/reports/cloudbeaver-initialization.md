@@ -37,43 +37,21 @@ The immediate collision mechanism is confirmed in 26.2.2. It fits the reported s
 
 The old implementation's restart behavior is consistent with retaining completed runtime configuration and H2 on the same volume while not injecting automatic-setup credentials in Kubernetes. Its source does **not** establish the old deployment's original setup procedure or live account/runtime contents. No old running Kubernetes installation or old workspace backup was available to inspect. The local tests establish the relevant durable behavior on 26.2.2 rather than assuming the version difference is the cause.
 
-## Implementation choices
+## Durable implementation and validation
 
-- Fail closed on ambiguous existing state, interrupted bootstrap and an empty H2 file. An attempt marker alone does not prove whether setup once completed; missing-runtime classification requires the backup-clone audit. The attempt marker contains no credentials and never overrides valid completed runtime settings. Recovery is explicit; there is no automatic deletion, account migration, runtime synthesis or Secret change.
-- Compile small Java helpers in the init container using the same pinned image. This avoids adding a registry artifact or installing packages at runtime. Every application start runs the guard; compiled classes alone are ephemeral.
-- Provision only a missing connection. Existing connection definitions and saved credentials take precedence, including definitions with obsolete fields that require separately reviewed repair. Secret rotation no longer forces a connection rewrite on restart. The initial seed remains private plaintext unless application credential-storage migration is verified, so workspace backups remain secret-bearing artifacts. Connecting alone did not remove it in the executed 26.2.2 test. An additional authenticated update experiment returned `Session secret controller not found`; encrypted migration is not claimed or forced by this fix.
-- Readiness checks disk completion and the application's actual GraphQL configuration state. It does not treat TCP, HTTP 200 from `/status`, a filename, a string `"false"` or a partial/error GraphQL response as proof of readiness.
-- The existing Service/IngressRoute and Argo CD self-heal/prune remain in place; the PVC gains its own prune/delete protection. No production repair is automatically added to the GitOps resources.
+The current candidate compiles helpers using the pinned image, locks preparation and application lifetime, classifies unknown state conservatively, and removes setup inputs from configured launches. Readiness additionally requires the expected authenticated enabled administrator and readable connection registry. Disk filenames and configuration mode alone do not prove usability. Management H2 uses the same file and credential material with synchronous writes. Connection merging scans supplemental files, rejects duplicate JSON keys/IDs and preserves saved definitions and credential files.
 
-## Validation
+The strict [review report](cloudbeaver-review.md) records defects discovered against the initial implementation, corrections, exact-image crash controls, executed container and real Kubernetes lifecycle tests, data-preservation evidence and remaining limits. The original eleven passing container cases were insufficient evidence: they did not detect accountless readiness, ambiguous JSON loss, supplemental shadowing, competing writers or rapid-kill account loss. Real Pod/PVC/Service/Traefik tests now run in a delegated disposable kind environment; they do not validate production, its Argo controller or its encrypted stores.
 
-Run `python3 -m unittest discover -s tools/cloudbeaver -v` using a local Docker-compatible engine. All data and credentials in these tests are synthetic. The suite runs the exact image, not a mock of initialization. The Java readiness response tests exercise failure shapes through a local HTTP server.
-
-The regression cases cover collision reproduction, reserved administrator IDs before H2 creation, completed setup, existing administrator plus default admin team, repeated container restarts, replacement containers sharing the same workspace with new ephemeral classes, original-password login despite changed bootstrap inputs, retained users and settings, missing-runtime recovery without H2 mutation, interrupted bootstrap, empty-H2 rejection, malformed JSON preservation, user-managed connections, credential escaping and private file permissions, real PostgreSQL login using saved credentials, and readiness rejection of incomplete setup/errors.
-
-Executed results:
-
-| Check | Actual result |
-| --- | --- |
-| Full pinned-image regression command above | **11 tests passed**, 85.625 seconds |
-| Real PostgreSQL 18.4 connection | Login using quotes, apostrophe, backslash, newline, tab, shell metacharacters and Unicode in synthetic credentials succeeded before and after workspace reattachment; a changed provisioning password did not overwrite the saved definition |
-| Existing installation | Original administrator password, an additional existing user, default teams, a changed setting and connection definitions survived repeated starts; replacement accepted a valid installation without the new attempt marker |
-| Blocked recovery | H2 SHA-256 before and after refusing missing-runtime initialization matched; restoring known runtime settings allowed the same original login |
-| Readiness | Executed inside the exact image against both actual setup mode and initialized servers; HTTP fixture also rejected GraphQL errors, malformed/missing data, string booleans, redirects, HTTP failures and connection failure |
-| `kubectl kustomize infra/cluster/cloudbeaver` | Passed; generated ConfigMap reference appears in the Deployment |
-| Server dry-run on disposable k3s 1.36.5 | ConfigMap, Service, PVC and Deployment accepted; ExternalSecret/IngressRoute CRDs were not installed in the disposable cluster |
-| Init-container 256 MiB memory limit | Shipped JDK compiled all helpers and provisioned synthetic data successfully within the configured limit |
-| Bash syntax, repository Ruff and relative documentation file links | Passed |
-| Real Kubernetes Pod/PVC/EndpointSlice lifecycle | **Not verified**: the disposable rootless cluster's container runtime could not start Pod sandboxes because delegated cgroup v2 controllers were unavailable; its API server was usable for schema validation |
-| Production and Argo CD rollout | **Not performed**; no production context, Secret values, workspace files or H2 records were inspected |
-
-Container-volume reattachment exercises application persistence; it is not a production PVC or Argo CD rollout test. Opaque credential-file preservation is tested byte-for-byte during provisioning; production encrypted stores and original account inventories still require the read-only assessment and backup-clone validation. The initial plaintext connection seed is a documented remaining risk protected by private permissions, not a claim of automatic encryption.
+The private connection seed can remain plaintext after connecting. An authenticated credential-migration experiment returned `Session secret controller not found`; automatic encryption is neither claimed nor forced. Preserve existing key/credential files and require original saved-credential validation on an isolated production-backup clone.
 
 ## Production recovery boundary
 
-Follow [CloudBeaver recovery](../workflows/cloudbeaver-recovery.md). Before review, obtain the production evidence and choose the recovery branch. After explicit approval, stop the single writer through GitOps, make and restore-test an encrypted cold backup, repair only the verified missing runtime state or complete a demonstrably first-time installation on a clone, then perform the approved GitOps rollout. Never delete/recreate the claim, reset/replace H2, rerun setup against previous users, rotate Secrets or expose the wizard as a shortcut. A Git revert alone cannot undo persistent data changes.
+Follow the [A/B/C/D decision tree and staged GitOps procedure](../workflows/cloudbeaver-recovery.md). Merging to auto-synced `main` is a production deployment trigger, so an approved Git-managed reconciliation hold must precede the candidate. Production access, runtime/account evidence, a tested encrypted cold backup and explicit recovery/rollout approval remain required. No production state has been inspected or changed. Never delete/recreate the claim, reset/replace H2, rerun setup against prior users, rotate Secrets or expose the wizard as a shortcut. Git rollback does not reverse persistent writes.
 
 ## Related documents
+
+- [CloudBeaver review](cloudbeaver-review.md)
 
 - [Cluster](../infrastructure/cluster.md#cloudbeaver)
 - [CloudBeaver recovery](../workflows/cloudbeaver-recovery.md)

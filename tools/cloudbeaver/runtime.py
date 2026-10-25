@@ -43,6 +43,9 @@ class Runtime:
             "CB_SERVER_NAME": "Regression",
             "CB_ADMIN_NAME": admin,
             "CB_ADMIN_PASSWORD": PASSWORD,
+            "CB_VERIFY_NAME": "operator",
+            "CB_VERIFY_PASSWORD": PASSWORD,
+            "CLOUDBEAVER_DB_URL": "jdbc:h2:/opt/cloudbeaver/workspace/.data/cb.h2v2.dat;WRITE_DELAY=0",
             "DB_HOST": "127.0.0.1",
             "DB_USER": SPECIAL_USER,
             "DB_PASSWORD": SPECIAL_PASSWORD,
@@ -133,11 +136,27 @@ class Runtime:
         raise AssertionError("CloudBeaver did not reach expected configuration state within 100s.")
 
     def login(self):
+        active = self.query("{ activeUser { userId } }")["data"]["activeUser"]
+        if active and active["userId"] == "operator":
+            return "operator"
         self.query("mutation { openSession { valid } }")
-        self.query(
-            'query($credentials: Object!) { authLogin(provider: "local", credentials: $credentials) { authStatus } }',
-            {"credentials": {"user": "operator", "password": hashlib.md5(PASSWORD.encode()).hexdigest().upper()}},
-        )
+        for attempt in range(2):
+            try:
+                self.query(
+                    'query($credentials: Object!) { authLogin(provider: "local", '
+                    "credentials: $credentials) { authStatus } }",
+                    {
+                        "credentials": {
+                            "user": "operator",
+                            "password": hashlib.md5(PASSWORD.encode()).hexdigest().upper(),
+                        }
+                    },
+                )
+                break
+            except AssertionError as error:
+                if attempt or "Too frequent authentication requests" not in str(error):
+                    raise
+                time.sleep(1.1)
         return self.query("{ activeUser { userId } }")["data"]["activeUser"]["userId"]
 
     def ready(self):
