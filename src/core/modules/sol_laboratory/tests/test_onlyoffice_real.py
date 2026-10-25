@@ -38,7 +38,7 @@ from odoo.addons.sol_laboratory.services.onlyoffice_jwt import sign, verify_call
 
 @tagged("post_install", "-at_install", "-standard", "onlyoffice_real")
 class TestOnlyofficeReal(LaboratoryEditingHttpCase):
-    HTTP_LIMIT_TIME_REAL = 480
+    HTTP_LIMIT_TIME_REAL = 1200
 
     @classmethod
     def setUpClass(cls):
@@ -307,6 +307,13 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         self.assertEqual(self.committed(lambda env: self.file(env).current_version_id.sha256), digest)
 
     def test_docx_real_jwt_expiry_on_transaction_retry(self):
+        self.assert_expiry_redelivery(delay=370, timeout=480)
+
+    def test_docx_callback_exceeds_default_worker_timeout(self):
+        events = self.assert_expiry_redelivery(delay=650, timeout=760)
+        self.assertGreaterEqual(events[1]["at"] - events[0]["at"], 650)
+
+    def assert_expiry_redelivery(self, *, delay, timeout):
         ready = threading.Event()
         installed = threading.Event()
 
@@ -317,16 +324,17 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
                     raise AssertionError("The main test thread did not install the failure trigger.")
 
         self.relay.on_final = inject_failure
-        self.relay.forward_timeout = 470
+        self.relay.forward_timeout = timeout - 10
         self.edit_and_close()
         self.assertTrue(ready.wait(30), "No final callback arrived to install the failure trigger.")
-        self.attempt_trigger(1, delay=370)
+        self.attempt_trigger(1, delay=delay)
         installed.set()
-        events = self.wait_final(2, timeout=480)
+        events = self.wait_final(2, timeout=timeout)
         self.assertEqual([event["http"] for event in events], [503, 200])
         self.assertGreater(events[1]["header_iat"], events[0]["header_exp"] + 60)
         self.assertIn("outcome=delivery_expired", self.server_messages())
         self.assert_saved()
+        return events
 
     def test_docx_captured_delivery_authentication_controls(self):
         self.edit_and_close()

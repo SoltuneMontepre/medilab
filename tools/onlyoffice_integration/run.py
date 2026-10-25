@@ -19,7 +19,13 @@ COMPOSE = Path(__file__).with_name("compose.yml")
 PROJECT = os.environ.get("ONLYOFFICE_COMPOSE_PROJECT", "medilab171-agent4")
 if not re.fullmatch(r"medilab171-agent4(?:-[a-z0-9-]+)?", PROJECT):
     raise ValueError("Select an isolated Agent 4 Compose project.")
-CONTAINER = PROJECT + "-acceptance"
+RUNNER_SUFFIX = os.environ.get("ONLYOFFICE_RUNNER_SUFFIX", "")
+if RUNNER_SUFFIX and not re.fullmatch(r"[a-z0-9-]+", RUNNER_SUFFIX):
+    raise ValueError("ONLYOFFICE_RUNNER_SUFFIX must be a simple container suffix.")
+CONTAINER = PROJECT + "-acceptance" + ("-" + RUNNER_SUFFIX if RUNNER_SUFFIX else "")
+DATABASE = os.environ.get("ONLYOFFICE_TEST_DATABASE", "medilab171agent4")
+if not re.fullmatch(r"medilab171[a-z0-9_]{1,40}", DATABASE):
+    raise ValueError("Select an isolated medilab171 test database.")
 DIGEST = "sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212"
 IMAGE = "docker.io/onlyoffice/documentserver:9.4.0.1@" + DIGEST
 RUN_ID = os.environ.get("ONLYOFFICE_RUN_ID", "current")
@@ -253,7 +259,11 @@ def start():
     verify_image()
 
 
-def test():
+def test(*, native_only=False):
+    if native_only and (
+        not os.environ.get("ONLYOFFICE_REAL_TAGS") or "onlyoffice_real" in os.environ["ONLYOFFICE_REAL_TAGS"]
+    ):
+        raise ValueError("Select explicit native Odoo test tags without onlyoffice_real for test-native.")
     verify_image()
     if (OUTPUT / "callbacks").exists():
         raise RuntimeError("This run already has callback evidence; select a new ONLYOFFICE_RUN_ID.")
@@ -271,7 +281,7 @@ def test():
             "-d",
             "postgres",
             "-Atc",
-            "SELECT datname FROM pg_database WHERE datname = 'medilab171agent4'",
+            f"SELECT datname FROM pg_database WHERE datname = '{DATABASE}'",
         ),
         "Check database ownership",
     )
@@ -282,9 +292,22 @@ def test():
         compose("run", "--detach", "--name", CONTAINER, "--use-aliases", "--no-deps", "runner"), "Launch test runner"
     )
     deadline = time.monotonic() + limit
+    native_started = set()
+    native_failed = set()
+    native_summaries = []
+
+    def observe_logs(snapshot):
+        messages = snapshot.stdout + snapshot.stderr
+        native_started.update(re.findall(r"Starting (Test\w+\.test_\w+)", messages))
+        native_failed.update(re.findall(r"(?:FAIL|ERROR|Failed): (?:[\w.]+\.)?(Test\w+\.test_\w+)", messages))
+        for summary in re.findall(r"odoo.tests.result: ([^\n]+)", messages):
+            if summary not in native_summaries:
+                native_summaries.append(summary)
+
     while True:
         inspected = require_success(command([*DOCKER, "inspect", CONTAINER], env=DOCKER_ENV), "Inspect test runner")
         state = json.loads(inspected.stdout)[0]["State"]
+        observe_logs(command([*DOCKER, "logs", CONTAINER], env=DOCKER_ENV))
         if not state["Running"]:
             code = state["ExitCode"]
             break
@@ -296,6 +319,7 @@ def test():
             break
         time.sleep(2)
     logs_result = command([*DOCKER, "logs", CONTAINER], env=DOCKER_ENV)
+    observe_logs(logs_result)
     result = subprocess.CompletedProcess(launch.args, code, logs_result.stdout, logs_result.stderr)
     copy = command([*DOCKER, "cp", CONTAINER + ":/tmp/agent4-evidence/.", str(OUTPUT / "callbacks")], env=DOCKER_ENV)
     files = sorted((OUTPUT / "callbacks").glob("test_*.json")) if copy.returncode == 0 else []
@@ -306,6 +330,8 @@ def test():
         for node in ast.walk(ast.parse(source.read_text()))
         if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
     )
+    if native_only:
+        expected_names = []
     selected = os.environ.get("ONLYOFFICE_TEST_METHOD")
     if selected:
         requested = set(selected.split(","))
@@ -319,17 +345,33 @@ def test():
     completed = {path.stem for path in files}
     outcomes = {path.stem: json.loads(path.read_text()).get("test_body_passed") for path in files}
     failed = sorted(set(failed) | {name for name, outcome in outcomes.items() if outcome is False})
-    successful_summary = "0 failed, 0 error(s)" in logs
-    passed = result.returncode == 0 and len(files) == expected and not failed and successful_summary
+    successful_summary = bool(native_summaries and native_summaries[-1].startswith("0 failed, 0 error(s)"))
+    native_status = {
+        name: "FAIL" if name in native_failed else "PASS" if successful_summary and code == 0 else "BLOCKED"
+        for name in sorted(native_started)
+    }
+    passed = bool(
+        result.returncode == 0
+        and len(files) == expected
+        and not failed
+        and not native_failed
+        and native_started
+        and successful_summary
+    )
     write_result(
         "result.json",
         {
             "at": datetime.now(UTC).isoformat(),
             "runner_exit": result.returncode,
+            "database": DATABASE,
+            "container": CONTAINER,
             "evidence_copy_exit": copy.returncode,
             "evidence_files": [path.name for path in files],
             "runner_log_sha256": hashlib.sha256((result.stdout + result.stderr).encode()).hexdigest(),
-            "real_service_executed": True,
+            "real_service_executed": not native_only,
+            "native_odoo_executed": True,
+            "native_test_status": native_status,
+            "native_summary": native_summaries,
             "passed": passed,
             "failed_tests": failed,
             "passed_tests": sorted(
@@ -349,7 +391,7 @@ def test():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("preflight", "start", "test", "down"))
+    parser.add_argument("action", choices=("preflight", "start", "test", "test-native", "down"))
     args = parser.parse_args()
     if args.action == "down":
         require_success(compose("down", "--volumes", "--remove-orphans"), "Remove Agent 4 stack")
@@ -366,6 +408,8 @@ def main():
         start()
     elif args.action == "test":
         test()
+    elif args.action == "test-native":
+        test(native_only=True)
 
 
 if __name__ == "__main__":

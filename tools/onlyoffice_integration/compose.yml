@@ -102,8 +102,8 @@ services:
     command:
       - odoo
       - -d
-      - medilab171agent4
-      - --db-filter=^medilab171agent4$
+      - ${ONLYOFFICE_TEST_DATABASE:-medilab171agent4}
+      - --db-filter=^${ONLYOFFICE_TEST_DATABASE:-medilab171agent4}$
       - --init=sol_laboratory
       - --without-demo=all
       - --test-enable

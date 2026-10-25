@@ -65,6 +65,22 @@ def probe():
     ).stdout.split()
     if len(identifiers) != 1:
         raise RuntimeError("Expected exactly one running server in this isolated project.")
+    inspector = "/opt/medilab/onlyoffice/inspect_config.py"
+    mounted = command([*DOCKER, "exec", identifiers[0], "test", "-f", inspector], env=DOCKER_ENV)
+    if mounted.returncode == 0:
+        output = require_success(
+            command([*DOCKER, "exec", "--user", "ds", identifiers[0], "python3", inspector], env=DOCKER_ENV),
+            "Verify native effective worker policy",
+        )
+        write_result(
+            "effective-runtime.json",
+            {
+                "source": "config.get inside each native worker after its original entrypoint",
+                "workers": [json.loads(line) for line in output.stdout.splitlines()],
+                "status": "PASS",
+            },
+        )
+        return
     output = require_success(
         command([*DOCKER, "exec", "-i", "--user", "ds", identifiers[0], "python3", "-"], input=SCRIPT, env=DOCKER_ENV),
         "Inspect worker settings",

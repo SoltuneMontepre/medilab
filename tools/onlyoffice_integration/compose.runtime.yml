@@ -1,0 +1,26 @@
+services:
+  documentserver:
+    entrypoint: [/bin/bash, /opt/onlyoffice-integration/start_runtime.sh]
+    environment:
+      JWT_IN_BODY: "false"
+      DS_LOG_LEVEL: "OFF"
+      NGINX_ACCESS_LOG: "false"
+      NGINX_WORKER_PROCESSES: "2"
+      PLUGINS_ENABLED: "false"
+      USE_UNAUTHORIZED_STORAGE: "false"
+    cpus: 4
+    mem_limit: 6g
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - NET_RAW
+    stop_grace_period: 1890s
+    tmpfs:
+      - /var/log/onlyoffice:size=134217728
+    volumes:
+      - ../infrastructure/onlyoffice:/opt/medilab/onlyoffice:ro
+      - .:/opt/onlyoffice-integration:ro
+      - agent4-fonts:/usr/share/fonts/truetype/custom
+
+volumes:
+  agent4-fonts:

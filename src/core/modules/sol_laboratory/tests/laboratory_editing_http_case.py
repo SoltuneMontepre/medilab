@@ -110,7 +110,7 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
             try:
                 if requests.get(f"{cls.http_url}/web/health", timeout=1).status_code == 200:
                     return
-            except requests.ConnectionError:
+            except (requests.ConnectionError, requests.Timeout):
                 time.sleep(0.2)
                 continue
             time.sleep(0.2)
