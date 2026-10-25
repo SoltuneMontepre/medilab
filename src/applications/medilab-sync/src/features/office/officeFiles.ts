@@ -4,5 +4,5 @@ export function isOfficeDocument(path: string): boolean {
 }
 
 export function canEditOnline(path: string, category?: string | null): boolean {
-  return isOfficeDocument(path) && (category === "working" || category === "result");
+  return isOfficeDocument(path) && (category == null || category === "working" || category === "result");
 }

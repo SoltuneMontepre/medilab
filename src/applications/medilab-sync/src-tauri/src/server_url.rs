@@ -10,11 +10,22 @@ pub fn endpoint(base: &str, path: &str) -> AppResult<Url> {
         return Err(invalid());
     }
     let lower = base.to_ascii_lowercase();
-    if ["%2f", "%5c", "%2e", "%00"]
-        .iter()
-        .any(|part| lower.contains(part))
+    if [
+        "%2f", "%5c", "%2e", "%00", "%0a", "%0d", "%09", "%3f", "%23",
+    ]
+    .iter()
+    .any(|part| lower.contains(part))
         || base.split('/').any(|part| part == "." || part == "..")
     {
+        return Err(invalid());
+    }
+    if base.split_once("://").is_some_and(|(_, authority)| {
+        authority
+            .split('/')
+            .next()
+            .unwrap_or_default()
+            .contains('@')
+    }) {
         return Err(invalid());
     }
     let mut url = Url::parse(base).map_err(|_| invalid())?;

@@ -1,3 +1,4 @@
+import { openEditorInBrowser } from "./editorHandoff";
 import { getVersion } from "@tauri-apps/api/app";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
@@ -216,9 +217,9 @@ export async function keepLocalConflict(fileId: number) {
   return profiledInvoke<StatusDto>("keep_local_conflict", { fileId });
 }
 
-/** Mở phiên chỉnh sửa ONLYOFFICE cho một tệp. */
+/** Open the authenticated editor page in the default browser. */
 export async function openOfficeEditor(fileId: number) {
-  return profiledInvoke<void>("open_office_editor", { fileId });
+  return openEditorInBrowser(fileId, (command, args) => profiledInvoke<void>(command, args));
 }
 
 /** Thông tin bản cập nhật đang chờ. */
