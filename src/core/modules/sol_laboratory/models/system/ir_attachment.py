@@ -27,9 +27,10 @@ class IrAttachment(models.Model):
 
     @api.model
     def _file_write(self, fname, bin_value):
-        super()._file_write(fname, bin_value)
+        result = super()._file_write(fname, bin_value)
         if laboratory_bucket.filestore_enabled():
             self._upload_file(fname)
+        return result
 
     def _file_read(self):
         if self.store_fname and laboratory_bucket.filestore_enabled():

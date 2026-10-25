@@ -4,6 +4,7 @@ from odoo.exceptions import AccessError
 from odoo.tests import TransactionCase, new_test_user, tagged
 
 from odoo.addons.sol_laboratory.constants.models import MODEL_DEPARTMENT, MODEL_EMPLOYEE
+from odoo.addons.sol_laboratory.models.system.ir_access import UNCHECKED_PARENTS
 
 
 @tagged("post_install", "-at_install")
@@ -106,3 +107,13 @@ class TestPermissionEnforcement(TransactionCase):
 
         with self.assertRaises(AccessError):
             self.chemistry.with_user(user).write({"name": "Analytical chemistry"})
+
+    def test_delegated_parent_groups_follow_group_creation_and_removal(self):
+        accesses = self.env["ir.access"].with_context(**{UNCHECKED_PARENTS: ("res.partner",)})
+        groups_before = accesses._get_groups_with_access("res.partner", "read")
+
+        group = self.env["res.groups"].create({"name": "Delegated document reader"})
+        self.assertEqual(accesses._get_groups_with_access("res.partner", "read"), groups_before | group)
+
+        group.unlink()
+        self.assertEqual(accesses._get_groups_with_access("res.partner", "read"), groups_before)
