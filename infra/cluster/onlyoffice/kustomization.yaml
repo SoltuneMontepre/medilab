@@ -15,4 +15,6 @@ configMapGenerator:
       - start.sh
       - healthcheck.sh
       - shutdown.sh
+      - worker.sh
+      - inspect_config.py
       - settings.json

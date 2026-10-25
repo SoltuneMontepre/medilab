@@ -6,7 +6,7 @@ if [[ ! ${JWT_SECRET:-} =~ ^[A-Za-z0-9_-]{32,}$ ]]; then
   echo 'ONLYOFFICE configuration refused: JWT_SECRET requires at least 32 base64url characters.' >&2
   exit 1
 fi
-export NODE_CONFIG="$(cat /opt/medilab/onlyoffice/settings.json)"
+unset NODE_CONFIG
 export JWT_ENABLED=true JWT_HEADER=Medilab-Editor-Token JWT_IN_BODY=false
 export ALLOW_PRIVATE_IP_ADDRESS=true ALLOW_META_IP_ADDRESS=false USE_UNAUTHORIZED_STORAGE=false
 export DS_LOG_LEVEL=OFF NGINX_ACCESS_LOG=false PLUGINS_ENABLED=false
@@ -16,6 +16,19 @@ test -s "$NODE_EXTRA_CA_CERTS"
 test -s "$SSL_CERTIFICATE_PATH"
 test -s "$SSL_KEY_PATH"
 sudo -u ds test -r "$NODE_EXTRA_CA_CERTS"
+sudo -u ds test -r /opt/medilab/onlyoffice/settings.json
+# Load the settings after the service-launch environment has been sanitized.
+for service in docservice converter; do
+  if [[ $service == docservice ]]; then
+    binary=/var/www/onlyoffice/documentserver/server/DocService/docservice
+  else
+    binary=/var/www/onlyoffice/documentserver/server/FileConverter/converter
+  fi
+  supervisor_file="/etc/supervisor/conf.d/ds-$service.conf"
+  worker_command="command=/bin/bash /opt/medilab/onlyoffice/worker.sh /opt/medilab/onlyoffice/settings.json $binary"
+  sed -i "s|^command=$binary$|$worker_command|" "$supervisor_file"
+  grep -Fxq "$worker_command" "$supervisor_file"
+done
 # Keep cached-file signatures valid across replacement for the lifetime of their existing URLs.
 private_dir=/var/www/onlyoffice/Data/.private
 test ! -L "$private_dir"

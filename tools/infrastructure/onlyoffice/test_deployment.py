@@ -7,6 +7,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -50,6 +51,60 @@ class TestDeployment(unittest.TestCase):
                 ):
                     return True
         return False
+
+    def test_worker_sets_config_after_launcher_and_preserves_arguments(self):
+        with tempfile.TemporaryDirectory() as folder:
+            config = Path(folder) / "settings.json"
+            expected = {"services": {"CoAuthoring": {"expire": {"files": 604800}}}}
+            config.write_text(json.dumps(expected), encoding="utf-8")
+            program = (
+                "import json,os,sys;sys.stdout.write(json.dumps("
+                '{"config":json.loads(os.environ["NODE_CONFIG"]),"args":sys.argv[1:]}))'
+            )
+            arguments = ["argument with spaces", "literal $(not-a-command)"]
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(ROOT / "tools/infrastructure/onlyoffice/worker.sh"),
+                    str(config),
+                    sys.executable,
+                    "-c",
+                    program,
+                    *arguments,
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+                env=dict(os.environ, NODE_CONFIG='{"stale":true}'),
+            )
+            self.assertEqual(json.loads(result.stdout), {"config": expected, "args": arguments})
+            self.assertEqual(result.stderr, "")
+        start = (ROOT / "tools/infrastructure/onlyoffice/start.sh").read_text()
+        self.assertNotIn("export NODE_CONFIG=", start)
+        self.assertIn("for service in docservice converter", start)
+        self.assertIn('grep -Fxq "$worker_command" "$supervisor_file"', start)
+
+    def test_worker_refuses_missing_or_empty_config(self):
+        with tempfile.TemporaryDirectory() as folder:
+            config = Path(folder) / "settings.json"
+            for create in [False, True]:
+                if create:
+                    config.touch()
+                result = subprocess.run(
+                    [
+                        "bash",
+                        str(ROOT / "tools/infrastructure/onlyoffice/worker.sh"),
+                        str(config),
+                        sys.executable,
+                        "-c",
+                        'print("worker started")',
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout + result.stderr, "")
 
     def test_routing_allows_only_selected_callback_and_dns(self):
         self.assertTrue(self.permits({"app.kubernetes.io/name": "traefik"}, "kube-system", 8443))
@@ -156,7 +211,7 @@ class TestDeployment(unittest.TestCase):
         self.assertNotIn("container_name", service)
         self.assertTrue(compose["networks"]["onlyoffice"]["internal"])
         self.assertTrue(service["ports"][0].startswith("127.0.0.1:"))
-        for name in ["start.sh", "settings.json", "healthcheck.sh", "shutdown.sh"]:
+        for name in ["start.sh", "settings.json", "healthcheck.sh", "shutdown.sh", "worker.sh", "inspect_config.py"]:
             self.assertEqual(
                 (ROOT / "tools/infrastructure/onlyoffice" / name).read_bytes(),
                 (ROOT / "infra/cluster/onlyoffice" / name).read_bytes(),
