@@ -52,7 +52,10 @@ def test_claude_hooks_run_serena_from_this_worktree():
     commands = [hook["command"] for event in settings["hooks"].values() for entry in event for hook in entry["hooks"]]
     serena = [command for command in commands if "serena-hooks" in command]
     assert len(serena) == 4
-    prefix = 'uv run --locked --project "$CLAUDE_PROJECT_DIR/tools/odoo-intelligence" medilab-odoo serena-hooks '
+    prefix = (
+        'uv run --locked --project "${CLAUDE_PROJECT_DIR:-${CURSOR_PROJECT_DIR:-.}}/tools/odoo-intelligence" '
+        "medilab-odoo serena-hooks "
+    )
     assert all(command.startswith(prefix) for command in serena)
 
 

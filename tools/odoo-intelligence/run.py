@@ -31,7 +31,7 @@ server = SERVERS.get(sys.argv[1]) if len(sys.argv) == 2 else None
 if server is None:
     raise SystemExit(f"run.py takes one of: {', '.join(SERVERS)}.")
 command = [uv, "run", "--locked", "--project", str(project), "medilab-odoo", *server]
-# On Windows os.execv starts a new process and exits this one, so clients see their server exit; wait for it instead.
+# On Windows os.execv starts a separate process and exits, which closes the client's stdio pipes.
 if os.name == "nt":
-    raise SystemExit(subprocess.run(command).returncode)
+    raise SystemExit(subprocess.call(command))
 os.execv(uv, command)
