@@ -1,7 +1,7 @@
 """Regression tests using CloudBeaver 26.2.2 and synthetic data. Run from the repository root:
 
 python3 -m unittest discover -s tools/cloudbeaver -v
-Requires a local Docker-compatible engine; CONTAINER_ENGINE selects an alternative.
+Requires Docker or Podman; CONTAINER_ENGINE selects docker (default) or podman.
 """
 
 import json

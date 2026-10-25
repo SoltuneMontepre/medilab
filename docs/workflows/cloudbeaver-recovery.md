@@ -26,6 +26,50 @@ CloudBeaver 26.2.2 rejects `listUsers`/`listTeams` in configuration mode. Do not
 
 The helper reports selected evidence, not comprehensive database integrity or every project. Failures or missing optional permissions remain unknown facts. In the reviewed environment the default context list was empty; kubeconfig, Argo authentication and SSH-agent access were absent. The separate disposable kind context is not production access. No production recovery branch has been established.
 
+## Operator evidence checklist
+
+Complete this checklist using the approved read-only context before reviewing recovery. Keep reports outside Git, restrict their permissions and share them only through the approved private channel. A denied request, missing field, stale observation or blocked report remains unknown evidence; retain NO-GO and scenario D until it is resolved. None of these commands changes a resource or opens H2.
+
+- [ ] Confirm the approved context and kubeconfig selectors, relevant namespace/cluster RBAC, and the intended production environment. Do not fetch credentials, escalate permissions or change contexts to work around a denial.
+- [ ] Capture the sanitized helper report in a private directory. Stop and inspect `blocked`/unavailable fields before proceeding:
+
+```bash
+set -euo pipefail
+: "${CB_CONTEXT:?Set the approved read-only production context}"
+: "${CB_KUBECONFIG:?Set the approved kubeconfig path}"
+umask 077
+CB_REPORT_DIR=$(mktemp -d "${TMPDIR:-/tmp}/cloudbeaver-preflight.XXXXXX")
+python3 tools/cloudbeaver/preflight.py --context "$CB_CONTEXT" --kubeconfig "$CB_KUBECONFIG" > "$CB_REPORT_DIR/metadata.json"
+```
+
+- [ ] Record actual Pod image IDs, node/Pod identities, restart counts and mounted claim references. Compare them with the applied Deployment and intended workspace claim; do not infer attachment solely from the desired manifest:
+
+```bash
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pods -n medilab -l app.kubernetes.io/name=cloudbeaver \
+  -o 'custom-columns=NAME:.metadata.name,UID:.metadata.uid,NODE:.spec.nodeName,PHASE:.status.phase,RESTARTS:.status.containerStatuses[*].restartCount,IMAGES:.status.containerStatuses[*].imageID,CLAIMS:.spec.volumes[*].persistentVolumeClaim.claimName' \
+  > "$CB_REPORT_DIR/pods.txt"
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pvc cloudbeaver-workspace -n medilab \
+  -o 'custom-columns=NAME:.metadata.name,UID:.metadata.uid,PV:.spec.volumeName,PHASE:.status.phase,CLASS:.spec.storageClassName' \
+  > "$CB_REPORT_DIR/claim.txt"
+CB_PV=$(kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pvc cloudbeaver-workspace -n medilab -o jsonpath='{.spec.volumeName}')
+: "${CB_PV:?Claim is not bound; stop recovery assessment}"
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pv "$CB_PV" \
+  -o 'custom-columns=NAME:.metadata.name,UID:.metadata.uid,CLAIM_UID:.spec.claimRef.uid,RECLAIM:.spec.persistentVolumeReclaimPolicy,NODE_AFFINITY:.spec.nodeAffinity' \
+  > "$CB_REPORT_DIR/volume.txt"
+```
+
+- [ ] Check Argo's desired/applied revisions, live auto-sync/prune/self-heal and any pending operation. Confirm which Application or bootstrap mechanism owns the child before proposing a hold. The repository declares `main`; publishing a feature branch is not evidence that live Argo configuration matches Git. Inspect the child without printing repository credentials:
+
+```bash
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get application.argoproj.io cloudbeaver -n argocd \
+  -o 'jsonpath={.spec.source.targetRevision}{"\n"}{.status.sync.revision}{"\n"}{.status.sync.status}{"\n"}{.status.health.status}{"\n"}{.spec.syncPolicy.automated}{"\n"}{.status.operationState.phase}{"\n"}' \
+  > "$CB_REPORT_DIR/argocd.txt"
+```
+
+- [ ] Confirm ExternalSecret Ready/key presence, safe identifier checks and proven current verifier credential source. Never dump the Secret or try guessed passwords. If an existing approved session is available, rerun the helper with `--session-cookie-file "$CB_SESSION_COOKIE_FILE"`; keep that file private and do not create a production session solely for this checklist without approval.
+- [ ] Establish actual mount/ownership/free space, runtime presence/provenance, startup-error evidence and full account/project/connection inventory through approved safe methods. The helper reports selected metadata and GlobalConfiguration only. Configuration mode blocks administrative inventory APIs; unavailable evidence cannot authorize C.
+- [ ] Submit the complete sanitized evidence, chosen A/B/C/D branch, exact proposed hold/repair/rollout revisions, credential-reference decisions, cold-backup destination, restore rehearsal, acceptance criteria and rollback triggers for owner/operator review. Leave all production changes pending explicit approval.
+
 ## Approval and consistent backup
 
 Submit the production evidence, chosen A/B/C/D branch, exact proposed Git revisions/manifests, credential-reference checks, downtime, backup destination, restore test, rollback triggers and named operators for review. No recovery-changing command is authorized by this document. The normal Kustomization intentionally contains no recovery Job.

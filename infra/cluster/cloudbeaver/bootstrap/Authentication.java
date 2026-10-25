@@ -24,6 +24,7 @@ final class Authentication {
                 PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
             JsonObject credentials = new JsonObject();
             credentials.addProperty("user", name);
+            // CloudBeaver 26.2.2 requires uppercase MD5 in its local authentication protocol.
             credentials.addProperty("password", HexFormat.of().withUpperCase()
                 .formatHex(MessageDigest.getInstance("MD5").digest(password.getBytes(StandardCharsets.UTF_8))));
             JsonObject variables = new JsonObject();

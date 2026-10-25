@@ -30,7 +30,7 @@ How tests are written, where they live and how they run.
 
 ## CloudBeaver tests
 
-Run `python3 -m unittest discover -s tools/cloudbeaver -v` with a Docker-compatible engine and the pinned CloudBeaver/PostgreSQL images. It uses synthetic accounts and disposable volumes. Without `MEDILAB_KUBE_TEST_CONFIG`, the real Kubernetes cases report skips, not passes.
+Run `python3 -m unittest discover -s tools/cloudbeaver -v` with Docker or Podman and the pinned CloudBeaver/PostgreSQL images. `CONTAINER_ENGINE` accepts `docker` (default) or `podman`; executable paths and additional arguments are rejected. It uses synthetic accounts and disposable volumes. Without `MEDILAB_KUBE_TEST_CONFIG`, the real Kubernetes cases report skips, not passes.
 
 For Pod/PVC/Service/IngressRoute lifecycle tests, create a disposable kind cluster named `medilab-286-review`, using the pinned node image and image-loading recipe in [ci-infra](../../.github/workflows/ci.infra.yml). Select its separate kubeconfig explicitly:
 

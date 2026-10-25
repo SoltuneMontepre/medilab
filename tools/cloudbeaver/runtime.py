@@ -5,6 +5,7 @@ import http.cookiejar
 import json
 import os
 import subprocess
+import sys
 import time
 import urllib.request
 import uuid
@@ -18,8 +19,15 @@ SPECIAL_PASSWORD = "Regression9\"'\\\n\t$`unicode-ệ"
 
 
 def engine(*args, check=True, input=None):
+    selected = os.environ.get("CONTAINER_ENGINE", "docker")
+    if selected == "docker":
+        command = ["docker", *args]
+    elif selected == "podman":
+        command = ["podman", *args]
+    else:
+        raise ValueError("CONTAINER_ENGINE must be docker or podman.")
     result = subprocess.run(
-        [os.environ.get("CONTAINER_ENGINE", "docker"), *args],
+        command,
         input=input,
         text=True,
         capture_output=True,
@@ -104,9 +112,15 @@ class Runtime:
             IMAGE,
             *(["/bootstrap/start.sh"] if self.guarded else []),
         )
+        self.refresh_port()
+
+    def refresh_port(self):
         binding = engine("port", self.name, "8978").stdout.strip()
         if binding:
-            self.port = int(binding.rsplit(":", 1)[1])
+            port = int(binding.rsplit(":", 1)[1])
+            if self.port is not None and self.port != port:
+                sys.stderr.write("Container restart remapped its ephemeral port; refreshed the test endpoint.\n")
+            self.port = port
 
     def query(self, query, variables=None, errors=False):
         request = urllib.request.Request(
@@ -124,6 +138,9 @@ class Runtime:
         return result
 
     def wait(self, configuration_mode=False):
+        # Docker can reassign an ephemeral host port when the same container restarts.
+        if hasattr(self, "name"):
+            self.refresh_port()
         deadline = time.monotonic() + 100
         while time.monotonic() < deadline:
             try:
