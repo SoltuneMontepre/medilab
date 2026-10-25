@@ -314,7 +314,7 @@ def test():
             raise ValueError("The selected real-service test does not exist.")
     expected = len(expected_names)
     logs = result.stdout + result.stderr
-    failed = sorted(set(re.findall(r"(?:FAIL|ERROR): TestOnlyofficeReal\.(test_\w+)", logs)))
+    failed = sorted(set(re.findall(r"(?:FAIL|ERROR|Failed): (?:[\w.]+\.)?TestOnlyofficeReal\.(test_\w+)", logs)))
     started = sorted(set(re.findall(r"Starting TestOnlyofficeReal\.(test_\w+)", logs)))
     completed = {path.stem for path in files}
     passed = (
