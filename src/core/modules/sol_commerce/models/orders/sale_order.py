@@ -470,16 +470,18 @@ class SaleOrder(models.Model):
             self.payment_deadline = now + timedelta(days=days)
         previous = self._latest_quotation()
         revision = previous.revision + 1
+        code = self.env["ir.sequence"].sudo().next_by_code(MODEL_QUOTATION)
         quotation = (
             self.env[MODEL_QUOTATION]
             .sudo()
             .create(
                 {
+                    "code": code,
                     "order_id": self.id,
                     "revision": revision,
                     "replaces_id": previous.id,
                     "amount_total": self.amount_total,
-                    "attachment_id": self._create_quotation_attachment(revision).id,
+                    "attachment_id": self._create_quotation_attachment(revision, code).id,
                 }
             )
         )
@@ -489,9 +491,10 @@ class SaleOrder(models.Model):
             self.state = "sent"
         return quotation
 
-    def _create_quotation_attachment(self, revision):
+    def _create_quotation_attachment(self, revision, code):
         self.ensure_one()
-        content, _report_type = self.env["ir.actions.report"].sudo()._render_qweb_pdf(QUOTATION_REPORT, self.ids)
+        report = self.env["ir.actions.report"].sudo().with_context(quotation_code=code)
+        content, _report_type = report._render_qweb_pdf(QUOTATION_REPORT, self.ids)
         return (
             self.env["ir.attachment"]
             .sudo()
