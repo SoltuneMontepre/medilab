@@ -4,6 +4,7 @@ import hashlib
 import json
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import jwt
@@ -31,6 +32,8 @@ class OnlyofficeRealRelay:
         self.negative_control = False
         self.unavailable = False
         self.on_final = None
+        self.parallel_copies = 1
+        self.forward_timeout = 90
         relay = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -188,14 +191,24 @@ window.editor = new DocsAPI.DocEditor('editor', config);
                 event["http"] = 503
                 event["error"] = 1
                 return 503, b'{"error":1}'
-        try:
-            response = requests.post(
+
+        def forward():
+            return requests.post(
                 self.case.http_url + CALLBACK_PREFIX + self.case.callback_token,
                 data=body,
                 headers={"Content-Type": "application/json", JWT_HEADER: headers.get(JWT_HEADER, "")},
-                timeout=90,
+                timeout=self.forward_timeout,
                 allow_redirects=False,
             )
+
+        try:
+            if final and self.parallel_copies > 1:
+                with ThreadPoolExecutor(max_workers=self.parallel_copies) as pool:
+                    responses = list(pool.map(lambda _index: forward(), range(self.parallel_copies)))
+                event["parallel_http"] = [response.status_code for response in responses]
+                response = responses[0]
+            else:
+                response = forward()
         except requests.RequestException:
             event["http"] = 503
             event["error"] = 1

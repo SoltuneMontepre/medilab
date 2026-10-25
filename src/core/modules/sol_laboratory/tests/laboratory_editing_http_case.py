@@ -38,6 +38,7 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
     committed transactions in the guarded test database. The document source is a fixture, not Document Server."""
 
     HTTP_INTERFACE = "127.0.0.1"
+    HTTP_LIMIT_TIME_REAL = None
 
     @classmethod
     def editing_internal_url(cls):
@@ -78,6 +79,8 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
             "--log-handler=odoo.http.server:DEBUG",
             "--log-handler=urllib3.connectionpool:DEBUG",
         ]
+        if cls.HTTP_LIMIT_TIME_REAL is not None:
+            command.append(f"--limit-time-real={cls.HTTP_LIMIT_TIME_REAL}")
         for option in ("db_host", "db_port", "db_user", "db_password", "data_dir", "addons_path"):
             if value := config[option]:
                 command.extend(

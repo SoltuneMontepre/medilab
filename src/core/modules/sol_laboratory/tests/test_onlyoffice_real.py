@@ -37,6 +37,8 @@ from odoo.addons.sol_laboratory.services.onlyoffice_jwt import sign, verify_call
 
 @tagged("post_install", "-at_install", "-standard", "onlyoffice_real")
 class TestOnlyofficeReal(LaboratoryEditingHttpCase):
+    HTTP_LIMIT_TIME_REAL = 480
+
     @classmethod
     def setUpClass(cls):
         if os.environ.get("ONLYOFFICE_REAL") != "1":
@@ -167,6 +169,7 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         self.assertTrue(all(event["jwt_consistent"] for event in self.relay.final_events()))
 
     def test_docx_save_and_concurrent_duplicate_callbacks(self):
+        self.relay.parallel_copies = 4
         self.edit_and_close()
         self.wait_final()
         self.assert_saved()
@@ -247,10 +250,40 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         self.assert_saved()
 
     def test_docx_conflict_preserves_concurrent_version(self):
-        self.committed(lambda env: self.upload(self.file(env), "concurrent version " + self.marker))
+        concurrent = ("concurrent version " + self.marker).encode()
+
+        def upload(env):
+            content = env[MODEL_LABORATORY_CONTENT]._new_pending()
+            size, digest = laboratory_bucket.write(content.object_key, [concurrent])
+            content = content._settle(digest, size)
+            self.file(env)._add_version(content=content, source=SYNCED, user=env.ref("base.user_admin"))
+            return content.object_key, digest
+
+        key, digest = self.committed(upload)
         self.edit_and_close()
         self.wait_final()
         self.assert_saved(conflict=True)
+        with laboratory_bucket.read(key) as chunks:
+            self.assertEqual(b"".join(chunks), concurrent)
+        self.assertEqual(self.committed(lambda env: self.file(env).current_version_id.sha256), digest)
+
+    def test_docx_real_jwt_expiry_on_transaction_retry(self):
+        installed = False
+
+        def inject_failure():
+            nonlocal installed
+            if not installed:
+                self.attempt_trigger(1, delay=370)
+                installed = True
+
+        self.relay.on_final = inject_failure
+        self.relay.forward_timeout = 470
+        self.edit_and_close()
+        events = self.wait_final(2, timeout=480)
+        self.assertEqual([event["http"] for event in events], [503, 200])
+        self.assertGreater(events[1]["body_iat"], events[0]["body_exp"] + 60)
+        self.assertIn("outcome=delivery_expired", self.server_messages())
+        self.assert_saved()
 
     def test_docx_captured_delivery_authentication_controls(self):
         self.edit_and_close()
