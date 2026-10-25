@@ -49,7 +49,7 @@ kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pods -n medila
   -o 'custom-columns=NAME:.metadata.name,UID:.metadata.uid,NODE:.spec.nodeName,PHASE:.status.phase,RESTARTS:.status.containerStatuses[*].restartCount,IMAGES:.status.containerStatuses[*].imageID,CLAIMS:.spec.volumes[*].persistentVolumeClaim.claimName' \
   > "$CB_REPORT_DIR/pods.txt"
 kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pvc cloudbeaver-workspace -n medilab \
-  -o 'custom-columns=NAME:.metadata.name,UID:.metadata.uid,PV:.spec.volumeName,PHASE:.status.phase,CLASS:.spec.storageClassName' \
+  -o 'custom-columns=NAME:.metadata.name,UID:.metadata.uid,PV:.spec.volumeName,PHASE:.status.phase,CLASS:.spec.storageClassName,CAPACITY:.status.capacity.storage' \
   > "$CB_REPORT_DIR/claim.txt"
 CB_PV=$(kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pvc cloudbeaver-workspace -n medilab -o jsonpath='{.spec.volumeName}')
 : "${CB_PV:?Claim is not bound; stop recovery assessment}"
@@ -67,7 +67,17 @@ kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get application.ar
 ```
 
 - [ ] Confirm ExternalSecret Ready/key presence, safe identifier checks and proven current verifier credential source. Never dump the Secret or try guessed passwords. If an existing approved session is available, rerun the helper with `--session-cookie-file "$CB_SESSION_COOKIE_FILE"`; keep that file private and do not create a production session solely for this checklist without approval.
-- [ ] Establish actual mount/ownership/free space, runtime presence/provenance, startup-error evidence and full account/project/connection inventory through approved safe methods. The helper reports selected metadata and GlobalConfiguration only. Configuration mode blocks administrative inventory APIs; unavailable evidence cannot authorize C.
+- [ ] Establish actual mount/ownership/free space. Select the already running application Pod from `pods.txt`; do not create a diagnostic Pod or restart a workload to make inspection possible. If no application container is running or `exec` is forbidden, retain the evidence gap:
+
+```bash
+: "${CB_POD:?Set the inspected running CloudBeaver Pod from pods.txt}"
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" exec -n medilab "$CB_POD" -c cloudbeaver -- \
+  df -Pk /opt/cloudbeaver/workspace > "$CB_REPORT_DIR/free-space.txt"
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" exec -n medilab "$CB_POD" -c cloudbeaver -- \
+  stat -c '%n|%u|%g|%a' /opt/cloudbeaver/workspace /opt/cloudbeaver/workspace/.data > "$CB_REPORT_DIR/ownership.txt"
+```
+
+- [ ] Establish runtime presence/provenance, startup-error evidence and full account/project/connection inventory through approved safe methods. The helper reports selected metadata and GlobalConfiguration only. Configuration mode blocks administrative inventory APIs; unavailable evidence cannot authorize C.
 - [ ] Submit the complete sanitized evidence, chosen A/B/C/D branch, exact proposed hold/repair/rollout revisions, credential-reference decisions, cold-backup destination, restore rehearsal, acceptance criteria and rollback triggers for owner/operator review. Leave all production changes pending explicit approval.
 
 ## Approval and consistent backup
