@@ -317,9 +317,10 @@ def test():
     failed = sorted(set(re.findall(r"(?:FAIL|ERROR|Failed): (?:[\w.]+\.)?TestOnlyofficeReal\.(test_\w+)", logs)))
     started = sorted(set(re.findall(r"Starting TestOnlyofficeReal\.(test_\w+)", logs)))
     completed = {path.stem for path in files}
-    passed = (
-        result.returncode == 0 and len(files) == expected and "0 failed, 0 error(s)" in result.stdout + result.stderr
-    )
+    outcomes = {path.stem: json.loads(path.read_text()).get("test_body_passed") for path in files}
+    failed = sorted(set(failed) | {name for name, outcome in outcomes.items() if outcome is False})
+    successful_summary = "0 failed, 0 error(s)" in logs
+    passed = result.returncode == 0 and len(files) == expected and not failed and successful_summary
     write_result(
         "result.json",
         {
@@ -331,7 +332,12 @@ def test():
             "real_service_executed": True,
             "passed": passed,
             "failed_tests": failed,
-            "passed_tests": sorted(name for name in completed if name not in failed),
+            "passed_tests": sorted(
+                name for name in completed if name not in failed and (outcomes[name] is True or successful_summary)
+            ),
+            "unknown_outcome_tests": sorted(
+                name for name in completed if name not in failed and outcomes[name] is None and not successful_summary
+            ),
             "blocked_tests": [name for name in started if name not in completed and name not in failed],
             "not_started_tests": [name for name in expected_names if name not in started and name not in completed],
             "whole_runner_timeout_seconds": limit,
