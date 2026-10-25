@@ -143,7 +143,7 @@ pub async fn login(state: State<'_, AppState>, args: LoginArgs) -> Result<Status
     )
     .map_err(String::from)?;
     auth::save_api_key(&response.api_key).map_err(String::from)?;
-    let settings = pending.commit(&engine.db).map_err(String::from)?;
+    let settings = pending.commit(&engine.db)?;
     *engine.settings.lock().await = settings;
     crate::client_migration::clear(&args.odoo_url);
     engine.session.establish(response.api_key, "login");
@@ -594,7 +594,7 @@ pub async fn save_settings(
     state: State<'_, AppState>,
     settings: AppSettings,
 ) -> Result<StatusDto, String> {
-    crate::server_url::endpoint(&settings.odoo_url, "medilab/api/v1").map_err(String::from)?;
+    crate::server_url::endpoint(&settings.odoo_url, "medilab/api/v1")?;
     let previous = state.engine.settings.lock().await.odoo_url.clone();
     if !crate::server_url::same_base(&previous, &settings.odoo_url) {
         state
@@ -695,7 +695,7 @@ pub async fn restore_session(state: State<'_, AppState>) -> Result<StatusDto, St
             })
         })
         .await;
-        *engine.settings.lock().await = engine.db.load_settings().map_err(String::from)?;
+        *engine.settings.lock().await = engine.db.load_settings()?;
     }
     if let Ok(client) = engine.client().await {
         match client.me().await {
@@ -733,15 +733,13 @@ async fn require_client(engine: &EngineHandle) -> Result<ApiClient, String> {
 fn remote_folder_for_file(engine: &EngineHandle, remote_file_id: i64) -> Result<i64, String> {
     let file = engine
         .db
-        .list_remote_files()
-        .map_err(String::from)?
+        .list_remote_files()?
         .into_iter()
         .find(|file| file.remote_file_id == Some(remote_file_id))
         .ok_or("Không tìm thấy tệp đã gắn")?;
     engine
         .db
-        .list_folders()
-        .map_err(String::from)?
+        .list_folders()?
         .into_iter()
         .find(|f| f.id == file.folder_id)
         .and_then(|f| f.remote_id)
@@ -986,14 +984,7 @@ pub async fn revoke_sync_device(state: State<'_, AppState>, device_id: i64) -> R
         .revoke_device(device_id)
         .await
         .map_err(String::from)?;
-    if state
-        .engine
-        .db
-        .meta_get("device_id")
-        .map_err(String::from)?
-        .as_deref()
-        == Some(&device_id.to_string())
-    {
+    if state.engine.db.meta_get("device_id")?.as_deref() == Some(&device_id.to_string()) {
         state.engine.session.mark_expired("device_revoked");
         state.engine.emit_status();
     }
@@ -1008,7 +999,7 @@ pub async fn get_client_migration(
     let base = server_url
         .filter(|url| !url.is_empty())
         .unwrap_or(state.engine.settings.lock().await.odoo_url.clone());
-    crate::server_url::endpoint(&base, "medilab/api/v1").map_err(String::from)?;
+    crate::server_url::endpoint(&base, "medilab/api/v1")?;
     Ok(crate::client_migration::required(&base))
 }
 
@@ -1021,7 +1012,7 @@ pub async fn open_client_download(
     let base = server_url
         .filter(|url| !url.is_empty())
         .unwrap_or(state.engine.settings.lock().await.odoo_url.clone());
-    crate::server_url::endpoint(&base, "medilab/api/v1").map_err(String::from)?;
+    crate::server_url::endpoint(&base, "medilab/api/v1")?;
     let url = crate::client_migration::required(&base)
         .and_then(|notice| notice.download_url)
         .and_then(|url| crate::client_migration::safe_download_url(&url))

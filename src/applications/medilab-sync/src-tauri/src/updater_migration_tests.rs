@@ -161,7 +161,10 @@ async fn existing_test_signing_key_installs_and_wrong_key_or_tampering_preserves
         assert_eq!(std::fs::read(&local).unwrap(), b"queued");
         assert_eq!(std::fs::read(&database).unwrap(), original_database);
         if success {
-            let output = std::process::Command::new(&executable).output().unwrap();
+            let output = tokio::process::Command::new(&executable)
+                .output()
+                .await
+                .unwrap();
             assert!(output.status.success());
             assert_eq!(output.stdout, b"fixture-new-version");
             let db = crate::storage::Db::open(&database).unwrap();
@@ -290,8 +293,9 @@ async fn live_odoo_catalog_and_tauri_verifier_preserve_state_on_bad_downloads() 
         assert_eq!(std::fs::read(&local).unwrap(), b"preserved pending bytes");
         if success {
             assert_eq!(
-                std::process::Command::new(&executable)
+                tokio::process::Command::new(&executable)
                     .output()
+                    .await
                     .unwrap()
                     .stdout,
                 b"verified-live-fixture"

@@ -172,12 +172,9 @@ pub async fn download_and_install(app: &AppHandle, odoo_url: &str) -> Result<(),
     let arch = std::env::consts::ARCH;
     let current = app.package_info().version.to_string();
 
-    let endpoint = build_endpoint_url(odoo_url, target, arch, &current).map_err(String::from)?;
+    let endpoint = build_endpoint_url(odoo_url, target, arch, &current)?;
 
-    if let Some(notice) = crate::client_migration::updater_requirement(odoo_url, &endpoint)
-        .await
-        .map_err(String::from)?
-    {
+    if let Some(notice) = crate::client_migration::updater_requirement(odoo_url, &endpoint).await? {
         return Err(notice.to_string());
     }
 

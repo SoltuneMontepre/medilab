@@ -21,8 +21,7 @@ pub fn open_editor_with(
     if file_id <= 0 {
         return Err("Thiếu mã tệp trên máy chủ".into());
     }
-    let url = endpoint(base, &format!("medilab/laboratory-files/{file_id}/edit"))
-        .map_err(String::from)?;
+    let url = endpoint(base, &format!("medilab/laboratory-files/{file_id}/edit"))?;
     open(url.as_str())
 }
 
