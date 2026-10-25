@@ -92,7 +92,11 @@ class LaboratoryEditingSession(models.Model):
         key = fields.get("key")
         if not session or not isinstance(key, str):
             raise EditingCallbackRefused("The callback is for no editing session.")
-        if not hmac.compare_digest(session.document_key.encode(), key.encode()):
+        try:
+            key_bytes = key.encode()
+        except UnicodeEncodeError:
+            raise EditingCallbackRefused("The callback's document key is not valid UTF-8.") from None
+        if not hmac.compare_digest(session.document_key.encode(), key_bytes):
             raise EditingCallbackRefused("The callback's document key is not its session's.")
         return session, fields
 

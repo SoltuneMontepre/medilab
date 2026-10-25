@@ -1,4 +1,6 @@
+import signal
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 
@@ -137,7 +139,8 @@ class TestLaboratoryEditingHttp(LaboratoryEditingHttpCase):
                     403,
                 )
         self.assertAnswer(self.send(token="unknown-capability"), 403)
-        self.assertAnswer(self.send(self.fields(key="another-document")), 403)
+        for key in ("another-document", "κλειδί", "\ud800"):
+            self.assertAnswer(self.send(self.fields(key=key)), 403)
         self.assertEqual(self.state(), ([(1, SYNCED)], [(OPEN, False)]))
         self.assertEqual(len(self.entries()), 1)
         self.assertEqual(self.source.asked, [])
@@ -349,6 +352,24 @@ class TestLaboratoryEditingHttp(LaboratoryEditingHttpCase):
         logs = self.server_messages()
         self.assertFalse(self.callback_token in logs, "An encoded callback path exposed its capability.")
         self.assertFalse(header in logs, "An encoded callback path exposed its JWT.")
+
+    def test_odoo_stack_dump_during_a_callback_redacts_its_capability(self):
+        entered, release = self.pause_fetch()
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            response = pool.submit(self.send)
+            try:
+                self.assertTrue(entered.wait(timeout=15))
+                self.http_server.send_signal(signal.SIGQUIT)
+                deadline = time.monotonic() + 5
+                while "odoo.tools.misc:" not in self.server_messages() and time.monotonic() < deadline:
+                    time.sleep(0.05)
+                logs = self.server_messages()
+                self.assertIn("odoo.tools.misc:", logs)
+                self.assertFalse(self.callback_token in logs, "Odoo's background stack dump exposed the capability.")
+            finally:
+                release.set()
+            self.assertAnswer(response.result(timeout=30), 200)
+        self.assertEqual(self.state()[1], [(COMMITTED, 2)])
 
     def test_exhausted_retries_roll_back_database_and_leave_only_reconcilable_objects(self):
         self.attempt_trigger(5)

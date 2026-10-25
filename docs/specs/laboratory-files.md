@@ -251,7 +251,7 @@ A save arriving for an expired session is stored the same way, and the conflict 
   - every token that comes, in the header or the body, is a JWT signed with that secret and the algorithm HS256 only, and carries an expiry that has not passed, with a minute of clock difference allowed;
   - the header token's `payload`, and the body token's claims after removing `token`, `iat`, `exp`, `nbf` and `operation`, agree with the body fields and with every other supplied token;
   - the `operation` of a token, when it names one, is `callback`;
-  - the session is found by its callback token, and the document key is that session's, compared in constant time.
+  - the session is found by its callback token, and the document key is that session's, compared in constant time; a malformed key that cannot be encoded as UTF-8 is refused.
 
   A callback that fails a check stores nothing, changes nothing and is answered with an error.
 - The network lets the browser reach the editing service's public address, the editing service reach Odoo's callback route and the bucket, and Odoo reach the editing service's internal address. The editing service reaches no other private address.
@@ -302,7 +302,7 @@ After a successful bucket write and before content settlement or later database 
 
 Committed outcomes are logged after commit with status, outcome, session id, elapsed time and correlation id; an error after rollback records its exception class, never its message. Terminal errors, temporary failures, `delivery_expired` and `concurrency_failure` require actionable incident monitoring independent of whether the session still says `open`, `saving` or `expired`. Authentication probes need rate-aware security monitoring rather than one incident per probe.
 
-Callback access/error redaction covers the configured Odoo output handlers, including descendant urllib3/botocore records and expanded debug headers; the callback's fixed-format evidence logger retains only trusted recovery fields. #203 must gate traffic until the module/filter is loaded and protect any additional exporter/sink, ingress and Document Server logging. The pinned Document Server itself logs callback URLs and payloads on errors; Odoo's filter cannot sanitize a different process. Recovery evidence and logs must be access-restricted, retained and available to the responsible operators.
+Callback access/error redaction covers the configured Odoo output handlers, including descendant urllib3/botocore records and expanded debug headers; the callback's fixed-format evidence logger retains only trusted recovery fields. Watchdog and stack-dump records can contain thread callback URLs outside any request context, so redaction also checks formatted messages, encoded references and exception chains regardless of logger name. A diagnostic payload containing a callback reference is redacted in full; its logger and severity remain available, and unrelated business/cleanup diagnostics are preserved. #203 must gate traffic until the module/filter is loaded and protect any additional exporter/sink, ingress and Document Server logging. The pinned Document Server itself logs callback URLs and payloads on errors; Odoo's filter cannot sanitize a different process. Recovery evidence and logs must be access-restricted, retained and available to the responsible operators.
 
 | Retention option | Trade-off and required proof |
 | ---------------- | ---------------------------- |

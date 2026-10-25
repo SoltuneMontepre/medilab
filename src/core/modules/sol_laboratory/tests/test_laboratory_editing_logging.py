@@ -66,3 +66,22 @@ class TestLaboratoryEditingLogging(TransactionCase):
         self.assertNotIn("secret-jwt", transport.getMessage())
         self.assertIsNone(transport.exc_text)
         self.assertEqual(cleanup.getMessage(), "Object cleanup needs reconciliation")
+
+    def test_worker_diagnostics_redact_callback_references_without_a_request_context(self):
+        url = "https://odoo.example" + CALLBACK_PREFIX + "secret-capability"
+        for name, encoded in (("odoo.tools.misc", url), ("odoo.service.server", url.replace("/", "%2F"))):
+            with self.subTest(logger=name):
+                record = logging.makeLogRecord({"name": name, "msg": "Thread (url:%s)", "args": (encoded,)})
+                with patch.object(editing_callback_logging, "request", None):
+                    self.assertTrue(EditingCallbackFilter().filter(record))
+                self.assertNotIn("secret-capability", record.getMessage())
+
+    def test_background_exception_redacts_callback_references_from_its_traceback(self):
+        error = RuntimeError("Request failed at https://odoo.example" + CALLBACK_PREFIX + "secret-capability")
+        record = logging.makeLogRecord(
+            {"name": "odoo.service.server", "msg": "Worker failed", "args": (), "exc_info": (RuntimeError, error, None)}
+        )
+        with patch.object(editing_callback_logging, "request", None):
+            self.assertTrue(EditingCallbackFilter().filter(record))
+        self.assertIsNone(record.exc_info)
+        self.assertNotIn("secret-capability", logging.Formatter().format(record))
