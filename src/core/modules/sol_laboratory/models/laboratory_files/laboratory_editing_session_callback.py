@@ -20,6 +20,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_RES_USERS,
 )
 from odoo.addons.sol_laboratory.services import laboratory_bucket
+from odoo.addons.sol_laboratory.services.editing_callback_logging import record_staged_document
 from odoo.addons.sol_laboratory.services.editing_service_health import is_editing_service_up
 from odoo.addons.sol_laboratory.services.laboratory_file_error import LaboratoryFileError
 from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused, jwt_secret, sign, verify_callback
@@ -163,6 +164,7 @@ class LaboratoryEditingSession(models.Model):
         except (SavedDocumentTooLarge, SavedDocumentUnavailable):
             content._fail()
             raise
+        record_staged_document(self.id, content.object_key, sha256, size)
         return content._settle(sha256, size)
 
     def _editors_of(self, fields):

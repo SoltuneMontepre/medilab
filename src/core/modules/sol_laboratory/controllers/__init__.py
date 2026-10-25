@@ -11,6 +11,7 @@ from . import (
     laboratory_api_sign_in,
     laboratory_api_status,
     laboratory_api_uploads,
+    laboratory_editing_callback,
     mobile_device,
     portal,
     report,

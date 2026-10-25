@@ -68,6 +68,13 @@ class TestOnlyofficeJwt(BaseCase):
 
         self.assertRefused(dict(FIELDS), f"Bearer {token}")
 
+    def test_only_a_verified_expired_signature_is_classified_as_expired(self):
+        for secret, expired in ((SECRET, True), ("other-test-secret-01234567890123456789", False)):
+            body, header = callback(FIELDS, lifetime=-120, secret=secret)
+            with self.assertRaises(EditingCallbackRefused) as refusal:
+                verify_callback(body, header, SECRET)
+            self.assertEqual(refusal.exception.expired, expired)
+
     def test_a_malformed_token_is_refused(self):
         for header, body in (
             ("Bearer abc", dict(FIELDS)),

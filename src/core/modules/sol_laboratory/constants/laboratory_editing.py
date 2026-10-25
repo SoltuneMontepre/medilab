@@ -52,3 +52,14 @@ CALLBACK_FORCE_SAVE_FAILED = 7
 # The environment variable with the address browsers reach the editing service at; the addresses of saved documents
 # are on it.
 PUBLIC_URL_VARIABLE = "ONLYOFFICE_PUBLIC_URL"
+# The callback has its own authentication and response format, outside the device API.
+CALLBACK_PREFIX = "/medilab/laboratory-files/callback/"
+CALLBACK_ROUTE = CALLBACK_PREFIX + "<string:callback_token>"
+CALLBACK_DOCUMENT_PATH = "sol_laboratory/api/onlyoffice-callback.openapi.yaml"
+CALLBACK_DOCUMENT_URI = "urn:medilab:onlyoffice-callback"
+CALLBACK_LOGGER = "odoo.addons.sol_laboratory.services.laboratory_editing_callback"
+# Request-local evidence survives Odoo's transaction retries, never a second HTTP delivery.
+CALLBACK_REQUEST_EVIDENCE = "medilab.editing_callback"
+# An in-process identity, which a caller's JSON context cannot impersonate. It affects audit provenance, not access.
+CALLBACK_AUDIT_CONTEXT = "laboratory_editing_callback_origin"
+CALLBACK_AUDIT_ORIGIN = object()
