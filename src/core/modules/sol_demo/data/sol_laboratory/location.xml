@@ -38,6 +38,13 @@
         <field name="map_x">0.89</field>
         <field name="map_y">0.17</field>
     </record>
+    <record id="demo_location_store_room" model="medilab.location">
+        <field name="code">P105</field>
+        <field name="name">Store room</field>
+        <field name="parent_id" ref="demo_location_floor_1" />
+        <field name="map_x">0.75</field>
+        <field name="map_y">0.75</field>
+    </record>
     <record id="demo_location_chemistry_bench_1" model="medilab.location">
         <field name="code">P101-B1</field>
         <field name="name">Bench 1</field>

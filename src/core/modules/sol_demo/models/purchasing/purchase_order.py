@@ -1,7 +1,7 @@
 from odoo import api, fields, models
 from odoo.fields import Command
 
-from odoo.addons.sol_inventory.constants.models import MODEL_PURCHASE_ORDER, MODEL_STOCK_PICKING
+from odoo.addons.sol_inventory.constants.models import MODEL_PURCHASE_ORDER, MODEL_STOCK_PICKING, MODEL_STOCK_QUANT
 
 MARKER = "sol_demo.demo_purchase_order_draft"
 STOREKEEPER = "sol_demo.demo_res_users_storekeeper"
@@ -105,6 +105,11 @@ class PurchaseOrder(models.Model):
         )
         without_order.action_confirm()
         without_order.button_validate()
+
+        # Stock in the fridge on a bench of the Chemistry room, beside the stock the receipts put in the central store.
+        self.env[MODEL_STOCK_QUANT].sudo()._update_available_quantity(
+            item["acetonitrile"], self.env.ref("sol_demo.demo_stock_location_fridge_2"), 4000
+        )
 
         self.env["ir.model.data"]._update_xmlids(
             [
