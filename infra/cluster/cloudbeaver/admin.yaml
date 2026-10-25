@@ -1,4 +1,4 @@
-# The administrator CloudBeaver creates on its first start. Anonymous access stays off, so every user signs in.
+# Bootstrap credentials: used only for a pristine workspace; never used to reset an existing account.
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:

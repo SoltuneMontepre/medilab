@@ -11,6 +11,7 @@ How tests are written, where they live and how they run.
 | Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application | `task test:apps`      |
 | Type checking | `unittest` and pyright                           | `tools/typecheck/`                    | `task test:typecheck` |
 | AI tooling    | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`      | `task ai:test`        |
+| CloudBeaver | unittest and pinned containers | `tools/cloudbeaver/` | `python3 -m unittest discover -s tools/cloudbeaver -v` |
 
 `task test` runs the module and application tests. Browser tests run against the running app, so start it first with `task up`.
 

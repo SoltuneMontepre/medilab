@@ -1,5 +1,4 @@
-# The workspace keeps CloudBeaver's users and settings. Every start rewrites the shared medilab connection
-# with the credentials in medilab-db-app, so a rotated password reaches it on the next restart.
+# H2 and runtime configuration are a single persistent installation.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,38 +18,25 @@ spec:
         app.kubernetes.io/name: cloudbeaver
     spec:
       enableServiceLinks: false
+      terminationGracePeriodSeconds: 60
       initContainers:
-        - name: data-sources
+        - name: prepare-workspace
           image: docker.io/dbeaver/cloudbeaver:26.2.2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
           command:
-            - sh
-            - -c
-            - |
-              mkdir -p /opt/cloudbeaver/workspace/GlobalConfiguration/.dbeaver
-              cat > /opt/cloudbeaver/workspace/GlobalConfiguration/.dbeaver/data-sources.json <<JSON
-              {
-                "connections": {
-                  "medilab-postgres": {
-                    "provider": "postgresql",
-                    "driver": "postgres-jdbc",
-                    "name": "MediLab",
-                    "save-password": true,
-                    "configuration": {
-                      "host": "medilab-db-rw",
-                      "port": "5432",
-                      "database": "medilab",
-                      "configurationType": "MANUAL",
-                      "auth-model": "native",
-                      "auth-properties": {
-                        "userName": "$DB_USER",
-                        "password": "$DB_PASSWORD"
-                      }
-                    }
-                  }
-                }
-              }
-              JSON
+            - /bin/bash
+            - /bootstrap/prepare.sh
+          envFrom:
+            - secretRef:
+                name: cloudbeaver-admin
           env:
+            - name: CB_SERVER_NAME
+              value: MediLab
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -64,9 +50,15 @@ spec:
           volumeMounts:
             - name: workspace
               mountPath: /opt/cloudbeaver/workspace
+            - name: bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+            - name: bootstrap-bin
+              mountPath: /bootstrap-bin
       containers:
         - name: cloudbeaver
           image: docker.io/dbeaver/cloudbeaver:26.2.2
+          command: [/bin/bash, /bootstrap/start.sh]
           envFrom:
             - secretRef:
                 name: cloudbeaver-admin
@@ -88,6 +80,12 @@ spec:
               port: http
             periodSeconds: 20
             failureThreshold: 3
+          readinessProbe:
+            exec:
+              command: [/bin/bash, /bootstrap/ready.sh]
+            periodSeconds: 10
+            timeoutSeconds: 8
+            failureThreshold: 1
           resources:
             requests:
               cpu: 100m
@@ -97,7 +95,17 @@ spec:
           volumeMounts:
             - name: workspace
               mountPath: /opt/cloudbeaver/workspace
+            - name: bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+            - name: bootstrap-bin
+              mountPath: /bootstrap-bin
       volumes:
         - name: workspace
           persistentVolumeClaim:
             claimName: cloudbeaver-workspace
+        - name: bootstrap
+          configMap:
+            name: cloudbeaver-bootstrap
+        - name: bootstrap-bin
+          emptyDir: {}
