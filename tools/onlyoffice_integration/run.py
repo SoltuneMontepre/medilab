@@ -10,6 +10,7 @@ import re
 import socket
 import subprocess
 import sys
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -45,6 +46,7 @@ DOCKER = ["docker", "--host=unix://" + SOCKET]
 
 
 def command(args, **options):
+    options.setdefault("timeout", 60)
     try:
         return subprocess.run(args, check=False, text=True, capture_output=True, **options)
     except OSError:
@@ -216,15 +218,25 @@ def test():
     if database.stdout.strip():
         raise RuntimeError("The test database already exists; preserve evidence before explicit cleanup.")
     limit = int(os.environ.get("ONLYOFFICE_RUN_TIMEOUT", "1200"))
-    try:
-        result = compose("run", "--name", CONTAINER, "--use-aliases", "--no-deps", "runner", timeout=limit)
-    except subprocess.TimeoutExpired as error:
-        require_success(
-            command([*DOCKER, "stop", "--time", "10", CONTAINER], env=DOCKER_ENV), "Stop timed-out test runner"
-        )
-        stdout = error.stdout.decode(errors="replace") if isinstance(error.stdout, bytes) else error.stdout or ""
-        stderr = error.stderr.decode(errors="replace") if isinstance(error.stderr, bytes) else error.stderr or ""
-        result = subprocess.CompletedProcess(error.cmd, 124, stdout, stderr)
+    launch = require_success(
+        compose("run", "--detach", "--name", CONTAINER, "--use-aliases", "--no-deps", "runner"), "Launch test runner"
+    )
+    deadline = time.monotonic() + limit
+    while True:
+        inspected = require_success(command([*DOCKER, "inspect", CONTAINER], env=DOCKER_ENV), "Inspect test runner")
+        state = json.loads(inspected.stdout)[0]["State"]
+        if not state["Running"]:
+            code = state["ExitCode"]
+            break
+        if time.monotonic() >= deadline:
+            require_success(
+                command([*DOCKER, "stop", "--time", "10", CONTAINER], env=DOCKER_ENV), "Stop timed-out test runner"
+            )
+            code = 124
+            break
+        time.sleep(2)
+    logs_result = command([*DOCKER, "logs", CONTAINER], env=DOCKER_ENV)
+    result = subprocess.CompletedProcess(launch.args, code, logs_result.stdout, logs_result.stderr)
     copy = command([*DOCKER, "cp", CONTAINER + ":/tmp/agent4-evidence/.", str(OUTPUT / "callbacks")], env=DOCKER_ENV)
     files = sorted((OUTPUT / "callbacks").glob("test_*.json")) if copy.returncode == 0 else []
     # Do not persist raw Odoo/Document Server logs: inspect them locally under restricted access.
