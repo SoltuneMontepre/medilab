@@ -39,6 +39,8 @@ fn odoo_http() -> AppResult<reqwest::Client> {
         reqwest::Client::builder()
             .connect_timeout(CONNECT_TIMEOUT)
             .timeout(ODOO_REQUEST_TIMEOUT)
+            .user_agent(concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")))
+            .redirect(reqwest::redirect::Policy::none())
             .build()
     })
 }
@@ -50,6 +52,7 @@ fn storage_upload_http() -> AppResult<reqwest::Client> {
     shared_client(&STORAGE_UPLOAD_HTTP, || {
         reqwest::Client::builder()
             .connect_timeout(CONNECT_TIMEOUT)
+            .redirect(reqwest::redirect::Policy::none())
             .build()
     })
 }
@@ -60,6 +63,7 @@ pub(crate) fn storage_download_http() -> AppResult<reqwest::Client> {
     shared_client(&STORAGE_DOWNLOAD_HTTP, || {
         reqwest::Client::builder()
             .connect_timeout(CONNECT_TIMEOUT)
+            .redirect(reqwest::redirect::Policy::none())
             .read_timeout(STORAGE_READ_TIMEOUT)
             .build()
     })
@@ -82,25 +86,9 @@ pub struct ApiClient {
 }
 
 /// Kết quả đăng nhập: API key mới cấp cho thiết bị, cùng thông tin user/thiết bị.
-#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct LoginResponse {
     pub api_key: String,
-    pub user_id: i64,
-    pub user_name: String,
-    pub user_login: String,
     pub device_id: i64,
-    pub device_name: String,
-}
-
-/// Thông tin phiên hiện tại: user, thiết bị, và nhóm quyền — dùng để xác nhận phiên còn hợp lệ.
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct MeResponse {
-    pub user_id: i64,
-    pub name: String,
-    pub login: String,
-    pub device_id: i64,
-    pub device_name: String,
-    pub groups: Vec<String>,
 }
 
 /// Một folder đồng bộ trên server, kèm rule đặt tên/lọc và ngữ cảnh mẫu LIMS (nếu đã map).
@@ -185,27 +173,6 @@ pub struct RuleDto {
     pub pattern: String,
     pub recursive: bool,
     pub enabled: bool,
-}
-
-/// Kết quả server chuẩn bị một lượt tải lên: kích thước phần, storage key, và có bị trùng nội
-/// dung hay không.
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PrepareResponse {
-    #[serde(alias = "session_id")]
-    pub session_id: Option<i64>,
-    pub file_id: i64,
-    #[serde(alias = "deduplicated")]
-    pub deduplicated: bool,
-    pub version_id: Option<i64>,
-    pub version_number: Option<i64>,
-    #[serde(alias = "part_size")]
-    pub part_size: i64,
-    #[serde(alias = "storage_key")]
-    pub storage_key: String,
-    pub s3_upload_id: Option<String>,
-    pub expires_at: Option<String>,
-    #[serde(default)]
-    pub object_reused: bool,
 }
 
 /// URL presigned để tải lên trực tiếp một phần (part) của một object lên storage.
@@ -293,6 +260,8 @@ pub struct FolderChangesDto {
 /// Một trang danh sách tệp thuộc một folder, dùng cho reconciliation toàn bộ.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct FolderFileListDto {
+    #[serde(default)]
+    pub next_after: Option<i64>,
     pub folder_id: i64,
     pub total: i64,
     pub limit: i64,
@@ -336,450 +305,724 @@ pub struct FileVersionListDto {
     pub items: Vec<FileVersionDto>,
 }
 
+async fn send(request: reqwest::RequestBuilder) -> AppResult<reqwest::Response> {
+    for attempt in 1..=3 {
+        let cloned = request
+            .try_clone()
+            .ok_or_else(|| AppError::Message("Không thể gửi lại yêu cầu".into()))?;
+        match ApiClient::map_response(send_once(cloned).await?).await {
+            Ok(response) => return Ok(response),
+            Err(AppError::Api {
+                ref code,
+                retry_after,
+                ..
+            }) if attempt < 3
+                && matches!(
+                    code.as_str(),
+                    "too_many_attempts" | "try_again" | "storage_unavailable"
+                ) =>
+            {
+                let delay = crate::sync::retry::backoff_secs(attempt).max(retry_after.unwrap_or(0));
+                tokio::time::sleep(Duration::from_secs(delay as u64)).await;
+            }
+            Err(err) => return Err(err),
+        }
+    }
+    unreachable!()
+}
+
+async fn send_once(request: reqwest::RequestBuilder) -> AppResult<reqwest::Response> {
+    let request = request.header(
+        "User-Agent",
+        concat!("MediLab-Sync/", env!("CARGO_PKG_VERSION")),
+    );
+    #[cfg(not(test))]
+    {
+        Ok(request.send().await?)
+    }
+    #[cfg(test)]
+    {
+        let (client, request) = request.build_split();
+        let request = request?;
+        let method = request.method().as_str().to_string();
+        let url = request.url().clone();
+        let headers = request
+            .headers()
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_str().unwrap().into()))
+            .collect();
+        crate::contract::request(
+            &method,
+            &url,
+            &headers,
+            request
+                .body()
+                .and_then(|b| b.as_bytes())
+                .unwrap_or_default(),
+        );
+        let response = client.execute(request).await?;
+        let status = response.status();
+        let headers = response.headers().clone();
+        let body = response.bytes().await?;
+        let header_values = headers
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_str().unwrap().into()))
+            .collect();
+        crate::contract::response(&method, url.path(), status.as_u16(), &header_values, &body);
+        let mut restored = http::Response::builder().status(status);
+        *restored.headers_mut().unwrap() = headers;
+        Ok(reqwest::Response::from(restored.body(body).unwrap()))
+    }
+}
+
 impl ApiClient {
-    /// Dựng client với API key và device id đã có sẵn (đăng nhập trước đó).
     pub fn new(base: &str, api_key: &str, device_id: i64) -> AppResult<Self> {
+        crate::server_url::endpoint(base, "medilab/api/v1")?;
         Ok(Self {
             http: odoo_http()?,
-            base: base.trim_end_matches('/').to_string(),
-            api_key: api_key.to_string(),
+            base: base.trim_end_matches('/').into(),
+            api_key: api_key.into(),
             device_id,
         })
     }
 
-    /// Device id của phiên này (chỉ cho test phân biệt hai thiết bị).
     #[cfg(test)]
     pub fn device_id(&self) -> i64 {
         self.device_id
     }
 
-    /// Dựng header `Authorization: Bearer` + `X-Sync-Device-Id` cho mọi request đã xác thực.
     fn headers(&self) -> AppResult<HeaderMap> {
         let mut headers = HeaderMap::new();
-        let value = HeaderValue::from_str(&format!("Bearer {}", self.api_key))
-            .map_err(|err| AppError::Message(err.to_string()))?;
+        let mut value = HeaderValue::from_str(&format!("Bearer {}", self.api_key))
+            .map_err(|_| AppError::Message("Khóa thiết bị không hợp lệ".into()))?;
+        value.set_sensitive(true);
         headers.insert(AUTHORIZATION, value);
-        headers.insert(
-            "X-Sync-Device-Id",
-            HeaderValue::from_str(&self.device_id.to_string())
-                .map_err(|err| AppError::Message(err.to_string()))?,
-        );
         Ok(headers)
     }
 
-    /// Chuyển response lỗi thành `AppError`: 401 thành `Unauthenticated`, còn lại qua
-    /// `map_http_error`; response thành công trả nguyên vẹn.
+    fn url(&self, path: &str) -> AppResult<url::Url> {
+        crate::server_url::endpoint(&self.base, &format!("medilab/api/v1/{path}"))
+    }
+
     async fn map_response(response: reqwest::Response) -> AppResult<reqwest::Response> {
-        let status = response.status();
-        if status.as_u16() == 401 {
-            return Err(AppError::Unauthenticated);
+        if response.status().is_success() {
+            return Ok(response);
         }
-        if !status.is_success() {
-            let body = response.text().await.unwrap_or_default();
-            return Err(map_http_error(status.as_u16(), &body));
+        let status = response.status().as_u16();
+        let retry_after = response
+            .headers()
+            .get("Retry-After")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|v| v.parse::<i64>().ok())
+            .filter(|v| *v >= 0);
+        let body = response.text().await.unwrap_or_default();
+        let mut error = map_http_error(status, &body);
+        if let AppError::Api {
+            retry_after: wait, ..
+        } = &mut error
+        {
+            *wait = retry_after;
         }
-        Ok(response)
+        Err(error)
     }
 
-    /// Xóa phần query khỏi một URL, để log an toàn (không lộ presigned signature).
     pub fn sanitize_url(url: &str) -> String {
-        url.split('?').next().unwrap_or("[invalid-url]").to_string()
+        url.split('?').next().unwrap_or("[invalid-url]").into()
     }
 
-    /// Đăng nhập bằng tài khoản/mật khẩu Odoo, đăng ký thiết bị này, và nhận về API key mới.
     pub async fn login(
         base: &str,
         login: &str,
         password: &str,
         device_name: &str,
         os: &str,
-        app_version: &str,
+        _app_version: &str,
         client_uid: &str,
     ) -> AppResult<LoginResponse> {
-        let url = format!("{}/api/sync/v1/auth/login", base.trim_end_matches('/'));
-        let response = odoo_http()?
-            .post(url)
-            .timeout(LOGIN_TIMEOUT)
-            .json(&serde_json::json!({
-                "login": login,
-                "password": password,
-                "device": {
-                    "name": device_name,
-                    "os": os,
-                    "app_version": app_version,
-                    "client_uid": client_uid,
-                }
-            }))
-            .send()
-            .await?;
-        if !response.status().is_success() {
-            let status = response.status();
-            let text = response.text().await.unwrap_or_default();
-            return Err(AppError::Message(format!(
-                "Đăng nhập thất bại ({status}): {text}"
-            )));
+        let url = crate::server_url::endpoint(base, "medilab/api/v1/sign-in")?;
+        let response=send(odoo_http()?.post(url).timeout(LOGIN_TIMEOUT).json(&serde_json::json!({
+            "login": login, "password": password, "name": device_name, "platform": os, "client_uid": client_uid,
+        }))).await?;
+        let wire: crate::wire::SignedIn = Self::map_response(response).await?.json().await?;
+        Ok(LoginResponse {
+            api_key: wire.key,
+            device_id: wire.device.id,
+        })
+    }
+
+    pub async fn devices(&self) -> AppResult<Vec<crate::wire::Device>> {
+        let response = send(self.http.get(self.url("devices")?).headers(self.headers()?)).await?;
+        Ok(Self::map_response(response)
+            .await?
+            .json::<crate::wire::Devices>()
+            .await?
+            .devices)
+    }
+
+    pub async fn me(&self) -> AppResult<()> {
+        let devices = self.devices().await?;
+        if devices.iter().any(|d| {
+            d.id == self.device_id
+                && d.current
+                && d.status == "signed_in"
+                && matches!(d.platform.as_str(), "linux" | "windows")
+        }) {
+            Ok(())
+        } else {
+            Err(AppError::Unauthenticated)
         }
-        Ok(response.json().await?)
     }
 
-    /// Xác nhận phiên hiện tại còn hợp lệ và đọc lại thông tin user/thiết bị.
-    pub async fn me(&self) -> AppResult<MeResponse> {
-        let response = self
-            .http
-            .get(format!("{}/api/sync/v1/me", self.base))
-            .headers(self.headers()?)
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+    pub async fn revoke_device(&self, device_id: i64) -> AppResult<()> {
+        let response = send(
+            self.http
+                .post(self.url(&format!("devices/{device_id}/revoke"))?)
+                .headers(self.headers()?),
+        )
+        .await?;
+        Self::map_response(response).await?;
+        Ok(())
     }
 
-    /// Báo server hủy phiên hiện tại (best-effort, lỗi bị bỏ qua).
     pub async fn logout(&self) -> AppResult<()> {
-        let _ = self
-            .http
-            .post(format!("{}/api/sync/v1/auth/logout", self.base))
-            .headers(self.headers()?)
-            .send()
-            .await?;
-        Ok(())
+        match send(
+            self.http
+                .post(self.url("sign-out")?)
+                .headers(self.headers()?),
+        )
+        .await
+        {
+            Ok(_) | Err(AppError::Unauthenticated) => Ok(()),
+            Err(err) => Err(err),
+        }
     }
 
-    /// Liệt kê mọi folder trên server mà thiết bị/người dùng hiện tại được phép thấy.
+    async fn rules(&self, folder_id: i64) -> AppResult<Vec<RuleDto>> {
+        let response = send(
+            self.http
+                .get(self.url(&format!("folders/{folder_id}/rules"))?)
+                .headers(self.headers()?),
+        )
+        .await?;
+        Ok(Self::map_response(response)
+            .await?
+            .json::<crate::wire::Rules>()
+            .await?
+            .rules
+            .into_iter()
+            .map(Into::into)
+            .collect())
+    }
+
     pub async fn list_folders(&self) -> AppResult<Vec<FolderDto>> {
-        let response = self
-            .http
-            .get(format!("{}/api/sync/v1/folders", self.base))
-            .headers(self.headers()?)
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let response = send(self.http.get(self.url("folders")?).headers(self.headers()?)).await?;
+        let wire: crate::wire::Folders = Self::map_response(response).await?.json().await?;
+        let mut folders = Vec::new();
+        for f in wire.folders {
+            let rules = self.rules(f.id).await?;
+            folders.push(f.into_dto(rules));
+        }
+        Ok(folders)
     }
 
-    /// Thông tin chia sẻ của một folder (chủ sở hữu, tư cách của mình, thành viên).
     pub async fn list_members(&self, folder_id: i64) -> AppResult<FolderMembersDto> {
-        let response = self
-            .http
-            .get(format!(
-                "{}/api/sync/v1/folders/{folder_id}/members",
-                self.base
-            ))
-            .headers(self.headers()?)
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let response = send(
+            self.http
+                .get(self.url(&format!("folders/{folder_id}/members"))?)
+                .headers(self.headers()?),
+        )
+        .await?;
+        let members = Self::map_response(response)
+            .await?
+            .json::<crate::wire::Members>()
+            .await?
+            .members;
+        let folder = self
+            .list_folders()
+            .await?
+            .into_iter()
+            .find(|f| f.id == folder_id)
+            .ok_or(AppError::Forbidden(404))?;
+        let owner = members
+            .iter()
+            .find(|m| m.role == "owner")
+            .map(|m| m.user.clone())
+            .ok_or_else(|| AppError::Message("Thiếu chủ sở hữu thư mục".into()))?;
+        Ok(FolderMembersDto {
+            folder_id,
+            owner,
+            my_role: folder.my_role.unwrap_or_default(),
+            can_manage_members: folder.can_manage_members,
+            mapped: folder.category.is_some(),
+            members,
+        })
     }
 
-    /// Thêm một thành viên; chỉ gửi user id, vai trò do server gán.
     pub async fn add_member(&self, folder_id: i64, user_id: i64) -> AppResult<MemberDto> {
-        let response = self
-            .http
-            .post(format!(
-                "{}/api/sync/v1/folders/{folder_id}/members",
-                self.base
-            ))
-            .headers(self.headers()?)
-            .json(&serde_json::json!({ "userId": user_id }))
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let response = send(
+            self.http
+                .post(self.url(&format!("folders/{folder_id}/members"))?)
+                .headers(self.headers()?)
+                .json(&serde_json::json!({"user_id":user_id})),
+        )
+        .await?;
+        Ok(Self::map_response(response)
+            .await?
+            .json::<crate::wire::OneMember>()
+            .await?
+            .member)
     }
 
-    /// Gỡ một thành viên khỏi folder.
     pub async fn remove_member(&self, folder_id: i64, member_id: i64) -> AppResult<()> {
-        let response = self
-            .http
-            .delete(format!(
-                "{}/api/sync/v1/folders/{folder_id}/members/{member_id}",
-                self.base
-            ))
-            .headers(self.headers()?)
-            .send()
-            .await?;
-        let _ = Self::map_response(response).await?;
+        let response = send(
+            self.http
+                .delete(self.url(&format!("folders/{folder_id}/members/{member_id}"))?)
+                .headers(self.headers()?),
+        )
+        .await?;
+        Self::map_response(response).await?;
         Ok(())
     }
 
-    /// Tìm user có thể thêm làm thành viên của folder này (server giới hạn ≥2 ký tự, ≤10 kết quả).
     pub async fn search_member_candidates(
         &self,
         folder_id: i64,
         query: &str,
     ) -> AppResult<Vec<MemberUserDto>> {
-        let response = self
-            .http
-            .get(format!(
-                "{}/api/sync/v1/folders/{folder_id}/member-candidates",
-                self.base
-            ))
-            .query(&[("q", query)])
-            .headers(self.headers()?)
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let response = send(
+            self.http
+                .get(self.url(&format!("folders/{folder_id}/member-candidates"))?)
+                .headers(self.headers()?)
+                .query(&[("q", query)]),
+        )
+        .await?;
+        Ok(Self::map_response(response)
+            .await?
+            .json::<crate::wire::Candidates>()
+            .await?
+            .candidates)
     }
 
-    /// Tạo hoặc upsert folder của chủ sở hữu hiện tại trên server.
     pub async fn create_folder(
         &self,
         name: &str,
-        logical_root: &str,
+        _logical_root: &str,
         rules: &[RuleDto],
     ) -> AppResult<FolderDto> {
-        let response = self
-            .http
-            .post(format!("{}/api/sync/v1/folders", self.base))
-            .headers(self.headers()?)
-            .json(&serde_json::json!({
-                "name": name,
-                "logical_root": logical_root,
-                "enabled": true,
-                "rules": rules,
-            }))
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let response = send(
+            self.http
+                .post(self.url("folders")?)
+                .headers(self.headers()?)
+                .header("Idempotency-Key", uuid::Uuid::new_v4().to_string())
+                .json(&serde_json::json!({"name":name})),
+        )
+        .await?;
+        let folder = Self::map_response(response)
+            .await?
+            .json::<crate::wire::OneFolder>()
+            .await?
+            .folder;
+        for r in rules {
+            let response=send(self.http.post(self.url(&format!("folders/{}/rules",folder.id))?).headers(self.headers()?).json(&serde_json::json!({"kind":r.r#type,"pattern":r.pattern,"recursive":r.recursive}))).await?;
+            Self::map_response(response).await?;
+        }
+        let rules = self.rules(folder.id).await?;
+        Ok(folder.into_dto(rules))
     }
 
-    /// Xin server chuẩn bị một lượt tải lên: nhận storage key, kích thước phần, và có bị trùng
-    /// nội dung hay không.
     pub async fn prepare(
         &self,
         folder_id: i64,
-        logical_path: &str,
+        path: &str,
         size: i64,
-        content_hash: &str,
+        sha256: &str,
         base_version_id: i64,
-    ) -> AppResult<PrepareResponse> {
-        let response = self
-            .http
-            .post(format!("{}/api/sync/v1/uploads/prepare", self.base))
-            .headers(self.headers()?)
-            .json(&serde_json::json!({
-                "folder_id": folder_id,
-                "logical_path": logical_path,
-                "size": size,
-                "content_hash": content_hash,
-                "checksum_algorithm": "sha256",
-                "base_version_id": base_version_id,
-            }))
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        key: &str,
+    ) -> AppResult<crate::wire::Upload> {
+        let response=send(self.http.post(self.url(&format!("folders/{folder_id}/uploads"))?).headers(self.headers()?).header("Idempotency-Key",key).json(&serde_json::json!({
+            "path":path,"size":size,"sha256":sha256,"base_version_id":(base_version_id > 0).then_some(base_version_id),
+        }))).await?;
+        Ok(Self::map_response(response)
+            .await?
+            .json::<crate::wire::OneUpload>()
+            .await?
+            .upload)
     }
 
-    /// Xin URL presigned để tải lên trực tiếp các phần đã liệt kê.
+    pub async fn upload(&self, folder_id: i64, id: i64) -> AppResult<crate::wire::Upload> {
+        let response = send(
+            self.http
+                .get(self.url(&format!("folders/{folder_id}/uploads/{id}"))?)
+                .headers(self.headers()?),
+        )
+        .await?;
+        Ok(Self::map_response(response)
+            .await?
+            .json::<crate::wire::OneUpload>()
+            .await?
+            .upload)
+    }
+
     pub async fn presign(
         &self,
-        session_id: i64,
-        part_numbers: &[i64],
+        folder_id: i64,
+        id: i64,
+        numbers: &[i64],
     ) -> AppResult<Vec<PresignPart>> {
-        let response = self
-            .http
-            .post(format!(
-                "{}/api/sync/v1/uploads/{session_id}/parts/presign",
-                self.base
-            ))
-            .headers(self.headers()?)
-            .json(&serde_json::json!({ "part_numbers": part_numbers }))
-            .send()
+        let response = send(
+            self.http
+                .post(self.url(&format!("folders/{folder_id}/uploads/{id}/parts"))?)
+                .headers(self.headers()?)
+                .json(&serde_json::json!({"part_numbers":numbers})),
+        )
+        .await?;
+        let wire = Self::map_response(response)
+            .await?
+            .json::<crate::wire::Parts>()
             .await?;
-        let response = Self::map_response(response).await?;
-        let body: serde_json::Value = response.json().await?;
-        Ok(serde_json::from_value(body["parts"].clone())?)
+        let expires_in = crate::wire::ttl(&wire.expires_at);
+        Ok(wire
+            .parts
+            .into_iter()
+            .map(|p| PresignPart {
+                part_number: p.number,
+                url: p.url,
+                expires_in,
+            })
+            .collect())
     }
 
-    /// Hoàn tất lượt tải lên với etag của từng phần; server ghép part và tạo version mới (hoặc
-    /// báo xung đột).
     pub async fn finalize(
         &self,
-        session_id: i64,
-        parts: &[(i64, String)],
+        folder_id: i64,
+        id: i64,
+        _parts: &[(i64, String)],
     ) -> AppResult<FinalizeResponse> {
-        let payload: Vec<_> = parts
-            .iter()
-            .map(|(n, etag)| serde_json::json!({"part_number": n, "etag": etag}))
-            .collect();
-        let response = self
-            .http
-            .post(format!(
-                "{}/api/sync/v1/uploads/{session_id}/finalize",
-                self.base
-            ))
-            .headers(self.headers()?)
-            .json(&serde_json::json!({ "parts": payload }))
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let response = send(
+            self.http
+                .post(self.url(&format!("folders/{folder_id}/uploads/{id}/finalize"))?)
+                .headers(self.headers()?),
+        )
+        .await?;
+        let mut upload = Self::map_response(response)
+            .await?
+            .json::<crate::wire::OneUpload>()
+            .await?
+            .upload;
+        for _ in 0..30 {
+            match upload.status.as_str() {
+                "completed" | "conflict" | "unchanged" => {
+                    let file = self
+                        .file_by_path(
+                            folder_id,
+                            &upload.path,
+                            upload.version.as_ref().map(|v| v.id),
+                        )
+                        .await?;
+                    return Ok(FinalizeResponse {
+                        status: upload.status,
+                        file_id: file.id,
+                        version_id: upload.version.as_ref().map(|v| v.id),
+                        version_number: upload.version.as_ref().map(|v| v.number),
+                        conflict_id: None,
+                        server_version_id: file.current_version_id,
+                    });
+                }
+                "failed" => {
+                    return Err(AppError::UploadFailed(
+                        upload
+                            .failure_code
+                            .unwrap_or_else(|| "verification_failed".into()),
+                    ))
+                }
+                "expired" => return Err(AppError::UploadExpired),
+                "refused" => {
+                    let code = upload.failure_code.unwrap_or_default();
+                    let status = match code.as_str() {
+                        "device_revoked" | "permission_denied" => 403,
+                        "invalid_key" => 401,
+                        "not_found" => 404,
+                        _ => 409,
+                    };
+                    return Err(map_http_error(
+                        status,
+                        &serde_json::json!({"error":{"code":code,"message":"Tải lên bị từ chối"}})
+                            .to_string(),
+                    ));
+                }
+                "verifying" => {}
+                _ => return Err(AppError::Message("Trạng thái tải lên không hợp lệ".into())),
+            }
+            tokio::time::sleep(Duration::from_secs(1)).await;
+            upload = self.upload(folder_id, id).await?;
+        }
+        Err(AppError::UploadPending)
     }
 
-    /// PUT trực tiếp bytes của một phần lên URL presigned; trả về etag để dùng lúc finalize.
-    ///
-    /// Nhận `Bytes` để lần thử lại gửi đúng buffer đã hash (clone chỉ tăng refcount), không đọc
-    /// lại tệp. 403 từ storage trả `PresignedUrlRejected` để caller xin URL mới.
     pub async fn put_part(url: &str, bytes: bytes::Bytes) -> AppResult<String> {
-        tracing::info!(target = %Self::sanitize_url(url), "uploading part");
-        let timeout = part_upload_timeout(bytes.len());
         let response = storage_upload_http()?
             .put(url)
-            .timeout(timeout)
+            .timeout(part_upload_timeout(bytes.len()))
             .body(bytes)
             .send()
             .await?;
         if !response.status().is_success() {
-            let status = response.status();
-            if status.as_u16() == 403 {
-                return Err(AppError::PresignedUrlRejected(403));
-            }
-            return Err(AppError::Message(format!("Tải phần thất bại ({status})")));
+            let status = response.status().as_u16();
+            return Err(if status == 403 {
+                AppError::PresignedUrlRejected(status)
+            } else {
+                AppError::StorageStatus(status)
+            });
         }
-        let etag = response
+        Ok(response
             .headers()
             .get("etag")
             .and_then(|v| v.to_str().ok())
             .unwrap_or("")
             .trim_matches('"')
-            .to_string();
-        Ok(etag)
+            .into())
     }
 
-    /// Đọc chi tiết một tệp trên server theo id.
-    pub async fn get_file(&self, file_id: i64) -> AppResult<FileDetailDto> {
-        let response = self
-            .http
-            .get(format!("{}/api/sync/v1/files/{file_id}", self.base))
-            .headers(self.headers()?)
-            .send()
+    pub async fn folder_files(
+        &self,
+        folder_id: i64,
+        limit: i64,
+        after: i64,
+    ) -> AppResult<FolderFileListDto> {
+        let response = send(
+            self.http
+                .get(self.url(&format!("folders/{folder_id}/files"))?)
+                .headers(self.headers()?)
+                .query(&[("limit", limit), ("after", after)]),
+        )
+        .await?;
+        let wire = Self::map_response(response)
+            .await?
+            .json::<crate::wire::Files>()
             .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        Ok(FolderFileListDto {
+            folder_id,
+            total: 0,
+            limit,
+            offset: after,
+            next_after: wire.next_after,
+            items: wire
+                .files
+                .into_iter()
+                .map(|f| f.into_dto(folder_id))
+                .collect(),
+        })
     }
 
-    /// Đọc một trang lịch sử version của một tệp.
+    pub async fn get_file(&self, folder_id: i64, file_id: i64) -> AppResult<FileDetailDto> {
+        let mut after = 0;
+        loop {
+            let page = self.folder_files(folder_id, 100, after).await?;
+            if let Some(file) = page.items.into_iter().find(|f| f.id == file_id) {
+                return Ok(file);
+            }
+            match page.next_after {
+                Some(next) if next > after => after = next,
+                _ => return Err(AppError::Forbidden(404)),
+            }
+        }
+    }
+
+    async fn file_by_path(
+        &self,
+        folder_id: i64,
+        path: &str,
+        version_id: Option<i64>,
+    ) -> AppResult<FileDetailDto> {
+        let mut after = 0;
+        let mut candidates = Vec::new();
+        loop {
+            let page = self.folder_files(folder_id, 100, after).await?;
+            candidates.extend(page.items.iter().map(|f| f.id));
+            if let Some(file) = page.items.into_iter().find(|f| {
+                f.logical_path == path
+                    || (version_id.is_some() && f.current_version_id == version_id)
+            }) {
+                return Ok(file);
+            }
+            match page.next_after {
+                Some(next) if next > after => after = next,
+                _ => break,
+            }
+        }
+        if let Some(version_id) = version_id {
+            for file_id in candidates {
+                match self.get_file_version(folder_id, file_id, version_id).await {
+                    Ok(_) => return self.get_file(folder_id, file_id).await,
+                    Err(AppError::Forbidden(404)) => {}
+                    Err(err) => return Err(err),
+                }
+            }
+        }
+        Err(AppError::Forbidden(404))
+    }
+
     pub async fn get_file_versions(
         &self,
+        folder_id: i64,
         file_id: i64,
         limit: i64,
         offset: i64,
     ) -> AppResult<FileVersionListDto> {
-        let response = self
-            .http
-            .get(format!(
-                "{}/api/sync/v1/files/{file_id}/versions",
-                self.base
-            ))
-            .query(&[("limit", limit), ("offset", offset)])
-            .headers(self.headers()?)
-            .send()
+        let file = self.get_file(folder_id, file_id).await?;
+        let response = send(
+            self.http
+                .get(self.url(&format!("folders/{folder_id}/files/{file_id}/versions"))?)
+                .headers(self.headers()?),
+        )
+        .await?;
+        let wire = Self::map_response(response)
+            .await?
+            .json::<crate::wire::Versions>()
             .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let total = wire.versions.len() as i64;
+        Ok(FileVersionListDto {
+            file_id,
+            total,
+            limit,
+            offset,
+            items: wire
+                .versions
+                .into_iter()
+                .skip(offset.max(0) as usize)
+                .take(limit.clamp(1, 100) as usize)
+                .map(|v| v.into_dto(file_id, file.current_version_id))
+                .collect(),
+        })
     }
 
-    /// Đọc chi tiết một version cụ thể.
     pub async fn get_file_version(
         &self,
+        folder_id: i64,
         file_id: i64,
         version_id: i64,
     ) -> AppResult<FileVersionDto> {
-        let response = self
-            .http
-            .get(format!(
-                "{}/api/sync/v1/files/{file_id}/versions/{version_id}",
-                self.base
-            ))
-            .headers(self.headers()?)
-            .send()
+        let current = self.get_file(folder_id, file_id).await?.current_version_id;
+        let response = send(
+            self.http
+                .get(self.url(&format!("folders/{folder_id}/files/{file_id}/versions"))?)
+                .headers(self.headers()?),
+        )
+        .await?;
+        let wire = Self::map_response(response)
+            .await?
+            .json::<crate::wire::Versions>()
             .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        wire.versions
+            .into_iter()
+            .find(|v| v.id == version_id)
+            .map(|v| v.into_dto(file_id, current))
+            .ok_or(AppError::Forbidden(404))
     }
 
-    /// Yêu cầu server phục hồi một version cũ thành version hiện hành mới.
     pub async fn restore_file_version(
         &self,
+        folder_id: i64,
         file_id: i64,
         version_id: i64,
     ) -> AppResult<FileVersionDto> {
-        let response = self
-            .http
-            .post(format!(
-                "{}/api/sync/v1/files/{file_id}/versions/{version_id}/restore",
-                self.base
-            ))
-            .headers(self.headers()?)
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let response = send(
+            self.http
+                .post(self.url(&format!(
+                    "folders/{folder_id}/files/{file_id}/versions/{version_id}/restore"
+                ))?)
+                .headers(self.headers()?)
+                .header("Idempotency-Key", uuid::Uuid::new_v4().to_string()),
+        )
+        .await?;
+        let version = Self::map_response(response)
+            .await?
+            .json::<crate::wire::OneVersion>()
+            .await?
+            .version;
+        let id = version.id;
+        Ok(version.into_dto(file_id, Some(id)))
     }
 
-    /// Đọc một trang change feed của folder, bắt đầu sau cursor `after`.
     pub async fn folder_changes(
         &self,
         folder_id: i64,
         after: i64,
         limit: i64,
     ) -> AppResult<FolderChangesDto> {
-        let response = self
-            .http
-            .get(format!(
-                "{}/api/sync/v1/folders/{folder_id}/changes",
-                self.base
-            ))
-            .query(&[("after", after), ("limit", limit)])
-            .headers(self.headers()?)
-            .send()
+        let response = send(
+            self.http
+                .get(self.url(&format!("folders/{folder_id}/changes"))?)
+                .headers(self.headers()?)
+                .query(&[("limit", limit), ("after", after)]),
+        )
+        .await?;
+        let wire = Self::map_response(response)
+            .await?
+            .json::<crate::wire::Changes>()
             .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let changes: Vec<_> = wire
+            .changes
+            .into_iter()
+            .map(|c| FolderChangeDto {
+                id: c.id,
+                change_type: "CANONICAL_VERSION".into(),
+                folder_id,
+                file_id: c.file.id,
+                logical_path: c.file.path,
+                current_version_id: Some(c.version.id),
+                version_number: Some(c.version.number),
+                content_hash: Some(c.version.sha256),
+                size: c.version.size,
+                source: Some(c.version.source),
+                changed_at: Some(c.version.created_at),
+                changed_by_device_id: c.version.device.map(|d| d.id),
+            })
+            .collect();
+        let next_cursor = wire
+            .next_after
+            .or_else(|| changes.last().map(|c| c.id))
+            .unwrap_or(after);
+        Ok(FolderChangesDto {
+            folder_id,
+            changes,
+            next_cursor,
+            has_more: wire.next_after.is_some(),
+            limit,
+        })
     }
 
-    /// Đọc một trang danh sách tệp của folder, dùng cho reconciliation toàn bộ.
-    pub async fn folder_files(
-        &self,
-        folder_id: i64,
-        limit: i64,
-        offset: i64,
-    ) -> AppResult<FolderFileListDto> {
-        let response = self
-            .http
-            .get(format!(
-                "{}/api/sync/v1/folders/{folder_id}/files",
-                self.base
-            ))
-            .query(&[("limit", limit), ("offset", offset)])
-            .headers(self.headers()?)
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
-    }
-
-    /// Xin server cấp URL presigned để tải một version cụ thể xuống.
     pub async fn authorize_download(
         &self,
+        folder_id: i64,
         file_id: i64,
         version_id: i64,
     ) -> AppResult<DownloadAuthDto> {
-        let response = self
-            .http
-            .post(format!(
-                "{}/api/sync/v1/files/{file_id}/versions/{version_id}/download",
-                self.base
-            ))
-            .headers(self.headers()?)
-            .send()
+        let version = self
+            .get_file_version(folder_id, file_id, version_id)
             .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
+        let response = send(
+            self.http
+                .post(self.url(&format!(
+                    "folders/{folder_id}/files/{file_id}/versions/{version_id}/download"
+                ))?)
+                .headers(self.headers()?),
+        )
+        .await?;
+        let wire = Self::map_response(response)
+            .await?
+            .json::<crate::wire::Download>()
+            .await?;
+        Ok(DownloadAuthDto {
+            file_id,
+            version_id,
+            version_number: version.version_number,
+            size: version.size,
+            content_hash: version.content_hash,
+            checksum_algorithm: "sha256".into(),
+            expires_in: crate::wire::ttl(&wire.expires_at),
+            url: wire.url,
+        })
     }
 }
 
@@ -787,53 +1030,55 @@ impl ApiClient {
 /// do từ chối theo tình trạng mẫu (đã lưu trữ, đã kết thúc) mà server enforce, ở đây chỉ diễn
 /// giải lại, không tự quyết định.
 pub fn map_http_error(status: u16, body: &str) -> AppError {
-    let lower = body.to_ascii_lowercase();
-    if status == 403 && lower.contains("folder is disabled") {
-        return AppError::Message(
-            "Thư mục đang bị quản trị viên tạm tắt trên máy chủ. Tệp sẽ tự tải lên khi thư mục được bật lại."
-                .into(),
-        );
+    #[derive(Deserialize)]
+    struct ErrorBody {
+        error: Refusal,
     }
-    if status == 403 || status == 404 {
-        return AppError::Forbidden(status);
+    #[derive(Deserialize)]
+    struct Refusal {
+        code: String,
+        message: String,
     }
-    if status == 409 && lower.contains("already a member") {
-        return AppError::Message("Người này đã là thành viên của thư mục".into());
+    let Ok(error) = serde_json::from_str::<ErrorBody>(body) else {
+        return AppError::Api {
+            status,
+            code: "invalid_response".into(),
+            message: format!("Máy chủ trả HTTP {status}"),
+            retry_after: None,
+        };
+    };
+    match (status, error.error.code.as_str()) {
+        (410, "client_update_required") => {
+            AppError::ClientUpdateRequired(crate::error::redact_url_queries(&error.error.message))
+        }
+        (401, "invalid_key") | (403, "device_revoked") => AppError::Unauthenticated,
+        (403, "permission_denied") | (404, "not_found") => AppError::Forbidden(status),
+        _ => AppError::Api {
+            status,
+            code: error.error.code,
+            message: crate::error::redact_url_queries(&error.error.message),
+            retry_after: None,
+        },
     }
-    if status == 409 && lower.contains("owner cannot be removed") {
-        return AppError::Message("Không gỡ được chủ sở hữu khỏi thư mục".into());
-    }
-    if status == 400 && lower.contains("user cannot be added") {
-        return AppError::Message("Không thêm được người dùng này vào thư mục".into());
-    }
-    if status == 409 && lower.contains("checked out") {
-        return AppError::Message("Tệp đang được khóa chỉnh sửa trên thiết bị khác".into());
-    }
-    if status == 409 && lower.contains("archived") {
-        return AppError::Message("Thư mục đã lưu trữ, không nhận tải lên mới".into());
-    }
-    if status == 409 && lower.contains("sample is closed") {
-        return AppError::Message("Mẫu đã kết thúc, không nhận chỉnh sửa mới".into());
-    }
-    if status == 409 && lower.contains("not available") {
-        return AppError::Message(
-            "Đối tượng lưu trữ của phiên bản này không còn trên máy chủ".into(),
-        );
-    }
-    if status == 400 && lower.contains("unsupported office") {
-        return AppError::Message("Định dạng tệp không hỗ trợ chỉnh sửa trực tuyến".into());
-    }
-    if status == 503 && lower.contains("onlyoffice") {
-        return AppError::Message(
-            "Máy chủ ONLYOFFICE chưa được cấu hình hoặc không khả dụng".into(),
-        );
-    }
-    AppError::Message(format!("{status}: {body}"))
 }
 
 /// True nếu lỗi có khả năng là tạm thời (mạng, 502/503/504, timeout, ...) và đáng thử lại.
 pub fn is_retryable(err: &AppError) -> bool {
     match err {
+        AppError::Api { code, status, .. } => {
+            matches!(
+                code.as_str(),
+                "too_many_attempts"
+                    | "try_again"
+                    | "storage_unavailable"
+                    | "folder_disabled"
+                    | "locked"
+                    | "upload_incomplete"
+                    | "upload_closed"
+            ) || *status >= 500
+        }
+        AppError::UploadPending | AppError::UploadExpired => true,
+        AppError::StorageStatus(status) => *status >= 500 || *status == 429,
         AppError::Http(msg) => {
             let lower = msg.to_ascii_lowercase();
             lower.contains("timeout")
@@ -879,7 +1124,7 @@ pub fn unbound_folders(remotes: Vec<FolderDto>, bound_remote_ids: &[i64]) -> Unb
             continue;
         }
         match remote.my_role.as_deref() {
-            Some("upload") => unbound.shared.push(remote),
+            Some("member") => unbound.shared.push(remote),
             Some("owner") => unbound.owned.push(remote),
             _ => {}
         }
@@ -930,7 +1175,7 @@ mod tests {
     use super::{
         folder_to_bind, is_retryable, map_http_error, select_remote_folder, unbound_folders,
         ApiClient, FileVersionDto, FileVersionListDto, FinalizeResponse, FolderDto,
-        FolderMembersDto, PrepareResponse,
+        FolderMembersDto,
     };
     use crate::error::AppError;
 
@@ -988,8 +1233,8 @@ mod tests {
             "Tệp đã thay đổi trong lúc tải lên, sẽ thử lại".into()
         )));
         assert!(is_retryable(&map_http_error(
-            403,
-            r#"{"detail":"Folder is disabled"}"#
+            409,
+            r#"{"error":{"code":"folder_disabled","message":"tạm tắt"}}"#
         )));
         assert!(!is_retryable(&AppError::Message(
             "Tệp không còn trên đĩa: ABC.xlsx".into()
@@ -1197,8 +1442,8 @@ mod tests {
     fn unbound_folders_split_by_role_and_exclude_locally_bound() {
         let remotes = vec![
             shared_fixture(1, "MineBound", Some("owner")),
-            shared_fixture(2, "SharedBound", Some("upload")),
-            shared_fixture(3, "SharedFree", Some("upload")),
+            shared_fixture(2, "SharedBound", Some("member")),
+            shared_fixture(3, "SharedFree", Some("member")),
             shared_fixture(4, "Managed", Some("manager")),
             shared_fixture(5, "Legacy", None),
             shared_fixture(6, "MineFree", Some("owner")),
@@ -1214,9 +1459,9 @@ mod tests {
     fn shared_list_follows_local_bind_and_unbind() {
         let remotes = || {
             vec![
-                shared_fixture(1, "A", Some("upload")),
-                shared_fixture(2, "B", Some("upload")),
-                shared_fixture(3, "C", Some("upload")),
+                shared_fixture(1, "A", Some("member")),
+                shared_fixture(2, "B", Some("member")),
+                shared_fixture(3, "C", Some("member")),
             ]
         };
         assert_eq!(ids(&unbound_folders(remotes(), &[1, 3]).shared), vec![2]);
@@ -1235,7 +1480,7 @@ mod tests {
         let remotes = || {
             vec![
                 shared_fixture(10, "LabResults", Some("owner")),
-                shared_fixture(11, "LabResults", Some("upload")),
+                shared_fixture(11, "LabResults", Some("member")),
                 shared_fixture(12, "LabResults", Some("manager")),
             ]
         };
@@ -1260,44 +1505,19 @@ mod tests {
 
         let current: FolderDto = serde_json::from_str(
             r#"{"id":1,"name":"A","logical_root":"A","sync_mode":"upload_only","enabled":true,"rules":[],
-                "owner_name":"Dr. A","my_role":"upload","can_manage_members":false,"future_field":1}"#,
+                "owner_name":"Dr. A","my_role":"member","can_manage_members":false,"future_field":1}"#,
         )
         .unwrap();
         assert_eq!(current.owner_name.as_deref(), Some("Dr. A"));
-        assert_eq!(current.my_role.as_deref(), Some("upload"));
+        assert_eq!(current.my_role.as_deref(), Some("member"));
 
         let members: FolderMembersDto = serde_json::from_str(
-            r#"{"folder_id":1,"owner":{"id":2,"name":"Dr. A"},"my_role":"upload",
+            r#"{"folder_id":1,"owner":{"id":2,"name":"Dr. A"},"my_role":"member",
                 "members":[{"id":9,"user":{"id":3,"name":"B","login":"b"},"role":"upload","effective_access":false}]}"#,
         )
         .unwrap();
         assert!(!members.can_manage_members);
         assert!(!members.members[0].effective_access);
-    }
-
-    /// Lỗi 403/thư mục tắt/409-object-không-còn phải dịch ra đúng thông báo, và lỗi thiếu
-    /// object thì không đáng thử lại.
-    #[test]
-    fn maps_permission_and_missing_object_errors() {
-        let forbidden = map_http_error(403, r#"{"detail":"File not found"}"#);
-        assert!(forbidden.to_string().contains("Không có quyền"));
-        // 403/404 mang kiểu riêng để engine nhận ra mất quyền mà không so chuỗi; không thử lại,
-        // và không bị coi là hết phiên (401 mới là chuyện phiên/thiết bị).
-        assert!(matches!(forbidden, AppError::Forbidden(403)));
-        assert!(matches!(
-            map_http_error(404, r#"{"detail":"Folder not found"}"#),
-            AppError::Forbidden(404)
-        ));
-        assert!(!is_retryable(&forbidden));
-        assert!(!crate::error::is_odoo_auth_failure(&forbidden));
-        let disabled = map_http_error(403, r#"{"detail":"Folder is disabled"}"#);
-        // Folder bị quản trị tắt: không phải mất quyền, và job chờ thử lại tới khi được bật lại.
-        assert!(disabled.to_string().contains("tạm tắt"));
-        assert!(is_retryable(&disabled));
-        assert!(!matches!(disabled, AppError::Forbidden(_)));
-        let missing = map_http_error(409, r#"{"detail":"Historical object is not available"}"#);
-        assert!(missing.to_string().contains("không còn trên máy chủ"));
-        assert!(!is_retryable(&missing));
     }
 
     /// Parse change feed và download-auth phải giữ đúng dữ liệu và không bao giờ lộ
@@ -1371,33 +1591,46 @@ mod tests {
         assert!(legacy.category.is_none());
     }
 
-    /// Lỗi 409 "checked out" dịch thành thông báo "khóa"; lỗi 409 "Sample is closed" dịch thành
-    /// thông báo "kết thúc".
     #[test]
-    fn maps_checkout_and_closed_sample_errors() {
-        assert!(map_http_error(409, r#"{"detail":"File is checked out"}"#)
-            .to_string()
-            .contains("khóa"));
-        assert!(map_http_error(409, r#"{"detail":"Sample is closed"}"#)
-            .to_string()
-            .contains("kết thúc"));
-    }
-
-    /// Lỗi 400 "unsupported office type" phải dịch thành thông báo không hỗ trợ chỉnh sửa.
-    #[test]
-    fn maps_unsupported_office_type() {
-        let err = map_http_error(400, r#"{"detail":"Unsupported office type"}"#);
-        assert!(err.to_string().contains("không hỗ trợ"));
-    }
-
-    /// `object_reused` phải mặc định false khi server không gửi field đó trong payload.
-    #[test]
-    fn prepare_defaults_object_reused_false() {
-        let parsed: PrepareResponse = serde_json::from_str(
-            r#"{"session_id":1,"file_id":2,"deduplicated":false,"version_id":null,"version_number":null,"part_size":1,"storage_key":"sync/2/abc","s3_upload_id":"u","expires_at":null}"#,
-        )
-        .unwrap();
-        assert!(!parsed.object_reused);
-        assert!(!parsed.deduplicated);
+    fn api_error_codes_control_auth_permissions_and_retry_independent_of_language() {
+        for message in ["unrelated 503 ONLYOFFICE", "Từ chối", "任意"] {
+            let body = |code: &str| {
+                serde_json::json!({"error":{"code":code,"message":message}}).to_string()
+            };
+            assert!(matches!(
+                map_http_error(401, &body("invalid_key")),
+                AppError::Unauthenticated
+            ));
+            assert!(matches!(
+                map_http_error(403, &body("device_revoked")),
+                AppError::Unauthenticated
+            ));
+            assert!(matches!(
+                map_http_error(403, &body("permission_denied")),
+                AppError::Forbidden(403)
+            ));
+            assert!(matches!(
+                map_http_error(404, &body("not_found")),
+                AppError::Forbidden(404)
+            ));
+            assert!(!is_retryable(&map_http_error(
+                401,
+                &body("invalid_credentials")
+            )));
+            assert!(is_retryable(&map_http_error(
+                429,
+                &body("too_many_attempts")
+            )));
+            assert!(is_retryable(&map_http_error(503, &body("try_again"))));
+            assert!(is_retryable(&map_http_error(409, &body("folder_disabled"))));
+            assert!(!is_retryable(&map_http_error(
+                409,
+                &body("folder_archived")
+            )));
+        }
+        assert!(!matches!(
+            map_http_error(401, "not JSON"),
+            AppError::Unauthenticated
+        ));
     }
 }

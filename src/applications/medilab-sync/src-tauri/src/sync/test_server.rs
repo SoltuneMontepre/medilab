@@ -21,6 +21,11 @@ pub struct FinalizedVersion {
 #[derive(Debug, Default)]
 struct Session {
     declared_hash: String,
+    path: String,
+    size: i64,
+    base: Option<i64>,
+    status: String,
+    version: Option<i64>,
     parts: HashMap<i64, Vec<u8>>,
 }
 
@@ -28,6 +33,9 @@ struct Session {
 #[derive(Debug, Default)]
 struct State {
     part_size: i64,
+    lose_prepare: bool,
+    lose_finalize: bool,
+    prepare_keys: HashMap<String, i64>,
     next_session_id: i64,
     sessions: HashMap<i64, Session>,
     versions: Vec<FinalizedVersion>,
@@ -91,6 +99,16 @@ impl MockSyncServer {
             }
         });
         server
+    }
+
+    pub fn lose_prepare_reply(&self) {
+        self.state.lock().unwrap().lose_prepare = true;
+    }
+    pub fn lose_finalize_reply(&self) {
+        self.state.lock().unwrap().lose_finalize = true;
+    }
+    pub fn upload_count(&self) -> usize {
+        self.state.lock().unwrap().sessions.len()
     }
 
     /// Các version đã finalize theo thứ tự.
@@ -184,11 +202,25 @@ impl MockSyncServer {
     /// Phục vụ các request trên một kết nối keep-alive cho tới khi client đóng.
     async fn serve(&self, stream: TcpStream) {
         let mut reader = BufReader::new(stream);
-        while let Some((request_line, body)) = read_request(&mut reader).await {
+        while let Some((request_line, body, headers)) = read_request(&mut reader).await {
             let mut parts = request_line.split_whitespace();
             let method = parts.next().unwrap_or_default().to_string();
             let path = parts.next().unwrap_or_default().to_string();
-            let (status, extra_headers, response_body) = self.respond(&method, &path, &body).await;
+            let (status, extra_headers, response_body) =
+                self.respond(&method, &path, &body, &headers).await;
+            let lose = {
+                let mut state = self.state.lock().unwrap();
+                if method == "POST" && path.ends_with("/uploads") {
+                    std::mem::take(&mut state.lose_prepare)
+                } else if method == "POST" && path.ends_with("/finalize") {
+                    std::mem::take(&mut state.lose_finalize)
+                } else {
+                    false
+                }
+            };
+            if lose {
+                return;
+            }
             let head = format!(
                 "HTTP/1.1 {status}\r\ncontent-type: application/json\r\ncontent-length: {}\r\n{extra_headers}\r\n",
                 response_body.len()
@@ -204,7 +236,13 @@ impl MockSyncServer {
 
     /// Trả lời một request: ghi nhận PUT part đang bay, chờ hold hoặc độ trễ nếu test đặt, rồi
     /// định tuyến.
-    async fn respond(&self, method: &str, path: &str, body: &[u8]) -> (String, String, String) {
+    async fn respond(
+        &self,
+        method: &str,
+        path: &str,
+        body: &[u8],
+        headers: &HashMap<String, String>,
+    ) -> (String, String, String) {
         let put_part = put_part_number(method, path);
         if let Some(part) = put_part {
             let mut state = self.state.lock().unwrap();
@@ -221,7 +259,7 @@ impl MockSyncServer {
         if let Some(millis) = delay {
             tokio::time::sleep(std::time::Duration::from_millis(millis)).await;
         }
-        let (status, extra_headers, response_body) = self.route(method, path, body);
+        let (status, extra_headers, response_body) = self.route(method, path, body, headers);
         if let Some(part) = put_part {
             let mut state = self.state.lock().unwrap();
             state.puts_in_flight -= 1;
@@ -261,7 +299,7 @@ impl MockSyncServer {
             return self.state.lock().unwrap().held_parts.remove(&part);
         }
         let kind = match (method, path) {
-            ("POST", path) if path.ends_with("/uploads/prepare") => "prepare",
+            ("POST", path) if path.ends_with("/uploads") => "prepare",
             ("POST", path) if path.ends_with("/finalize") => "finalize",
             _ => return None,
         };
@@ -269,164 +307,153 @@ impl MockSyncServer {
     }
 
     /// Xử lý một request và trả `(status line, header thêm, body)`.
-    fn route(&self, method: &str, path: &str, body: &[u8]) -> (String, String, String) {
+    fn route(
+        &self,
+        method: &str,
+        path: &str,
+        body: &[u8],
+        headers: &HashMap<String, String>,
+    ) -> (String, String, String) {
         let mut state = self.state.lock().unwrap();
-        let segments: Vec<&str> = path.trim_start_matches('/').split('/').collect();
+        let bare = path.split('?').next().unwrap();
+        let segments: Vec<_> = bare.trim_matches('/').split('/').collect();
         match (method, segments.as_slice()) {
-            ("POST", ["api", "sync", "v1", "uploads", "prepare"]) => {
+            ("POST", ["medilab", "api", "v1", "folders", _, "uploads"]) => {
                 let payload: serde_json::Value = serde_json::from_slice(body).unwrap();
-                let hash = payload["content_hash"].as_str().unwrap().to_string();
-                let part_size = state.part_size;
-                if state.dedup_hashes.contains(&hash) {
-                    return ok(serde_json::json!({
-                        "session_id": null, "file_id": 1, "deduplicated": true,
-                        "version_id": 1, "version_number": 1, "part_size": part_size,
-                        "storage_key": "k", "s3_upload_id": null, "expires_at": null,
-                    }));
+                let key = &headers["idempotency-key"];
+                if let Some(id) = state.prepare_keys.get(key) {
+                    return ok(upload_value(*id, &state.sessions[id], state.part_size));
                 }
-                let session_id = state.next_session_id;
+                let id = state.next_session_id;
                 state.next_session_id += 1;
-                state.sessions.insert(
-                    session_id,
-                    Session {
-                        declared_hash: hash,
-                        parts: HashMap::new(),
-                    },
-                );
-                ok(serde_json::json!({
-                    "session_id": session_id, "file_id": 1, "deduplicated": false,
-                    "version_id": null, "version_number": null, "part_size": part_size,
-                    "storage_key": "k", "s3_upload_id": "u", "expires_at": null,
-                }))
+                let hash = payload["sha256"].as_str().unwrap().to_string();
+                let unchanged = state.dedup_hashes.contains(&hash);
+                let session = Session {
+                    declared_hash: hash,
+                    path: payload["path"].as_str().unwrap().into(),
+                    size: payload["size"].as_i64().unwrap(),
+                    base: payload["base_version_id"].as_i64(),
+                    status: if unchanged { "unchanged" } else { "prepared" }.into(),
+                    version: unchanged.then_some(1),
+                    parts: HashMap::new(),
+                };
+                let result = upload_value(id, &session, state.part_size);
+                state.sessions.insert(id, session);
+                state.prepare_keys.insert(key.clone(), id);
+                ok(result)
             }
-            ("POST", ["api", "sync", "v1", "uploads", session, "parts", "presign"]) => {
+            ("GET", ["medilab", "api", "v1", "folders", _, "uploads", id]) => {
+                let id = id.parse().unwrap();
+                ok(upload_value(id, &state.sessions[&id], state.part_size))
+            }
+            ("POST", ["medilab", "api", "v1", "folders", _, "uploads", id, "parts"]) => {
                 state.presign_count += 1;
                 let payload: serde_json::Value = serde_json::from_slice(body).unwrap();
-                let requested: Vec<i64> = payload["part_numbers"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .map(|number| number.as_i64().unwrap())
-                    .collect();
-                state.presign_requests.push(requested);
-                let parts: Vec<serde_json::Value> = payload["part_numbers"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .map(|number| {
-                        serde_json::json!({
-                            "part_number": number,
-                            "url": format!("{}/s3/{session}/{number}?X-Amz-Signature=test", self.base),
-                            "expires_in": 900,
-                        })
-                    })
-                    .collect();
-                ok(serde_json::json!({ "parts": parts }))
+                let numbers: Vec<i64> =
+                    serde_json::from_value(payload["part_numbers"].clone()).unwrap();
+                state.presign_requests.push(numbers.clone());
+                ok(
+                    serde_json::json!({"parts":numbers.into_iter().map(|n|serde_json::json!({"number":n,"url":format!("{}/s3/{id}/{n}?X-Amz-Signature=test",self.base)})).collect::<Vec<_>>(),"expires_at":expires()}),
+                )
             }
-            ("PUT", ["s3", session, part]) => {
+            ("PUT", ["s3", id, part]) => {
                 state.put_count += 1;
-                let part_number: i64 = part.split('?').next().unwrap().parse().unwrap();
-                if state.rejected_parts.remove(&part_number) {
+                let number: i64 = part.parse().unwrap();
+                if state.rejected_parts.remove(&number) {
                     return ("403 Forbidden".into(), String::new(), "{}".into());
                 }
                 if state.reject_next_puts > 0 {
                     state.reject_next_puts -= 1;
                     return ("403 Forbidden".into(), String::new(), "{}".into());
                 }
-                let session: i64 = session.parse().unwrap();
-                let part: i64 = part.split('?').next().unwrap().parse().unwrap();
                 state
                     .sessions
-                    .get_mut(&session)
+                    .get_mut(&id.parse().unwrap())
                     .unwrap()
                     .parts
-                    .insert(part, body.to_vec());
+                    .insert(number, body.to_vec());
                 (
                     "200 OK".into(),
-                    format!("etag: \"etag-{session}-{part}\"\r\n"),
+                    format!("etag: \"etag-{id}-{part}\"\r\n"),
                     String::new(),
                 )
             }
-            ("POST", ["api", "sync", "v1", "uploads", session, "finalize"]) => {
-                let session_id: i64 = session.parse().unwrap();
-                let payload: serde_json::Value = serde_json::from_slice(body).unwrap();
-                let sent: Vec<(i64, String)> = payload["parts"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .map(|part| {
-                        (
-                            part["part_number"].as_i64().unwrap(),
-                            part["etag"].as_str().unwrap().to_string(),
-                        )
-                    })
-                    .collect();
-                state.finalize_requests.push(sent);
-                let session = state.sessions.remove(&session_id).unwrap();
-                let mut object = Vec::new();
-                for part in payload["parts"].as_array().unwrap() {
-                    let number = part["part_number"].as_i64().unwrap();
-                    object.extend_from_slice(&session.parts[&number]);
+            ("POST", ["medilab", "api", "v1", "folders", _, "uploads", id, "finalize"]) => {
+                assert!(body.is_empty(), "finalize has no request body");
+                let id: i64 = id.parse().unwrap();
+                if state.sessions[&id].status == "prepared" {
+                    let session = &state.sessions[&id];
+                    let mut numbers: Vec<_> = session.parts.keys().copied().collect();
+                    numbers.sort_unstable();
+                    let object: Vec<u8> = numbers
+                        .iter()
+                        .flat_map(|n| session.parts[n].iter().copied())
+                        .collect();
+                    let version = FinalizedVersion {
+                        declared_hash: session.declared_hash.clone(),
+                        actual_hash: hex::encode(Sha256::digest(&object)),
+                        size: object.len(),
+                    };
+                    state.versions.push(version);
+                    let version_id = state.versions.len() as i64;
+                    state.finalize_requests.push(
+                        numbers
+                            .into_iter()
+                            .map(|n| (n, format!("etag-{id}-{n}")))
+                            .collect(),
+                    );
+                    let session = state.sessions.get_mut(&id).unwrap();
+                    session.status = "completed".into();
+                    session.version = Some(version_id);
                 }
-                state.versions.push(FinalizedVersion {
-                    declared_hash: session.declared_hash,
-                    actual_hash: hex::encode(Sha256::digest(&object)),
-                    size: object.len(),
-                });
-                let version_id = state.versions.len();
-                ok(serde_json::json!({
-                    "status": "committed", "file_id": 1, "version_id": version_id,
-                    "version_number": version_id, "conflict_id": null, "server_version_id": null,
-                }))
+                (
+                    "202 Accepted".into(),
+                    String::new(),
+                    upload_value(id, &state.sessions[&id], state.part_size).to_string(),
+                )
             }
-            ("GET", ["api", "sync", "v1", "files", file]) => {
-                let file_id: i64 = file.parse().unwrap();
-                let Some((version_id, content)) = state.published.get(&file_id) else {
-                    return ("404 Not Found".into(), String::new(), "{}".into());
-                };
-                ok(serde_json::json!({
-                    "id": file_id, "folder_id": 7, "name": "f", "logical_path": "f",
-                    "current_version_id": version_id, "version_count": 1, "updated_at": null,
-                    "current_version": {
-                        "id": version_id, "file_id": file_id, "version_number": 1,
-                        "size": content.len(),
-                        "content_hash": hex::encode(Sha256::digest(content.as_bytes())),
-                        "checksum_algorithm": "sha256", "source": "upload", "created_at": null,
-                        "created_by": null, "device": null, "is_canonical": true,
-                        "parent_version_id": null, "restored_from_version_id": null,
-                        "object_available": true,
-                    },
-                }))
+            ("GET", ["medilab", "api", "v1", "folders", _, "files"]) => {
+                let mut files:Vec<_>=state.published.iter().map(|(id,(vid,content))|serde_json::json!({"id":id,"path":"f","current_version":version_value(*vid,content.len() as i64,&hex::encode(Sha256::digest(content.as_bytes()))),"lock":null})).collect();
+                for (id, s) in state.sessions.iter().filter(|(_, s)| s.version.is_some()) {
+                    files.push(serde_json::json!({"id":id,"path":s.path,"current_version":version_value(s.version.unwrap(),s.size,&s.declared_hash),"lock":null}));
+                }
+                ok(serde_json::json!({"files":files,"next_after":null}))
             }
-            ("POST", ["api", "sync", "v1", "files", file, "versions", version, "download"]) => {
-                let file_id: i64 = file.parse().unwrap();
-                let (_, content) = state.published[&file_id].clone();
-                ok(serde_json::json!({
-                    "file_id": file_id, "version_id": version.parse::<i64>().unwrap(),
-                    "version_number": 1, "size": content.len(),
-                    "content_hash": hex::encode(Sha256::digest(content.as_bytes())),
-                    "checksum_algorithm": "sha256",
-                    "url": format!("{}/objects/{file_id}?X-Amz-Signature=test", self.base),
-                    "expires_in": 900,
-                }))
+            ("GET", ["medilab", "api", "v1", "folders", _, "files", file, "versions"]) => {
+                let (id, content) = &state.published[&file.parse::<i64>().unwrap()];
+                ok(
+                    serde_json::json!({"versions":[version_value(*id,content.len() as i64,&hex::encode(Sha256::digest(content.as_bytes())))]}),
+                )
             }
+            (
+                "POST",
+                ["medilab", "api", "v1", "folders", _, "files", file, "versions", _, "download"],
+            ) => ok(
+                serde_json::json!({"url":format!("{}/objects/{file}?X-Amz-Signature=test",self.base),"expires_at":expires()}),
+            ),
             ("GET", ["objects", file]) => {
-                let file_id: i64 = file.split('?').next().unwrap().parse().unwrap();
-                let (_, content) = state.published[&file_id].clone();
+                let (_, content) = state.published[&file.parse::<i64>().unwrap()].clone();
                 ("200 OK".into(), String::new(), content)
             }
-            _ => ("404 Not Found".into(), String::new(), "{}".into()),
+            _ => (
+                "404 Not Found".into(),
+                String::new(),
+                serde_json::json!({"error":{"code":"not_found","message":"Not found"}}).to_string(),
+            ),
         }
     }
 }
 
 /// Đọc request line, header và body của một request; `None` khi client đóng kết nối hoặc lỗi đọc.
-async fn read_request(reader: &mut BufReader<TcpStream>) -> Option<(String, Vec<u8>)> {
+async fn read_request(
+    reader: &mut BufReader<TcpStream>,
+) -> Option<(String, Vec<u8>, HashMap<String, String>)> {
     let mut request_line = String::new();
     if reader.read_line(&mut request_line).await.unwrap_or(0) == 0 {
         return None;
     }
     let mut content_length = 0usize;
+    let mut headers = HashMap::new();
     loop {
         let mut header = String::new();
         if reader.read_line(&mut header).await.unwrap_or(0) == 0 {
@@ -437,6 +464,7 @@ async fn read_request(reader: &mut BufReader<TcpStream>) -> Option<(String, Vec<
             break;
         }
         if let Some((name, value)) = header.split_once(':') {
+            headers.insert(name.to_ascii_lowercase(), value.trim().into());
             if name.eq_ignore_ascii_case("content-length") {
                 content_length = value.trim().parse().unwrap_or(0);
             }
@@ -444,7 +472,7 @@ async fn read_request(reader: &mut BufReader<TcpStream>) -> Option<(String, Vec<
     }
     let mut body = vec![0u8; content_length];
     reader.read_exact(&mut body).await.ok()?;
-    Some((request_line, body))
+    Some((request_line, body, headers))
 }
 
 /// Part number của một request PUT part (`/s3/{session}/{part}?…`), `None` với request khác.
@@ -464,4 +492,16 @@ fn put_part_number(method: &str, path: &str) -> Option<i64> {
 /// Response 200 với body JSON.
 fn ok(body: serde_json::Value) -> (String, String, String) {
     ("200 OK".into(), String::new(), body.to_string())
+}
+
+fn expires() -> String {
+    (chrono::Utc::now() + chrono::Duration::minutes(15)).to_rfc3339()
+}
+fn version_value(id: i64, size: i64, hash: &str) -> serde_json::Value {
+    serde_json::json!({"id":id,"number":id,"source":"synced","size":size,"sha256":hash,
+        "parent_version_id":null,"restored_from_id":null,"saved_by":{"id":2,"name":"Tester"},"device":{"id":1,"name":"PC"},"created_at":"2026-10-25T00:00:00Z"})
+}
+fn upload_value(id: i64, s: &Session, part_size: i64) -> serde_json::Value {
+    serde_json::json!({"upload":{"id":id,"path":s.path,"status":s.status,"failure_code":null,"size":s.size,"sha256":s.declared_hash,"base_version_id":s.base,"part_size":part_size,
+        "part_count":if s.size==0 || s.status=="unchanged" {0} else {(s.size+part_size-1)/part_size},"expires_at":expires(),"version":s.version.map(|v|version_value(v,s.size,&s.declared_hash))}})
 }

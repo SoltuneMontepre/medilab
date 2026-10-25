@@ -9,13 +9,13 @@ OS pilot: **Linux DEB hoặc RPM**. Windows = chưa kiểm chứng. AppImage = k
 | Hạng mục kiểm | Xong |
 | --- | --- |
 | Đã chỉ định thử nghiệm viên và tạo `res.users` MediLab | ☐ |
-| Đã gán nhóm quyền **Sync App / User** | ☐ |
-| Đã cấp quyền mẫu (`danh.sach.mau`) cho yêu cầu pilot | ☐ |
+| Đã gán nhóm quyền **Laboratory files** | ☐ |
+| Đã cấp quyền mẫu (the sample) cho yêu cầu pilot | ☐ |
 | Đã tạo thư mục RAW/RESULT trên mẫu | ☐ |
 | Desktop đã cài (DEB hoặc RPM) và khởi động được | ☐ |
 | Có kho credential của OS (Secret Service). Không có `MEDILAB_SYNC_ALLOW_INSECURE_FILE_KEYRING` trên production | ☐ |
-| Thiết bị đã đăng ký sau lần đăng nhập đầu (`sync.device`) | ☐ |
-| Thư mục local đã map đúng thư mục remote (RESULT hay RAW) | ☐ |
+| Thiết bị đã đăng ký sau lần đăng nhập đầu (the laboratory device record) | ☐ |
+| Thư mục local đã map đúng thư mục remote (RESULT hay RAW), chọn lại rõ ràng sau migration | ☐ |
 | Đủ dung lượng đĩa cho bộ file làm việc + file download tạm | ☐ |
 | Mạng: truy cập được URL Odoo và endpoint **public** của MinIO | ☐ |
 | Icon tray chạy sau khi đăng nhập | ☐ |
@@ -32,4 +32,4 @@ OS pilot: **Linux DEB hoặc RPM**. Windows = chưa kiểm chứng. AppImage = k
 | Secret Doppler/production không bị commit vào git | ☐ |
 | Đã lên kế hoạch topology HTTPS (desktop→Odoo, desktop→MinIO, trình duyệt→ONLYOFFICE, ONLYOFFICE→Odoo) | ☐ |
 | Đã hiểu đường ONLYOFFICE là tùy chọn (sync vẫn chạy nếu nó down) | ☐ |
-| Đã diễn tập thu hồi thiết bị + đăng nhập lại | ☐ |
+| Đã kiểm thiết bị bị thu hồi không đăng nhập lại được; thiết bị mới có thể đăng nhập | ☐ |

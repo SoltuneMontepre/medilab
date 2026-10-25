@@ -1,13 +1,23 @@
 mod api;
+#[cfg(test)]
+mod api_auth_tests;
+#[cfg(test)]
+mod api_live_tests;
 mod auth;
 mod browser;
 mod commands;
 mod config;
+#[cfg(test)]
+mod contract;
 mod error;
+#[cfg(test)]
+mod migration_tests;
 mod server_url;
+mod sign_in_state;
 mod storage;
 mod sync;
 mod updater;
+mod wire;
 
 use crate::commands::AppState;
 use crate::config::db_path;
@@ -219,6 +229,8 @@ pub fn run() {
             commands::accept_server_version,
             commands::keep_local_conflict,
             commands::open_office_editor,
+            commands::list_sync_devices,
+            commands::revoke_sync_device,
             commands::check_update,
             commands::download_and_install_update,
             commands::dismiss_update_session,

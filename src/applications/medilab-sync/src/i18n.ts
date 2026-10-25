@@ -226,6 +226,7 @@ const messages = {
   "folders.sample": { vi: "Mẫu", en: "Sample" },
   "folders.workflow": { vi: "Trạng thái", en: "Status" },
   "folders.instrument": { vi: "Thiết bị", en: "Instrument" },
+  "folders.unbound": { vi: "Chưa gắn — chọn lại thư mục máy chủ để tiếp tục. Tệp và hàng đợi được giữ nguyên.", en: "Not bound — choose a server folder again to resume. Local files and queue are preserved." },
   "folders.denied": {
     vi: "Mất quyền truy cập — đồng bộ đã tạm dừng. Tệp trên máy vẫn còn nguyên và các tệp đang chờ sẽ tự đồng bộ lại khi bạn được cấp lại quyền. Hãy liên hệ chủ thư mục hoặc quản trị viên.",
     en: "Access lost — syncing is paused. Your files on this computer are untouched, and waiting files will sync again once access is restored. Contact the folder owner or your administrator.",

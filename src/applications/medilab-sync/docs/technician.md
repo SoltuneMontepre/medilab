@@ -11,12 +11,16 @@ Cài package quản trị viên cung cấp, rồi mở **MediLab File Sync**. Ic
 ## Login
 
 1. Ô địa chỉ Odoo được điền sẵn: bản release dùng URL production, bản dev dùng `http://localhost:8069`. Đổi nếu cần (production phải là HTTPS). Mỗi địa chỉ đăng nhập thành công được nhớ lại; bấm ô nhập hoặc mũi tên ▾ để chọn nhanh từ danh sách đã dùng.
-2. Nhập username và mật khẩu MediLab.
+2. Nhập username và mật khẩu MediLab; với xác thực hai bước, dùng API key Odoo thay mật khẩu.
 3. App lưu key thiết bị trong kho credential của OS. Bạn sẽ không thấy key đó.
 
 Nếu app báo **“Kho lưu trữ đăng nhập trên máy đang bị khóa”**: phiên của bạn chưa hết hạn. Hệ điều hành đang khóa kho mật khẩu (thường sau khi khóa màn hình hoặc đăng nhập tự động). Mở khóa kho mật khẩu — nhập mật khẩu máy khi hộp thoại của hệ điều hành hiện lên — rồi bấm **Thử lại**. Khi app đang chạy, việc kho mật khẩu bị khóa không làm gián đoạn đồng bộ.
 
-Nếu đăng nhập lỗi: có thể bạn thiếu group Sync App, hoặc thiết bị đã bị thu hồi. Liên hệ quản trị viên. Không dùng lại login của người khác.
+Nếu đăng nhập lỗi: có thể bạn thiếu quyền laboratory files, hoặc thiết bị đã bị thu hồi. Liên hệ quản trị viên. Không dùng lại login của người khác.
+
+## After an update or server change
+
+Sign in again. If a folder is shown as **Not bound**, its local files and queued work are preserved. Select the intended existing server folder and the same local directory to resume; do not remove the application data directory. Changing the server address requires a new sign-in so an old device key is not sent to another server.
 
 ## Bind a folder
 
@@ -62,7 +66,7 @@ Tắt một thư mục cho tất cả mọi người là thao tác của quản 
 
 - **Thư mục → Quản lý quyền truy cập** cho thấy chủ sở hữu và tư cách của bạn. Chủ sở hữu (hoặc quản trị đồng bộ) thấy đủ danh sách thành viên, tìm người theo tên/tên đăng nhập để **Thêm thành viên**, và **Gỡ quyền**. Thành viên thường chỉ xem, không tự rời thư mục được — chỉ “Ngừng đồng bộ” trên máy mình.
 - Thành viên được **đọc và ghi** (xem, tải xuống, tải lên, khôi phục phiên bản). Không có vai trò chỉ đọc.
-- Thư mục gắn với mẫu: thêm thành viên **không** cấp quyền xem mẫu trong LIMS. Người chưa thấy mẫu hiện “Chưa có quyền truy cập mẫu trong LIMS.” và chưa dùng được thư mục cho tới khi được cấp quyền mẫu.
+- Thư mục gắn với mẫu: thêm thành viên không cấp quyền xem mẫu. Máy chủ chỉ cho dùng thư mục khi bạn cũng có quyền xem mẫu.
 - Thư mục người khác chia sẻ cho bạn hiện ở **Được chia sẻ với bạn**. Bấm **Chọn thư mục trên máy** để đồng bộ về một thư mục tùy chọn trên PC của bạn; không cần gõ tên thư mục. Gỡ quyền không xóa file trên máy của người bị gỡ.
 
 ## RAW files
