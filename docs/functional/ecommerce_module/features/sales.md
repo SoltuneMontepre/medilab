@@ -67,7 +67,7 @@ Acceptance criteria:
 ```mermaid
 stateDiagram-v2
     [*] --> draft: order claimed or created
-    draft --> sent: approval complete, send with advance payment request
+    draft --> sent: approval complete, send with advance or Head of Sales credit exception
     sent --> accepted: customer pays the advance
     sent --> declined: customer declines
     sent --> expired: payment deadline passes

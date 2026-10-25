@@ -154,6 +154,7 @@ Shared terms in English and Vietnamese. Rule: [Glossary convention](conventions/
 | ContactPerson | Người Liên Hệ | A person of a business customer or subcontractor. | Người liên hệ của khách hàng doanh nghiệp hoặc thầu phụ. |
 | TestRun | Mẻ Thử | One run of one way of testing by one person in one interval, using a machine only when needed; it can contain several attempts. | Một mẻ theo cùng cách thử do một người thực hiện trong một khoảng thời gian, dùng máy khi cần và có thể gồm nhiều lần thử. |
 | OrderLine | Dòng Đơn Hàng | One parameter with a chosen or default way, or a whole service package, ordered for a sample type and quantity. | Một chỉ tiêu với cách thử đã chọn hoặc mặc định, hoặc một nhóm dịch vụ nguyên nhóm, được đặt theo loại mẫu và số lượng. |
+| Payment | Thanh Toán | One payment, possibly partial, including gateway payments. | Một khoản thanh toán, có thể là một phần, bao gồm thanh toán qua cổng. |
 | InternalMovement | Điều Chuyển Nội Bộ | One movement of a chemical inside the laboratory. | Một lần di chuyển hóa chất bên trong phòng thí nghiệm. |
 | Lab QA | Thử Nghiệm Viên | Another name for Tester; it is not a separate quality-assurance or quality-control role. | Tên gọi khác của Thử Nghiệm Viên, không phải vai trò đảm bảo hoặc kiểm soát chất lượng riêng. |
 | OverTime | Làm Thêm Giờ | Planned work outside normal hours, linked to the tester, interval, work, reason and assigner. | Công việc dự kiến ngoài giờ bình thường, gắn với thử nghiệm viên, khoảng thời gian, công việc, lý do và người giao. |
