@@ -1,8 +1,15 @@
 #!/bin/bash
 set -euo pipefail
-# The upstream service launcher sanitizes the parent environment before Supervisor starts.
+# Apply policy after the upstream service launcher sanitizes the parent environment.
+test "$1" = /opt/medilab/onlyoffice/settings.json
 test -s "$1"
 node_config=$(cat "$1")
 shift
-export NODE_CONFIG="$node_config"
-exec "$@"
+binary=$1
+shift
+case "$binary" in
+  /var/www/onlyoffice/documentserver/server/DocService/docservice|/var/www/onlyoffice/documentserver/server/FileConverter/converter) ;;
+  *) exit 78 ;;
+esac
+export NODE_CONFIG="$node_config" PKG_EXECPATH="$binary"
+exec "$binary" /opt/medilab/onlyoffice/worker-bootstrap.cjs "$@"

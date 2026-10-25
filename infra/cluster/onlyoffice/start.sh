@@ -17,6 +17,7 @@ test -s "$SSL_CERTIFICATE_PATH"
 test -s "$SSL_KEY_PATH"
 sudo -u ds test -r "$NODE_EXTRA_CA_CERTS"
 sudo -u ds test -r /opt/medilab/onlyoffice/settings.json
+install -d -o ds -g ds -m 0700 /run/onlyoffice-runtime
 # Load the settings after the service-launch environment has been sanitized.
 for service in docservice converter; do
   if [[ $service == docservice ]]; then

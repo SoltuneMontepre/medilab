@@ -54,30 +54,39 @@ class TestDeployment(unittest.TestCase):
 
     def test_worker_sets_config_after_launcher_and_preserves_arguments(self):
         with tempfile.TemporaryDirectory() as folder:
-            config = Path(folder) / "settings.json"
+            directory = Path(folder)
+            config = directory / "settings.json"
+            binary = directory / "docservice"
+            bootstrap = directory / "worker-bootstrap.cjs"
+            script = directory / "worker.sh"
             expected = {"services": {"CoAuthoring": {"expire": {"files": 604800}}}}
             config.write_text(json.dumps(expected), encoding="utf-8")
-            program = (
-                "import json,os,sys;sys.stdout.write(json.dumps("
-                '{"config":json.loads(os.environ["NODE_CONFIG"]),"args":sys.argv[1:]}))'
+            binary.write_text(
+                "#!" + sys.executable + "\nimport json,os,sys\n"
+                "print(json.dumps({"
+                '\"config\":json.loads(os.environ[\"NODE_CONFIG\"]),'
+                '\"pkg\":os.environ[\"PKG_EXECPATH\"],\"args\":sys.argv[1:]}))\n',
+                encoding="utf-8",
             )
+            binary.chmod(0o700)
+            source = (ROOT / "tools/infrastructure/onlyoffice/worker.sh").read_text()
+            source = source.replace("/opt/medilab/onlyoffice/settings.json", str(config))
+            source = source.replace("/var/www/onlyoffice/documentserver/server/DocService/docservice", str(binary))
+            source = source.replace("/opt/medilab/onlyoffice/worker-bootstrap.cjs", str(bootstrap))
+            script.write_text(source, encoding="utf-8")
             arguments = ["argument with spaces", "literal $(not-a-command)"]
             result = subprocess.run(
-                [
-                    "bash",
-                    str(ROOT / "tools/infrastructure/onlyoffice/worker.sh"),
-                    str(config),
-                    sys.executable,
-                    "-c",
-                    program,
-                    *arguments,
-                ],
+                ["bash", str(script), str(config), str(binary), *arguments],
                 check=True,
                 capture_output=True,
                 text=True,
+                timeout=5,
                 env=dict(os.environ, NODE_CONFIG='{"stale":true}'),
             )
-            self.assertEqual(json.loads(result.stdout), {"config": expected, "args": arguments})
+            self.assertEqual(
+                json.loads(result.stdout),
+                {"config": expected, "pkg": str(binary), "args": [str(bootstrap), *arguments]},
+            )
             self.assertEqual(result.stderr, "")
         start = (ROOT / "tools/infrastructure/onlyoffice/start.sh").read_text()
         self.assertNotIn("export NODE_CONFIG=", start)
@@ -211,7 +220,8 @@ class TestDeployment(unittest.TestCase):
         self.assertNotIn("container_name", service)
         self.assertTrue(compose["networks"]["onlyoffice"]["internal"])
         self.assertTrue(service["ports"][0].startswith("127.0.0.1:"))
-        for name in ["start.sh", "settings.json", "healthcheck.sh", "shutdown.sh", "worker.sh", "inspect_config.py"]:
+        for name in ["start.sh", "settings.json", "healthcheck.sh", "shutdown.sh", "worker.sh",
+                     "worker-bootstrap.cjs", "callback-signing.cjs", "inspect_config.py"]:
             self.assertEqual(
                 (ROOT / "tools/infrastructure/onlyoffice" / name).read_bytes(),
                 (ROOT / "infra/cluster/onlyoffice" / name).read_bytes(),
@@ -256,19 +266,21 @@ class TestDeployment(unittest.TestCase):
             for name, source in {
                 "supervisorctl": '#!/bin/sh\nexit "${MOCK_PROCESS_EXIT:-0}"\n',
                 "curl": '#!/bin/sh\nprintf "%s" "$MOCK_HEALTH_BODY"\nexit "${MOCK_CURL_EXIT:-0}"\n',
+                "sudo": '#!/bin/sh\nexit "${MOCK_POLICY_EXIT:-0}"\n',
             }.items():
                 path = directory / name
                 path.write_text(source, encoding="utf-8")
                 path.chmod(0o700)
             cases = [
-                ("true", "0", "0", 0),
-                ("false", "0", "0", 1),
-                ("", "0", "0", 1),
-                ("true extra", "0", "0", 1),
-                ("true", "3", "0", 1),
-                ("true", "0", "60", 1),
+                ("true", "0", "0", "0", 0),
+                ("false", "0", "0", "0", 1),
+                ("", "0", "0", "0", 1),
+                ("true extra", "0", "0", "0", 1),
+                ("true", "3", "0", "0", 1),
+                ("true", "0", "60", "0", 1),
+                ("true", "0", "0", "1", 1),
             ]
-            for body, process_exit, curl_exit, expected in cases:
+            for body, process_exit, curl_exit, policy_exit, expected in cases:
                 with self.subTest(body=body, process_exit=process_exit, curl_exit=curl_exit):
                     env = dict(
                         os.environ,
@@ -276,6 +288,7 @@ class TestDeployment(unittest.TestCase):
                         MOCK_HEALTH_BODY=body,
                         MOCK_PROCESS_EXIT=process_exit,
                         MOCK_CURL_EXIT=curl_exit,
+                        MOCK_POLICY_EXIT=policy_exit,
                     )
                     result = subprocess.run(
                         ["bash", str(ROOT / "tools/infrastructure/onlyoffice/healthcheck.sh")],

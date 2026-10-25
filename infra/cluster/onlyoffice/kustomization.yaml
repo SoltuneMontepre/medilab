@@ -16,5 +16,7 @@ configMapGenerator:
       - healthcheck.sh
       - shutdown.sh
       - worker.sh
+      - worker-bootstrap.cjs
+      - callback-signing.cjs
       - inspect_config.py
       - settings.json
