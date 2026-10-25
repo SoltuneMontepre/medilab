@@ -11,12 +11,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["install", "mcp", "serena", "serena-hooks", "verify", "cursor-setup"])
     parser.add_argument("--root", type=Path, default=PACKAGE_ROOT.parents[1])
+    parser.add_argument("--quiet-status", action="store_true")
     args, remaining = parser.parse_known_args()
     root = args.root.resolve()
     if args.mode == "install":
         from .install import install
 
-        install(root)
+        install(root, report_status=not args.quiet_status)
     elif args.mode == "mcp":
         from .server import create_server
 

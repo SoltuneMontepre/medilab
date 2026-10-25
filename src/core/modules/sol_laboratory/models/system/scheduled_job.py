@@ -83,9 +83,13 @@ class ScheduledJob(models.Model):
     # The most recent run.
     last_run_id = fields.Many2one(MODEL_JOB_RUN, compute="_compute_last_run")
     # Result of the most recent run.
-    last_run_status = fields.Selection(related="last_run_id.status")
+    last_run_status = fields.Selection(
+        selection=lambda model: model.env[MODEL_JOB_RUN]._fields["status"]._description_selection(model.env),
+        compute="_compute_last_run_status",
+        string="Last Run Status",
+    )
     # Seconds the most recent run took.
-    last_run_duration = fields.Float(related="last_run_id.duration")
+    last_run_duration = fields.Float(compute="_compute_last_run_duration", string="Last Run Duration")
     # Items waiting to be done.
     pending_count = fields.Integer(compute="_compute_counts")
     # Items that failed their last attempt.
@@ -105,6 +109,16 @@ class ScheduledJob(models.Model):
     def _compute_last_run(self):
         for job in self:
             job.last_run_id = job.run_ids.sorted(key=lambda run: (run.started_at, run.id), reverse=True)[:1]
+
+    @api.depends("run_ids.started_at", "run_ids.status")
+    def _compute_last_run_status(self):
+        for job in self:
+            job.last_run_status = job.last_run_id.status or False
+
+    @api.depends("run_ids.started_at", "run_ids.ended_at")
+    def _compute_last_run_duration(self):
+        for job in self:
+            job.last_run_duration = job.last_run_id.duration
 
     def _compute_counts(self):
         counts = {

@@ -4,6 +4,7 @@ locals {
     argocd      = "argocd.${var.cloudflare_zone_name}"
     mail        = "mail.${var.cloudflare_zone_name}"
     cloudbeaver = "cloudbeaver.${var.cloudflare_zone_name}"
+    grafana     = "grafana.${var.cloudflare_zone_name}"
   }
 }
 

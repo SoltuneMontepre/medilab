@@ -8,7 +8,7 @@
         <field name="code">HQ-T1</field>
         <field name="name">Floor 1</field>
         <field name="parent_id" ref="demo_location_building" />
-        <field name="image" type="base64" file="sol_demo/static/img/floor_plan_1.svg" />
+        <field name="image" type="bytes" file="sol_demo/static/img/floor_plan_1.svg" />
     </record>
     <record id="demo_location_floor_2" model="medilab.location">
         <field name="code">HQ-T2</field>

@@ -12,3 +12,7 @@ resources:
   - applications/mailpit.yaml
   - applications/cloudbeaver.yaml
   - applications/odoo.yaml
+  - applications/loki.yaml
+  - applications/alloy.yaml
+  - applications/grafana.yaml
+  - applications/grafana-dashboards.yaml

@@ -77,6 +77,8 @@ jobs:
             relevant:
               - "infra/ansible/**"
               - "tools/ansible/**"
+              - "tools/scripts/check_origin_isolation.sh"
+              - "tools/scripts/test_origin_isolation.py"
               - ".github/workflows/ci.infra.yml"
 
       - name: Set up Docker Build
@@ -99,6 +101,12 @@ jobs:
       - name: Ansible lint
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: docker run --rm -v "$PWD:/work" medilab-ansible:local ansible-lint
+
+      - name: Origin isolation regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          bash -n tools/scripts/check_origin_isolation.sh
+          python3 -m unittest discover -s tools/scripts -p test_origin_isolation.py
 
   infrastructure:
     needs: [terraform, ansible]

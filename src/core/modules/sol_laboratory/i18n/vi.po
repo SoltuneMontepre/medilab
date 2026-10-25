@@ -4242,6 +4242,16 @@ msgid "Last Run"
 msgstr "Lượt Chạy Cuối"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_duration
+msgid "Last Run Duration"
+msgstr "Thời Lượng Lần Chạy Cuối"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_scheduled_job__last_run_status
+msgid "Last Run Status"
+msgstr "Trạng Thái Lần Chạy Cuối"
+
+#. module: sol_laboratory
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_file_list
 #: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_laboratory_folder_form
 msgid "Last Saved"
@@ -14427,3 +14437,33 @@ msgstr "Bước Phương Pháp Thử"
 #: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
 msgid "Move or cancel the machine booking of %s instead."
 msgstr "Hãy dời hoặc hủy lịch đặt máy của %s."
+
+#. module: sol_laboratory
+#: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_contents_reconcile_ir_actions_server
+#: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_contents_reconcile
+msgid "Reconcile the laboratory files bucket"
+msgstr "Đối chiếu kho lưu trữ tệp phòng thí nghiệm"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The laboratory files bucket belongs to the database %(uuid)s, so reconciliation deletes nothing in it."
+msgstr "Kho lưu trữ tệp phòng thí nghiệm thuộc về cơ sở dữ liệu %(uuid)s, nên việc đối chiếu không xóa gì trong đó."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The object %(key)s of verified laboratory file content is missing from the bucket."
+msgstr "Đối tượng %(key)s của nội dung tệp phòng thí nghiệm đã xác minh không còn trong kho lưu trữ."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The object %(key)s of verified laboratory file content has %(size)s bytes instead of %(expected)s."
+msgstr "Đối tượng %(key)s của nội dung tệp phòng thí nghiệm đã xác minh có %(size)s byte thay vì %(expected)s."
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
+msgid "The laboratory file content %(key)s is still pending a day after it was made, and no open upload holds it."
+msgstr "Nội dung tệp phòng thí nghiệm %(key)s vẫn đang chờ sau một ngày kể từ khi được tạo, và không lần tải lên nào đang mở giữ nó."
