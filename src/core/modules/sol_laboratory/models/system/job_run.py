@@ -69,7 +69,9 @@ class JobRun(models.Model):
 
     def _compute_display_name(self):
         for run in self:
-            run.display_name = f"{run.job_id.name} {run.started_at:%Y-%m-%d %H:%M}" if run.started_at else run.job_id.name
+            run.display_name = (
+                f"{run.job_id.name} {run.started_at:%Y-%m-%d %H:%M}" if run.started_at else run.job_id.name
+            )
 
     def _append_log(self, line):
         for run in self:

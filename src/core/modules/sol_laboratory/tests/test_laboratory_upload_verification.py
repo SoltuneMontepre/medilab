@@ -67,6 +67,7 @@ class TestLaboratoryUploadVerification(LaboratoryUploadRaceCase):
     def reading(self, kill=None):
         """Read objects as the bucket does, recording the bytes each reading got; with kill, the connection of the
         batch ends after the first chunk, as when the worker is killed."""
+
         @contextlib.contextmanager
         def recording(key):
             got = []

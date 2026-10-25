@@ -15,7 +15,9 @@ class TestPermissionEnforcement(TransactionCase):
         cls.chemistry = cls.env[MODEL_DEPARTMENT].create({"name": "Chemistry"})
 
     def user_with(self, *actions):
-        groups = ["base.group_user"] + [f"sol_laboratory.group_permission_department_{action}_all" for action in actions]
+        groups = ["base.group_user"] + [
+            f"sol_laboratory.group_permission_department_{action}_all" for action in actions
+        ]
         return new_test_user(self.env, login=f"user.{'.'.join(actions) or 'none'}", groups=",".join(groups))
 
     def view_flags(self, user):
@@ -90,7 +92,9 @@ class TestPermissionEnforcement(TransactionCase):
         self.assertFalse(self.chemistry.exists())
 
     def test_administrator_takes_every_action(self):
-        user = new_test_user(self.env, login="lab.admin", groups="base.group_user,sol_laboratory.group_role_administrator")
+        user = new_test_user(
+            self.env, login="lab.admin", groups="base.group_user,sol_laboratory.group_role_administrator"
+        )
         departments = self.env[MODEL_DEPARTMENT].with_user(user)
 
         department = departments.create({"name": "Microbiology"})
