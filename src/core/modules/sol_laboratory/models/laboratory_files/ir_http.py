@@ -15,9 +15,8 @@ class IrHttp(models.AbstractModel):
     _inherit = MODEL_IR_HTTP
 
     def _register_hook(self):
-        result = super()._register_hook()
+        super()._register_hook()
         install_filter()
-        return result
 
     @classmethod
     def _match(cls, path_info):

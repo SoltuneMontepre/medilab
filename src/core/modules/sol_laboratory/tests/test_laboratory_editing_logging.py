@@ -104,15 +104,22 @@ class TestLaboratoryEditingLogging(TransactionCase):
                 self._raise_background_error(reference)
             except RuntimeError:
                 info = sys.exc_info()
-            for cached in (False, True):
-                with self.subTest(cached=cached):
-                    record = logging.makeLogRecord(
-                        {"name": "background", "msg": "Worker failed", "exc_info": info, "http_response_status": 403}
-                    )
-                    if cached:
-                        logging.Formatter().format(record)
-                        record.exc_info = None
-                    self._assert_redacted(record, ("private-capability",))
+                for cached in (False, True):
+                    with self.subTest(cached=cached):
+                        record = logging.makeLogRecord(
+                            {
+                                "name": "background",
+                                "msg": "Worker failed",
+                                "exc_info": info,
+                                "http_response_status": 403,
+                            }
+                        )
+                        if cached:
+                            logging.Formatter().format(record)
+                            record.exc_info = None
+                        self._assert_redacted(record, ("private-capability",))
+            else:
+                raise AssertionError("The background error fixture must raise.")
 
     def test_normalization_has_strict_size_and_depth_limits(self):
         limit = editing_callback_logging.MAX_LOG_TEXT_LENGTH
