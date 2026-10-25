@@ -10,7 +10,6 @@ import type {
   FilesChangedDto,
   FolderMembers,
   MemberUser,
-  OfficeSession,
   ProgressDeltaDto,
   RemoteFileRow,
   StatusDto,
@@ -219,7 +218,7 @@ export async function keepLocalConflict(fileId: number) {
 
 /** Mở phiên chỉnh sửa ONLYOFFICE cho một tệp. */
 export async function openOfficeEditor(fileId: number) {
-  return profiledInvoke<OfficeSession>("open_office_editor", { fileId });
+  return profiledInvoke<void>("open_office_editor", { fileId });
 }
 
 /** Thông tin bản cập nhật đang chờ. */

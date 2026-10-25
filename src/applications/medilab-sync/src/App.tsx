@@ -9,8 +9,7 @@ import {
   type SubmitEvent,
 } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { AppSettings, OfficeSession, ProgressDeltaDto, RemoteFileRow, StatusDto, SyncRule } from "./types";
-import { OfficeEditor } from "./features/office/OfficeEditor";
+import type { AppSettings, ProgressDeltaDto, RemoteFileRow, StatusDto, SyncRule } from "./types";
 import { UpdateDialog } from "./features/update/UpdateDialog";
 import { AccessDialog } from "./features/access/AccessDialog";
 import { loadOdooUrlHistory, rememberOdooUrl } from "./features/login/OdooUrlField";
@@ -261,11 +260,6 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   // Người dùng chủ động chọn đăng nhập bằng mật khẩu thay vì mở khóa kho mật khẩu của OS.
   const [passwordLoginRequested, setPasswordLoginRequested] = useState(false);
   const [accessTarget, setAccessTarget] = useState<{ remoteId: number; label: string } | null>(null);
-  const [officeTarget, setOfficeTarget] = useState<{
-    fileId: number;
-    label: string;
-    session: OfficeSession;
-  } | null>(null);
   const [pendingUpdate, setPendingUpdate] = useState<UpdateAvailable | null>(null);
   const run = useAsyncRunner(setBusy, setError);
   // Lệnh Tạm dừng/Tiếp tục có cờ bận riêng: không bị khóa bởi lệnh chạy lâu khác (xem AppHeader).
@@ -432,7 +426,6 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
       refreshController.cancel();
       setRemoteFiles([]);
       setHistoryTarget(null);
-      setOfficeTarget(null);
     }
   }
 
@@ -528,12 +521,8 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
   }, []);
 
   const handleOpenOffice = useCallback(
-    (fileId: number, label: string) => {
-      void run(() => openOfficeEditor(fileId)).then((session) => {
-        if (session) {
-          setOfficeTarget({ fileId, label, session });
-        }
-      });
+    (fileId: number) => {
+      void run(() => openOfficeEditor(fileId));
     },
     [run],
   );
@@ -708,13 +697,6 @@ function AppBody({ onLocaleChange }: Readonly<{ onLocaleChange: (locale: Locale)
             onClose={() => setAccessTarget(null)}
           />
         </DevelopmentProfiler>
-      ) : null}
-      {officeTarget ? (
-        <OfficeEditor
-          session={officeTarget.session}
-          label={officeTarget.label}
-          onClose={() => setOfficeTarget(null)}
-        />
       ) : null}
       {pendingUpdate ? (
         <UpdateDialog

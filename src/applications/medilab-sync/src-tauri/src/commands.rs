@@ -1,6 +1,6 @@
 use crate::api::{
     folder_to_bind, unbound_folders, ApiClient, FileDetailDto, FileVersionDto, FileVersionListDto,
-    FolderMembersDto, MemberUserDto, OfficeSessionDto, UnboundFoldersDto,
+    FolderMembersDto, MemberUserDto, UnboundFoldersDto,
 };
 use crate::auth;
 use crate::config::AppSettings;
@@ -17,6 +17,7 @@ use std::process::Command;
 use tauri::{AppHandle, State};
 use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_opener::OpenerExt;
 
 /// State Tauri dùng chung cho mọi command: tay cầm tới engine đồng bộ đang chạy nền.
 pub struct AppState {
@@ -852,17 +853,16 @@ pub fn keep_local_conflict(state: State<'_, AppState>, file_id: i64) -> Result<S
     fields(command = "open_office_editor", file_id = file_id)
 )]
 pub async fn open_office_editor(
+    app: AppHandle,
     state: State<'_, AppState>,
     file_id: i64,
-) -> Result<OfficeSessionDto, String> {
-    if file_id <= 0 {
-        return Err("Thiếu mã tệp trên máy chủ".into());
-    }
-    let client = require_client(&state.engine).await?;
-    client
-        .open_office_session(file_id)
-        .await
-        .map_err(String::from)
+) -> Result<(), String> {
+    let base = state.engine.settings.lock().await.odoo_url.clone();
+    crate::browser::open_editor_with(&base, file_id, |url| {
+        app.opener()
+            .open_url(url, None::<&str>)
+            .map_err(|_| "Không mở được trình duyệt. Vui lòng thử lại.".to_string())
+    })
 }
 
 /// Kiểm tra bản cập nhật mới trên endpoint Odoo đã cấu hình.

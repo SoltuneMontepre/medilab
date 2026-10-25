@@ -19,9 +19,10 @@ locale đã lưu lúc process khởi động.
 ## Architecture
 
 ```text
-Desktop Rust  --auth/metadata/prepare/finalize/changes/download-auth/office-session-->  Odoo 20 + medilab_sync
+Desktop Rust  --auth/metadata/prepare/finalize/changes/download-auth-->  Odoo 20 + medilab_sync
 Desktop Rust  --multipart PUT / GET-->                                  MinIO / S3
-Desktop / browser  --DocsAPI-->                                         ONLYOFFICE Document Server
+Desktop  --default browser-->                                          Odoo editor page
+Browser  --DocsAPI-->                                                   ONLYOFFICE Document Server
 ONLYOFFICE  --callback JWT-->                                           Odoo
 Odoo / Document Server  --presigned GET / PUT-->                        MinIO / S3
 Desktop SQLite                                                          local durable queue

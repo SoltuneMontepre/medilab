@@ -1,8 +1,10 @@
 mod api;
 mod auth;
+mod browser;
 mod commands;
 mod config;
 mod error;
+mod server_url;
 mod storage;
 mod sync;
 mod updater;

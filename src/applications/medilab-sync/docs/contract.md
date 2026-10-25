@@ -109,36 +109,13 @@ Nếu user chấp nhận bản trên server trong khi local khác, desktop trư�
 
 Ranh giới tin cậy: Odoo **không** đọc lại 5 GiB để tính lại SHA-256. ETag multipart không bao giờ được coi là SHA-256. Hash của client được lưu làm checksum đã commit; bước 4 là nơi desktop chứng minh hash đó là hash của đúng các byte đã PUT. Nếu sau này chế độ checksum của MinIO cung cấp SHA-256 toàn object với chi phí thấp, kiểm nó ở finalize mà không đổi contract này.
 
-## Phase 4 — ONLYOFFICE
+## Editing online
 
-Document Server tự host (`onlyoffice` trong `applications/laboratory-file-sync-application/docker-compose.yml`, khởi động bằng `task sync-app:onlyoffice-up`, URL trình duyệt `http://localhost:28880`). JWT luôn bật (`ONLYOFFICE_JWT_SECRET`). Secret không bao giờ tới React, log hay response API. Odoo ký editor config và kiểm JWT của callback (Bearer hoặc `body.token`).
+Edit online opens `<configured-server-base>/medilab/laboratory-files/<file_id>/edit` in the operating system's default browser through Tauri's existing opener plugin. The configured HTTP(S) origin and base path are validated, the file ID must be positive, and the address contains no device key, editor JWT, query or fragment. A launch failure is shown by the desktop's command error flow; the person can try again.
 
-**Loại file:** `.docx` / `.xlsx` / `.pptx` (không phân biệt hoa thường). File khác chỉ giữ sync/lịch sử của Phase 1–3.
+The action is offered for `.docx`, `.xlsx` and `.pptx` files in working and result folders. The Odoo page authenticates the browser session and checks current access, eligibility and service availability. It owns connecting/opening progress, timeout and retry behavior. Opening a browser confirms neither an editor connection nor a saved version. Sync, history and downloads operate independently of the editor.
 
-**Quyền:** chủ sở hữu thư mục hoặc thành viên `upload` được mở chế độ sửa. Config editor do server dựng đặt tường minh `customization.uiTheme = theme-gray` (theme sáng trung tính). Không đặt thì Document Server 8.x theo `prefers-color-scheme` của hệ điều hành: máy để dark sẽ ra thanh công cụ tối bao quanh trang tính vẫn sáng. `api.js` chuyển giá trị này cho iframe editor qua tham số `uitheme`; id mà Document Server không biết sẽ rơi về theme sáng mặc định, không rơi về tối. Khi app có theme tối thì đổi ở `services/office.py` (`OFFICE_UI_THEME`). Không chèn CSS vào iframe ONLYOFFICE. Người ngoài nhận 404. Download/in trong editor bị tắt.
-
-**Nguồn tài liệu:** Document Server lấy `GET /office/source/{callback_token}` trên URL nội bộ của Odoo. Odoo stream phiên bản base của session từ MinIO. Editor config **không** nhúng query string presigned của MinIO. Download trên desktop vẫn dùng `POST .../download` + MinIO public.
-
-**Status của callback:**
-
-| Status | Ý nghĩa | MediLab |
-| --- | --- | --- |
-| 1 | đang sửa | chỉ activity / người tham gia |
-| 2 | đóng và có thay đổi | stream byte, SHA-256+size, MinIO, phiên bản hoặc xung đột, đóng session |
-| 3 | lỗi lưu | `state=error`, không có phiên bản |
-| 4 | đóng, không thay đổi | đóng, không có phiên bản |
-| 6 | force-save | chỉ activity — **không** có FileVersion |
-| 7 | lỗi force-save | `state=error`, không có phiên bản |
-
-Hash+size giống hệt ở status 2 thì đóng mà không tạo phiên bản mới (khác với RESTORE tường minh). URL callback phải có origin là Document Server (`http`/`https`); `localhost` được viết lại thành `ONLYOFFICE_INTERNAL_URL`. Gửi lại status 2 trả về `committed_version_id` / `conflict_id` đã có.
-
-Ingest Office dùng cùng giới hạn 5 GiB `MAX_FILE_SIZE` như upload và stream ra file tạm (không phải buffer toàn bộ trong bộ nhớ). Bản thân Document Server cũng áp giới hạn chuyển đổi/editor riêng (mặc định của image là 100 MiB trừ khi đổi `local.json`).
-
-**Optimistic concurrency:** base của office ≠ canonical hiện tại → artifact `source=CONFLICT` không canonical + `sync.conflict`. Canonical giữ nguyên. Không có `sync.change` cho artifact. Thành công (base == hiện tại, byte đổi) → `source=ONLYOFFICE`, `_set_canonical_version`, một dòng change-feed.
-
-UI desktop: **Edit online** / **Chỉnh sửa trực tuyến** trên file được hỗ trợ. DocsAPI được tải từ `document_server_url`. API key Odoo không gửi tới React; JWT ONLYOFFICE trong `config.token` là thứ DocsAPI bắt buộc và không phải JWT secret.
-
-`task onlyoffice-health` kiểm Document Server. Odoo và sync Phase 3 vẫn khởi động dù ONLYOFFICE down. `task restart` cũng khởi động lại converter của Document Server để nó không cache địa chỉ `odoo` cũ sau khi container Odoo nhận IP mới.
+The desktop receives no editor configuration and loads no Document Server script. The [laboratory files specification](../../../../docs/specs/laboratory-files.md#online-editing) defines the page and callback boundaries.
 
 ## Event cadence and delta IPC
 

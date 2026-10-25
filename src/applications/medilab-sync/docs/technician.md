@@ -81,4 +81,4 @@ Với file **kết quả** Word/Excel/PowerPoint, quản trị viên có thể m
 
 ## Editing online
 
-Khi bấm **Chỉnh sửa trực tuyến**, app hiện vòng xoay và bước đang làm: **Bước 1/2** kết nối máy chủ chỉnh sửa trực tuyến (ONLYOFFICE), **Bước 2/2** mở tài liệu. ONLYOFFICE không báo phần trăm nên app không hiện thanh phần trăm. Nếu máy chủ chỉnh sửa đang tắt, app báo lỗi ngay; nếu trình soạn thảo không phản hồi sau 1 phút, app báo lỗi kèm nút **Thử lại**. Đồng bộ tệp không phụ thuộc ONLYOFFICE và vẫn chạy bình thường.
+**Chỉnh sửa trực tuyến** mở trang MediLab trong trình duyệt mặc định. Đăng nhập MediLab trong trình duyệt nếu được yêu cầu. Trang đó hiển thị tiến trình mở tài liệu, lỗi của dịch vụ chỉnh sửa và nút thử lại. Nếu app không mở được trình duyệt, thông báo lỗi hiện trong app; bấm lại để thử. Việc mở trình duyệt không xác nhận tài liệu đã mở hoặc lưu thành công. Đồng bộ tệp vẫn chạy độc lập.

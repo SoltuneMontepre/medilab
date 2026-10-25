@@ -336,94 +336,6 @@ pub struct FileVersionListDto {
     pub items: Vec<FileVersionDto>,
 }
 
-/// Danh tính người dùng hiện cho ONLYOFFICE Document Server.
-#[derive(Deserialize, Serialize, Clone)]
-pub struct OfficeUserDto {
-    pub id: String,
-    pub name: String,
-}
-
-/// Quyền hạn của người dùng trên phiên chỉnh sửa ONLYOFFICE hiện tại.
-#[derive(Deserialize, Serialize, Clone)]
-pub struct OfficePermissionsDto {
-    pub edit: bool,
-    pub download: bool,
-    pub print: bool,
-    #[serde(default)]
-    pub comment: bool,
-}
-
-/// Mô tả tài liệu gửi cho ONLYOFFICE: loại tệp, khóa phiên bản, URL tải nội dung, quyền hạn.
-#[derive(Deserialize, Serialize, Clone)]
-pub struct OfficeDocumentDto {
-    #[serde(rename = "fileType")]
-    pub file_type: String,
-    pub key: String,
-    pub title: String,
-    pub url: String,
-    pub permissions: OfficePermissionsDto,
-}
-
-/// Tùy chỉnh editor ONLYOFFICE do server quyết định. Struct có kiểu nên field nào không khai báo ở
-/// đây sẽ bị serde BỎ khi config đi qua lớp Rust — `uiTheme` từng bị rơi đúng như vậy, khiến editor
-/// trong app vẫn theo theme tối của hệ điều hành dù server đã đặt theme sáng. `extra` giữ nguyên
-/// mọi tùy chỉnh khác server thêm về sau để chúng tới được `DocsAPI.DocEditor`.
-#[derive(Deserialize, Serialize, Clone)]
-pub struct OfficeCustomizationDto {
-    #[serde(default)]
-    pub autosave: bool,
-    #[serde(default)]
-    pub forcesave: bool,
-    #[serde(rename = "uiTheme", default, skip_serializing_if = "Option::is_none")]
-    pub ui_theme: Option<String>,
-    #[serde(flatten)]
-    pub extra: serde_json::Map<String, serde_json::Value>,
-}
-
-/// Phần `editorConfig` của cấu hình ONLYOFFICE: chế độ, ngôn ngữ, callback lưu, người dùng.
-#[derive(Deserialize, Serialize, Clone)]
-pub struct OfficeEditorInnerDto {
-    pub mode: String,
-    pub lang: String,
-    #[serde(rename = "type", default)]
-    pub editor_type: Option<String>,
-    #[serde(rename = "callbackUrl")]
-    pub callback_url: String,
-    pub user: OfficeUserDto,
-    #[serde(default)]
-    pub customization: Option<OfficeCustomizationDto>,
-}
-
-/// Toàn bộ cấu hình JS cần truyền cho ONLYOFFICE API để mở editor.
-#[derive(Deserialize, Serialize, Clone)]
-pub struct OfficeEditorConfigDto {
-    #[serde(rename = "documentType")]
-    pub document_type: String,
-    #[serde(default)]
-    pub width: Option<String>,
-    #[serde(default)]
-    pub height: Option<String>,
-    pub document: OfficeDocumentDto,
-    #[serde(rename = "editorConfig")]
-    pub editor_config: OfficeEditorInnerDto,
-    pub token: String,
-}
-
-/// Phiên chỉnh sửa ONLYOFFICE cho một tệp: id phiên, version gốc, và cấu hình để nhúng editor.
-#[derive(Deserialize, Serialize, Clone)]
-pub struct OfficeSessionDto {
-    pub session_id: i64,
-    pub file_id: i64,
-    pub base_version_id: i64,
-    pub document_key: String,
-    pub created: bool,
-    pub state: String,
-    pub document_server_url: String,
-    pub document_type: String,
-    pub file_type: String,
-    pub config: OfficeEditorConfigDto,
-}
-
 impl ApiClient {
     /// Dựng client với API key và device id đã có sẵn (đăng nhập trước đó).
     pub fn new(base: &str, api_key: &str, device_id: i64) -> AppResult<Self> {
@@ -861,21 +773,6 @@ impl ApiClient {
             .http
             .post(format!(
                 "{}/api/sync/v1/files/{file_id}/versions/{version_id}/download",
-                self.base
-            ))
-            .headers(self.headers()?)
-            .send()
-            .await?;
-        let response = Self::map_response(response).await?;
-        Ok(response.json().await?)
-    }
-
-    /// Mở (hoặc tham gia) một phiên chỉnh sửa ONLYOFFICE cho một tệp.
-    pub async fn open_office_session(&self, file_id: i64) -> AppResult<OfficeSessionDto> {
-        let response = self
-            .http
-            .post(format!(
-                "{}/api/sync/v1/files/{file_id}/office/session",
                 self.base
             ))
             .headers(self.headers()?)
@@ -1439,61 +1336,6 @@ mod tests {
         .unwrap();
         assert_eq!(auth.version_id, 5);
         assert!(auth.url.contains("localhost:29000"));
-    }
-
-    /// Parse phiên ONLYOFFICE phải giữ đúng dữ liệu và không bao giờ lộ `storage_key`/`api_key`
-    /// khi serialize lại.
-    #[test]
-    fn decodes_office_session_without_exposing_storage_key() {
-        let parsed: crate::api::OfficeSessionDto = serde_json::from_str(
-            r#"{
-                "session_id": 3,
-                "file_id": 10,
-                "base_version_id": 4,
-                "document_key": "ooabc",
-                "created": true,
-                "state": "open",
-                "document_server_url": "http://localhost:28880",
-                "document_type": "cell",
-                "file_type": "xlsx",
-                "config": {
-                    "documentType": "cell",
-                    "width": "100%",
-                    "height": "100%",
-                    "document": {
-                        "fileType": "xlsx",
-                        "key": "ooabc",
-                        "title": "ABC.xlsx",
-                        "url": "http://odoo:8069/api/sync/v1/office/source/tok",
-                        "permissions": {"edit": true, "download": false, "print": false, "comment": true}
-                    },
-                    "editorConfig": {
-                        "mode": "edit",
-                        "lang": "vi",
-                        "type": "desktop",
-                        "callbackUrl": "http://odoo:8069/api/sync/v1/office/callback/tok",
-                        "user": {"id": "2", "name": "Kỹ thuật viên A"},
-                        "customization": {"autosave": true, "forcesave": false, "uiTheme": "theme-gray", "futureOption": 7}
-                    },
-                    "token": "header.payload.sig"
-                }
-            }"#,
-        )
-        .unwrap();
-        assert_eq!(parsed.session_id, 3);
-        // Config đi qua lớp Rust rồi mới tới webview: `uiTheme` (và tùy chỉnh server thêm sau này)
-        // không được rơi mất khi serialize lại, nếu không editor sẽ theo theme tối của hệ điều hành.
-        let forwarded = serde_json::to_value(&parsed).unwrap();
-        let customization = &forwarded["config"]["editorConfig"]["customization"];
-        assert_eq!(customization["uiTheme"], "theme-gray");
-        assert_eq!(customization["futureOption"], 7);
-        assert_eq!(customization["autosave"], true);
-        assert_eq!(parsed.document_key, "ooabc");
-        assert_eq!(parsed.config.editor_config.user.id, "2");
-        assert!(!parsed.config.document.permissions.download);
-        let dumped = serde_json::to_string(&parsed).unwrap();
-        assert!(!dumped.contains("storage_key"));
-        assert!(!dumped.contains("api_key"));
     }
 
     /// Parse ngữ cảnh mẫu LIMS (tên/mã mẫu, category, tình trạng, nguồn thiết bị) trên folder;
