@@ -62,9 +62,15 @@ class OnlyofficeRealRelay:
 
             def do_POST(self):
                 body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
-                if urlsplit(self.path).path == "/edited":
+                parts = urlsplit(self.path)
+                participant = parse_qs(parts.query).get("participant", ["0"])[0]
+                path = parts.path
+                if path.startswith("/participant/"):
+                    _prefix, _kind, participant, tail = path.split("/", 3)
+                    path = "/" + tail
+                if path == "/edited":
                     relay.edited = True
-                    relay.edited_participants.add(parse_qs(urlsplit(self.path).query).get("participant", ["0"])[0])
+                    relay.edited_participants.add(participant)
                     self.answer(200, b"{}")
                     return
                 if self.path != CALLBACK_PREFIX + case.callback_token:
@@ -83,13 +89,16 @@ class OnlyofficeRealRelay:
         parts = urlsplit(path)
         participant = parse_qs(parts.query).get("participant", ["0"])[0]
         path = parts.path
+        if path.startswith("/participant/"):
+            _prefix, _kind, participant, tail = path.split("/", 3)
+            path = "/" + tail
         if path == "/editor":
             values = deepcopy(self.config)
             values.pop("token")
             if participant != "0":
                 values["editorConfig"]["user"] = {"id": "agent4-user-" + participant, "name": (self.marker * 6)[:255]}
             values["editorConfig"]["plugins"]["pluginsData"] = [
-                self.url + "/plugin/config.json?participant=" + participant
+                self.url + "/participant/" + participant + "/plugin/config.json"
             ]
             configuration = json.dumps({**values, "token": sign(values, SECRET, 900)}).replace("<", "\\u003c")
             page = f"""<!doctype html><html><body style="margin:0"><div id="editor"></div>
@@ -114,7 +123,7 @@ window.editor = new DocsAPI.DocEditor('editor', config);
                     "variations": [
                         {
                             "description": "Integration edit",
-                            "url": "index.html?participant=" + participant,
+                            "url": "index.html",
                             "icons": [],
                             "isViewer": False,
                             "EditorsSupport": ["word", "cell", "slide"],
@@ -131,7 +140,7 @@ window.editor = new DocsAPI.DocEditor('editor', config);
         if path == "/plugin/index.html":
             return (
                 f'<script src="{self.document_server}/sdkjs-plugins/v1/plugins.js"></script>'
-                f'<script src="code.js?participant={participant}"></script>'
+                '<script src="code.js"></script>'
             ).encode(), "text/html"
         if path == "/plugin/code.js":
             return self.plugin_code(participant).encode(), "application/javascript"
