@@ -1,5 +1,6 @@
 """Local security checks of production code; these do not establish Document Server compatibility."""
 
+import json
 import logging
 import os
 import secrets
@@ -121,6 +122,28 @@ class TestContract(unittest.TestCase):
         self.refuse(invalid_body, header)
         for token in ("invalid.jwt", body["token"][:-1], None, {"token": body["token"]}, [body["token"]]):
             with self.subTest(token_type=type(token).__name__):
+                self.refuse({**body, "token": token}, header)
+
+    def test_large_callbacks_require_object_bodies_and_header_payloads(self):
+        fields = {**FIELDS, "history": {"changes": [{"user": {"id": "7", "name": "editor" * 20}}] * 2000}}
+        body, header = signed(fields)
+        for malformed in (None, True, 17, "history" * 2000, [fields]):
+            with self.subTest(location="body", payload_type=type(malformed).__name__):
+                self.refuse(malformed, header)
+            claims = {"payload": malformed, "exp": int(time.time()) + 300}
+            malformed_header = "Bearer " + jwt.encode(claims, SECRET, algorithm="HS256")
+            with self.subTest(location="header", payload_type=type(malformed).__name__):
+                self.refuse(body, malformed_header)
+
+    def test_large_callbacks_reject_valid_signatures_on_malformed_claim_objects(self):
+        fields = {**FIELDS, "history": {"changes": [{"user": {"id": "7"}}] * 2000}}
+        body, header = signed(fields)
+        malformed_payloads = [json.dumps(value).encode() for value in (None, True, 17, "history" * 2000, [fields])]
+        for payload in (*malformed_payloads, b"{invalid-json"):
+            token = jwt.api_jws.encode(payload, SECRET, algorithm="HS256")
+            with self.subTest(location="header", payload_size=len(payload)):
+                self.refuse(body, "Bearer " + token)
+            with self.subTest(location="body", payload_size=len(payload)):
                 self.refuse({**body, "token": token}, header)
 
     def test_both_trimmed_tokens_do_not_authenticate_extra_unsigned_users(self):
