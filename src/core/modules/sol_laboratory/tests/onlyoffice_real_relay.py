@@ -5,14 +5,16 @@ import json
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlsplit
 
 import jwt
 import requests
 
 from .editing_service import SECRET
 from odoo.addons.sol_laboratory.constants.laboratory_editing import CALLBACK_PREFIX, JWT_HEADER
-from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused, verify_callback
+from odoo.addons.sol_laboratory.services.onlyoffice_jwt import EditingCallbackRefused, sign, verify_callback
 
 PLUGIN_GUID = "asc.{6F817117-1710-4E04-8031-171000000004}"
 
@@ -28,6 +30,7 @@ class OnlyofficeRealRelay:
         self.deliveries = []
         self.lock = threading.RLock()
         self.edited = False
+        self.edited_participants = set()
         self.failures = 0
         self.negative_control = False
         self.unavailable = False
@@ -59,8 +62,9 @@ class OnlyofficeRealRelay:
 
             def do_POST(self):
                 body = self.rfile.read(int(self.headers.get("Content-Length", "0")))
-                if self.path == "/edited":
+                if urlsplit(self.path).path == "/edited":
                     relay.edited = True
+                    relay.edited_participants.add(parse_qs(urlsplit(self.path).query).get("participant", ["0"])[0])
                     self.answer(200, b"{}")
                     return
                 if self.path != CALLBACK_PREFIX + case.callback_token:
@@ -76,9 +80,18 @@ class OnlyofficeRealRelay:
         case.addCleanup(self.server.shutdown)
 
     def asset(self, path):
-        path = path.split("?", 1)[0]
+        parts = urlsplit(path)
+        participant = parse_qs(parts.query).get("participant", ["0"])[0]
+        path = parts.path
         if path == "/editor":
-            configuration = json.dumps(self.config).replace("<", "\\u003c")
+            values = deepcopy(self.config)
+            values.pop("token")
+            if participant != "0":
+                values["editorConfig"]["user"] = {"id": "agent4-user-" + participant, "name": (self.marker * 6)[:255]}
+            values["editorConfig"]["plugins"]["pluginsData"] = [
+                self.url + "/plugin/config.json?participant=" + participant
+            ]
+            configuration = json.dumps({**values, "token": sign(values, SECRET, 900)}).replace("<", "\\u003c")
             page = f"""<!doctype html><html><body style="margin:0"><div id="editor"></div>
 <script src="{self.document_server}/web-apps/apps/api/documents/api.js"></script><script>
 window.dirty = false; window.sawDirty = false;
@@ -91,7 +104,7 @@ window.editor = new DocsAPI.DocEditor('editor', config);
 </script></body></html>"""
             return page.encode(), "text/html"
         if path == "/state":
-            return json.dumps({"edited": self.edited}).encode(), "application/json"
+            return json.dumps({"edited": participant in self.edited_participants}).encode(), "application/json"
         if path == "/plugin/config.json":
             return json.dumps(
                 {
@@ -101,7 +114,7 @@ window.editor = new DocsAPI.DocEditor('editor', config);
                     "variations": [
                         {
                             "description": "Integration edit",
-                            "url": "index.html",
+                            "url": "index.html?participant=" + participant,
                             "icons": [],
                             "isViewer": False,
                             "EditorsSupport": ["word", "cell", "slide"],
@@ -118,14 +131,15 @@ window.editor = new DocsAPI.DocEditor('editor', config);
         if path == "/plugin/index.html":
             return (
                 f'<script src="{self.document_server}/sdkjs-plugins/v1/plugins.js"></script>'
-                '<script src="code.js"></script>'
+                f'<script src="code.js?participant={participant}"></script>'
             ).encode(), "text/html"
         if path == "/plugin/code.js":
-            return self.plugin_code().encode(), "application/javascript"
+            return self.plugin_code(participant).encode(), "application/javascript"
         return None
 
-    def plugin_code(self):
-        return """window.Asc.plugin.init = function() {
+    def plugin_code(self, participant="0"):
+        return (
+            """window.Asc.plugin.init = function() {
   Asc.scope.marker = MARKER;
   Asc.scope.extension = EXTENSION;
   this.callCommand(function() {
@@ -144,9 +158,12 @@ window.editor = new DocsAPI.DocEditor('editor', config);
     }
     return true;
   }, false, true, function(result) {
-    if (result === true) fetch('../edited', {method: 'POST'});
+    if (result === true) fetch('../edited?participant=' + PARTICIPANT, {method: 'POST'});
   });
-};""".replace("MARKER", json.dumps(self.marker)).replace("EXTENSION", json.dumps(self.extension))
+};""".replace("MARKER", json.dumps(self.marker))
+            .replace("EXTENSION", json.dumps(self.extension))
+            .replace("PARTICIPANT", json.dumps(participant))
+        )
 
     def deliver(self, body, headers):
         headers = requests.structures.CaseInsensitiveDict(headers)

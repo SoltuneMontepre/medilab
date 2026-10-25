@@ -209,6 +209,16 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         self.wait_final()
         self.assert_saved()
 
+    def test_docx_many_editors_header_trimming(self):
+        response = requests.post("http://browser:3000/edit-many", json={"url": self.relay.url + "/editor"}, timeout=300)
+        self.browser_result = response.json()
+        self.assertEqual(response.status_code, 200, "The multi-editor browser could not finish.")
+        self.assertEqual(self.browser_result.get("editorSessions"), 27)
+        events = self.wait_final()
+        self.assertEqual(events[-1]["history_json_bytes"], 2)
+        self.assertLess(events[-1]["header_bytes"], 7168)
+        self.assert_saved()
+
     def test_docx_503_redelivery_has_fresh_jwt(self):
         self.relay.failures = 1
         self.edit_and_close()
