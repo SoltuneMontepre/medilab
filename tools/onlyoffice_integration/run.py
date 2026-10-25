@@ -130,7 +130,21 @@ def require_success(result, label):
 
 def verify_image():
     containers = require_success(
-        compose("ps", "-q", "--status", "running", "documentserver"), "Find Document Server"
+        command(
+            [
+                *DOCKER,
+                "ps",
+                "-q",
+                "--filter",
+                "label=com.docker.compose.project=" + PROJECT,
+                "--filter",
+                "label=com.docker.compose.service=documentserver",
+                "--filter",
+                "status=running",
+            ],
+            env=DOCKER_ENV,
+        ),
+        "Find Document Server",
     ).stdout.split()
     if len(containers) != 1:
         raise RuntimeError("Expected exactly one running Document Server in this project.")
@@ -144,19 +158,25 @@ def verify_image():
     ):
         raise RuntimeError("The running container does not match the exact pinned digest.")
     version = require_success(
-        compose("exec", "-T", "documentserver", "dpkg-query", "-W", "-f=${Version}", "onlyoffice-documentserver"),
+        command(
+            [*DOCKER, "exec", container, "dpkg-query", "-W", "-f=${Version}", "onlyoffice-documentserver"],
+            env=DOCKER_ENV,
+        ),
         "Read package version",
     ).stdout.strip()
     if version != "9.4.0-129":
         raise RuntimeError("Unexpected Document Server package version: " + version)
     sources = require_success(
-        compose(
-            "exec",
-            "-T",
-            "documentserver",
-            "sha256sum",
-            "/var/www/onlyoffice/documentserver/server/DocService/docservice",
-            "/var/www/onlyoffice/documentserver/server/FileConverter/converter",
+        command(
+            [
+                *DOCKER,
+                "exec",
+                container,
+                "sha256sum",
+                "/var/www/onlyoffice/documentserver/server/DocService/docservice",
+                "/var/www/onlyoffice/documentserver/server/FileConverter/converter",
+            ],
+            env=DOCKER_ENV,
         ),
         "Hash upstream source",
     )
