@@ -39,6 +39,8 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
 
     HTTP_INTERFACE = "127.0.0.1"
     HTTP_LIMIT_TIME_REAL = None
+    bucket_name = CALLBACK_BUCKET
+    extra_log_handlers = ()
 
     @classmethod
     def editing_internal_url(cls):
@@ -47,8 +49,6 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
     @classmethod
     def editing_public_url(cls):
         return PUBLIC_URL
-    bucket_name = CALLBACK_BUCKET
-    extra_log_handlers = ()
 
     @classmethod
     def server_environment(cls):

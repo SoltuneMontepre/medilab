@@ -16,6 +16,7 @@ from .editing_service import SECRET
 from .laboratory_editing_case import LaboratoryEditingCase
 from .laboratory_files_case import PASSWORD
 from .laboratory_sample_folder_case import LaboratorySampleFolderCase
+from odoo.addons.sol_laboratory.constants.laboratory_bucket import PUBLIC_ADDRESS_VARIABLE
 from odoo.addons.sol_laboratory.constants.laboratory_editing import EXPIRED, PUBLIC_URL_VARIABLE
 from odoo.addons.sol_laboratory.constants.laboratory_files import RAW_DATA, RESULT
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_EDITING_SESSION
@@ -27,7 +28,15 @@ from odoo.addons.sol_laboratory.services.laboratory_file_error import Laboratory
 class TestLaboratoryEditorPage(HttpCase, LaboratoryEditingCase, LaboratorySampleFolderCase):
     def setUp(self):
         super().setUp()
-        self.enterContext(patch.dict(os.environ, {CALLBACK_ORIGIN_VARIABLE: "https://odoo.lab.example"}))
+        self.enterContext(
+            patch.dict(
+                os.environ,
+                {
+                    CALLBACK_ORIGIN_VARIABLE: "https://odoo.lab.example",
+                    PUBLIC_ADDRESS_VARIABLE: "https://bucket.lab.example",
+                },
+            )
+        )
         self.authenticate(self.tester.login, PASSWORD)
 
     def page(self, file=None, *, status=200, query="", **options):

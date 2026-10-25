@@ -112,7 +112,7 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
             "final_state": self.state(),
             "odoo_sensitive_values_absent": log_redacted,
             "browser": getattr(self, "browser_result", None),
-            "test_body_passed": bool(self._outcome.success and log_redacted),
+            "test_body_passed": bool(self._outcome is not None and self._outcome.success and log_redacted),
         }
         (directory / (self._testMethodName + ".json")).write_text(json.dumps(result, indent=2) + "\n")
         self.assertTrue(log_redacted, "Odoo logs retained a sensitive callback value")

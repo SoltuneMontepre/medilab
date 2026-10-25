@@ -289,7 +289,20 @@ def test(*, native_only=False):
         raise RuntimeError("The test database already exists; preserve evidence before explicit cleanup.")
     limit = int(os.environ.get("ONLYOFFICE_RUN_TIMEOUT", "1200"))
     launch = require_success(
-        compose("run", "--detach", "--name", CONTAINER, "--use-aliases", "--no-deps", "runner"), "Launch test runner"
+        compose(
+            "run",
+            "--detach",
+            "--name",
+            CONTAINER,
+            *(
+                ["--use-aliases"]
+                if not native_only or "onlyoffice_page_real" in os.environ.get("ONLYOFFICE_REAL_TAGS", "")
+                else []
+            ),
+            "--no-deps",
+            "runner",
+        ),
+        "Launch test runner",
     )
     deadline = time.monotonic() + limit
     native_started = set()

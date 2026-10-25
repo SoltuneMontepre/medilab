@@ -10,6 +10,7 @@ from odoo import fields
 from odoo.tests import tagged
 
 from .laboratory_editing_http_case import LaboratoryEditingHttpCase
+from odoo.addons.sol_laboratory.constants.laboratory_bucket import PUBLIC_ADDRESS_VARIABLE
 from odoo.addons.sol_laboratory.constants.laboratory_editing import EXPIRED, PUBLIC_URL_VARIABLE
 from odoo.addons.sol_laboratory.services.laboratory_editor_page import CALLBACK_ORIGIN_VARIABLE
 
@@ -25,7 +26,11 @@ class TestLaboratoryEditorHttp(LaboratoryEditingHttpCase):
 
     @classmethod
     def server_environment(cls):
-        return {CALLBACK_ORIGIN_VARIABLE: cls.http_url, PUBLIC_URL_VARIABLE: cls.source.url}
+        return {
+            CALLBACK_ORIGIN_VARIABLE: cls.http_url,
+            PUBLIC_URL_VARIABLE: cls.source.url,
+            PUBLIC_ADDRESS_VARIABLE: cls.bucket_proxy.url,
+        }
 
     def prepare_session(self, env):
         admin = env.ref("base.user_admin")
