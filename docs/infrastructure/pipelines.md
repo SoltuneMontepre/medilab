@@ -7,7 +7,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | Workflow        | Runs on                                                                                 | Does                                                                                                                 |
 | --------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
-| `ci-infra`      | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and Ansible lint and origin isolation regression tests when their code changes. |
+| `ci-infra`      | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, Ansible lint and origin isolation regression tests when their code changes, and ONLYOFFICE configuration/schema/Compose contracts when those paths change. |
 | `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
 | `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
 | `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                     |
@@ -61,7 +61,8 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
 - The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image and the origin isolation script's syntax and regression tests, when `infra/ansible/`, `tools/ansible/`, the script or its tests change. It uses no secrets and never reaches a node.
-- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform` and `ansible` both passed.
+- The `onlyoffice` job validates Kustomize candidates, core Kubernetes and pinned upstream CRD schemas, JWT/secret/network/storage contracts and the isolated Compose merge. It downloads checksum-verified validators and CRDs, uses no production credentials, and never reaches a cluster. The inherited Odoo Backup resource stays under its existing validation scope. These checks do not establish pinned-service or staging acceptance; see [ONLYOFFICE](onlyoffice.md).
+- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform`, `ansible` and `onlyoffice` passed.
 
 ## cd-ansible
 

@@ -95,6 +95,10 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - Every start writes the shared `MediLab` connection to the `medilab` database through `medilab-db-rw`, with the saved user and password of `medilab-db-app`.
 - Traefik routes `cloudbeaver.soltunemontepre.tech` to it.
 
+## ONLYOFFICE candidates
+
+The manual `applications/onlyoffice.yaml` and `applications/onlyoffice-monitor.yaml` are kept outside the root resource list until acceptance. `onlyoffice/` pins 9.4.0.1 by digest with a protected 40 GiB claim, TLS, ExternalSecret and restrictive policies. `onlyoffice-integration/` is the gated Odoo variant; `onlyoffice-edge/` defines the internal callback boundary. No unrestricted bucket egress is supplied. Follow [ONLYOFFICE deployment and recovery](onlyoffice.md) to validate and activate them together; Odoo readiness stays independent.
+
 ## Logs
 
 - Alloy reads the logs of every pod through the Kubernetes API and sends them to Loki, labelled with `namespace`, `pod`, `container` and `app`. Odoo's lines also get their `level`, such as `INFO`, `WARNING` or `ERROR`, and its `/web/health` requests, which the probes make every few seconds, are dropped.

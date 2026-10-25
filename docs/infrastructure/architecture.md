@@ -110,6 +110,10 @@ Two buckets, one per Object Storage Lite plan, with the same provider as the VPS
 - Traefik's service is `ClusterIP` and ServiceLB is turned off, so no node opens ports 80 or 443.
 - Network policies let only `cloudflared` reach Traefik and only Traefik reach Odoo, so the client address Cloudflare sends in `Cf-Connecting-IP` can be trusted. Traefik limits signing in and the webhooks per client address by that header; see [Cluster](cluster.md#ingress).
 
+## Online editing
+
+ONLYOFFICE Document Server runs as an optional service with its own health monitoring and persistent cache, forgotten files and bundled state. Browsers reach its approved public hostname through the tunnel; it calls only the dedicated internal TLS callback ingress and approved bucket endpoint. Odoo uses its verified internal HTTPS origin. The [deployment and recovery runbook](onlyoffice.md) defines isolation, secrets, timing, retention and activation gates. Local disk persistence is not a seven-day or node-loss recovery guarantee. Production waits for the licence review and staging acceptance.
+
 ## MQTT
 
 - IoT devices, such as the SIM7600 environment monitors, publish over MQTT with TLS on port 8883, which Cloudflare Tunnel cannot carry.

@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: onlyoffice-monitor
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/SoltuneMontepre/medilab.git
+    targetRevision: main
+    path: infra/cluster/onlyoffice-monitor
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: medilab
+  syncPolicy:
+    syncOptions: [CreateNamespace=true]
