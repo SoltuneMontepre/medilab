@@ -88,21 +88,21 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 
 The sync app is the Tauri desktop client in `src/applications/medilab-sync`.
 
-When the app or the workflow changes, its jobs run at once after `changes`:
+When the Sync app, Mobile app, shared device OpenAPI document, application test tooling or workflow changes, its jobs run after `changes`:
 
 ```mermaid
 flowchart LR
     changes --> lint
     changes --> compile["compile (Linux), (Windows), (macOS)"] --> build
-    changes --> runners["test (frontend), (backend)"] --> test
+    changes --> runners["test-runner: task test:apps"] --> test
 ```
 
 `lint`, `build` and `test` are the required checks, the same names as in `ci-core`. When nothing relevant changed, they pass at once.
 
 - `lint` runs `cargo fmt --check`, the frontend type check with `tsc`, and Clippy with warnings as errors.
-- `compile` builds the frontend and then the app on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. Only these jobs build the frontend. `build` fails unless every `compile` passed.
-- `test (frontend)` runs `bun test` and `test (backend)` runs `cargo test`, side by side. `test` fails unless both passed.
-- The app embeds the built frontend when it compiles, so `lint` and `test (backend)` compile against an empty stand-in `dist/index.html` instead of building the frontend.
+- `compile` builds the frontend and then the app on Linux, Windows and macOS, so the code that compiles only on one platform, such as the keyring and autostart, is checked on each. The application test job also builds the frontend. `build` fails unless every `compile` passed.
+- `test-runner` installs Bun, Rust, Task and Linux Tauri libraries, builds the frontend, verifies Cargo availability and runs `task test:apps` from the repository root. This includes Sync frontend tests, locked Rust tests and Mobile tests. `test` fails unless this job passes.
+- The app embeds the built frontend when it compiles, so `lint` compiles against an empty stand-in `dist/index.html`; compilation and application tests use the built frontend.
 - A release starts by pushing a tag `filesync-v<version>`, such as `filesync-v1.2.3`. `cd-sync-app` writes that version into `package.json`, `tauri.conf.json` and `Cargo.toml` for the build only, so the repository keeps its own versions.
 - `package` builds on three runners at once: an NSIS installer on Windows, a DMG for Apple silicon on macOS, and deb and rpm packages on Linux. One failure stops the others.
 - `release` publishes the packages as a GitHub release for the tag, with notes generated from the merged pull requests. A version with a suffix, such as `1.2.3-rc.1`, is a pre-release.

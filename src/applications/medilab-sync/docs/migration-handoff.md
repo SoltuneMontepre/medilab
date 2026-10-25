@@ -81,11 +81,9 @@ The approved data contract requires explicit rebinding because there is no verif
 
 ## CI ownership
 
-[Proposed CI patch](../proposals/ci-sync-contract.patch) changes only `ci.sync-app.yml`: it adds the shared OpenAPI document to the relevant-change filter and locks Rust test resolution. It is deliberately not applied to the workflow. `git apply --check` verifies it against this branch.
+`ci-sync-app` includes the shared OpenAPI document in its relevant-change filter. Its root application job sets up Bun, Rust, Task and the Linux Tauri libraries, builds the frontend and runs the literal `task test:apps` command. The required `test` aggregation checks that job. Rust availability is checked explicitly, and dependency resolution is locked. Mobile and shared test-tool changes also select the job.
 
-Today a PR changing only `src/core/modules/sol_laboratory/api/openapi.yaml` starts change detection, which reports `relevant=false`; Sync lint/build/test jobs skip. The proposed filter fixes that. `include_str!` loads the actual shared YAML, so the Rust suite rebuilds and validates actual mock/live traffic rather than a copied schema. Negative tests mutate request, path, query, response-header and response-body requirements and demonstrate rejection.
-
-The workflow separately runs Bun and Rust tests; it does not run the literal `task test:apps` command, which also runs Mobile tests. The CI owner must add a root-working-directory application test job/step with Bun, Rust, Linux Tauri libraries, built/placeholder frontend assets and Task (the repository already uses `arduino/setup-task@v3`). Run `task test:apps` with Cargo present and include it in the required test aggregation. Do not count the script's Cargo-not-found skip as a backend pass. Hosted execution and required-check configuration are still unverified; this branch neither edits unrelated workflows nor claims hosted CI success.
+The Rust suite reads the repository YAML with `include_str!` and validates mock/live traffic against it. Negative drift tests cover request, path, query, response-header and response-body requirements. A local filter/syntax check and a local application run do not establish hosted scheduling or required-check success. Hosted execution against the integrated commit remains required.
 
 ## Browser page integration
 

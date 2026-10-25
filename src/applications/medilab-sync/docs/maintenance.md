@@ -46,7 +46,7 @@ After signing in again, migrated folders remain visible as not bound. Choose an 
 
 The release owner must verify whether the current updater signing key exists, identify installed versions and choose the documented signed-update or reinstall scenario. Never generate, replace or rotate production keys as a migration shortcut. The old-address compatibility manifests/refusals, approved installer location and a real installed-client rehearsal are server/release dependencies outside the desktop's code. See the [contract](contract.md#installed-clients-and-updates).
 
-The new updater path is `/medilab/api/v1/updates/<target>/<arch>/<version>`. It requires a server endpoint and contract. CI also needs to trigger the Sync contract suite when only the shared OpenAPI document changes; that workflow is maintained outside this application's owned directory.
+The new updater path is `/medilab/api/v1/updates/<target>/<arch>/<version>`. It requires a server endpoint and contract. The Sync CI relevant-change filter includes the shared OpenAPI document, and its root application job runs `task test:apps` with Cargo present. Hosted execution remains a separate acceptance gate.
 
 `updater_migration_tests` generates ephemeral test keys in memory, serves signed fixture bytes and runs Tauri's actual verifier/installer against an isolated Linux executable. It checks successful replacement and data retention, plus wrong-key/tampered-byte refusal before replacement. It does not invoke native DEB/RPM/NSIS/DMG uninstallers or exercise an original installed release. Never supply a production private key to this suite. See the [acceptance review](acceptance.md) and [server/release/CI handoff](migration-handoff.md).
 

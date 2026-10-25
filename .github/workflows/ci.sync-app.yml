@@ -34,6 +34,11 @@ jobs:
           filters: |
             relevant:
               - "src/applications/medilab-sync/**"
+              - "src/core/modules/sol_laboratory/api/openapi.yaml"
+              - "src/applications/medilab-mobile/**"
+              - "tools/scripts/test_apps.sh"
+              - "tools/taskfiles/test.taskfile.yml"
+              - "taskfile.yml"
               - ".github/workflows/ci.sync-app.yml"
 
   lint:
@@ -168,58 +173,45 @@ jobs:
           fi
 
   test-runner:
-    name: test (${{ matrix.part }})
     needs: changes
     if: needs.changes.outputs.relevant == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    strategy:
-      fail-fast: true
-      matrix:
-        part: [frontend, backend]
-    defaults:
-      run:
-        working-directory: ${{ env.SYNC_APP_DIR }}
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
       - name: Set up Bun
-        if: matrix.part == 'frontend'
         uses: oven-sh/setup-bun@v2
 
-      - name: Install frontend dependencies
-        if: matrix.part == 'frontend'
-        run: bun install --frozen-lockfile --ignore-scripts
-
-      - name: Frontend tests
-        if: matrix.part == 'frontend'
-        run: bun test
-
       - name: Set up Rust
-        if: matrix.part == 'backend'
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Set up Task
+        uses: arduino/setup-task@v3
+
       - name: Cache Rust build
-        if: matrix.part == 'backend'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "${{ env.SYNC_APP_DIR }}/src-tauri -> target"
           key: test
 
       - name: Install Linux build dependencies
-        if: matrix.part == 'backend'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
 
-      - name: Stand in for the built frontend
-        if: matrix.part == 'backend'
-        run: mkdir -p dist && touch dist/index.html
+      - name: Build the frontend
+        working-directory: ${{ env.SYNC_APP_DIR }}
+        run: |
+          bun install --frozen-lockfile --ignore-scripts
+          bun run build
 
-      - name: Rust tests
-        if: matrix.part == 'backend'
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+      - name: Verify Rust availability
+        run: cargo --version
+
+      - name: Application tests
+        run: task test:apps
 
   test:
     needs: [changes, test-runner]
