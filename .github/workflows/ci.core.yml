@@ -395,6 +395,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Bun
+        if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Install Mobile analysis dependencies
+        if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.scan == 'true'
+        working-directory: src/applications/medilab-mobile
+        run: bun install --frozen-lockfile --ignore-scripts
+
       - name: Download coverage report
         if: github.event.pull_request.head.repo.fork != true && needs.changes.outputs.relevant == 'true'
         uses: actions/download-artifact@v8
