@@ -22,7 +22,10 @@ http.createServer(async (request, response) => {
       raw += part;
       if (raw.length > 4096) throw new Error("Request too large");
     }
-    const target = new URL(JSON.parse(raw).url);
+    const input = JSON.parse(raw);
+    const target = new URL(input.url);
+    const participants = input.participants ?? 25;
+    if (!Number.isInteger(participants) || participants < 1 || participants > 25) throw new Error("Invalid participant count");
     if (target.hostname !== "runner" || target.protocol !== "http:" || target.pathname !== "/editor") {
       throw new Error("Unexpected test origin");
     }
@@ -55,7 +58,7 @@ http.createServer(async (request, response) => {
     }
     const keeper = await openEditor(target.href);
     if (request.url === "/edit-many") {
-      for (let index = 1; index <= 25; index++) {
+      for (let index = 1; index <= participants; index++) {
         const url = new URL(target.href);
         url.searchParams.set("participant", String(index));
         const editor = await openEditor(url.href);
@@ -69,7 +72,7 @@ http.createServer(async (request, response) => {
     page = keeper;
     await page.evaluate(() => window.editor.destroyEditor());
     await context.close();
-    response.end(JSON.stringify({ edited: true, editorSessions: request.url === "/edit-many" ? 27 : 1 }));
+    response.end(JSON.stringify({ edited: true, editorSessions: request.url === "/edit-many" ? participants + 2 : 1 }));
   } catch (error) {
     let state = {};
     if (page) state = await page.evaluate(() => ({ dirty: window.dirty, sawDirty: window.sawDirty })).catch(() => ({}));

@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import socket
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -31,6 +32,7 @@ class OnlyofficeRealRelay:
         self.lock = threading.RLock()
         self.edited = False
         self.edited_participants = set()
+        self.configured_users = {}
         self.failures = 0
         self.negative_control = False
         self.unavailable = False
@@ -81,6 +83,7 @@ class OnlyofficeRealRelay:
 
         self.server = ThreadingHTTPServer(("0.0.0.0", 0), Handler)
         self.url = f"http://runner:{self.server.server_address[1]}"
+        self.callback_url = f"http://{socket.gethostname()}:{self.server.server_address[1]}"
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         case.addCleanup(self.server.server_close)
         case.addCleanup(self.server.shutdown)
@@ -96,7 +99,9 @@ class OnlyofficeRealRelay:
             values = deepcopy(self.config)
             values.pop("token")
             if participant != "0":
-                values["editorConfig"]["user"] = {"id": "agent4-user-" + participant, "name": (self.marker * 6)[:255]}
+                values["editorConfig"]["user"] = self.configured_users.get(
+                    participant, {"id": "agent4-user-" + participant, "name": (self.marker * 6)[:255]}
+                )
             values["editorConfig"]["plugins"]["pluginsData"] = [
                 self.url + "/participant/" + participant + "/plugin/config.json"
             ]

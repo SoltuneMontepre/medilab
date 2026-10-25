@@ -22,15 +22,16 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 
-from odoo.tests import tagged
+from odoo.tests import new_test_user, tagged
 
 from .editing_service import SECRET, callback
 from .laboratory_editing_http_case import LaboratoryEditingHttpCase
 from .onlyoffice_real_relay import PLUGIN_GUID, OnlyofficeRealRelay
 from odoo.addons import base
 from odoo.addons.sol_laboratory.constants.laboratory_editing import CALLBACK_PREFIX, JWT_HEADER
-from odoo.addons.sol_laboratory.constants.laboratory_files import SYNCED
+from odoo.addons.sol_laboratory.constants.laboratory_files import FILE_WRITE, MEMBER_ROLE, SYNCED
 from odoo.addons.sol_laboratory.constants.models import MODEL_LABORATORY_CONTENT, MODEL_LABORATORY_FOLDER
+from odoo.addons.sol_laboratory.constants.xml_ids import LABORATORY_FILES_GROUP
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 from odoo.addons.sol_laboratory.services.onlyoffice_jwt import sign, verify_callback
 
@@ -67,7 +68,7 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         configuration = self.committed(
             lambda env: self.session(env)._editor_config(
                 env.ref("base.user_admin"),
-                self.relay.url + CALLBACK_PREFIX + self.callback_token,
+                self.relay.callback_url + CALLBACK_PREFIX + self.callback_token,
             )
         )
         configuration.pop("token")
@@ -218,6 +219,32 @@ class TestOnlyofficeReal(LaboratoryEditingHttpCase):
         self.assertEqual(events[-1]["history_json_bytes"], 2)
         self.assertLess(events[-1]["header_bytes"], 7168)
         self.assert_saved()
+
+    def test_docx_two_authorized_editors(self):
+        def create_editor(env):
+            user = new_test_user(env, login=self.marker, groups="base.group_user," + LABORATORY_FILES_GROUP)
+            env["medilab.laboratory.folder.member"].create(
+                {"folder_id": self.folder_id, "user_id": user.id, "role": MEMBER_ROLE}
+            )
+            self.file(env).with_user(user)._check_file_access(FILE_WRITE)
+            return {"id": str(user.id), "name": user.name}
+
+        editor = self.committed(create_editor)
+        self.relay.configured_users["1"] = editor
+        response = requests.post(
+            "http://browser:3000/edit-many", json={"url": self.relay.url + "/editor", "participants": 1}, timeout=150
+        )
+        self.browser_result = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.browser_result.get("editorSessions"), 3)
+        self.wait_final()
+        self.assert_saved()
+        raw, headers = next(
+            (raw, headers) for raw, headers in reversed(self.relay.deliveries) if json.loads(raw).get("status") == 2
+        )
+        fields = verify_callback(json.loads(raw), headers.get(JWT_HEADER), SECRET)
+        users = {change["user"]["id"] for change in fields.get("history", {}).get("changes", [])}
+        self.assertTrue({str(self.editor_id), editor["id"]} <= users)
 
     def test_docx_503_redelivery_has_fresh_jwt(self):
         self.relay.failures = 1
