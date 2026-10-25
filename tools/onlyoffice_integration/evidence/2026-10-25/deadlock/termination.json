@@ -1,0 +1,18 @@
+{
+  "terminated_host_pids": [
+    551964,
+    557684
+  ],
+  "pids_still_present": {
+    "551964": false,
+    "557684": false
+  },
+  "container_status": "exited",
+  "exit_code": 130,
+  "finished_at": "2026-10-25T14:06:15.23720262+07:00",
+  "remaining_former_database_sessions": 0,
+  "shared_services_stopped": false,
+  "escalation_needed": false,
+  "preserved_container": "medilab171-agent4-security-deadlock",
+  "preserved_database": "medilab171agent4_deadlock"
+}

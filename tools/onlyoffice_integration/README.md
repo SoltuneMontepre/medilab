@@ -71,6 +71,14 @@ The relay forwards real callback bytes unchanged. Deliberate response injection 
 
 The slow transaction trigger is installed on the main test thread. A bounded rendezvous releases the callback afterward, avoiding Odoo's registry-lock inversion. Child HTTP, relay, caller and whole-run deadlines remain explicit. This test proves the measured 370-second cycle, not the entire proposed deployment timing budget.
 
+The read-only forgotten-output snapshot runs inside the owned network; keep its output protected and compare hashes before/after an explicitly controlled restart:
+
+```bash
+docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" -f tools/onlyoffice_integration/compose.yml run --no-deps --entrypoint python3 runner /opt/onlyoffice-integration/forgotten_probe.py
+```
+
+It signs only getForgottenList/getForgotten, validates the returned origin, refuses redirects and reports hashes, size and actual Office markers. It has no delete or replay operation. It was executed against retained real failed-save outputs; it does not make dirty-edit recovery automatic.
+
 ## Local checks and evidence
 
 ```bash
