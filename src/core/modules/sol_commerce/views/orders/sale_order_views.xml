@@ -246,6 +246,10 @@
             <xpath expr="//list[@name='sol_list']/field[@name='currency_id']" position="after">
                 <field name="sample_id" domain="[('order_id', '=', parent.id)]" />
             </xpath>
+            <!-- A line is a parameter or a package; sections, notes and Odoo's catalog dialog do not apply. -->
+            <xpath expr="//list[@name='sol_list']/control/create[@name='add_section_control']" position="replace" />
+            <xpath expr="//list[@name='sol_list']/control/create[@name='add_note_control']" position="replace" />
+            <xpath expr="//list[@name='sol_list']/control/button[@name='action_add_from_catalog']" position="replace" />
             <xpath expr="//list[@name='sol_list']/column[@name='product_and_description']" position="attributes">
                 <attribute name="string">Parameter or package</attribute>
             </xpath>

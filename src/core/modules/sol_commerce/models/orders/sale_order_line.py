@@ -41,7 +41,11 @@ class SaleOrderLine(models.Model):
         return super(SaleOrderLine, self - self._frozen_lines())._compute_price_unit()
 
     def _compute_tax_ids(self):
-        return super(SaleOrderLine, self - self._frozen_lines())._compute_tax_ids()
+        result = super(SaleOrderLine, self - self._frozen_lines())._compute_tax_ids()
+        # Odoo gives a line without a product the company's default tax; a MediLab line takes the tax of its parameter or package.
+        for line in self.filtered(lambda line: not line.product_id):
+            line.tax_ids = False
+        return result
 
     def _compute_discount(self):
         return super(SaleOrderLine, self - self._frozen_lines())._compute_discount()
