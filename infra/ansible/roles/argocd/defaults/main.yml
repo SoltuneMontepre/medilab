@@ -1,5 +1,6 @@
 argocd_chart_version: 10.10.5
 argocd_namespace: argocd
+argocd_hostname: argocd.soltunemontepre.tech
 argocd_root_application_enabled: false
 argocd_repository: https://github.com/SoltuneMontepre/medilab.git
 argocd_revision: main

@@ -29,6 +29,7 @@ Stories: US-AD13, US-AD15
 - [Payment requests](payment-requests.md): requesting advances, verified funding, revised quotation agreement, PayOS link replacement and expiry
 - [Laboratory files](laboratory-files.md): which permission opens the laboratory folders, what a person may do with a folder and its files, the names and paths that are never computer paths, how versions are stored and numbered when saves come at once, how content is stored and verified in its bucket, how the API under `/medilab/api/v1` authenticates and answers, and how computers sign in with their own key
 - [Odoo intelligence](odoo-intelligence.md): shared Odoo model and field navigation for editors and coding agents, with isolated worktree tooling
+- [Onboarding crawler](onboarding-crawler.md): how trusted sources are read safely through adapters and one fetcher, how runs queue their pages, and how staged records are matched, accepted and traced
 - [Payments](payments.md): how cash, bank transfer and PayOS payments are confirmed, rejected, receipted and reconciled by day
 - [PayOS](payos.md): how the PayOS provider, its signed webhook, its jobs and its payment links behave
 - [Permissions](permissions.md): how permission, role and person records become Odoo groups and accesses, and how the own-department scope is applied

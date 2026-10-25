@@ -1,6 +1,6 @@
 {
     "name": "Medilab - Laboratory",
-    "version": "20.0.1.18.0",
+    "version": "20.0.1.19.0",
     "summary": "Laboratory testing core: test catalog, parameters, samples, results and machines.",
     "category": "Services/Laboratory",
     "author": "Soltune Montepre",
@@ -22,6 +22,7 @@
         "data/ir_cron_data.xml",
         "data/scheduled_job_data.xml",
         "data/laboratory_editing_job_data.xml",
+        "data/laboratory_content_job_data.xml",
         "data/laboratory_upload_job_data.xml",
         "security/audit_access_data.xml",
         "security/laboratory_files_access.xml",

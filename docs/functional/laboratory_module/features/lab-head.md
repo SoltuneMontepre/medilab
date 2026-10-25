@@ -68,7 +68,7 @@ Acceptance criteria:
 
 | Rule | Description |
 | --- | --- |
-| Laboratory figures | For a period and across all departments, show completed sample tests, on-time share, average receipt-to-approval time, overdue sample tests, retests and workload per person, using the same measures as [department figures](head-of-department.md#5-testing-figures-us-hd17). |
+| Laboratory figures | For a period and across all departments, show completed sample tests, on-time share, average receipt-to-approval time, overdue sample tests, retests and workload per person, using the same measures as [department figures](head-of-department.md#6-testing-figures-us-hd18). |
 
 Acceptance criteria:
 

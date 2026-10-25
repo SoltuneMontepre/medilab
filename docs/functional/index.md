@@ -18,6 +18,8 @@ MediLab is split into three modules that can each be installed from the Odoo mar
 
 The MediLab look (colours, navigation, icons, login page and app icons) is a fourth, optional module, **Medilab Theme** (`sol_theme`). A laboratory that prefers Odoo's own look leaves it out.
 
+A fifth optional module, **Onboarding** (`sol_onboarding`), fills the Laboratory master data of a new installation from trusted public sources, such as the accreditation registry of the Bureau of Accreditation, as staged records an administrator reviews. See [Onboarding Module](./onboarding_module/overview.md).
+
 [E-commerce Module](./ecommerce_module/overview.md): The E-commerce module allows users to manage their laboratory sales processes, including creating and managing sales orders, invoices, quotations, and customer information. It also provides tools for tracking sales performance and generating reports.
 
 [Inventory Module](./inventory_module/overview.md): The Inventory module provides tools for managing laboratory inventory, including tracking chemical stock levels, managing expiration dates, managing internal movement of materials, and generating reports on inventory performance. It also allows users to manage suppliers.
@@ -41,3 +43,6 @@ It also includes a set of shared technical features that are used by all modules
   - [Overview](laboratory_module/overview.md)
   - Actors: [Admin](laboratory_module/features/admin.md), [Sample delivery staff](laboratory_module/features/sample-delivery-staff.md), [Tester](laboratory_module/features/tester.md), [Head of department](laboratory_module/features/head-of-department.md), [Lab head](laboratory_module/features/lab-head.md), [Subcontractor](laboratory_module/features/subcontractor.md)
   - Applications: [Medilab Sync](laboratory_module/applications/medilab-sync.md); [Medilab Mobile](laboratory_module/applications/medilab-mobile.md) is deferred
+- Onboarding module
+  - [Overview](onboarding_module/overview.md)
+  - Actors: [Administrator](onboarding_module/features/admin.md)

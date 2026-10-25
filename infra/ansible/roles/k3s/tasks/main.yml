@@ -69,6 +69,14 @@
     group: root
     mode: "0600"
 
+- name: Let only cloudflared reach Traefik
+  ansible.builtin.template:
+    src: traefik-network-policy.yaml.j2
+    dest: "{{ k3s_manifests_dir }}/medilab-traefik-network-policy.yaml"
+    owner: root
+    group: root
+    mode: "0600"
+
 - name: Install k3s
   when: k3s_needs_install
   block:
@@ -80,6 +88,7 @@
         group: root
         mode: "0700"
         force: true
+      ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Run the install script
       ansible.builtin.command: /usr/local/lib/medilab/k3s-install.sh
@@ -92,9 +101,15 @@
   ansible.builtin.meta: flush_handlers
 
 - name: Wait until the node is ready
-  ansible.builtin.command: >-
-    /usr/local/bin/k3s kubectl get node {{ inventory_hostname }}
-    -o jsonpath={.status.conditions[?(@.type=="Ready")].status}
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/k3s
+      - kubectl
+      - get
+      - node
+      - "{{ inventory_hostname }}"
+      - -o
+      - 'jsonpath={.status.conditions[?(@.type=="Ready")].status}'
   register: k3s_node_ready
   until: k3s_node_ready.stdout == "True"
   retries: 30

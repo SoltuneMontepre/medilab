@@ -17,6 +17,7 @@ The system consists of three modules (E-commerce, Inventory, Laboratory) that ca
 - When two modules are installed, the integration between them is active without extra configuration. Features that need a module that is not installed are hidden, not broken.
 - Each module can be upgraded without losing the data of the others.
 - The MediLab look is the optional Medilab Theme module (`sol_theme`), which depends on no other MediLab module and that no MediLab module depends on. Installing or removing it changes only how the system looks.
+- The Onboarding module (`sol_onboarding`) is optional: it depends on Laboratory and no MediLab module depends on it. Uninstalling it leaves the master data it created.
 - Each module builds on Odoo Community apps and installs them with itself, as listed in [Module boundaries](../business/module-boundaries.md#odoo-apps). No module needs Odoo Enterprise.
 
 Acceptance criteria:
@@ -26,6 +27,7 @@ Acceptance criteria:
 - Every module installs on Odoo Community without any Enterprise app.
 - E-commerce and Inventory each install on top of Laboratory without the other being present.
 - Uninstalling E-commerce or Inventory leaves Laboratory data intact.
+- Uninstalling Onboarding leaves the master data accepted from it intact.
 
 #### SH-02 Simple installation and configuration
 
@@ -129,7 +131,7 @@ Acceptance criteria:
 Once a document is signed it cannot be modified. Because approving is signing (SH-04), this applies from the first signature of the approval chain.
 
 - From the first signature the document is read-only for everyone, including administrators.
-- **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature once every higher level has withdrawn theirs. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
+- **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature while they can still sign it, holding the permission and the role of their level, and once every signature given after theirs is withdrawn. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
 - **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. A person allowed to edit that document type raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders. Posted invoices are corrected by adjustment invoices or credit notes instead.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Head of Department for a test result and the Lab Head for a test report.
 - When the chain approves, create an unsigned **new version** linked to the unchanged signed one, and sign the new version again. Results mark the previous version replaced at correction. An issued report remains the issued version until its signed replacement is issued; [linked result and report corrections](laboratory_module/overview.md#reports-and-change-requests) wait for all required result approvals and use a fresh report signing task.
@@ -139,7 +141,8 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 Acceptance criteria:
 
 - No screen or API changes a signed document.
-- A signer can withdraw their signature only while no higher level has a standing signature and the document's process is not completed, and the document is then editable again.
+- A signer can withdraw their signature only while they can still sign it, no signature given after theirs stands and the document's process is not completed, and the document is then editable again.
+- A signer who has lost the permission or the role of their level cannot withdraw.
 - After the document's process is completed, no signature can be withdrawn.
 - An approved change request produces a new version linked to the old one; the old one stays readable.
 - The status of a change request is visible to the requester at every step.
@@ -251,16 +254,22 @@ Acceptance criteria:
 - Cancelling a not-started run releases all its reservations and queues its attempts without cancelling the sample tests; ordinary move and cancel actions on a running run are refused.
 - An event the administrator turned off notifies nobody; turning it on again notifies the next occurrence.
 
-#### SH-12 Internal messaging
+#### SH-12 Conversations
 
-| Rule | Description |
-| --- | --- |
-| Chat | Laboratory staff communicate through Odoo Discuss. |
-| Record discussion | Staff discuss an accessible record in its chatter, keeping the conversation with the work it concerns. Existing access permissions apply. |
+People of the laboratory write to each other in conversations, and about a document in its chatter, on the web and on [Medilab Mobile](laboratory_module/applications/medilab-mobile.md).
+
+- **Built on Odoo Discuss.** A conversation is an Odoo Discuss channel (`discuss.channel`): a direct conversation between two people, or a group conversation with a name and members. Its messages are Odoo messages (`mail.message`), with their files and photos as attachments. On the web, conversations are in Odoo's Discuss app.
+- **Internal.** Only people with an internal user take part in conversations. Customers and subcontractors never join one; a customer writes to sales through a support request.
+- **Chatter.** Messages about a document, such as a task, a sample or a test request, are posted in its chatter, where everyone who can read the document reads them.
+- **Mentions.** A message that mentions a person with @ notifies them on each channel they keep on (SH-11).
+- **Pushes.** A new message in a conversation is pushed to the Medilab Mobile devices of its members, except its author and the members who muted the conversation.
 
 Acceptance criteria:
 
-- Staff can exchange messages in Discuss and discuss a record they may access in its chatter.
+- A message sent in a conversation on the web appears on the phones of its members, and a message sent from a phone appears on the web.
+- A customer or a subcontractor cannot be added to a conversation.
+- Mentioning a person in a sample's chatter notifies them on each channel they keep on.
+- A message in a group conversation is pushed to every member except its author and those who muted it.
 - A record discussion does not grant access to records the participant cannot read.
 
 ## II. External systems integration
@@ -309,9 +318,19 @@ Firebase delivery is deferred with Medilab Mobile and is outside the current app
 - The access token is an OAuth token from Google Application Default Credentials or a service-account JSON in the environment, refreshed by `google-auth`. The credential value is not stored on a record and is not written to the log.
 - The Firebase credentials are configuration, not data (SH-03). SMTP and FCM do not provide exactly-once delivery. The records and the jobs are created once; a retry sends again only while the earlier attempt did not succeed.
 
+### 5. Trusted sources (master data)
+
+The Onboarding module reads public pages of trusted sources that the developers ship with it, such as the organisation search of the Bureau of Accreditation, and stages what it finds as master data to review.
+
+- Used for: filling the Laboratory master data of a new installation from the laboratory's accreditation scope and the sectors it tests in.
+- Sources are public: no credentials are kept. Each source is read only from its own host, at its own pace and following its `robots.txt`. Administrators do not see or change the sources.
+- Collections run as scheduled jobs (SH-09); a page that fails is retried, and what was staged is kept.
+- Nothing becomes master data until an administrator accepts it. [Onboarding crawler](../specs/onboarding-crawler.md) specifies the design.
+
 ## III. Related documents
 
 - [Overview](index.md)
 - [E-commerce module](ecommerce_module/overview.md)
 - [Inventory module](inventory_module/overview.md)
 - [Laboratory module](laboratory_module/overview.md)
+- [Onboarding module](onboarding_module/overview.md)

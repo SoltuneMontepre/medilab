@@ -32,7 +32,13 @@ The head of department runs the testing work of one department: they assign its 
 - **US-HD15** As a head of department, I want to create the raw-data and result folders of a sample, so that its testers save their files in the right place.
 - **US-HD16** As a head of department, I want to sign or reject a version of a result file with a reason, so that the file a report relies on is approved.
 
-- **US-HD17** As a head of department, I want testing figures for my department over a period, so that I can review turnaround, overdue work, retests and workload.
+### Mobile
+
+- **US-HD17** As a head of department, I want to assign my department's tasks and sign or reject its results on my phone, so that work and results do not wait while I am away from my desk.
+
+### Testing figures
+
+- **US-HD18** As a head of department, I want testing figures for my department over a period, so that I can review turnaround, overdue work, retests and workload.
 
 ## II. Feature details
 
@@ -69,6 +75,9 @@ Acceptance criteria:
 - A manual due-date override survives a customer-date change; automatic dates are recalculated.
 - A 16:00–19:00 booking with normal hours ending at 17:00 stores planned OverTime from 17:00 to 19:00.
 - Approving leave replans overlapping not-started work without arbitrarily assigning another tester.
+- A non-working day is reported according to the company calendar; a public holiday the administrator marked as a working day is accepted.
+- A feasible date is accepted when a free slot exists, or simulated moves can make room without missing other tests' due dates; checking the date moves no bookings.
+- A date with no feasible slot is reported with reasons and the earliest feasible date. Keeping it requires the head's reason and a visible risk flag.
 
 ### 2. Samples and results (US-HD06 to US-HD09)
 
@@ -101,7 +110,7 @@ Follows [Testing work and scheduling](../overview.md#testing-work-and-scheduling
 | Accept | Accept an outsourcing suggestion only for the agreed subcontracted way. If it changes an accepted selection, Sales first obtains customer agreement through a revised quotation. The head then puts the attempts in the subcontractor's draft dispatch. |
 | Dispatch | A dispatch holds one subcontractor, sending and due dates, the attempts sent, the subcontractor's report, and sample delivery staff or a delivery service and tracking number. The way's turnaround includes transport and processing. |
 | Accreditation | A subcontractor whose accreditation has expired cannot be chosen.                                                          |
-| Emergency | The head may initiate outsourcing for a waiting or assigned test with a reason, without waiting for a scheduler suggestion. Changing an accepted way still requires Sales and customer agreement on a revised quotation. Once agreed, cancel not-started bookings and put its attempts in a draft dispatch. |
+| Emergency | The head may initiate outsourcing for a waiting or assigned test with a reason, without waiting for a scheduler suggestion. Only the department testing a test with no suggestion sees the emergency action, and its reason is shown on the test. Changing an accepted way still requires Sales and customer agreement on a revised quotation. Once agreed, cancel not-started bookings and put its attempts in a draft dispatch. |
 
 Acceptance criteria:
 
@@ -125,7 +134,21 @@ Acceptance criteria:
 - Signing a file version records the signer, the version and its hash; a newer version of the file shows as not signed.
 - Rejecting a version without a reason is refused.
 
-### 5. Testing figures (US-HD17)
+### 5. Mobile (US-HD17)
+
+Follows [Medilab Mobile](../applications/medilab-mobile.md#tasks-and-notifications-sh-10-sh-11-us-hd17).
+
+| Rule    | Description |
+| ------- | ----------- |
+| Tasks   | The head assigns their department's waiting tasks and reassigns them with a reason on the phone, as in the department's queue on the web. |
+| Results | The head signs or rejects their department's results on the phone at their level of the approval chain, following [Samples and results](#2-samples-and-results-us-hd06-to-us-hd09). |
+
+Acceptance criteria:
+
+- Rejecting a result on the phone without a reason is refused.
+- A head may approve their own result on the phone, as on the web; the Lab Head reviews it when signing the final report.
+
+### 6. Testing figures (US-HD18)
 
 | Rule | Description |
 | --- | --- |
