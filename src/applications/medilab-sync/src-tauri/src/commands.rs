@@ -905,11 +905,7 @@ pub async fn open_office_editor(
     file_id: i64,
 ) -> Result<(), String> {
     let base = state.engine.settings.lock().await.odoo_url.clone();
-    crate::browser::open_editor_with(&base, file_id, |url| {
-        app.opener()
-            .open_url(url, None::<&str>)
-            .map_err(|_| "Không mở được trình duyệt. Vui lòng thử lại.".to_string())
-    })
+    crate::browser::open_editor(&app, &base, file_id)
 }
 
 /// Kiểm tra bản cập nhật mới trên endpoint Odoo đã cấu hình.

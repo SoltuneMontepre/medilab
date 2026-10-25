@@ -5,6 +5,8 @@ mod api_auth_tests;
 mod api_live_tests;
 mod auth;
 mod browser;
+#[cfg(test)]
+mod browser_linux_tests;
 mod client_migration;
 mod commands;
 mod config;

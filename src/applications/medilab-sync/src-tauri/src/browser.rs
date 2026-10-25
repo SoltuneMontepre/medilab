@@ -1,4 +1,17 @@
 use crate::server_url::endpoint;
+use tauri_plugin_opener::OpenerExt;
+
+pub fn open_editor<R: tauri::Runtime>(
+    app: &tauri::AppHandle<R>,
+    base: &str,
+    file_id: i64,
+) -> Result<(), String> {
+    open_editor_with(base, file_id, |url| {
+        app.opener()
+            .open_url(url, None::<&str>)
+            .map_err(|_| "Không mở được trình duyệt. Vui lòng thử lại.".to_string())
+    })
+}
 
 pub fn open_editor_with(
     base: &str,
