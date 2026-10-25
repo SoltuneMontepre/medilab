@@ -4,6 +4,7 @@ from . import (
     archive_file,
     audit_change,
     audit_entry,
+    audit_entry_editing_callback,
     audit_report,
     document_lock,
     hr_department,

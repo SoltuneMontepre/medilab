@@ -38,6 +38,10 @@ Every local program that needs a secret is started through `doppler run --projec
 - `MAILPIT_UI_AUTH` holds the logins of the Mailpit web UI, each written as `user:password` and separated by spaces.
 - Every token has the least access it needs, an expiry, and is entered through a prompt or a pipe, never printed or pasted into chat.
 
+## ONLYOFFICE
+
+Before enabling online editing, seed `ONLYOFFICE_JWT_SECRET` in `infra` with at least 32 random base64url characters. The candidate `onlyoffice-jwt` ExternalSecret shares its `jwt-secret` key with Document Server and Odoo. Rotation needs a coordinated drained rollout; no secret value enters Git or logs. `ONLYOFFICE_ALERT_WEBHOOK` separately reaches Grafana through the candidate `onlyoffice-alerting` ExternalSecret in `monitoring`, after operator routing is selected. Internal TLS is issued by cert-manager; clients receive only its public CA. The [ONLYOFFICE runbook](onlyoffice.md) defines the deployment and licence gates.
+
 ## Published to GitHub
 
 | Actions secret            | Doppler source            |

@@ -108,8 +108,61 @@ jobs:
           bash -n tools/scripts/check_origin_isolation.sh
           python3 -m unittest discover -s tools/scripts -p test_origin_isolation.py
 
+  onlyoffice:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "infra/cluster/**"
+              - "tools/infrastructure/onlyoffice/**"
+              - "src/applications/medilab-sync/docker-compose.yml"
+              - "tools/infrastructure/docker-compose.yml"
+              - ".github/workflows/ci.infra.yml"
+
+      - name: Install validation dependencies
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: python3 -m pip install PyYAML==6.0.3 jsonschema==4.26.0
+
+      - name: Check ONLYOFFICE configuration contracts
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          for script in tools/infrastructure/onlyoffice/*.sh; do bash -n "$script"; done
+          python3 -m unittest discover -s tools/infrastructure/onlyoffice -p 'test_*.py'
+          node --check tools/infrastructure/onlyoffice/worker-bootstrap.cjs
+          node --test tools/infrastructure/onlyoffice/test_callback_signing.cjs
+          kubectl kustomize infra/cluster/onlyoffice > /tmp/onlyoffice.yaml
+          kubectl kustomize infra/cluster/onlyoffice-integration > /tmp/onlyoffice-odoo.yaml
+          kubectl kustomize infra/cluster/onlyoffice-edge > /tmp/onlyoffice-edge.yaml
+          kubectl kustomize infra/cluster/onlyoffice-monitor > /tmp/onlyoffice-monitor.yaml
+
+      - name: Validate Kubernetes and custom-resource schemas
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: bash tools/infrastructure/onlyoffice/validate.sh
+
+      - name: Validate isolated Compose merge
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          ONLYOFFICE_JWT_SECRET: ci-configuration-validation-secret-with-no-service-access
+          ONLYOFFICE_TLS_DIR: /tmp/onlyoffice-tls
+          ONLYOFFICE_CA_DIR: /tmp/onlyoffice-ca
+        run: |
+          docker compose -p onlyoffice-config-validation \
+            -f tools/infrastructure/docker-compose.yml \
+            -f src/applications/medilab-sync/docker-compose.yml config --quiet
+
   infrastructure:
-    needs: [terraform, ansible]
+    needs: [terraform, ansible, onlyoffice]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
@@ -118,8 +171,9 @@ jobs:
         env:
           TERRAFORM: ${{ needs.terraform.result }}
           ANSIBLE: ${{ needs.ansible.result }}
+          ONLYOFFICE: ${{ needs.onlyoffice.result }}
         run: |
-          if [ "$TERRAFORM" != success ] || [ "$ANSIBLE" != success ]; then
-            echo "::error::terraform finished with result $TERRAFORM and ansible with result $ANSIBLE."
+          if [ "$TERRAFORM" != success ] || [ "$ANSIBLE" != success ] || [ "$ONLYOFFICE" != success ]; then
+            echo "::error::terraform finished with result $TERRAFORM, ansible with result $ANSIBLE and onlyoffice with result $ONLYOFFICE."
             exit 1
           fi

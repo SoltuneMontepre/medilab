@@ -1,0 +1,25 @@
+# Development HTTP adapter for the committed Node settings; full TLS/drain ingress needs the #203 runtime entrypoint.
+services:
+  documentserver:
+    env_file:
+      - ${ONLYOFFICE_NODE_ENV_FILE:?Generate the protected fixture with runtime_env.py}
+    environment:
+      JWT_IN_BODY: "false"
+      DS_LOG_LEVEL: "OFF"
+      NGINX_ACCESS_LOG: "false"
+      NGINX_WORKER_PROCESSES: "2"
+      PLUGINS_ENABLED: "false"
+    cpus: 4
+    mem_limit: 6g
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - NET_RAW
+    stop_grace_period: 1890s
+    tmpfs:
+      - /var/log/onlyoffice:size=134217728
+    volumes:
+      - agent4-fonts:/usr/share/fonts/truetype/custom
+
+volumes:
+  agent4-fonts:

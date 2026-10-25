@@ -1,35 +1,52 @@
-name: medilab
-
+# Merge with tools/infrastructure/docker-compose.yml, using a unique project name and worktree ports.
 services:
   onlyoffice:
-    image: docker.io/onlyoffice/documentserver:8.3
-    container_name: medilab-onlyoffice
+    image: docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212
+    hostname: onlyoffice
     restart: unless-stopped
+    command: []
+    entrypoint: ["/bin/bash", "/opt/medilab/onlyoffice/start.sh"]
     ports:
-      - "28880:80"
+      - "127.0.0.1:${ONLYOFFICE_PORT:-29843}:443"
     environment:
+      JWT_SECRET: ${ONLYOFFICE_JWT_SECRET:?Set an isolated random JWT secret of at least 32 base64url characters}
       JWT_ENABLED: "true"
-      JWT_SECRET: ${ONLYOFFICE_JWT_SECRET:-medilab-onlyoffice-local}
-      JWT_HEADER: Authorization
-      JWT_IN_BODY: "true"
-      ALLOW_PRIVATE_IP_ADDRESS: "true"
-      USE_UNAUTHORIZED_STORAGE: "true"
-    links:
-      - odoo
+      JWT_HEADER: Medilab-Editor-Token
+      JWT_IN_BODY: "false"
+      USE_UNAUTHORIZED_STORAGE: "false"
+      NGINX_WORKER_PROCESSES: "2"
+      ONLYOFFICE_PROBE_HOST: onlyoffice
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - NET_RAW
+    networks:
+      - onlyoffice
     volumes:
-      - medilab-onlyoffice:/var/www/onlyoffice/Data
-      - medilab-onlyoffice-lib:/var/lib/onlyoffice
-      - medilab-onlyoffice-logs:/var/log/onlyoffice
+      - ../../tools/infrastructure/onlyoffice:/opt/medilab/onlyoffice:ro
+      - ${ONLYOFFICE_TLS_DIR:?Set the directory containing tls.crt and tls.key}:/run/onlyoffice-tls:ro
+      - ${ONLYOFFICE_CA_DIR:?Set the directory containing ca.crt}:/run/onlyoffice-ca:ro
+      - onlyoffice-lib:/var/lib/onlyoffice
+      - onlyoffice-data:/var/www/onlyoffice/Data
+      - onlyoffice-fonts:/usr/share/fonts/truetype/custom
+    tmpfs:
+      - /var/log/onlyoffice:size=134217728
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost/healthcheck || exit 1"]
+      test: ["CMD", "/bin/bash", "/opt/medilab/onlyoffice/healthcheck.sh"]
       interval: 10s
-      timeout: 5s
-      retries: 30
-      start_period: 90s
-    mem_limit: 2g
-    mem_reservation: 512m
+      timeout: 8s
+      retries: 6
+      start_period: 120s
+    stop_grace_period: 1890s
+    cpus: 4
+    mem_limit: 6g
+    mem_reservation: 4g
+
+networks:
+  onlyoffice:
+    internal: true
 
 volumes:
-  medilab-onlyoffice:
-  medilab-onlyoffice-lib:
-  medilab-onlyoffice-logs:
+  onlyoffice-lib:
+  onlyoffice-data:
+  onlyoffice-fonts:
