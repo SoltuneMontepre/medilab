@@ -31,6 +31,7 @@ tools/
 - `taskfile.yml` includes each taskfile with `dir: .` and `flatten: true`, so every task runs from the repository root and is called without a prefix: `task up`, not `task app:up`.
 - A new group of tasks gets its own `tools/taskfiles/<group>.taskfile.yml`, included the same way.
 - The `env:` block of an included taskfile applies to the tasks of every taskfile, and when two taskfiles set the same variable, which value a task gets changes from run to run. Set a variable there only to the value every taskfile uses, such as `COMPOSE_FILE` for the local infrastructure; a task that needs another compose file names it with `docker compose -f`, as the Ansible tasks do.
+- Included taskfile variables also share a scope when flattened. Give group defaults specific names, such as `CORE_MODULES` for test installation, so a test default does not override another task's `MODULES` argument.
 - Shell code shared by several tasks goes in `tools/scripts/`, not copied between tasks.
 
 ## Tasks
