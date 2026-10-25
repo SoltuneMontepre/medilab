@@ -54,7 +54,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 
 - **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson (and the Head of Sales) sees and edits it. A claimed order is not visible to other salespeople.
 - **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
-- **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below). The customer itself is kept by the [Laboratory module](../../laboratory_module/overview.md#test-requests-and-samples); E-commerce keeps the customer's sales terms.
+- **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. The customer itself is kept by the [Laboratory module](../../laboratory_module/overview.md#test-requests-and-samples); E-commerce keeps the customer's sales terms.
 - **Portal invitation and duplicates.** Sales can invite a customer to the portal. A self-registered account that matches an existing profile on tax code or citizen ID is flagged; sales reviews it and either clears the flag or merges it into the profile it matched. Merging moves every order, document and person of the flagged account to that profile and deletes the flagged one; its login stays, as a contact of the remaining profile.
 
 Acceptance criteria:
@@ -67,15 +67,19 @@ Acceptance criteria:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> draft: order claimed or created
-    draft --> sent: approval complete, send with advance payment request
-    sent --> accepted: customer pays the advance
+    [*] --> draft: order claimed or revision drafted
+    draft --> sent: approvals complete and pending receipts reviewed
+    sent --> accepted: full advance verified for this version
     sent --> declined: customer declines
-    sent --> expired: payment deadline passes
-    sent --> revised: sales creates a revision
-    revised --> sent: send the revision
+    sent --> expired: deadline passes
+    sent --> revised: replacement quotation sent
+    accepted --> revised: agreed replacement sent
+    expired --> sent: Sales extends the quotation
+    expired --> accepted: full timely receipt verified later
     accepted --> [*]: sales confirms the order
 ```
+
+This diagram follows one quotation version. A replacement using enough retained money also needs the customer's explicit agreement; verified funding alone does not accept the changed terms.
 
 | Rule             | Description                                                                                                                                                                                       |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -84,16 +88,16 @@ stateDiagram-v2
 | Prices | Use catalog prices per parameter or package in VND. Discounts are percentages only: on a line, or a whole-quotation discount line calculated from a percentage. Fixed-amount discounts and separate customer price lists are not offered. |
 | Quotation approval | If the quotation discount or total exceeds a threshold set by the Head of Sales, their approval is required before Send. Below the thresholds Sales may send it alone. This gate is separate from approval of the confirmed order. |
 | Selected ways | The customer may choose each parameter's way, and Sales may choose or change it before acceptance. Otherwise fill the unique default for the parameter and sample type. Offer only viable ways under the [catalog rules](../../laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28). If the default is unavailable, show its reason and alternatives for explicit selection; with none, that pair cannot be ordered. After acceptance, a way changes only through a revised quotation and customer agreement. |
-| Tax              | Each line takes the tax of its parameter or package, at the rate in force on the quotation date. Sales can change a line's tax, such as 0% for a foreign customer. The system adds the tax. |
-| Advance payment  | When sending, sales chooses the collection method (online, bank transfer, cash) and the amount (full, percentage, fixed). The system creates the advance invoice and sends it with the quotation. |
-| Manager shortcut | The Head of Sales can send without an advance payment, for customers with an agreement.                                                                                                           |
-| Payment deadline | Default 3 days from sending, configurable by the administrator. Sales can set another date. An expired quotation is flagged, not cancelled; sales can extend it.                                  |
-| Revisions        | A revision copies the quotation into a new draft linked to the one it replaces. The old version becomes read-only and the customer sees the revision list.                                        |
+| Tax | Preserve the service price before VAT and the tax shown on each sent version. Applicable VAT changes can change the total payable. If VAT changes before payment, send a new version showing the new tax, total and advance rather than editing the sent copy. |
+| Advance payment | Sales selects online payment, transfer or cash and a full, percentage or fixed advance. Sending creates a payment request with its amount, deadline and instructions, not a posted invoice, receivable or revenue. |
+| Advance requirement | For an order with a stated advance, Head of Sales approval or credit permission does not waive full verified funding before collection or testing. |
+| Payment deadline | Default 3 days from sending, configurable by the administrator; Sales can set another date. Expiry stops new payments and requests cancellation of open PayOS links. Sales extends or replaces the quotation to request money again. A full timely receipt verified late can accept the unchanged, non-declined quotation if its order is not cancelled. |
+| Revisions | Keep linked versions and their history. Sales can draft while receipts are pending, but sending waits for accountant confirmation or rejection. Sending supersedes the old request and requests cancellation of old PayOS links. Retain received money on the same order; review transfers discovered through old links before applying them to a replacement. |
 | Templates        | A returning customer's order can be saved as a template (named set of parameters and packages) to create their next orders faster. A template has no price of its own; a new order takes current catalog prices. Templates are never sent or confirmed. |
 | Return estimate  | The quotation shows the [estimated return date](../../laboratory_module/overview.md#testing-work-and-scheduling) of its samples and parameters, worked out again when they change. The expected result date defaults to it, and the customer sees it on the quotation. |
 | Changed return date | When a promised date is at risk, Sales informs the customer and proposes the earliest feasible replacement. Save a changed promised date only with customer agreement, recording old date, new date and confirmation. If the customer refuses, Sales handles a cancellation request for the unfulfillable part; never cancel automatically or change the agreed way. Internal-only due-date changes do not trigger customer notice. |
 | Priority order | A customer may request priority on the portal. Sales checks resource feasibility, including outsourced turnaround, and accepts or declines it on the quotation. Accept only a date the laboratory can meet; accepted priority makes the request's tests urgent. |
-| Acceptance       | There is no customer signature. Payment of the advance invoice means acceptance. A declined quotation carries the customer's reason and notifies sales.                                           |
+| Acceptance | Only the full verified advance applied to the current quotation accepts it. Partial receipts stay recorded. If money from an earlier version already covers the new advance, obtain agreement to the new version through the portal or email/written evidence saved by Sales. A decline keeps its reason and notifies Sales. |
 
 Acceptance criteria:
 
@@ -104,7 +108,9 @@ Acceptance criteria:
 - An unavailable default is explained and is never silently replaced.
 - An accepted way cannot be edited directly; its replacement needs a revised quotation and customer agreement.
 - A proposed later return date does not overwrite the customer's promised date before agreement.
-- Sending a quotation with an advance request creates exactly one advance invoice and one notification to the customer.
+- Sending creates one current advance payment request and its customer notification, without a posted invoice or revenue.
+- A 2,000,000 VND verified receipt toward a 5,400,000 VND advance leaves 3,400,000 VND to fund; the quotation remains unaccepted and laboratory work cannot start.
+- Sending a replacement waits for pending receipts to be reviewed and stops new payments from the old request; retained money and its original references remain visible.
 - A revised quotation cannot be sent or confirmed in its old version.
 - Sales sees at a glance whether a sent quotation is unpaid, paid, declined or expired.
 - Adding a parameter to a quotation updates its estimated return date.
@@ -158,26 +164,26 @@ stateDiagram-v2
 | Rule           | Description                                                                                                                                                                                                                                                                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Test request | Confirming creates a test request with at least one expected sample, calculated from the accepted order's sampling requirements, and each sample's tests with their required selected ways. Sales sets expected date, report language, delivery method and recipient. Collection staff record actual samples; fewer samples wait or the missing part is cancelled, and extra samples wait for an agreed revision before testing. |
-| Confirm        | Confirming does not wait for approval or payment. An order with no payment shows a warning, because the customer may have an agreement.                                                                                                                                                                                                                |
-| Credit gate    | The laboratory core cannot confirm the test request of an order that has no payment unless the customer is marked as allowed to order on credit. Only the Head of Sales sets that flag.                                                                                                                                                                |
+| Confirm | Commercial confirmation prepares the order's test request; it does not itself accept a quotation or permit laboratory work. Required advance funding, customer acceptance and order approval are checked before collection or testing. |
+| Advance gate | An order with an advance request cannot start collection or testing before the full advance is verified and the quotation accepted. A customer credit flag cannot bypass this condition. |
 | Approval       | Two levels: the salesperson requests, the Head of Sales signs or rejects. Approval can only be requested on a confirmed order.                                                                                                                                                                                                                         |
 | Separation     | The person who requested approval cannot also approve the same order.                                                                                                                                                                                                                                                                                  |
 | Frozen content | Requesting approval is the salesperson's signature, so from the request on, customer, prices, validity date and parameters cannot be changed. To edit, the signers withdraw from the top level down: the Head of Sales first if they have signed, then sales. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
-| Collection     | **Start sample collection** is available only when the order is approved.                                                                                                                                                                                                                                                                              |
+| Collection | Start sample collection requires completed order approval and satisfaction of the advance and acceptance gates. |
 | Cancel guard   | An approved (fully signed) order cannot be cancelled directly; cancelling it goes through a change request that the Head of Sales approves.                                                                                                                                                                                                            |
 
 Acceptance criteria:
 
 - Content of an order under approval cannot be edited.
 - Sales is notified, with the reason, when an order is rejected.
-- Sample collection cannot start on an order that is not approved.
+- Sample collection cannot start without approval or, for an order requiring an advance, without full verified funding and customer acceptance.
 
 ### 5. Cancellation (US-S16, US-S17)
 
 - A customer's [cancellation request](customer.md#request-cancel-us-c12) reaches the owning salesperson as a task with the customer's reason.
 - Sales accepts or declines and writes a reply to the customer. Accepting a whole-order request cancels the order and its laboratory work. A request for the unfulfillable part cancels only that part, retaining other work and completed results.
 - Whole-order cancellation is blocked once any testing is completed or results are released. Cancellation of an unfulfillable part preserves completed work; the affected work must meet the cancellation rules. A fully signed order requires an approved change request.
-- If an advance was paid, cancelling does not return the money automatically. The money stays on the invoice and is settled outside the system.
+- Money already received stays linked to the order and its original receipt. After agreed cancellation, the accountant records any excess over the actual total payable for manual refund under the [invoice rules](../../../specs/invoices.md). No refund occurs automatically.
 
 ### 6. Follow-up and analytics (US-S18, US-S19)
 
@@ -193,7 +199,7 @@ Both analyses are under the Reporting menu of Sales, as a graph, a pivot table a
 | Unclaimed         | Submitted, waiting in the queue                                                |
 | Draft             | Claimed, with no quotation out: not sent yet, or being revised                 |
 | Sent and unpaid   | Quotation sent and not paid, including an expired one sales can extend         |
-| Accepted          | Advance paid, or confirmed while approval is not requested yet or was rejected |
+| Accepted | Current quotation accepted under its verified-funding and version-agreement rules; order approval may still be pending or rejected. |
 | Awaiting approval | Approval requested from the Head of Sales                                      |
 | Approved          | Approved, until the order is completed                                         |
 
@@ -235,3 +241,4 @@ Acceptance criteria:
 - [E-commerce module overview](../overview.md)
 - [Customer features](customer.md)
 - [Accountant features](accountant.md)
+- [Payment requests](../../../specs/payment-requests.md)

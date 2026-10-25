@@ -29,15 +29,15 @@ The core flows WF-01 to WF-06 carry a test request from order to report, and WF-
 - **Result:** the order is approved and its test request is confirmed, with expected samples and their selected ways calculated from the accepted order and sampling requirements.
 - **Stories:** US-C08, US-C09, US-C13, US-C14, US-C15, US-S01, US-S02, US-S05, US-S06, US-S07, US-S08, US-S10, US-S12, US-S13, US-S14, US-S15, US-A03, US-A06, US-A08.
 - **Starts from:** a catalog with priced parameters and packages, and demo customers.
-- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends it with an advance; the customer pays online; sales confirms and requests approval; the Head of Sales signs.
+- **Main path:** A customer orders on the portal; sales claims it, confirms the selected ways and expected sampling needs, obtains Head of Sales approval if its discount or total exceeds a configured threshold, and sends an advance payment request without posting an invoice. The customer funds the full advance, receipt is verified, Sales confirms and requests approval, and the Head of Sales signs before collection.
 - **Alternative paths:**
   - WF-01-A1: Sales creates the order for a customer who called, instead of the customer ordering on the portal.
   - WF-01-A2: A visitor who is not signed in submits a cart with their details and e-mail address.
   - WF-01-A3: A returning customer reorders a completed order, or sales creates the order from the customer's template.
-  - WF-01-A4: The customer pays the advance by bank transfer or in cash; sales records it and the accountant confirms it.
+  - WF-01-A4: The customer pays by transfer or cash; Sales records it and the accountant verifies it. Partial receipts remain recorded and the quotation waits until its full advance is verified.
   - WF-01-A5: The customer declines the quotation with a reason; sales revises it and sends the new version, which the customer accepts.
-  - WF-01-A6: The quotation passes its payment deadline and is flagged expired; sales extends it.
-  - WF-01-A7: The Head of Sales sends a quotation without an advance to a customer allowed to order on credit; the order goes ahead unpaid.
+  - WF-01-A6: Expiry stops new payment initiation and requests cancellation of open PayOS links. Sales extends or replaces the quotation; partial money remains on the same order without a refund solely for expiry.
+  - WF-01-A7: Retained verified money already covers a revised quotation's advance. The customer explicitly agrees to the new version before it is accepted; money discovered through an old link needs accountant allocation review.
   - WF-01-A8: The Head of Sales rejects the approval with a reason; sales is told, corrects the order and requests approval again.
   - WF-01-A9: Sales withdraws the approval request to change the order, then requests it again.
 - **Exceptions:**
@@ -45,8 +45,8 @@ The core flows WF-01 to WF-06 carry a test request from order to report, and WF-
   - WF-01-E2: Submitting a cart without an e-mail address is refused.
   - WF-01-E3: The salesperson who requested approval cannot approve the order.
   - WF-01-E4: The old version of a revised quotation cannot be sent or confirmed.
-  - WF-01-E5: The test request of an unpaid order whose customer may not order on credit cannot be confirmed.
-- **Paths in other flows:** SF-02 for cancelling an order; SF-07 for the estimated date and priority orders.
+  - WF-01-E5: For an order requiring an advance, collection or testing cannot start without full verified funding, customer acceptance and completed order approval. Credit permission does not bypass this gate.
+- **Paths in other flows:** SF-02 for cancelling an order; SF-07 for the estimated date and priority orders. [Payment requests](../specs/payment-requests.md) defines revision, expiry and late-receipt handling.
 - **States:** quotation draft → sent → accepted; order submitted → claimed → confirmed, approval requested → approved; test request draft → confirmed → paid.
 
 ```mermaid
@@ -65,7 +65,7 @@ flowchart TD
         s6[Revise the quotation]
     end
     subgraph lane3 ["Accountant"]
-        a1[Confirm a transfer or cash payment]
+        a1[Verify a transfer or cash receipt]
     end
     subgraph lane4 ["Head of Sales"]
         h0[Approve the quotation before Send]
@@ -74,8 +74,10 @@ flowchart TD
     c2 --> s1
     gate -->|yes| h0 --> s3
     s3 --> c3
-    c5 -->|online payment is matched automatically| s4
-    c5 -->|transfer or cash| a1 --> s4
+    c5 -->|verified online receipt| funding{Full advance verified for current version?}
+    c5 -->|transfer or cash| a1 --> funding
+    funding -->|yes, customer agreement satisfied| s4
+    funding -->|no| waiting[Keep receipt and await remaining advance]
     c6 --> s6 --> s3
     s5 --> h1
     h1 -->|reject with a reason| s2
@@ -95,7 +97,7 @@ flowchart TD
   - WF-02-A3: A sample tested by two departments is handed to both, and each records its own receipt.
   - WF-02-A4: An insufficient sample goes on hold; the head of department asks for more; the collection task brings it back to received.
   - WF-02-A5: A mistake in a signed handover record is corrected with a new record; the old one is kept.
-  - WF-02-A6: Fewer samples wait for another collection or Sales cancels the missing part.
+  - WF-02-A6: Fewer samples wait for another collection or Sales cancels the missing part; the final invoice reflects what was tested.
   - WF-02-A7: Extra samples are held pending a revised quotation and customer agreement before testing.
 - **Exceptions:**
   - WF-02-E1: An unusable sample is rejected with its condition note and gets no testing task.
@@ -363,17 +365,17 @@ flowchart TD
 - **Trigger:** an order needs its final invoice, or a payment arrives.
 - **Result:** every invoice is paid, and each day's online payments match the PayOS transactions and are locked.
 - **Stories:** US-A01, US-A02, US-A04, US-A05, US-A07, US-A08, US-A09, US-A10, US-A11, US-A12, US-A13, US-C16, US-C17, US-S11.
-- **Starts from:** orders with a paid advance whose testing is completed.
-- **Main path:** The accountant creates and e-mails the final invoice; the customer pays it online; a receipt is issued and the order is paid.
+- **Starts from:** agreed service work eligible for billing, with the order's verified advances and any outstanding payment requests.
+- **Main path:** When the service meets revenue-recognition conditions, the accountant records billing and applies verified advances, then emails the invoice. The customer pays any remaining balance; verification issues its receipt. Receiving the advance alone does not recognize revenue.
 - **Alternative paths:**
   - SF-01-A1: The customer pays part online, then the rest; the invoice is partially paid, then paid.
   - SF-01-A2: Sales records a cash payment; the accountant confirms it.
   - SF-01-A3: The accountant rejects a payment sales recorded; the salesperson is told the reason and the invoice returns to its previous status.
-  - SF-01-A4: An adjustment invoice lowers or raises what is owed; the original invoice is unchanged.
+  - SF-01-A4: A lowering credit note reduces the original invoice's residual on reconciliation. A raising adjustment is a separate invoice with its own payment action; total debt includes both.
   - SF-01-A5: An invoice unpaid after its due date reminds the customer at each interval.
-  - SF-01-A6: A PayOS transaction with no payment is flagged; the accountant creates its payment, the flag clears and the day is locked.
+  - SF-01-A6: A PayOS transfer without a receipt is flagged. The accountant records the missing receipt with its original request or invoice reference and resolves differences before locking the day.
 - **Exceptions:**
-  - SF-01-E1: A payment above the amount still owed is refused.
+  - SF-01-E1: A new payment amount above what is owed is refused. An already-arrived PayOS transfer is recorded in full, its excess flagged for the accountant, and is not automatically refunded.
   - SF-01-E2: A posted invoice cannot be edited.
   - SF-01-E3: An online payment of a locked day cannot be changed.
   - SF-01-E4: A repeated PayOS notification records no second payment.
@@ -382,7 +384,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph lane19 ["Accountant"]
-        a1["Create the final invoice: total minus the advance"] --> a2[E-mail the invoice]
+        a1["Record eligible service billing and apply verified advances"] --> a2[E-mail the invoice]
         a3{Confirm the payment?}
         a4[Reconcile the day's PayOS transactions] --> a5{All matched?}
         a5 -->|yes| a6[Lock the day]
@@ -439,7 +441,7 @@ flowchart TD
     end
     c3 --> s1
     s2 --> c4
-    s3 -->|yes| cancel(["Cancel accepted scope and preserve other work; a paid advance is settled outside the system"])
+    s3 -->|yes| cancel(["Cancel accepted scope and preserve other work; no automatic refund"])
     c2 --> cancel
 ```
 
@@ -456,7 +458,7 @@ flowchart TD
   - SF-03-A3: Before the process is completed, signers withdraw in the reverse order they signed and the document can be edited again.
   - SF-03-A4: Correcting a result in an issued report automatically creates or links that report's open change request. Wait for its required approvals and all corrected results to be approved, then prepare a replacement draft and signing task. Notify the customer when its signed PDF is ready; only issue marks the old report replaced.
   - SF-03-A5: A result correction may be proposed while a report awaits signature. Before applying it, stop signing and return the report to draft. Completed results retain their own change requests. A fresh signing task is created after correction approval for both initial and replacement reports; old tasks cannot sign stale content.
-  - SF-03-A6: Quotations and orders use change requests once their process is completed.
+  - SF-03-A6: Quotations and orders use change requests once their process is completed. Posted invoices use adjustment invoices or credit notes instead.
 - **Exceptions:**
   - SF-03-E1: A change request without what to change or why is refused.
   - SF-03-E2: Withdrawing a signature while a signature given after it stands, by a signer who can no longer sign, or after the process is completed, is refused.
@@ -644,7 +646,7 @@ flowchart TD
 - **Alternative paths:**
   - SF-08-A1: The administrator creates a service package; the customer orders it whole at its own price.
   - SF-08-A2: The administrator gives a person a role; the person sees the menus of that role and no others.
-  - SF-08-A3: A VAT rate changes from a date; quotations dated after it use the new rate.
+  - SF-08-A3: An applicable VAT change before payment preserves the agreed service price and produces a new quotation version showing the changed tax, total and advance; the sent version remains a historical snapshot.
   - SF-08-A4: The administrator sets the approval chain of a document type; its documents are signed level by level.
 - **Exceptions:**
   - SF-08-E1: A parameter without a price and tax cannot be added to a cart.

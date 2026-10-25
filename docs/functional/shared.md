@@ -132,7 +132,7 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 
 - From the first signature the document is read-only for everyone, including administrators.
 - **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature while they can still sign it, holding the permission and the role of their level, and once every signature given after theirs is withdrawn. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
-- **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. A person allowed to edit that document type raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders.
+- **After the document's process is completed**, such as a completed result or order or an issued report, it cannot be reopened. A person allowed to edit that document type raises a **change request** with the proposed changes and reason. This applies to results, reports, quotations and orders. Posted invoices are corrected by adjustment invoices or credit notes instead.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Head of Department for a test result and the Lab Head for a test report.
 - When the chain approves, create an unsigned **new version** linked to the unchanged signed one, and sign the new version again. Results mark the previous version replaced at correction. An issued report remains the issued version until its signed replacement is issued; [linked result and report corrections](laboratory_module/overview.md#reports-and-change-requests) wait for all required result approvals and use a fresh report signing task.
 - Anyone concerned can follow the status of the change request: requested, approved, rejected, applied.
@@ -289,12 +289,12 @@ The system sends all e-mail through Brevo's SMTP relay, set as Odoo's outgoing m
 
 ### 2. PayOS (payments)
 
-The system takes online payments through PayOS, added as a payment provider of Odoo's payment framework (`payment.provider`). Each payment is an Odoo payment transaction, and a confirmed one posts an Odoo payment on the invoice. The PayOS keys come from the configuration file, not from the provider record.
+The system takes online payments through PayOS, added as a payment provider of Odoo's payment framework (`payment.provider`). Provider transactions retain the original payment target; a verified transfer records money received for its advance request or posted invoice. Receipt verification and allocation to a changed quotation are separate. The PayOS keys come from the configuration file, not from the provider record.
 
-- Used for the advance and final invoices. The customer pays from the portal or from a payment link in an e-mail.
+- Used for advance payment requests and posted customer invoices. The customer pays from the portal or a payment link in an email.
 - Payment methods are whatever PayOS offers (for example bank transfer by QR code); administrators enable or disable them in the settings, and the portal shows only those enabled.
-- A payment is confirmed only by the provider's signed notification, never by the customer's browser returning to the website. The signature is verified, and a repeated notification creates no second payment.
-- A confirmed payment is recorded against the invoice and updates its payment status automatically; partial payments are supported.
+- A verified signed notification or the provider status returned by a server-side query of pending payments confirms a payment. A browser return never does. Both confirmation paths deduplicate the payment.
+- A verified receipt retains its original advance request or invoice and updates the relevant funding or invoice balance only when applied. Partial receipts are supported. An obsolete link can still produce a valid receipt, but application to a replacement request requires accountant review and does not itself accept changed quotation terms.
 - The status of each payment (created, pending, paid, failed, cancelled, expired) is stored and shown to the accountant.
 - If notifications are missed, a scheduled job (SH-09) asks the provider for the status of pending payments.
 - Refunds are outside this integration.
