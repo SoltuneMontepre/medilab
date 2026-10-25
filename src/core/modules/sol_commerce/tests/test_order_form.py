@@ -2,7 +2,7 @@ from lxml import etree
 
 from odoo.tests import TransactionCase, tagged
 
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SALE_ORDER_LINE
 
 # Odoo's own order actions that go around MediLab's quotation, confirmation and cancellation.
 ODOO_HEADER_ACTIONS = (
@@ -65,3 +65,13 @@ class TestOrderForm(TransactionCase):
         fields = self.env[MODEL_SALE_ORDER].with_context(lang="vi_VN").fields_get(["customer_id", "partner_id"])
         self.assertEqual(fields["customer_id"]["string"], "Khách Hàng")
         self.assertEqual(fields["partner_id"]["string"], "Liên Hệ")
+
+    def test_lines_offer_no_section_note_or_odoo_catalog(self):
+        controls = self._nodes("//field[@name='order_line']/list/control/*")
+        names = {control.get("name") for control in controls}
+        self.assertEqual(names, {"add_product_control"})
+
+    def test_line_without_a_product_has_no_tax(self):
+        order = self.env[MODEL_SALE_ORDER].create({"partner_id": self.env.user.partner_id.id})
+        line = self.env[MODEL_SALE_ORDER_LINE].create({"order_id": order.id, "name": "Empty line"})
+        self.assertFalse(line.tax_ids)
