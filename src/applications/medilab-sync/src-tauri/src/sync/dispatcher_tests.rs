@@ -539,8 +539,10 @@ fn upload_dispatcher(
                     |part| {
                         if let Some((arrive, release, folder)) = &gate {
                             if part == 2 && job.folder_id == *folder {
-                                arrive.wait();
-                                release.wait();
+                                tokio::task::block_in_place(|| {
+                                    arrive.wait();
+                                    release.wait();
+                                });
                             }
                         }
                     },
@@ -671,7 +673,8 @@ async fn restart_recovers_every_running_transfer() {
 /// Folder mất quyền khi 3 upload của nó đang chạy: cả 3 dừng ở điểm an toàn với thông báo mất
 /// quyền, job của folder đó không được claim thêm (folder khác vẫn chạy), tệp cục bộ còn nguyên;
 /// cấp lại quyền thì resume và hoàn tất.
-#[tokio::test(flavor = "multi_thread", worker_threads = 8)]
+/// Một worker buộc gate nhường lịch cho I/O thay vì chặn executor.
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn revoked_folder_stops_running_transfers_and_blocks_new_claims() {
     let env = uploads().await;
     let revoked = env.folder("revoked");
