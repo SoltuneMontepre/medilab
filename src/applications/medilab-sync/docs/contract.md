@@ -2,7 +2,7 @@
 
 ## Authentication
 
-The control API is `/medilab/api/v1`, under the installation's configured HTTP(S) base path. The [OpenAPI document](../../../../src/core/modules/sol_laboratory/api/openapi.yaml) defines its requests, responses and refusal codes. Metadata requests send `User-Agent: MediLab-Sync/<application version>`. Authenticated requests send only `Authorization: Bearer <device key>`; no separate device-ID header is sent. Redirects are not followed by metadata or storage clients.
+The control API is `/medilab/api/v1`, under the installation's configured HTTP(S) base path. The [OpenAPI document](../../../../src/core/modules/sol_laboratory/api/openapi.yaml) defines its requests, responses and refusal codes. Metadata, updater and storage requests send `User-Agent: MediLab-Sync/<application version>`. Authenticated metadata requests send only `Authorization: Bearer <device key>`; no separate device-ID header is sent. Storage requests never carry that key. Redirects are not followed by metadata or storage clients.
 
 `POST /sign-in` sends `login`, `password`, `client_uid`, `name` and `platform` (`linux` or `windows`). The password can be an Odoo API key for a person with two-factor authentication. The response supplies `key` and `device`. `GET /devices` validates the restored session; `POST /devices/{id}/revoke` revokes a device. `POST /sign-out` signs out; `invalid_key` on a repeated sign-out is already signed out.
 
@@ -69,9 +69,11 @@ The new updater address is `<base>/medilab/api/v1/updates/<target>/<arch>/<versi
 Production migration requires verified evidence before choosing either route:
 
 - With the existing signing key, the server must serve an appropriately signed manifest at the old installed updater address. Other legacy routes return `410 client_update_required`.
-- Without that key, legacy routes, including updates, must return `410 client_update_required` with the approved installer download information. Reinstallation requires a separately authorized release process. The client preserves a typed refusal's supplied message; it never rotates a signing key or interprets an update refusal as permission to delete data.
+- Without that key, legacy routes, including updates, must return `410 client_update_required` with the approved installer download information. Reinstallation requires a separately authorized release process. The new client shows the typed refusal and holds queued transfers. A proposed `error.download_url` field supplies a manually opened HTTPS download page (loopback HTTP is allowed for tests); credentials, queries, fragments and unsafe path syntax are rejected. Launch failures remain visible for retry. It never rotates a signing key or interprets a refusal as permission to delete data.
 
-The original installed binaries, server compatibility routes, installer/download contract, key availability and production end-to-end upgrade/reinstall evidence remain release dependencies. Client regression tests do not prove an old installed binary accepts a new release.
+The updater observes migration refusals before passing normal manifests and artifacts to Tauri's signature verifier. Ordinary successful checks make two manifest requests. Successful sign-in or a subsequent successful updater check clears the server-scoped refusal. Installation keeps the existing pause behavior; a failed installation leaves the queue intact and the user can resume when the server permits it.
+
+The original installed binaries, server compatibility routes, installer/download contract, key availability and production end-to-end upgrade/reinstall evidence remain release dependencies. Client regression tests do not prove an old installed binary accepts a new release or displays a manual-download refusal. See the [integration handoff](migration-handoff.md).
 
 ## Editing online
 
