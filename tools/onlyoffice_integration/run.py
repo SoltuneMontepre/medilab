@@ -123,7 +123,12 @@ def require_success(result, label):
 
 
 def verify_image():
-    container = require_success(compose("ps", "-q", "documentserver"), "Find Document Server").stdout.strip()
+    containers = require_success(
+        compose("ps", "-q", "--status", "running", "documentserver"), "Find Document Server"
+    ).stdout.split()
+    if len(containers) != 1:
+        raise RuntimeError("Expected exactly one running Document Server in this project.")
+    container = containers[0]
     inspection = require_success(command([*DOCKER, "inspect", container], env=DOCKER_ENV), "Inspect container")
     running = json.loads(inspection.stdout)[0]
     image = require_success(command([*DOCKER, "image", "inspect", running["Image"]], env=DOCKER_ENV), "Inspect image")
