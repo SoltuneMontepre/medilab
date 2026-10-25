@@ -1,139 +1,185 @@
-# Independent callback verification results
+# ONLYOFFICE P1 remediation verification
 
-Executed on 2026-10-25 UTC using isolated local resources. The double-encoded URL redaction defect is fixed by the supplied callback commit. Real Office saves and the original ten opt-in cases passed. Combined release acceptance remains blocked by a real large-history JWT incompatibility and an infrastructure settings propagation gap.
+Verification executed on 2026-10-25 UTC against isolated local resources. Both P1 defects are fixed and independently verified with native service evidence: the large-history callback now saves exactly one new immutable version, and actual supervised workers apply the approved configuration across restarts and recreation. Acceptance below distinguishes native service execution, test fixtures and release scenarios that remain unexecuted.
 
-## Exact sources and runtime
+## Sources and runtime
 
-| Component | Tested identity |
+| Component | Verified identity |
 | --- | --- |
-| Reviewed callback base | `fa8031db9eee3108211d771e09a57f20c038e4ad` |
-| Official callback security fix | `a3cec45f17f2429f99ae8556391c5750e38cc80a` |
-| Original integration harness | `27fa44c8436206765dd5bfa9f12099761af3f712`, preserved; cherry-picked as `4b4bbff362f6534c032e92d9f4bb82037fb87c5e` on the separate a3 branch |
-| Main 13-case real run | Harness `3dbc65e5735ac21b45690a56d8791e9dd4f8f752`; clean source diff |
-| Isolated expiry run | Harness `16f10909985a00af44fdb7f7326e3165c86c4275`; clean source diff |
-| Explicit outcome verification | Harness `2a1e59b0e218f89613f9dccfbf2799547ebaff56` |
-| Infrastructure handoff inspected | `5b42e14f5715f21f85f525911cd8f692ae51302e`, including its committed Agent 4 runtime handoff and settings |
-| Document Server image index | `docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212` |
-| amd64 manifest | `sha256:e231bc62da8c1f0c1f78188f8c7e17e67716f38955d0ad1d703cf911ad6db84b` |
-| Image configuration ID | `9f1f9ada40561752ba2597da8fe6e51fe7e09ba2b76cebdb4377ce004d88e5a3` |
-| Installed package / command API | `9.4.0-129` / `9.4.0.129` |
+| Preserved verification baseline | `fec03154ceac7bb1ce9a637b9f0c077d5c3374ed` |
+| Callback receiver and double-encoded URL fix | `a3cec45f17f2429f99ae8556391c5750e38cc80a`; strict JWT verifier unchanged |
+| Sender correction | `b4e973fcf4ad6829f4b21c0104d549c54c65b98d`, integrated as `f4b600c` |
+| Supplemental malformed payload regressions | `21c84834ab854b2d66ea3a46b3d4c48159b09ce2`, integrated as `ab1a19f` |
+| Worker configuration fix | Existing `c3f9dd1817ca43c898e9ef3f4b3dd6570a41b7f6`, integrated as `e188679`; effective-policy bootstrap integrated as `a7cb817` |
+| Native cache retention fixture | `c0871ae`, integrated as `01cf9cf` |
+| Runtime-file drift detection | `775a5a798db8a28ccc998cd1ff49d26bd207f689`, integrated as `bc97c8c` |
+| CI regression wiring | `41f6046` |
+| Document Server image | `docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212` |
+| amd64 manifest / image ID | `sha256:e231bc62da8c1f0c1f78188f8c7e17e67716f38955d0ad1d703cf911ad6db84b` / `9f1f9ada40561752ba2597da8fe6e51fe7e09ba2b76cebdb4377ce004d88e5a3` |
+| Package / command API | `9.4.0-129` / `9.4.0.129` |
 | DocService executable SHA-256 | `556df4aab7b1a87123046a4459baee34e60f57deaf7bcd189bccd6f271bd8fcb` |
 | Converter executable SHA-256 | `ac76144203fd4e8fdee4cccac976697e87ec9b67b7bdf572e6ea1288524a8f80` |
-| Odoo image | `medilab-odoo:issue-171-callback`, ID `d1e0a91af55b9176fdcf60125a1f3aa40a99e3e83ac779a857eae0b0afa06a19`; Odoo `20.0-20260926`, PyJWT `2.15.1` |
+| Odoo real-service runner | `medilab-odoo:issue-171-callback`, image `d1e0a91af55b9176fdcf60125a1f3aa40a99e3e83ac779a857eae0b0afa06a19`; Odoo `20.0-20260926`, PyJWT `2.15.1` |
+| Separate native HTTP/logging runner | `medilab-odoo:local`, image `1a49b35bebebbe75ebe5af7dfbabf2a660f1a81af24afeb3568bec87a8f7823c` |
 | Garage | `2.4.1`, digest `sha256:9c96caa2612d3411acc5b0e6701fb238dbfba33e533a6d7d3d811a4b12d0d020` |
-| PostgreSQL / browser | PostgreSQL `18.6`; Playwright `1.56.1` with Chromium |
-| Host | Linux `7.3.0-4-cachyos`, amd64; rootless Podman `6.1.4`, Compose `5.6.1` |
+| PostgreSQL / browser / Node | PostgreSQL `18.6`; Playwright `1.56.1` with Chromium; packaged Node `20.20.0` |
+| Committed worker settings SHA-256 | `4e7faa0e26e8baa3b4ad3ef6912f1a38acd2b9f1e423995f07fe4c77ba77d666` |
 
-The verification worktree is `/home/leon/Projects/medilab-wt-171-security-verification`, branch `test/171-onlyoffice-security-verification`. It descends from a3; the original callback worktree, original test branch/history, infrastructure branch and #230 branch were not rewritten. All new commits use author and committer KietPham-VN with the requested noreply email.
+The joined worktree is `/home/leon/Projects/medilab-wt-onlyoffice-p1`, branch `fix/171-203-onlyoffice-p1`. It starts at the full verification baseline and selectively incorporates the six #203 deployment commits, preserving their original branch and all earlier #171 history. Main's unrelated `questions/laboratory.md` edit and the #206/#230 worktrees were left untouched. All new commits use author and committer `KietPham-VN <153413668+KietPham-VN@users.noreply.github.com>` without attribution trailers.
 
-The current host permits local sockets, rootless Podman and isolated container networking. The root Docker/Podman socket remains inaccessible. Commands use only `/run/user/1000/podman/podman.sock`; no permission or security-control changes were made. Projects `medilab171-agent4`, `medilab171-agent4-security` and `medilab171-agent4-stress` own all resources. There are no published host ports or production connections. PostgreSQL and Garage are Odoo fixtures, not dependencies inside Document Server.
+[Runtime identity](evidence/2026-10-25/p1/fixed/runtime.json) and the [source manifest](evidence/2026-10-25/p1/fixed/source-manifest.json) record the exact running binaries and mounted source hashes. The pinned executables were not modified. The source manifest captures the mounted harness changes that were uncommitted when the joined run started. Subsequent bounded HTTP-startup retry handling and runtime-file fingerprint checks have separate history-rerun and full-wrapper evidence; they are not silently attributed to workers that started before those changes.
 
-## Executed counts
+Only `/run/user/1000/podman/podman.sock` was used. The new projects have no public host ports or production connections. Test credentials and certificates are isolated fixtures. Original services, databases and volumes remain preserved.
 
-Repeated cohorts are listed separately and must not be added as independent test coverage.
+## Root cause and fix: large-history callbacks (#171/#203)
 
-| Suite/cohort | Passing | Failing | Skipped | Blocked |
-| --- | ---: | ---: | ---: | ---: |
-| Pure production JWT/origin/logging contract suite on a3 | 24 | 0 | 0 | 0 |
-| Native Odoo HTTP/logging suite on a3 (27 HTTP + 11 logging) | 38 | 0 | 0 | 0 |
-| Original ten real-service cases, across completed a3 cohorts | 10 | 0 | 0 | 0 |
-| All fourteen distinct native cases, across completed a3 cohorts | 13 | 1 | 0 | 0 |
-| Fresh native-entrypoint comparison, 13 selected cases | 12 | 1 | 0 | 0 |
-| Fixed expiry case in isolation, outer timeout 540 seconds | 1 | 0 | 0 | 0 |
+The defect is in the pinned sender's ordering. [DocsCoServer.sendServerRequest](https://github.com/ONLYOFFICE/server/blob/v9.4.0.1/DocService/sources/DocsCoServer.js#L718) creates the body JWT and initial header JWT. It then invokes [canvasservice.checkAndFixAuthorizationLength](https://github.com/ONLYOFFICE/server/blob/v9.4.0.1/DocService/sources/canvasservice.js#L993), which removes `changesurl` and replaces `history` with `{}` when the authorization token reaches 7168 bytes. Only the header JWT is regenerated afterward. The serialized body contains the trimmed fields and the stale body JWT signing the full history.
 
-| Explicit outcome collector, 2 selected native cases, outer timeout 300 seconds | 1 | 1 | 0 | 0 |
+The exact baseline reproduction created 27 native editor history changes. Its final body JWT was 15229 bytes and signed 10941 bytes of history; the 695-byte authorization header and ordinary callback fields contained `{}` instead. Both signatures were valid. The byte-preserving relay delivered the mismatch to Odoo, whose `services/onlyoffice_jwt.py:verify_callback` rejected it with HTTP 403/error 1 before document fetch or version creation. Only the original immutable version remained. This establishes a sender payload mutation, rather than proxy truncation, JSON encoding or a signature bypass. `JWT_IN_BODY=false` did not prevent the pinned callback implementation from generating both tokens. [Baseline outcome](evidence/2026-10-25/p1/baseline/result.json), [sanitized delivery](evidence/2026-10-25/p1/baseline/callbacks/test_docx_many_editors_header_trimming.json).
 
-No test is xfailed. The known large-history failure remains a normal failing assertion. TLS refusal was executed earlier on a3 and excluded from the latest 13-case selection; it was not skipped to produce a green suite. These are execution counts, not acceptance of unimplemented operational scenarios below.
+`tools/infrastructure/onlyoffice/callback-signing.cjs` wraps the native exported sender. For callbacks carrying the native length checker, it calculates the header using the native tenant secret and signing helper, then runs that checker once before calling the unchanged sender. The native sender therefore signs both tokens over the finalized fields. Its body is then serialized and sent through the existing Document Server routing and the byte-preserving callback relay to `src/core/modules/sol_laboratory/controllers/laboratory_editing_callback.py`, then `services/laboratory_editing_callback.py` and the strict `services/onlyoffice_jwt.py` verifier. Its transport, timeout, retry, origin and signing implementations remain in use. No receiver comparison, token validation or authorization was relaxed. Save bytes and immutable version creation remain Odoo's existing code paths.
 
-The native 13-case summary was observed as `1 failed, 0 error(s) of 13 tests`. The older collector retained all 13 case JSON files but misclassified nine as not started because it depended on retained start lines and did not recognize the final `Failed:` footer. Its raw result is preserved. The report uses the observed native summary plus per-case evidence, not those incorrect lists. Native journald output was subsequently unavailable through the engine; credential-safe case files remain. The collector now stores explicit cleanup outcomes and classifies missing outcomes as unknown; missing evidence/logs cannot yield acceptance.
+The implementation choice is a small bootstrap around the pinned packaged runtime: the image contains bytecode rather than editable JavaScript. It uses pkg's existing child-entrypoint mechanism, validates the exact executable hashes and module contracts, and refuses startup if the correction cannot be installed. Neither binary patching nor an unverified replacement image is involved. Internal status notifications have no history trimming and retain the original path.
 
-## Real callback and byte observations
+The independent corrected real-service rerun is **PASS**: 27 browser editor sessions produced a 696-byte header and 673-byte body JWT signing the same trimmed history. Odoo returned HTTP 200/error 0, committed the session and created exactly one new immutable version. Its 58801 Garage bytes match stored SHA-256 `07e907b9a45fb402c09ff1b9e4bcc738ddb0ba74ce17f8e00e4b16278f8e1b69` and contain the browser marker; total version count is two including the original. [Executed outcome](evidence/2026-10-25/p1/history-retry/result.json), [saved-byte evidence](evidence/2026-10-25/p1/history-retry/callbacks/test_docx_many_editors_header_trimming.json).
 
-| Scenario | Actual observation |
-| --- | --- |
-| DOCX/XLSX/PPTX | Browser plugin edited real Office documents; final status-2 callbacks committed one new immutable version. Garage bytes differed from the original ZIP, contained the inserted marker and matched the stored version SHA-256. |
-| Two authorized DOCX editors | Odoo folder membership and FILE_WRITE checked for the second person; overlapping editor sessions generated signed history with both authorized IDs and one final version. This uses the private test page, not #230. |
-| Duplicate/concurrent callbacks | Four parallel copies of the first authentic final delivery returned `[200,200,200,200]`; four later concurrent replays also succeeded. Version count stayed two (original plus one save), with correct actor/audit checks. |
-| Temporary callback 503 | Real Document Server redelivered after 1.005 seconds; responses 503 then 200, fresh header/body JWT fingerprints and issue/expiry times. |
-| HTTP 200/error 1 | One final delivery, no redelivery during a 15-second observation window; no saved version. This is a bounded negative control. |
-| Retry exhaustion | Four deliveries total with 503/error 1, measured intervals 1.004, 2.005 and 4.003 seconds; no fifth delivery during the 15-second quiet window. No version claimed. |
-| Garage unavailable | Real bucket proxy returned 503; actual redelivery recovered and created one version. Measured final-arrival interval about 10.18 seconds includes Odoo/bucket handling. |
-| Conflict | Concurrent upload remained the current version; edited bytes became a separate conflict version. Total versions three, with actual content hashes and attribution checked. |
-| Authentication | Genuine normal header/body signatures matched. Captured callbacks with absent, invalid, expired, inconsistent or wrong-key credentials were rejected. A large signed body-only duplicate did not add a version. No authentication bypass observed. |
-| 370-second delayed transaction | Actual bytes staged before a PostgreSQL trigger delayed then raised serialization failure. Odoo refused expired credentials on its internal retry with 503. Actual DS redelivery had fresh JWTs and committed one version. Latest header iat/exp `1792915032/1792915332`; new iat `1792915405`, beyond original expiry plus leeway. |
-| Invalid certificate | Actual pinned Document Server refused a self-signed HTTPS conversion source with download error -4 before any source GET. This is not an Odoo TLS-fetch or full ingress proof. |
+Regression coverage includes the native 7167/7168-byte boundary, unchanged ordinary callbacks, failure before transport, signed malformed claims, wrong signatures, invalid tokens, stale/full versus trimmed token disagreement, and binding of key/status/download URL/users/actions/history. The receiver continues to reject mismatched payloads, including the original upstream failure shape.
 
-Selected bytes from the 13-case comparison:
+## Root cause and fix: effective worker configuration (#203)
 
-| Document | Bytes | SHA-256 (equal in Garage and immutable version) |
+The pinned `/app/ds/run-document-server.sh:816` starts Supervisor through `service supervisor start`. `/usr/sbin/service:135` invokes the init script using `env -i`; its allowlist excludes `NODE_CONFIG`. Supervisor's native worker files set `NODE_ENV=production-linux` and `NODE_CONFIG_DIR=/etc/onlyoffice/documentserver`, but do not restore that override. Exporting it from the parent wrapper consequently had no effect on either actual worker. The baseline observed no worker `NODE_CONFIG`, `callbackRequestTimeout=10m` and `expire.files=86400`. [Baseline probe](evidence/2026-10-25/p1/baseline/effective-runtime.json).
+
+The existing #203 fix already changes the Supervisor commands to launch `worker.sh`, which reads the committed policy after environment sanitization. The added `worker-bootstrap.cjs` runs inside the actual docservice/converter process using the packaged runtime, loads the original entrypoint, then checks the effective `config.get` values after ONLYOFFICE's runtime merge. It verifies every committed policy leaf and exact runtime identity. A per-PID attestation contains only approved non-secret fields, binary/settings hashes and the process start tick. `inspect_config.py` compares that evidence with the live process and settings, including converter children, and rejects absent, stale or drifting evidence even if the environment alone looks correct.
+
+ONLYOFFICE also merges a runtime JSON file from its effective `production-linux` configuration. The drift check fingerprints that file's presence and bytes after startup and compares them with current disk state. A later live override change invalidates readiness and acceptance evidence; no active editing worker is killed. Its existing path and behavior are preserved, and raw runtime configuration is never reported.
+
+The approved values remain unchanged: both callback timeout budgets are `21m`, cache retention is `604800` seconds, JWT is HS256 with a five-minute lifetime, retry intervals are finite 1/2/4 seconds, certificate verification stays enabled, metadata addresses remain disallowed and automatic assembly remains disabled. Parent environment declarations are not counted as effective runtime proof. [Actual worker policy](evidence/2026-10-25/p1/fixed/effective-runtime.json).
+
+## Executed verification
+
+Every test has an explicit status in the linked machine-readable evidence. Cohorts repeat some cases and must not be added together as distinct coverage. No failed assertion is xfailed or hidden by a skip.
+
+| Suite / cohort | PASS | FAIL | SKIPPED | BLOCKED | Evidence |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Exact baseline large-history reproduction | 0 | 1 | 0 | 0 | [Result](evidence/2026-10-25/p1/baseline/result.json) |
+| Pure JWT/origin/logging contracts | 29 | 0 | 0 | 0 | [Every test](evidence/2026-10-25/p1/fixed/fast-tests.json) |
+| Deployment and effective-policy contracts | 26 | 0 | 0 | 0 | [Every test](evidence/2026-10-25/p1/fixed/fast-tests.json) |
+| Sender regression contracts | 7 | 0 | 0 | 0 | [Every test](evidence/2026-10-25/p1/fixed/fast-tests.json) |
+| Separate native Odoo HTTP/logging cohort | 38 | 0 | 0 | 0 | [Every test](evidence/2026-10-25/p1/native/result.json) |
+| Joined native Odoo JWT/HTTP/logging and real-service cohort | 75 | 0 | 0 | 0 | [Observed native summary and 15 real outcomes](evidence/2026-10-25/p1/fixed/result.json) |
+| Final-source native JWT/HTTP/logging repeat | 60 | 0 | 0 | 0 | [Every native test](evidence/2026-10-25/p1/native-final/result.json) |
+| Initial independent history attempt: HTTP child startup timeout, no test executed | 0 | 0 | 0 | 1 | [Startup result](evidence/2026-10-25/p1/history/result.json) |
+| Independent real-service large-history rerun | 1 | 0 | 0 | 0 | [Result](evidence/2026-10-25/p1/history-retry/result.json) |
+| Final-source real saves after owned Document Server restart | 4 | 0 | 0 | 0 | [Every test](evidence/2026-10-25/p1/post-restart/result.json) |
+| Native aged-record retention fixture | 1 | 0 | 0 | 0 | [Result](evidence/2026-10-25/p1/worker/retention-native-fixture.json) |
+
+The joined cohort completed with exit 0 and the observed native summary `0 failed, 0 error(s) of 75 tests`. All 15 real-service cleanup files explicitly record their test-body outcome as true. Long-run engine log rotation retained only 11 late native start entries, so that partial start map is not presented as a complete 75-name record. The final-source native-only repeat completed with exit 0, `0 failed, 0 error(s) of 60 tests` and all 60 individual statuses **PASS**: 22 JWT, 27 HTTP and 11 logging tests. Its evidence correctly sets real-service execution false; that cohort exercises native Odoo rather than claiming another Document Server run. Repeated cohorts are not added as distinct coverage.
+
+The 62 fast tests are all PASS. This preserves the original 24 production security contracts and adds five malformed/large-history cases. The separate 38-case native cohort preserves all 27 HTTP and 11 logging cases, including double-encoded URLs, independent HTTP commit/rollback behavior, JWT expiry and background diagnostic redaction. These suites do not substitute for the real-service cases.
+
+Kubernetes manifest validation is **PASS** for 14 core resources and **PASS** for 18 custom resources against pinned upstream schemas. Kubeconform initially reports 16 resource schemas **SKIPPED**: 15 are checked by the separate custom-resource validator; one unchanged base Odoo `Backup` remains explicitly **SKIPPED** outside this ONLYOFFICE change. This is offline schema validation, not cluster or CNI execution. [Validation output](evidence/2026-10-25/p1/worker/schema-validation.log).
+
+## Real-service cases
+
+Every case below ran against actual Odoo, pinned Document Server and Garage. Successful normal saves have two immutable versions including the original, matching bucket/version SHA-256, a marker inside real Office XML and the verified editor as actor. The conflict case has three versions and preserves the concurrent upload as current. Callback audit source is `api`, without attributing the callback to a browser-cookie user. The relay forwards native callback bytes unchanged; deliberate response injection and captured authenticated replay controls are identified by their cases.
+
+| Case | Status | Observed result |
+| --- | --- | --- |
+| [test_docx_save_and_concurrent_duplicate_callbacks](evidence/2026-10-25/p1/fixed/callbacks/test_docx_save_and_concurrent_duplicate_callbacks.json) | PASS | Real DOCX save and concurrent first-delivery/later duplicate controls create exactly one new version |
+| [test_xlsx_save](evidence/2026-10-25/p1/fixed/callbacks/test_xlsx_save.json) | PASS | Real XLSX save, 11191 verified bytes |
+| [test_pptx_save](evidence/2026-10-25/p1/fixed/callbacks/test_pptx_save.json) | PASS | Real PPTX save, 33356 verified bytes |
+| [test_docx_large_history_header_compatibility](evidence/2026-10-25/p1/fixed/callbacks/test_docx_large_history_header_compatibility.json) | PASS | Long-name editor case, consistent signed fields and saved bytes |
+| [test_docx_many_editors_header_trimming](evidence/2026-10-25/p1/fixed/callbacks/test_docx_many_editors_header_trimming.json) | PASS | 27 native editor sessions, consistent trimmed tokens, HTTP 200/error 0, exactly one new 58803-byte version |
+| [test_docx_two_authorized_editors](evidence/2026-10-25/p1/fixed/callbacks/test_docx_two_authorized_editors.json) | PASS | Odoo folder membership and FILE_WRITE verified for the second person; native signed history contains both authorized IDs |
+| [test_docx_503_redelivery_has_fresh_jwt](evidence/2026-10-25/p1/fixed/callbacks/test_docx_503_redelivery_has_fresh_jwt.json) | PASS | Actual redelivery after 1.006 seconds, fresh token fingerprints/times, HTTP 503 then 200, one new version |
+| [test_docx_200_error_one_does_not_retry](evidence/2026-10-25/p1/fixed/callbacks/test_docx_200_error_one_does_not_retry.json) | PASS | Deliberate HTTP 200/error 1 yields one delivery and no version; no redelivery in the 15-second quiet window |
+| [test_docx_finite_retry_exhaustion](evidence/2026-10-25/p1/fixed/callbacks/test_docx_finite_retry_exhaustion.json) | PASS | Four HTTP 503 deliveries at 1.006/2.006/4.006-second intervals; no fifth in the 15-second quiet window and no new version |
+| [test_docx_bucket_failure_recovers_on_real_redelivery](evidence/2026-10-25/p1/fixed/callbacks/test_docx_bucket_failure_recovers_on_real_redelivery.json) | PASS | Actual Garage proxy outage, real redelivery after 12.087 seconds including bucket handling, then one new version |
+| [test_docx_conflict_preserves_concurrent_version](evidence/2026-10-25/p1/fixed/callbacks/test_docx_conflict_preserves_concurrent_version.json) | PASS | Concurrent upload remains current; editor bytes become a separate conflict version |
+| [test_docx_real_jwt_expiry_on_transaction_retry](evidence/2026-10-25/p1/fixed/callbacks/test_docx_real_jwt_expiry_on_transaction_retry.json) | PASS | 370-second delay crosses JWT expiry; actual fresh-token redelivery after 372.763 seconds commits one version |
+| [test_docx_callback_exceeds_default_worker_timeout](evidence/2026-10-25/p1/fixed/callbacks/test_docx_callback_exceeds_default_worker_timeout.json) | PASS | 650-second callback exceeds the old ten-minute worker default; fresh-token redelivery after 653.870 seconds commits one version |
+| [test_docx_captured_delivery_authentication_controls](evidence/2026-10-25/p1/fixed/callbacks/test_docx_captured_delivery_authentication_controls.json) | PASS | Missing/invalid/expired/mismatched credentials refused; a large signed body-only duplicate creates no extra version |
+| [test_docx_documentserver_refuses_untrusted_tls_source](evidence/2026-10-25/p1/fixed/callbacks/test_docx_documentserver_refuses_untrusted_tls_source.json) | PASS | Pinned server refuses an untrusted HTTPS conversion source with download error -4 before a source GET |
+
+The 27-editor load case includes synthetic Document Server identities; it does not substitute for the separate two-person Odoo authorization case. These private test pages are not the #230 released editor page or Sync.
+
+## Timing, lifecycle and retention evidence
+
+| Native probe | Status | Actual observation |
+| --- | --- | --- |
+| Full TLS wrapper, effective worker policy before restart | PASS | Both native processes attested `21m` / `604800`; [before restart](evidence/2026-10-25/p1/worker/before-restart.json) |
+| Owned container restart | PASS | Graceful stop exit 0, no OOM kill, new live workers with the same policy; [after restart](evidence/2026-10-25/p1/worker/after-restart.json) |
+| Final committed full-wrapper fresh recreation | PASS | Both native workers run the final `775a5a7` policy check; `local.json` mode 0600, available worker logs zero bytes, graceful prior stop exit 0; [fresh startup](evidence/2026-10-25/p1/worker/final-fresh-start.json) |
+| Owned container recreation | PASS | New live workers retain the exact policy and all three state paths retain fixture markers; owned markers removed; [after recreation](evidence/2026-10-25/p1/worker/after-recreate.json) |
+| Runtime override despite correct environment | PASS | Both native executables reject the effective one-day override with exit 78 and credential-safe diagnostics; [drift proof](evidence/2026-10-25/p1/worker/native-drift.json) |
+| Runtime file change after startup | PASS | Readiness refuses stale attestation while both active worker PIDs remain unchanged; original file restored; [drift proof](evidence/2026-10-25/p1/worker/native-drift.json) |
+| Signed conversion through full TLS wrapper | PASS | Trusted HTTPS DOCX source converted to 1922 PDF bytes, fetched with certificate verification; SHA-256 `aeec2f067d99d34b7fd7b966f2669ff2b44f555ee9cfe9996bfee8ad551766ac`; [TLS conversion](evidence/2026-10-25/p1/worker/tls-conversion.json) |
+
+The joined stack also retained two actual failed-save DOCX outputs across an owned graceful restart: the 58550-byte and 58554-byte outputs remained downloadable with markers and identical hashes. Stop completed with exit 0 within the configured 1890-second budget, and the complete restart took 35.67 seconds. Both restarted workers attested the final policy and unchanged runtime-file fingerprint. [Restart and retained-byte comparison](evidence/2026-10-25/p1/fixed/restart-and-recovery.json), [before](evidence/2026-10-25/p1/fixed/forgotten-before.json), [after](evidence/2026-10-25/p1/fixed/forgotten-after.json). No forgotten bytes were deleted.
+
+The TLS conversion is standalone; it does not exercise Odoo's TLS callback ingress. The restart/recreation probes did not interrupt dirty editing or claim an active-save drain. The production-linux runtime file path `/var/www/onlyoffice/Data/runtime.json` is preserved. File fingerprint checks detect drift; they are not continuous measurement of every in-process configuration read.
+
+The actual joined callback exceeded the ineffective ten-minute default: a 650-second PostgreSQL serialization delay was followed by real Document Server redelivery after 653.869975 seconds. Responses were 503 then 200, both deliveries had consistent signatures, and the fresh JWT issue time `1792919543` exceeded the first expiry `1792919189` plus clock leeway. Exactly one new 58553-byte version was committed with marker and Garage SHA-256 `42272a58bfea0ffa0f4ce86e11e29f6f8d6c449bf420c6dae179d4ee5ceb8e1f`. This measured cycle demonstrates the worker's callback budget exceeds ten minutes, rather than relying on its environment declaration. [Executed delivery](evidence/2026-10-25/p1/fixed/callbacks/test_docx_callback_exceeds_default_worker_timeout.json).
+
+After an owned graceful Document Server restart loaded the final bootstrap, the actual DOCX duplicate-delivery case, 27-editor history case, XLSX save and PPTX save all independently repeated **PASS**. Each created one new immutable version with matching Garage SHA-256, authorized attribution and a marker in real Office XML. [All four outcomes](evidence/2026-10-25/p1/post-restart/result.json).
+
+| Save after restart | Bytes | Garage and immutable-version SHA-256 |
 | --- | ---: | --- |
-| DOCX concurrent callback case | 58553 | `26fb90e6188f6152d34b3cd2f510ed66eabb37b48bdebf2e382de4ba76758974` |
-| XLSX | 11190 | `a0774016bd0e75dc50bb7fd8fd229473d1cb648dd30f2dae02ac82d8c3479e56` |
-| PPTX | 33352 | `b9af753bd3393bb6a51bcb1f5fc2bb85fb27d2f4f1334e1939083df2393176b3` |
+| DOCX with concurrent duplicates | 58552 | `b883a3e05948daa2a0f71b520e5136be2aa3d1e524b27c87dbd061422c60c642` |
+| DOCX, 27 editor sessions | 58805 | `32a48b698b88038f0f021c4c8eb4853fe1a7852cb5ce389cb5765518d9e0535d` |
+| XLSX | 11191 | `6b8ec89442293a35bae6b6657662eae93a3b03d80bb49f5e47e03a3d1bb79bf7` |
+| PPTX | 33366 | `d38e900a9a74c9c5d62116274e889c8b63e0d1c26cea9451c842f837bfbbbc4a` |
 
-All successful normal saves have version count two and a marker in actual saved Office XML. Audit entries use source `api`, callback user unset, and the version actor is the verified last editor. These bytes are native editor outputs, not synthetic final-save responses.
+The native aged-record retention fixture is **PASS**: a separate disposable process runs the pinned executable's actual task APIs and garbage collector with the unchanged `604800`-second policy. A two-day-old synthetic task and its filesystem bytes survive; an eight-day-old task and bytes are removed. The younger byte SHA-256 is `221e44cd02e7b7e4ce7ca406a1ff45a2364cffacca9d5c86d97072e1fb4084f4`. Its process-local Date override is restricted to fixture creation and restored before the native garbage collector runs. The network is disabled, no shared volumes are mounted, fixtures are cleaned, and both the 30-second native and 45-second outer deadlines complete with exit 0. [Executed fixture](evidence/2026-10-25/p1/worker/retention-native-fixture.json).
 
-## Findings and reproduction
+This establishes native expiration selection and filesystem deletion over aged fixtures. It does not establish seven elapsed days, live supervised-worker cron execution, task persistence or continuous recovery. Those remain separate release scenarios.
 
-### P1: long callback history is incompatible (#171, coordinated with #203)
+## Credential-safe logging
 
-Reproduce with `test_docx_many_editors_header_trimming` using the selected-case command in [README](README.md). Twenty-seven browser editor sessions create 27 native history changes. The stress participants are synthetic DS identities; the separate authorization test is not substituted for this load case.
+The available Document Server docservice/converter/example/metrics output and error sinks, nginx access/error sinks and container output are individually **PASS** in the [runtime log scan](evidence/2026-10-25/p1/fixed/upstream-logging.json): all scanned sinks were zero bytes and contained no JWT values or callback capabilities. The full TLS wrapper's latest conversion also retained zero native worker log bytes. The HTTP fixture applies the same nginx log suppression and production worker bootstrap while retaining its isolated HTTP transport.
 
-On the latest comparison, the signed body JWT was 15232 bytes and retained 10941 bytes of history/27 changes. The header was 696 bytes; its signed history and the unsigned callback history were `{}`. Both JWT signatures verified, but their authenticated fields differed. Odoo returned HTTP 403/error 1; session stayed open and only the original version existed. Both JWTs still appeared with JWT_IN_BODY=false. Simply setting that flag is not a fix.
+Each completed real-service case checks its actual Odoo subprocess logs for the callback capability, shared signing secret, JWTs and saved-document URL. The native logging suite also exercises encoded/double-encoded paths, exception chains, cached tracebacks, watchdog/background diagnostics and useful correlation metadata. Available local sinks are the measured scope; ingress, Loki, APM and CDN sinks remain unexecuted release acceptance.
 
-The pinned sender signs the body before trimming and regenerates only the header afterward: [DocsCoServer.js lines 718-734](https://github.com/ONLYOFFICE/server/blob/v9.4.0.1/DocService/sources/DocsCoServer.js#L718). [canvasservice.js near line 993](https://github.com/ONLYOFFICE/server/blob/v9.4.0.1/DocService/sources/canvasservice.js#L993) drops history/changesurl when authorization exceeds its threshold. Callback verification at `src/core/modules/sol_laboratory/services/onlyoffice_jwt.py:70` deliberately rejects unequal fields. This is safe rejection, with potential loss of automatic save delivery; it is not an authentication bypass.
+## Historical evidence preserved
 
-Owner-reviewed options: an upstream signing correction/new pin, or a narrowly specified canonicalization of only upstream's known trimmed fields while verifying every token and binding key/status/download URL/users/actions strictly. Do not discard a token or ignore arbitrary field mismatches. No production fix was made here.
+The original verification result remains available in Git at `fec03154ceac7bb1ce9a637b9f0c077d5c3374ed:tools/onlyoffice_integration/RESULTS.md`; its sanitized evidence remains under [evidence/2026-10-25](evidence/2026-10-25/summary.json). On a3, it recorded 24 pure contracts, 38 native HTTP/logging checks and 13/14 distinct real-service cases passing. The one failing case was the large-history sender mismatch reproduced above. The original integration commit `27fa44c8436206765dd5bfa9f12099761af3f712` and its a3 cherry-pick `4b4bbff362f6534c032e92d9f4bb82037fb87c5e` are preserved. Prior 370-second expiry, actual DOCX/XLSX/PPTX Garage saves and forgotten-output byte evidence were not replaced with mocked claims.
 
-### P1: declared callback/retention settings do not reach workers (#203)
+The prior deadlock was a registry/relay lock inversion: a relay thread held `relay.lock` while requesting committed setup under `Registry._lock`, while the main test held the registry lock and waited for the relay. The corrected harness installs the PostgreSQL trigger on the main thread and uses a bounded ready/release rendezvous before forwarding. The new slow-case progress evidence observed the trigger sequence called and active PostgreSQL `PgSleep`; it was not stuck in registry setup. [Progress](evidence/2026-10-25/p1/fixed/long-callback-progress.json).
 
-The fresh comparison container declares exact settings from 5b in NODE_CONFIG, JWT_IN_BODY=false and the handoff resource/logging flags. Run `python3 -m tools.onlyoffice_integration.probe_runtime` against the isolated project. Actual docservice PID 1143 and converter PID 1154 have no NODE_CONFIG. Their disk configuration aggregate shows callback inactivity/whole-cycle `10m` and `expire.files=86400`, rather than `21m`/`604800`. Native supervisor startup sanitizes inherited variables; container environment inspection alone missed this.
+The initial new independent history attempt was **BLOCKED** during class setup: a one-second child Odoo health read timed out before any test began. The helper now retries both connection and read-timeout errors within its existing 45-second startup deadline. The retry uses a distinct guarded database and runner name while preserving the failed attempt; it is not a signature-fix failure.
 
-At 5b, `tools/infrastructure/onlyoffice/start.sh:9` only exports NODE_CONFIG before invoking the same upstream entrypoint at line 43. Agent 2 subsequently reported reproducing the missing worker variable and default 10-minute/one-day values with the full wrapper, and is preparing an owner fix. That full-wrapper execution is attributed to Agent 2; it was not executed by this harness. The local declared Node-contract comparison is demonstrably ineffective. Proposed fix for the infrastructure owner: persist a secret-safe merge into ds-readable runtime configuration or explicitly propagate the required settings to supervised workers, then assert worker settings and exercise the real timing/retention envelope. Do not accept seven-day recovery or the 21-minute budget from a declaration alone.
+The old interrupted attempt remains classified incomplete in the historical report. Its owned runner/database and prior recovery artifacts are preserved. New acceptance runners use detached engine polling with bounded commands and whole-run deadlines, avoiding the previous Compose attach hang. No unrelated application process or shared resource was stopped.
 
-### Resolved P1: double-encoded callback capabilities (#171)
+## Issue acceptance and remaining dependencies
 
-The original base leaked a synthetic double-encoded capability in diagnostics. On official a3 the regression passes normally: raw/single/double/mixed-case/malformed paths, bounded/idempotent processing, exception chains, cached tracebacks, background exceptions, watchdog stacks and real HTTP logging were exercised. Correlation metadata and unrelated diagnostics remain usable. The 24 pure checks and 38 native HTTP/logging checks passed. No callback production code was edited by this harness.
+Both P1 fixes are accepted for the measured local integration scope. This does not close either GitHub issue or grant combined staging/production release acceptance.
 
-### Runtime logging
+| Scope | Classification | Remaining acceptance |
+| --- | --- | --- |
+| #171 large-history P1 | Fixed and verified | Independent native callback, exact Garage bytes and exactly one new immutable version |
+| #203 worker propagation P1 | Fixed and verified | Actual worker policy, restart/recreation, measured callback beyond ten minutes and native aged-record retention fixture |
+| #171 double-encoded logging P1 | Fixed and verified | Preserved native and pure regressions |
+| #230 released editor page / Sync flows | Not executed | Private harness page is not the released UI; two authorized people across all Office types remain a combined-flow gate |
+| #206 integration and CI/release | Not executed | No changes to #206 implementation; joined Sync/API branch and remote CI/release acceptance remain separate |
+| Staging / production release | Still blocked | Deployment-policy, recovery and operational gates below |
 
-Every completed latest real case reported the actual callback capability, shared secret, JWTs and saved URL absent from its Odoo subprocess logs, including the failing history case. Default Document Server error logs previously exposed callback capabilities and JWT-like fragments; raw values were not copied into shared reports. With DS_LOG_LEVEL=OFF and NGINX_ACCESS_LOG=false, the available fresh docservice/converter logs were both zero bytes. This is evidence of those sinks being quiet, not proof of privacy across ingress, Loki, APM or CDN. The HTTP adapter did not apply the full #203 nginx error-log patch.
+Remaining release scenarios are explicitly not passing test coverage:
 
-## Deadlock investigation and safe stop
-
-The original slow-case harness had a lock inversion: the relay callback held `relay.lock`, then called committed setup and waited for Odoo `Registry._lock`; the main test held the registry lock and waited for `relay.lock` in `final_events`. Native thread stacks confirmed the cycle. PostgreSQL showed idle sessions, no active SQL delay, and the trigger sequence `is_called=false`.
-
-Before termination, process tree, PID ownership, seven-thread SIGQUIT stacks, logs, database locks/activity and trigger state were captured under `.local/onlyoffice-agent4/full-a3/deadlock/`. Only approved runner host PID **551964** (container PID 1) and owned child **557684** (container PID 12) were stopped. SIGTERM/graceful stop sufficed; no SIGKILL escalation was needed for that runner. Exit was 130. Both PIDs disappeared, former database sessions/locks were gone, and the process-local registry lock ceased to exist. PostgreSQL, Garage, Document Server and unrelated agent services were not stopped.
-
-Preserved runner: `medilab171-agent4-security-deadlock`; database: `medilab171agent4_deadlock`. The failed attempt completed eight tests, blocked on one and never started three. It is not reported as a complete passing run.
-
-The corrected test installs the trigger on the main thread and uses a bounded ready/release rendezvous before callback forwarding. The affected case then passed alone with an explicit 540-second outer timeout and again in the 13-case cohort. A separate completed Garage setup hit a Podman Compose attach hang; only its stale client PID 883062 required SIGKILL after its setup container had exited 0. No active application/test service was killed in that cleanup. Detached polling prevents repeating that unbounded attach path for acceptance runners.
-
-## Restart and retained-byte evidence
-
-Signed getForgottenList/getForgotten commands retrieved three actual failed-save DOCX outputs before and after an owned Document Server restart. All three downloads returned 200, retained their exact hashes/sizes and contained editor markers. Evidence: `full-a3/recovery-before.json`, `recovery-after.json`, `recovery-comparison.json`. The committed read-only `forgotten_probe.py` was also executed afterward: all three outputs remained downloadable with markers. No forgotten bytes were deleted. All relevant volumes and databases remain preserved.
-
-This restart occurred after these outputs were already forgotten, not while an unfinished edit was dirty. It used the older 10-second stop default and escalated to SIGKILL, not the proposed 1890-second helper. Fresh retrieval URLs were used afterward. It proves those retained outputs survived this local restart, not graceful active-save drain, old signed-URL continuity, seven-day retention, node-loss recovery or successful operator import. Agent 2's independent infrastructure proofs are not counted as online editing acceptance.
-
-## Remaining unexecuted acceptance scenarios
-
-These are eight scenario groups, not skipped unit tests or passing model substitutes:
-
-| Scenario group | Ownership / classification |
+| Scenario | Status / dependency |
 | --- | --- |
-| Full TLS start.sh/CA, actual callback ingress and effective corrected worker settings | #203; P1 acceptance blocker; environment fixture incomplete |
-| Dirty concurrent XLSX/PPTX editing and restart during an unfinished edit or pending long callback under the 1890-second drain | #171/#203/#230; P1 integrity acceptance blocker; not executed |
-| Actual Odoo transport outage and interrupted native output stream, full worker/caller/proxy/900-second-fetch envelope | #171/#203; P1 acceptance blocker; measured 370-second retry is narrower |
-| Missing forgotten bytes, node/volume loss, seven-day retention, operator recovery and old signed-URL continuity in the joined stack | #203; P1 recovery acceptance blocker; no destructive experiment performed |
-| Real CNI origin/egress restrictions, redirects and metadata/private-network isolation | #170/#203; P1 security acceptance blocker; local origin checks do not establish deployment policy |
-| Released #230 editor page, Sync interaction and two authorized people across all Office types | #230/#170; P1 combined-flow acceptance blocker; private harness page only |
-| Ingress/Loki/APM/CDN credential sinks and upstream nginx error paths in the full wrapper | #171/#203; P1 privacy acceptance blocker; available Odoo/DS sinks only |
-| Failure alerts, terminal recovery classification and operator escalation in the joined environment | #203/#230; P2 operational acceptance gap; not executed |
+| Dirty concurrent XLSX/PPTX and restart during unfinished editing or a pending callback under the full drain budget | NOT EXECUTED; #171/#203/#230 |
+| Actual Odoo transport outage and interrupted output stream across the complete worker/caller/proxy/fetch timing envelope | NOT EXECUTED; #171/#203; native HTTP fixtures and measured delays are narrower |
+| Missing forgotten outputs, node/volume loss, full seven elapsed days, operator import and old signed-URL continuity in the joined stack | NOT EXECUTED; #203; retained bytes and aged-record selection are narrower |
+| Real Kubernetes CNI origin/egress policy, private-network/metadata isolation and actual ingress TLS callbacks | NOT EXECUTED; #170/#203; local origin/TLS probes do not establish cluster enforcement |
+| Ingress/Loki/APM/CDN credential sinks | NOT EXECUTED; #171/#203; available local log sinks only |
+| Failure alerts, terminal recovery classification and operator escalation in the joined environment | NOT EXECUTED; #203/#230 |
+| Remote CI quality gate and release acceptance | NOT EXECUTED; local checks and CI wiring are not a remote CI run |
 
-Branches can enter a combined test environment after owners address/review the two P1 findings. They are not cleared for combined release, staging or production acceptance. No branch was pushed, no PR/issue mutation was made, and no deployment occurred. GitHub API identity was verified as KietPham-VN with a command-scoped stored token; Git metadata was verified independently.
+No production secrets or credentials were changed. No branch was pushed; no PR was created or merged; no issue was closed; no production deployment was attempted.
 
 ## Related documents
 
 - [Repeatable harness commands](README.md)
-- [Sanitized committed evidence](evidence/2026-10-25/summary.json)
+- [ONLYOFFICE infrastructure handoff](../../docs/infrastructure/onlyoffice.md)
 - [Laboratory files specification](../../docs/specs/laboratory-files.md)
+- [Preserved original verification evidence](evidence/2026-10-25/summary.json)
