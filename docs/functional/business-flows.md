@@ -268,7 +268,7 @@ flowchart TD
 - **Result:** the signed report is issued, delivered to the customer and downloadable on the portal.
 - **Stories:** US-LH01, US-LH02, US-SD14, US-C07, US-C18, US-C19.
 - **Starts from:** test requests whose sample tests are all approved or cancelled, with their draft reports.
-- **Main path:** MediLab fills the draft from an available template version and approved business data. For requested comparison, the plan has inherited approval from unchanged preset reuse or direct technical approval, and each assessment has a recorded, reviewable outcome. Authorized editors prepare the layout and explanatory text in ONLYOFFICE, finish saving and prepare the PDF. The Lab Head reviews that PDF, its results, criterion bases, evidence and scoped conclusions, signs the report, and releases its numbered signed PDF. Staff record delivery and the customer is notified once the PDF is ready.
+- **Main path:** MediLab fills the draft from an available template version and approved business data. For requested comparison, the plan has inherited approval from unchanged preset reuse or direct technical approval, and each assessment has a recorded, reviewable outcome. Authorized editors prepare the layout and explanatory text in ONLYOFFICE, finish saving and prepare the PDF. The Lab Head reviews that PDF, its approved results, criterion bases, evidence and scoped conclusions, signs the report, and releases its numbered signed PDF. Staff record delivery and the customer is notified once the PDF is ready.
 - **Alternative paths:**
   - WF-06-A1: The report is delivered in person or by post; recording it sends no e-mail.
   - WF-06-A2: The request asks for an English, a Vietnamese or a bilingual report.

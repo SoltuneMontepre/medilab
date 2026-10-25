@@ -121,6 +121,7 @@ Follows [Reception](../overview.md#reception).
 
 | Rule     | Description                                                                                                       |
 | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| Retention policy | Whether a sample is kept, its retention period and its calculated end date follow its sample type, without request or sample overrides. |
 | Disposal | A sample is disposed of once it is not kept, its retention period is over or its request is cancelled. The method is the one entered on the sample, or else its sample type's disposal method. Disposal cannot be undone. |
 | Reminder | A daily job gives testers a to-do listing samples whose retention ends within the reminder days, a system parameter (7 by default), or has ended. Running it again does not add a second to-do for the same sample. |
 
@@ -129,6 +130,7 @@ Acceptance criteria:
 - Disposing of a sample with no method on it and none on its sample type is refused.
 - A disposed sample cannot be disposed of again or changed back.
 - A sample whose retention ends in 3 days appears on the reminder; a disposed one does not.
+- Changing retention for one request or sample is refused; its retention flag, period and end date follow the sample-type policy.
 
 ### 4. Corrections (US-T11)
 

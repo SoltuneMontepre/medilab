@@ -56,7 +56,7 @@ Preparing a PDF freezes one candidate for approval:
 5. Convert that saved DOCX to PDF and store the candidate with its hash and the identifiers of its DOCX, template and data versions. Required generated metadata must be part of this candidate, rather than added by re-rendering after approval.
 6. Present that candidate for review. Its draft status is clear in the interface; a marked draft print is a separate preview copy, never the source used for digital signing.
 
-Signing checks that the reviewed candidate is still current and all required source approvals still stand, including the comparison plan and assessment evidence. A plan amendment or changed assessment invalidates the affected candidate. The deliberate signing action records its identity and content hash with the approval. An obsolete signing task or preview cannot approve another candidate. If a printed signer or issue detail changes, invalidate the candidate and review its replacement before signing.
+Signing checks that the reviewed candidate is still current and all required source approvals still stand, including the comparison plan and assessment evidence. Changed source data, including a plan amendment or changed assessment, invalidates the affected candidate. The deliberate signing action records its identity and content hash with the approval. An obsolete signing task or preview cannot approve another candidate. If a printed signer or issue detail changes, invalidate the candidate and review its replacement before signing.
 
 ### Changes, locks and issuance
 
