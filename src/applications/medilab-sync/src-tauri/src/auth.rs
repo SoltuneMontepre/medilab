@@ -40,12 +40,25 @@ fn save_file_credential(path: &std::path::Path, value: &str) -> AppResult<()> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)?;
     }
-    fs::write(path, value.as_bytes())?;
+    use std::io::Write;
+    let temp = path.with_extension(format!("{}.tmp", uuid::Uuid::new_v4()));
+    let mut options = fs::OpenOptions::new();
+    options.write(true).create_new(true);
     #[cfg(unix)]
     {
-        use std::os::unix::fs::PermissionsExt;
-        fs::set_permissions(path, fs::Permissions::from_mode(0o600))?;
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
     }
+    let result = (|| -> std::io::Result<()> {
+        let mut file = options.open(&temp)?;
+        file.write_all(value.as_bytes())?;
+        file.sync_all()?;
+        fs::rename(&temp, path)
+    })();
+    if result.is_err() {
+        let _ = fs::remove_file(&temp);
+    }
+    result?;
     Ok(())
 }
 
@@ -103,27 +116,34 @@ fn file_fallback_or_error() -> AppResult<()> {
 /// Lưu API key của thiết bị vào keyring hệ điều hành; rơi về tệp `0600` cục bộ nếu keyring
 /// không khả dụng và được phép.
 pub fn save_api_key(value: &str) -> AppResult<()> {
-    match Entry::new(SERVICE, ACCOUNT) {
-        Ok(entry) => match entry.set_password(value) {
-            Ok(()) => {
-                let _ = delete_file_credential(&credential_file());
-                return Ok(());
-            }
-            Err(err) if is_keyring_unavailable(&err) => file_fallback_or_error()?,
-            Err(err) => {
-                return Err(AppError::Message(format!(
-                    "Không lưu được phiên đăng nhập an toàn: {err}"
-                )));
-            }
+    store_credential(
+        value,
+        |value| Entry::new(SERVICE, ACCOUNT)?.set_password(value),
+        |value| {
+            file_fallback_or_error()?;
+            save_file_credential(&credential_file(), value)
         },
-        Err(err) if is_keyring_unavailable(&err) => file_fallback_or_error()?,
-        Err(err) => {
-            return Err(AppError::Message(format!(
-                "Không lưu được phiên đăng nhập an toàn: {err}"
-            )));
+        || {
+            let _ = delete_file_credential(&credential_file());
+        },
+    )
+}
+
+fn store_credential(
+    value: &str,
+    secure_write: impl FnOnce(&str) -> Result<(), keyring::Error>,
+    fallback: impl FnOnce(&str) -> AppResult<()>,
+    cleanup: impl FnOnce(),
+) -> AppResult<()> {
+    match secure_write(value) {
+        Ok(()) => {
+            cleanup();
+            Ok(())
         }
+        Err(err) if is_keyring_locked(&err) => Err(AppError::Keyring(err)),
+        Err(err) if is_keyring_unavailable(&err) => fallback(value),
+        Err(err) => Err(AppError::Keyring(err)),
     }
-    save_file_credential(&credential_file(), value)
 }
 
 /// Kết quả đọc credential đã lưu. `StoreLocked` KHÔNG phải "chưa đăng nhập" và càng không phải
@@ -442,5 +462,50 @@ mod tests {
         }
         delete_file_credential(&path).unwrap();
         assert!(load_file_credential(&path).unwrap().is_none());
+    }
+    #[test]
+    fn locked_store_never_falls_back_or_removes_a_stored_key() {
+        let error = keyring::Error::NoStorageAccess(Box::new(std::io::Error::other("locked")));
+        let result = super::store_credential(
+            "device-key",
+            |_| Err(error),
+            |_| panic!("plaintext fallback must not run"),
+            || panic!("must not delete anything"),
+        );
+        assert!(matches!(result, Err(crate::error::AppError::Keyring(_))));
+    }
+
+    #[test]
+    fn successful_secure_write_cleans_up_old_development_fallback() {
+        let cleanup = Cell::new(false);
+        super::store_credential(
+            "device-key",
+            |value| {
+                assert_eq!(value, "device-key");
+                Ok(())
+            },
+            |_| panic!("no fallback"),
+            || cleanup.set(true),
+        )
+        .unwrap();
+        assert!(cleanup.get());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn file_fallback_replaces_a_symlink_without_overwriting_its_target() {
+        use std::os::unix::fs::{symlink, PermissionsExt};
+        let dir = tempfile::tempdir().unwrap();
+        let target = dir.path().join("unrelated");
+        let credential = dir.path().join("device.apikey");
+        std::fs::write(&target, "keep me").unwrap();
+        symlink(&target, &credential).unwrap();
+        save_file_credential(&credential, "new-key").unwrap();
+        assert_eq!(std::fs::read_to_string(&target).unwrap(), "keep me");
+        assert_eq!(std::fs::read_to_string(&credential).unwrap(), "new-key");
+        assert_eq!(
+            std::fs::metadata(credential).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
     }
 }
