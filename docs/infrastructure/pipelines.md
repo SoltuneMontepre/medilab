@@ -4,17 +4,18 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 
 ## Workflows
 
-| Workflow      | Runs on                                                                                 | Does                                                                                                                 |
-| ------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `ci-core`     | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
-| `ci-infra`    | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and `ansible-lint` when the Ansible code changes. |
-| `ci-tools`    | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
-| `ci-sync-app` | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
-| `cd-core`     | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
-| `cd-infra`    | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
-| `cd-ansible`  | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
-| `cd-sync-app` | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                      |
-| `cd-cleanup`  | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                              |
+| Workflow        | Runs on                                                                                 | Does                                                                                                                 |
+| --------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
+| `ci-infra`      | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and Ansible lint and origin isolation regression tests when their code changes. |
+| `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
+| `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
+| `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                     |
+| `cd-core`       | a push to `main` that changes `src/core` or the Dockerfile, and hourly in `window` mode | Publishes the image, releases it through Argo CD at once or in the maintenance window, and rolls back if it fails.   |
+| `cd-infra`      | a push to `main` that changes `infra/`                                                  | Runs `terraform apply`.                                                                                              |
+| `cd-ansible`    | a manual run on `main`                                                                  | Runs the Ansible playbooks against the nodes: `ping`, `inspect`, `check` or `apply`.                                 |
+| `cd-sync-app`   | a `filesync-v*` tag                                                                     | Builds the sync app's Windows, macOS and Linux packages and publishes them as a GitHub release.                      |
+| `cd-cleanup`    | a closed pull request, merged or not, or a finished `cd-core`                           | Deletes the branch, artifacts and build caches of closed pull requests, and old images.                              |
 
 Every workflow can also be started by hand.
 
@@ -30,10 +31,11 @@ flowchart LR
 ```
 
 - `changes` decides whether the pull request touches the core: `src/core` except Markdown, the Dockerfile, `pyrightconfig.json`, `tools/typecheck`, the dev and test taskfiles, `tools/scripts`, the Docker Compose file and the Garage setup of `tools/infrastructure/garage`, the lint action or the workflow. It also decides whether to scan: on core changes, or on changes to `tools/odoo-intelligence`, the AI taskfile or `ci-tools`. The browser tests run on core changes and on changes to `src/tests`.
-- A push to `main` and a manual run ignore what `changes` decides and run every job, so SonarQube Cloud analyses all of `main` with full coverage after each merge. That analysis is the project's overall view: its issues, coverage and quality gate on `main`, against which pull requests are compared.
+- A push to `main` skips `lint` and `e2e`, which already passed on the pull request. When the merge changes anything SonarQube scans, it runs `build`, the test runners, `coverage` and `sonarqube`, so SonarQube Cloud analyses all of `main` with full coverage after each merge; otherwise it runs nothing. That analysis is the project's overall view: its issues, coverage and quality gate on `main`, against which pull requests are compared.
+- A manual run ignores what `changes` decides and runs every job.
 - `lint` runs `task typecheck` and `task test:typecheck`, then `task test:openapi`, then pylint-odoo inside the Odoo image. A type error fails it; see [Python](../conventions/python.md#type-checking).
 - `task test:openapi` lints the OpenAPI document of the laboratory files API with `openapi-spec-validator`, then compares it with the document on `main` with oasdiff, in its image pinned by digest. A change that breaks the document, such as removing a field or a route, fails unless it gives the document a new `info.version`. The tests of the routes check their answers against the same document; see [Testing](../conventions/testing.md#odoo-module-tests).
-- The test runners and `e2e` reach the laboratory files bucket of the Garage server that Docker Compose starts; `garage-setup` sets it up once per run, before the modules install.
+- The test runners and `e2e` reach the laboratory files bucket of the Garage server that Docker Compose starts; `garage-setup` sets it up once per run, before the modules install. It also adds `laboratory-files-other`, which Odoo's key may not reach, and `laboratory-files-reconcile`, which only the reconciliation tests use and empty, since the shards share one server. Production has neither ([#202](https://github.com/SoltuneMontepre/medilab/issues/202)).
 - `build` builds the production image into the GitHub Actions build cache and does not push it.
 - Four test runners each build the image again from that cache and load it as `medilab-odoo:ci`, so the tests run on the image that ships, with its Python requirements. Each runs its own copy of the test database per shard, four shards at once, one per runner CPU, and uploads its raw coverage data as a `coverage-data-<n>` artifact. The runners skip when the change is not relevant.
   - `test (1/3)` to `test (3/3)` install every module except `sol_demo`, without coverage, and each run four of the twelve shards: `task test:core RUNNER=<n> RUNNERS=3 EXCLUDE=sol_demo INSTALL_COVERAGE=false`. No other module's tests use the demo data, and coverage makes the install about 60% slower.
@@ -58,7 +60,7 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
-- The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image, when `infra/ansible/` or `tools/ansible/` changes. It uses no secrets and never reaches a node.
+- The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image and the origin isolation script's syntax and regression tests, when `infra/ansible/`, `tools/ansible/`, the script or its tests change. It uses no secrets and never reaches a node.
 - `infrastructure` is the required check of `ci-infra`: it fails unless `terraform` and `ansible` both passed.
 
 ## cd-ansible
@@ -107,6 +109,27 @@ flowchart LR
 - A manual run builds the packages without releasing them, to check a build before tagging.
 - The packages are not signed for automatic updates and are not uploaded to a bucket: the app checks for updates through an Odoo endpoint that does not exist yet.
 
+## ci-mobile-app
+
+The mobile app is the Expo app in `src/applications/medilab-mobile`.
+
+When the app or the workflow changes, its jobs run at once after `changes`:
+
+```mermaid
+flowchart LR
+    changes --> lint
+    changes --> compile["compile (Android), (iOS)"] --> build
+    changes --> test
+```
+
+`lint`, `build` and `test` are the required checks, the same names as in `ci-core`. When nothing relevant changed, they pass at once.
+
+- `lint` runs the type check with `tsc` and ESLint with Expo's rules.
+- `compile` builds the development build of each platform, so a native dependency or a config plugin that breaks one platform fails here: it bundles the JavaScript with `expo export`, generates the native project with `expo prebuild`, then compiles it. Android builds a debug APK with Gradle and Java 17 on Ubuntu, for `arm64-v8a` only; iOS builds for the simulator with `xcodebuild` on `macos-26`, without signing. `build` fails unless both passed.
+- `test` runs the Jest tests.
+- Each job sets up Node 24, which Expo needs, and Bun, which installs the dependencies.
+- When any job fails, its last step cancels the whole run, as in `ci-core`.
+
 ## cd-core
 
 ```mermaid
@@ -130,19 +153,20 @@ flowchart LR
   - `RELEASE_DAYS`: the days of the week, such as `Mon-Sun` or `Sat,Sun`. Default `Mon-Sun`.
   - `RELEASE_HOURS`: the start and end hour, such as `23-5`, which crosses midnight. Default `23-5`.
 - A manual run with the `release` input releases at once in either mode, such as for a hotfix.
-- `release` takes the image of the newest commit on `main` that has one. When that is the image already released, it stops. Otherwise it commits the SHA tag to `newTag` in `infra/cluster/odoo/kustomization.yaml` on `main`, titled `[chore] Release <short SHA>`.
+- `release` takes the image of the newest of the last 50 commits on `main` that has one. When that is the image already released, or while a pull request labelled `release-blocked` is open, it stops. Otherwise it commits the SHA tag to `newTag` in `infra/cluster/odoo/kustomization.yaml` on `main`, titled `[chore] Release <short SHA>`. The logic is in `tools/scripts/cd_core_release.sh`.
 - Argo CD syncs the release: a pre-sync hook takes an on-demand CloudNativePG backup, then the module upgrade Job runs, then the Odoo replicas roll out one at a time; see [Cluster](cluster.md#odoo).
 - The Actions variables are set by Terraform from the `release` variable in `infra/`; change them there and apply, not in GitHub.
-- `verify` waits up to 15 minutes with `argocd app wait --sync --health` for the application to reach the release commit and become healthy. Because the rollout is rolling, the old replicas keep serving while it runs, so `/web/health` answers 200 even when the release fails; `verify` relies on Argo CD instead. Argo CD reports the release as failed when the upgrade Job fails, or as degraded when a new replica is not ready within the Deployment's `progressDeadlineSeconds` of 10 minutes.
+- `verify` reads the `odoo` application every 15 seconds, for up to 15 minutes, until it has synced a revision that contains the release commit and is healthy; `tools/scripts/cd_core_verify.sh`. It fails at once when that sync fails or the application is degraded. Because the rollout is rolling, the old replicas keep serving while it runs, so `/web/health` answers 200 even when the release fails; `verify` relies on Argo CD instead. Argo CD reports the release as failed when the upgrade Job fails, or as degraded when a new replica is not ready within the Deployment's `progressDeadlineSeconds` of 10 minutes.
 - `rollback` runs only when `verify` fails:
-  1. Commits one `[fix] Roll back release <short SHA>` commit to `main` that sets the image tag in `infra/cluster/` back to the previous release and reverts the commits of the release, one in `continuous` mode and every change since the previous release in `window` mode, so `main` again matches what runs. Argo CD returns to the previous image. When the revert conflicts with a commit merged after the release, the commit only sets the tag back, and `release` stops until the draft pull request below is merged or closed.
+  1. Commits one `[fix] Roll back release <short SHA>` commit to `main` that sets the image tag in `infra/cluster/` back to the previous release and reverts the commits of the release, which are the commits since the previous release that changed `src/core` or `tools/dockerfiles`: one in `continuous` mode and every such change in `window` mode, so `main` again matches what runs. Argo CD returns to the previous image. When the revert conflicts with a commit merged after the release, the commit only sets the tag back, and the draft pull request below is also labelled `release-blocked`, so `release` stops until it is merged or closed.
   2. Creates the branch `fix/redeploy-<short SHA>` from the new `main` and cherry-picks the commits of the release onto it, so the changes are kept.
-  3. Opens a draft pull request from that branch, titled `[fix] Redeploy release <short SHA>`, assigned to the authors of the commits and labelled `failed-release`. Its body lists the commits, links the failed run, and holds the Argo CD status and the logs of the failed pods.
+  3. Opens a draft pull request from that branch, titled `[fix] Redeploy release <short SHA>`, assigned to the authors of the commits and labelled `failed-release`. Its body lists the commits, links the failed run, and holds the Argo CD status, the last 100 lines of each container of the `odoo-upgrade` Job and the last 30 lines of the Odoo replicas, each line cut to 250 characters so that the body fits a pull request.
   4. Fails the run, so the failure shows on the release commit.
-- Commits and pull requests made with `GITHUB_TOKEN` start no workflows, so the rollback commit does not start `cd-core` again. The pipelines of the redeploy pull request run once someone pushes a fix to it.
+- The release and rollback commits on `main` carry `[skip ci]`, so they start no workflow and the rollback does not start `cd-core` again. The redeploy pull request's pipelines run as for any pull request.
 - A rollback does not restore the database. When the upgrade Job failed, Odoo rolled back its own transaction and the schema is unchanged. When the upgrade succeeded and the replicas then failed, the previous image runs on the newer schema; the pre-sync backup is there to restore by hand.
-- `release` and `rollback` push to `main` as `github-actions[bot]`, which the `main` ruleset lets bypass pull requests. Terraform allows GitHub Actions to create pull requests on the repository.
-- `verify` reads Argo CD with the `ARGOCD_AUTH_TOKEN` Actions secret, a token of an Argo CD account that can only read the `medilab` application.
+- `release` and `rollback` act as the release GitHub App, through a token that `actions/create-github-app-token` makes from the `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` Actions secrets. The app commits as its bot user, pushes to `main`, which the `main` ruleset lets it bypass, and opens the redeploy pull request. It is installed on this repository only, with Contents and Pull requests read and write.
+- `verify` and `rollback` reach Argo CD at the `ARGOCD_SERVER` Actions variable and read it with `ARGOCD_AUTH_TOKEN`, a token of the `release` account, which can only read the `odoo` application and its logs. The argocd CLI they install matches the Argo CD version of the `argocd` role.
+- A failed `publish` stops the run; a `schedule` run skips `publish` and only releases.
 
 ## Images
 

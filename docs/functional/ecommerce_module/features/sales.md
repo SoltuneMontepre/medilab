@@ -46,6 +46,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 ### Support
 
 - **US-S20** As a salesperson, I want to take and answer customers' support requests, so that every customer question gets a reply.
+- **US-S23** As a salesperson, I want to take and answer customers' support requests on my phone, so that a customer gets a reply when I am away from my desk.
 
 ## II. Feature Details
 
@@ -212,7 +213,7 @@ Acceptance criteria:
 - An order shows Waiting once confirmed, Testing once analysis starts, Completed when all samples are completed, Cancelled when cancelled.
 - A salesperson sees only their own pipeline and performance, and the unclaimed queue; the Head of Sales sees everyone's.
 
-### 7. Support (US-S20)
+### 7. Support (US-S20, US-S23)
 
 | Rule     | Description                                                                                                         |
 | -------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -221,11 +222,13 @@ Acceptance criteria:
 | Reply    | A reply sets the request to answered and notifies the customer. Sales closes a request once the customer's question is settled. |
 | Who answers | Only those who may edit the request answer it: its salesperson, any salesperson while nobody has taken it, and the Head of Sales. A message from another employee and an internal note change neither its status nor its salesperson. |
 | Deadline | The task is due 24 elapsed hours after the request reaches the salesperson, nights and weekends included. The administrator changes this default on the task type. |
+| Mobile   | Sales take and answer support requests on [Medilab Mobile](../../laboratory_module/applications/medilab-mobile.md#conversations-sh-12-us-s23) under the same rules. |
 
 Acceptance criteria:
 
 - A support request about an order appears in the to-do list of the order's salesperson.
 - A support request about no order is visible to every salesperson until one takes it.
+- An answer from the phone sets the request to answered and notifies the customer.
 
 ## III. Related documents
 

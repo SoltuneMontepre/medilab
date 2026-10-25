@@ -21,7 +21,16 @@ tasks:
     desc: "Install the checksummed official OdooLS release, typeshed and pinned Odoo Community source"
     silent: true
     cmds:
-      - "{{.AI_RUN}} install"
+      - |
+        if {{.AI_RUN}} install --quiet-status; then
+          . {{.LOG}}
+          log_ok "OdooLS and Odoo source ready."
+        else
+          status=$?
+          . {{.LOG}}
+          log_error "OdooLS and Odoo source installation failed."
+          exit "$status"
+        fi
 
   ai:test:
     desc: "Run the AI tooling tests and lint checks"

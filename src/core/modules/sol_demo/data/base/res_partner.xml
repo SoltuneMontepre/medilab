@@ -158,7 +158,7 @@
         <field name="street">12 Nguyễn Huệ</field>
         <field name="city">Quận 1</field>
         <field name="country_id" ref="base.vn" />
-        <field name="image_1920" type="base64" file="sol_demo/static/img/logo_nuoc_sach.png" />
+        <field name="image_1920" type="bytes" file="sol_demo/static/img/logo_nuoc_sach.png" />
     </record>
     <record id="demo_res_partner_hoa" model="res.partner">
         <field name="name">Phạm Thị Hoa</field>

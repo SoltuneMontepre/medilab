@@ -71,7 +71,7 @@
                 <sheet>
                     <div class="oe_title">
                         <label for="code" />
-                        <h1><field name="code" placeholder="Given when the sample is saved" /></h1>
+                        <h1><field name="code" required="0" placeholder="Given when the sample is saved" /></h1>
                     </div>
                     <group>
                         <group>

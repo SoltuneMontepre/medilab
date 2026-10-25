@@ -453,13 +453,13 @@ flowchart TD
 - **Alternative paths:**
   - SF-03-A1: A change request on an issued report is approved by the lab head and creates a new report version.
   - SF-03-A2: The chain rejects a change request; the signed document stays unchanged and the reason is kept.
-  - SF-03-A3: Before the process is completed, signers withdraw from the top level down and the document can be edited again.
+  - SF-03-A3: Before the process is completed, signers withdraw in the reverse order they signed and the document can be edited again.
   - SF-03-A4: Correcting a result in an issued report automatically creates or links that report's open change request. Wait for its required approvals and all corrected results to be approved, then prepare a replacement draft and signing task. Notify the customer when its signed PDF is ready; only issue marks the old report replaced.
   - SF-03-A5: A result correction may be proposed while a report awaits signature. Before applying it, stop signing and return the report to draft. Completed results retain their own change requests. A fresh signing task is created after correction approval for both initial and replacement reports; old tasks cannot sign stale content.
   - SF-03-A6: Quotations and orders use change requests once their process is completed.
 - **Exceptions:**
   - SF-03-E1: A change request without what to change or why is refused.
-  - SF-03-E2: Withdrawing a signature while a higher level still has one, or after the process is completed, is refused.
+  - SF-03-E2: Withdrawing a signature while a signature given after it stands, by a signer who can no longer sign, or after the process is completed, is refused.
 - **States:** change request requested → approved → applied, or → rejected; document version → replaced.
 
 ```mermaid
