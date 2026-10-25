@@ -143,6 +143,7 @@ from . import (
     test_module_boundaries,
     test_notifications,
     test_onlyoffice_jwt,
+    test_onlyoffice_real,
     test_own_department_scope,
     test_own_team_scope,
     test_parameter_constraints,

@@ -37,6 +37,16 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
     """A normal Odoo HTTP process, without HttpCase's shared TestCursor. Fixtures and assertions use independent
     committed transactions in the guarded test database. The document source is a fixture, not Document Server."""
 
+    HTTP_INTERFACE = "127.0.0.1"
+
+    @classmethod
+    def editing_internal_url(cls):
+        return cls.source.url
+
+    @classmethod
+    def editing_public_url(cls):
+        return PUBLIC_URL
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -60,7 +70,7 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
             "odoo",
             "-d",
             cls.registry.db_name,
-            "--http-interface=127.0.0.1",
+            f"--http-interface={cls.HTTP_INTERFACE}",
             f"--http-port={cls.http_url.rsplit(':', 1)[1]}",
             "--workers=0",
             "--max-cron-threads=0",
@@ -83,8 +93,8 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
             env={
                 **os.environ,
                 JWT_SECRET_VARIABLE: SECRET,
-                INTERNAL_URL_VARIABLE: cls.source.url,
-                PUBLIC_URL_VARIABLE: PUBLIC_URL,
+                INTERNAL_URL_VARIABLE: cls.editing_internal_url(),
+                PUBLIC_URL_VARIABLE: cls.editing_public_url(),
                 ADDRESS_VARIABLE: cls.bucket_proxy.url,
             },
         )
