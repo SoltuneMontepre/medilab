@@ -37,10 +37,17 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
     """A normal Odoo HTTP process, without HttpCase's shared TestCursor. Fixtures and assertions use independent
     committed transactions in the guarded test database. The document source is a fixture, not Document Server."""
 
+    bucket_name = CALLBACK_BUCKET
+    extra_log_handlers = ()
+
+    @classmethod
+    def server_environment(cls):
+        return {}
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.enterClassContext(patch.dict(os.environ, {NAME_VARIABLE: CALLBACK_BUCKET}))
+        cls.enterClassContext(patch.dict(os.environ, {NAME_VARIABLE: cls.bucket_name}))
         cls.bucket_owner = cls.env[MODEL_LABORATORY_CONTENT]._database_uuid()
         owner = laboratory_bucket.read_text(MARKER_KEY)
         if owner is not None and owner.strip() != cls.bucket_owner:
@@ -67,6 +74,7 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
             "--log-level=info",
             "--log-handler=odoo.http.server:DEBUG",
             "--log-handler=urllib3.connectionpool:DEBUG",
+            *(f"--log-handler={handler}" for handler in cls.extra_log_handlers),
         ]
         for option in ("db_host", "db_port", "db_user", "db_password", "data_dir", "addons_path"):
             if value := config[option]:
@@ -86,6 +94,7 @@ class LaboratoryEditingHttpCase(LaboratoryBucketTools, LaboratoryEditingConcurre
                 INTERNAL_URL_VARIABLE: cls.source.url,
                 PUBLIC_URL_VARIABLE: PUBLIC_URL,
                 ADDRESS_VARIABLE: cls.bucket_proxy.url,
+                **cls.server_environment(),
             },
         )
         cls.addClassCleanup(cls.stop_server)

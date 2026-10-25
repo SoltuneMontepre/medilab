@@ -1,5 +1,6 @@
 from . import (
     ir_http,
+    ir_http_editor,
     laboratory_content,
     laboratory_content_reconciliation,
     laboratory_device,
