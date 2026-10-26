@@ -116,15 +116,19 @@ def run(arguments=None):
     if arguments[0] == "sessions":
         print(json.dumps(matches, indent=2))
         return 0
+    return invoke([*arguments, "--session", str(select_session(matches, requested))]).returncode
+
+
+def select_session(matches, requested):
+    """The pid of the one usable session of this worktree, the requested one when given."""
     candidates = [row for row in matches if requested is None or row["pid"] == requested]
     if not candidates:
         raise TapError("No matching E2E session for this worktree. Start task test:e2e:tap:open.")
     if len(candidates) != 1:
         raise TapError("Several E2E sessions match. Use tap sessions and pass --session <pid>.")
-    selected = candidates[0]
-    if selected.get("browserSupported") is False:
+    if candidates[0].get("browserSupported") is False:
         raise TapError("Tap needs Electron, Chrome, Chromium or Edge. Start task test:e2e:tap:open.")
-    return invoke([*arguments, "--session", str(selected["pid"])]).returncode
+    return candidates[0]["pid"]
 
 
 def main():
