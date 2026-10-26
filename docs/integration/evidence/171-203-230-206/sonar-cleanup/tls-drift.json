@@ -1,0 +1,28 @@
+{
+  "container": "medilab203-sonar-cleanup-worker",
+  "container_id": "b4adf99c394667d8221e684f40574b9fbabed6a373abacfd39d478d78d339f9e",
+  "image": "docker.io/onlyoffice/documentserver:9.4.0.1@sha256:3ab6ebc7c605e5a32b7ae3ff19daed4925090245acc8100ce2230bd766c88212",
+  "actual_tls_verified": true,
+  "probe": {
+    "status": "PASS",
+    "native_runtime_merge_drift": [
+      {
+        "worker": "docservice",
+        "status": "PASS",
+        "exit_code": 78,
+        "credential_safe_diagnostic": true
+      },
+      {
+        "worker": "converter",
+        "status": "PASS",
+        "exit_code": 78,
+        "credential_safe_diagnostic": true
+      }
+    ],
+    "live_change_readiness_refused": true,
+    "workers_preserved_on_live_change": true,
+    "restored": true
+  },
+  "source": "canonical Kustomize runtime; same worker settings and signing source",
+  "production_access": false
+}

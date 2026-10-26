@@ -1,0 +1,168 @@
+{
+  "source_checkpoint": "800652b1a614254967772429605645f9ec0b01f9",
+  "results": [
+    {
+      "check": "Full native Laboratory/Commerce/Inventory",
+      "status": "PASS",
+      "tests": 1846,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 651.54,
+      "receipt_log_sha256": "ba943b2239de52feb6cebb3b04aff7ffaba92d2f885e69738c364fad4b00bf4c"
+    },
+    {
+      "check": "Targeted native callbacks/JWT/logging/editor/updater",
+      "status": "PASS",
+      "tests": 87
+    },
+    {
+      "check": "Selected real callback/save/history/retry cohort",
+      "status": "PASS",
+      "tests": 6
+    },
+    {
+      "check": "Real released-page/coediting cohort",
+      "status": "PASS",
+      "tests": 4
+    },
+    {
+      "check": "Actual Rust desktop observes/downloads real page save",
+      "status": "PASS",
+      "tests": 1
+    },
+    {
+      "check": "Live updater signatures and migration/data preservation",
+      "status": "PASS",
+      "tests": 1
+    },
+    {
+      "check": "Cypress editor adapter EN/VI narrow/wide, hidden controls, unload/handoff",
+      "status": "PASS",
+      "tests": 8,
+      "pending": 0,
+      "skipped": 0
+    },
+    {
+      "check": "ONLYOFFICE coverage/contract suites",
+      "status": "PASS",
+      "infrastructure_python": 39,
+      "integration_python": 60,
+      "proxy_node": 7,
+      "signer_node": 7
+    },
+    {
+      "check": "Rust application tests",
+      "status": "PASS",
+      "tests": 213,
+      "ignored": 18
+    },
+    {
+      "check": "Bun frontend tests",
+      "status": "PASS",
+      "tests": 53
+    },
+    {
+      "check": "Mobile tests",
+      "status": "PASS",
+      "tests": 4
+    },
+    {
+      "check": "Clippy with warnings denied; Rust formatting; Bun production build",
+      "status": "PASS"
+    },
+    {
+      "check": "Python typecheck",
+      "status": "PASS",
+      "errors": 0,
+      "warnings": 6364,
+      "files": 713
+    },
+    {
+      "check": "Taskfile contracts",
+      "status": "PASS",
+      "tests": 9
+    },
+    {
+      "check": "OpenAPI validation/compatibility/duplicate keys",
+      "status": "PASS",
+      "documents": 3,
+      "baseline_scope": "All three documents validate and pass duplicate-key checks. Files API has no drift from origin/main; callback/updater documents are absent on main, so no historical comparison exists for those two."
+    },
+    {
+      "check": "Pinned infrastructure schemas",
+      "status": "PASS",
+      "custom_resources_validated": 18,
+      "kubeconform_valid": 14,
+      "kubeconform_skipped": 16,
+      "invalid": 0,
+      "errors": 0
+    },
+    {
+      "check": "Native retention/GC at unchanged seven-day policy",
+      "status": "PASS",
+      "elapsed_seven_days": false
+    },
+    {
+      "check": "Real TLS entrypoint, worker policy and drift refusal",
+      "status": "PASS"
+    },
+    {
+      "check": "TLS graceful shutdown, restart and volume-preserving recreation",
+      "status": "PASS"
+    },
+    {
+      "check": "Full repository lint",
+      "status": "FAIL \u2014 retained Commerce decisions",
+      "diagnostics": [
+        "E8102 portal.py:64",
+        "W8163 product_template.py:108",
+        "W8163 product_template.py:109"
+      ],
+      "ruff": "PASS"
+    },
+    {
+      "check": "Additional nine opt-in real-service cases",
+      "status": "PASS",
+      "tests": 9,
+      "scope": "650-second callback, real bucket failure recovery, authentication controls, conflict preservation, untrusted TLS refusal, finite retries, history compatibility and two editors"
+    },
+    {
+      "check": "Continuous seven elapsed days, staging/CNI and native released installers",
+      "status": "NOT RUN",
+      "reason": "Existing release/environment gates; no production deployment or shipping-key access."
+    },
+    {
+      "check": "Available Document Server/Nginx/worker/container log streams",
+      "status": "PASS",
+      "streams": 11,
+      "jwt_values": 0,
+      "callback_capabilities": 0,
+      "limitation": "Available owned streams only; not external logging privacy."
+    }
+  ],
+  "retained_fixture_failures": [
+    {
+      "case": "Initial targeted native cohort",
+      "status": "FAIL",
+      "reason": "Newly named Garage bucket was not provisioned; retained failed database and repeated in a fresh database after provisioning."
+    },
+    {
+      "case": "Initial real-page cohort",
+      "status": "FAIL",
+      "reason": "Required Document Server loopback storage adapter was absent; retained failed/interrupted runner and repeated all four cases after explicit isolated-fixture opt-in."
+    },
+    {
+      "case": "Initial live updater fixture",
+      "status": "FAIL",
+      "reason": "Omitted Compose project variable selected the base fixture network; service failed DNS before database connection. Failed service retained; replacement runs only on the verified owned strict bridge."
+    },
+    {
+      "case": "Initial additional real-service cohort",
+      "status": "FAIL",
+      "executed_tests": 0,
+      "reason": "Bucket setup imported an older environment snapshot; fresh child initialization now uses the same explicit environment as the new runner. Failed database and zero-test receipt retained."
+    }
+  ],
+  "raw_logs_committed": false,
+  "production_access": false
+}
