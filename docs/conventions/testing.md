@@ -129,6 +129,10 @@ The Cypress package and its downloaded application binary are installed separate
 
 `src/tests/bun.lock` locks the Cypress version. Close Cypress App and reopen it with `task test:e2e:open` after upgrading the dependency. Cypress 16 uses `cy.env()` for secret values; its configuration follows the official [migration guide](https://docs.cypress.io/app/references/migration-guide).
 
+### AI authoring and live debugging
+
+Use [Cypress Tap and AI Skills](../workflows/cypress-tap.md) when an agent writes, reviews or debugs a spec. `task test:e2e:tap:open` opens this worktree with Chrome; `task test:e2e:tap TAP_ARGS="<command>"` binds the installed Tap CLI to its E2E session. A Tap dispatch is asynchronous; inspect a fresh verdict and actual test counts. The existing headless task remains the CI suite.
+
 ### Shared browser commands
 
 | Command | Use |

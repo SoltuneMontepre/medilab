@@ -16,7 +16,7 @@ TEST_URL = "http://localhost:18169"
 
 
 class TestE2ETasks(unittest.TestCase):
-    def run_mode(self, mode, *, health=0, cypress_status=0):
+    def run_mode(self, mode, *, health=0, cypress_status=0, browser="chrome"):
         with tempfile.TemporaryDirectory() as directory:
             taskfile = Path(directory) / "Taskfile.yml"
             calls = Path(directory) / "calls.txt"
@@ -56,6 +56,7 @@ tasks:
                 NO_COLOR="1",
                 MEDILAB_URL="http://localhost:9999",
                 MEDILAB_E2E_URL=TEST_URL,
+                MEDILAB_TAP_BROWSER=browser,
                 ELECTRON_RUN_AS_NODE="1",
                 E2E_TEST_HEALTH=str(health),
                 E2E_TEST_STATUS=str(cypress_status),
@@ -101,6 +102,19 @@ tasks:
         self.assertIn("Choose E2E Testing", result.stdout)
         self.assertNotIn("Browser tests passed.", result.stdout)
 
+    def test_tap_opens_e2e_with_a_supported_browser(self):
+        result, calls = self.run_mode("tap")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(calls[-1], f"bunx cypress open --e2e --browser chrome|{TEST_URL}|unset")
+        self.assertIn("test:e2e:tap TAP_ARGS=", result.stdout)
+        self.assertNotIn("Browser tests passed.", result.stdout)
+
+    def test_tap_rejects_an_unsupported_browser_before_installing(self):
+        result, calls = self.run_mode("tap", browser="firefox")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(calls, [])
+        self.assertIn("TAP_BROWSER", result.stdout + result.stderr)
+
     def test_stopped_odoo_explains_recovery_before_installing_or_launching(self):
         result, calls = self.run_mode("run", health=1)
         self.assertNotEqual(result.returncode, 0)
@@ -110,7 +124,7 @@ tasks:
             self.assertIn(text, output)
 
     def test_cypress_failure_keeps_its_exit_status_and_never_reports_success(self):
-        for mode in ("run", "open"):
+        for mode in ("run", "open", "tap"):
             with self.subTest(mode=mode):
                 result, _ = self.run_mode(mode, cypress_status=23)
                 self.assertNotEqual(result.returncode, 0)

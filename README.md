@@ -103,6 +103,8 @@ task test:e2e MEDILAB_URL=http://localhost:8169
 
 Use the Odoo port saved in `tools/infrastructure/.env`; save `MEDILAB_URL` there to reuse the address. The default is `http://localhost:8069`. See [the browser test guide](docs/conventions/testing.md#running-browser-tests) for setup, troubleshooting and running a single spec.
 
+For AI authoring and live debugging, use `task test:e2e:tap:open` and the [Cypress Tap workflow](docs/workflows/cypress-tap.md). The repository includes the official author, explain, docs and Tap skills for Codex, Cursor and Claude Code.
+
 ## Commands
 
 | Command                    | Purpose                                                                                                                                           |
@@ -126,6 +128,8 @@ Use the Odoo port saved in `tools/infrastructure/.env`; save `MEDILAB_URL` there
 | `task test:taskfiles`       | Check module selection and browser-test setup without running containers or Cypress                                                               |
 | `task test:e2e:help`        | Show browser-test setup, the selected Odoo URL and troubleshooting                                                                                |
 | `task test:e2e:open`        | Open Cypress App to choose, watch and debug a test                                                                                                 |
+| `task test:e2e:tap:open`    | Open this worktree with Chrome for live AI debugging                                                                                             |
+| `task test:e2e:tap TAP_ARGS='status --json'` | Inspect this worktree's live Cypress E2E session                                                                                         |
 | `task test:e2e`             | Run every browser test against the running local demo                                                                                             |
 | `task test:e2e:app`         | Install demo data and start the disposable browser-test application, as CI does                                                                   |
 | `task ai:verify`           | Check Odoo model and field navigation through the `odoo` MCP server                                                                               |
