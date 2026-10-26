@@ -27,15 +27,17 @@ from odoo.addons.sol_laboratory.services.request_env import request_env
 
 CALLBACK_ORIGIN_VARIABLE = "ONLYOFFICE_CALLBACK_ORIGIN"
 EDITOR_PATH = re.compile(r"/medilab/laboratory-files/([0-9]+)/edit\Z")
+INVALID_SERVICE_ORIGIN = "Invalid service origin"
+
 ASSETS = "/sol_laboratory/static/src/laboratory_files/editor/"
 
 
 def configured_origin(value, *, private=False):
     """Only origins, without URL syntax browsers or proxies could interpret differently. Public HTTP is local only."""
     if not isinstance(value, str) or not value or any(c.isspace() or not c.isprintable() for c in value):
-        raise ValueError("Invalid service origin")
+        raise ValueError(INVALID_SERVICE_ORIGIN)
     if any(c in value for c in ("\\", "%", "@", "?", "#")):
-        raise ValueError("Invalid service origin")
+        raise ValueError(INVALID_SERVICE_ORIGIN)
     parts = urlsplit(value)
     host = parts.hostname or ""
     if (
@@ -45,15 +47,15 @@ def configured_origin(value, *, private=False):
         or parts.port == 0
         or parts.netloc.endswith(":")
     ):
-        raise ValueError("Invalid service origin")
+        raise ValueError(INVALID_SERVICE_ORIGIN)
     try:
         address = ipaddress.ip_address(host)
         local = address.is_loopback
     except ValueError:
         if not re.fullmatch(r"[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?", host):
-            raise ValueError("Invalid service origin") from None
+            raise ValueError(INVALID_SERVICE_ORIGIN) from None
         if any(not label or label.startswith("-") or label.endswith("-") for label in host.split(".")):
-            raise ValueError("Invalid service origin")
+            raise ValueError(INVALID_SERVICE_ORIGIN)
         if re.fullmatch(r"(?:[0-9]+|0[xX][0-9a-fA-F]+)", host.rsplit(".", 1)[-1]):
             raise ValueError("Ambiguous IP address")
         local = host.lower() == "localhost"
@@ -139,7 +141,7 @@ def open_editor(file_id):
     except LaboratoryFileError as error:
         if error.code == NOT_FOUND:
             return render_page(404, message=missing)
-        status = 403 if error.code == PERMISSION_DENIED else (503 if error.code == EDITING_UNAVAILABLE else 409)
+        status = {PERMISSION_DENIED: 403, EDITING_UNAVAILABLE: 503}.get(error.code, 409)
         return render_page(status, message=str(error), retry_path=path if status in (409, 503) else "")
     except AccessError:
         return render_page(403, message=env._("You do not have permission to edit this file."))

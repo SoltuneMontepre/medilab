@@ -1,7 +1,6 @@
 """Select owner-published signed artifacts without reading keys or fetching request-supplied URLs."""
 
 import base64
-import binascii
 import ipaddress
 import json
 import os
@@ -88,7 +87,7 @@ def catalog():
                 raise ValueError("Release date needs a time zone.")
         try:
             signature = base64.b64decode(release["signature"], validate=True)
-        except (ValueError, binascii.Error) as error:
+        except ValueError as error:
             raise ValueError("Invalid artifact signature encoding.") from error
         if not signature:
             raise ValueError("Empty artifact signature.")

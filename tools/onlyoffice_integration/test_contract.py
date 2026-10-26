@@ -168,9 +168,10 @@ class TestContract(unittest.TestCase):
         self.assertTrue(self.refuse(body, header).expired)
 
     def test_missing_secret(self):
+        body, header = signed(FIELDS)
         for secret in (None, ""):
             with self.assertRaises(SERVICE.EditingCallbackRefused):
-                SERVICE.verify_callback(*signed(FIELDS), secret)
+                SERVICE.verify_callback(body, header, secret)
 
     def test_ssrf_origins_and_ambiguous_urls(self):
         for url in (
@@ -213,14 +214,17 @@ class TestContract(unittest.TestCase):
         self.assertIsNone(record.exc_info)
 
     def test_double_encoded_callback_reference_is_redacted(self):
+        # Assertion diagnostics must not reproduce the capability when redaction fails.
+        self.longMessage = False
         capability = secrets.token_urlsafe(32)
         reference = "https://odoo.example/medilab/laboratory-files/callback/" + capability
         encoded = quote(quote(reference, safe=""), safe="")
         record = logging.LogRecord("upstream.watchdog", logging.ERROR, __file__, 1, "failure %s", (encoded,), None)
         LOGGING.EditingCallbackFilter().filter(record)
-        self.assertTrue(capability not in record.getMessage(), "Callback diagnostic retained a capability")
+        self.assertNotIn(capability, record.getMessage(), "Callback diagnostic retained a capability")
 
     def test_raw_encoded_and_malformed_urls_do_not_print_capabilities(self):
+        self.longMessage = False
         capability = secrets.token_urlsafe(32)
         reference = "https://odoo.example/medilab/laboratory-files/callback/" + capability
         variants = (
@@ -235,10 +239,8 @@ class TestContract(unittest.TestCase):
                 record = logging.LogRecord("watchdog", logging.ERROR, __file__, 1, "%s", (value,), None)
                 record.http_request_line = value
                 LOGGING.EditingCallbackFilter().filter(record)
-                self.assertTrue(
-                    capability not in logging.Formatter().format(record), "Diagnostic retained a capability"
-                )
-                self.assertTrue(capability not in record.http_request_line, "Request line retained a capability")
+                self.assertNotIn(capability, logging.Formatter().format(record), "Diagnostic retained a capability")
+                self.assertNotIn(capability, record.http_request_line, "Request line retained a capability")
 
     def test_trusted_incident_correlation_is_preserved(self):
         evidence = {"session_id": 7, "validated_save": True, "correlation": "agent4-correlation-7"}

@@ -3,7 +3,6 @@
 import ssl
 import sys
 import time
-import urllib.error
 import urllib.request
 
 URL = "https://onlyoffice.medilab.svc.cluster.local/healthcheck"
@@ -23,7 +22,7 @@ def healthy(url=URL, cafile="/run/onlyoffice-ca/ca.crt"):
     try:
         with opener.open(url, timeout=5) as response:
             return response.status == 200 and response.read(16).strip() == b"true"
-    except (OSError, urllib.error.URLError):
+    except OSError:
         return False
 
 
@@ -31,7 +30,7 @@ if __name__ == "__main__":
     while True:
         try:
             state = int(healthy())
-        except (OSError, ValueError, ssl.SSLError):
+        except (OSError, ValueError):
             state = 0
         sys.stdout.write(f"onlyoffice_probe healthy={state}\n")
         sys.stdout.flush()

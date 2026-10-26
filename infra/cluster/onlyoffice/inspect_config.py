@@ -66,7 +66,11 @@ def inspect_workers(
         report = json.loads(report_path.read_text(encoding="utf-8"))
         stat = (process / "stat").read_text(encoding="utf-8")
         start_ticks = stat[stat.rfind(")") + 2 :].split()[19]
-        env = dict(value.split(b"=", 1) for value in (process / "environ").read_bytes().split(b"\0") if b"=" in value)
+        env = {
+            entry[:separator]: entry[separator + 1 :]
+            for entry in (process / "environ").read_bytes().split(b"\0")
+            if (separator := entry.find(b"=")) >= 0
+        }
         if (
             report["worker"] != name
             or report["pid"] != int(process.name)

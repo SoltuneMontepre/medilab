@@ -56,7 +56,7 @@ def callback_body():
         raise CallbackRefused(400)
     try:
         body = json.loads(request.httprequest.get_data(cache=True))
-    except (ValueError, UnicodeDecodeError):
+    except ValueError:
         raise CallbackRefused(400) from None
     if not isinstance(body, dict):
         raise CallbackRefused(400)
@@ -102,11 +102,12 @@ def serve_callback(callback_token):
             except EditingCallbackRefused:
                 raise CallbackRefused(400) from None
             status = 200 if handled else 503
-            outcome = (
-                "temporary_failure"
-                if not handled
-                else ("terminal_error" if session.status == ERROR else session.status)
-            )
+            if not handled:
+                outcome = "temporary_failure"
+            elif session.status == ERROR:
+                outcome = "terminal_error"
+            else:
+                outcome = session.status
             session_id = session.id
         elapsed = time.monotonic() - started
         # A response is not yet a committed outcome: a flush/commit conflict may still make Odoo retry the request.
