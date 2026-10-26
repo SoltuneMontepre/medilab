@@ -6,8 +6,8 @@ The recovery command only removes resources whose Compose project and bootstrap 
 
 import json
 import os
-import random
 import re
+import secrets
 import socket
 import subprocess
 import sys
@@ -228,7 +228,9 @@ def _port_is_free(host, port):
 
 
 def _free_ports():
-    candidates = iter(random.sample(SELECTED_PORT_RANGE, len(SELECTED_PORT_RANGE)))
+    candidates = iter(
+        secrets.SystemRandom().sample(SELECTED_PORT_RANGE, len(SELECTED_PORT_RANGE))
+    )
     ports = {}
     for key in PORT_KEYS:
         port = next(
@@ -254,6 +256,39 @@ def _volume_mismatch_message(missing, unexpected):
     return f"Persistent volumes {', '.join(missing)} of the completed bootstrap no longer exist; run `task reset` to discard what remains and create a new environment."
 
 
+def _reselect(existing, project):
+    """Accept a repeated selection only when it matches the saved marker and resources."""
+    if (
+        existing.get("project") != project
+        or not existing.get("selected_project")
+        or existing.get("worktree") != str(ROOT)
+        or existing.get("lifecycle_version") != 2
+        or existing.get("status") not in ("selected", "completed")
+        or (
+            existing.get("status") == "completed"
+            and existing.get("handoff_verified") is not True
+        )
+    ):
+        raise BootstrapError(
+            "This worktree already has a different or incomplete fresh bootstrap; refusing to replace its ownership marker."
+        )
+    config = existing["config"]
+    persisted = _read_compose_env()
+    if any(persisted.get(key) != value for key, value in config.items()):
+        raise BootstrapError(
+            "The saved Compose selection differs from .env; refusing to select an ambiguous environment."
+        )
+    if existing["status"] == "selected":
+        _assert_no_resources(project)
+    else:
+        missing, unexpected = _volume_mismatch(
+            config, _owned_volume_names(project, existing["owner"])
+        )
+        if missing or unexpected:
+            raise BootstrapError(_volume_mismatch_message(missing, unexpected))
+    print(f"Compose project {project} is already selected ({existing['status']}).")
+
+
 def select(project):
     if not re.fullmatch(r"medilab-bootstrap-[a-z0-9][a-z0-9_-]{0,39}", project):
         raise BootstrapError(
@@ -264,35 +299,7 @@ def select(project):
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     existing = _read_marker()
     if existing:
-        if (
-            existing.get("project") != project
-            or not existing.get("selected_project")
-            or existing.get("worktree") != str(ROOT)
-            or existing.get("lifecycle_version") != 2
-            or existing.get("status") not in ("selected", "completed")
-            or (
-                existing.get("status") == "completed"
-                and existing.get("handoff_verified") is not True
-            )
-        ):
-            raise BootstrapError(
-                "This worktree already has a different or incomplete fresh bootstrap; refusing to replace its ownership marker."
-            )
-        config = existing["config"]
-        persisted = _read_compose_env()
-        if any(persisted.get(key) != value for key, value in config.items()):
-            raise BootstrapError(
-                "The saved Compose selection differs from .env; refusing to select an ambiguous environment."
-            )
-        if existing["status"] == "selected":
-            _assert_no_resources(project)
-        else:
-            missing, unexpected = _volume_mismatch(
-                config, _owned_volume_names(project, existing["owner"])
-            )
-            if missing or unexpected:
-                raise BootstrapError(_volume_mismatch_message(missing, unexpected))
-        print(f"Compose project {project} is already selected ({existing['status']}).")
+        _reselect(existing, project)
         return
     _assert_no_resources(project)
     owner = str(uuid.uuid4())
