@@ -1,5 +1,14 @@
+// The backend's service worker checks for an update after its page has gone. Sent after the session is
+// cleared, that request gets a new session cookie, which the login form's CSRF token no longer matches.
+// Unregistering waits for an update in progress and cancels later ones.
+function removeServiceWorkers() {
+  return cy.then(() => navigator.serviceWorker?.getRegistrations()
+    .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister()))));
+}
+
 export function signIn(login) {
   return cy.env(["demoPassword"]).then(({ demoPassword }) => {
+    removeServiceWorkers();
     cy.session([Cypress.config("baseUrl"), login], () => {
       cy.visit("/web/login");
       cy.get("input[name=login]").type(login);
