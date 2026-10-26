@@ -16,15 +16,18 @@ describe("Login", () => {
   });
 
   describe("Demo sessions", () => {
-    beforeEach(() => cy.signInAs("tester"));
+    before(() => cy.signInAs("tester"));
+
+    beforeEach(() => {
+      cy.intercept("POST", "/web/login").as("login");
+      cy.signInAs("tester");
+    });
 
     it("signs in as the demo tester", () => {
       cy.get(".o_web_client").should("be.visible");
     });
 
-    it("restores the demo tester session without another login", () => {
-      cy.intercept("POST", "/web/login").as("login");
-      cy.signInAs("tester");
+    it("restores the demo tester session between tests without another login", () => {
       cy.get(".o_web_client").should("be.visible");
       cy.get("@login.all").should("have.length", 0);
     });
