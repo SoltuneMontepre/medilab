@@ -1,6 +1,7 @@
 """Expose the owned Garage fixture at Document Server's loopback presigned origin without logging requests."""
 
 import http.client
+import os
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import unquote, urlsplit
@@ -22,9 +23,19 @@ def storage_path(raw):
     if len(segments) < 2 or not BUCKET.fullmatch(segments[0]):
         raise ValueError("Invalid fixture bucket")
     for segment in segments:
-        decoded = unquote(segment, errors="strict")
-        if decoded in (".", "..") or any(char in "/\\" or ord(char) < 32 or ord(char) == 127 for char in decoded):
-            raise ValueError("Invalid fixture object path")
+        decoded = segment
+        for depth in range(8):
+            if decoded in (".", "..") or any(char in "/\\" or ord(char) < 32 or ord(char) == 127 for char in decoded):
+                raise ValueError("Invalid fixture object path")
+            if "%" not in decoded:
+                break
+            if re.search(r"%(?![0-9a-fA-F]{2})", decoded):
+                if depth == 0:
+                    raise ValueError("Invalid path encoding")
+                break
+            decoded = unquote(decoded, errors="strict")
+        else:
+            raise ValueError("Excessively encoded path")
     return parts.path + ("?" + parts.query if parts.query else "")
 
 
@@ -57,5 +68,13 @@ class Handler(BaseHTTPRequestHandler):
         return
 
 
-if __name__ == "__main__":
+def main():
+    if os.environ.get("MEDILAB_ONLYOFFICE_STORAGE_FIXTURE") != "isolated-owned":
+        raise RuntimeError("Enable only in an explicitly owned isolated fixture.")
+    if not os.path.exists("/run/.containerenv") and not os.path.exists("/.dockerenv"):
+        raise RuntimeError("The storage adapter requires an owned container network namespace.")
     ThreadingHTTPServer(("127.0.0.1", 3900), Handler).serve_forever()
+
+
+if __name__ == "__main__":
+    main()

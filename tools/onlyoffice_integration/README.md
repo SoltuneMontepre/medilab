@@ -96,12 +96,12 @@ It signs only getForgottenList/getForgotten, validates the returned origin, refu
 
 ## Released editor page
 
-After starting an owned runtime project, add the page browser and Document Server loopback storage proxy:
+After starting an owned runtime project, add the page browser and Document Server loopback storage proxy. The storage adapter requires the explicit `MEDILAB_ONLYOFFICE_STORAGE_FIXTURE=isolated-owned` opt-in and a container namespace. Its HTTP listener binds only `127.0.0.1:3900`, sends only owned bucket paths to the fixed Garage fixture, and forwards no caller credentials. This transport is restricted to disposable, isolated fixtures; it is not the production HTTPS storage route. The environment marker records operator intent; network/container inspection must establish actual isolation:
 
 ```bash
 docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
   -f tools/onlyoffice_integration/compose.yml -f tools/onlyoffice_integration/compose.page.yml up -d page-browser
-podman exec -d "$ONLYOFFICE_COMPOSE_PROJECT-documentserver-1" \
+podman exec -d -e MEDILAB_ONLYOFFICE_STORAGE_FIXTURE=isolated-owned "$ONLYOFFICE_COMPOSE_PROJECT-documentserver-1" \
   python3 /opt/onlyoffice-integration/loopback_storage_proxy.py
 export ONLYOFFICE_CALLBACK_TEST_BUCKET=laboratory-files-integration-page
 docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
@@ -121,7 +121,7 @@ The page probe starts with no editing session, follows native CSRF-protected adm
 
 For a real elapsed credential-lifetime case, choose fresh run/database identities and set `ONLYOFFICE_PAGE_HOLD_SECONDS=920` and `ONLYOFFICE_RUN_TIMEOUT=1400`. The native editor holds its changes beyond the original fifteen-minute configuration lifetime before closing and saving. This does not simulate seven-day recovery, initial expired-token admission or a complete native desktop pilot. Browser failures retain a protected screenshot inside the owned page browser and fixed-stage diagnostics; never publish raw page configuration or callback logs.
 
-To observe the resulting page save with the actual Sync Rust client, use a fresh short-run identity, set `ONLYOFFICE_DESKTOP_PROBE=1` and `ONLYOFFICE_DESKTOP_CONTAINER` to an owned `medilab-integration-*` Rust fixture on the same private network. It must mount this checkout at `/workspace`, have the locked Rust dependencies/Linux libraries, and run `loopback_storage_proxy.py` for the test-only loopback download origin. Run `python3 -m tools.onlyoffice_integration.page_sync` instead of the direct runner. The bounded rendezvous occurs after database transactions close; the observer signs in with the disposable database's default administrator, checks file/history/hash/source and downloads the exact bytes through the normal contract-checked API client, then revokes its unique device. No key/callback authority is passed in the browser URL.
+To observe the resulting page save with the actual Sync Rust client, use a fresh short-run identity, set `ONLYOFFICE_DESKTOP_PROBE=1` and `ONLYOFFICE_DESKTOP_CONTAINER` to an owned `medilab-integration-*` Rust fixture on the same private network. It must mount this checkout at `/workspace`, have the locked Rust dependencies/Linux libraries, and run `loopback_storage_proxy.py` with the same explicit fixture opt-in for the test-only loopback download origin. Run `python3 -m tools.onlyoffice_integration.page_sync` instead of the direct runner. The bounded rendezvous occurs after database transactions close; the observer signs in with the disposable database's default administrator, checks file/history/hash/source and downloads the exact bytes through the normal contract-checked API client, then revokes its unique device. No key/callback authority is passed in the browser URL.
 
 Launch persistent Rust/Cypress helper containers with `--init` or a signal-handling supervisor. A bare `sleep infinity` as PID 1 ignores default SIGTERM and can reach the stop timeout even after every test has finished. Stop only owned fixtures and record exit status; retain timeout/forced-shutdown evidence rather than labeling it graceful shutdown. The Compose browser fixtures already enable init.
 
