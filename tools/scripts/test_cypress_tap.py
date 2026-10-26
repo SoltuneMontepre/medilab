@@ -36,16 +36,19 @@ class TestCypressTap(unittest.TestCase):
         self.assertEqual(invoke.call_args.args[0], ["status", "--json", "--session", "9"])
 
     def test_refuses_to_fall_back_to_another_project(self):
+        rows = [session(projectRoot="/another/project")]
         with self.assertRaisesRegex(tap.TapError, "No matching"):
-            self.call(["run", "cypress/e2e/login.cy.js"], [session(projectRoot="/another/project")])
+            self.call(["run", "cypress/e2e/login.cy.js"], rows)
 
     def test_refuses_component_sessions_in_the_same_project(self):
+        rows = [session(testingType="component")]
         with self.assertRaisesRegex(tap.TapError, "No matching"):
-            self.call(["status"], [session(testingType="component")])
+            self.call(["status"], rows)
 
     def test_refuses_multiple_matching_sessions_without_a_pid(self):
+        rows = [session(10), session(11)]
         with self.assertRaisesRegex(tap.TapError, "Several"):
-            self.call(["status"], [session(10), session(11)])
+            self.call(["status"], rows)
 
     def test_explicit_pid_is_validated_and_forwarded_once(self):
         for option in (["--session", "11"], ["-s", "11"], ["--session=11"]):
@@ -55,8 +58,9 @@ class TestCypressTap(unittest.TestCase):
                 self.assertEqual(invoke.call_args.args[0], ["status", "--json", "--session", "11"])
 
     def test_explicit_pid_cannot_select_another_project(self):
+        rows = [session(10, projectRoot="/another"), session(11)]
         with self.assertRaisesRegex(tap.TapError, "No matching"):
-            self.call(["status", "--session", "10"], [session(10, projectRoot="/another"), session(11)])
+            self.call(["status", "--session", "10"], rows)
 
     def test_rejects_missing_duplicate_or_invalid_session_values(self):
         for arguments in (["status", "-s"], ["status", "-s", "-1"], ["status", "-s", "1", "-s", "2"]):
@@ -64,8 +68,9 @@ class TestCypressTap(unittest.TestCase):
                 tap.extract_session(arguments)
 
     def test_rejects_an_unsupported_browser(self):
+        rows = [session(browserSupported=False)]
         with self.assertRaisesRegex(tap.TapError, "Electron"):
-            self.call(["status"], [session(browserSupported=False)])
+            self.call(["status"], rows)
 
     def test_session_listing_contains_only_current_e2e_sessions(self):
         rows = [session(10), session(11, testingType="component"), session(12, projectRoot="/another")]

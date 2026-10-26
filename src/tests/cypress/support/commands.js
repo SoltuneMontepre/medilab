@@ -52,14 +52,15 @@ Cypress.Commands.add("expectRefusal", ({
   expect(action, "refused action").to.be.a("function");
   expect(read, "record snapshot reader").to.be.a("function");
   expect(message, "refusal message").to.be.a("string").and.not.be.empty;
-  return cy.then(read).then((before) => {
+  let snapshot;
+  cy.then(read).then((before) => {
     expect(before, "record snapshot").not.to.be.oneOf([null, undefined]);
-    const snapshot = Cypress._.cloneDeep(before);
-    cy.contains(messageSelector, message).should("not.exist");
-    cy.then(action);
-    cy.contains(messageSelector, message).should("be.visible");
-    return cy.then(read).then((after) => {
-      expect(after, "record after refusal").to.deep.equal(snapshot);
-    });
+    snapshot = Cypress._.cloneDeep(before);
+  });
+  cy.contains(messageSelector, message).should("not.exist");
+  cy.then(action);
+  cy.contains(messageSelector, message).should("be.visible");
+  return cy.then(read).then((after) => {
+    expect(after, "record after refusal").to.deep.equal(snapshot);
   });
 });

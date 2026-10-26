@@ -33,18 +33,18 @@ describe("Browser helper commands", () => {
 
   it("signs using the visible form action", () => {
     cy.signRecord();
-    read().its("status").should("eq", "approved");
+    read().should((record) => expect(record.status).to.equal("approved"));
   });
 
   it("sends using the document's action name", () => {
     cy.sendRecord("action_send_quotation");
-    read().its("status").should("eq", "sent");
+    read().should((record) => expect(record.status).to.equal("sent"));
   });
 
   it("rejects with a literal reason and closes the wizard", () => {
     const reason = "Check {enter} against the original measurement.";
     cy.rejectRecord(reason);
-    read().should("deep.equal", { status: "rejected", reason });
+    read().should((record) => expect(record).to.deep.equal({ status: "rejected", reason }));
   });
 
   it("checks the displayed refusal and the unchanged record", () => {
@@ -53,6 +53,7 @@ describe("Browser helper commands", () => {
       action: () => cy.get("#refuse").click(),
       message: MESSAGE,
     });
+    read().should((record) => expect(record.status).to.equal("requested"));
   });
 
   it("fails when the action succeeds", { defaultCommandTimeout: 300 }, () => {
