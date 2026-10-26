@@ -165,7 +165,7 @@ cy.expectRefusal({
 | `callAs(login, model, method, args, kwargs)` | Call a model method as a login, such as `demo.sales` or `portal.anphu`, and yield its result. |
 | `refAs(login, xmlId)` | Resolve a full demo external ID as a login and yield `{ model, id }`. |
 | `portalPostAs(login, page, path, form)` | Submit a portal form as a login, with the CSRF token of `page`. |
-| `callRefused(model, method, args, kwargs)` | Call a model method that must be refused and yield the server's message, in English. Use it with a check that the screen does not offer the action. |
+| `callRefused(model, method, args, kwargs)` | Call a model method that must be refused and yield the server's message, in the signed-in user's language. Use it with a check that the screen does not offer the action. |
 
 Messages on screen follow the user's language: `demo.sales` reads Vietnamese, most other demo users English. Odoo screens load their data after the page, so commands wait up to ten seconds.
 
