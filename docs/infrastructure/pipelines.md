@@ -7,7 +7,7 @@ What each GitHub Actions workflow in `.github/workflows/` does. How workflows ar
 | Workflow        | Runs on                                                                                 | Does                                                                                                                 |
 | --------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `ci-core`       | every pull request and every push to `main`                                             | Lints, builds and tests the Odoo modules, runs the browser tests, then SonarQube Cloud.                              |
-| `ci-infra`      | every pull request                                                                      | Runs `terraform fmt`, `validate` and `plan` when `infra/` changes, and Ansible lint and origin isolation regression tests when their code changes. |
+| `ci-infra`      | every pull request                                                                      | Checks Terraform, Ansible, origin isolation and CloudBeaver when their code changes. |
 | `ci-tools`      | every pull request                                                                      | Runs the AI tooling tests, Ruff and the typecheck tooling tests when that tooling changes.                           |
 | `ci-sync-app`   | every pull request                                                                      | Checks the format, lints, tests and builds the sync app when it changes.                                             |
 | `ci-mobile-app` | every pull request                                                                      | Type-checks, lints and tests the mobile app, and builds it for Android and iOS, when it changes.                     |
@@ -62,7 +62,8 @@ Checks the developer tooling. `tools` is its required check: it fails unless `ai
 - Both read the `dev` Doppler config through the `DOPPLER_TOKEN` Actions secret; see [Secrets](secrets.md).
 - Both authenticate to HCP Terraform with the `TF_API_TOKEN` Actions secret.
 - The `ansible` job of `ci-infra` runs `ansible-lint` with the `production` profile inside the Ansible image and the origin isolation script's syntax and regression tests, when `infra/ansible/`, `tools/ansible/`, the script or its tests change. It uses no secrets and never reaches a node.
-- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform` and `ansible` both passed.
+- The `cloudbeaver` job runs CloudBeaver 26.2.2 and PostgreSQL 18.4 container regressions, then a disposable kind Kubernetes 1.36.4 cluster with Traefik 3.7.13, when manifests, helpers or tests change. It uses synthetic credentials, local volumes and an explicitly isolated context, with no production access or secrets. It checks bootstrap classification, concurrent writers, immediate process termination, original-password login, preserved subjects/settings/connections/credentials, JSON ambiguity and escaping, authenticated readiness, PVC retention, Pod replacement, EndpointSlices and actual Service/IngressRoute availability. The Kubernetes harness refuses any context, API address or node identity outside its named disposable cluster.
+- `infrastructure` is the required check of `ci-infra`: it fails unless `terraform`, `ansible` and `cloudbeaver` all passed.
 
 ## cd-ansible
 
