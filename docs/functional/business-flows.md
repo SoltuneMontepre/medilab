@@ -440,7 +440,7 @@ flowchart TD
   - SF-03-A3: Before the process is completed, signers withdraw in the reverse order they signed and the document can be edited again.
 - **Exceptions:**
   - SF-03-E1: A change request without what to change or why is refused.
-  - SF-03-E2: Withdrawing a signature while a signature given after it stands, by a signer who can no longer sign, or after the process is completed, is refused.
+  - SF-03-E2: Withdrawing a signature while a signature given after it stands, or after the process is completed, is refused.
 - **States:** change request requested → approved → applied, or → rejected; document version → replaced.
 
 ```mermaid
