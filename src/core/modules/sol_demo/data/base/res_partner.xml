@@ -82,12 +82,25 @@
         <field name="country_id" ref="base.vn" />
         <field name="phone">028 3750 1234</field>
         <field name="email">contact@anphu-beverage.example</field>
+        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_an_phu_quality" model="res.partner">
         <field name="name">Tran Thi Huong</field>
         <field name="parent_id" ref="demo_res_partner_an_phu" />
-        <field name="function">Quality Assurance Manager</field>
+        <field name="function">Trưởng phòng Đảm bảo Chất lượng</field>
         <field name="email">huong.tran@anphu-beverage.example</field>
+        <field name="phone">0907 123 456</field>
+        <field name="type">contact</field>
+        <field name="lang">vi_VN</field>
+    </record>
+    <record id="demo_res_partner_an_phu_purchasing" model="res.partner">
+        <field name="name">Lê Minh Tuấn</field>
+        <field name="parent_id" ref="demo_res_partner_an_phu" />
+        <field name="function">Trưởng phòng Mua hàng</field>
+        <field name="email">tuan.le@anphu-beverage.example</field>
+        <field name="phone">0918 234 567</field>
+        <field name="type">contact</field>
+        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_green_farm" model="res.partner">
         <field name="name">Công ty CP Nông Sản Xanh Lâm Đồng</field>
@@ -98,6 +111,25 @@
         <field name="country_id" ref="base.vn" />
         <field name="phone">0263 382 5566</field>
         <field name="email">info@nongsanxanh.example</field>
+        <field name="lang">vi_VN</field>
+    </record>
+    <record id="demo_res_partner_green_farm_director" model="res.partner">
+        <field name="name">Nguyễn Thị Mai</field>
+        <field name="parent_id" ref="demo_res_partner_green_farm" />
+        <field name="function">Giám đốc</field>
+        <field name="email">mai.nguyen@nongsanxanh.example</field>
+        <field name="phone">0263 382 5577</field>
+        <field name="type">contact</field>
+        <field name="lang">vi_VN</field>
+    </record>
+    <record id="demo_res_partner_green_farm_quality" model="res.partner">
+        <field name="name">Phạm Quốc Việt</field>
+        <field name="parent_id" ref="demo_res_partner_green_farm" />
+        <field name="function">Phụ trách Kiểm nghiệm</field>
+        <field name="email">viet.pham@nongsanxanh.example</field>
+        <field name="phone">0263 382 5588</field>
+        <field name="type">contact</field>
+        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_pham_van_long" model="res.partner">
         <field name="name">Pham Van Long</field>
@@ -158,6 +190,7 @@
         <field name="street">12 Nguyễn Huệ</field>
         <field name="city">Quận 1</field>
         <field name="country_id" ref="base.vn" />
+        <field name="lang">vi_VN</field>
         <field name="image_1920" type="bytes" file="sol_demo/static/img/logo_nuoc_sach.png" />
     </record>
     <record id="demo_res_partner_hoa" model="res.partner">
@@ -167,6 +200,7 @@
         <field name="email">pham.thi.hoa@nuocuongsach.example</field>
         <field name="phone">0903 111 222</field>
         <field name="type">contact</field>
+        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_khoa" model="res.partner">
         <field name="name">Lê Văn Khoa</field>
@@ -175,6 +209,16 @@
         <field name="email">le.van.khoa@nuocuongsach.example</field>
         <field name="phone">0908 333 444</field>
         <field name="type">contact</field>
+        <field name="lang">vi_VN</field>
+    </record>
+    <record id="demo_res_partner_thao" model="res.partner">
+        <field name="name">Vũ Thị Thảo</field>
+        <field name="parent_id" ref="demo_res_partner_nuoc_sach" />
+        <field name="function">Trưởng phòng Kỹ thuật</field>
+        <field name="email">vu.thi.thao@nuocuongsach.example</field>
+        <field name="phone">0905 222 333</field>
+        <field name="type">contact</field>
+        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_minh" model="res.partner">
         <field name="name">Trần Văn Minh</field>
@@ -191,6 +235,7 @@
         <field name="email">ngo.thi.lan@nuocuongsach.example</field>
         <field name="phone">0909 777 888</field>
         <field name="type">contact</field>
+        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_nong_san_registered" model="res.partner">
         <field name="name">Công ty CP Nông Sản Xanh</field>
@@ -204,6 +249,8 @@
     <record id="demo_res_partner_tai" model="res.partner">
         <field name="name">Đỗ Văn Tài</field>
         <field name="parent_id" ref="demo_res_partner_nong_san_registered" />
+        <field name="function">Chủ nhiệm hợp tác xã</field>
+        <field name="lang">vi_VN</field>
         <field name="email">tai.do@nongsanxanh.example</field>
         <field name="phone">0263 382 9999</field>
         <field name="type">contact</field>
