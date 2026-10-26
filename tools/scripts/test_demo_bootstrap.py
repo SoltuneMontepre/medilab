@@ -711,6 +711,21 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
 
         run.assert_not_called()
 
+    def test_free_ports_stay_below_dynamic_ranges_and_skip_busy_ports(self):
+        busy = set(range(20000, 32768, 2))
+        with patch(
+            "demo_bootstrap._port_is_free",
+            side_effect=lambda _host, port: port not in busy,
+        ):
+            ports = demo_bootstrap._free_ports()
+
+        values = [int(port) for port in ports.values()]
+        self.assertEqual(set(ports), set(demo_bootstrap.PORT_KEYS))
+        self.assertEqual(len(set(values)), len(values))
+        for port in values:
+            self.assertIn(port, range(20000, 32768))
+            self.assertNotIn(port, busy)
+
     def test_accounting_foundation_precedes_application_install(self):
         calls = []
 

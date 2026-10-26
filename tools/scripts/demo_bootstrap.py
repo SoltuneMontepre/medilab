@@ -6,6 +6,7 @@ The recovery command only removes resources whose Compose project and bootstrap 
 
 import json
 import os
+import random
 import re
 import socket
 import subprocess
@@ -43,6 +44,15 @@ ODOO_DATABASE_ARGUMENTS = (
 INTERRUPTED_SWITCH_ERROR = (
     "An interrupted project switch exists; run `task setup:fresh:switch:recover`."
 )
+PORT_KEYS = (
+    "MEDILAB_ODOO_PORT",
+    "MEDILAB_DB_PORT",
+    "MEDILAB_GARAGE_PORT",
+    "MEDILAB_GARAGE_ADMIN_PORT",
+    "MEDILAB_CLOUDBEAVER_PORT",
+)
+# Below the dynamic ranges that Linux (32768+) and Windows (49152+) hand out and reserve.
+SELECTED_PORT_RANGE = range(20000, 32768)
 MODULES = [
     line.strip()
     for line in (ROOT / "src/core/modules.txt").read_text().splitlines()
@@ -196,27 +206,35 @@ def _fresh_config(project, owner, selected_ports=None):
     }
 
 
-def _free_ports():
-    keys = (
-        "MEDILAB_ODOO_PORT",
-        "MEDILAB_DB_PORT",
-        "MEDILAB_GARAGE_PORT",
-        "MEDILAB_GARAGE_ADMIN_PORT",
-        "MEDILAB_CLOUDBEAVER_PORT",
-    )
-    probes = []
+def _port_host(key):
+    return "127.0.0.1" if key == "MEDILAB_GARAGE_ADMIN_PORT" else "0.0.0.0"
+
+
+def _port_is_free(host, port):
+    probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        for _key in keys:
-            probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            probe.bind(("0.0.0.0", 0))
-            probes.append(probe)
-        return {
-            key: str(probe.getsockname()[1])
-            for key, probe in zip(keys, probes, strict=True)
-        }
+        probe.bind((host, port))
+    except OSError:
+        return False
     finally:
-        for probe in probes:
-            probe.close()
+        probe.close()
+    return True
+
+
+def _free_ports():
+    candidates = iter(random.sample(SELECTED_PORT_RANGE, len(SELECTED_PORT_RANGE)))
+    ports = {}
+    for key in PORT_KEYS:
+        port = next(
+            (port for port in candidates if _port_is_free(_port_host(key), port)),
+            None,
+        )
+        if port is None:
+            raise BootstrapError(
+                f"No free host port is left between {SELECTED_PORT_RANGE.start} and {SELECTED_PORT_RANGE.stop - 1} for {key}."
+            )
+        ports[key] = str(port)
+    return ports
 
 
 def select(project):
@@ -512,33 +530,20 @@ def recover_switch():
 
 
 def _assert_ports_available(config):
-    keys = (
-        "MEDILAB_ODOO_PORT",
-        "MEDILAB_DB_PORT",
-        "MEDILAB_GARAGE_PORT",
-        "MEDILAB_GARAGE_ADMIN_PORT",
-        "MEDILAB_CLOUDBEAVER_PORT",
-    )
     seen = {}
-    for key in keys:
+    for key in PORT_KEYS:
         port = int(config[key])
         if port in seen:
             raise BootstrapError(
                 f"{key} and {seen[port]} use the same host port {port}; configured ports must be distinct."
             )
         seen[port] = key
-    for key in keys:
+    for key in PORT_KEYS:
         port = int(config[key])
-        host = "127.0.0.1" if key == "MEDILAB_GARAGE_ADMIN_PORT" else "0.0.0.0"
-        probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            probe.bind((host, port))
-        except OSError as error:
+        if not _port_is_free(_port_host(key), port):
             raise BootstrapError(
-                f"Port {port} from {key} is unavailable; no bootstrap resources were changed. Set a free port in {COMPOSE_ENV_FILE} and retry only after checking the environment state."
-            ) from error
-        finally:
-            probe.close()
+                f"Port {port} from {key} is unavailable; no bootstrap resources were changed. Set a free port below {SELECTED_PORT_RANGE.stop} in {COMPOSE_ENV_FILE} and retry only after checking the environment state."
+            )
 
 
 def _create_owned_volumes(project, owner, config):
