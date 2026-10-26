@@ -24,17 +24,42 @@ export function signIn(login) {
   });
 }
 
+function callKw(model, method, args, kwargs) {
+  return cy.request("POST", `/web/dataset/call_kw/${model}/${method}`, {
+    jsonrpc: "2.0",
+    method: "call",
+    params: { model, method, args, kwargs },
+  });
+}
+
 export function call(model, method, args, kwargs = {}) {
-  return cy
-    .request("POST", `/web/dataset/call_kw/${model}/${method}`, {
-      jsonrpc: "2.0",
-      method: "call",
-      params: { model, method, args, kwargs },
-    })
-    .then(({ body }) => {
-      expect(body.error, JSON.stringify(body.error)).to.be.undefined;
-      return body.result;
-    });
+  return callKw(model, method, args, kwargs).then(({ body }) => {
+    expect(body.error, JSON.stringify(body.error)).to.be.undefined;
+    return body.result;
+  });
+}
+
+// Calls a model method that must be refused, and yields the server's message, in English.
+export function callRefused(model, method, args, kwargs = {}) {
+  return callKw(model, method, args, kwargs).then(({ body }) => {
+    expect(body.error, `${model}.${method} refused`).to.exist;
+    return body.error.data.message;
+  });
+}
+
+// Calls a model method as another login from the test runner, leaving the browser's session as it is.
+export function callAs(login, model, method, args, kwargs = {}) {
+  return cy.task("odooCall", { login, model, method, args, kwargs });
+}
+
+// A record given by its external ID, resolved as another login from the test runner.
+export function refAs(login, xmlId) {
+  return callAs(login, "ir.model.data", "check_object_reference", xmlId.split(".")).then(([model, id]) => ({ model, id }));
+}
+
+// Posts a portal form as another login from the test runner, with the CSRF token of the page that shows it.
+export function portalPostAs(login, page, path, form = {}) {
+  return cy.task("odooPortalPost", { login, page, path, form });
 }
 
 export function resolveRecord(xmlId) {
@@ -48,9 +73,14 @@ export function resolveRecord(xmlId) {
   });
 }
 
-export function readRecord(xmlId, fields) {
+// A record given by its external ID, or already as `{ model, id }`.
+export function recordRef(record) {
+  return typeof record === "string" ? resolveRecord(record) : cy.wrap(record, { log: false });
+}
+
+export function readRecord(record, fields) {
   expect(fields, "fields to compare").to.be.an("array").and.not.be.empty;
-  return resolveRecord(xmlId)
+  return recordRef(record)
     .then(({ model, id }) => call(model, "read", [[id], fields]))
     .then((records) => {
       expect(records, "readable record").to.have.length(1);

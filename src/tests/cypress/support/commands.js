@@ -1,7 +1,8 @@
-import { readRecord, resolveRecord, signIn } from "./odoo";
+import { readRecord, recordRef, signIn } from "./odoo";
 
 const ACTIONS = ".o_form_view .o_statusbar_buttons";
 const REFUSAL_MESSAGES = ".o_error_dialog, .o_notification, .modal .alert";
+const REFUSALS = ["odoo.exceptions.UserError", "odoo.exceptions.ValidationError", "odoo.exceptions.AccessError"];
 
 function clickAction(name) {
   return cy.get(`${ACTIONS} button[name="${name}"]:visible`)
@@ -15,8 +16,8 @@ Cypress.Commands.add("signInAs", (role) => {
   return signIn(`demo.${role}`);
 });
 
-Cypress.Commands.add("openRecord", (xmlId) => {
-  return resolveRecord(xmlId).then((record) => {
+Cypress.Commands.add("openRecord", (record) => {
+  return recordRef(record).then((record) => {
     cy.visit(`/odoo/${record.model}/${record.id}`);
     cy.get(".o_form_view").should("be.visible");
     return cy.wrap(record, { log: false });
@@ -52,6 +53,8 @@ Cypress.Commands.add("expectRefusal", ({
   expect(action, "refused action").to.be.a("function");
   expect(read, "record snapshot reader").to.be.a("function");
   expect(message, "refusal message").to.be.a("string").and.not.be.empty;
+  // Odoo shows a refusal in a dialog and also rejects the page's request; only that rejection is expected.
+  cy.on("uncaught:exception", (error) => !REFUSALS.includes(error.exceptionName));
   let snapshot;
   cy.then(read).then((before) => {
     expect(before, "record snapshot").not.to.be.oneOf([null, undefined]);
