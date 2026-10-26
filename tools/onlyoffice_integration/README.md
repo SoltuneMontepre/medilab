@@ -27,6 +27,8 @@ python3 tools/onlyoffice_integration/run.py test
 
 Choose a new, owned project for a fresh run. No host ports are published. All networks, volumes and databases belong to the selected project. The runner refuses an existing acceptance container, database or evidence directory; it never removes them automatically. Its outer deadline stops only its named runner, preserving services and volumes. Individual engine commands also have deadlines. Podman Compose attach can hang after a container exits, so acceptance runs are detached and polled through the engine. Do not terminate a shared service or reuse another agent's resources.
 
+The runner creates the project bridge explicitly with `--internal --opt isolate=strict` before Compose starts. Compose treats that named bridge as external to its own network creation, but the runner verifies the exact project label, strict isolation setting, every running peer's ownership and single-network attachment, and the absence of published ports or engine sockets. Podman Compose did not propagate `driver_opts.isolate`; declaring the option in Compose alone left inbound traffic from another bridge reachable. An existing network without the required metadata fails closed. Use a new project name instead of altering or removing a retained fixture. Build/download dependencies before attaching offline helpers to the bridge; helpers must be project-labeled and use only this bridge. This boundary is for synthetic fixtures and does not establish production ingress or CNI isolation.
+
 Use the corrected production worker bootstrap for acceptance. The HTTP fixture retains the same pinned binaries, settings, sender correction and native configuration attestation as the TLS wrapper:
 
 ```bash

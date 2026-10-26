@@ -14,6 +14,11 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+if __package__:
+    from .isolation import validate_network, validate_plan, validate_runtime
+else:
+    from isolation import validate_network, validate_plan, validate_runtime
+
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE = Path(__file__).with_name("compose.yml")
 PROJECT = os.environ.get("ONLYOFFICE_COMPOSE_PROJECT", "medilab171-agent4")
@@ -135,7 +140,42 @@ def require_success(result, label):
     return result
 
 
+def verify_isolation():
+    planned = require_success(compose("config", "--format", "json"), "Read fixture network plan")
+    validate_plan(json.loads(planned.stdout), PROJECT)
+    network = PROJECT + "_default"
+    inspected = require_success(
+        command([*DOCKER, "network", "inspect", network], env=DOCKER_ENV),
+        "Inspect fixture network",
+    )
+    members = require_success(
+        command(
+            [
+                *DOCKER,
+                "ps",
+                "-q",
+                "--filter",
+                "network=" + network,
+                "--filter",
+                "status=running",
+            ],
+            env=DOCKER_ENV,
+        ),
+        "Find fixture network peers",
+    ).stdout.split()
+    if not members:
+        raise RuntimeError("No running fixture peers found.")
+    containers = require_success(
+        command([*DOCKER, "inspect", *members], env=DOCKER_ENV),
+        "Inspect fixture network peers",
+    )
+    result = validate_runtime(PROJECT, json.loads(inspected.stdout)[0], json.loads(containers.stdout))
+    write_result("isolation.json", result)
+    return result
+
+
 def verify_image():
+    verify_isolation()
     containers = require_success(
         command(
             [
@@ -220,6 +260,35 @@ def verify_image():
 
 
 def start():
+    planned = require_success(compose("config", "--format", "json"), "Read fixture network plan")
+    validate_plan(json.loads(planned.stdout), PROJECT)
+    network = PROJECT + "_default"
+    existing = command([*DOCKER, "network", "inspect", network], env=DOCKER_ENV)
+    if existing.returncode:
+        require_success(
+            command(
+                [
+                    *DOCKER,
+                    "network",
+                    "create",
+                    "--driver",
+                    "bridge",
+                    "--internal",
+                    "--opt",
+                    "isolate=strict",
+                    "--label",
+                    "com.docker.compose.project=" + PROJECT,
+                    network,
+                ],
+                env=DOCKER_ENV,
+            ),
+            "Create strictly isolated fixture bridge",
+        )
+    else:
+        from_network = json.loads(existing.stdout)[0]
+        from_isolation = validate_network(PROJECT, from_network)
+        if from_isolation != network:
+            raise RuntimeError("Fixture network ownership mismatch.")
     if f"/run/user/{os.getuid()}/podman/podman.sock" == SOCKET:
         ca = os.environ.get("ONLYOFFICE_TEST_CA_BUNDLE", "/etc/ssl/certs/ca-certificates.crt")
         require_success(
@@ -256,6 +325,7 @@ def start():
         ),
         "Start isolated services",
     )
+    verify_isolation()
     require_success(compose("run", "--rm", "garage-setup"), "Initialize isolated bucket")
     verify_image()
 

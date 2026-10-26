@@ -117,6 +117,11 @@ services:
       - .:/opt/onlyoffice-integration:ro
       - agent4-odoo:/var/lib/odoo
 
+networks:
+  default:
+    name: ${ONLYOFFICE_COMPOSE_PROJECT:-medilab171-agent4}_default
+    external: true
+
 secrets:
   proxy_ca:
     file: ${ONLYOFFICE_TEST_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}
