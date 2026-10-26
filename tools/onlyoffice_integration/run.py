@@ -1,7 +1,6 @@
 """Run only the Agent 4 stack. Leaves failed-run volumes intact until explicit cleanup."""
 
 import argparse
-import ast
 import hashlib
 import json
 import os
@@ -15,8 +14,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 if __package__:
+    from . import native_results
     from .isolation import validate_network, validate_plan, validate_runtime
 else:
+    import native_results
     from isolation import validate_network, validate_plan, validate_runtime
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -330,7 +331,7 @@ def start():
     verify_image()
 
 
-def test(*, native_only=False):
+def check_test_run(native_only):
     if native_only and (
         not os.environ.get("ONLYOFFICE_REAL_TAGS") or "onlyoffice_real" in os.environ["ONLYOFFICE_REAL_TAGS"]
     ):
@@ -358,6 +359,33 @@ def test(*, native_only=False):
     )
     if database.stdout.strip():
         raise RuntimeError("The test database already exists; preserve evidence before explicit cleanup.")
+
+
+def wait_for_runner(launch, limit):
+    deadline = time.monotonic() + limit
+    observations = native_results.NativeResults()
+    while True:
+        inspected = require_success(command([*DOCKER, "inspect", CONTAINER], env=DOCKER_ENV), "Inspect test runner")
+        state = json.loads(inspected.stdout)[0]["State"]
+        observations.observe(command([*DOCKER, "logs", CONTAINER], env=DOCKER_ENV))
+        if not state["Running"]:
+            code = state["ExitCode"]
+            break
+        if time.monotonic() >= deadline:
+            require_success(
+                command([*DOCKER, "stop", "--time", "10", CONTAINER], env=DOCKER_ENV), "Stop timed-out test runner"
+            )
+            code = 124
+            break
+        time.sleep(2)
+    logs_result = command([*DOCKER, "logs", CONTAINER], env=DOCKER_ENV)
+    observations.observe(logs_result)
+    result = subprocess.CompletedProcess(launch.args, code, logs_result.stdout, logs_result.stderr)
+    return result, observations
+
+
+def test(*, native_only=False):
+    check_test_run(native_only)
     limit = int(os.environ.get("ONLYOFFICE_RUN_TIMEOUT", "1200"))
     launch = require_success(
         compose(
@@ -375,74 +403,21 @@ def test(*, native_only=False):
         ),
         "Launch test runner",
     )
-    deadline = time.monotonic() + limit
-    native_started = set()
-    native_failed = set()
-    native_summaries = []
-
-    def observe_logs(snapshot):
-        messages = snapshot.stdout + snapshot.stderr
-        native_started.update(re.findall(r"Starting (Test\w+\.test_\w+)", messages))
-        native_failed.update(re.findall(r"(?:FAIL|ERROR|Failed): (?:[\w.]+\.)?(Test\w+\.test_\w+)", messages))
-        for summary in re.findall(r"odoo.tests.result: ([^\n]+)", messages):
-            if summary not in native_summaries:
-                native_summaries.append(summary)
-
-    while True:
-        inspected = require_success(command([*DOCKER, "inspect", CONTAINER], env=DOCKER_ENV), "Inspect test runner")
-        state = json.loads(inspected.stdout)[0]["State"]
-        observe_logs(command([*DOCKER, "logs", CONTAINER], env=DOCKER_ENV))
-        if not state["Running"]:
-            code = state["ExitCode"]
-            break
-        if time.monotonic() >= deadline:
-            require_success(
-                command([*DOCKER, "stop", "--time", "10", CONTAINER], env=DOCKER_ENV), "Stop timed-out test runner"
-            )
-            code = 124
-            break
-        time.sleep(2)
-    logs_result = command([*DOCKER, "logs", CONTAINER], env=DOCKER_ENV)
-    observe_logs(logs_result)
-    result = subprocess.CompletedProcess(launch.args, code, logs_result.stdout, logs_result.stderr)
+    result, observations = wait_for_runner(launch, limit)
     copy = command(
         [*DOCKER, "cp", CONTAINER + ":" + EVIDENCE_DIRECTORY + "/.", str(OUTPUT / "callbacks")], env=DOCKER_ENV
     )
     files = sorted((OUTPUT / "callbacks").glob("test_*.json")) if copy.returncode == 0 else []
-    # Do not persist raw Odoo/Document Server logs: inspect them locally under restricted access.
     source = ROOT / "src/core/modules/sol_laboratory/tests/test_onlyoffice_real.py"
-    expected_names = sorted(
-        node.name
-        for node in ast.walk(ast.parse(source.read_text()))
-        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
-    )
-    if native_only:
-        expected_names = []
-    selected = os.environ.get("ONLYOFFICE_TEST_METHOD")
-    if selected:
-        requested = set(selected.split(","))
-        expected_names = [name for name in expected_names if name in requested]
-        if len(expected_names) != len(requested):
-            raise ValueError("The selected real-service test does not exist.")
-    expected = len(expected_names)
-    logs = result.stdout + result.stderr
-    failed = sorted(set(re.findall(r"(?:FAIL|ERROR|Failed): (?:[\w.]+\.)?TestOnlyofficeReal\.(test_\w+)", logs)))
-    started = sorted(set(re.findall(r"Starting TestOnlyofficeReal\.(test_\w+)", logs)))
-    completed = {path.stem for path in files}
-    outcomes = {path.stem: json.loads(path.read_text()).get("test_body_passed") for path in files}
-    failed = sorted(set(failed) | {name for name, outcome in outcomes.items() if outcome is False})
-    successful_summary = bool(native_summaries and native_summaries[-1].startswith("0 failed, 0 error(s)"))
-    native_status = {
-        name: "FAIL" if name in native_failed else "PASS" if successful_summary and code == 0 else "BLOCKED"
-        for name in sorted(native_started)
-    }
+    expected_names = native_results.expected_test_names(source, native_only, os.environ.get("ONLYOFFICE_TEST_METHOD"))
+    outcomes = native_results.callback_outcomes(result, files, expected_names, observations.successful_summary())
     passed = bool(
         result.returncode == 0
-        and len(files) == expected
-        and not failed
-        and not native_failed
-        and native_started
-        and successful_summary
+        and len(files) == len(expected_names)
+        and not outcomes["failed_tests"]
+        and not observations.failed
+        and observations.started
+        and observations.successful_summary()
     )
     write_result(
         "result.json",
@@ -456,18 +431,10 @@ def test(*, native_only=False):
             "runner_log_sha256": hashlib.sha256((result.stdout + result.stderr).encode()).hexdigest(),
             "real_service_executed": not native_only,
             "native_odoo_executed": True,
-            "native_test_status": native_status,
-            "native_summary": native_summaries,
+            "native_test_status": observations.statuses(result.returncode),
+            "native_summary": observations.summaries,
             "passed": passed,
-            "failed_tests": failed,
-            "passed_tests": sorted(
-                name for name in completed if name not in failed and (outcomes[name] is True or successful_summary)
-            ),
-            "unknown_outcome_tests": sorted(
-                name for name in completed if name not in failed and outcomes[name] is None and not successful_summary
-            ),
-            "blocked_tests": [name for name in started if name not in completed and name not in failed],
-            "not_started_tests": [name for name in expected_names if name not in started and name not in completed],
+            **outcomes,
             "whole_runner_timeout_seconds": limit,
         },
     )
