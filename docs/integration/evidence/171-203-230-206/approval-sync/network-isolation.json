@@ -3,10 +3,17 @@
   "outside_canary": "separate owned non-internal bridge; no production endpoint",
   "isolated_clients": [
     {
+      "service": "browser",
       "connected": false,
       "errno": 101
     },
     {
+      "service": "page-browser",
+      "connected": false,
+      "errno": 101
+    },
+    {
+      "service": "documentserver",
       "connected": false,
       "errno": 101
     }
@@ -63,13 +70,31 @@
       "default_ipv4_route": false
     },
     {
-      "service": "sync-native",
+      "service": "owned-offline-helper",
+      "single_network": true,
+      "published_ports": false,
+      "default_ipv4_route": false
+    },
+    {
+      "service": "strict-updates",
+      "single_network": true,
+      "published_ports": false,
+      "default_ipv4_route": false
+    },
+    {
+      "service": "owned-offline-helper",
+      "single_network": true,
+      "published_ports": false,
+      "default_ipv4_route": false
+    },
+    {
+      "service": "strict-web",
       "single_network": true,
       "published_ports": false,
       "default_ipv4_route": false
     }
   ],
-  "source_head": "a5047adb3ce90edfd7d3658a30215bdde4417bbb",
-  "uncommitted_isolation_change": true,
+  "source_head": "66eadeb831d58e787e6bc59f8c32f1917f62dfe8",
+  "uncommitted_isolation_change": false,
   "scope": "Actual bidirectional routing negative control plus working positive controls. Public Internet/production endpoints were not contacted."
 }

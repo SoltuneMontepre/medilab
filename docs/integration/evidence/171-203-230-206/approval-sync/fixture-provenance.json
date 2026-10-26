@@ -1,5 +1,5 @@
 {
-  "peer_count": 8,
+  "peer_count": 11,
   "all_declared_sensitive_variables_match_fixed_disposable_fixture_values": true,
   "unreviewed_sensitive_variables": [],
   "all_mounts_within_checkout_or_local_rootless_named_volumes": true,
