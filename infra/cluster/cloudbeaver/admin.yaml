@@ -1,4 +1,4 @@
-# The administrator CloudBeaver creates on its first start. Anonymous access stays off, so every user signs in.
+# Administrator inputs serve fresh bootstrap and readiness; existing accounts are never reset.
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
