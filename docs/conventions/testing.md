@@ -4,13 +4,16 @@ How tests are written, where they live and how they run.
 
 ## Layers
 
-| Layer         | Tool                                             | Location                              | Command               |
-| ------------- | ------------------------------------------------ | ------------------------------------- | --------------------- |
-| Odoo modules  | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`    | `task test:core`      |
-| Browser       | Cypress                                          | `src/tests/cypress/e2e/`              | `task test:e2e`       |
-| Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application | `task test:apps`      |
-| Type checking | `unittest` and pyright                           | `tools/typecheck/`                    | `task test:typecheck` |
-| AI tooling    | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`      | `task ai:test`        |
+| Layer         | Tool                                             | Location                                 | Command                                                |
+| ------------- | ------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------ |
+| Odoo modules  | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`       | `task test:core`                                       |
+| Browser       | Cypress                                          | `src/tests/cypress/e2e/`                 | `task test:e2e`                                        |
+| Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application    | `task test:apps`                                       |
+| Type checking | `unittest` and pyright                           | `tools/typecheck/`                       | `task test:typecheck`                                  |
+| Tool scripts  | `unittest`                                       | next to the script in `tools/scripts/`   | the task of the script                                 |
+| AI tooling    | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`         | `task ai:test`                                         |
+| Taskfiles     | `unittest` and Task                              | `tools/scripts/test_taskfile_modules.py` | `task test:taskfiles`                                  |
+| CloudBeaver   | unittest and pinned containers                   | `tools/cloudbeaver/`                     | `python3 -m unittest discover -s tools/cloudbeaver -v` |
 
 `task test` runs the module and application tests. Browser tests run against the running app, so start it first with `task up`.
 
@@ -20,12 +23,24 @@ How tests are written, where they live and how they run.
 - One test class per file, named after the file: `test_parameter_constraints.py` holds `TestParameterConstraints`.
 - Tag each class `@tagged("post_install", "-at_install")`.
 - Use `TransactionCase` for models and `HttpCase` for routes.
-- Routes of the laboratory files API are tested through `LaboratoryApiCase` (`sol_laboratory/tests/laboratory_api_case.py`), which checks every answer against the API's OpenAPI document: a documented status, its required headers, a body matching its schema and the status of a refusal's code. A route whose answer the document does not give fails its tests. Tests that call the laboratory files bucket use `LaboratoryBucketCase` (`sol_laboratory/tests/laboratory_bucket_case.py`) against the Garage server of Docker Compose, which `task test:core` sets up first; it calls presigned addresses as computers do. Races of two real transactions use `laboratory_files_concurrency_case.py`; retries inside a request are tested by making a step fail on concurrency on its first try.
-- `task test:core` installs the modules in a throwaway database, copies it once per shard and runs the shards at once, each with the `--test-tags /<module>:<class>` of its classes. `tools/scripts/test_shards.py` splits the classes so each shard has about the same number of test methods. The output of each shard starts with `[shard <n>]`. The task drops the databases afterwards. `MEDILAB_TEST_DB` names the test database, `medilab_test` by default; give each run its own name when two run against the same Postgres. A worktree's compose project has a Postgres of its own, so `task test:core` there leaves the main checkout's alone once the worktree has its own ports ([A second stack from a worktree](../../README.md#a-second-stack-from-a-worktree)). `task test:core MODULES=a,b` limits it to those modules; by default it runs every module in `src/core/modules.txt`.
+- Routes of the laboratory files API are tested through `LaboratoryApiCase` (`sol_laboratory/tests/laboratory_api_case.py`), which checks every answer against the API's OpenAPI document: a documented status, its required headers, a body matching its schema and the status of a refusal's code. A route whose answer the document does not give fails its tests. Tests that call the laboratory files bucket use `LaboratoryBucketCase` (`sol_laboratory/tests/laboratory_bucket_case.py`) against the Garage server of Docker Compose, which `task test:core` sets up first; it calls presigned addresses as computers do. The reconciliation tests use a bucket of their own, `laboratory-files-reconcile`, which they empty before and after each test. Races of two real transactions use `laboratory_files_concurrency_case.py`; retries inside a request are tested by making a step fail on concurrency on its first try.
+- `task test:core` uses the selected, ownership-checked Compose project. It refuses a preexisting test database, shard database or Odoo test directory, records a local test-run marker, installs the modules in that throwaway database, copies it once per shard and runs the shards at once, each with the `--test-tags /<module>:<class>` of its classes. `tools/scripts/test_shards.py` splits the classes so each shard has about the same number of test methods. The output of each shard starts with `[shard <n>]`. The task removes only its marked test databases and directory afterwards; an interrupted run with a marker requires review before another run. `MEDILAB_TEST_DB` names the test database, `medilab_test` by default; give each run its own name when two run against the same Postgres. A worktree's compose project has a Postgres of its own, so `task test:core` there leaves the main checkout's alone once the worktree has its own ports ([A second stack from a worktree](../../README.md#a-second-stack-from-a-worktree)). `task test:core MODULES=a,b` limits it to those modules; by default it runs every module in `src/core/modules.txt`.
 - `task test:core RUNNER=2 RUNNERS=3` splits the classes into four shards per machine and runs the second machine's four; `ci-core` runs three machines this way. `EXCLUDE=<module>` leaves a module out, `TEST_MODULES=a,b` runs the tests of only those modules while all are installed, and `INSTALL_COVERAGE=false` installs without coverage, which is about 60% faster. With `COVERAGE_DIR=<folder>` the task saves its raw coverage data there instead of writing the report, and `task test:core:coverage COVERAGE_DIR=<folder>` combines the data of all machines into the report.
 - Tests in different classes run in different processes and databases, so a test never depends on another class having run.
-- `task test:uninstall` installs Laboratory, E-commerce, Inventory and Onboarding in a throwaway database, uninstalls E-commerce and Inventory and checks that the Laboratory data is intact, then uninstalls Onboarding and checks that the master data it accepted remains and that none of its crons is still active.
-- `task test:core` also combines the coverage of the install and of every shard into the report `src/core/modules/coverage.xml`, which is not committed.
+- `task test:uninstall` installs Laboratory, E-commerce, Inventory and Onboarding in a guarded throwaway database, uninstalls E-commerce and Inventory and checks that the Laboratory data is intact, then uninstalls Onboarding and checks that the master data it accepted remains and that none of its crons is still active. It refuses a selected fresh demo because its standalone test uses the application's filestore.
+- `task test:core` also combines the coverage of the install and of every shard into the report `src/core/modules/coverage.xml`, which is not committed. Task installs its pinned Linux Python 3.12 coverage package into ignored `.local/core-test-coverage` on the host and mounts it read-only in test containers, so a container with restricted DNS can still run coverage without changing the saved application image.
+
+## CloudBeaver tests
+
+Run `python3 -m unittest discover -s tools/cloudbeaver -v` with Docker or Podman and the pinned CloudBeaver/PostgreSQL images. `CONTAINER_ENGINE` accepts `docker` (default) or `podman`; executable paths and additional arguments are rejected. It uses synthetic accounts and disposable volumes. Without `MEDILAB_KUBE_TEST_CONFIG`, the real Kubernetes cases report skips, not passes.
+
+For Pod/PVC/Service/IngressRoute lifecycle tests, create a disposable kind cluster named `medilab-286-review`, using the pinned node image and image-loading recipe in [ci-infra](../../.github/workflows/ci.infra.yml). Select its separate kubeconfig explicitly:
+
+```bash
+MEDILAB_KUBE_TEST_CONFIG=/path/to/disposable-kind-config python3 -m unittest discover -s tools/cloudbeaver -p test_kubernetes.py -v
+```
+
+The harness requires context `kind-medilab-286-review`, a loopback API server and the exact single disposable node name. It creates its own namespaces, synthetic Secrets, PVCs, Traefik CRDs and test routing. Never supply a production kubeconfig. For rootless Podman, create and load the cluster inside `systemd-run --user --scope -p Delegate=yes` as described in [kind's rootless documentation](https://kind.sigs.k8s.io/docs/user/rootless/). A control plane accepting manifests does not prove Pod lifecycle tests executed.
 
 ## Type checking tests
 
@@ -48,7 +63,7 @@ How tests are written, where they live and how they run.
 - Tests use the app address `MEDILAB_URL`, default `http://localhost:8069`.
 - Tests do not depend on data a previous test created.
 - The task unsets `ELECTRON_RUN_AS_NODE`, which editors such as VS Code set and which stops Cypress from starting.
-- `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. `ci-core` runs it before `task test:e2e`, so tests can sign in as the demo users. Locally it changes the database of `task up`.
+- `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. `ci-core` runs it before `task test:e2e`, so tests can sign in as the demo users. Locally it changes the database of `task up`; it refuses a selected fresh demo to avoid reinstalling into its completed application database.
 
 ## Applications
 

@@ -1,0 +1,21 @@
+# Administrator inputs serve fresh bootstrap and readiness; existing accounts are never reset.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: cloudbeaver-admin
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: doppler
+  target:
+    name: cloudbeaver-admin
+  data:
+    - secretKey: CB_ADMIN_NAME
+      remoteRef:
+        key: CLOUDBEAVER_ADMIN_NAME
+    - secretKey: CB_ADMIN_PASSWORD
+      remoteRef:
+        key: CLOUDBEAVER_ADMIN_PASSWORD

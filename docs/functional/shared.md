@@ -131,7 +131,7 @@ Acceptance criteria:
 Once a document is signed it cannot be modified. Because approving is signing (SH-04), this applies from the first signature of the approval chain.
 
 - From the first signature the document is read-only for everyone, including administrators.
-- **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature once every higher level has withdrawn theirs. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
+- **Until the document's process is completed**, a signer at any level, the final level included, may withdraw their own signature, even after losing the permission or the role of their level, once every signature given after theirs is withdrawn. This reopens the document for editing; every withdrawal is audited and the document must be signed again from that level.
 - **After the document's process is completed**, such as a test request completed, an order completed or an invoice paid, the document can no longer be reopened. To change it, a person who can edit that type of document raises a **change request** stating what to change and why.
 - The change request follows an approval chain defined per document type, for example the Head of Sales for a quotation or the Lab Head for a test result.
 - When the chain approves, the system creates a **new version** of the document, unsigned, linked to the signed one; the signed version is kept unchanged and marked as replaced. The new version must be signed again.
@@ -141,7 +141,8 @@ Once a document is signed it cannot be modified. Because approving is signing (S
 Acceptance criteria:
 
 - No screen or API changes a signed document.
-- A signer can withdraw their signature only while no higher level has a standing signature and the document's process is not completed, and the document is then editable again.
+- A signer can withdraw their signature while no signature given after theirs stands and the document's process is not completed, and the document is then editable again.
+- A signer who has lost the permission or the role of their level can still withdraw.
 - After the document's process is completed, no signature can be withdrawn.
 - An approved change request produces a new version linked to the old one; the old one stays readable.
 - The status of a change request is visible to the requester at every step.
@@ -229,7 +230,7 @@ Tasks with a planned time, machine bookings and location bookings appear on sche
 | Outsourcing schedule  | Sample tests sent to subcontractors, with the date sent and the date results are expected |
 
 - **Built on Odoo Calendar.** A planned task and a machine booking each have an Odoo calendar event (`calendar.event`) with the person who does the work as attendee, so the personal schedule is the person's Odoo calendar, next to their other events. Task and event stay in step both ways: planning or moving the task moves the event, and moving or deleting the event in the calendar replans or unplans the task; a machine booking's event can only be moved where the scheduler finds the slot free. Working hours come from the person's working time (`resource.calendar`).
-- **Booking a location.** Anyone who works for the company can book a bookable [location](laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) for a time: the booking is an Odoo calendar event that names the location, with its organiser and attendees, so it shows on their calendars and on the location's schedule. Bookings of one location do not overlap; a location that is not bookable, or is archived, cannot be booked. The organiser moves or cancels the booking; an administrator can cancel any booking. Booking a location shows the free times of the locations under a chosen location, such as the rooms of a floor.
+- **Booking a location.** Anyone who works for the company can book a bookable [location](laboratory_module/features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) for a time: the booking is an Odoo calendar event that names the location, with its organiser and attendees, so it shows on their calendars and on the location's schedule. Bookings of one location do not overlap; a location that is not bookable, or is archived, cannot be booked. The organiser moves or cancels the booking; an administrator can cancel any booking. A booking the scheduler made for a method step moves and is cancelled only with its machine booking. Booking a location shows the free times of the locations under a chosen location, such as the rooms of a floor.
 - A reminder is sent a number of minutes before a planned task, a machine booking or a location booking starts, 15 by default, set by an administrator. It is raised once from the calendar event of the task or the booking, on the task the work belongs to, or on the event of a location booking to its organiser and attendees, and that event has no second Odoo alarm.
 - A reminder is shown in the application as a pop-up, sent by email (Brevo) and pushed to the Medilab Mobile app through Firebase Cloud Messaging.
 - **Event settings.** The administrator can turn an event off, so no notification of it is created, and edit its templates. Mandatory events cannot be turned off. Turning an event off does not stop the tasks the event creates.

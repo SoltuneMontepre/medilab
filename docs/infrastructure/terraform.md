@@ -13,13 +13,13 @@ Terraform manages the `soltunemontepre.tech` zone's records and the tunnel that 
 | Fallback         | `modules/tunnel` | Any other host name on the tunnel gets a 404                                                          |
 | Web DNS records  | `modules/dns`    | A proxied CNAME per web host name to `<tunnel-id>.cfargotunnel.com`                                   |
 
-- `lims.soltunemontepre.tech` is the only web host name; add one by adding it to `web_hostnames` in `infra/dns.tf`, which creates its record and its public hostname together.
+- The web host names are `lims.soltunemontepre.tech`, `argocd.soltunemontepre.tech`, `mail.soltunemontepre.tech`, `cloudbeaver.soltunemontepre.tech` and `grafana.soltunemontepre.tech`; add one by adding it to `web_hostnames` in `infra/dns.tf`, which creates its record and its public hostname together.
 - The tunnel's token is the sensitive output `tunnel_token`. Terraform does not store it in Doppler; see `CLOUDFLARE_TUNNEL_TOKEN` in [Secrets](secrets.md).
 - Deleting a host name from `web_hostnames` and applying removes its record and its public hostname.
 
 ## GitHub
 
-The `github` module publishes the Actions secrets and creates the `ansible` and `ansible-apply` environments; see [Secrets](secrets.md#published-to-github) and [Pipelines](pipelines.md#cd-ansible).
+The `github` module publishes the Actions secrets and variables, creates the `ansible` and `ansible-apply` environments, manages the `main` ruleset, which requires a reviewed pull request and the checks in `required_checks` and lets organization admins and the release GitHub App bypass it. The `release` variable sets the `RELEASE_MODE`, `RELEASE_DAYS` and `RELEASE_HOURS` Actions variables of [cd-core](pipelines.md#cd-core); see [Secrets](secrets.md#published-to-github) and [Pipelines](pipelines.md#cd-ansible).
 
 ## Related documents
 

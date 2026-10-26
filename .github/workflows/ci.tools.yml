@@ -98,8 +98,69 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: python -m unittest discover -s tools/typecheck -p test_pyright_report.py
 
+  logging:
+    name: logging (${{ matrix.label }})
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            label: Linux
+          - os: windows-2025
+            label: Windows
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "taskfile.yml"
+              - "tools/scripts/compose_env.py"
+              - "tools/scripts/colorize_odoo_logs.py"
+              - "tools/scripts/log.sh"
+              - "tools/scripts/test_log.py"
+              - "tools/scripts/test_taskfile_modules.py"
+              - "src/core/modules.txt"
+              - "tools/taskfiles/ai.taskfile.yml"
+              - "tools/taskfiles/app.taskfile.yml"
+              - "tools/taskfiles/dev.taskfile.yml"
+              - "tools/taskfiles/test.taskfile.yml"
+              - "tools/typecheck/link_addons.py"
+              - "tools/odoo-intelligence/odoo_intelligence/cli.py"
+              - "tools/odoo-intelligence/odoo_intelligence/install.py"
+              - "tools/odoo-intelligence/tests/test_install.py"
+              - ".github/workflows/ci.tools.yml"
+
+      - name: Set up Python
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Set up Task
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Logging regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: task test:logging
+
+      - name: Taskfile module selection tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: task test:taskfiles
+
   tools:
-    needs: [ai, typecheck]
+    needs: [ai, typecheck, logging]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
@@ -108,8 +169,9 @@ jobs:
         env:
           AI: ${{ needs.ai.result }}
           TYPECHECK: ${{ needs.typecheck.result }}
+          LOGGING: ${{ needs.logging.result }}
         run: |
-          if [ "$AI" != success ] || [ "$TYPECHECK" != success ]; then
-            echo "::error::ai finished with result $AI and typecheck with result $TYPECHECK."
+          if [ "$AI" != success ] || [ "$TYPECHECK" != success ] || [ "$LOGGING" != success ]; then
+            echo "::error::ai finished with result $AI, typecheck with result $TYPECHECK, and logging with result $LOGGING."
             exit 1
           fi

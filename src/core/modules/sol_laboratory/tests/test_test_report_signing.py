@@ -13,6 +13,20 @@ class TestTestReportSigning(ReportCase):
     def html(self, report):
         return self.env["ir.actions.report"]._render_qweb_html(TEST_REPORT_REPORT, report.ids)[0].decode()
 
+    def test_print_samples_uses_odoo_20_union_api(self):
+        second_test = self.add_test()
+        results = (self.enter(), self.enter(test=second_test))
+        for result in results:
+            self.send(result)
+            self.approve(result)
+        report = self.report()
+
+        with self.assertNoLogs("py.warnings", level="WARNING"):
+            samples = report._print_samples()
+
+        self.assertEqual(len(samples), 1)
+        self.assertEqual(len(samples[0]["rows"]), 2)
+
     def test_signing_issues_the_report_with_a_number_and_a_pdf_in_the_requests_language(self):
         self.customer.email = "qa@anphu.example"
         self.request.report_language = "en"

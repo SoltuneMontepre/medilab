@@ -26,17 +26,22 @@ Documentation index: [docs/readme.md](docs/readme.md).
 
 ## Quick start
 
+For a new local demo environment:
+
 ```powershell
-task setup
+task setup:fresh:select PROJECT=medilab-bootstrap-local
+task setup:fresh
 ```
 
-`task setup` creates `src/core/.venv`, fetches the Odoo source, installs Serena and the Odoo Language Server for the coding clients, authenticates Doppler (paste a token or browser login, selecting project `medilab`, config `dev`) and starts the containers.
+Selection saves an empty Compose project and available host ports for this checkout. It leaves existing projects and their data intact, including resources from a previous `task setup`. The bootstrap creates `src/core/.venv`, fetches the Odoo source, installs Serena and the Odoo Language Server, initializes the Vietnamese accounting chart and seeds the MediLab demo data with private report assets. It uses local development credentials without Doppler.
 
-Open http://localhost:8069. The `medilab` database is created by the first `task upgrade`; the database manager is turned off (`list_db = False`), so the login page shows no database administration link. Modules are installed with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=sol_laboratory`.
+Open the Odoo port printed by selection, also saved as `MEDILAB_ODOO_PORT` in `tools/infrastructure/.env`. The database manager is turned off (`list_db = False`), so the login page shows no database administration link. Demo users sign in as `demo.<role>` with password `demo`.
 
-`task upgrade MODULES=sol_laboratory,sol_demo` adds demo data and a `demo.<role>` user per role; their password is `demo`, or `MEDILAB_DEMO_PASSWORD` at install when it is set.
+For an existing local environment, `task setup` prepares the tooling, authenticates Doppler (project `medilab`, config `dev`) and upgrades installed modules. Install other modules with `task upgrade MODULES=<module>`, for example `task upgrade MODULES=sol_laboratory`. Installing `sol_demo` through `task upgrade` is refused unless it is already installed; use the fresh bootstrap for a new demo. See [local demo setup](docs/workflows/setting-up.md#local-demo-setup) for recovery and switching projects.
 
 ## Services
+
+These are the default ports for an ordinary local stack. A selected fresh demo uses the ports saved in `tools/infrastructure/.env`.
 
 | Service     | URL                   | Notes                                                                                                                           |
 | ----------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -73,6 +78,8 @@ MEDILAB_ODOO_IMAGE=medilab-odoo:medilab-api
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `task`                     | List all tasks                                                                                                                                    |
 | `task setup`               | Run `doppler`, `dev:setup`, `ai:setup` and `upgrade`                                                                                              |
+| `task setup:fresh:select PROJECT=medilab-bootstrap-<name>` | Select an empty demo project and available ports for this checkout                                                        |
+| `task setup:fresh`         | Initialize and seed the selected fresh demo, or start it again after successful bootstrap                                                        |
 | `task up`                  | Start Odoo, Postgres, Garage and CloudBeaver                                                                                                      |
 | `task doppler`             | Log the Doppler CLI in and select project `medilab`, config `dev`                                                                                 |
 | `task stop`                | Stop the containers and keep the volumes                                                                                                          |
@@ -80,11 +87,12 @@ MEDILAB_ODOO_IMAGE=medilab-odoo:medilab-api
 | `task logs`                | Follow the Odoo log                                                                                                                               |
 | `task upgrade`             | Upgrade all installed modules                                                                                                                     |
 | `task upgrade MODULES=a,b` | Install and upgrade the listed modules                                                                                                            |
-| `task reset`               | Delete the database and volumes, then start again                                                                                                 |
+| `task reset`               | Recreate a verified fresh demo after confirming its owner; ordinary environments are refused                                                     |
 | `task dev:setup`           | Sync `src/core/.venv` from `uv.lock`, fetch the Odoo source and link the modules into it for type checks, and set this checkout's compose project |
 | `task ai:setup`            | Install Serena, OdooLS and its Odoo source in this worktree for the coding clients                                                                |
 | `task ai:odoo-ls`          | Install the pinned OdooLS release, typeshed and Odoo source that the `odoo` MCP server uses                                                       |
 | `task ai:test`             | Run the AI tooling tests and lint checks                                                                                                          |
+| `task test:taskfiles`       | Check module selection in setup and upgrade commands without running containers                                                                    |
 | `task ai:verify`           | Check Odoo model and field navigation through the `odoo` MCP server                                                                               |
 | `task ai:cursor-setup`     | Install the official Odoo extension into an isolated Cursor profile                                                                               |
 | `task dev:lock`            | Re-resolve `uv.lock` after editing dependencies in `pyproject.toml`                                                                               |

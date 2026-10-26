@@ -1,0 +1,124 @@
+# H2 and runtime configuration are a single persistent installation.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudbeaver
+  labels:
+    app.kubernetes.io/name: cloudbeaver
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudbeaver
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cloudbeaver
+    spec:
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 60
+      initContainers:
+        - name: prepare-workspace
+          image: docker.io/dbeaver/cloudbeaver:26.2.2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          command:
+            - /bin/bash
+            - /bootstrap/prepare.sh
+          envFrom:
+            - secretRef:
+                name: cloudbeaver-admin
+          env:
+            - name: CB_SERVER_NAME
+              value: MediLab
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medilab-db-app
+                  key: password
+          volumeMounts:
+            - name: workspace
+              mountPath: /opt/cloudbeaver/workspace
+            - name: bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+            - name: bootstrap-bin
+              mountPath: /bootstrap-bin
+      containers:
+        - name: cloudbeaver
+          image: docker.io/dbeaver/cloudbeaver:26.2.2
+          command: [/bin/bash, /bootstrap/start.sh]
+          envFrom:
+            - secretRef:
+                name: cloudbeaver-admin
+          env:
+            - name: CB_VERIFY_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: cloudbeaver-admin
+                  key: CB_ADMIN_NAME
+            - name: CB_VERIFY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloudbeaver-admin
+                  key: CB_ADMIN_PASSWORD
+            - name: CLOUDBEAVER_DB_URL
+              value: jdbc:h2:/opt/cloudbeaver/workspace/.data/cb.h2v2.dat;WRITE_DELAY=0
+            - name: CB_SERVER_NAME
+              value: MediLab
+            - name: CB_SERVER_URL
+              value: https://cloudbeaver.soltunemontepre.tech
+          ports:
+            - name: http
+              containerPort: 8978
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command: [/bin/bash, /bootstrap/ready.sh]
+            periodSeconds: 20
+            timeoutSeconds: 20
+            failureThreshold: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 1536Mi
+          volumeMounts:
+            - name: workspace
+              mountPath: /opt/cloudbeaver/workspace
+            - name: bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+            - name: bootstrap-bin
+              mountPath: /bootstrap-bin
+      volumes:
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: cloudbeaver-workspace
+        - name: bootstrap
+          configMap:
+            name: cloudbeaver-bootstrap
+        - name: bootstrap-bin
+          emptyDir: {}

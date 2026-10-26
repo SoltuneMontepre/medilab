@@ -21,6 +21,7 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_AUDIT_MIXIN,
     MODEL_DEPARTMENT,
     MODEL_EMPLOYEE,
+    MODEL_LOCATION,
     MODEL_PERMISSION_MIXIN,
 )
 from odoo.addons.sol_laboratory.constants.xml_ids import ADMINISTRATOR_GROUP
@@ -43,6 +44,11 @@ class StockLocation(models.Model):
     holder_id = fields.Many2one(MODEL_DEPARTMENT, string="Holder", ondelete="restrict", copy=False)
     # The person who manages the store.
     manager_id = fields.Many2one(MODEL_EMPLOYEE, string="Manager", ondelete="restrict", copy=False)
+    # The location of the company's premises the stock location is in, such as the room a store is in or the bench a
+    # fridge stands on; empty while it is not placed.
+    place_id = fields.Many2one(
+        MODEL_LOCATION, string="Premises Location", ondelete="restrict", index="btree_not_null", copy=False
+    )
     # The nearest store the location is inside; empty for the central store.
     parent_store_id = fields.Many2one(MODEL_STOCK_LOCATION, string="Store Above", compute="_compute_parent_store_id")
     # Code of the cost centre of the department or team that holds the store; empty while it has none.

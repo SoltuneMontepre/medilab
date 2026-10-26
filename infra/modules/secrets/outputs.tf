@@ -33,3 +33,21 @@ output "cloudflare_api_token" {
   value       = data.doppler_secrets.this.map["CLOUDFLARE_API_TOKEN"]
   sensitive   = true
 }
+
+output "argocd_auth_token" {
+  description = "Token of the Argo CD release account, published as the ARGOCD_AUTH_TOKEN Actions secret"
+  value       = data.doppler_secrets.this.map["ARGOCD_AUTH_TOKEN"]
+  sensitive   = true
+}
+
+output "release_app_id" {
+  description = "ID of the GitHub App that cd-core releases and rolls back with, published as the RELEASE_APP_ID Actions secret"
+  value       = data.doppler_secrets.this.map["RELEASE_APP_ID"]
+  sensitive   = true
+}
+
+output "release_app_private_key" {
+  description = "Private key of the release GitHub App, published as the RELEASE_APP_PRIVATE_KEY Actions secret"
+  value       = data.doppler_secrets.this.map["RELEASE_APP_PRIVATE_KEY"]
+  sensitive   = true
+}

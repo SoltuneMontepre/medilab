@@ -77,6 +77,8 @@ jobs:
             relevant:
               - "infra/ansible/**"
               - "tools/ansible/**"
+              - "tools/scripts/check_origin_isolation.sh"
+              - "tools/scripts/test_origin_isolation.py"
               - ".github/workflows/ci.infra.yml"
 
       - name: Set up Docker Build
@@ -100,8 +102,71 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: docker run --rm -v "$PWD:/work" medilab-ansible:local ansible-lint
 
+      - name: Origin isolation regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          bash -n tools/scripts/check_origin_isolation.sh
+          python3 -m unittest discover -s tools/scripts -p test_origin_isolation.py
+
+  cloudbeaver:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect relevant changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            relevant:
+              - "infra/cluster/cloudbeaver/**"
+              - "tools/cloudbeaver/**"
+              - ".github/workflows/ci.infra.yml"
+
+      - name: Pull regression images
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          docker pull docker.io/dbeaver/cloudbeaver:26.2.2
+          docker pull docker.io/library/postgres:18.4
+
+      - name: CloudBeaver regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          bash -n infra/cluster/cloudbeaver/bootstrap/prepare.sh
+          bash -n infra/cluster/cloudbeaver/bootstrap/start.sh
+          bash -n infra/cluster/cloudbeaver/bootstrap/ready.sh
+          python3 -m unittest discover -s tools/cloudbeaver -v
+
+      - name: Create disposable Kubernetes cluster
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        uses: helm/kind-action@v1
+        with:
+          version: v0.33.0
+          kubectl_version: v1.36.4
+          node_image: kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f2b7ea312e3cbfaed
+          cluster_name: medilab-286-review
+          kubeconfig: ${{ runner.temp }}/medilab-286-kind-config
+
+      - name: Load Kubernetes regression images
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          docker pull docker.io/library/python:3.12.13-slim
+          docker pull docker.io/library/traefik:v3.7.13
+          kind load docker-image --name medilab-286-review docker.io/dbeaver/cloudbeaver:26.2.2 docker.io/library/postgres:18.4 docker.io/library/python:3.12.13-slim docker.io/library/traefik:v3.7.13
+
+      - name: Kubernetes lifecycle regression tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          MEDILAB_KUBE_TEST_CONFIG: ${{ runner.temp }}/medilab-286-kind-config
+        run: python3 -m unittest discover -s tools/cloudbeaver -p test_kubernetes.py -v
+
   infrastructure:
-    needs: [terraform, ansible]
+    needs: [terraform, ansible, cloudbeaver]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 2
@@ -110,8 +175,9 @@ jobs:
         env:
           TERRAFORM: ${{ needs.terraform.result }}
           ANSIBLE: ${{ needs.ansible.result }}
+          CLOUDBEAVER: ${{ needs.cloudbeaver.result }}
         run: |
-          if [ "$TERRAFORM" != success ] || [ "$ANSIBLE" != success ]; then
-            echo "::error::terraform finished with result $TERRAFORM and ansible with result $ANSIBLE."
+          if [ "$TERRAFORM" != success ] || [ "$ANSIBLE" != success ] || [ "$CLOUDBEAVER" != success ]; then
+            echo "::error::terraform=$TERRAFORM ansible=$ANSIBLE cloudbeaver=$CLOUDBEAVER."
             exit 1
           fi

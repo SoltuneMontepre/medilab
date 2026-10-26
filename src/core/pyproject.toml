@@ -14,6 +14,7 @@ dependencies = [
     "httpx2==2.13.0",
     "ipython==9.17.1",
     "jsonschema==4.26.0",
+    "markdown2>=2.5.5",
     "packaging==26.3",
     "parse-accept-language==0.1.2",
     "pillow==12.3.0",
