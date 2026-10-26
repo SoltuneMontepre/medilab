@@ -1,6 +1,6 @@
 # Cypress Tap and AI Skills
 
-Use the project's Cypress skills to author, review and debug browser specs. The four official skills and their references live in `.agent/skills/`; `.agents/skills/` exposes them to Codex and Cursor, and `.claude/skills/` exposes them to Claude Code. These entry points share the same source. Restart the agent session after first checkout so it discovers the skills.
+Use the project's Cypress skills to author, review and debug browser specs. The four official skills and their references live in `.agents/skills/`, where Cursor, Antigravity and Codex discover them directly; `.claude/skills/` exposes them to Claude Code through short entry points that link to `.agents/skills/`. Restart the agent session after first checkout so it discovers the skills.
 
 ## Prepare a live session
 
@@ -33,7 +33,7 @@ task test:e2e:tap TAP_ARGS='specs --json'
 | Verify a Cypress API or configuration | `cypress-docs` |
 | Run a spec and inspect the live browser | `cypress-tap` |
 
-Read the [testing conventions](../conventions/testing.md#shared-browser-commands), current config, shared commands and the relevant specs first. Reuse the demo-role and record helpers. For live work, follow the [official Tap skill](../../.agent/skills/cypress-tap/SKILL.md) and only load the references needed for the task.
+Read the [testing conventions](../conventions/testing.md#shared-browser-commands), current config, shared commands and the relevant specs first. Reuse the demo-role and record helpers. For live work, follow the [official Tap skill](../../.agents/skills/cypress-tap/SKILL.md) and only load the references needed for the task.
 
 ## Run and inspect
 
@@ -45,7 +45,7 @@ task test:e2e:tap TAP_ARGS='status --json'
 task test:e2e:tap TAP_ARGS='reporter --json'
 ```
 
-A successful `run` command confirms dispatch. Poll one status request at a time, with a bounded wait, until the requested spec has a nonempty changed `startedAt` and a terminal verdict. Require actual test counts before reporting a pass. Treat command errors as failures; retry transient partial status payloads. Build failures and watcher reruns follow the [upstream lifecycle contract](../../.agent/skills/cypress-tap/references/session-lifecycle.md).
+A successful `run` command confirms dispatch. Poll one status request at a time, with a bounded wait, until the requested spec has a nonempty changed `startedAt` and a terminal verdict. Require actual test counts before reporting a pass. Treat command errors as failures; retry transient partial status payloads. Build failures and watcher reruns follow the [upstream lifecycle contract](../../.agents/skills/cypress-tap/references/session-lifecycle.md).
 
 Read failures before editing or rerunning, using the test and command IDs returned by `reporter`. Bound app reads and clear a historical pin afterwards:
 
@@ -59,7 +59,7 @@ Use command-specific `--help` for the installed beta CLI. Saving a watched file 
 
 ## Maintain the skills
 
-[`.agent/cypress-skills.json`](../../.agent/cypress-skills.json) pins the official toolkit revision and skill versions. Preserve the upstream skill text, referenced files and each copied MIT license. Update all four skill directories and their manifest together, then run `task test:taskfiles`. The native entry points contain project guidance and links to that canonical source.
+[`.agents/cypress-skills.json`](../../.agents/cypress-skills.json) pins the official toolkit revision and skill versions. Preserve the upstream skill text, referenced files and each copied MIT license. Update all four skill directories in `.agents/skills/`, their `.claude/skills/` entry points and their manifest together, then run `task test:taskfiles`.
 
 This integration uses local Tap and introduces no Cloud connection. [Cypress AI Skills](https://docs.cypress.io/app/tooling/ai-skills) describes the separate Cloud workflow. The source investigation and installation rationale are in [Cypress Tap research](../reports/cypress-tap.md).
 

@@ -103,7 +103,7 @@ task test:e2e MEDILAB_URL=http://localhost:8169
 
 Use the Odoo port saved in `tools/infrastructure/.env`; save `MEDILAB_URL` there to reuse the address. The default is `http://localhost:8069`. See [the browser test guide](docs/conventions/testing.md#running-browser-tests) for setup, troubleshooting and running a single spec.
 
-For AI authoring and live debugging, use `task test:e2e:tap:open` and the [Cypress Tap workflow](docs/workflows/cypress-tap.md). The repository includes the official author, explain, docs and Tap skills for Codex, Cursor and Claude Code.
+For AI authoring and live debugging, use `task test:e2e:tap:open` and the [Cypress Tap workflow](docs/workflows/cypress-tap.md). The repository includes the official author, explain, docs and Tap skills for Codex, Cursor, Antigravity and Claude Code.
 
 ## Commands
 

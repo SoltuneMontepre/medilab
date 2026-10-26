@@ -5,7 +5,7 @@ description: Fix the lowest-numbered open MediLab bug issue: reproduce it, prove
 
 # Bug fixing
 
-Follow [.agent/skills/bug-fixing/SKILL.md](../../../.agent/skills/bug-fixing/SKILL.md).
+Follow [.agents/skills/bug-fixing/SKILL.md](../../../.agents/skills/bug-fixing/SKILL.md).
 
 In Claude Code:
 

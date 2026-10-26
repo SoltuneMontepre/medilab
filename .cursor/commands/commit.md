@@ -1,3 +1,3 @@
 # Commit
 
-Follow [.agent/skills/commit/SKILL.md](../../.agent/skills/commit/SKILL.md).
+Follow [.agents/skills/commit/SKILL.md](../../.agents/skills/commit/SKILL.md).

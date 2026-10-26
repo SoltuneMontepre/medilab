@@ -5,4 +5,4 @@ description: "Create or fix Cypress E2E and component specs using MediLab's exis
 
 # cypress-author
 
-Read [the repository Cypress workflow](../../../docs/workflows/cypress-tap.md), then follow [the official skill](../../../.agent/skills/cypress-author/SKILL.md).
+Read [the repository Cypress workflow](../../../docs/workflows/cypress-tap.md), then follow [the official skill](../../../.agents/skills/cypress-author/SKILL.md).

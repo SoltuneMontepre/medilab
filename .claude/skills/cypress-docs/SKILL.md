@@ -5,4 +5,4 @@ description: "Verify Cypress APIs, configuration and behavior against official d
 
 # cypress-docs
 
-Read [the repository Cypress workflow](../../../docs/workflows/cypress-tap.md), then follow [the official skill](../../../.agent/skills/cypress-docs/SKILL.md).
+Read [the repository Cypress workflow](../../../docs/workflows/cypress-tap.md), then follow [the official skill](../../../.agents/skills/cypress-docs/SKILL.md).

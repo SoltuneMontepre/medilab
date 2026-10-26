@@ -5,4 +5,4 @@ description: "Run and debug Cypress specs in this worktree's live open-mode sess
 
 # cypress-tap
 
-Read [the repository Cypress workflow](../../../docs/workflows/cypress-tap.md), then follow [the official skill](../../../.agent/skills/cypress-tap/SKILL.md).
+Read [the repository Cypress workflow](../../../docs/workflows/cypress-tap.md), then follow [the official skill](../../../.agents/skills/cypress-tap/SKILL.md).
