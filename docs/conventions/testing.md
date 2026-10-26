@@ -65,6 +65,70 @@ The harness requires context `kind-medilab-286-review`, a loopback API server an
 - The task unsets `ELECTRON_RUN_AS_NODE`, which editors such as VS Code set and which stops Cypress from starting.
 - `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. `ci-core` runs it before `task test:e2e`, so tests can sign in as the demo users. Locally it changes the database of `task up`; it refuses a selected fresh demo to avoid reinstalling into its completed application database.
 
+### Running browser tests
+
+Run commands from the repository root in PowerShell, Bash or your usual terminal. Install [Bun](https://bun.sh/docs/installation) and Node.js 22.x, 24.x or >=26 for Cypress 16, start Docker or Podman and prepare a local demo with the [README quick start](../../README.md#quick-start). Browser tests use `demo.<role>` accounts and change demo records.
+
+1. Run `task test:e2e:help` to see the selected Odoo URL and the available commands.
+2. Run `task up` to start an existing demo, then open that URL in your browser and check that the login page loads. Use `task logs` if startup fails. A completed fresh demo already has its starting records; use it directly. For a disposable test environment without demo data, `task test:e2e:app` installs the modules and demo data into its application database, as CI does.
+3. Choose one of the following modes. Each checks Odoo's health, installs the locked test dependencies and ensures the matching Cypress binary is installed. Each clears `ELECTRON_RUN_AS_NODE` for Cypress.
+
+| Mode | Command | What to do next |
+| --- | --- | --- |
+| Cypress App | `task test:e2e:open` | Choose **E2E Testing**, a browser, **Start E2E Testing**, then a spec such as `login.cy.js`. Inspect commands in the left panel and the page in the right panel. Saving a spec reruns it. Close the app to finish. |
+| All specs in the terminal | `task test:e2e` | Read the per-spec results and final passed/failed counts. A failing run returns a nonzero exit code. |
+
+Both modes inherit the local environment files loaded by Task. Set `MEDILAB_DEMO_PASSWORD` to the password used when the demo was created if it differs from `demo`.
+
+#### Preparing the application
+
+`task test:e2e:app` prepares the selected local application for browser tests, as CI does:
+
+1. Verify the selected Compose project. Module installation is refused on a selected fresh demo; start that completed demo with `task up` instead.
+2. Start Postgres and Garage and configure the laboratory files bucket and the additional buckets used by access and reconciliation tests.
+3. Run Odoo with `-i` for every application module in `src/core/modules.txt`, including `sol_demo`, then stop the installation process. The target is the application's configured database, `medilab` by default.
+4. Start the Odoo service and check `/web/health`, retrying while the server starts.
+5. Print the ready URL and the next commands: `task test:e2e:open` or `task test:e2e`.
+
+The installation step installs missing modules and seeds demo records when `sol_demo` is first installed. An existing demo keeps the changes made by earlier tests. To get clean demo starting records, create another isolated demo with the [README quick start](../../README.md#quick-start). After changing installed Odoo models or views, run `task upgrade`, or limit the upgrade with `task upgrade MODULES=sol_laboratory`.
+
+For daily work on an existing demo, run `task up` followed by the chosen Cypress mode. Use `task test:e2e:app` when preparing a disposable application for the E2E suite.
+
+#### Selecting the Odoo URL
+
+The address defaults to `http://localhost:8069`. A worktree or selected demo can use another port; read `MEDILAB_ODOO_PORT` in `tools/infrastructure/.env` and pass the full matching address:
+
+```powershell
+task test:e2e:open MEDILAB_URL=http://localhost:8169
+task test:e2e MEDILAB_URL=http://localhost:8169
+```
+
+Save `MEDILAB_URL=http://localhost:8169` in that environment file to reuse it. The tasks print the effective URL and pass it to Cypress. Selecting a URL only chooses where tests connect; it does not start that server.
+
+To run a single spec directly after setup, use the same URL and clear the editor's Electron setting in PowerShell:
+
+```powershell
+Push-Location src/tests
+$env:MEDILAB_URL = "http://localhost:8169"
+Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
+bunx cypress run --spec "cypress/e2e/login.cy.js"
+Pop-Location
+```
+
+#### Troubleshooting
+
+| Message | What to do |
+| --- | --- |
+| `Bun is not installed` | Install Bun, reopen the terminal and retry. |
+| `Cypress executable not found` / `No version of Cypress is installed` | Retry `task test:e2e:open` or `task test:e2e`; both run `cypress install` even when `bun install` reports no dependency changes. If a direct CLI invocation needs repair, run `bunx cypress install` from `src/tests`. Check `CYPRESS_INSTALL_BINARY` if installation was disabled. |
+| `Odoo is not reachable` / `Cypress could not verify that this server is running` | Check the printed URL. Run `task up` in the checkout that owns that demo, open the URL yourself, and inspect `task logs`. Pass `MEDILAB_URL` when the running demo uses another port. |
+| `curl: (23) client returned ERROR on write` after `Starting Odoo` | This is a response-output error in the readiness probe. Open the printed Odoo URL to check the server. The Task readiness command discards the response through its portable shell redirection. |
+| Demo login fails | Confirm demo data was installed and `MEDILAB_DEMO_PASSWORD` matches the password set at installation. |
+
+The Cypress package and its downloaded application binary are installed separately; an unchanged dependency lock does not restore a removed binary cache. See the official [installation options](https://docs.cypress.io/app/references/advanced-installation) and [CLI reference](https://docs.cypress.io/app/references/command-line).
+
+`src/tests/bun.lock` locks the Cypress version. Close Cypress App and reopen it with `task test:e2e:open` after upgrading the dependency. Cypress 16 uses `cy.env()` for secret values; its configuration follows the official [migration guide](https://docs.cypress.io/app/references/migration-guide).
+
 ### Shared browser commands
 
 | Command | Use |
