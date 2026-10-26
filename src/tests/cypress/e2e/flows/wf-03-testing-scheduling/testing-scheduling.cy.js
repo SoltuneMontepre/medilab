@@ -7,7 +7,9 @@ import {
   TESTER,
   URGENCY,
   assign,
+  assignedLead,
   awayFromQuarterHour,
+  book,
   bookedLead,
   bookedOnOneMachine,
   forgetSetting,
@@ -176,21 +178,24 @@ describe("WF-03 Testing assignment and scheduling", () => {
   });
 
   it("TC-WF03-A3 lets the tester cancel a booking, and its slot goes back to the queue", () => {
-    awayFromQuarterHour();
-    bookedLead().then(({ test, booking }) => {
-      cy.signInAs("tester");
-      cy.visit(`/odoo/machine-schedule/${booking.id}`);
-      cy.get(".o_statusbar_buttons button[name=action_cancel]").click();
-      cy.get(".o_statusbar_buttons button[name=action_cancel]").should("not.exist");
-      cy.readRecord(booking, ["status", "calendar_event_id"]).should((read) => {
-        expect(read.status).to.equal("cancelled");
-        expect(read.calendar_event_id).to.equal(false);
+    assignedLead().then(({ test }) => {
+      // The freed slot must still lie ahead when the test is recommended again.
+      awayFromQuarterHour();
+      book(test).then((booking) => {
+        cy.signInAs("tester");
+        cy.visit(`/odoo/machine-schedule/${booking.id}`);
+        cy.get(".o_statusbar_buttons button[name=action_cancel]").click();
+        cy.get(".o_statusbar_buttons button[name=action_cancel]").should("not.exist");
+        cy.readRecord(booking, ["status", "calendar_event_id"]).should((read) => {
+          expect(read.status).to.equal("cancelled");
+          expect(read.calendar_event_id).to.equal(false);
+        });
+        cy.readRecord({ model: "medilab.task", id: booking.task_id[0] }, ["planned_start"]).its("planned_start").should("eq", false);
+        // The freed slot is offered again, so the test is recommended a slot that ends no later.
+        cy.openRecord(test);
+        cy.get(".o_statusbar_buttons button[name=action_schedule]").should("be.visible");
+        recommendation(test).its("recommended_end").should("be.a", "string").then(time).should("be.at.most", time(booking.ends_at));
       });
-      cy.readRecord({ model: "medilab.task", id: booking.task_id[0] }, ["planned_start"]).its("planned_start").should("eq", false);
-      // The freed slot is offered again, so the test is recommended a slot that ends no later.
-      cy.openRecord(test);
-      cy.get(".o_statusbar_buttons button[name=action_schedule]").should("be.visible");
-      recommendation(test).its("recommended_end").should("be.a", "string").then(time).should("be.at.most", time(booking.ends_at));
     });
   });
 
