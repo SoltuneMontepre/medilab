@@ -54,7 +54,8 @@ Cypress.Commands.add("expectRefusal", ({
   expect(read, "record snapshot reader").to.be.a("function");
   expect(message, "refusal message").to.be.a("string").and.not.be.empty;
   // Odoo shows a refusal in a dialog and also rejects the page's request; only that rejection is expected.
-  cy.on("uncaught:exception", (error) => !REFUSALS.includes(error.exceptionName));
+  const expectedRejection = (error) => !REFUSALS.includes(error.exceptionName);
+  cy.on("uncaught:exception", expectedRejection);
   let snapshot;
   cy.then(read).then((before) => {
     expect(before, "record snapshot").not.to.be.oneOf([null, undefined]);
@@ -63,6 +64,7 @@ Cypress.Commands.add("expectRefusal", ({
   cy.contains(messageSelector, message).should("not.exist");
   cy.then(action);
   cy.contains(messageSelector, message).should("be.visible");
+  cy.then(() => cy.removeListener("uncaught:exception", expectedRejection));
   return cy.then(read).then((after) => {
     expect(after, "record after refusal").to.deep.equal(snapshot);
   });

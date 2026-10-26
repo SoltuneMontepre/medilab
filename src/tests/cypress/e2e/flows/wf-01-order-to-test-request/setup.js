@@ -78,7 +78,10 @@ export function payAdvance(order, customer = CUSTOMERS.nuocSach) {
         ["invoice_ids", "in", [invoice]],
         ["state", "=", "draft"],
       ],
-    ]).then((ids) => callAs("demo.accountant", "account.payment", "action_post", [ids]));
+    ]).then((ids) => {
+      expect(ids, "declared transfer").to.have.length(1);
+      return callAs("demo.accountant", "account.payment", "action_post", [ids]);
+    });
   });
 }
 
