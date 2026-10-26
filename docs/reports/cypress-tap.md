@@ -12,11 +12,16 @@ The official toolkit separates authoring, explanation, documentation lookup and 
 
 Use the four local skills from the immutable toolkit revision [`5258ece52a0010d268946e08606c98784c98f255`](https://github.com/cypress-io/ai-toolkit/tree/5258ece52a0010d268946e08606c98784c98f255/skills), including each skill's referenced files. Keep the upstream [MIT license](https://github.com/cypress-io/ai-toolkit/blob/5258ece52a0010d268946e08606c98784c98f255/LICENSE) with copies. Its copyright and permission notice must accompany substantial copies.
 
-The skills CLI supports project installs, agent selection and copying instead of symlinks. Its agent table uses `.agents/skills/` for Codex and Cursor and `.claude/skills/` for Claude Code. [Installation options](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add), [agent paths](https://github.com/vercel-labs/skills/blob/main/docs/agents.md)
+| Tool | Repository skill directory | Notes |
+| --- | --- | --- |
+| Cursor | `.agents/skills/`, `.cursor/skills/` | Also reads `.claude/skills/` and `.codex/skills/` for compatibility. [Cursor Docs](https://cursor.com/docs/skills) |
+| Claude Code | `.claude/skills/` | Uses `.claude/skills/` for project skills. [Claude Code Docs](https://code.claude.com/docs/en/skills#choose-where-skills-load) |
+| Antigravity 2.0 | `.agents/skills/` | Uses `.agents/skills/` by default and `.agents/plugins/` for workspace plugins. [Google Docs](https://antigravity.google/docs/skills) |
+| Codex | `.agents/skills/` | Discovers skills from the working directory up to the repository root. [OpenAI Docs](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills) |
 
-Cursor also documents native project discovery from `.agents/skills/` and `.cursor/skills/`, plus compatibility with `.claude/skills/`. Client discovery should be verified after setup. [Cursor skill directories](https://cursor.com/docs/skills#skill-directories)
+The skills CLI also supports project installs, agent selection and copying instead of symlinks, using `.agents/skills/` for Codex and Cursor and `.claude/skills/` for Claude Code. [Installation options](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add), [agent paths](https://github.com/vercel-labs/skills/blob/main/docs/agents.md)
 
-Recommended integration: keep the source revision and file provenance reviewable, use project-local discovery, and install no Cloud connection as part of the local Tap workflow. Repository guidance should point agents to the browser-testing conventions and the upstream skills rather than duplicating their full instructions.
+Recommended integration: keep the canonical skill content and referenced files in `.agents/skills/` for Cursor, Antigravity and Codex, with short `.claude/skills/` entry points linking to `.agents/skills/` for Claude Code. Keep the source revision and file provenance reviewable, and install no Cloud connection as part of the local Tap workflow.
 
 ## Session and verdict rules
 
