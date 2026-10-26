@@ -6,8 +6,8 @@ The recovery command only removes resources whose Compose project and bootstrap 
 
 import json
 import os
+import random
 import re
-import secrets
 import socket
 import subprocess
 import sys
@@ -249,7 +249,7 @@ def _port_is_free(host, port):
 
 def _free_ports():
     candidates = iter(
-        secrets.SystemRandom().sample(SELECTED_PORT_RANGE, len(SELECTED_PORT_RANGE))
+        random.SystemRandom().sample(SELECTED_PORT_RANGE, len(SELECTED_PORT_RANGE))
     )
     ports = {}
     for key in PORT_KEYS:
