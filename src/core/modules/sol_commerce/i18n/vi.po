@@ -2492,6 +2492,11 @@ msgid "Invoice Adjustment"
 msgstr "Hóa Đơn Điều Chỉnh"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__invoice_count
+msgid "Invoice Count"
+msgstr "Số hóa đơn"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_account_bank_statement_line__invoice_kind
 #: model:ir.model.fields,field_description:sol_commerce.field_account_move__invoice_kind
 msgid "Invoice Kind"
@@ -2500,6 +2505,7 @@ msgstr "Loại Hóa Đơn"
 #. module: sol_commerce
 #: model:ir.actions.act_window,name:sol_commerce.action_medilab_invoice
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_cash_flow_report__invoices
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__invoice_ids
 #: model:ir.ui.menu,name:sol_commerce.menu_invoice
 #: model_terms:ir.ui.view,arch_db:sol_commerce.res_config_settings_view_form
 msgid "Invoices"

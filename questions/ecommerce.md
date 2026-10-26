@@ -12,7 +12,7 @@
 - **Support request deadline.** A support request's task is due 24 elapsed hours after it reaches the salesperson, nights and weekends included, and the administrator can change the default on the task type. This is the provisional default; it awaits formal confirmation, including whether only working hours should count. (blocks US-S20)
 - **Priority surcharge.** A priority order makes its tests urgent. Does it cost more, and is the surcharge a line on the quotation?
 - **Quotation layout.** What does the laboratory's báo giá show, and in what order: the header, the customer and contact, the salesperson, the lines by sample, the totals, the advance payment, the payment deadline and the signatures? A sample of the current paper form settles it. (blocks US-S07, asked of @nnh53)
-- **Salesperson and invoices.** A salesperson's order shows the number of its invoices and its payment status, computed with full rights. The Invoices button opens Odoo's invoices, which only the accountant billing group and administrators read. Should the salesperson open the advance invoice of their own order from the order, read-only, or only see its status? (US-S10)
+- **Salesperson and invoices.** A salesperson's order shows the number of its invoices and its payment status, computed with full rights. The Invoices button opens Odoo's invoices, which only the accountant billing group and administrators read. Should the salesperson open the advance invoice of their own order from the order, read-only, or only see its status? Until it is answered, the button is hidden from salespeople. (US-S10)
 
 ## Related documents
 

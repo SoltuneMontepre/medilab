@@ -11,9 +11,11 @@ PAID_STATES = ("paid", "in_payment", "reversed")
 class SaleOrder(models.Model):
     _inherit = MODEL_SALE_ORDER
 
-    # What an order shows of its invoices is computed with full rights: a salesperson reads the order without holding
-    # rights on invoices, and a compute run with theirs fails or sees no invoice.
+    # The four fields below are computed with full rights: a salesperson reads the order without holding rights on
+    # invoices, and a compute run with theirs fails or sees no invoice.
+    # The invoices and credit notes of the order.
     invoice_ids = fields.Many2many(compute_sudo=True)
+    # How many invoices and credit notes the order has.
     invoice_count = fields.Integer(compute_sudo=True)
     # not_paid, partial or paid, from the posted customer invoices. A draft payment does not count.
     payment_status = fields.Selection(

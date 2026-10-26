@@ -1,6 +1,8 @@
+from lxml import etree
+
 from odoo.exceptions import AccessError, UserError
 from odoo.fields import Command
-from odoo.tests import tagged
+from odoo.tests import new_test_user, tagged
 
 from .order_case import OrderCase
 from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SALE_REPORT
@@ -45,6 +47,19 @@ class TestOrderAccess(OrderCase):
         [values] = orders.browse(order.id).web_read({name: {} for name in form_fields})
 
         self.assertEqual((values["invoice_count"], values["payment_status"]), (1, "paid"))
+
+    def test_the_invoices_button_is_for_those_who_read_invoices(self):
+        orders = self.env[MODEL_SALE_ORDER]
+        invoicing = new_test_user(
+            self.env, login="order.invoicing", groups="base.group_user,account.group_account_invoice"
+        )
+
+        def invoices_buttons(user):
+            arch = etree.fromstring(orders.with_user(user).get_view(view_type="form")["arch"])
+            return arch.xpath("//button[@name='action_view_invoice']")
+
+        self.assertFalse(invoices_buttons(self.sales))
+        self.assertTrue(invoices_buttons(invoicing))
 
     def test_a_salesperson_analyses_only_their_own_orders(self):
         mine = self.make_confirmed_order()
