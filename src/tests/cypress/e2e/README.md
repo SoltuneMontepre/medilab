@@ -36,7 +36,7 @@ src/tests/
 
 - `flows/` groups WF-01 to WF-07 and SF-01 to SF-09 by the flow IDs in the business-flow document.
 - `features/` holds browser scenarios whose feature has no owning business flow.
-- `support/` holds shared authentication, record, action and refusal commands; `fixtures/` holds browser fixtures.
+- `support/` holds shared authentication, record, action, refusal and form commands; `fixtures/` holds browser fixtures.
 - `flows/<flow>/setup.js` builds the flow's starting records, such as an order taken to a given stage, so a spec runs again on the same database. `sol_demo` provides the catalog, customers, people and other records they read.
 - Keep a directory's `.gitkeep` until its first real spec is added. Do not add empty `.cy.js` files or skipped placeholder tests.
 - Existing flat specs keep their current paths. Inspect their cases when implementing a flow; reuse or move a matching case instead of adding a second copy.
