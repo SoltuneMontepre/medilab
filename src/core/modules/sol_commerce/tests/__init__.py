@@ -35,6 +35,7 @@ from . import (
     test_quotation_decline,
     test_quotation_expiry,
     test_quotation_freeze,
+    test_quotation_pdf,
     test_quotation_portal,
     test_quotation_send,
     test_sales_analysis,

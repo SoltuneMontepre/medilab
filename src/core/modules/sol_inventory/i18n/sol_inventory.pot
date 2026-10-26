@@ -2738,3 +2738,9 @@ msgstr ""
 msgid ""
 "%s is a prepared solution, so it is made in the laboratory and never bought."
 msgstr ""
+
+#. module: sol_inventory
+#: model:ir.model.fields,field_description:sol_inventory.field_stock_location__place_id
+#: model_terms:ir.ui.view,arch_db:sol_inventory.view_medilab_quant_search
+msgid "Premises Location"
+msgstr ""
