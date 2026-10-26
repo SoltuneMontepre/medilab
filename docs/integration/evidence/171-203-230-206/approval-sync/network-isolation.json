@@ -1,0 +1,75 @@
+{
+  "control_canary_reachable": true,
+  "outside_canary": "separate owned non-internal bridge; no production endpoint",
+  "isolated_clients": [
+    {
+      "connected": false,
+      "errno": 101
+    },
+    {
+      "connected": false,
+      "errno": 101
+    }
+  ],
+  "network_internal": true,
+  "isolate": "strict",
+  "ipv6_enabled": false,
+  "inside_services": [
+    {
+      "service": "documentserver",
+      "outside_peer_reachable": false,
+      "inside_owned_peer_reachable": true
+    },
+    {
+      "service": "garage",
+      "outside_peer_reachable": false,
+      "inside_owned_peer_reachable": true
+    },
+    {
+      "service": "browser-control",
+      "outside_peer_reachable": false,
+      "inside_owned_peer_reachable": true
+    }
+  ],
+  "members": [
+    {
+      "service": "browser",
+      "single_network": true,
+      "published_ports": false,
+      "default_ipv4_route": false
+    },
+    {
+      "service": "garage",
+      "single_network": true,
+      "published_ports": false,
+      "default_ipv4_route": false
+    },
+    {
+      "service": "postgres",
+      "single_network": true,
+      "published_ports": false,
+      "default_ipv4_route": false
+    },
+    {
+      "service": "documentserver",
+      "single_network": true,
+      "published_ports": false,
+      "default_ipv4_route": false
+    },
+    {
+      "service": "page-browser",
+      "single_network": true,
+      "published_ports": false,
+      "default_ipv4_route": false
+    },
+    {
+      "service": "sync-native",
+      "single_network": true,
+      "published_ports": false,
+      "default_ipv4_route": false
+    }
+  ],
+  "source_head": "a5047adb3ce90edfd7d3658a30215bdde4417bbb",
+  "uncommitted_isolation_change": true,
+  "scope": "Actual bidirectional routing negative control plus working positive controls. Public Internet/production endpoints were not contacted."
+}
