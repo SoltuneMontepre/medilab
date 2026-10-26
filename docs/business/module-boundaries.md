@@ -24,6 +24,8 @@ MediLab is built on Odoo Community and extends its apps where they hold a concep
 
 Each module also has every app its own apps depend on: `mail`, `bus` and `resource` through `hr`; `account`, `account_payment`, `payment` and `product` through `sale`; `account_qr_code_emv` through `l10n_vn`; `stock`, `uom` and `purchase` through Inventory's apps.
 
+Installing E-commerce gives the main company Vietnam, VND, VND price lists and the `vn` chart of `l10n_vn`, since Odoo otherwise loads its generic chart in USD for a company without a country. A company that already has journal items keeps its chart and currency, which Odoo no longer lets change, and the upgrade logs a warning.
+
 ### What each concept is built on
 
 | Concept                                   | Built on                                                                                                                                                                                                                                        |

@@ -1,0 +1,5 @@
+{
+  "name": "medilab",
+  "displayName": "MediLab",
+  "description": "MediLab workspace MCP servers for OdooLS, Serena, PostgreSQL, Context7, SonarQube and Doppler."
+}

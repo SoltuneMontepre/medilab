@@ -21,6 +21,8 @@ from demo_bootstrap import (
     _read_compose_env,
     _read_marker,
     _resources,
+    _volume_mismatch,
+    _volume_mismatch_message,
 )
 
 COMPOSE_COMMANDS = {"up", "down", "stop", "restart", "logs", "ps", "run", "exec"}
@@ -68,18 +70,12 @@ def _completed_configuration(project, marker):
             f"Saved Compose configuration differs for {', '.join(missing)}; refusing to start or recreate services."
         )
     _assert_owned_resources(project, owner)
-    expected = {
-        config[key]
-        for key in (
-            "MEDILAB_DB_VOLUME",
-            "MEDILAB_GARAGE_VOLUME",
-            "MEDILAB_APP_VOLUME",
-            "MEDILAB_CLOUDBEAVER_VOLUME",
-        )
-    }
-    if set(_owned_volume_names(project, owner)) != expected:
+    missing_volumes, unexpected_volumes = _volume_mismatch(
+        config, _owned_volume_names(project, owner)
+    )
+    if missing_volumes or unexpected_volumes:
         raise BootstrapError(
-            "Owned volume identities do not match the saved Compose configuration."
+            _volume_mismatch_message(missing_volumes, unexpected_volumes)
         )
     files = ["-f", str(COMPOSE), "-f", str(OWNED_COMPOSE)]
     environment = _compose_environment(project, owner, config)

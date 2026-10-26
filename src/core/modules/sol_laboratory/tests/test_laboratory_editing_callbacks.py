@@ -245,14 +245,13 @@ class TestLaboratoryEditingCallbacks(LaboratoryEditingCase):
         self.save(other_file, "Kết quả khác, bản 1")
         other = self.new_session(file=other_file)
         body, header = callback({"key": self.session.document_key, "status": 2, "url": f"{PUBLIC_URL}{SAVED_PATH}"})
+        other_body, other_header = callback({"key": other.document_key, "status": 4})
+        forged_body, forged_header = callback({"key": self.session.document_key, "status": 4}, secret="x" * 40)
         for token, body, header in (
             ("not-a-token", body, header),
             (other._callback_token(), body, header),
-            (self.session._callback_token(), *callback({"key": other.document_key, "status": 4})),
-            (
-                self.session._callback_token(),
-                *callback({"key": self.session.document_key, "status": 4}, secret="x" * 40),
-            ),
+            (self.session._callback_token(), other_body, other_header),
+            (self.session._callback_token(), forged_body, forged_header),
             (self.session._callback_token(), {"key": self.session.document_key, "status": 4}, None),
         ):
             with self.subTest(token=token[:12]), self.assertRaises(EditingCallbackRefused):
