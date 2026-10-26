@@ -21,6 +21,7 @@
         "data/notification_event_data.xml",
         "data/portal_entry_data.xml",
         "security/order_line_access.xml",
+        "security/invoice_access.xml",
         "security/order_template_access.xml",
         "security/support_access.xml",
         "views/invoicing/invoice_adjustment_views.xml",
