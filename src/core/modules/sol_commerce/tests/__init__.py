@@ -45,4 +45,5 @@ from . import (
     test_support_request,
     test_tax_archiving,
     test_tax_rates,
+    test_vietnamese_accounting,
 )

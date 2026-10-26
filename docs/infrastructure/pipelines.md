@@ -49,12 +49,13 @@ flowchart LR
 
 ## ci-tools
 
-Checks the developer tooling. `tools` is its required check: it fails unless `ai` and both `typecheck` jobs passed.
+Checks the developer tooling. `tools` is its required check: it fails unless `ai`, both `typecheck` jobs and both `logging` jobs passed.
 
 - The `ai` job detects whether the pull request touches `tools/odoo-intelligence`, the AI or dev taskfile, `infra/terraform.tf`, `odools.toml`, the coding client configs (`.mcp.json`, `.cursor/mcp.json`, `.codex/config.toml`, `.serena/project.yml`, `.claude/settings.json`) or the workflow. The dev taskfile and `infra/terraform.tf` hold the Odoo and Terraform pins that the tooling must match.
 - It runs `task ai:test`: the unit tests, the client config checks and Ruff. It uses no secrets, database or Doppler.
 - It does not install OdooLS, so the live OdooLS tests report skips and `task ai:verify` does not run; run both locally after `task ai:setup`.
 - `typecheck (Linux)` and `typecheck (Windows)` run the addon link safety and Pyright report tests of `tools/typecheck`, only when it or the workflow changes. Windows uses real directory junctions to verify that cleanup preserves unmanaged links and target files.
+- `logging (Linux)` and `logging (Windows)` run `task test:logging` and `task test:taskfiles` when the logging helpers, Task entrypoint, included taskfiles, module list, regression tests or their setup dependencies change. The module selection tests compile the real Task entrypoint and replace Python with a temporary probe for test environments, stopping before any container or database operation.
 
 ## ci-infra and cd-infra
 
