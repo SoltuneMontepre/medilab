@@ -20,6 +20,10 @@ One document per role, in `permissions/<role>.md`.
 
 - [Administrator](permissions/admin.md): every permission, as Odoo's default administrator
 
+## Security reviews
+
+- [PR #292 Sonar disposition review](pr-292-sonar-disposition-review.md): individual technical proofs, fixture risk records and pending security-owner approvals.
+
 ## Related documents
 
 - [Permissions](../specs/permissions.md)
