@@ -1,7 +1,6 @@
 const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
-  allowCypressEnv: false,
   env: {
     demoPassword: process.env.MEDILAB_DEMO_PASSWORD || "demo",
   },

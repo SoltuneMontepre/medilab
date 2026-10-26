@@ -128,6 +128,9 @@ jobs:
               - "tools/scripts/log.sh"
               - "tools/scripts/test_log.py"
               - "tools/scripts/test_taskfile_modules.py"
+              - "tools/scripts/test_e2e.sh"
+              - "tools/scripts/test_e2e_tasks.py"
+              - "tools/scripts/test_e2e_readiness.py"
               - "src/core/modules.txt"
               - "tools/taskfiles/ai.taskfile.yml"
               - "tools/taskfiles/app.taskfile.yml"
@@ -155,7 +158,7 @@ jobs:
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:logging
 
-      - name: Taskfile module selection tests
+      - name: Taskfile regression tests
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:taskfiles
 
