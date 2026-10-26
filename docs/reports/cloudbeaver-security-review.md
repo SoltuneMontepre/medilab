@@ -6,10 +6,12 @@ Production remains **NO-GO**. This assessment supplements the [strict implementa
 
 The manual [CodeRabbit full review](https://github.com/SoltuneMontepre/medilab/pull/293#pullrequestreview-5644801185) covered base `4594a23` through `3d5571e`. All five inline findings were independently checked. No new P0/P1 defect was established; the six earlier P1 corrections remain documented in the strict review.
 
+An [incremental review](https://github.com/SoltuneMontepre/medilab/pull/293#pullrequestreview-5646643106) of `a7baea3` found two more issues. A literal `||` split a Markdown table row; the operator is now escaped. The Kubernetes guard test also checked a failed init container's `lastState` while reading only current logs. It now checks current and previous logs. A regression failed against the prior helper and passed after correction. These are P3 documentation and P2 test reliability findings, respectively.
+
 | Priority | Verified finding | Correction and evidence |
 | --- | --- | --- |
 | P2 | Connection merge removed explicit JSON `null` properties, including nested members | Exact-image regression failed before the change; `serializeNulls()` preserves these members along with unknown properties. Existing connections and credential stores remain untouched |
-| P2 | Preflight treated successful `stat ... || true` as installation-file availability | Each required file now has metadata or an explicit missing marker; all three must be present. Tests cover zero through three files, partial output and failed exec without reading file contents |
+| P2 | Preflight treated successful `stat ... \|\| true` as installation-file availability | Each required file now has metadata or an explicit missing marker; all three must be present. Tests cover zero through three files, partial output and failed exec without reading file contents |
 | P2 | Kubernetes rejection assertions could pass while initialization was merely pending | Wait for a nonzero init exit plus the expected guard reason, or a real kubelet readiness-failure event after application state is established. Service/EndpointSlice/ingress rejection assertions remain |
 | P2 | Unbounded container commands could stall regression execution | A 600-second default timeout and 180-second guarded-exit wait produce redacted failures; unit tests verify the boundary and that arguments/output are not exposed |
 | P2 | A failed post-login identity request left a stale latch after later successful verification | A deterministic HTTP regression fails before the correction. Clear the latch only after the expected cached identity and both protected queries succeed. Rejected login remains latched; no account or password is changed |
@@ -63,7 +65,7 @@ The independent Semgrep 1.182.1 scan ran 211 Java/Python rules on 22 targets wit
 
 ## Analysis limitations
 
-CodeRabbit reported five inline findings and a docstring-coverage warning. The warning is not an executed repository quality gate; automatic generation of repetitive docstrings would conflict with the repository's sparse-comment convention. Meaningful diagnostics and behavior tests take precedence. Its Description, Linked Issues and Out of Scope subchecks were labelled passed but explicitly skipped. The manually requested review did not enable automatic review or autofix. Threads are left for reviewer verification, not automatically resolved.
+CodeRabbit reported five initial inline findings, two incremental findings and a docstring-coverage warning. The warning is not an executed repository quality gate; automatic generation of repetitive docstrings would conflict with the repository's sparse-comment convention. Meaningful diagnostics and behavior tests take precedence. Its Description, Linked Issues and Out of Scope subchecks were labelled passed but explicitly skipped. The manually requested review did not enable automatic review or autofix. Threads are left for reviewer verification, not automatically resolved.
 
 CodeRabbit's Checkov invocation failed for `kustomization.yaml` and `service.yaml`; this is a tool failure, not a successful analysis. An independent Checkov 3.3.25 scan of those raw files produced one default-namespace warning; the rendered Service is in `medilab`, so that raw-file warning is inapplicable after Kustomize. The full rendered scan initially reported 76 passed and 15 failed policies, with zero parsing errors. Disabling the unnecessary service-account token improves this to **77 passed and 14 policy findings**; none was suppressed.
 

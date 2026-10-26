@@ -96,11 +96,19 @@ class Fixture:
                         for state in (status.get("state", {}), status.get("lastState", {}))
                     )
                     if failed:
-                        logs = kube(
-                            "logs", "-n", self.namespace, pod["metadata"]["name"], "-c", status["name"], check=False
-                        ).stdout
-                        if "CloudBeaver startup blocked." in logs and reason in logs:
-                            return True
+                        for options in ((), ("--previous",)):
+                            logs = kube(
+                                "logs",
+                                "-n",
+                                self.namespace,
+                                pod["metadata"]["name"],
+                                "-c",
+                                status["name"],
+                                *options,
+                                check=False,
+                            ).stdout
+                            if "CloudBeaver startup blocked." in logs and reason in logs:
+                                return True
             return False
 
         wait_for(rejected, "Workspace preparation did not report the expected guard rejection.")
