@@ -3,7 +3,7 @@ from odoo.fields import Command
 from odoo.tests import tagged
 
 from .order_case import OrderCase
-from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER
+from odoo.addons.sol_commerce.constants.models import MODEL_SALE_ORDER, MODEL_SALE_REPORT
 
 
 @tagged("post_install", "-at_install")
@@ -35,6 +35,34 @@ class TestOrderAccess(OrderCase):
 
         self.assertFalse(self.env[MODEL_SALE_ORDER].with_user(self.sales).search([("id", "=", draft.id)]))
         self.assertEqual(draft.with_user(self.head).order_status, "draft")
+
+    def test_a_salesperson_opens_an_order_that_has_invoices(self):
+        order = self.make_confirmed_order()
+        self.env.invalidate_all()
+        orders = self.env[MODEL_SALE_ORDER].with_user(self.sales)
+        form_fields = orders.get_views([(False, "form")])["models"][MODEL_SALE_ORDER]["fields"]
+
+        [values] = orders.browse(order.id).web_read({name: {} for name in form_fields})
+
+        self.assertEqual((values["invoice_count"], values["payment_status"]), (1, "paid"))
+
+    def test_a_salesperson_analyses_only_their_own_orders(self):
+        mine = self.make_confirmed_order()
+        theirs = self.make_confirmed_order()
+        theirs.user_id = self.other_sales
+        self.env.flush_all()
+        names = (mine | theirs).mapped("name")
+        reports = self.env[MODEL_SALE_REPORT]
+
+        def analysed(user):
+            return {name for [name] in reports.with_user(user)._read_group([("name", "in", names)], ["name"])}
+
+        self.assertEqual(analysed(self.sales), {mine.name})
+        self.assertEqual(analysed(self.other_sales), {theirs.name})
+        self.assertEqual(analysed(self.head), set(names))
+        for user in (self.sales, self.other_sales):
+            dashboard = self.env[MODEL_SALE_ORDER].with_user(user).retrieve_sale_dashboard(30)
+            self.assertEqual(dashboard["orders"]["total"], 1)
 
     def test_sales_creates_an_order_for_a_customer(self):
         order = (

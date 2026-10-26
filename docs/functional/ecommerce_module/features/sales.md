@@ -176,7 +176,7 @@ Acceptance criteria:
 - **Progress.** Each order shows the same four labels the customer sees (Waiting, Testing, Completed, Cancelled) plus the detail for internal use: the order status and the status of its test request. Issuing the test request's report completes the order.
 - **Pipeline.** Counts by stage: unclaimed, draft, sent and unpaid, accepted, awaiting approval, approved.
 - **Performance.** Per salesperson and period: quotations sent, accepted, declined, revenue, and the time between each step (claim, send, payment, approval).
-- **Visibility.** A salesperson sees their own figures; the Head of Sales sees everyone's.
+- **Visibility.** A salesperson sees their own figures; the Head of Sales sees everyone's. Odoo's own sales analyses and sales dashboard follow the same rule.
 
 Both analyses are under the Reporting menu of Sales, as a graph, a pivot table and a list of the orders.
 

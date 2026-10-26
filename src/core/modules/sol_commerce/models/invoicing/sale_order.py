@@ -11,14 +11,19 @@ PAID_STATES = ("paid", "in_payment", "reversed")
 class SaleOrder(models.Model):
     _inherit = MODEL_SALE_ORDER
 
+    # What an order shows of its invoices is computed with full rights: a salesperson reads the order without holding
+    # rights on invoices, and a compute run with theirs fails or sees no invoice.
+    invoice_ids = fields.Many2many(compute_sudo=True)
+    invoice_count = fields.Integer(compute_sudo=True)
     # not_paid, partial or paid, from the posted customer invoices. A draft payment does not count.
     payment_status = fields.Selection(
         [("not_paid", "Not paid"), ("partial", "Partially paid"), ("paid", "Paid")],
         compute="_compute_payment_status",
+        compute_sudo=True,
     )
     # Draft cash and bank transfers on this order's invoices. A confirmed or rejected payment is not included.
     pending_amount = fields.Monetary(
-        string="Pending amount", compute="_compute_pending_amount", currency_field="currency_id"
+        string="Pending amount", compute="_compute_pending_amount", currency_field="currency_id", compute_sudo=True
     )
 
     @api.depends("invoice_ids.payment_state", "invoice_ids.state", "invoice_ids.move_type")
