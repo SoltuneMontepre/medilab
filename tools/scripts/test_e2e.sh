@@ -1,5 +1,6 @@
 # Prepare and launch Cypress from src/tests in Task's shell.
-# Usage: . test_e2e.sh run|open|help /path/to/log.sh; Task supplies MEDILAB_E2E_URL.
+# Usage: . test_e2e.sh run|open|tap|help /path/to/log.sh.
+# Task supplies MEDILAB_E2E_URL and, in Tap mode, MEDILAB_TAP_BROWSER.
 set -e
 . "$2"
 
@@ -21,8 +22,12 @@ if [[ "$e2e_mode" == help ]]; then
     '3. Open Cypress App: task test:e2e:open' \
     '   Choose E2E Testing, a browser, Start E2E Testing, then a .cy.js file.' \
     '4. Run every browser test in the terminal: task test:e2e' \
+    '5. Open an AI-driven Chrome session: task test:e2e:tap:open' \
+    '   Select another Chromium browser with TAP_BROWSER=edge, chromium or electron.' \
+    '   Inspect it from another terminal: task test:e2e:tap TAP_ARGS="status --json"' \
+    '   AI workflow and installed skills: docs/workflows/cypress-tap.md' \
     '' \
-    'Both commands install the locked dependencies and the matching Cypress binary.' \
+    'The launch commands install the locked dependencies and the matching Cypress binary.' \
     'They check the displayed Odoo URL before launching Cypress.' \
     '' \
     'Different Odoo port? Pass its URL to either command:' \
@@ -43,9 +48,16 @@ if [[ "$e2e_mode" == help ]]; then
   return 0
 fi
 
-if [[ "$e2e_mode" != run && "$e2e_mode" != open ]]; then
-  log_error "Unknown browser-test mode. Use task test:e2e or task test:e2e:open."
+if [[ "$e2e_mode" != run && "$e2e_mode" != open && "$e2e_mode" != tap ]]; then
+  log_error "Unknown browser-test mode. Use task test:e2e, task test:e2e:open or task test:e2e:tap:open."
   exit 2
+fi
+
+if [[ "$e2e_mode" == tap ]]; then
+  case "$MEDILAB_TAP_BROWSER" in
+    chrome|chromium|edge|electron) ;;
+    *) log_error "Tap needs Chrome, Chromium, Edge or Electron. Set TAP_BROWSER to one of these browsers."; exit 2 ;;
+  esac
 fi
 
 if ! command -v bun >/dev/null 2>&1 || ! command -v bunx >/dev/null 2>&1; then
@@ -66,7 +78,10 @@ log_info "Installing the test dependencies and checking the Cypress binary."
 bun install --frozen-lockfile --ignore-scripts
 bunx cypress install
 
-if [[ "$e2e_mode" == open ]]; then
+if [[ "$e2e_mode" == tap ]]; then
+  log_info "Use task test:e2e:tap TAP_ARGS='sessions --json' from another terminal."
+  bunx cypress open --e2e --browser "$MEDILAB_TAP_BROWSER"
+elif [[ "$e2e_mode" == open ]]; then
   log_info "Choose E2E Testing, a browser, Start E2E Testing, then the test file."
   bunx cypress open
 else

@@ -30,6 +30,9 @@ vars:
   E2E_DIR: src/tests
   E2E_URL: '{{.MEDILAB_URL | default "http://localhost:8069"}}'
   E2E_SCRIPT: tools/scripts/test_e2e.sh
+  E2E_TAP: tools/scripts/cypress_tap.py
+  E2E_TAP_ARGS: '{{.TAP_ARGS | default .CLI_ARGS}}'
+  E2E_TAP_BROWSER: '{{.TAP_BROWSER | default "chrome"}}'
   E2E_HEALTH_RETRIES: 30
   E2E_HEALTH_DELAY: 2
   SYNC_APP_DIR: src/applications/medilab-sync
@@ -59,6 +62,8 @@ tasks:
       - python tools/scripts/test_taskfile_modules.py
       - python tools/scripts/test_e2e_tasks.py
       - python tools/scripts/test_e2e_readiness.py
+      - python tools/scripts/test_cypress_tap.py
+      - python tools/scripts/test_cypress_skills.py
 
   test:core:
     desc: "Run the tests of every module in src/core/modules.txt with coverage, split over parallel shards in throwaway databases; task test:core MODULES=a,b or EXCLUDE=a limits the modules, TEST_MODULES=a runs the tests of only some of them, RUNNER=2 RUNNERS=3 runs this machine's share of the shards, INSTALL_COVERAGE=false installs without coverage"
@@ -208,6 +213,22 @@ tasks:
       - task: test:e2e:launch
         vars: { E2E_MODE: open }
 
+  test:e2e:tap:open:
+    desc: "Open this worktree in Cypress E2E for Tap; select a Chromium browser with TAP_BROWSER"
+    silent: true
+    interactive: true
+    cmds:
+      - task: test:e2e:launch
+        vars: { E2E_MODE: tap }
+
+  test:e2e:tap:
+    desc: "Control this worktree's live Cypress session; use TAP_ARGS='status --json'"
+    silent: true
+    env:
+      MEDILAB_TAP_ARGS: "{{.E2E_TAP_ARGS}}"
+    cmds:
+      - 'python "{{.E2E_TAP}}"'
+
   test:e2e:help:
     desc: "Show browser-test setup, Cypress App instructions, the Odoo URL and troubleshooting"
     silent: true
@@ -221,6 +242,7 @@ tasks:
     dir: "{{.E2E_DIR}}"
     env:
       MEDILAB_E2E_URL: "{{.E2E_URL}}"
+      MEDILAB_TAP_BROWSER: "{{.E2E_TAP_BROWSER}}"
     cmds:
       - '. "{{.ROOT_DIR}}/{{.E2E_SCRIPT}}" "{{.E2E_MODE}}" "{{.ROOT_DIR}}/{{.LOG}}"'
 
