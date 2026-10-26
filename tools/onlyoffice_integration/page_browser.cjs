@@ -56,6 +56,23 @@ async function edit(editor, extension, marker, secondary) {
   await editor.page.waitForTimeout(1500);
 }
 
+async function readInput(request) {
+  let raw = "";
+  for await (const part of request) {
+    raw += part;
+    if (raw.length > 4096) throw new Error("Request too large");
+  }
+  const input = JSON.parse(raw);
+  const url = new URL(input.url);
+  if (url.hostname !== "runner" || url.protocol !== "http:" || url.username || url.password || url.hash ||
+      !/^\/medilab\/laboratory-files\/[1-9]\d*\/edit$/.test(url.pathname) || url.search ||
+      !["docx", "xlsx", "pptx"].includes(input.extension ?? "docx") ||
+      !/^MEDILAB_PAGE_[a-f0-9]{32}$/.test(input.marker)) {
+    throw new Error("Unexpected test origin");
+  }
+  return input;
+}
+
 http.createServer(async (request, response) => {
   response.setHeader("Content-Type", "application/json");
   if (request.url === "/health") return response.end("{}");
@@ -66,19 +83,7 @@ http.createServer(async (request, response) => {
   let page;
   let stage = "input";
   try {
-    let raw = "";
-    for await (const part of request) {
-      raw += part;
-      if (raw.length > 4096) throw new Error("Request too large");
-    }
-    const input = JSON.parse(raw);
-    const url = new URL(input.url);
-    if (url.hostname !== "runner" || url.protocol !== "http:" || url.username || url.password || url.hash ||
-        !/^\/medilab\/laboratory-files\/[1-9][0-9]*\/edit$/.test(url.pathname) || url.search ||
-        !["docx", "xlsx", "pptx"].includes(input.extension ?? "docx") ||
-        !/^MEDILAB_PAGE_[a-f0-9]{32}$/.test(input.marker)) {
-      throw new Error("Unexpected test origin");
-    }
+    const input = await readInput(request);
     browser = await chromium.launch({ headless: true });
     stage = "login-return";
     const primary = await openEditor(browser, input, { login: "admin", password: "admin" });

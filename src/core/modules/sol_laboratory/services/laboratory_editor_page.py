@@ -32,6 +32,19 @@ INVALID_SERVICE_ORIGIN = "Invalid service origin"
 ASSETS = "/sol_laboratory/static/src/laboratory_files/editor/"
 
 
+def _local_service_host(host):
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        if not re.fullmatch(r"[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?", host):
+            raise ValueError(INVALID_SERVICE_ORIGIN) from None
+        if any(not label or label.startswith("-") or label.endswith("-") for label in host.split(".")):
+            raise ValueError(INVALID_SERVICE_ORIGIN)
+        if re.fullmatch(r"(?:[0-9]+|0[xX][0-9a-fA-F]+)", host.rsplit(".", 1)[-1]):
+            raise ValueError("Ambiguous IP address")
+        return host.lower() == "localhost"
+
+
 def configured_origin(value, *, private=False):
     """Only origins, without URL syntax browsers or proxies could interpret differently. Public HTTP is local only."""
     if not isinstance(value, str) or not value or any(c.isspace() or not c.isprintable() for c in value):
@@ -48,17 +61,7 @@ def configured_origin(value, *, private=False):
         or parts.netloc.endswith(":")
     ):
         raise ValueError(INVALID_SERVICE_ORIGIN)
-    try:
-        address = ipaddress.ip_address(host)
-        local = address.is_loopback
-    except ValueError:
-        if not re.fullmatch(r"[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?", host):
-            raise ValueError(INVALID_SERVICE_ORIGIN) from None
-        if any(not label or label.startswith("-") or label.endswith("-") for label in host.split(".")):
-            raise ValueError(INVALID_SERVICE_ORIGIN)
-        if re.fullmatch(r"(?:[0-9]+|0[xX][0-9a-fA-F]+)", host.rsplit(".", 1)[-1]):
-            raise ValueError("Ambiguous IP address")
-        local = host.lower() == "localhost"
+    local = _local_service_host(host)
     if parts.scheme == "http" and not (private or local):
         raise ValueError("Public services require TLS")
     return f"{parts.scheme}://{parts.netloc.lower()}"

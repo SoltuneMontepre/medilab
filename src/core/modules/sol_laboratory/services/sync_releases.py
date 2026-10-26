@@ -59,6 +59,21 @@ def safe_download_url(value):
     return parsed.scheme == "http" and loopback
 
 
+def _validate_artifact(release):
+    if not safe_download_url(release["url"]):
+        raise ValueError("Unsafe artifact URL.")
+    if "pub_date" in release:
+        date = datetime.fromisoformat(release["pub_date"].replace("Z", "+00:00"))
+        if date.tzinfo is None:
+            raise ValueError("Release date needs a time zone.")
+    try:
+        signature = base64.b64decode(release["signature"], validate=True)
+    except ValueError as error:
+        raise ValueError("Invalid artifact signature encoding.") from error
+    if not signature:
+        raise ValueError("Empty artifact signature.")
+
+
 def catalog():
     path = os.environ.get(CATALOG_VARIABLE)
     if not path:
@@ -79,18 +94,7 @@ def catalog():
         if identity in seen or (release["channel"] == "stable" and not key[3]):
             raise ValueError("Ambiguous or unstable release catalog.")
         seen.add(identity)
-        if not safe_download_url(release["url"]):
-            raise ValueError("Unsafe artifact URL.")
-        if "pub_date" in release:
-            date = datetime.fromisoformat(release["pub_date"].replace("Z", "+00:00"))
-            if date.tzinfo is None:
-                raise ValueError("Release date needs a time zone.")
-        try:
-            signature = base64.b64decode(release["signature"], validate=True)
-        except ValueError as error:
-            raise ValueError("Invalid artifact signature encoding.") from error
-        if not signature:
-            raise ValueError("Empty artifact signature.")
+        _validate_artifact(release)
     return releases["releases"]
 
 
