@@ -129,11 +129,9 @@ export function testOf(sample, parameter) {
 // The head of department assigns the sample's testing tasks to a person through the assign dialog.
 export function assign(sample, person = PEOPLE.tester) {
   const context = { active_ids: sample.tests.map((test) => test.task.id) };
-  return refAs(HEAD, person).then(({ id }) =>
-    callAs(HEAD, "medilab.task.reassign", "create", [{ assignee_id: id }], { context }).then((wizard) =>
-      callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }),
-    ),
-  );
+  return refAs(HEAD, person)
+    .then(({ id }) => callAs(HEAD, "medilab.task.reassign", "create", [{ assignee_id: id }], { context }))
+    .then((wizard) => callAs(HEAD, "medilab.task.reassign", "action_confirm", [[wizard]], { context }));
 }
 
 // The scheduler's recommendation for a test, as its assignee reads it.
