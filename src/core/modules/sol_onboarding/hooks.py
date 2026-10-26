@@ -14,3 +14,8 @@ def uninstall_hook(env):
         [("job_id", "in", jobs.ids), ("audit_entry_ids", "=", False), ("archive_file_ids", "=", False)]
     ).unlink()
     jobs.filtered(lambda job: not job.run_ids).unlink()
+
+
+def pre_init_hook(env):
+    """Create the trigram extension that the name matching needs, in a database that was not created with it."""
+    env.cr.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm")

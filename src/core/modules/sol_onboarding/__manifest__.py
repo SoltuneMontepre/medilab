@@ -28,5 +28,6 @@
         "views/onboarding/test_parameter_views.xml",
         "views/system/menus.xml",
     ],
+    "pre_init_hook": "pre_init_hook",
     "uninstall_hook": "uninstall_hook",
 }
