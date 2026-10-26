@@ -8,6 +8,8 @@ The source supports four FALSE POSITIVE recommendations and three narrowly scope
 
 The final boundary probe was repeated after the second normal `origin/main` merge (`029b979d1945484dbb720088dd77b4993a4ff2ad`) and the CloudBeaver test-fixture correction (`66eadeb831d58e787e6bc59f8c32f1917f62dfe8`). Browser, page-browser and Document Server all failed to reach a working outside canary; an outside peer could not reach Document Server, Garage or browser-control; owned peers could reach those services. Every inspected fixture member had one network, no published port and no default IPv4 route. The complete local regression receipts, including the 1,846-test Odoo run, real 27-editor regression, four real callback saves and Rust desktop observer, are in [post-merge local results](../integration/evidence/171-203-230-206/approval-sync/postmerge-local-results.json). These results preserve the 4/3 recommendations but do not grant approval or attest future fixture changes.
 
+Hosted Sonar analysis of pushed checkpoint `ef3f25ac1f87280aa291745ecf10a72f7ca5b586` retained exactly these seven OPEN keys, Security D and quality gate FAIL; zero bugs, 85.7% coverage and 0.1% duplication were reported. Scanner logs attest that revision and merge base `029b979`. [Read-only issue/gate and CI snapshot](../integration/evidence/171-203-230-206/approval-sync/hosted-ef3f25a.json). The newer local code/documentation commits could not be pushed because automatic approval review rejected `git push` under this session's Never approval policy, so no Sonar result is attributed to them. No alternate administrative or push method was used.
+
 ## Decision matrix
 
 | Finding | Rule | Proposed Decision | Technical Evidence | Residual Risk | Required Approval | Status |
