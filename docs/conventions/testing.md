@@ -4,14 +4,16 @@ How tests are written, where they live and how they run.
 
 ## Layers
 
-| Layer         | Tool                                             | Location                              | Command               |
-| ------------- | ------------------------------------------------ | ------------------------------------- | --------------------- |
-| Odoo modules  | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`    | `task test:core`      |
-| Browser       | Cypress                                          | `src/tests/cypress/e2e/`              | `task test:e2e`       |
-| Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application | `task test:apps`      |
-| Type checking | `unittest` and pyright                           | `tools/typecheck/`                    | `task test:typecheck` |
-| AI tooling    | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`      | `task ai:test`        |
-| Taskfiles     | `unittest` and Task                             | `tools/scripts/test_taskfile_modules.py` | `task test:taskfiles` |
+| Layer         | Tool                                             | Location                                 | Command                                                |
+| ------------- | ------------------------------------------------ | ---------------------------------------- | ------------------------------------------------------ |
+| Odoo modules  | Odoo test runner (`TransactionCase`, `HttpCase`) | `src/core/modules/<module>/tests/`       | `task test:core`                                       |
+| Browser       | Cypress                                          | `src/tests/cypress/e2e/`                 | `task test:e2e`                                        |
+| Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application    | `task test:apps`                                       |
+| Type checking | `unittest` and pyright                           | `tools/typecheck/`                       | `task test:typecheck`                                  |
+| Tool scripts  | `unittest`                                       | next to the script in `tools/scripts/`   | the task of the script                                 |
+| AI tooling    | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`         | `task ai:test`                                         |
+| Taskfiles     | `unittest` and Task                              | `tools/scripts/test_taskfile_modules.py` | `task test:taskfiles`                                  |
+| CloudBeaver   | unittest and pinned containers                   | `tools/cloudbeaver/`                     | `python3 -m unittest discover -s tools/cloudbeaver -v` |
 
 `task test` runs the module and application tests. Browser tests run against the running app, so start it first with `task up`.
 
@@ -27,6 +29,18 @@ How tests are written, where they live and how they run.
 - Tests in different classes run in different processes and databases, so a test never depends on another class having run.
 - `task test:uninstall` installs Laboratory, E-commerce and Inventory in a guarded throwaway database, uninstalls E-commerce and Inventory, and checks that the Laboratory data is intact. It refuses a selected fresh demo because its standalone test uses the application's filestore.
 - `task test:core` also combines the coverage of the install and of every shard into the report `src/core/modules/coverage.xml`, which is not committed. Task installs its pinned Linux Python 3.12 coverage package into ignored `.local/core-test-coverage` on the host and mounts it read-only in test containers, so a container with restricted DNS can still run coverage without changing the saved application image.
+
+## CloudBeaver tests
+
+Run `python3 -m unittest discover -s tools/cloudbeaver -v` with Docker or Podman and the pinned CloudBeaver/PostgreSQL images. `CONTAINER_ENGINE` accepts `docker` (default) or `podman`; executable paths and additional arguments are rejected. It uses synthetic accounts and disposable volumes. Without `MEDILAB_KUBE_TEST_CONFIG`, the real Kubernetes cases report skips, not passes.
+
+For Pod/PVC/Service/IngressRoute lifecycle tests, create a disposable kind cluster named `medilab-286-review`, using the pinned node image and image-loading recipe in [ci-infra](../../.github/workflows/ci.infra.yml). Select its separate kubeconfig explicitly:
+
+```bash
+MEDILAB_KUBE_TEST_CONFIG=/path/to/disposable-kind-config python3 -m unittest discover -s tools/cloudbeaver -p test_kubernetes.py -v
+```
+
+The harness requires context `kind-medilab-286-review`, a loopback API server and the exact single disposable node name. It creates its own namespaces, synthetic Secrets, PVCs, Traefik CRDs and test routing. Never supply a production kubeconfig. For rootless Podman, create and load the cluster inside `systemd-run --user --scope -p Delegate=yes` as described in [kind's rootless documentation](https://kind.sigs.k8s.io/docs/user/rootless/). A control plane accepting manifests does not prove Pod lifecycle tests executed.
 
 ## Type checking tests
 
