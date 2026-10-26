@@ -77,6 +77,7 @@ Run commands from the repository root in PowerShell, Bash or your usual terminal
 | --- | --- | --- |
 | Cypress App | `task test:e2e:open` | Choose **E2E Testing**, a browser, **Start E2E Testing**, then a spec such as `login.cy.js`. Inspect commands in the left panel and the page in the right panel. Saving a spec reruns it. Close the app to finish. |
 | All specs in the terminal | `task test:e2e` | Read the per-spec results and final passed/failed counts. A failing run returns a nonzero exit code. |
+| Some tests in the terminal | `task test:e2e GREP=TC-WF01-A5` or `task test:e2e SPEC=cypress/e2e/login.cy.js` | `GREP` runs the tests whose title contains the text, such as one test case ID or `TC-WF01` for a flow, and loads only the specs that have one. `SPEC` takes Cypress spec paths or globs. Run the tests you change this way and leave the whole suite to the `e2e` job of `ci-core`. |
 
 Both modes inherit the local environment files loaded by Task. Set `MEDILAB_DEMO_PASSWORD` to the password used when the demo was created if it differs from `demo`.
 
@@ -138,8 +139,8 @@ Use [Cypress Tap and AI Skills](../workflows/cypress-tap.md) when an agent write
 | Command | Use |
 | --- | --- |
 | `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
-| `cy.openRecord(xmlId)` | Resolve a full demo external ID such as `sol_demo.demo_test_result_retest`, open its backend form and yield `{ model, id }`. The current user's permissions apply. |
-| `cy.readRecord(xmlId, fields)` | Read the named fields of that record in the current session and yield its values. `fields` must be a nonempty array. |
+| `cy.openRecord(record)` | Open the backend form of a record given by a full demo external ID such as `sol_demo.demo_test_result_retest`, or as `{ model, id }`, and yield `{ model, id }`. The current user's permissions apply. |
+| `cy.readRecord(record, fields)` | Read the named fields of that record in the current session and yield its values. `fields` must be a nonempty array. |
 | `cy.signRecord(action)` | Click the visible form button named `action`, default `action_sign`. |
 | `cy.rejectRecord(reason, options)` | Open the rejection wizard, fill its reason, confirm and wait for it to close. `options.button` selects the opener, default the form's visible danger button; set it when there is more than one. `options.reasonField` defaults to `[name="reason"] textarea` and `options.action` to `action_reject`. |
 | `cy.sendRecord(action)` | Click the visible form button named `action`, default `action_send`; pass `action_send_quotation`, `action_send_invoice` or another document's action when needed. |
@@ -157,7 +158,18 @@ cy.expectRefusal({
 });
 ```
 
-`demo_roles.cy.js` checks every seeded demo account and opening a demo record. `browser_helpers.cy.js` checks the shared action and refusal commands on a controlled browser fixture, including that a successful action fails the refusal check. Business-flow tests use their own starting demo records and cover only their flow's paths from [Business flows](../functional/business-flows.md).
+`cypress/support/odoo.js` also exports functions for building and checking records. The `…As` functions run in the test runner with one session per login for the whole run, so building a test's records never changes the browser's session or reloads the back office:
+
+| Function | Use |
+| --- | --- |
+| `callAs(login, model, method, args, kwargs)` | Call a model method as a login, such as `demo.sales` or `portal.anphu`, and yield its result. |
+| `refAs(login, xmlId)` | Resolve a full demo external ID as a login and yield `{ model, id }`. |
+| `portalPostAs(login, page, path, form)` | Submit a portal form as a login, with the CSRF token of `page`. |
+| `callRefused(model, method, args, kwargs)` | Call a model method that must be refused and yield the server's message, in English. Use it with a check that the screen does not offer the action. |
+
+Messages on screen follow the user's language: `demo.sales` reads Vietnamese, most other demo users English. Odoo screens load their data after the page, so commands wait up to ten seconds.
+
+`demo_roles.cy.js` checks every seeded demo account and opening a demo record. `browser_helpers.cy.js` checks the shared action and refusal commands on a controlled browser fixture, including that a successful action fails the refusal check. Business-flow tests create their starting records with their flow's `setup.js`, so a spec runs again on the same database, and cover only their flow's paths from [Business flows](../functional/business-flows.md).
 
 ## Applications
 

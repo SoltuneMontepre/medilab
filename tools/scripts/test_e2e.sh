@@ -22,6 +22,7 @@ if [[ "$e2e_mode" == help ]]; then
     '3. Open Cypress App: task test:e2e:open' \
     '   Choose E2E Testing, a browser, Start E2E Testing, then a .cy.js file.' \
     '4. Run every browser test in the terminal: task test:e2e' \
+    '   Run only some: task test:e2e GREP=TC-WF01-A5, or SPEC=cypress/e2e/login.cy.js' \
     '5. Open an AI-driven Chrome session: task test:e2e:tap:open' \
     '   Select another Chromium browser with TAP_BROWSER=edge, chromium or electron.' \
     '   Inspect it from another terminal: task test:e2e:tap TAP_ARGS="status --json"' \
@@ -85,6 +86,15 @@ elif [[ "$e2e_mode" == open ]]; then
   log_info "Choose E2E Testing, a browser, Start E2E Testing, then the test file."
   bunx cypress open
 else
-  bun run test
+  set --
+  if [[ -n "${MEDILAB_E2E_SPEC:-}" ]]; then
+    log_info "Running only the specs matching $MEDILAB_E2E_SPEC."
+    set -- "$@" --spec "$MEDILAB_E2E_SPEC"
+  fi
+  if [[ -n "${MEDILAB_E2E_GREP:-}" ]]; then
+    log_info "Running only the tests whose title contains $MEDILAB_E2E_GREP."
+    set -- "$@" --expose "grep=$MEDILAB_E2E_GREP"
+  fi
+  bun run test "$@"
   log_ok "Browser tests passed."
 fi

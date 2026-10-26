@@ -16,7 +16,7 @@ TEST_URL = "http://localhost:18169"
 
 
 class TestE2ETasks(unittest.TestCase):
-    def run_mode(self, mode, *, health=0, cypress_status=0, browser="chrome"):
+    def run_mode(self, mode, *, health=0, cypress_status=0, browser="chrome", only=None):
         with tempfile.TemporaryDirectory() as directory:
             taskfile = Path(directory) / "Taskfile.yml"
             calls = Path(directory) / "calls.txt"
@@ -62,6 +62,9 @@ tasks:
                 E2E_TEST_STATUS=str(cypress_status),
                 E2E_TEST_CALLS=calls.as_posix(),
             )
+            for key in ("MEDILAB_E2E_SPEC", "MEDILAB_E2E_GREP"):
+                env.pop(key, None)
+            env.update(only or {})
             result = subprocess.run(
                 [TASK, "--taskfile", str(taskfile), "launch"],
                 cwd=ROOT,
@@ -94,6 +97,13 @@ tasks:
             ],
         )
         self.assertIn("Browser tests passed.", result.stdout)
+
+    def test_run_passes_only_the_chosen_specs_and_tests_to_cypress(self):
+        only = {"MEDILAB_E2E_SPEC": "cypress/e2e/login.cy.js", "MEDILAB_E2E_GREP": "TC-WF01-A5"}
+        result, calls = self.run_mode("run", only=only)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(calls[-1], f"bun run test --spec cypress/e2e/login.cy.js --expose grep=TC-WF01-A5|{TEST_URL}|unset")
+        self.assertIn("Running only the tests whose title contains TC-WF01-A5.", result.stdout)
 
     def test_open_installs_the_binary_and_launches_the_app_with_the_selected_url(self):
         result, calls = self.run_mode("open")
