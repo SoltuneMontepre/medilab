@@ -67,9 +67,37 @@ class TestOrderForm(TransactionCase):
         self.assertEqual(fields["partner_id"]["string"], "Liên Hệ")
 
     def test_lines_offer_no_section_note_or_odoo_catalog(self):
-        controls = self._nodes("//field[@name='order_line']/list/control/*")
-        names = {control.get("name") for control in controls}
-        self.assertEqual(names, {"add_product_control"})
+        for view in ("list", "kanban"):
+            with self.subTest(view=view):
+                controls = self._nodes(f"//field[@name='order_line']/{view}/control/*")
+                self.assertEqual({control.get("name") for control in controls}, {"add_product_control"})
+        self.assertFalse(self._nodes("//widget[@name='combo_menu']"))
+
+    def test_line_is_a_parameter_or_package_on_a_sample(self):
+        shown = self._nodes("//list[@name='sol_list']/column[@name='product_and_description']/field")
+        names = [field.get("name") for field in shown if field.get("invisible") not in HIDDEN]
+        self.assertEqual(names, ["product_template_id"])
+        product = shown[0]
+        self.assertNotIn("optional", product.attrib)
+        self.assertIn("('parameter_id', '!=', False)", product.get("domain"))
+        self.assertIn("('service_package_id', '!=', False)", product.get("domain"))
+        columns = [child.get("name") for child in self._nodes("//list[@name='sol_list']/*")]
+        self.assertEqual(columns[columns.index("product_and_description") + 1], "sample_id")
+        delivered = self._nodes("//list[@name='sol_list']/column[field[@name='qty_delivered']]")
+        self.assertEqual(delivered[0].get("column_invisible"), "1")
+
+    def test_form_shows_no_tax_included_switch(self):
+        for field in self._nodes("//field[@name='document_tax_mode']"):
+            with self.subTest(id=field.get("id")):
+                self.assertIn(field.get("invisible"), HIDDEN)
+
+    def test_notebook_leads_with_lines_samples_and_revisions(self):
+        pages = [page.get("name") for page in self._nodes("//notebook/page")]
+        self.assertEqual(pages[:3], ["order_lines", "samples", "revisions"])
+
+    def test_salesperson_sits_with_the_order_dates(self):
+        self.assertTrue(self._nodes("//group[@name='order_details']/field[@name='user_id']"))
+        self.assertFalse(self._nodes("//group[@name='sales_person']/field[@name='user_id']"))
 
     def test_line_without_a_product_has_no_tax(self):
         order = self.env[MODEL_SALE_ORDER].create({"partner_id": self.env.user.partner_id.id})
