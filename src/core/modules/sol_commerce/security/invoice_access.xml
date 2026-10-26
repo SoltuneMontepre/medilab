@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Odoo's order screens read the order's invoices. Like Odoo's salesperson, a person who reads orders
+         reads the customer invoices they sell, and the Head of Sales every customer invoice. -->
+    <record id="access_account_move_order_read" model="ir.access">
+        <field name="name">Customer invoices of the salesperson</field>
+        <field name="model_id" ref="account.model_account_move" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_read_all" />
+        <field name="operation">r</field>
+        <field name="domain">[("move_type", "in", ("out_invoice", "out_refund")), "|", ("invoice_user_id", "=", user.id), ("invoice_user_id", "=", False)]</field>
+    </record>
+    <record id="access_account_move_all_orders" model="ir.access">
+        <field name="name">All customer invoices</field>
+        <field name="model_id" ref="account.model_account_move" />
+        <field name="group_id" ref="group_all_orders" />
+        <field name="operation">r</field>
+        <field name="domain">[("move_type", "in", ("out_invoice", "out_refund"))]</field>
+    </record>
+    <record id="access_account_move_line_order_read" model="ir.access">
+        <field name="name">Invoice lines follow the invoice</field>
+        <field name="model_id" ref="account.model_account_move_line" />
+        <field name="group_id" ref="sol_laboratory.group_permission_order_read_all" />
+        <field name="operation">r</field>
+        <field name="domain">[("move_id", "access", "read")]</field>
+    </record>
+</odoo>
