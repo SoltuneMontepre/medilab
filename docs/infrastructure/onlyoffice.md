@@ -111,7 +111,11 @@ Targets are seven days of actual recoverable bytes; alert in five minutes; ackno
 6. Restore through existing authorized upload/version/restore actions as the actual operator, retaining conflict rules and provenance. Never forge a callback, attribute the operator to the original editor, mutate an old version or bypass folder/sample checks. Recheck for a late committed callback to avoid duplicating an already recovered version. Verify the resulting committed version/hash/audit from a new transaction and independent download.
 7. Within twenty-four hours record a verified outcome or explicitly mark **unrecovered**, including confirmed missing/corrupt bytes, unresolved availability and evidence preserved. Escalation continues even after that classification when appropriate. Never call an expired session, logs, inventory entry or older version a recovered final save. Do not invoke `deleteForgotten` or remove the last copy before verification and approved retention expiry.
 
+Recovery input and output paths must be descendants of explicitly configured physical directories. Set `MEDILAB_ONLYOFFICE_RECOVERY_INPUT_ROOTS` and `MEDILAB_ONLYOFFICE_RECOVERY_OUTPUT_ROOTS` to colon-separated absolute directory allowlists in the trusted operator environment; `/` is refused. The operator provisions those roots before retrieval. The example uses `/secure`; it does not establish approved production locations. Roots and traversed children must belong to the invoking account or root and must not be group/world writable. Secret files must also have no group/world access. Inputs must be bounded regular files; symlinks and traversal are refused. Descriptor-relative operations pin directories, and exclusive creation refuses existing evidence files and incident directories even if paths are replaced during retrieval. Partial evidence is retained on failure.
+
 ```sh
+export MEDILAB_ONLYOFFICE_RECOVERY_INPUT_ROOTS=/secure
+export MEDILAB_ONLYOFFICE_RECOVERY_OUTPUT_ROOTS=/secure
 python3 tools/infrastructure/onlyoffice/recover.py \
   --origin https://onlyoffice.medilab.svc.cluster.local \
   --ca /secure/onlyoffice-ca.crt --secret-file /secure/jwt-secret \
@@ -210,3 +214,8 @@ Activation requires a reviewed environment change joining the candidate Argo app
 - [Pinned shutdown algorithm](https://github.com/ONLYOFFICE/server/blob/v9.4.0.1/DocService/sources/shutdown.js)
 - [Community packaging split](https://github.com/ONLYOFFICE/Docker-DocumentServer/commit/11aafa4cce2c7cc3637648c8d965d9a5ee560ec3)
 - [Pinned Docker entrypoint](https://github.com/ONLYOFFICE/Docker-DocumentServer/blob/v9.4.0.1/run-document-server.sh)
+
+
+## Trusted schema inputs
+
+`validate_crds.py` reads regular files beneath this checkout by default. `validate.sh` additionally allows only its private checksum-pinned download workspace using `MEDILAB_ONLYOFFICE_SCHEMA_ROOTS`. Standalone operators may explicitly configure colon-separated physical input roots in that environment variable. The same ownership, no-symlink and no-traversal policy applies to both CRDs and manifests; inputs are bounded to 64 MiB. A failed validation prints no manifest content. This policy preserves offline validation and does not grant cluster access.

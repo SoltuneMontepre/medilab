@@ -6,6 +6,9 @@ from pathlib import Path
 
 import jsonschema
 import yaml
+from operator_files import read_input, trusted_roots
+
+ROOT = Path(__file__).resolve().parents[3]
 
 
 def main():
@@ -14,9 +17,10 @@ def main():
     parser.add_argument("manifests", nargs="+")
     parser.add_argument("--skip-kind", action="append", default=[])
     args = parser.parse_args()
+    roots = trusted_roots("MEDILAB_ONLYOFFICE_SCHEMA_ROOTS", (ROOT,))
     schemas = {}
     for filename in args.crd:
-        for resource in yaml.safe_load_all(Path(filename).read_text(encoding="utf-8")):
+        for resource in yaml.safe_load_all(read_input(filename, roots, 64 * 1024 * 1024).decode("utf-8")):
             if not resource or resource.get("kind") != "CustomResourceDefinition":
                 continue
             spec = resource["spec"]
@@ -26,8 +30,13 @@ def main():
                 ]
     count = 0
     for filename in args.manifests:
-        for resource in yaml.safe_load_all(Path(filename).read_text(encoding="utf-8")):
-            if not resource or resource["apiVersion"] in ("v1", "apps/v1", "networking.k8s.io/v1", "batch/v1"):
+        for resource in yaml.safe_load_all(read_input(filename, roots, 64 * 1024 * 1024).decode("utf-8")):
+            if not resource or resource["apiVersion"] in (
+                "v1",
+                "apps/v1",
+                "networking.k8s.io/v1",
+                "batch/v1",
+            ):
                 continue
             if resource["kind"] in args.skip_kind:
                 continue
@@ -38,4 +47,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+        yaml.YAMLError,
+        jsonschema.ValidationError,
+    ):
+        sys.stderr.write("CRD validation failed; check trusted inputs and pinned schema compatibility.\n")
+        sys.exit(1)

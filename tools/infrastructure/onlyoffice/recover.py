@@ -10,8 +10,14 @@ import ssl
 import sys
 import time
 import urllib.request
-from pathlib import Path
 from urllib.parse import urlsplit
+
+from operator_files import (
+    new_evidence_directory,
+    new_evidence_file,
+    read_input,
+    trusted_roots,
+)
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -62,12 +68,17 @@ def main():
     parts = urlsplit(args.origin)
     if not same_origin(args.origin, args.origin) or parts.path not in ("", "/") or parts.query:
         raise ValueError("Invalid configured origin")
-    secret = Path(args.secret_file).read_bytes().strip()
+    inputs = trusted_roots("MEDILAB_ONLYOFFICE_RECOVERY_INPUT_ROOTS")
+    outputs = trusted_roots("MEDILAB_ONLYOFFICE_RECOVERY_OUTPUT_ROOTS")
+    secret = read_input(args.secret_file, inputs, 65536, private=True).strip()
     if len(secret) < 32:
         raise ValueError("Invalid secret")
-    output = Path(args.output)
-    output.mkdir(mode=0o700, parents=False, exist_ok=False)
-    context = ssl.create_default_context(cafile=args.ca)
+    ca = read_input(args.ca, inputs, 4 * 1024 * 1024)
+    try:
+        trust = ca.decode("ascii")
+    except UnicodeDecodeError:
+        trust = ca
+    context = ssl.create_default_context(cadata=trust)
     context.check_hostname = True
     context.verify_mode = ssl.CERT_REQUIRED
     opener = urllib.request.build_opener(
@@ -75,38 +86,50 @@ def main():
         NoRedirect(),
         urllib.request.HTTPSHandler(context=context),
     )
-    body = {"c": "getForgotten", "key": args.key} if args.key else {"c": "getForgottenList"}
-    request = urllib.request.Request(
-        args.origin.rstrip("/") + "/command",
-        data=json.dumps(body).encode(),
-        headers={"Content-Type": "application/json", "Medilab-Editor-Token": "Bearer " + token(body, secret)},
-    )
-    with opener.open(request, timeout=30) as response:
-        result = json.loads(response.read(1048576))
-    if result.get("error") != 0:
-        raise ValueError("Command refused or bytes unavailable")
-    evidence = {
-        "operator": args.operator,
-        "document_key": args.key,
-        "retrieved_at": int(time.time()),
-        "classification": "inventory",
-    }
-    if args.key:
-        url = result.get("url", "")
-        if not same_origin(url, args.origin):
-            raise ValueError("Refused recovery origin")
-        digest, size, started = hashlib.sha256(), 0, time.monotonic()
-        with opener.open(url, timeout=30) as response, (output / "document.bin").open("xb") as destination:
-            while chunk := response.read(1048576):
-                if time.monotonic() - started > 900:
-                    raise TimeoutError("Recovery retrieval deadline")
-                destination.write(chunk)
-                digest.update(chunk)
-                size += len(chunk)
-        evidence.update(sha256=digest.hexdigest(), size=size, classification="retrieved_unverified")
-    else:
-        evidence["keys"] = result.get("keys", [])
-    (output / "evidence.json").write_text(json.dumps(evidence, indent=2) + "\n")
+    with new_evidence_directory(args.output, outputs) as output:
+        body = {"c": "getForgotten", "key": args.key} if args.key else {"c": "getForgottenList"}
+        request = urllib.request.Request(
+            args.origin.rstrip("/") + "/command",
+            data=json.dumps(body).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "Medilab-Editor-Token": "Bearer " + token(body, secret),
+            },
+        )
+        with opener.open(request, timeout=30) as response:
+            result = json.loads(response.read(1048576))
+        if result.get("error") != 0:
+            raise ValueError("Command refused or bytes unavailable")
+        evidence = {
+            "operator": args.operator,
+            "document_key": args.key,
+            "retrieved_at": int(time.time()),
+            "classification": "inventory",
+        }
+        if args.key:
+            url = result.get("url", "")
+            if not same_origin(url, args.origin):
+                raise ValueError("Refused recovery origin")
+            digest, size, started = hashlib.sha256(), 0, time.monotonic()
+            with (
+                opener.open(url, timeout=30) as response,
+                new_evidence_file(output, "document.bin") as destination,
+            ):
+                while chunk := response.read(1048576):
+                    if time.monotonic() - started > 900:
+                        raise TimeoutError("Recovery retrieval deadline")
+                    destination.write(chunk)
+                    digest.update(chunk)
+                    size += len(chunk)
+            evidence.update(
+                sha256=digest.hexdigest(),
+                size=size,
+                classification="retrieved_unverified",
+            )
+        else:
+            evidence["keys"] = result.get("keys", [])
+        with new_evidence_file(output, "evidence.json") as destination:
+            destination.write((json.dumps(evidence, indent=2) + "\n").encode())
     sys.stdout.write("Recovery evidence written; verify bytes and authorization before restoring.\n")
 
 

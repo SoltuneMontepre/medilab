@@ -32,6 +32,7 @@ mkdir "$validation_dir/schema-cache"
 # Core resources use Kubernetes schemas. Custom resources are checked below; Backup is unchanged base Odoo scope.
 "$validation_dir/kubeconform" -strict -summary -ignore-missing-schemas \
   -cache "$validation_dir/schema-cache" "$validation_dir"/onlyoffice*.yaml
+MEDILAB_ONLYOFFICE_SCHEMA_ROOTS="$PWD:$validation_dir" \
 "$validation_python" tools/infrastructure/onlyoffice/validate_crds.py --skip-kind Backup \
   --crd "$validation_dir/cert-manager.yaml" --crd "$validation_dir/external-secrets.yaml" \
   --crd "$validation_dir/traefik.yaml" --crd "$validation_dir/argocd.yaml" \
