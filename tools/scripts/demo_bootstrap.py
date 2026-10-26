@@ -96,6 +96,7 @@ def _assert_local_context(context, source):
         raise BootstrapError(
             f"The {source} container context is not local; refusing fresh bootstrap."
         )
+    return host
 
 
 def _assert_local_engine():
@@ -106,17 +107,36 @@ def _assert_local_engine():
             "The configured container engine is not local; refusing fresh bootstrap."
         )
     if context:
-        _assert_local_context(context, "configured")
-    elif not endpoint:
-        result = _run(["docker", "context", "show"], capture_output=True, check=False)
-        if result.returncode == 0:
-            _assert_local_context(result.stdout.strip(), "selected")
-        else:
-            version = _run(["docker", "--version"], capture_output=True, check=False)
-            if "podman" not in version.stdout.lower():
-                raise BootstrapError(
-                    "Could not verify that the selected container engine is local."
-                )
+        host = _assert_local_context(context, "configured")
+        return endpoint or host
+    if endpoint:
+        return endpoint
+    result = _run(["docker", "context", "show"], capture_output=True, check=False)
+    if result.returncode == 0:
+        return _assert_local_context(result.stdout.strip(), "selected")
+    version = _run(["docker", "--version"], capture_output=True, check=False)
+    if "podman" not in version.stdout.lower():
+        raise BootstrapError(
+            "Could not verify that the selected container engine is local."
+        )
+    return "podman"
+
+
+def _record_engine(marker, engine):
+    if isinstance(engine, str) and engine:
+        marker["engine"] = engine
+
+
+def _assert_matching_engine(marker, engine, resources, missing):
+    saved_engine = marker.get("engine")
+    if saved_engine and (not isinstance(engine, str) or engine != saved_engine):
+        raise BootstrapError(
+            "Reset refused: the selected container engine does not match the completed bootstrap marker."
+        )
+    if missing and not saved_engine and not any(resources.values()):
+        raise BootstrapError(
+            "Reset refused: cannot verify that the selected container engine owns the missing volumes."
+        )
 
 
 def _read_marker():
@@ -294,7 +314,7 @@ def select(project):
         raise BootstrapError(
             "Use a new project name beginning with medilab-bootstrap- and containing only lowercase letters, digits, _ or -."
         )
-    _assert_local_engine()
+    engine = _assert_local_engine()
     if SWITCH_JOURNAL.exists():
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     existing = _read_marker()
@@ -315,6 +335,7 @@ def select(project):
         "status": "selected",
         "worktree": str(ROOT),
     }
+    _record_engine(marker, engine)
     _write_marker(marker)
     _write_compose_env(config)
     print(
@@ -452,7 +473,7 @@ def switch(project):
         raise BootstrapError(
             "Use a medilab-bootstrap- project name to switch selections."
         )
-    _assert_local_engine()
+    engine = _assert_local_engine()
     if SWITCH_JOURNAL.exists():
         raise BootstrapError(INTERRUPTED_SWITCH_ERROR)
     current = _read_marker()
@@ -483,6 +504,7 @@ def switch(project):
             "status": "selected",
             "worktree": str(ROOT),
         }
+        _record_engine(target, engine)
 
     _archive_current_selection(current)
     _write_switch_journal(current, target)
@@ -1116,7 +1138,7 @@ def _resume_setup(project, marker):
 
 
 def setup():
-    _assert_local_engine()
+    engine = _assert_local_engine()
     project = project_name()
     marker = _read_marker()
     _validate_setup_marker(project, marker)
@@ -1146,6 +1168,7 @@ def setup():
         "project": project,
         "status": "creating",
     }
+    _record_engine(marker, engine)
     _write_marker(marker)
     _write_compose_env(config)
     env = _compose_environment(project, owner, config)
@@ -1352,7 +1375,7 @@ def recover():
 
 
 def reset():
-    _assert_local_engine()
+    engine = _assert_local_engine()
     marker = _read_marker()
     if (
         not marker
@@ -1376,6 +1399,7 @@ def reset():
         raise BootstrapError(
             f"Reset refused: owned volumes {', '.join(unexpected)} are not in the completed bootstrap marker."
         )
+    _assert_matching_engine(marker, engine, resources, missing)
     summary = {
         kind: [
             item.get("Name") or item.get("name") or item.get("Id") or item.get("id")

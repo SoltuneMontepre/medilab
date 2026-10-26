@@ -762,6 +762,63 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
             run.assert_not_called()
             self.assertEqual(json.loads(marker_path.read_text()), marker)
 
+    def test_reset_refuses_empty_selection_on_a_different_container_engine(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project, _config, marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            marker["engine"] = "unix:///var/run/docker.sock"
+            marker_path.write_text(json.dumps(marker), encoding="utf-8")
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch(
+                    "demo_bootstrap._assert_local_engine",
+                    return_value="unix:///home/dev/.docker/desktop/docker.sock",
+                ),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={"containers": [], "networks": [], "volumes": []},
+                ),
+                patch("demo_bootstrap._owned_volume_names", return_value=()),
+                patch("builtins.input") as confirm,
+                patch("demo_bootstrap._run") as run,
+                self.assertRaisesRegex(
+                    BootstrapError,
+                    "selected container engine does not match",
+                ),
+            ):
+                reset()
+            confirm.assert_not_called()
+            run.assert_not_called()
+            self.assertEqual(json.loads(marker_path.read_text()), marker)
+
+    def test_reset_discards_empty_selection_when_saved_engine_matches(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project, _config, marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            marker["engine"] = "unix:///var/run/docker.sock"
+            marker_path.write_text(json.dumps(marker), encoding="utf-8")
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch(
+                    "demo_bootstrap._assert_local_engine",
+                    return_value="unix:///var/run/docker.sock",
+                ),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={"containers": [], "networks": [], "volumes": []},
+                ),
+                patch("demo_bootstrap._owned_volume_names", return_value=()),
+                patch("builtins.input", return_value="owner"),
+                patch("demo_bootstrap._run") as run,
+            ):
+                reset()
+            run.assert_not_called()
+            self.assertEqual(json.loads(marker_path.read_text())["status"], "discarded")
+
     def test_free_ports_stay_below_dynamic_ranges_and_skip_busy_ports(self):
         busy = set(range(20000, 32768, 2))
         with patch(
