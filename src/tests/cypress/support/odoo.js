@@ -24,12 +24,18 @@ export function signIn(login) {
   });
 }
 
+// A call carries the signed-in user's context, so its messages are in the user's language, as on screen.
 function callKw(model, method, args, kwargs) {
-  return cy.request("POST", `/web/dataset/call_kw/${model}/${method}`, {
-    jsonrpc: "2.0",
-    method: "call",
-    params: { model, method, args, kwargs },
-  });
+  return cy
+    .request("POST", "/web/session/get_session_info", { jsonrpc: "2.0", method: "call", params: {} })
+    .its("body.result.user_context", { log: false })
+    .then((context) =>
+      cy.request("POST", `/web/dataset/call_kw/${model}/${method}`, {
+        jsonrpc: "2.0",
+        method: "call",
+        params: { model, method, args, kwargs: { ...kwargs, context: { ...context, ...kwargs.context } } },
+      }),
+    );
 }
 
 export function call(model, method, args, kwargs = {}) {
@@ -39,7 +45,7 @@ export function call(model, method, args, kwargs = {}) {
   });
 }
 
-// Calls a model method that must be refused, and yields the server's message, in English.
+// Calls a model method that must be refused, and yields the server's message.
 export function callRefused(model, method, args, kwargs = {}) {
   return callKw(model, method, args, kwargs).then(({ body }) => {
     expect(body.error, `${model}.${method} refused`).to.exist;
