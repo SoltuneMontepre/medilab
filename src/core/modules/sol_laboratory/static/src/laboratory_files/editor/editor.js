@@ -2,7 +2,7 @@
 (() => {
     "use strict";
     const page = document.getElementById("laboratory-editor");
-    if (!page || !page.dataset.editorConfig) return;
+    if (!page?.dataset.editorConfig) return;
     const status = document.getElementById("editor-status");
     const retry = document.getElementById("editor-retry");
     const messages = Object.fromEntries(

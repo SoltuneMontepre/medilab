@@ -65,9 +65,15 @@ describe("Laboratory browser editor adapter", () => {
         cy.get("#editor-status").should("contain", ready);
         cy.get("iframe[title='Editor adapter fixture']").should("be.visible");
         cy.get("#editor-retry").should("not.be.visible");
+        cy.get("#editor-messages").should("not.be.visible");
         cy.window({ log: false }).then((win) => {
           expect(win.document.documentElement.scrollWidth).to.be.at.most(width);
           expect(win.editorFixture.config.editorConfig.customization.forcesave).to.eq(false);
+          const editor = win.document.getElementById("laboratory-editor");
+          editor.hidden = true;
+          expect(win.getComputedStyle(editor).display).to.eq("none");
+          editor.hidden = false;
+          expect(win.getComputedStyle(editor).display).to.eq("flex");
         });
       });
     }
@@ -109,5 +115,27 @@ describe("Laboratory browser editor adapter", () => {
     cy.get("input[name=password]").type("demo{enter}");
     cy.location("pathname").should("eq", path);
     cy.get("#editor-status").should("contain", "Connecting");
+  });
+
+  it("warns before leaving dirty documents and clears the warning after handoff", () => {
+    cy.visit(path);
+    cy.get("#editor-status").should("contain", "Connecting");
+    cy.window({ log: false }).then((win) => {
+      function unloadState() {
+        const event = new win.Event("beforeunload", { cancelable: true });
+        let legacyValue = "untouched";
+        Object.defineProperty(event, "returnValue", {
+          get() { return legacyValue; },
+          set(value) { legacyValue = value; },
+        });
+        win.dispatchEvent(event);
+        return { prevented: event.defaultPrevented, legacyValue };
+      }
+      expect(unloadState()).to.deep.eq({ prevented: false, legacyValue: "untouched" });
+      win.editorFixture.config.events.onDocumentStateChange({ data: true });
+      expect(unloadState()).to.deep.eq({ prevented: true, legacyValue: "" });
+      win.editorFixture.config.events.onDocumentStateChange({ data: false });
+      expect(unloadState()).to.deep.eq({ prevented: false, legacyValue: "untouched" });
+    });
   });
 });
