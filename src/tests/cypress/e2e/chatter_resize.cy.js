@@ -33,6 +33,22 @@ describe("Resizable chatter", () => {
     });
   });
 
+  it("keeps the width that is shown when dragged past the limit", () => {
+    cy.get(".o-mail-ChatterPanel .o_resizable_panel_handle").then(($handle) => {
+      const { left, top, width } = $handle[0].getBoundingClientRect();
+      const center = left + width / 2;
+      cy.wrap($handle).trigger("mousedown", { button: 0, clientX: center, clientY: top + 200 });
+      cy.get("body").trigger("mousemove", { force: true, clientX: 0, clientY: top + 200 });
+      cy.get("body").trigger("mouseup", { force: true });
+    });
+    panelWidth().should("be.within", 900, 1600 * 0.6 + 1);
+    panelWidth().then((shown) => {
+      cy.window().then((win) => {
+        expect(JSON.parse(win.localStorage.getItem(STORAGE_KEY)).width).to.be.closeTo(shown, 1);
+      });
+    });
+  });
+
   it("collapses to give the form the full width and keeps it collapsed", () => {
     panelWidth().then((width) => {
       cy.get(".o-mail-ChatterToggle").should("have.attr", "aria-expanded", "true").click();

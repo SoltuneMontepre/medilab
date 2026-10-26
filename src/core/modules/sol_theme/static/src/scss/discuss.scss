@@ -159,7 +159,8 @@ $ml-chatter-bar-width: 1.25rem;
 }
 
 @media print {
-    .o-mail-ChatterPanel {
+    .o-mail-ChatterPanel,
+    .o-mail-ChatterPanel.o-isCollapsed {
         width: 100% !important;
         max-width: none;
     }

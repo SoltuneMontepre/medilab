@@ -9,6 +9,8 @@ import { FormRenderer } from "@web/views/form/form_renderer";
 const STORAGE_KEY = "sol_theme.chatter";
 const DEFAULT_WIDTH = 560;
 const MIN_WIDTH = 380;
+// The layouts in which mail puts the chatter beside the form (its o-aside class).
+const ASIDE_LAYOUTS = '["SIDE_CHATTER", "EXTERNAL_COMBO_XXL"]';
 
 function readStoredChatter() {
   try {
@@ -36,9 +38,13 @@ patch(FormRenderer.prototype, {
     this.chatterWidth = width;
     this.state.chatterCollapsed = collapsed;
     this.onChatterResize = (newWidth) => {
-      if (newWidth !== this.chatterWidth) {
-        this.chatterWidth = newWidth;
-        storeChatter(newWidth, this.state.chatterCollapsed);
+      // The stylesheet caps the panel's width, so the width kept is the one shown.
+      const panel = this.rootRef()?.querySelector(".o-mail-ChatterPanel");
+      const cap = panel ? parseFloat(getComputedStyle(panel).maxWidth) : NaN;
+      const width = cap < newWidth ? cap : newWidth;
+      if (width !== this.chatterWidth) {
+        this.chatterWidth = width;
+        storeChatter(width, this.state.chatterCollapsed);
       }
     };
     this.toggleChatter = () => {
@@ -99,7 +105,8 @@ patch(FormCompiler.prototype, {
         ]),
       ],
     );
-    const aside = createElement("t", { "t-if": chatter.getAttribute("isChatterAside") }, [panel]);
+    const hasPreview = Boolean(res.querySelector(".o_attachment_preview"));
+    const aside = createElement("t", { "t-if": `${ASIDE_LAYOUTS}.includes(__comp__.mailLayout(${hasPreview}))` }, [panel]);
     const beside = createElement("t", { "t-else": "" }, [chatter.cloneNode(true)]);
     chatter.replaceWith(aside, beside);
     return res;
