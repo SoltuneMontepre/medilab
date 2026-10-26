@@ -45,17 +45,24 @@ function odooTasks(baseUrl, password) {
     return sessions.get(login);
   }
 
-  async function call({ login, model, method, args = [], kwargs = {} }) {
-    const { response } = await request(await session(login), `/web/dataset/call_kw/${model}/${method}`, {
+  // A request in the login's session, keeping the cookie Odoo may rotate on the way.
+  async function requestAs(login, path, init) {
+    const { response, cookie } = await request(await session(login), path, init);
+    sessions.set(login, Promise.resolve(cookie));
+    return response;
+  }
+
+  async function call({ login, model, method, args = [], kwargs = {} }, retried = false) {
+    const response = await requestAs(login, `/web/dataset/call_kw/${model}/${method}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ jsonrpc: "2.0", method: "call", params: { model, method, args, kwargs } }),
     });
     const reply = await response.json();
     if (reply.error) {
-      if (reply.error.data?.name === "odoo.http.SessionExpiredException") {
+      if (reply.error.data?.name === "odoo.http.SessionExpiredException" && !retried) {
         sessions.delete(login);
-        return call({ login, model, method, args, kwargs });
+        return call({ login, model, method, args, kwargs }, true);
       }
       throw new Error(`${login}: ${model}.${method} failed: ${reply.error.data?.message ?? reply.error.message}`);
     }
@@ -63,15 +70,16 @@ function odooTasks(baseUrl, password) {
     return reply.result ?? null;
   }
 
+  // The portal answers a refused form with a redirect to the portal home or to a page with `error`.
   async function portalPost({ login, page, path, form = {} }) {
-    const cookie = await session(login);
-    const shown = await request(cookie, page);
-    const body = new URLSearchParams({ ...form, csrf_token: csrfToken(await shown.response.text(), page) });
-    const { response } = await request(cookie, path, { method: "POST", body });
-    if (response.status >= 400) {
-      throw new Error(`${login}: posting ${path} answered ${response.status}.`);
+    const shown = await requestAs(login, page);
+    const body = new URLSearchParams({ ...form, csrf_token: csrfToken(await shown.text(), page) });
+    const response = await requestAs(login, path, { method: "POST", body });
+    const location = new URL(response.headers.get("location") || path, baseUrl);
+    if (response.status >= 400 || location.pathname === "/my" || location.searchParams.has("error")) {
+      throw new Error(`${login}: posting ${path} was refused (${response.status} ${location.pathname}${location.search}).`);
     }
-    return { status: response.status, location: response.headers.get("location") };
+    return { status: response.status, location: location.pathname };
   }
 
   return { odooCall: call, odooPortalPost: portalPost };
