@@ -38,9 +38,17 @@ function concludeOnScreen(conclusion) {
   cy.get(`.o_field_widget[name=conclusion] input[data-value=${conclusion}]`).check();
 }
 
-// Adds a line to an editable list field of the form.
+// Saves the form and waits for the server's answer, so what follows reads or changes the saved record.
+function saveAndWait(model) {
+  cy.intercept("POST", `/web/dataset/call_kw/${model}/web_save`).as("saved");
+  save();
+  cy.wait("@saved");
+}
+
+// Adds a line to an editable list field of the form and waits until it is edited.
 function addLine(field) {
   cy.get(`.o_field_widget[name=${field}] .o_field_x2many_list_row_add button`).click();
+  cy.get(`.o_field_widget[name=${field}] .o_selected_row`).should("exist");
 }
 
 // Adds an in-house way of testing in Chemistry to the parameter form.
@@ -83,7 +91,7 @@ function archiveWay() {
   cy.get(".o_field_widget[name=method_ids] .o_data_row td[name=lod]").click();
   cy.get(".o_field_widget[name=method_ids] .o_selected_row td[name=active] input").click();
   cy.get(".o_field_widget[name=method_ids] .o_data_row td[name=active] input").should("not.be.checked");
-  save();
+  saveAndWait("medilab.test.parameter");
 }
 
 describe("WF-04 Result entry and approval", () => {
@@ -314,7 +322,7 @@ describe("WF-04 feature acceptance criteria", () => {
     pick("sample_type_ids", "Surface water");
     addWay("TCVN 7602:2007", "mg/kg");
     addWay("ISO 17294-2:2016", "µg/L");
-    save();
+    saveAndWait("medilab.test.parameter");
     cy.reload();
     cy.get(".o_field_widget[name=group_ids] .o_tag").should("have.length", 2);
     cy.get(".o_field_widget[name=sample_type_ids] .o_tag").should("have.length", 2);
@@ -433,7 +441,7 @@ describe("WF-04 feature acceptance criteria", () => {
     cy.get(".o_field_widget[name=formula] input").type("HCl");
     cy.get(".o_field_widget[name=grade] input").type("AR, 37 %");
     cy.get(".o_field_widget[name=storage_conditions] textarea").type("Tủ axit, tránh xa chất oxy hóa.");
-    save();
+    saveAndWait("medilab.chemical");
     call("medilab.chemical", "search_read", [[["code", "=", code]]], {
       fields: ["cas_number", "formula", "grade", "storage_conditions"],
     }).should(([chemical]) => {
@@ -465,13 +473,6 @@ describe("WF-04 feature acceptance criteria", () => {
         enterResult(test, { value: 0.004 }).then((result) => {
           cy.signInAs("administrator");
           cy.openRecord(regulation);
-          cy.get(".o_field_widget[name=limit_ids] .o_data_row td[name=max_value]").click();
-          cy.get(".o_selected_row [name=max_value] input").clear().type("0.02");
-          save();
-          cy.readRecord(regulation, ["limit_ids"]).then(({ limit_ids: [limit] }) =>
-            cy.readRecord({ model: "medilab.regulation.limit", id: limit }, ["max_value"]).its("max_value").should("eq", 0.02),
-          );
-          cy.readRecord(result, ["limit_max"]).its("limit_max").should("eq", 0.05);
           cy.expectRefusal({
             read: () => cy.readRecord(regulation, ["limit_ids", "write_date"]),
             action: () => {
@@ -483,6 +484,13 @@ describe("WF-04 feature acceptance criteria", () => {
             message: "A regulation sets at most one limit per parameter.",
           });
           discardRefused();
+          cy.get(".o_field_widget[name=limit_ids] .o_data_row td[name=max_value]").click();
+          cy.get(".o_selected_row [name=max_value] input").clear().type("0.02");
+          saveAndWait("medilab.regulation");
+          cy.readRecord(regulation, ["limit_ids"]).then(({ limit_ids: [limit] }) =>
+            cy.readRecord({ model: "medilab.regulation.limit", id: limit }, ["max_value"]).its("max_value").should("eq", 0.02),
+          );
+          cy.readRecord(result, ["limit_max"]).its("limit_max").should("eq", 0.05);
         });
       });
     });
