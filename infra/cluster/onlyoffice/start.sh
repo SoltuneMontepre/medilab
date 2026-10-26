@@ -12,9 +12,9 @@ export ALLOW_PRIVATE_IP_ADDRESS=true ALLOW_META_IP_ADDRESS=false USE_UNAUTHORIZE
 export DS_LOG_LEVEL=OFF NGINX_ACCESS_LOG=false PLUGINS_ENABLED=false
 export NODE_EXTRA_CA_CERTS=/run/onlyoffice-ca/ca.crt
 export SSL_CERTIFICATE_PATH=/run/onlyoffice-tls/tls.crt SSL_KEY_PATH=/run/onlyoffice-tls/tls.key
-test -s "$NODE_EXTRA_CA_CERTS"
-test -s "$SSL_CERTIFICATE_PATH"
-test -s "$SSL_KEY_PATH"
+[[ -s "$NODE_EXTRA_CA_CERTS" ]]
+[[ -s "$SSL_CERTIFICATE_PATH" ]]
+[[ -s "$SSL_KEY_PATH" ]]
 sudo -u ds test -r "$NODE_EXTRA_CA_CERTS"
 sudo -u ds test -r /opt/medilab/onlyoffice/settings.json
 install -d -o ds -g ds -m 0700 /run/onlyoffice-runtime
@@ -32,10 +32,10 @@ for service in docservice converter; do
 done
 # Keep cached-file signatures valid across replacement for the lifetime of their existing URLs.
 private_dir=/var/www/onlyoffice/Data/.private
-test ! -L "$private_dir"
+[[ ! -L "$private_dir" ]]
 install -d -m 0700 "$private_dir"
 secure_link_file="$private_dir/medilab-secure-link-secret"
-test ! -L "$secure_link_file"
+[[ ! -L "$secure_link_file" ]]
 if [[ ! -e "$secure_link_file" ]]; then
   secret_tmp=$(mktemp "$private_dir/.secure-link.XXXXXX")
   pwgen -s 48 1 >"$secret_tmp"

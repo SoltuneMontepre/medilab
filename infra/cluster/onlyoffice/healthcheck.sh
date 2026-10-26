@@ -7,4 +7,4 @@ probe_host=${ONLYOFFICE_PROBE_HOST:-onlyoffice.medilab.svc.cluster.local}
 body=$(curl --noproxy '*' --fail --silent --connect-timeout 2 --max-time 4 \
   --cacert /run/onlyoffice-ca/ca.crt --resolve "${probe_host}:443:127.0.0.1" \
   "https://${probe_host}/healthcheck" 2>/dev/null) || exit 1
-test "$body" = true
+[[ "$body" == true ]]

@@ -1,6 +1,6 @@
 "use strict";
 
-const Module = require("module");
+const Module = require("node:module");
 
 const DOCS_CO_SERVER = "/snapshot/server/DocService/sources/DocsCoServer.js";
 const COMMON = "/snapshot/server/Common/sources/";

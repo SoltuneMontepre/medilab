@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 # Apply policy after the upstream service launcher sanitizes the parent environment.
-test "$1" = /opt/medilab/onlyoffice/settings.json
-test -s "$1"
+[[ "$1" == /opt/medilab/onlyoffice/settings.json ]]
+[[ -s "$1" ]]
 node_config=$(cat "$1")
 shift
 binary=$1

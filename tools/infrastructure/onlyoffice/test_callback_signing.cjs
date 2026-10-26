@@ -44,7 +44,7 @@ function fixture({enabled = true, signingError = false, senderLength = 4} = {}) 
     canIncludeOutboxAuthorization() { return enabled; },
     fillJwtForRequest(ctx, data, secret, inBody) {
       if (signingError) throw new Error("Signing failed");
-      const payload = JSON.parse(JSON.stringify(data));
+      const payload = structuredClone(data);
       return encode(inBody ? payload : {payload}, secret);
     },
   };
@@ -60,7 +60,7 @@ function fixture({enabled = true, signingError = false, senderLength = 4} = {}) 
       }
     }
     sends++;
-    return {body: JSON.parse(JSON.stringify(data)), token, header, uri};
+    return {body: structuredClone(data), token, header, uri};
   }
   Object.defineProperty(sendServerRequest, "length", {value: senderLength});
   const docs = {sendServerRequest};
@@ -137,7 +137,7 @@ function fieldsAtHeaderLength(length) {
 test("large native history is finalized before both tokens are signed", async () => {
   const f = fixture();
   f.load();
-  const fields = {...FIELDS, history: {changes: Array(2000).fill(FIELDS.history.changes[0])}};
+  const fields = {...FIELDS, history: {changes: new Array(2000).fill(FIELDS.history.changes[0])}};
   const result = await f.send(fields);
   assertMatching(result);
   const expected = {...FIELDS, history: {}};

@@ -1,10 +1,10 @@
 'use strict';
 
 // Use pkg's native fork entrypoint so policy is checked inside the actual worker.
-const fs = require('fs');
-const crypto = require('crypto');
-const path = require('path');
-const assert = require('assert/strict');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const path = require('node:path');
+const assert = require('node:assert/strict');
 const CONTEXTS = {
   '/var/www/onlyoffice/documentserver/server/DocService/docservice': {
     name: 'docservice',

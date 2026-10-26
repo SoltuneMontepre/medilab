@@ -1,8 +1,8 @@
 "use strict";
 
-const assert = require("assert/strict");
-const crypto = require("crypto");
-const fs = require("fs");
+const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
+const fs = require("node:fs");
 
 const BINARY = "/var/www/onlyoffice/documentserver/server/DocService/docservice";
 const BINARY_SHA256 = "556df4aab7b1a87123046a4459baee34e60f57deaf7bcd189bccd6f271bd8fcb";
