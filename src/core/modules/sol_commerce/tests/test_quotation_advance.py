@@ -40,6 +40,17 @@ class TestQuotationAdvance(OrderCase):
         self.assertEqual(notices.attachment_ids, order._latest_quotation().attachment_id)
         self.assertEqual(order.order_status, "claimed")
 
+    def test_sales_open_an_order_that_has_an_advance_invoice(self):
+        order = self.make_quotable_order()
+        order.with_user(self.sales).action_send_quotation()
+
+        for user in (self.sales, self.head):
+            order.invalidate_recordset()
+            values = order.with_user(user).read(["invoice_count", "payment_status"])[0]
+            self.assertEqual(values["invoice_count"], 1)
+            self.assertEqual(values["payment_status"], "not_paid")
+        self.assertFalse(order.sudo().invoice_ids.with_user(self.other_sales).has_access("read"))
+
     def test_the_advance_follows_the_percentage_and_the_fixed_amount(self):
         percentage = self.make_quotable_order()
         percentage.write({"advance_mode": "percentage", "advance_value": 30})

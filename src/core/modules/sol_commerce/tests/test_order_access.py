@@ -54,3 +54,12 @@ class TestOrderAccess(OrderCase):
 
         self.assertEqual((order.source, order.order_status, order.user_id), ("sales", "claimed", self.sales))
         self.assertEqual(order.order_line.price_unit, self.lead_product.list_price)
+
+    def test_a_new_order_keeps_its_salesperson_when_the_contact_is_chosen(self):
+        orders = self.env[MODEL_SALE_ORDER].with_user(self.sales)
+
+        on_screen = orders.with_context(medilab_sales_order=True).new({"partner_id": self.contact.id})
+        elsewhere = orders.new({"partner_id": self.contact.id})
+
+        self.assertEqual(on_screen.user_id, self.sales)
+        self.assertFalse(elsewhere.user_id)
