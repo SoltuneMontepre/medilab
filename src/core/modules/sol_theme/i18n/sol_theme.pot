@@ -23,6 +23,12 @@ msgstr ""
 
 #. module: sol_theme
 #. odoo-javascript
+#: code:addons/sol_theme/static/src/js/chatter_resize.js:0
+msgid "Collapse the chatter"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
 #: code:addons/sol_theme/static/src/xml/form_status_indicator.xml:0
 msgid "Discard"
 msgstr ""
@@ -37,6 +43,12 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/sol_theme/static/src/xml/app_drawer.xml:0
 msgid "Esc"
+msgstr ""
+
+#. module: sol_theme
+#. odoo-javascript
+#: code:addons/sol_theme/static/src/js/chatter_resize.js:0
+msgid "Expand the chatter"
 msgstr ""
 
 #. module: sol_theme
