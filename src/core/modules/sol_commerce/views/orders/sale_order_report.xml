@@ -10,5 +10,19 @@
                 alt="Logo"
             />
         </xpath>
+        <!-- The quotation prints its own number, not the order's. -->
+        <xpath expr="//t[@t-set='layout_document_title']/span[@t-field='doc.name']" position="replace">
+            <span t-out="env.context.get('quotation_code') or doc.quotation_code or doc.name" />
+        </xpath>
+        <xpath expr="//strong[normalize-space(text())='Contact']" position="replace">
+            <strong>Salesperson</strong>
+        </xpath>
+        <xpath expr="//th[@name='th_description']" position="inside">
+            <span>Parameter or package</span>
+        </xpath>
+        <xpath expr="//th[@name='th_quantity']" position="inside">
+            <span>Quantity</span>
+        </xpath>
+        <xpath expr="//td[@name='td_product_quantity']/span[@t-field='line.product_uom_id']" position="replace" />
     </template>
 </odoo>
