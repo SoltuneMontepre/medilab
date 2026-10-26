@@ -307,10 +307,13 @@ describe("WF-01 Order to approved test request", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_sign]").should("not.exist");
-      callRefused("sale.order", "action_sign", [[order.id]]).should("eq", "Only people with the role Head of sales can act at this level.");
+      callRefused("sale.order", "action_sign", [[order.id]]).should(
+        "eq",
+        "Chỉ nhân sự có vai trò Trưởng Phòng Kinh Doanh mới có thể thao tác ở cấp này.",
+      );
       callRefused("sale.order", "write", [[order.id], { validity_date: "2099-12-31" }]).should(
         "eq",
-        "The document has signatures; withdraw them before changing it.",
+        "Chứng từ đã có chữ ký; hãy rút lại chữ ký trước khi sửa.",
       );
       cy.readRecord(order, ["approval_status"]).its("approval_status").should("eq", "requested");
     });
@@ -332,9 +335,12 @@ describe("WF-01 Order to approved test request", () => {
       ]).then(([replaced]) => {
         callRefused("medilab.quotation", "action_send", [[replaced]]).should(
           "eq",
-          "A replaced quotation cannot be sent. Send the current revision instead.",
+          "Báo giá đã được thay thế không thể gửi. Hãy gửi bản sửa đổi hiện tại.",
         );
-        callRefused("medilab.quotation", "write", [[replaced], { decline_reason: REASON }]).should("eq", "A replaced quotation cannot be changed.");
+        callRefused("medilab.quotation", "write", [[replaced], { decline_reason: REASON }]).should(
+          "eq",
+          "Báo giá đã được thay thế không thể thay đổi.",
+        );
       });
     });
   });
@@ -613,10 +619,7 @@ describe("WF-01 feature acceptance criteria", () => {
       cy.signInAs("sales");
       cy.openRecord(order);
       cy.get(".o_statusbar_buttons button[name=action_start_sample_collection]").should("not.exist");
-      callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should(
-        "eq",
-        "The order must be approved before the samples are collected.",
-      );
+      callRefused("sale.order", "action_start_sample_collection", [[order.id]]).should("eq", "Đơn hàng phải được phê duyệt trước khi thu mẫu.");
     });
   });
 });
