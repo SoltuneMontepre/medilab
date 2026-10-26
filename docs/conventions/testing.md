@@ -45,11 +45,37 @@ How tests are written, where they live and how they run.
 
 - A test file is named `<feature>.cy.js` under `src/tests/cypress/e2e/`.
 - Every feature has a browser test of its main path, written with the feature: it signs in as the demo user of the role that does the work, such as `demo.tester`, and walks the main path on the demo data.
-- A test signs in with `signIn(<login>)` and calls a model method in that session with `call(<model>, <method>, <args>)`, both from `cypress/support/odoo.js`, instead of keeping its own copy.
+- The support entry point `cypress/support/e2e.js` registers the shared commands below. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
 - Tests use the app address `MEDILAB_URL`, default `http://localhost:8069`.
 - Tests do not depend on data a previous test created.
 - The task unsets `ELECTRON_RUN_AS_NODE`, which editors such as VS Code set and which stops Cypress from starting.
 - `task test:e2e:app` installs every module with the demo data into the app's database and starts Odoo, then waits until it answers. `ci-core` runs it before `task test:e2e`, so tests can sign in as the demo users. Locally it changes the database of `task up`; it refuses a selected fresh demo to avoid reinstalling into its completed application database.
+
+### Shared browser commands
+
+| Command | Use |
+| --- | --- |
+| `cy.signInAs(role)` | Sign in as `demo.<role>`, for example `tester`, `head_of_department` or `customer`. Read the password from `MEDILAB_DEMO_PASSWORD`, default `demo`. Cache and validate the session within this spec file, then open the backend or portal as appropriate. |
+| `cy.openRecord(xmlId)` | Resolve a full demo external ID such as `sol_demo.demo_test_result_retest`, open its backend form and yield `{ model, id }`. The current user's permissions apply. |
+| `cy.readRecord(xmlId, fields)` | Read the named fields of that record in the current session and yield its values. `fields` must be a nonempty array. |
+| `cy.signRecord(action)` | Click the visible form button named `action`, default `action_sign`. |
+| `cy.rejectRecord(reason, options)` | Open the rejection wizard, fill its reason, confirm and wait for it to close. `options.button` selects the opener, default the form's visible danger button; set it when there is more than one. `options.reasonField` defaults to `[name="reason"] textarea` and `options.action` to `action_reject`. |
+| `cy.sendRecord(action)` | Click the visible form button named `action`, default `action_send`; pass `action_send_quotation`, `action_send_invoice` or another document's action when needed. |
+| `cy.expectRefusal({ action, message, read, messageSelector })` | Take a snapshot with `read()`, run `action()`, require the visible refusal message, then compare another snapshot. Fail if that message was already present. |
+
+The action commands use the interface. Each test asserts its expected resulting state afterwards. A refusal's `read` callback returns a Cypress chain with the persisted fields the action could change, including `write_date`, and any related records its rule protects. A missing message fails even when the record stays unchanged; a changed record fails even when the message appears. The default message containers are Odoo's error dialogs, notifications and alerts inside modals; pass `messageSelector` for a field validation or another container.
+
+```js
+cy.signInAs("tester");
+cy.openRecord("sol_demo.demo_test_result_retest");
+cy.expectRefusal({
+  read: () => cy.readRecord("sol_demo.demo_test_result_retest", ["status", "write_date"]),
+  action: () => cy.signRecord(),
+  message: "The expected refusal from this flow.",
+});
+```
+
+`demo_roles.cy.js` checks every seeded demo account and opening a demo record. `browser_helpers.cy.js` checks the shared action and refusal commands on a controlled browser fixture, including that a successful action fails the refusal check. Business-flow tests use their own starting demo records and cover only their flow's paths from [Business flows](../functional/business-flows.md).
 
 ## Applications
 

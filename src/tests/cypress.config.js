@@ -2,8 +2,11 @@ const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
   allowCypressEnv: false,
+  env: {
+    demoPassword: process.env.MEDILAB_DEMO_PASSWORD || "demo",
+  },
   e2e: {
     baseUrl: process.env.MEDILAB_URL || "http://localhost:8069",
-    supportFile: false,
+    supportFile: "cypress/support/e2e.js",
   },
 });
