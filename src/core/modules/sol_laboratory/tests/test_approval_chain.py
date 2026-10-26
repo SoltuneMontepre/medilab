@@ -19,6 +19,7 @@ from odoo.addons.sol_laboratory.constants.models import (
 )
 
 DOCUMENT_MODEL = "qa.document"
+LATER_SIGNATURES_STAND = "Withdraw the signatures given after yours first."
 
 
 @tagged("post_install", "-at_install")
@@ -113,7 +114,7 @@ class TestApprovalChain(PeopleCase):
         lower = self.sign(self.chemist, self.sales_level)
         higher = self.sign(self.microbiologist, self.head_level)
 
-        with self.assertRaises(UserError):
+        with self.assertRaisesRegex(UserError, LATER_SIGNATURES_STAND):
             lower.with_user(self.chemist.user_id)._withdraw()
         higher.with_user(self.microbiologist.user_id)._withdraw()
         lower.with_user(self.chemist.user_id)._withdraw()
@@ -125,7 +126,7 @@ class TestApprovalChain(PeopleCase):
         higher = self.sign(self.microbiologist, self.head_level)
         lower = self.sign(self.chemist, self.sales_level)
 
-        with self.assertRaises(UserError):
+        with self.assertRaisesRegex(UserError, LATER_SIGNATURES_STAND):
             higher.with_user(self.microbiologist.user_id)._withdraw()
         lower.with_user(self.chemist.user_id)._withdraw()
         higher.with_user(self.microbiologist.user_id)._withdraw()
@@ -145,7 +146,7 @@ class TestApprovalChain(PeopleCase):
         lower = self.sign(self.chemist, self.sales_level)
         rejection = self.sign(self.microbiologist, self.head_level, DECISION_REJECTED, "Wrong price")
 
-        with self.assertRaises(UserError):
+        with self.assertRaisesRegex(UserError, LATER_SIGNATURES_STAND):
             lower.with_user(self.chemist.user_id)._withdraw()
         rejection.with_user(self.microbiologist.user_id)._withdraw()
         lower.with_user(self.chemist.user_id)._withdraw()
