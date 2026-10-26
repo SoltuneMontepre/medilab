@@ -159,3 +159,15 @@ class TestRecoveryCli(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse((self.root / "outside").exists())
+
+    def test_invalid_tls_material_and_plain_http_never_create_evidence(self):
+        for name, args in (
+            ("bad-ca", ("--ca", str(self.secret))),
+            ("plain-http", ("--origin", self.origin.replace("https:", "http:"))),
+        ):
+            with self.subTest(name=name):
+                result = self.execute(name, *args)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((self.root / name).exists())
+                self.assertNotIn("Bearer", result.stderr)
+                self.assertNotIn(self.origin, result.stderr)
