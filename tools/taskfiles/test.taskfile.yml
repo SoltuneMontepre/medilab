@@ -193,8 +193,12 @@ tasks:
       - "{{.UV}} run python -m unittest discover -s {{.TYPECHECK_DIR}}"
 
   test:openapi:
-    desc: "Lint the device API and ONLYOFFICE callback contracts and refuse incompatible changes against main unless their versions change; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
+    desc: "Reject duplicate keys, validate the device, callback and updater OpenAPI contracts, and refuse incompatible changes against main unless versions change; task test:openapi OPENAPI_BASE=<revision> compares with another revision"
     cmds:
+      - "{{.UV}} run python tools/scripts/test_test_openapi_keys.py"
+      - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.OPENAPI_DOCUMENT}}"
+      - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.CALLBACK_DOCUMENT}}"
+      - "{{.UV}} run python tools/scripts/test_openapi_keys.py {{.UPDATES_DOCUMENT}}"
       - "{{.UV}} run openapi-spec-validator {{.OPENAPI_DOCUMENT}}"
       - "{{.UV}} run openapi-spec-validator {{.CALLBACK_DOCUMENT}}"
       - "{{.UV}} run openapi-spec-validator {{.UPDATES_DOCUMENT}}"

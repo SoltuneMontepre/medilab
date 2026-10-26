@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: Duplicate schema
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Sha256:
+      type: string
+    Person:
+      type: object
+    Sha256:
+      type: string
+      pattern: "^[0-9a-f]{64}$"
