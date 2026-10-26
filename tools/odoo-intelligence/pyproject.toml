@@ -5,9 +5,9 @@ requires-python = ">=3.12,<3.15"
 dependencies = [
     "anyio==4.15.1",
     "filelock==3.25.2",
-    "mcp==1.28.1",
+    "mcp==2.2.0",
     "pydantic-settings==2.10.1",
-    "serena-agent @ git+https://github.com/oraios/serena@1bbe53546124c00e4238972f1599a91fbf8c6539",
+    "serena-agent==2.1.0",
 ]
 
 [project.scripts]

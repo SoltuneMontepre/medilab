@@ -49,12 +49,13 @@ flowchart LR
 
 ## ci-tools
 
-Checks the developer tooling. `tools` is its required check: it fails unless `ai` and both `typecheck` jobs passed.
+Checks the developer tooling. `tools` is its required check: it fails unless `ai`, both `typecheck` jobs and both `logging` jobs passed.
 
 - The `ai` job detects whether the pull request touches `tools/odoo-intelligence`, the AI or dev taskfile, `infra/terraform.tf`, `odools.toml`, the coding client configs (`.mcp.json`, `.cursor/mcp.json`, `.codex/config.toml`, `.serena/project.yml`, `.claude/settings.json`) or the workflow. The dev taskfile and `infra/terraform.tf` hold the Odoo and Terraform pins that the tooling must match.
 - It runs `task ai:test`: the unit tests, the client config checks and Ruff. It uses no secrets, database or Doppler.
 - It does not install OdooLS, so the live OdooLS tests report skips and `task ai:verify` does not run; run both locally after `task ai:setup`.
 - `typecheck (Linux)` and `typecheck (Windows)` run the addon link safety and Pyright report tests of `tools/typecheck`, only when it or the workflow changes. Windows uses real directory junctions to verify that cleanup preserves unmanaged links and target files.
+- `logging (Linux)` and `logging (Windows)` run `task test:logging` and `task test:taskfiles` when the logging helpers, Task entrypoint, included taskfiles, module list, regression tests or their setup dependencies change. The module selection tests compile the real Task entrypoint and replace Python with a temporary probe for test environments, stopping before any container or database operation.
 
 ## ci-infra and cd-infra
 
@@ -160,7 +161,7 @@ flowchart LR
 - `rollback` runs only when `verify` fails:
   1. Commits one `[fix] Roll back release <short SHA>` commit to `main` that sets the image tag in `infra/cluster/` back to the previous release and reverts the commits of the release, which are the commits since the previous release that changed `src/core` or `tools/dockerfiles`: one in `continuous` mode and every such change in `window` mode, so `main` again matches what runs. Argo CD returns to the previous image. When the revert conflicts with a commit merged after the release, the commit only sets the tag back, and the draft pull request below is also labelled `release-blocked`, so `release` stops until it is merged or closed.
   2. Creates the branch `fix/redeploy-<short SHA>` from the new `main` and cherry-picks the commits of the release onto it, so the changes are kept.
-  3. Opens a draft pull request from that branch, titled `[fix] Redeploy release <short SHA>`, assigned to the authors of the commits and labelled `failed-release`. Its body lists the commits, links the failed run, and holds the Argo CD status, the last 100 lines of each container of the `odoo-upgrade` Job and the last 30 lines of the Odoo replicas, each line cut to 250 characters so that the body fits a pull request.
+  3. Opens a draft pull request from that branch, titled `[fix] Redeploy release <short SHA>`, assigned to the authors of the commits and labelled `failed-release`. Its body lists the commits, links the failed run, and holds the Argo CD status, the last 100 lines of the `odoo-upgrade` Job and the last 30 lines of the Odoo replicas, each line cut to 250 characters so that the body fits a pull request.
   4. Fails the run, so the failure shows on the release commit.
 - The release and rollback commits on `main` carry `[skip ci]`, so they start no workflow and the rollback does not start `cd-core` again. The redeploy pull request's pipelines run as for any pull request.
 - A rollback does not restore the database. When the upgrade Job failed, Odoo rolled back its own transaction and the schema is unchanged. When the upgrade succeeded and the replicas then failed, the previous image runs on the newer schema; the pre-sync backup is there to restore by hand.

@@ -129,6 +129,34 @@ class LocalComposeTest(unittest.TestCase):
             _project, _marker, _files, environment = _resolve("up")
         self.assertEqual(environment["ODOO_DEV"], "xml")
 
+    def test_completed_bootstrap_with_missing_volumes_points_to_reset(self):
+        config = {
+            "COMPOSE_PROJECT_NAME": "medilab-test",
+            "MEDILAB_DB_VOLUME": "db-volume",
+            "MEDILAB_GARAGE_VOLUME": "garage-volume",
+            "MEDILAB_APP_VOLUME": "app-volume",
+            "MEDILAB_CLOUDBEAVER_VOLUME": "cloudbeaver-volume",
+        }
+        marker = {
+            "config": config,
+            "lifecycle_version": 2,
+            "owner": "owner",
+            "project": "medilab-test",
+            "status": "completed",
+        }
+        with (
+            patch("local_compose.project_name", return_value="medilab-test"),
+            patch("local_compose._read_marker", return_value=marker),
+            patch("local_compose._read_compose_env", return_value=config),
+            patch("local_compose._assert_owned_resources"),
+            patch("local_compose._owned_volume_names", return_value=("app-volume",)),
+            self.assertRaisesRegex(
+                BootstrapError,
+                r"cloudbeaver-volume, db-volume, garage-volume .*`task reset`",
+            ),
+        ):
+            _resolve("up")
+
     def test_incomplete_bootstrap_blocks_normal_start(self):
         marker = {
             "config": {},

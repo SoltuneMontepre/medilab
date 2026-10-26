@@ -46,6 +46,21 @@ msgid ". Earlier revisions were replaced and no longer apply."
 msgstr ". Các bản sửa đổi trước đã được thay thế và không còn hiệu lực."
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
+msgid "<span>Parameter or package</span>"
+msgstr "<span>Chỉ tiêu hoặc gói</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
+msgid "<span>Quantity</span>"
+msgstr "<span>Số lượng</span>"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
+msgid "<strong>Salesperson</strong>"
+msgstr "<strong>Nhân viên kinh doanh</strong>"
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/controllers/catalog.py:0
 #: code:addons/sol_commerce/models/orders/sale_order.py:0
@@ -458,6 +473,11 @@ msgid "Change the order status with its actions."
 msgstr "Thay đổi trạng thái đơn hàng bằng các thao tác của đơn hàng."
 
 #. module: sol_commerce
+#: model:ir.model.fields,help:sol_commerce.field_sale_order__customer_is_company
+msgid "Check if the contact is a company, otherwise it is a person"
+msgstr "Đánh dấu nếu liên hệ này là một công ty, không đánh dấu nếu là cá nhân"
+
+#. module: sol_commerce
 #. odoo-python
 #: code:addons/sol_commerce/models/orders/sale_order_advance.py:0
 msgid ""
@@ -526,11 +546,12 @@ msgid "Confirmed"
 msgstr "Đã xác nhận"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_medilab_notification_contact__contact_id
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__partner_id
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_list
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_queue
 msgid "Contact"
-msgstr "Khách hàng"
+msgstr "Liên Hệ"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
@@ -1035,6 +1056,11 @@ msgid "Is Overpriced"
 msgstr "Giá cao hơn tổng giá chỉ tiêu"
 
 #. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__customer_is_company
+msgid "Is a Company"
+msgstr "Là doanh nghiệp"
+
+#. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.cart_page
 #: model_terms:ir.ui.view,arch_db:sol_commerce.order_page
 msgid "Item"
@@ -1338,6 +1364,11 @@ msgid "Parameter group"
 msgstr "Nhóm chỉ tiêu"
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Parameter or package"
+msgstr "Chỉ tiêu hoặc nhóm dịch vụ"
+
+#. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_medilab_service_package__line_ids
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_service_package_form
 msgid "Parameters"
@@ -1478,6 +1509,11 @@ msgid ""
 "Quotation %(code)s is ready. Pay the advance of %(amount)s before "
 "%(deadline)s."
 msgstr "Báo giá %(code)s đã sẵn sàng. Hãy thanh toán tạm ứng %(amount)s trước %(deadline)s."
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_code
+msgid "Quotation Code"
+msgstr "Số báo giá"
 
 #. module: sol_commerce
 #: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_follow_up
@@ -2154,6 +2190,11 @@ msgstr "Tổng chưa gồm thuế GTGT"
 #: model_terms:ir.ui.view,arch_db:sol_commerce.quotation_page
 msgid "Total including VAT"
 msgstr "Tổng đã gồm VAT"
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.view_order_form_medilab
+msgid "Tracking"
+msgstr "Theo dõi"
 
 #. module: sol_commerce
 #: model_terms:ir.ui.view,arch_db:sol_commerce.view_medilab_sale_order_search

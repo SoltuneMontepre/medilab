@@ -6,21 +6,22 @@ What Argo CD deploys from `infra/cluster/` onto the cluster in [Architecture](ar
 
 `infra/cluster/` is the path of the `medilab` root application. Its `kustomization.yaml` lists one Argo CD `Application` per component, in `infra/cluster/applications/`:
 
-| Application           | Deploys                                                                    | Source                       | Namespace          | Wave |
-| --------------------- | -------------------------------------------------------------------------- | ---------------------------- | ------------------ | ---- |
-| `cert-manager`        | cert-manager, which issues the TLS certificates of the Barman Cloud plugin | `cert-manager` chart         | `cert-manager`     | -3   |
-| `external-secrets`    | External Secrets Operator                                                  | `external-secrets` chart     | `external-secrets` | -3   |
-| `secret-store`        | The `doppler` `ClusterSecretStore`                                         | `infra/cluster/secret-store` | `external-secrets` | -2   |
-| `cloudnative-pg`      | The CloudNativePG operator                                                 | `cloudnative-pg` chart       | `cnpg-system`      | -2   |
-| `plugin-barman-cloud` | The Barman Cloud plugin of CloudNativePG                                   | `plugin-barman-cloud` chart  | `cnpg-system`      | -1   |
-| `database`            | The Postgres `Cluster`, its object store and its scheduled backup          | `infra/cluster/database`     | `medilab`          | 0    |
-| `cloudflared`         | The Cloudflare Tunnel connector                                            | `infra/cluster/cloudflared`  | `medilab`          | 1    |
-| `mailpit`             | Mailpit, which catches the e-mail Odoo sends                               | `infra/cluster/mailpit`      | `medilab`          | 1    |
-| `cloudbeaver`         | CloudBeaver, connected to the `medilab` database                           | `infra/cluster/cloudbeaver`  | `medilab`          | 1    |
-| `odoo`                | Odoo, the pre-sync backup and the upgrade Job                              | `infra/cluster/odoo`         | `medilab`          | 1    |
-| `loki`                | Loki, which stores the logs of every pod                                   | `loki` chart                 | `monitoring`       | 1    |
-| `alloy`               | Alloy, which sends the logs of every pod to Loki                           | `alloy` chart                | `monitoring`       | 2    |
-| `grafana`             | Grafana, which shows the logs in Loki                                      | `grafana` chart              | `monitoring`       | 2    |
+| Application           | Deploys                                                                    | Source                             | Namespace          | Wave |
+| --------------------- | -------------------------------------------------------------------------- | ---------------------------------- | ------------------ | ---- |
+| `cert-manager`        | cert-manager, which issues the TLS certificates of the Barman Cloud plugin | `cert-manager` chart               | `cert-manager`     | -3   |
+| `external-secrets`    | External Secrets Operator                                                  | `external-secrets` chart           | `external-secrets` | -3   |
+| `secret-store`        | The `doppler` `ClusterSecretStore`                                         | `infra/cluster/secret-store`       | `external-secrets` | -2   |
+| `cloudnative-pg`      | The CloudNativePG operator                                                 | `cloudnative-pg` chart             | `cnpg-system`      | -2   |
+| `plugin-barman-cloud` | The Barman Cloud plugin of CloudNativePG                                   | `plugin-barman-cloud` chart        | `cnpg-system`      | -1   |
+| `database`            | The Postgres `Cluster`, its object store and its scheduled backup          | `infra/cluster/database`           | `medilab`          | 0    |
+| `cloudflared`         | The Cloudflare Tunnel connector                                            | `infra/cluster/cloudflared`        | `medilab`          | 1    |
+| `mailpit`             | Mailpit, which catches the e-mail Odoo sends                               | `infra/cluster/mailpit`            | `medilab`          | 1    |
+| `cloudbeaver`         | CloudBeaver, connected to the `medilab` database                           | `infra/cluster/cloudbeaver`        | `medilab`          | 1    |
+| `odoo`                | Odoo, the pre-sync backup and the upgrade Job                              | `infra/cluster/odoo`               | `medilab`          | 1    |
+| `loki`                | Loki, which stores the logs of every pod                                   | `loki` chart                       | `monitoring`       | 1    |
+| `alloy`               | Alloy, which sends the logs of every pod to Loki                           | `alloy` chart                      | `monitoring`       | 2    |
+| `grafana`             | Grafana, which shows the logs in Loki                                      | `grafana` chart                    | `monitoring`       | 2    |
+| `grafana-dashboards`  | The Grafana dashboards                                                     | `infra/cluster/grafana-dashboards` | `monitoring`       | 1    |
 
 - The root application syncs the applications wave by wave and waits until every application of a wave is healthy before the next. Argo CD has no health check for an `Application` by default; the `argocd` role adds one.
 - Every application syncs automatically, prunes what was removed from Git and reverts changes made by hand. Every application except `odoo` retries a failed sync five times, so the first install settles while operators and their CRDs come up.
@@ -80,7 +81,7 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - Traefik routes `lims.soltunemontepre.tech` to Odoo, and `/websocket` to its websocket port, and tells Odoo the request came over HTTPS.
 - Every sync of the `odoo` application runs, in order:
   1. A `PreSync` hook: the `medilab-db-pre-sync` on-demand `Backup`, which must complete.
-  2. A `Sync` hook: the `odoo-upgrade` Job. Its init container first upgrades `sol_inventory`, so that `stock` reloads under its current access rules. The Job then installs `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It does not retry; a failure fails the sync.
+  2. A `Sync` hook: the `odoo-upgrade` Job, which installs `sol_laboratory`, `sol_commerce`, `sol_inventory`, `sol_theme` and `sol_demo` when missing and upgrades every installed module. `MEDILAB_DEMO_PASSWORD` is not set, so the `demo.<role>` users keep the password `demo`. It does not retry; a failure fails the sync.
   3. The rolling update of the `odoo` Deployment, one replica at a time, with `maxSurge: 1`, `maxUnavailable: 0` and a `progressDeadlineSeconds` of 10 minutes.
 - Each hook is replaced at the next sync, so the last backup and Job stay readable until then.
 
@@ -100,6 +101,8 @@ External Secrets reads the Doppler `infra` config through the `doppler` `Cluster
 - Alloy reads the logs of every pod through the Kubernetes API and sends them to Loki, labelled with `namespace`, `pod`, `container` and `app`. Odoo's lines also get their `level`, such as `INFO`, `WARNING` or `ERROR`, and its `/web/health` requests, which the probes make every few seconds, are dropped.
 - Loki runs as one process and keeps the logs for 14 days on a 10 GiB `local-path` volume.
 - Grafana has Loki as its data source and keeps its dashboards in a 1 GiB `local-path` volume. It asks for the administrator in the `grafana-admin` Secret; sign-up and anonymous access are off.
+- Grafana loads the dashboards of the `grafana-dashboards` ConfigMap into the `MediLab` folder and does not let them be deleted or edited. Each dashboard is a JSON file in `infra/cluster/grafana-dashboards/`, listed in its `kustomization.yaml`.
+- The **Odoo** dashboard reads the logs of `{app="odoo"}`, and `{app="odoo-upgrade"}` for the upgrade Job. It shows the requests by status, the log lines by level, the time of a request in Python and in the database, the queries per request, the busiest and slowest endpoints, the loggers behind the warnings and errors, the workers that reached a limit or timed out, and the logs, which a search box filters. It has no CPU, memory or restart panels, since the cluster keeps no metrics.
 - Traefik routes `grafana.soltunemontepre.tech` to Grafana. Odoo's logs are under **Explore** with `{app="odoo"}`, and its errors with `{app="odoo", level="ERROR"}`.
 
 ## Ingress

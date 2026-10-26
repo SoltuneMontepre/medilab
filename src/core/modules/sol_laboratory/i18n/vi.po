@@ -14422,6 +14422,23 @@ msgid "Tested By My Department"
 msgstr "Do phòng ban của tôi thử nghiệm"
 
 #. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_machine_booking__room_event_ids
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.view_medilab_machine_booking_form
+msgid "Room Bookings"
+msgstr "Lịch đặt phòng"
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_calendar_event__step_id
+msgid "Method Step"
+msgstr "Bước Phương Pháp Thử"
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/tasks/calendar_event.py:0
+msgid "Move or cancel the machine booking of %s instead."
+msgstr "Hãy dời hoặc hủy lịch đặt máy của %s."
+
+#. module: sol_laboratory
 #: model:ir.actions.server,name:sol_laboratory.ir_cron_laboratory_contents_reconcile_ir_actions_server
 #: model:medilab.scheduled.job,name:sol_laboratory.scheduled_job_laboratory_contents_reconcile
 msgid "Reconcile the laboratory files bucket"
