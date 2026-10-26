@@ -199,7 +199,7 @@ tasks:
       - "{{.UV}} run python tools/scripts/test_openapi.py {{.OPENAPI_DOCUMENT}} {{.OASDIFF_IMAGE}} {{.OPENAPI_BASE}}"
 
   test:e2e:
-    desc: "Run browser tests; start Odoo with task up first, or see task test:e2e:help"
+    desc: "Run browser tests; GREP=TC-WF01-A5 or SPEC=<spec path> runs only those; start Odoo with task up first, or see task test:e2e:help"
     silent: true
     cmds:
       - task: test:e2e:launch
@@ -242,6 +242,8 @@ tasks:
     dir: "{{.E2E_DIR}}"
     env:
       MEDILAB_E2E_URL: "{{.E2E_URL}}"
+      MEDILAB_E2E_SPEC: "{{.SPEC}}"
+      MEDILAB_E2E_GREP: "{{.GREP}}"
       MEDILAB_TAP_BROWSER: "{{.E2E_TAP_BROWSER}}"
     cmds:
       - '. "{{.ROOT_DIR}}/{{.E2E_SCRIPT}}" "{{.E2E_MODE}}" "{{.ROOT_DIR}}/{{.LOG}}"'
