@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -29,4 +30,8 @@ if uv is None:
 server = SERVERS.get(sys.argv[1]) if len(sys.argv) == 2 else None
 if server is None:
     raise SystemExit(f"run.py takes one of: {', '.join(SERVERS)}.")
-os.execv(uv, [uv, "run", "--locked", "--project", str(project), "medilab-odoo", *server])
+command = [uv, "run", "--locked", "--project", str(project), "medilab-odoo", *server]
+# On Windows os.execv starts a separate process and exits, which closes the client's stdio pipes.
+if os.name == "nt":
+    raise SystemExit(subprocess.call(command))
+os.execv(uv, command)

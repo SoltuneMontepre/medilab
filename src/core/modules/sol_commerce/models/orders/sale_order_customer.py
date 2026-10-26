@@ -37,6 +37,8 @@ class SaleOrderCustomer(models.Model):
     customer_status = fields.Selection(CUSTOMER_STATUSES, compute="_compute_customer_status")
     # The status of the order's test request: the internal detail behind the status the customer sees.
     test_request_status = fields.Selection(related="test_request_id.status", string="Laboratory Status")
+    # Whether the customer is a business with contacts to choose from; an individual is their own contact.
+    customer_is_company = fields.Boolean(related="customer_id.is_company")
 
     @api.depends("order_status", "quotation_ids", "test_request_id.status")
     def _compute_customer_status(self):

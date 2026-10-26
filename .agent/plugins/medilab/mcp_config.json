@@ -1,0 +1,92 @@
+{
+  "mcpServers": {
+    "doppler": {
+      "command": "doppler",
+      "args": [
+        "run",
+        "--project",
+        "medilab",
+        "--config",
+        "dev",
+        "--",
+        "npx",
+        "-y",
+        "@dopplerhq/mcp-server",
+        "--project",
+        "medilab"
+      ]
+    },
+    "sonarqube": {
+      "command": "doppler",
+      "args": [
+        "run",
+        "--project",
+        "medilab",
+        "--config",
+        "dev",
+        "--",
+        "docker",
+        "run",
+        "--init",
+        "--pull=always",
+        "-i",
+        "--rm",
+        "-e",
+        "SONARQUBE_TOKEN",
+        "-e",
+        "SONARQUBE_ORG=soltunemontepre",
+        "sonarsource/sonarqube-mcp"
+      ]
+    },
+    "postgres": {
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.13",
+        "--overrides",
+        "../../../tools/odoo-intelligence/postgres-overrides.txt",
+        "--with",
+        "mcp<2",
+        "postgres-mcp==0.3.0",
+        "--access-mode=restricted",
+        "postgresql://root:root@localhost:15432/medilab"
+      ]
+    },
+    "context7": {
+      "command": "doppler",
+      "args": [
+        "run",
+        "--project",
+        "medilab",
+        "--config",
+        "dev",
+        "--",
+        "node",
+        "-e",
+        "process.env.CONTEXT7_API_KEY = process.env.CONTEXT7_TOKEN; require('child_process').spawn('npx -y @upstash/context7-mcp', { stdio: 'inherit', shell: true }).on('exit', process.exit)"
+      ]
+    },
+    "serena": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--no-project",
+        "python",
+        "-c",
+        "import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')",
+        "serena-ide"
+      ]
+    },
+    "odoo": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--no-project",
+        "python",
+        "-c",
+        "import runpy; from pathlib import Path; runpy.run_path(str(next(p / 'tools/odoo-intelligence/run.py' for p in [Path.cwd(), *Path.cwd().parents] if (p / 'tools/odoo-intelligence/run.py').is_file())), run_name='__main__')",
+        "mcp"
+      ]
+    }
+  }
+}
