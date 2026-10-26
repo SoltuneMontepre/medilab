@@ -41,7 +41,11 @@ class DigitalSigningMixin(models.AbstractModel):
         search="_search_digital_signature_id",
     )
     # When Viettel Sign signed the PDF of the current version.
-    digital_signed_at = fields.Datetime(related="digital_signature_id.signed_at", string="Digitally Signed At")
+    digital_signed_at = fields.Datetime(
+        related="digital_signature_id.signed_at",
+        depends=["digital_signature_id.signed_at"],
+        string="Digitally Signed At",
+    )
     # True when the signing of the document's PDF waits in the signing job's queue.
     digital_signing_pending = fields.Boolean(compute="_compute_digital_signature", compute_sudo=True)
 

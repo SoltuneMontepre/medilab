@@ -21,10 +21,10 @@ def test_mcp_tools_are_read_only_and_do_not_include_rename(tmp_path):
         "diagnostics",
         "status",
     }
-    assert all(tool.annotations.readOnlyHint for tool in tools)
-    assert all(not tool.annotations.destructiveHint for tool in tools)
+    assert all(tool.annotations.read_only_hint for tool in tools)
+    assert all(not tool.annotations.destructive_hint for tool in tools)
     definition = next(tool for tool in tools if tool.name == "definition")
-    assert set(definition.inputSchema["required"]) == {"path", "line", "character"}
+    assert set(definition.input_schema["required"]) == {"path", "line", "character"}
 
 
 def test_invalid_path_fails_before_missing_server(tmp_path):
@@ -65,7 +65,6 @@ def test_disconnect_stops_the_official_child_during_indexing(tmp_path):
     import json
     import os
     import sys
-    from datetime import timedelta
 
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client
@@ -94,7 +93,7 @@ def test_disconnect_stops_the_official_child_during_indexing(tmp_path):
         child_pid = None
         async with (
             stdio_client(params) as (read, write),
-            ClientSession(read, write, read_timeout_seconds=timedelta(seconds=660)) as session,
+            ClientSession(read, write, read_timeout_seconds=660) as session,
         ):
             await session.initialize()
             request = asyncio.create_task(session.call_tool("status", {}))
