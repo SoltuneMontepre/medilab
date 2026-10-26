@@ -1,0 +1,14 @@
+{
+  "command": [
+    "cargo",
+    "fmt",
+    "--manifest-path",
+    "src-tauri/Cargo.toml",
+    "--all",
+    "--",
+    "--check"
+  ],
+  "exit_code": 0,
+  "status": "PASS",
+  "elapsed_seconds": 0.314
+}
