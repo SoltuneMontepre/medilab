@@ -79,6 +79,19 @@ msgid ". Earlier revisions were replaced and no longer apply."
 msgstr ""
 
 #. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
+msgid "<span>Parameter or package</span>"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
+msgid "<span>Quantity</span>"
+msgstr ""
+
+#. module: sol_commerce
+#: model_terms:ir.ui.view,arch_db:sol_commerce.report_saleorder_document_customer_logo
+msgid "<strong>Salesperson</strong>"
+
 #: model:ir.model.fields.selection,name:sol_commerce.selection__medilab_receivable_report__age__1_30
 msgid "1-30 days"
 msgstr ""
@@ -3005,6 +3018,11 @@ msgstr ""
 msgid ""
 "Quotation %(code)s is ready. Pay the advance of %(amount)s before "
 "%(deadline)s."
+msgstr ""
+
+#. module: sol_commerce
+#: model:ir.model.fields,field_description:sol_commerce.field_sale_order__quotation_code
+msgid "Quotation Code"
 msgstr ""
 
 #. module: sol_commerce

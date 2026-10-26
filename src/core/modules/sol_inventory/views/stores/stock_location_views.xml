@@ -9,6 +9,7 @@
                 <field name="complete_name" string="Store" />
                 <field name="parent_store_id" />
                 <field name="holder_id" />
+                <field name="place_id" optional="show" />
                 <field name="cost_centre_code" />
                 <field name="cost_centre_missing" column_invisible="1" />
                 <field name="manager_id" widget="many2one_avatar_employee" />
@@ -48,6 +49,7 @@
                             <field name="manager_id" widget="many2one_avatar_employee" />
                         </group>
                         <group>
+                            <field name="place_id" options="{'no_create': True}" />
                             <field name="conditions" />
                         </group>
                     </group>
@@ -57,6 +59,7 @@
                                 <list>
                                     <field name="name" />
                                     <field name="is_store" />
+                                    <field name="place_id" />
                                     <field name="conditions" />
                                 </list>
                             </field>
@@ -76,6 +79,7 @@
                 <field name="complete_name" string="Store" />
                 <field name="holder_id" />
                 <field name="manager_id" />
+                <field name="place_id" filter_domain="[('place_id', 'child_of', self)]" />
                 <filter name="without_manager" string="Without Manager" domain="[('manager_id', '=', False)]" />
                 <filter
                     name="without_cost_centre"
@@ -109,6 +113,7 @@
                 <field name="complete_name" string="Location" />
                 <field name="parent_store_id" />
                 <field name="is_store" />
+                <field name="place_id" optional="show" />
                 <field name="conditions" />
             </list>
         </field>
@@ -137,6 +142,7 @@
                             <field name="parent_store_id" />
                         </group>
                         <group>
+                            <field name="place_id" options="{'no_create': True}" />
                             <field name="conditions" />
                         </group>
                     </group>
@@ -152,6 +158,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="complete_name" string="Location" />
+                <field name="place_id" filter_domain="[('place_id', 'child_of', self)]" />
                 <filter name="stores" string="Stores" domain="[('is_store', '=', True)]" />
                 <filter name="inactive" string="Archived" domain="[('active', '=', False)]" />
             </search>
@@ -168,5 +175,21 @@
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'list', 'view_id': ref('view_medilab_location_list')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('view_medilab_location_form')})]" />
+    </record>
+
+    <!-- Stock is found by the place of its stock location: a floor shows the stock of every room and bench under it. -->
+    <record id="view_medilab_quant_search" model="ir.ui.view">
+        <field name="name">stock.quant.place.search</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.quant_search_view" />
+        <field name="arch" type="xml">
+            <field name="location_id" position="after">
+                <field
+                    name="location_id"
+                    string="Premises Location"
+                    filter_domain="[('location_id.place_id', 'child_of', self)]"
+                />
+            </field>
+        </field>
     </record>
 </odoo>

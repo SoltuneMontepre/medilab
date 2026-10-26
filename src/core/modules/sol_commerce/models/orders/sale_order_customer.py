@@ -39,6 +39,13 @@ class SaleOrderCustomer(models.Model):
     test_request_status = fields.Selection(related="test_request_id.status", string="Laboratory Status")
     # Whether the customer is a business with contacts to choose from; an individual is their own contact.
     customer_is_company = fields.Boolean(related="customer_id.is_company")
+    # The number of the order's latest quotation, which its printed quotation carries; empty before one is sent.
+    quotation_code = fields.Char(compute="_compute_quotation_code")
+
+    @api.depends("quotation_ids.code", "quotation_ids.revision")
+    def _compute_quotation_code(self):
+        for order in self:
+            order.quotation_code = order.sudo().quotation_ids.sorted("revision")[-1:].code
 
     @api.depends("order_status", "quotation_ids", "test_request_id.status")
     def _compute_customer_status(self):

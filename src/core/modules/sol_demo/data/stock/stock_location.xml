@@ -7,6 +7,7 @@
         <record id="stock.stock_location_stock" model="stock.location">
             <field name="name">Central store</field>
             <field name="conditions">15–25 °C, dry</field>
+            <field name="place_id" ref="demo_location_store_room" />
             <field name="manager_id" model="hr.employee" search="[('user_id', '=', ref('demo_res_users_storekeeper'))]" />
         </record>
         <record id="demo_stock_location_room_101" model="stock.location">
@@ -38,6 +39,12 @@
             <field name="is_store" eval="True" />
             <field name="holder_id" ref="demo_hr_department_microbiology" />
             <field name="conditions">15–25 °C</field>
+        </record>
+        <record id="demo_stock_location_fridge_2" model="stock.location">
+            <field name="name">Fridge 2</field>
+            <field name="location_id" ref="demo_stock_location_chemistry_store" />
+            <field name="place_id" ref="demo_location_chemistry_bench_1" />
+            <field name="conditions">2–8 °C</field>
         </record>
         <record id="demo_stock_location_pesticide_residues_store" model="stock.location">
             <field name="name">Pesticide residues store</field>
