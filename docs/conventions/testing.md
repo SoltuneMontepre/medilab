@@ -43,7 +43,7 @@ How tests are written, where they live and how they run.
 
 ## Browser tests
 
-- A test file is named `<feature>.cy.js` under `src/tests/cypress/e2e/`.
+- A test file is named `<feature>.cy.js` under `src/tests/cypress/e2e/`. Business-flow specs belong to `flows/<flow>/`; feature specs without an owning flow belong to `features/<module>/<feature>/`. The [browser test layout](../../src/tests/cypress/e2e/README.md) maps issue scopes to directories and spec basenames.
 - Every feature has a browser test of its main path, written with the feature: it signs in as the demo user of the role that does the work, such as `demo.tester`, and walks the main path on the demo data.
 - The support entry point `cypress/support/e2e.js` registers the shared commands below. Tests use them instead of copying sign-in, navigation or action steps. `call(<model>, <method>, <args>, <kwargs>)` from `cypress/support/odoo.js` calls a model method in the signed-in session and fails on an RPC error. Existing tests may still import `signIn(<login>)` from that file; it uses the same session handling as `cy.signInAs()`.
 - Tests use the app address `MEDILAB_URL`, default `http://localhost:8069`.
