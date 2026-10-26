@@ -21,27 +21,31 @@ function target(port) {
   return value;
 }
 
+function validateSegment(segment) {
+  let decoded = segment;
+  for (let depth = 0; depth < 8; depth++) {
+    if (decoded === "." || decoded === ".." || /[\x00-\x1f\x7f/\\]/u.test(decoded)) {
+      throw new Error("Invalid fixture path segment");
+    }
+    if (!decoded.includes("%")) return decoded;
+    if (/%(?![0-9a-f]{2})/iu.test(decoded)) {
+      if (depth === 0) throw new Error("Invalid path encoding");
+      return decoded;
+    }
+    decoded = decodeURIComponent(decoded);
+  }
+  throw new Error("Excessively encoded path");
+}
+
 function requestPath(raw, port) {
   target(port);
   if (typeof raw !== "string" || raw.length > 65536 || !raw.startsWith("/") || raw.startsWith("//") ||
       /[\x00-\x20\x7f\\#]/u.test(raw)) throw new Error("Invalid loopback request target");
   const pathname = raw.split("?", 1)[0];
-  const segments = pathname.split("/");
-  for (const segment of segments) {
-    let decoded = segment;
-    for (let depth = 0; depth < 8; depth++) {
-      if (decoded === "." || decoded === ".." || /[\x00-\x1f\x7f/\\]/u.test(decoded)) {
-        throw new Error("Invalid fixture path segment");
-      }
-      if (!decoded.includes("%")) break;
-      if (/%(?![0-9a-f]{2})/iu.test(decoded)) {
-        if (depth === 0) throw new Error("Invalid path encoding");
-        break;
-      }
-      decoded = decodeURIComponent(decoded);
-      if (depth === 7) throw new Error("Excessively encoded path");
+  for (const segment of pathname.split("/")) {
+    if (/^(command|commandservice\.ashx)$/iu.test(validateSegment(segment))) {
+      throw new Error("Internal command route refused");
     }
-    if (/^(command|commandservice\.ashx)$/iu.test(decoded)) throw new Error("Internal command route refused");
   }
   if (port === 3900 && !/^\/laboratory-files(?:-[a-z0-9-]{1,63})?\//u.test(pathname)) {
     throw new Error("Invalid fixture bucket");
@@ -99,7 +103,7 @@ function requestHeaders(headers, port) {
 function websocketHeaders(req, port) {
   const headers = requestHeaders(req.headers, port);
   if (port !== 8081 || req.method !== "GET" || req.headers.upgrade?.toLowerCase() !== "websocket" ||
-      !req.headers.connection?.toLowerCase().split(/\s*,\s*/u).includes("upgrade") ||
+      !req.headers.connection?.toLowerCase().split(",").map(value => value.trim()).includes("upgrade") ||
       req.headers["sec-websocket-version"] !== "13" || !/^[a-z0-9+/]{22}==$/iu.test(req.headers["sec-websocket-key"] ?? "") ||
       req.headers["content-length"] !== undefined || req.headers["transfer-encoding"] !== undefined) {
     throw new Error("Invalid WebSocket upgrade");
@@ -147,6 +151,7 @@ function proxy(port, listenPort = port) {
     }
     const upstream = http.request(url, {method: "GET", headers});
     upstream.on("upgrade", (answer, tunnel, upstreamHead) => {
+      // RFC 6455 4.2.2/10.8: public nonce framing only; this is not a credential or integrity hash.
       const expected = crypto.createHash("sha1").update(req.headers["sec-websocket-key"] +
         "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").digest("base64");
       try {

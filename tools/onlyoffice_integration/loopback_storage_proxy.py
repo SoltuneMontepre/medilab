@@ -4,9 +4,24 @@ import http.client
 import os
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qsl, quote, unquote, urlencode, urlsplit
 
 BUCKET = re.compile(r"laboratory-files(?:-[a-z0-9-]{1,63})?")
+
+
+def validate_segment(segment):
+    decoded = segment
+    for depth in range(8):
+        if decoded in (".", "..") or any(char in "/\\" or ord(char) < 32 or ord(char) == 127 for char in decoded):
+            raise ValueError("Invalid fixture object path")
+        if "%" not in decoded:
+            return
+        if re.search(r"%(?![0-9a-fA-F]{2})", decoded):
+            if depth == 0:
+                raise ValueError("Invalid path encoding")
+            return
+        decoded = unquote(decoded, errors="strict")
+    raise ValueError("Excessively encoded path")
 
 
 def storage_path(raw):
@@ -23,20 +38,13 @@ def storage_path(raw):
     if len(segments) < 2 or not BUCKET.fullmatch(segments[0]):
         raise ValueError("Invalid fixture bucket")
     for segment in segments:
-        decoded = segment
-        for depth in range(8):
-            if decoded in (".", "..") or any(char in "/\\" or ord(char) < 32 or ord(char) == 127 for char in decoded):
-                raise ValueError("Invalid fixture object path")
-            if "%" not in decoded:
-                break
-            if re.search(r"%(?![0-9a-fA-F]{2})", decoded):
-                if depth == 0:
-                    raise ValueError("Invalid path encoding")
-                break
-            decoded = unquote(decoded, errors="strict")
-        else:
-            raise ValueError("Excessively encoded path")
-    return parts.path + ("?" + parts.query if parts.query else "")
+        validate_segment(segment)
+    # Encode each URI component separately, then refuse any byte-changing normalization of signed URLs.
+    path = "/" + "/".join(quote(unquote(segment, errors="strict"), safe="") for segment in segments)
+    query = urlencode(parse_qsl(parts.query, keep_blank_values=True, errors="strict"), quote_via=quote, safe="")
+    if path != parts.path or query != parts.query:
+        raise ValueError("Noncanonical signed object URL")
+    return path + ("?" + query if query else "")
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -72,7 +80,7 @@ def main():
     if os.environ.get("MEDILAB_ONLYOFFICE_STORAGE_FIXTURE") != "isolated-owned":
         raise RuntimeError("Enable only in an explicitly owned isolated fixture.")
     if not os.path.exists("/run/.containerenv") and not os.path.exists("/.dockerenv"):
-        raise RuntimeError("The storage adapter requires an owned container network namespace.")
+        raise RuntimeError("The storage adapter requires container runtime markers.")
     ThreadingHTTPServer(("127.0.0.1", 3900), Handler).serve_forever()
 
 

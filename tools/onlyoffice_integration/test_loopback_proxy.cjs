@@ -1,7 +1,6 @@
 "use strict";
 
 const assert = require("node:assert/strict");
-const crypto = require("node:crypto");
 const http = require("node:http");
 const {once} = require("node:events");
 const test = require("node:test");
@@ -22,7 +21,7 @@ test("fixed upstream authority and presigned query survive without normalization
 });
 
 test("authority confusion, repeated encoding and command routes are refused", () => {
-  for (const path of ["https://other.example/file", "//other.example/file", "/\\other.example/file",
+  for (const path of ["https://other.example/file", "//other.example/file", String.raw`/\other.example/file`,
     "/a\r\nHost: other", "", "/a#fragment", "/../admin", "/%2e%2e/admin", "/%252e%252e/admin",
     "/a%252fb", "/a%255cb", "/a%250db", "/a%00b", "/a%FFb", "/bad%xy", "/command", "/coauthoring/CommandService.ashx",
     "/%2563ommand"]) {
@@ -109,9 +108,9 @@ test("real HTTP forwarding preserves bytes and rejects unsafe redirects before h
   assert.equal((await fetch(f, "/redirect")).headers.location, "http://localhost:8081/cache/file");
   assert.equal((await fetch(f, "/foreign")).status, 502);
   const count = f.calls.length;
-  for (const path of ["//other.example/path", "/%252e%252e/admin", "http://localhost:8081/%2e%2e/admin", "/command"]) {
-    assert.equal((await fetch(f, path)).status, 400);
-  }
+  const refused = await Promise.all(["//other.example/path", "/%252e%252e/admin",
+    "http://localhost:8081/%2e%2e/admin", "/command"].map(path => fetch(f, path)));
+  for (const answer of refused) assert.equal(answer.status, 400);
   assert.equal((await fetch(f, "/cache/file", "DELETE")).status, 400);
   assert.equal(f.calls.length, count);
 });
@@ -119,8 +118,7 @@ test("real HTTP forwarding preserves bytes and rejects unsafe redirects before h
 test("real WebSocket tunnel starts only after the fixed upstream authenticates its handshake", {timeout: 5000}, async t => {
   const f = await fixture(t, (_req, res) => { res.writeHead(404); res.end(); });
   f.upstream.on("upgrade", (req, socket) => {
-    const accept = req.url === "/invalid" ? "invalid" : crypto.createHash("sha1").update(KEY +
-      "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").digest("base64");
+    const accept = req.url === "/invalid" ? "invalid" : "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=";
     socket.write(`HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nUpgrade: websocket\r\nSec-WebSocket-Accept: ${accept}\r\n\r\n`);
     socket.on("data", bytes => socket.write(bytes));
     socket.on("error", () => {});

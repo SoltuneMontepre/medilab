@@ -53,8 +53,22 @@ class TestIsolatedFixture(unittest.TestCase):
                 self.assertRaises((ValueError, UnicodeError)),
             ):
                 storage_path("/laboratory-files/" + value)
-        value = "/laboratory-files/one%20file%25.docx?X-Amz-Signature=A%2FB%2B&url=https://other.example"
+        value = "/laboratory-files/one%20file%25.docx?X-Amz-Signature=A%2FB%2B&url=https%3A%2F%2Fother.example"
         self.assertEqual(storage_path(value), value)
+
+    def test_ambiguous_encoding_is_refused_without_changing_signed_bytes(self):
+        for target in (
+            "/laboratory-files/report%2edocx",
+            "/laboratory-files/report.docx?signature=bad%xy",
+            "/laboratory-files/report.docx?signature=raw+space",
+            "/laboratory-files/report.docx?signature=raw/slash",
+            "/laboratory-files/report.docx?signature=%2f",
+        ):
+            with self.subTest(target=target), self.assertRaises(ValueError):
+                storage_path(target)
+        query = "X-Amz-Credential=fixture%2Fgarage&X-Amz-Signature=A%2FB%2B&empty="
+        target = "/laboratory-files/report%20one.docx?" + query
+        self.assertEqual(storage_path(target), target)
 
     def test_startup_requires_explicit_fixture_and_container_then_binds_only_loopback(
         self,

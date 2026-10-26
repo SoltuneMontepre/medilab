@@ -96,7 +96,7 @@ It signs only getForgottenList/getForgotten, validates the returned origin, refu
 
 ## Released editor page
 
-After starting an owned runtime project, add the page browser and Document Server loopback storage proxy. The storage adapter requires the explicit `MEDILAB_ONLYOFFICE_STORAGE_FIXTURE=isolated-owned` opt-in and a container namespace. Its HTTP listener binds only `127.0.0.1:3900`, sends only owned bucket paths to the fixed Garage fixture, and forwards no caller credentials. This transport is restricted to disposable, isolated fixtures; it is not the production HTTPS storage route. The environment marker records operator intent; network/container inspection must establish actual isolation:
+After starting an owned runtime project, add the page browser and Document Server loopback storage proxy. The storage adapter requires the explicit `MEDILAB_ONLYOFFICE_STORAGE_FIXTURE=isolated-owned` opt-in and container runtime markers. Its HTTP listener binds only `127.0.0.1:3900`, sends only owned bucket paths to the fixed Garage fixture, and forwards no caller credentials. This transport is restricted to disposable, isolated fixtures; it is not the production HTTPS storage route. The environment and runtime markers record intended use; they do not authenticate ownership or prove isolation. Network/container inspection must establish the actual boundary:
 
 ```bash
 docker --host=unix:///run/user/1000/podman/podman.sock compose -p "$ONLYOFFICE_COMPOSE_PROJECT" \
