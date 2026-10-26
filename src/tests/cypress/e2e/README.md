@@ -1,6 +1,6 @@
 # Browser test layout
 
-Keep each business-flow path in one owning flow. A flow starts from its own demo data and uses the shared commands rather than replaying another flow.
+Keep each business-flow path in one owning flow. Each test creates the records it starts from with its flow's `setup.js`, through the model methods each actor's screen calls, and uses the shared commands rather than replaying another flow's screens.
 
 ## Directories
 
@@ -36,7 +36,8 @@ src/tests/
 
 - `flows/` groups WF-01 to WF-07 and SF-01 to SF-09 by the flow IDs in the business-flow document.
 - `features/` holds browser scenarios whose feature has no owning business flow.
-- `support/` holds shared authentication, record, action and refusal commands; `fixtures/` holds browser fixtures. Flow starting records belong to `sol_demo`.
+- `support/` holds shared authentication, record, action and refusal commands; `fixtures/` holds browser fixtures.
+- `flows/<flow>/setup.js` builds the flow's starting records, such as an order taken to a given stage, so a spec runs again on the same database. `sol_demo` provides the catalog, customers, people and other records they read.
 - Keep a directory's `.gitkeep` until its first real spec is added. Do not add empty `.cy.js` files or skipped placeholder tests.
 - Existing flat specs keep their current paths. Inspect their cases when implementing a flow; reuse or move a matching case instead of adding a second copy.
 
