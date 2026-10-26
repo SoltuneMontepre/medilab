@@ -36,6 +36,8 @@ jobs:
               - ".mcp.json"
               - ".cursor/mcp.json"
               - ".codex/config.toml"
+              - ".codex/hooks.json"
+              - ".claude/hooks/check_git_message.py"
               - ".serena/project.yml"
               - ".claude/settings.json"
               - ".github/workflows/ci.tools.yml"

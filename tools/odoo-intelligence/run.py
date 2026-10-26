@@ -25,19 +25,24 @@ COMMANDS = {
     "hook-serena-remind": ["serena-hooks", "remind", "--client=claude-code"],
     "hook-serena-auto-approve": ["serena-hooks", "auto-approve", "--client=claude-code"],
     "hook-serena-cleanup": ["serena-hooks", "cleanup", "--client=claude-code"],
+    "hook-serena-codex-activate": ["serena-hooks", "activate", "--client=codex"],
+    "hook-serena-codex-remind": ["serena-hooks", "remind", "--client=codex"],
+    "hook-serena-codex-reset": ["serena-hooks", "reset", "--client=codex"],
+    "hook-serena-codex-cleanup": ["serena-hooks", "cleanup", "--client=codex"],
 }
-GIT_MESSAGE_HOOK = "hook-git-message"
+GIT_MESSAGE_HOOKS = {"hook-git-message": [], "hook-git-message-codex": ["--client=codex"]}
 
 project = Path(__file__).resolve().parent
 mode = sys.argv[1] if len(sys.argv) == 2 else None
-if mode == GIT_MESSAGE_HOOK:
-    raise SystemExit(subprocess.call([sys.executable, str(project.parents[1] / ".claude/hooks/check_git_message.py")]))
+if mode in GIT_MESSAGE_HOOKS:
+    script = str(project.parents[1] / ".claude/hooks/check_git_message.py")
+    raise SystemExit(subprocess.call([sys.executable, script, *GIT_MESSAGE_HOOKS[mode]]))
 uv = shutil.which("uv")
 if uv is None:
     raise SystemExit("uv not found. Install https://docs.astral.sh/uv/ and run task ai:setup.")
 arguments = COMMANDS.get(mode)
 if arguments is None:
-    raise SystemExit(f"run.py takes one of: {', '.join([*COMMANDS, GIT_MESSAGE_HOOK])}.")
+    raise SystemExit(f"run.py takes one of: {', '.join([*COMMANDS, *GIT_MESSAGE_HOOKS])}.")
 command = [uv, "run", "--locked", "--project", str(project), "medilab-odoo", *arguments]
 # On Windows os.execv starts a separate process and exits, which closes the client's stdio pipes.
 if os.name == "nt":

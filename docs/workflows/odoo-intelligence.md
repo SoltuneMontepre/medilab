@@ -47,7 +47,7 @@ Blocking LSP operations run in worker threads so MCP cancellation and disconnect
 | Client        | Project configuration                       | Odoo interface                                   | Serena               |
 | ------------- | ------------------------------------------- | ------------------------------------------------ | -------------------- |
 | Claude Code   | `.mcp.json`, `.claude/settings.json`        | `odoo` MCP tools                                 | MCP server and hooks |
-| Codex CLI     | `.codex/config.toml`                        | `odoo` MCP tools                                 | MCP server           |
+| Codex CLI     | `.codex/config.toml`, `.codex/hooks.json`   | `odoo` MCP tools                                 | MCP server and hooks |
 | Cursor Agent  | `.cursor/mcp.json`, `.claude/settings.json` | `odoo` MCP tools                                 | MCP server and hooks |
 | Cursor editor | `odools.toml`, `.vscode/settings.json`      | Native LSP of the official `Odoo.odoo` extension | Not used             |
 
@@ -70,6 +70,10 @@ The Serena hooks run through the locked local environment.
 ### Codex CLI
 
 Trust the specific worktree when Codex asks so it can load `.codex/config.toml`. Check `codex mcp get odoo --json` and use `/mcp` in a new session. Project configuration is ignored in untrusted checkouts. Launching from a subdirectory is supported: the launcher finds the nearest checkout containing `tools/odoo-intelligence/run.py`, and the package binds the server to that checkout.
+
+Review and trust the hook definitions with `/hooks` in a new Codex CLI session. Codex records trust for each definition's current hash; new or changed hooks are skipped until trusted. Trusting the worktree does not automatically trust its hooks.
+
+`.codex/hooks.json` runs the Git message checker and Serena hooks through the locked launcher with `--client=codex`. `PreToolUse` matches `Bash`, which includes Codex shell commands executed through PowerShell, to check Git messages and remind the agent to use symbolic tools. The Git checker returns a JSON denial for Codex so a PowerShell wrapper cannot change the blocking decision by normalizing a nonzero exit code. `PostToolUse` observes Serena calls and resets the reminder counters after a successful symbolic call. `SessionStart` prompts the agent to activate the project and read Serena's instructions; `SessionEnd` removes that session's hook data, with a three-second timeout. Tool approval follows Codex's permission configuration.
 
 For a noninteractive check without persisting trust globally, supply the worktree trust as a CLI override:
 
@@ -141,4 +145,5 @@ The probe writes `.local/verification/cursor-editor.json`. It quits its test win
 - [Official Odoo extension](https://github.com/odoo/odoo-vscode)
 - [Claude Code MCP](https://code.claude.com/docs/en/mcp)
 - [Codex MCP](https://developers.openai.com/codex/mcp)
+- [Codex hooks](https://learn.chatgpt.com/docs/hooks)
 - [Cursor MCP](https://cursor.com/docs/mcp)
