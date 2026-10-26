@@ -109,4 +109,11 @@
         <field name="parent_id" ref="demo_location_floor_2" />
         <field name="is_bookable" eval="True" />
     </record>
+    <record id="demo_location_preparation_room" model="medilab.location">
+        <field name="code">P104</field>
+        <field name="name">Sample preparation room</field>
+        <field name="parent_id" ref="demo_location_floor_1" />
+        <field name="department_id" ref="demo_hr_department_chemistry" />
+        <field name="is_bookable" eval="True" />
+    </record>
 </odoo>

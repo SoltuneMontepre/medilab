@@ -9,9 +9,9 @@ vars:
   ALL_MODULES:
     sh: 'out=; while IFS= read -r m || [ -n "$m" ]; do m=${m%$''\r''}; [ -z "$m" ] || [ "$m" = base ] || out=${out:+$out,}$m; done < src/core/modules.txt; echo "$out"'
   EXCLUDE: '{{.EXCLUDE | default ""}}'
-  MODULES: '{{.MODULES | default (without (splitList "," .ALL_MODULES) .EXCLUDE | join ",")}}'
-  TEST_MODULES: '{{.TEST_MODULES | default .MODULES}}'
-  TAGS: '{{range $i, $m := splitList "," .TEST_MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
+  CORE_MODULES: '{{.MODULES | default (without (splitList "," .ALL_MODULES) .EXCLUDE | join ",")}}'
+  CORE_TEST_MODULES: '{{.TEST_MODULES | default .CORE_MODULES}}'
+  TAGS: '{{range $i, $m := splitList "," .CORE_TEST_MODULES}}{{if $i}},{{end}}/{{$m}}{{end}}'
   INSTALL_COVERAGE: '{{.INSTALL_COVERAGE | default "true"}}'
   TEST_DB: '{{.MEDILAB_TEST_DB | default "medilab_test"}}'
   RUNNER: "{{.RUNNER | default 1}}"
@@ -50,14 +50,19 @@ tasks:
     cmds:
       - python tools/scripts/test_log.py
 
+  test:taskfiles:
+    desc: "Check that setup and upgrades keep module selection separate from the test defaults"
+    cmds:
+      - python tools/scripts/test_taskfile_modules.py
+
   test:core:
     desc: "Run the tests of every module in src/core/modules.txt with coverage, split over parallel shards in throwaway databases; task test:core MODULES=a,b or EXCLUDE=a limits the modules, TEST_MODULES=a runs the tests of only some of them, RUNNER=2 RUNNERS=3 runs this machine's share of the shards, INSTALL_COVERAGE=false installs without coverage"
     silent: true
     env:
       TEST_DB: '{{.TEST_DB}}'
       TEST_RUN_DIR: '{{.TEST_RUN_DIR}}'
-      MODULES: '{{.MODULES}}'
-      TEST_MODULES: '{{.TEST_MODULES}}'
+      MODULES: '{{.CORE_MODULES}}'
+      TEST_MODULES: '{{.CORE_TEST_MODULES}}'
       TAGS: '{{.TAGS}}'
       INSTALL_COVERAGE: '{{.INSTALL_COVERAGE}}'
       SHARD_NUMBERS: '{{.SHARD_NUMBERS}}'
@@ -90,7 +95,7 @@ tasks:
     env:
       TEST_DB: '{{.TEST_DB}}'
       TEST_RUN_DIR: '{{.TEST_RUN_DIR}}'
-      MODULES: '{{.MODULES}}'
+      MODULES: '{{.CORE_MODULES}}'
       SHARD_NUMBERS: '{{.SHARD_NUMBERS}}'
       SHARD: '{{.SHARD}}'
     cmds:
@@ -102,7 +107,7 @@ tasks:
     env:
       TEST_DB: '{{.TEST_DB}}'
       TEST_RUN_DIR: '{{.TEST_RUN_DIR}}'
-      MODULES: '{{.MODULES}}'
+      MODULES: '{{.CORE_MODULES}}'
       SHARD_NUMBERS: '{{.SHARD_NUMBERS}}'
     cmds:
       - cmd: mkdir -p {{.COVERAGE_DIR}}

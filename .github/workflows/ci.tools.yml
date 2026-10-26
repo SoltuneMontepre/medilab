@@ -127,6 +127,8 @@ jobs:
               - "tools/scripts/colorize_odoo_logs.py"
               - "tools/scripts/log.sh"
               - "tools/scripts/test_log.py"
+              - "tools/scripts/test_taskfile_modules.py"
+              - "src/core/modules.txt"
               - "tools/taskfiles/ai.taskfile.yml"
               - "tools/taskfiles/app.taskfile.yml"
               - "tools/taskfiles/dev.taskfile.yml"
@@ -152,6 +154,10 @@ jobs:
       - name: Logging regression tests
         if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
         run: task test:logging
+
+      - name: Taskfile module selection tests
+        if: steps.filter.outputs.relevant == 'true' || github.event_name == 'workflow_dispatch'
+        run: task test:taskfiles
 
   tools:
     needs: [ai, typecheck, logging]

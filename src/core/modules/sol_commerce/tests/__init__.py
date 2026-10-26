@@ -19,6 +19,7 @@ from . import (
     test_order_cart,
     test_order_confirmation,
     test_order_feedback,
+    test_order_form,
     test_order_samples,
     test_order_template,
     test_order_template_access,
@@ -43,4 +44,5 @@ from . import (
     test_support_request,
     test_tax_archiving,
     test_tax_rates,
+    test_vietnamese_accounting,
 )
