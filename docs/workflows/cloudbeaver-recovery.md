@@ -54,11 +54,16 @@ kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pvc cloudbeave
 CB_PV=$(kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pvc cloudbeaver-workspace -n medilab -o jsonpath='{.spec.volumeName}')
 : "${CB_PV:?Claim is not bound; stop recovery assessment}"
 kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pv "$CB_PV" \
-  -o 'custom-columns=NAME:.metadata.name,UID:.metadata.uid,CLAIM_UID:.spec.claimRef.uid,RECLAIM:.spec.persistentVolumeReclaimPolicy,NODE_AFFINITY:.spec.nodeAffinity' \
+  -o 'custom-columns=NAME:.metadata.name,UID:.metadata.uid,CLAIM_UID:.spec.claimRef.uid,RECLAIM:.spec.persistentVolumeReclaimPolicy,NODE_AFFINITY:.spec.nodeAffinity,LOCAL_PATH:.spec.local.path,HOST_PATH:.spec.hostPath.path' \
   > "$CB_REPORT_DIR/volume.txt"
+CB_STORAGE_CLASS=$(kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get pvc cloudbeaver-workspace -n medilab -o jsonpath='{.spec.storageClassName}')
+test -n "$CB_STORAGE_CLASS" || { printf '%s\n' 'StorageClass is missing; stop recovery assessment' >&2; exit 1; }
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get storageclass "$CB_STORAGE_CLASS" \
+  -o 'custom-columns=NAME:.metadata.name,PROVISIONER:.provisioner,BINDING:.volumeBindingMode,RECLAIM:.reclaimPolicy' \
+  > "$CB_REPORT_DIR/storageclass.txt"
 ```
 
-- [ ] Inventory dormant Jobs/CronJobs that can create another workspace consumer. Inspect owner references and the actual controller/bootstrap responsible for each. Before any later approved cold backup, establish that every writer has stopped and no controller can recreate one; a Pod-only inventory is a point-in-time observation. These commands do not suspend anything:
+- [ ] Inventory dormant controllers that can create another workspace consumer. Inspect owner references and the actual controller/bootstrap responsible for each Pod, including custom controllers or hooks installed in this cluster. Before any later approved cold backup, establish that every writer has stopped and no controller can recreate one; a Pod-only inventory is a point-in-time observation. These commands do not suspend anything:
 
 ```bash
 kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get jobs -n medilab \
@@ -67,6 +72,9 @@ kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get jobs -n medila
 kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get cronjobs -n medilab \
   -o 'custom-columns=NAME:.metadata.name,SUSPENDED:.spec.suspend,CLAIMS:.spec.jobTemplate.spec.template.spec.volumes[*].persistentVolumeClaim.claimName' \
   > "$CB_REPORT_DIR/cronjobs.txt"
+kubectl --kubeconfig "$CB_KUBECONFIG" --context "$CB_CONTEXT" get deployments,statefulsets,daemonsets,replicasets -n medilab \
+  -o 'custom-columns=KIND:.kind,NAME:.metadata.name,REPLICAS:.spec.replicas,CLAIMS:.spec.template.spec.volumes[*].persistentVolumeClaim.claimName' \
+  > "$CB_REPORT_DIR/workload-controllers.txt"
 ```
 
 - [ ] Check Argo's desired/applied revisions, live auto-sync/prune/self-heal and any pending operation. Confirm which Application or bootstrap mechanism owns the child before proposing a hold. The repository declares `main`; publishing a feature branch is not evidence that live Argo configuration matches Git. Inspect the child without printing repository credentials:
@@ -103,7 +111,7 @@ Submit the production evidence, chosen A/B/C/D branch, exact proposed Git revisi
 
 After approval and the Git reconciliation hold below, stop the sole writer cleanly. Take an encrypted **cold backup of the entire workspace**, including dotfiles, `.data`, encryption material, `.metadata`, GlobalConfiguration, all user projects, connection JSON and credential files. Use a reviewed backup Job mounting the original PVC read-only and writing to an approved encrypted destination outside both the PVC and its node. Preserve numeric ownership/modes and record checksums, image digest, Git revision and PV/PVC identities in a restricted manifest. A live file copy or database snapshot without demonstrated consistency does not replace this backup.
 
-Restore the immutable archive into a different isolated volume with no public ingress and no route to production databases. Use the exact deployed image. Verify archive integrity, modes, original administrator login, all users/teams/grants, settings, project inventory and saved credentials. Test connections against synthetic endpoints; actual production database access needs separate authorization. Never mount the original production PVC into the clone. Clone startup can write its own H2 through the supported application; never directly edit production H2. No verified cold backup and restore test means no repair.
+Restore the immutable archive into a different isolated volume with no public ingress and no route to production databases. Use the exact deployed image. Verify archive integrity, modes, original administrator login, all users/teams/grants, settings, project inventory and saved credentials. Test connections against synthetic endpoints; actual production database access needs separate authorization. Record the restore duration, encryption-key custody and retrieval procedure, destination immutability and retention before approving the backup method. Never mount the original production PVC into the clone. Clone startup can write its own H2 through the supported application; never directly edit production H2. No verified cold backup and restore test means no repair.
 
 ## Recovery decision tree
 
@@ -120,7 +128,7 @@ No branch authorizes deleting a user/team, resetting H2, completing the public w
 
 ## Proposed GitOps rollout sequence
 
-`infra/cluster/applications/cloudbeaver.yaml` watches `main` with auto-sync, prune and self-heal. Identify the live owner before relying on parent reconciliation: the Ansible root Application is opt-in (`argocd_root_application_enabled: false` by default), and an existing Argo installation can be left unmanaged by Ansible. A parent may reconcile the child, but repository templates do not establish live ownership. **Merging the candidate to `main` is already a production deployment trigger.** A later promise to manually sync does not provide a gate.
+`infra/cluster/applications/cloudbeaver.yaml` watches `main` with auto-sync, prune and self-heal. Identify the live owner before relying on parent reconciliation: the Argo role default disables the root Application, while the checked-in production inventory enables it. Neither repository setting proves which root or child Application currently owns the live resource. A parent may reconcile the child, but repository templates do not establish live ownership. **Merging the candidate to `main` is already a production deployment trigger.** A later promise to manually sync does not provide a gate.
 
 After explicit authorization, use separate reviewed revisions in this order:
 
