@@ -10,7 +10,7 @@ How tests are written, where they live and how they run.
 | Browser       | Cypress                                          | `src/tests/cypress/e2e/`              | `task test:e2e`       |
 | Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application | `task test:apps`      |
 | Type checking | `unittest` and pyright                           | `tools/typecheck/`                    | `task test:typecheck` |
-| Tool scripts  | `unittest`                                       | `tools/scripts/tests/`                | `task test:openapi`   |
+| Tool scripts  | `unittest`                                       | next to the script in `tools/scripts/` | the task of the script |
 | AI tooling    | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`      | `task ai:test`        |
 
 `task test` runs the module and application tests. Browser tests run against the running app, so start it first with `task up`.

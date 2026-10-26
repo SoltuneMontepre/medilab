@@ -1,5 +1,5 @@
 """test:openapi: refuse a YAML document in which a mapping has the same key twice. YAML loaders keep the last value of
-a duplicate key, so the document still parses and validates without it.
+a duplicate key, so the document still parses and validates without it. Runs on the host through uv.
 
 Usage: test_openapi_keys.py <document in the repository>
 """
@@ -31,8 +31,13 @@ def duplicate_keys(text):
     """The (key, line of the repeated key, line of its first use) of every duplicate key, lines counted from 1."""
     found = []
     nodes = [yaml.compose(text, Loader=yaml.SafeLoader)]
+    # An alias is the node it names, so a node is walked once however often it is used, even inside itself.
+    walked = set()
     while nodes:
         node = nodes.pop()
+        if id(node) in walked:
+            continue
+        walked.add(id(node))
         if isinstance(node, yaml.MappingNode):
             found.extend(mapping_duplicates(node))
             nodes.extend(value for _key, value in node.value)
