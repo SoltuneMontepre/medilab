@@ -10,6 +10,7 @@ How tests are written, where they live and how they run.
 | Browser       | Cypress                                          | `src/tests/cypress/e2e/`                 | `task test:e2e`                                        |
 | Applications  | `bun test`, Jest and `cargo test`                | next to the code, in each application    | `task test:apps`                                       |
 | Type checking | `unittest` and pyright                           | `tools/typecheck/`                       | `task test:typecheck`                                  |
+| Tool scripts  | `unittest`                                       | next to the script in `tools/scripts/`   | the task of the script                                 |
 | AI tooling    | pytest, MCP and official OdooLS                  | `tools/odoo-intelligence/tests/`         | `task ai:test`                                         |
 | Taskfiles     | `unittest` and Task                              | `tools/scripts/test_taskfile_modules.py` | `task test:taskfiles`                                  |
 | CloudBeaver   | unittest and pinned containers                   | `tools/cloudbeaver/`                     | `python3 -m unittest discover -s tools/cloudbeaver -v` |
