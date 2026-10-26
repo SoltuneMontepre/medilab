@@ -44,6 +44,12 @@ ODOO_DATABASE_ARGUMENTS = (
 INTERRUPTED_SWITCH_ERROR = (
     "An interrupted project switch exists; run `task setup:fresh:switch:recover`."
 )
+VOLUME_KEYS = (
+    "MEDILAB_DB_VOLUME",
+    "MEDILAB_GARAGE_VOLUME",
+    "MEDILAB_APP_VOLUME",
+    "MEDILAB_CLOUDBEAVER_VOLUME",
+)
 PORT_KEYS = (
     "MEDILAB_ODOO_PORT",
     "MEDILAB_DB_PORT",
@@ -237,6 +243,17 @@ def _free_ports():
     return ports
 
 
+def _volume_mismatch(config, actual):
+    expected = {config[key] for key in VOLUME_KEYS}
+    return sorted(expected - set(actual)), sorted(set(actual) - expected)
+
+
+def _volume_mismatch_message(missing, unexpected):
+    if unexpected:
+        return f"Owned volumes {', '.join(unexpected)} are not in the saved Compose configuration; refusing to proceed."
+    return f"Persistent volumes {', '.join(missing)} of the completed bootstrap no longer exist; run `task reset` to discard what remains and create a new environment."
+
+
 def select(project):
     if not re.fullmatch(r"medilab-bootstrap-[a-z0-9][a-z0-9_-]{0,39}", project):
         raise BootstrapError(
@@ -270,19 +287,11 @@ def select(project):
         if existing["status"] == "selected":
             _assert_no_resources(project)
         else:
-            expected = {
-                config[key]
-                for key in (
-                    "MEDILAB_DB_VOLUME",
-                    "MEDILAB_GARAGE_VOLUME",
-                    "MEDILAB_APP_VOLUME",
-                    "MEDILAB_CLOUDBEAVER_VOLUME",
-                )
-            }
-            if set(_owned_volume_names(project, existing["owner"])) != expected:
-                raise BootstrapError(
-                    "The selected project's persistent volumes do not match its ownership marker."
-                )
+            missing, unexpected = _volume_mismatch(
+                config, _owned_volume_names(project, existing["owner"])
+            )
+            if missing or unexpected:
+                raise BootstrapError(_volume_mismatch_message(missing, unexpected))
         print(f"Compose project {project} is already selected ({existing['status']}).")
         return
     _assert_no_resources(project)
@@ -332,18 +341,14 @@ def _validate_completed_selection(marker, project):
 def _verify_completed_selection(marker, project):
     config = _validate_completed_selection(marker, project)
     _assert_owned_resources(project, marker["owner"])
-    expected = {
-        config[key]
-        for key in (
-            "MEDILAB_DB_VOLUME",
-            "MEDILAB_GARAGE_VOLUME",
-            "MEDILAB_APP_VOLUME",
-            "MEDILAB_CLOUDBEAVER_VOLUME",
-        )
-    }
-    if set(_owned_volume_names(project, marker["owner"])) != expected:
+    missing, unexpected = _volume_mismatch(
+        config, _owned_volume_names(project, marker["owner"])
+    )
+    if unexpected:
+        raise BootstrapError(_volume_mismatch_message(missing, unexpected))
+    if missing:
         raise BootstrapError(
-            "Owned persistent volumes do not match the saved Compose selection."
+            f"Persistent volumes {', '.join(missing)} of Compose project {project!r} no longer exist."
         )
 
 
@@ -1073,17 +1078,10 @@ def _resume_setup(project, marker):
     owner = marker["owner"]
     config = marker["config"]
     _assert_owned_resources(project, owner)
-    actual_volumes = set(_owned_volume_names(project, owner))
-    expected_volumes = {
-        config[key]
-        for key in (
-            "MEDILAB_DB_VOLUME",
-            "MEDILAB_GARAGE_VOLUME",
-            "MEDILAB_APP_VOLUME",
-            "MEDILAB_CLOUDBEAVER_VOLUME",
-        )
-    }
-    if actual_volumes != expected_volumes:
+    missing, unexpected = _volume_mismatch(config, _owned_volume_names(project, owner))
+    if marker.get("status") == "completed" and (missing or unexpected):
+        raise BootstrapError(_volume_mismatch_message(missing, unexpected))
+    if missing or unexpected:
         raise BootstrapError(
             "The bootstrap volume identities differ from the saved environment configuration; refusing handoff."
         )
@@ -1364,18 +1362,12 @@ def reset():
             "Reset refused: the completed bootstrap belongs to a different Compose project."
         )
     resources = _assert_owned_resources(project, marker["owner"])
-    expected_volumes = {
-        marker["config"][key]
-        for key in (
-            "MEDILAB_DB_VOLUME",
-            "MEDILAB_GARAGE_VOLUME",
-            "MEDILAB_APP_VOLUME",
-            "MEDILAB_CLOUDBEAVER_VOLUME",
-        )
-    }
-    if set(_owned_volume_names(project, marker["owner"])) != expected_volumes:
+    missing, unexpected = _volume_mismatch(
+        marker["config"], _owned_volume_names(project, marker["owner"])
+    )
+    if unexpected:
         raise BootstrapError(
-            "Reset refused: owned persistent volume identities do not match the completed bootstrap marker."
+            f"Reset refused: owned volumes {', '.join(unexpected)} are not in the completed bootstrap marker."
         )
     summary = {
         kind: [
@@ -1384,7 +1376,16 @@ def reset():
         ]
         for kind, items in resources.items()
     }
-    print(json.dumps({"project": project, "resources": summary}, indent=2))
+    print(
+        json.dumps(
+            {"project": project, "resources": summary, "missing_volumes": missing},
+            indent=2,
+        )
+    )
+    if missing:
+        print(
+            "The missing volumes cannot be restored; reset discards what remains of this environment."
+        )
     confirmation = input(
         f"Type {marker['owner']} to delete only this verified local demo environment and recreate it: "
     )

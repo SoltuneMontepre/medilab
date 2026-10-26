@@ -711,6 +711,57 @@ class DemoBootstrapEnvironmentTest(unittest.TestCase):
 
         run.assert_not_called()
 
+    def test_reset_discards_a_completed_environment_whose_volumes_are_missing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project, config, _marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            remaining = config["MEDILAB_DB_VOLUME"]
+            resources = {
+                "containers": [],
+                "networks": [],
+                "volumes": [{"Name": remaining}],
+            }
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch("demo_bootstrap._assert_owned_resources", return_value=resources),
+                patch("demo_bootstrap._owned_volume_names", return_value=(remaining,)),
+                patch("builtins.input", return_value="owner"),
+                patch("demo_bootstrap._run") as run,
+            ):
+                reset()
+            run.assert_called_once_with(["docker", "volume", "rm", remaining])
+            self.assertEqual(json.loads(marker_path.read_text())["status"], "discarded")
+
+    def test_reset_refuses_volumes_outside_the_completed_marker(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project, config, marker, marker_path = self.completed_selection(
+                Path(directory)
+            )
+            foreign = f"{project}_db_other"
+            with (
+                patch("demo_bootstrap.MARKER", marker_path),
+                patch("demo_bootstrap.project_name", return_value=project),
+                patch("demo_bootstrap._assert_local_engine"),
+                patch(
+                    "demo_bootstrap._assert_owned_resources",
+                    return_value={"containers": [], "networks": [], "volumes": []},
+                ),
+                patch(
+                    "demo_bootstrap._owned_volume_names",
+                    return_value=(config["MEDILAB_APP_VOLUME"], foreign),
+                ),
+                patch("builtins.input") as confirm,
+                patch("demo_bootstrap._run") as run,
+                self.assertRaisesRegex(BootstrapError, foreign),
+            ):
+                reset()
+            confirm.assert_not_called()
+            run.assert_not_called()
+            self.assertEqual(json.loads(marker_path.read_text()), marker)
+
     def test_free_ports_stay_below_dynamic_ranges_and_skip_busy_ports(self):
         busy = set(range(20000, 32768, 2))
         with patch(
