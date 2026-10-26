@@ -24,6 +24,8 @@
 
 - **Isolated storage fixture transport.** Approve or reject the documented test-only HTTP boundary for loopback_storage_proxy.py (Sonar AaF0FHq1vCiqu-XFDLDC / python:S5332). Actual inspection shows a container-only 127.0.0.1 listener, no published ports and refused peer access. The adapter requires explicit owned-fixture opt-in and forwards only to its fixed Garage fixture. If HTTP is unacceptable within that boundary, define the required TLS fixture identities and transport contract before replacing it. Production HTTPS is unchanged; no finding has been accepted or suppressed.
 
+- **WebSocket protocol finding.** Approve the protocol-specific disposition of AaF2G1TlIES1tmkRiAIQ / javascript:S4790: SHA-1 hashes only the public nonce plus RFC GUID for Sec-WebSocket-Accept. RFC 6455 §10.8 states that this handshake does not depend on SHA-1 cryptographic security. Real positive/invalid-handshake tests and an independent RFC vector pass. JWT and immutable document hashing remain unchanged. No false-positive classification has been applied.
+
 ## Related documents
 
 - [Architecture](../docs/infrastructure/architecture.md)
