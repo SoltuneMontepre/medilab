@@ -109,7 +109,7 @@ class TestApprovalChain(PeopleCase):
         self.assertIn(signature.display_name, str(refusal.exception))
         self.assertFalse(self.chemist.active)
 
-    def test_a_signature_is_withdrawn_from_the_highest_level_down(self):
+    def test_a_signature_is_withdrawn_in_the_reverse_order_it_was_given(self):
         lower = self.sign(self.chemist, self.sales_level)
         higher = self.sign(self.microbiologist, self.head_level)
 
@@ -121,7 +121,27 @@ class TestApprovalChain(PeopleCase):
         self.assertTrue(higher.withdrawn_at)
         self.assertTrue(lower.withdrawn_at)
 
-    def test_a_rejection_on_a_higher_level_is_withdrawn_first(self):
+    def test_a_signature_given_out_of_level_order_follows_the_timeline(self):
+        higher = self.sign(self.microbiologist, self.head_level)
+        lower = self.sign(self.chemist, self.sales_level)
+
+        with self.assertRaises(UserError):
+            higher.with_user(self.microbiologist.user_id)._withdraw()
+        lower.with_user(self.chemist.user_id)._withdraw()
+        higher.with_user(self.microbiologist.user_id)._withdraw()
+
+        self.assertTrue(lower.withdrawn_at)
+        self.assertTrue(higher.withdrawn_at)
+
+    def test_a_signature_does_not_wait_for_a_later_one_on_another_document(self):
+        signature = self.sign(self.chemist, self.sales_level)
+        self.sign(self.microbiologist, self.head_level, document_id=2)
+
+        signature.with_user(self.chemist.user_id)._withdraw()
+
+        self.assertTrue(signature.withdrawn_at)
+
+    def test_a_later_rejection_is_withdrawn_first(self):
         lower = self.sign(self.chemist, self.sales_level)
         rejection = self.sign(self.microbiologist, self.head_level, DECISION_REJECTED, "Wrong price")
 
