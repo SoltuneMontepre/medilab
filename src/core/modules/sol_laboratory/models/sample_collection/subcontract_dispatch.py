@@ -11,11 +11,13 @@ from odoo.addons.sol_laboratory.constants.models import (
     MODEL_LOCK_MIXIN,
     MODEL_PERMISSION_MIXIN,
     MODEL_PERSON,
+    MODEL_ROLE,
     MODEL_SAMPLE_TEST,
     MODEL_SUBCONTRACT_DISPATCH,
     MODEL_SUBCONTRACTOR,
     MODEL_TEST_RESULT,
 )
+from odoo.addons.sol_laboratory.constants.settings import SAMPLE_DELIVERY_ROLE_PARAMETER
 
 # What goes to whom; fixed once the dispatch is sent.
 CONTENT_FIELDS = frozenset({"subcontractor_id", "sample_test_ids"})
@@ -66,10 +68,26 @@ class SubcontractDispatch(models.Model):
         string="Sample Tests",
         ondelete="restrict",
     )
+    # People who can take the dispatch: those holding the sample delivery staff role named in the settings.
+    courier_choice_ids = fields.Many2many(
+        MODEL_PERSON, string="Sample Delivery Staff to Choose", compute="_compute_courier_choice_ids", compute_sudo=True
+    )
     # True when the current user is the sample delivery staff taking the dispatch.
     carried_by_me = fields.Boolean(compute="_compute_carried_by_me", search="_search_carried_by_me")
 
     _code_unique = models.Constraint("UNIQUE(code)", "The code of a dispatch must be unique.")
+
+    def _compute_courier_choice_ids(self):
+        couriers = self._sample_delivery_staff()
+        for dispatch in self:
+            dispatch.courier_choice_ids = couriers
+
+    @api.model
+    def _sample_delivery_staff(self):
+        # With full rights: only administrators read who holds a role.
+        role_id = self.env["ir.config_parameter"].sudo().get_int(SAMPLE_DELIVERY_ROLE_PARAMETER)
+        people = self.env[MODEL_ROLE].sudo().browse(role_id).exists().person_ids
+        return self.env[MODEL_PERSON].browse(people.ids)
 
     def _compute_carried_by_me(self):
         person = self.env[MODEL_PERSON]._current()
@@ -91,6 +109,18 @@ class SubcontractDispatch(models.Model):
                     self.env._(
                         "%s cannot be chosen: it is archived or its accreditation has expired.",
                         dispatch.subcontractor_id.display_name,
+                    )
+                )
+
+    @api.constrains("courier_id")
+    def _check_courier(self):
+        couriers = self._sample_delivery_staff()
+        for dispatch in self:
+            if dispatch.courier_id and dispatch.courier_id not in couriers:
+                raise ValidationError(
+                    self.env._(
+                        "%s does not hold the sample delivery staff role named in the Laboratory settings.",
+                        dispatch.courier_id.sudo().name,
                     )
                 )
 

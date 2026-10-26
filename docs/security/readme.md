@@ -9,6 +9,7 @@ Rules that hold for everyone, whatever their roles and permissions:
 - A signed document cannot be edited, archived or deleted ([SH-07](../functional/shared.md#sh-07-signed-documents-are-locked)).
 - Signatures, results, people who have signed a document, test parameters, parameter and method pairs, subcontractors, stock items and suppliers are never deleted. Audit entries are never deleted by anyone; only the cleanup job removes them after the audit retention period.
 - Permissions are enforced in the API and in the interface; a person does not see menus, records, fields or buttons for what they are not allowed to do.
+- A page never shows text taken from its address, such as an error message in the URL; every message it shows comes from the system.
 
 ## Permissions
 

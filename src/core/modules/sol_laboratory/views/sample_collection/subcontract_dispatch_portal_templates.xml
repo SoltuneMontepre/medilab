@@ -68,20 +68,26 @@
                 <tbody>
                     <tr t-foreach="dispatch.sample_test_ids" t-as="test">
                         <t t-set="result" t-value="results.get(test.id)" />
+                        <t t-set="rejected" t-value="test.id in rejections and test.status == 'outsourced'" />
                         <td t-out="test.sample_id.code" />
                         <td t-out="test.sample_id.sample_type_id.name" />
                         <td t-out="test.parameter_id.name" />
                         <td t-out="test.parameter_method_id.method_id.code" />
                         <td class="text-end" t-out="test.quantity" />
                         <td>
-                            <t t-if="result and (result.status != 'rejected' or test.status != 'outsourced')">
+                            <t t-if="result and not rejected">
                                 <t t-out="result.value_display" /> <t t-out="result.unit_id.name if not result.value_text else ''" />
                                 <div class="text-muted small">
                                     Entered by <t t-out="result.entered_by_id.name" />, <span t-field="result.status" />
                                 </div>
                             </t>
+                            <div t-if="rejected" class="text-danger small text-wrap mb-2" style="max-width: 28rem">
+                                Rejected: <t t-out="result.value_display" />
+                                <t t-out="result.unit_id.name if not result.value_text else ''" />.
+                                <t t-out="rejections[test.id]" />
+                            </div>
                             <form
-                                t-elif="test.status == 'outsourced'"
+                                t-if="test.status == 'outsourced' and (not result or rejected)"
                                 t-att-action="'/my/dispatches/%s/results' % dispatch.id"
                                 method="post"
                                 class="d-flex flex-wrap gap-2"

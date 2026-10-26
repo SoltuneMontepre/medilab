@@ -154,6 +154,11 @@ class ApprovalMixin(models.AbstractModel):
             )
         )
 
+    def _approval_rejection_reason(self):
+        """The reason of the document's rejection that stands; empty when it is not rejected."""
+        rows = self._approval_open_rows().filtered(lambda row: row.decision == DECISION_REJECTED)
+        return rows.sorted("id")[-1:].reason or ""
+
     def _approval_has_standing(self):
         return bool(
             self.env[MODEL_SIGNATURE]

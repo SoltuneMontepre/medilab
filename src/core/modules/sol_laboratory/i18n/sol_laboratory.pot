@@ -11071,7 +11071,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid ""
 "A result is entered only for a received sample while %s is waiting, "
 "assigned, in testing or outsourced."
@@ -11329,7 +11329,7 @@ msgstr ""
 
 #. module: sol_laboratory
 #. odoo-python
-#: code:addons/sol_laboratory/models/testing/test_result.py:0
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
 msgid "Send %s to its subcontractor before entering its result."
 msgstr ""
 
@@ -14259,4 +14259,58 @@ msgstr ""
 #. odoo-python
 #: code:addons/sol_laboratory/models/laboratory_files/laboratory_content_reconciliation.py:0
 msgid "The laboratory file content %(key)s is still pending a day after it was made, and no open upload holds it."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/test_result.py:0
+msgid ""
+"%s cannot be negative; enter a measurement below the LOD as a text, such as "
+"\"< LOD\"."
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/sample_collection/subcontract_dispatch.py:0
+msgid ""
+"%s does not hold the sample delivery staff role named in the Laboratory "
+"settings."
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_sample_test__can_enter_result
+msgid "Can Enter Result"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_subcontract_dispatch__courier_choice_ids
+msgid "Sample Delivery Staff to Choose"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_medilab_parameter_method__allows_negative
+msgid "Negative Results"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,help:sol_laboratory.field_res_config_settings__sample_delivery_role_id
+msgid "Only people holding this role can carry a dispatch to a subcontractor."
+msgstr ""
+
+#. module: sol_laboratory
+#: model_terms:ir.ui.view,arch_db:sol_laboratory.portal_my_dispatch
+msgid "Rejected:"
+msgstr ""
+
+#. module: sol_laboratory
+#: model:ir.model.fields,field_description:sol_laboratory.field_res_config_settings__sample_delivery_role_id
+msgid "Sample Delivery Staff Role"
+msgstr ""
+
+#. module: sol_laboratory
+#. odoo-python
+#: code:addons/sol_laboratory/models/testing/sample_test.py:0
+msgid ""
+"The subcontractor's result of %s waits to be sent; send it, or have it "
+"rejected, before entering another."
 msgstr ""
