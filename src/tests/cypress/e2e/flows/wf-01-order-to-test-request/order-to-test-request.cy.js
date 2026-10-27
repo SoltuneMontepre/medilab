@@ -241,6 +241,23 @@ describe("WF-01 Order to approved test request", () => {
     });
   });
 
+  it("TC-WF01-A8 lets sales correct an order the Head of Sales rejected and request approval again", () => {
+    orderAt("requested", { advance: false }).then((order) => {
+      callAs("demo.head_of_sales", "sale.order", "action_reject", [[order.id], REASON]);
+      cy.signInAs("sales");
+      cy.openRecord(order);
+      cy.contains(".o-mail-Message", REASON);
+      cy.get(".o_statusbar_buttons button[name=action_withdraw]").should("not.exist");
+      callAs("demo.sales", "sale.order", "write", [[order.id], { validity_date: "2099-12-31" }]);
+      cy.get(".o_statusbar_buttons button[name=action_request_approval]:visible").click();
+      cy.get(".o_statusbar_buttons button[name=action_withdraw]:visible").should("exist");
+      cy.readRecord(order, ["approval_status", "validity_date"]).should((read) => {
+        expect(read.approval_status).to.equal("requested");
+        expect(read.validity_date).to.equal("2099-12-31");
+      });
+    });
+  });
+
   it("TC-WF01-A9 lets sales withdraw the approval request, change the order and request it again", () => {
     orderAt("requested", { advance: false }).then((order) => {
       cy.signInAs("sales");

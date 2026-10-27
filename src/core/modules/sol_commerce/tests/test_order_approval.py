@@ -63,6 +63,46 @@ class TestOrderApproval(OrderCase):
         with self.assertRaises(UserError):
             order.with_user(self.head).action_sign()
 
+    def test_sales_corrects_a_rejected_order_and_requests_again(self):
+        order = self.requested_order()
+        version = order.document_version
+        order.with_user(self.head).action_reject("The validity date is too short")
+        self.assertEqual(order.approval_status, "rejected")
+        self.assertTrue(order.with_user(self.sales).approval_can_sign)
+
+        validity = fields.Date.today() + timedelta(days=30)
+        order.with_user(self.sales).write({"validity_date": validity})
+        order.with_user(self.sales).action_request_approval()
+
+        self.assertEqual(order.approval_status, "requested")
+        self.assertEqual(order.validity_date, validity)
+        self.assertGreater(order.document_version, version)
+        rows = self.env[MODEL_SIGNATURE].search([("document_model", "=", "sale.order"), ("document_id", "=", order.id)])
+        self.assertEqual(rows.filtered(lambda row: row.decision == "rejected").reason, "The validity date is too short")
+        self.assertEqual(rows.filtered(lambda row: not row.withdrawn_at).signer_id, self.sales_person)
+        order.with_user(self.head).action_sign()
+        self.assertEqual(order.approval_status, "approved")
+
+    def test_only_the_first_level_requests_a_rejected_order_again(self):
+        order = self.requested_order()
+        order.with_user(self.head).action_reject("Wrong price")
+
+        self.assertFalse(order.with_user(self.head).approval_can_sign)
+        with self.assertRaises(UserError):
+            order.with_user(self.head).action_request_approval()
+        self.assertEqual(order.approval_status, "rejected")
+
+    def test_a_rejection_ends_the_round_on_record(self):
+        order = self.requested_order()
+        order.with_user(self.head).action_reject("Wrong price")
+
+        rows = self.env[MODEL_SIGNATURE].search([("document_model", "=", "sale.order"), ("document_id", "=", order.id)])
+        self.assertEqual(sorted(rows.mapped("decision")), ["rejected", "signed"])
+        self.assertTrue(all(rows.mapped("withdrawn_at")))
+        with self.assertRaises(UserError):
+            order.with_user(self.head).action_withdraw()
+        self.assertEqual(order.approval_status, "rejected")
+
     def test_the_rejection_wizard_needs_a_reason_and_rejects(self):
         order = self.requested_order()
         wizard = (

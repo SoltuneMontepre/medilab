@@ -154,7 +154,7 @@ stateDiagram-v2
 | Credit gate    | The laboratory core cannot confirm the test request of an order that has no payment unless the customer is marked as allowed to order on credit. Only the Head of Sales sets that flag.                                                                                                                                                                                                      |
 | Approval       | Two levels: the salesperson requests, the Head of Sales signs or rejects. Approval can only be requested on a confirmed order.                                                                                                                                                                                                                                                               |
 | Separation     | The person who requested approval cannot also approve the same order.                                                                                                                                                                                                                                                                                                                        |
-| Frozen content | Requesting approval is the salesperson's signature, so from the request on, customer, prices, validity date and parameters cannot be changed. To edit, the signers withdraw in the reverse order they signed, usually the Head of Sales first if they have signed, then sales. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
+| Frozen content | Requesting approval is the salesperson's signature, so from the request on, customer, prices, validity date and parameters cannot be changed. To edit, the signers withdraw in the reverse order they signed, usually the Head of Sales first if they have signed, then sales. A rejection ends the round: its signatures and the rejection stay on record, set aside, so sales corrects the order and requests approval again from the first level. Once the order is completed, a [change request](../../shared.md#sh-07-signed-documents-are-locked) is needed. |
 | Collection     | **Start sample collection** is available only when the order is approved.                                                                                                                                                                                                                                                                                                                    |
 | Cancel guard   | An approved (fully signed) order cannot be cancelled directly; cancelling it goes through a change request that the Head of Sales approves.                                                                                                                                                                                                                                                  |
 
@@ -162,6 +162,7 @@ Acceptance criteria:
 
 - Content of an order under approval cannot be edited.
 - Sales is notified, with the reason, when an order is rejected.
+- After a rejection, sales can correct the order and request approval again.
 - Sample collection cannot start on an order that is not approved.
 
 ### 5. Cancellation (US-S16, US-S17)

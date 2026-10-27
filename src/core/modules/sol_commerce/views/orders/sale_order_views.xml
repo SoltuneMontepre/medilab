@@ -100,7 +100,7 @@
                     type="object"
                     string="Request approval"
                     class="btn-primary"
-                    invisible="order_status != 'confirmed' or approval_status != 'none' or not approval_can_sign"
+                    invisible="order_status != 'confirmed' or approval_status not in ('none', 'rejected') or not approval_can_sign"
                 />
                 <button
                     name="action_sign"
