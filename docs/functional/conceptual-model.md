@@ -6,7 +6,7 @@ The business concepts of Laboratory, E-commerce, Inventory and scheduling. Names
 
 Medilab Sync belongs to the product but is outside this conceptual model. Technical concepts and attribute-level details are omitted: audit entries, notification and email messages, notification preferences, signing certificates, portal accounts, roles, document versions and signed PDFs. Portal identities belong to Customer or Person at this level.
 
-Unit categories are part of MeasurementUnit, parameter prices part of TestParameter, and subcontract costs part of ParameterMethod. Invoicing and payments are described in the E-commerce specifications. Service-package membership and chemical consumption are many-to-many relationships. Regulation limits are a Regulation–TestParameter relationship qualified by SampleType, not a single limit shared by all sample types.
+Unit categories are part of MeasurementUnit, parameter prices part of TestParameter, and subcontract costs part of ParameterMethod. Invoicing and payments are described in the E-commerce specifications. Service-package membership and chemical consumption are many-to-many relationships. Each RegulationLimit belongs to one Regulation, TestParameter and SampleType; that combination is unique and its limit is not shared across sample types.
 
 ## Catalog and laboratory work
 
@@ -27,7 +27,9 @@ erDiagram
     ACCREDITATION_SCOPE_LINE }o--|{ TEST_PARAMETER : covers
     ACCREDITATION_SCOPE_LINE }o--|{ SAMPLE_TYPE : covers
     REGULATION }o--o{ SAMPLE_TYPE : applies_to
-    REGULATION }o--o{ TEST_PARAMETER : limits_by_sample_type
+    REGULATION ||--o{ REGULATION_LIMIT : defines
+    REGULATION_LIMIT }o--|| TEST_PARAMETER : for
+    REGULATION_LIMIT }o--|| SAMPLE_TYPE : for
     CUSTOMER ||--o{ TEST_REQUEST : requests
     TEST_REQUEST ||--|{ SAMPLE : includes
     TEST_REQUEST ||--o{ SAMPLE_COLLECTION : receives_through

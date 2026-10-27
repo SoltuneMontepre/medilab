@@ -96,7 +96,7 @@ flowchart TD
   - WF-02-A4: An insufficient sample goes on hold; the head of department asks for more; the collection task brings it back to received.
   - WF-02-A5: A mistake in a signed handover record is corrected with a new record; the old one is kept.
   - WF-02-A6: Fewer samples wait for another collection or Sales cancels the missing part.
-  - WF-02-A7: Extra samples are held pending a revised quotation and customer agreement before testing.
+  - WF-02-A7: Extra samples are received with their condition and handover recorded and confirmed by the customer, then held pending a revised quotation and customer agreement before testing.
 - **Exceptions:**
   - WF-02-E1: An unusable sample is rejected with its condition note and gets no testing task.
   - WF-02-E2: A person outside the department scanning the label is refused.
@@ -123,9 +123,11 @@ flowchart TD
         h2[Scan the label to record department receipt]
     end
     c1 --> d1
-    d3 --> c2 --> d4 --> h2 --> done([Testing tasks in department queues])
+    d3 --> c2 --> extra{Extra samples?}
+    extra -->|no| d4 --> h2 --> done([Testing tasks in department queues])
+    extra -->|yes| pending[Hold pending revised quotation and customer agreement]
+    pending -->|customer agrees to revised quotation| d4
     d7 --> h1 --> d8 --> d1
-    d1 -->|extra samples| pending[Hold pending revised quotation and customer agreement]
 ```
 
 ## WF-03 Testing assignment and scheduling
@@ -438,14 +440,23 @@ flowchart TD
         c4[Read the reply on the order]
     end
     subgraph lane23 ["Sales"]
-        s1{Whole-order cancellation affects completed testing?}
+        scope{Cancellation scope?}
+        scope -->|whole order| s1{Whole-order cancellation affects completed testing?}
+        scope -->|unfulfillable part| partial{Affected sample tests may be cancelled under their current rules?}
+        partial -->|no| s2
+        partial -->|yes| preserve[Preserve unaffected work and completed results] --> s3
         s1 -->|yes| s2[Decline with a reply]
         s1 -->|no| s3{Accept?}
         s3 -->|no| s2
     end
-    c3 --> s1
+    c3 --> scope
     s2 --> c4
-    s3 -->|yes| cancel(["Cancel accepted scope and preserve other work; a paid advance is settled outside the system"])
+    s3 -->|yes| signed{Approved order?}
+    signed -->|yes| approval[Request the Head of Sales approval through a change request]
+    approval --> decision{Change request approved?}
+    decision -->|no| s2
+    decision -->|yes| cancel
+    signed -->|no| cancel(["Cancel accepted scope and preserve other work; a paid advance is settled outside the system"])
     c2 --> cancel
 ```
 

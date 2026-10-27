@@ -72,7 +72,7 @@ The tables are drawn in [ecommerce.prisma](../../infrastructure/database/ecommer
 | Templates        | An order template belongs to one customer and holds parameters, packages and quantities, without prices.                                      |
 | Cancellation | An order has at most one open cancellation request. A request may cover the whole order or an unfulfillable part; Sales records its decision and preserves work outside the accepted cancellation scope. |
 | Support          | A support request is a conversation of messages between the customer and sales, optionally about one order.                       |
-| Feedback         | A completed order has at most one feedback, a rating from 1 to 5 with a comment.                                                              |
+| Feedback         | A completed order has at most one feedback, a rating from 1 to 5 with an optional comment.                                                              |
 
 ## Actors
 

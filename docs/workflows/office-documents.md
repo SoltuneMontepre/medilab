@@ -15,7 +15,7 @@ It checks that `officecli --version` matches the version pinned in `tools/taskfi
 Agents use the `officecli` skill in `.agent/skills/officecli/`, derived from the upstream `SKILL.md` of the pinned tag with local installation and usage corrections. Claude Code loads it through `.claude/skills/officecli/`. It runs `officecli` in the shell; no MCP server is configured for it.
 
 - Read before editing: `officecli view <file> outline` lists the sheets, slides or headings; `officecli view <file> text` prints the content.
-- Close the file in the corresponding application (Excel, Word, PowerPoint, or WPS) first. An open file is locked, and OfficeCLI cannot read or write it.
+- Close the file in the corresponding application (Excel, Word, PowerPoint, or WPS) before using OfficeCLI. After editing with OfficeCLI, run `officecli save <file>` or `officecli close <file>` before opening it in the application.
 - When changing the pinned version, copy the upstream `SKILL.md` of the same tag into `.agent/skills/officecli/` and reapply the local installation and usage corrections, including Markdown table escaping.
 
 ## Related documents

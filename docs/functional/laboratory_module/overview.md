@@ -40,7 +40,7 @@ erDiagram
 | Rule              | Description                                                                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Customer          | A customer is a company or an individual. Their details are their contact; a company's people are the contact's people. A customer has a code from a sequence, the tax ID on its contact, and a citizen ID for an individual, which is masked in the audit trail. People who use the customer portal sign in with Odoo users linked to those contacts. Sales maintains customers. |
-| Customer bank accounts | A customer's Odoo contact can have several bank accounts. They are optional and maintained with the contact, not copied into each request or sample. A document that prints a customer's bank details keeps the details used at issue; later contact changes never rewrite it. Documents that do not print those details do not snapshot them. Fax is outside the scope. |
+| Customer bank accounts | A customer's Odoo contact can have several bank accounts. They are optional and maintained with the contact, not copied into each request or sample. For a document that prints customer bank details, omit them when the customer has no account, preselect the account when there is exactly one, and require the document preparer to select one when there are several before issuing it. The document keeps the details printed at issue; later contact changes never rewrite it. Documents that do not print those details need neither an account selection nor a snapshot. Fax is outside the scope. |
 | Test request | A test request groups at least one sample of one customer, each with at least one sample test. Confirming an order creates the request and its expected samples and sample tests from the accepted selections and sampling requirements. Sample delivery staff adjust them to the actual collection. Without E-commerce they create the request, samples and selected ways directly. |
 | Lab code          | Each sample gets a unique lab code (mã PTN) from a sequence, such as PTN.2026.0001, numbered again each year. Testers see only the lab code, never the customer or the customer's name for the sample: only people who can read test requests see those. |
 | Sample details    | A sample has the customer's name for it, its sample type, its physical state (solid, liquid, gas or semi-solid), and its form and container as text. It can name the [location](features/admin.md#1-catalog-us-ad01-to-us-ad08-us-ad26-to-us-ad28) it was taken from, such as a sampling point. |
@@ -49,7 +49,7 @@ erDiagram
 
 ## Lifecycles
 
-Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-10](../shared.md#sh-10-tasks-and-to-do-list)).
+Each document keeps its own status. Tasks keep their own generic lifecycle ([SH-10](../shared.md#sh-10-tasks-and-to-do-list)). Cancelled tests and cancelled or rejected samples do not count toward sample or test-request progress.
 
 ### Test request
 
@@ -61,8 +61,8 @@ stateDiagram-v2
     confirmed --> sample_received: no payment step
     paid --> sample_received: first sample received
     sample_received --> testing: first sample test started
-    testing --> awaiting_approval: every sample test has a result entered
-    awaiting_approval --> testing: a result is rejected
+    testing --> awaiting_approval: every remaining test has its reported result sent for approval
+    awaiting_approval --> testing: a reported result is rejected or withdrawn
     awaiting_approval --> completed: every result approved
     testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued
@@ -86,8 +86,8 @@ stateDiagram-v2
     received --> on_hold: insufficient on arrival
     on_hold --> received: more sample collected
     received --> testing: first sample test started
-    testing --> awaiting_approval: every sample test has a result entered
-    awaiting_approval --> testing: a result is rejected
+    testing --> awaiting_approval: every remaining test has its reported result sent for approval
+    awaiting_approval --> testing: a reported result is rejected or withdrawn
     awaiting_approval --> completed: every result approved
     testing --> completed: the remaining tests are approved when one is cancelled
     completed --> reported: report issued

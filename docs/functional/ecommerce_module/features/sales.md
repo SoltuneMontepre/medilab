@@ -55,7 +55,7 @@ Sales is the laboratory's salesperson. Sales turns customer orders into quotatio
 - **Queue.** Submitted customer orders appear in an unclaimed queue, oldest first. A salesperson claims one; from then on only that salesperson (and the Head of Sales) sees and edits it. A claimed order is not visible to other salespeople.
 - **Order on behalf of a customer.** Sales selects the customer, adds parameters and service packages in the same catalog the customer uses and saves it as an order owned by the salesperson. From here the flow is the same as a portal order.
 - **Customer profile.** Name, tax code or citizen ID, addresses, the contact people of a business, and the customer's order history. Sales can set whether a customer is allowed to order on credit (see below). The customer itself is kept by the [Laboratory module](../../laboratory_module/overview.md#test-requests-and-samples); E-commerce keeps the customer's sales terms.
-- **Customer bank accounts.** Maintain optional bank accounts on the customer's Odoo contact, allowing several accounts under the [customer rules](../../laboratory_module/overview.md#test-requests-and-samples). A customer can be saved without bank details.
+- **Customer bank accounts.** Maintain optional bank accounts on the customer's Odoo contact, allowing several accounts under the [customer rules](../../laboratory_module/overview.md#test-requests-and-samples). A customer can be saved without bank details. Each document selects and preserves any printed customer bank details under the same customer rules.
 - **Portal invitation and duplicates.** Sales can invite a customer to the portal. A self-registered account that matches an existing profile on tax code or citizen ID is flagged; sales reviews it and either clears the flag or merges it into the profile it matched. Merging moves every order, document and person of the flagged account to that profile and deletes the flagged one; its login stays, as a contact of the remaining profile.
 - **Duplicate warnings.** When staff create or edit a customer profile, warn when its name, telephone or mobile number, tax code or citizen ID matches another customer. A warning lets staff save and never merges profiles automatically. The registration flag and sales review above still apply to matching identity information.
 
@@ -67,6 +67,8 @@ Acceptance criteria:
 - Creating or editing a customer with another customer's name or telephone or mobile number shows a warning without blocking the save or merging the profiles.
 - A customer's unchanged details do not match the customer itself in duplicate warnings.
 - A customer can be saved with no bank account or several accounts; changing them never changes bank details printed on an issued document.
+- A document that prints customer bank details omits them when there is no account and preselects the sole account when there is one. With several accounts, its preparer must select one before issue.
+- A document issued with the selected account keeps those printed details when the customer's accounts change. A document that does not print bank details requires neither an account selection nor a snapshot.
 
 ### 2. Quotation (US-S05 to US-S10, US-S21, US-S22)
 

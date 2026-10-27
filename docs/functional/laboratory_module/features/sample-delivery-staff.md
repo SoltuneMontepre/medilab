@@ -51,7 +51,7 @@ Acceptance criteria:
 - A collection task assigned to sample delivery staff appears on their personal schedule and in their to-do list.
 - A reminder arrives before the collection starts.
 - A collection task created by a request to collect again shows the sample it is for.
-- A photo attached at collection appears on the sample for authorized readers.
+- A photo attached at collection appears only to readers who may see the customer's sample name; testers cannot see it.
 - Two collection appointments that leave less than the configured travel buffer are not offered as feasible.
 - One request can record several collections and their differences from expected samples.
 - Extra samples cannot start testing before customer agreement on the revised quotation.
