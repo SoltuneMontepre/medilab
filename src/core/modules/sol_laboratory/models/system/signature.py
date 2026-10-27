@@ -84,18 +84,18 @@ class Signature(models.Model):
             raise UserError(self.env._("This signature is already withdrawn."))
         if process_completed:
             raise UserError(self.env._("The process of the document is completed, so a signature cannot be withdrawn."))
-        if signature._higher_rows():
-            raise UserError(self.env._("Withdraw the signatures of the higher levels first."))
+        if signature._later_rows():
+            raise UserError(self.env._("Withdraw the signatures given after yours first."))
 
-    def _higher_rows(self):
-        # Rows of higher levels of the same chain on the same document that are not withdrawn; a rejection counts.
+    def _later_rows(self):
+        # Rows of the same document given after this one that are not withdrawn; a rejection counts. The id grows with
+        # every row, so it orders them where the creation time can be equal.
         self.ensure_one()
         return self.search(
             [
                 ("document_model", "=", self.document_model),
                 ("document_id", "=", self.document_id),
                 ("withdrawn_at", "=", False),
-                ("level_id.chain_id", "=", self.level_id.chain_id.id),
-                ("level_id.sequence", ">", self.level_id.sequence),
+                ("id", ">", self.id),
             ]
         )
