@@ -38,17 +38,26 @@ class TestOrderAccess(OrderCase):
         self.assertFalse(self.env[MODEL_SALE_ORDER].with_user(self.sales).search([("id", "=", draft.id)]))
         self.assertEqual(draft.with_user(self.head).order_status, "draft")
 
-    def test_a_salesperson_opens_an_order_that_has_invoices(self):
-        order = self.make_confirmed_order()
+    def test_a_salesperson_opens_an_order_taken_over_from_another(self):
+        # An invoice keeps the salesperson who sold it, whom the one taking the order over cannot read.
+        paid = self.make_confirmed_order()
+        unpaid = self.sent_order()
+        self.env["account.payment"].create_pending_payment(unpaid.invoice_ids, 1_000, "cash")
+        (paid | unpaid).user_id = self.other_sales
         self.env.invalidate_all()
-        orders = self.env[MODEL_SALE_ORDER].with_user(self.sales)
+        orders = self.env[MODEL_SALE_ORDER].with_user(self.other_sales)
         form_fields = orders.get_views([(False, "form")])["models"][MODEL_SALE_ORDER]["fields"]
 
-        [values] = orders.browse(order.id).web_read({name: {} for name in form_fields})
+        def opened(order):
+            [values] = orders.browse(order.id).web_read({name: {} for name in form_fields})
+            return values
 
-        self.assertEqual((values["invoice_count"], values["payment_status"]), (1, "paid"))
+        self.assertFalse(paid.invoice_ids.with_user(self.other_sales).has_access("read"))
+        figures = ("invoice_count", "payment_status", "pending_amount")
+        self.assertEqual([opened(paid)[name] for name in figures], [1, "paid", 0])
+        self.assertEqual([opened(unpaid)[name] for name in figures], [1, "not_paid", 1_000])
 
-    def test_the_invoices_button_is_for_those_who_read_invoices(self):
+    def test_only_the_billing_group_opens_the_invoices_from_an_order(self):
         orders = self.env[MODEL_SALE_ORDER]
         invoicing = new_test_user(
             self.env, login="order.invoicing", groups="base.group_user,account.group_account_invoice"
@@ -59,6 +68,7 @@ class TestOrderAccess(OrderCase):
             return arch.xpath("//button[@name='action_view_invoice']")
 
         self.assertFalse(invoices_buttons(self.sales))
+        self.assertFalse(invoices_buttons(self.head))
         self.assertTrue(invoices_buttons(invoicing))
 
     def test_a_salesperson_analyses_only_their_own_orders(self):

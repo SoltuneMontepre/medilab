@@ -11,8 +11,8 @@ PAID_STATES = ("paid", "in_payment", "reversed")
 class SaleOrder(models.Model):
     _inherit = MODEL_SALE_ORDER
 
-    # The four fields below are computed with full rights: a salesperson reads the order without holding rights on
-    # invoices, and a compute run with theirs fails or sees no invoice.
+    # The four fields below are computed with full rights. A salesperson reads only the invoices they sell, so computed
+    # with their rights an order taken over from another salesperson shows no invoice and nothing paid or pending.
     # The invoices and credit notes of the order.
     invoice_ids = fields.Many2many(compute_sudo=True)
     # How many invoices and credit notes the order has.
@@ -43,8 +43,7 @@ class SaleOrder(models.Model):
 
     @api.depends("invoice_ids", "invoice_ids.payment_state", "invoice_ids.amount_residual")
     def _compute_pending_amount(self):
-        # Sales see the total of the pending payments, not the payments themselves.
-        payments = self.env["account.payment"].sudo()
+        payments = self.env["account.payment"]
         for order in self:
             invoices = order.invoice_ids
             pending = payments.browse()
