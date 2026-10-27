@@ -161,6 +161,9 @@ class TestMachineScheduling(SchedulingCase):
         self.assertEqual((waiting.status, waiting.starts_at), ("scheduled", MONDAY))
         with self.assertRaises(AccessError):
             own.write({"person_id": self.other_tester.id})
+        own.action_start()
+        with self.assertRaisesRegex(UserError, "Only a scheduled booking can be moved"):
+            own.write({"starts_at": MONDAY + timedelta(hours=4)})
 
     def test_only_the_person_running_a_test_and_their_head_adjust_its_booking(self):
         self.testing_task(self.test, self.tester)
