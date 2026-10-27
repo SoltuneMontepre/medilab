@@ -25,7 +25,7 @@ class TestQualityRegistrationExpiry(TransactionCase):
         super().setUpClass()
         cls.administrator = cls.env.ref(ADMINISTRATOR_PERSON).user_id
         cls.administrator.partner_id.email = "admin@anphu.example"
-        cls.env[MODEL_RES_CONFIG_SETTINGS].create({"quality_registration_warning_days": 7}).execute()
+        cls.env["ir.config_parameter"].set_int(QUALITY_REGISTRATION_WARNING_PARAMETER, 7)
         cls.today = cls.env[MODEL_ACCREDITATION_CERTIFICATE]._laboratory_today()
         # Dossiers the database already holds, such as the demo data's, take no part in these warnings.
         cls.env[MODEL_QUALITY_REGISTRATION].search([]).active = False
@@ -46,7 +46,9 @@ class TestQualityRegistrationExpiry(TransactionCase):
         )
 
     def test_the_warning_days_are_saved_from_the_settings_screen(self):
-        self.assertEqual(self.env["ir.config_parameter"].get_int(QUALITY_REGISTRATION_WARNING_PARAMETER), 7)
+        self.env[MODEL_RES_CONFIG_SETTINGS].create({"quality_registration_warning_days": 10}).execute()
+
+        self.assertEqual(self.env["ir.config_parameter"].get_int(QUALITY_REGISTRATION_WARNING_PARAMETER), 10)
 
     def test_a_negative_number_of_warning_days_is_refused(self):
         with self.assertRaisesRegex(ValidationError, "cannot be negative"):
