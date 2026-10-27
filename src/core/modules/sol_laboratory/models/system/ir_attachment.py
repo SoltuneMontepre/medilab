@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import tempfile
@@ -15,6 +16,8 @@ from odoo.addons.sol_laboratory.constants.models import MODEL_IR_ATTACHMENT
 from odoo.addons.sol_laboratory.services import laboratory_bucket
 
 STORED_FILE = re.compile(r"[0-9a-f]{2}/[0-9a-f]+")
+
+_logger = logging.getLogger(__name__)
 
 
 # Tệp Đính Kèm
@@ -93,6 +96,7 @@ class IrAttachment(models.Model):
             os.replace(file.name, path)
         else:
             os.unlink(file.name)
+            _logger.warning("Attachment file %s is in neither the local filestore nor the bucket.", fname)
 
     @api.model
     def _local_files(self):
