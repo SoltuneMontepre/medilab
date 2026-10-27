@@ -19,7 +19,7 @@ MediLab is built on Odoo Community and extends its apps where they hold a concep
 | Laboratory | `hr`, `portal`, `calendar`                          |
 | E-commerce | `sale`, `l10n_vn`, `rating`                         |
 | Inventory  | `stock_account`, `product_expiry`, `purchase_stock` |
-| Theme      | `web`                                               |
+| Theme      | `web`, `mail`                                       |
 | Onboarding | None beyond Laboratory's                            |
 
 Each module also has every app its own apps depend on: `mail`, `bus` and `resource` through `hr`; `account`, `account_payment`, `payment` and `product` through `sale`; `account_qr_code_emv` through `l10n_vn`; `stock`, `uom` and `purchase` through Inventory's apps.

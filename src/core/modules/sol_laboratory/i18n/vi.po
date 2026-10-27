@@ -8759,8 +8759,8 @@ msgstr "Windows"
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
-msgid "Withdraw the signatures of the higher levels first."
-msgstr "Hãy rút lại chữ ký của các cấp cao hơn trước."
+msgid "Withdraw the signatures given after yours first."
+msgstr "Hãy rút lại các chữ ký được ký sau chữ ký của bạn trước."
 
 #. module: sol_laboratory
 #: model:ir.model.fields,field_description:sol_laboratory.field_medilab_signature__withdrawn_at

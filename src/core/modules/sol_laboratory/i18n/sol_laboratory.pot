@@ -8589,7 +8589,7 @@ msgstr ""
 #. module: sol_laboratory
 #. odoo-python
 #: code:addons/sol_laboratory/models/system/signature.py:0
-msgid "Withdraw the signatures of the higher levels first."
+msgid "Withdraw the signatures given after yours first."
 msgstr ""
 
 #. module: sol_laboratory
