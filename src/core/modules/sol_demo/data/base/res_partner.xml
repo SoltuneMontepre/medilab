@@ -82,7 +82,6 @@
         <field name="country_id" ref="base.vn" />
         <field name="phone">028 3750 1234</field>
         <field name="email">contact@anphu-beverage.example</field>
-        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_an_phu_quality" model="res.partner">
         <field name="name">Tran Thi Huong</field>
@@ -111,7 +110,6 @@
         <field name="country_id" ref="base.vn" />
         <field name="phone">0263 382 5566</field>
         <field name="email">info@nongsanxanh.example</field>
-        <field name="lang">vi_VN</field>
     </record>
     <record id="demo_res_partner_green_farm_director" model="res.partner">
         <field name="name">Nguyễn Thị Mai</field>
