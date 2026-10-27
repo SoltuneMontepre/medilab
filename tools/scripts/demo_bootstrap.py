@@ -236,7 +236,34 @@ def _port_host(key):
     return "127.0.0.1" if key == "MEDILAB_GARAGE_ADMIN_PORT" else "0.0.0.0"
 
 
-def _port_is_free(host, port):
+def _host_port_range(value):
+    start, _separator, end = (value or "").partition("-")
+    if not start.isdigit():
+        return range(0)
+    return range(int(start), int(end if end.isdigit() else start) + 1)
+
+
+def _published_ports():
+    """Return the host ports that containers publish, running or stopped; Docker Desktop still lets a socket bind them."""
+    result = _run(["docker", "ps", "--all", "--quiet"], capture_output=True)
+    identities = result.stdout.split()
+    if not identities:
+        return set()
+    result = _run(["docker", "inspect", *identities], capture_output=True)
+    ports = set()
+    for container in json.loads(result.stdout):
+        for bindings in (
+            *((container.get("HostConfig") or {}).get("PortBindings") or {}).values(),
+            *((container.get("NetworkSettings") or {}).get("Ports") or {}).values(),
+        ):
+            for binding in bindings or ():
+                ports.update(_host_port_range(binding.get("HostPort")))
+    return ports
+
+
+def _port_is_free(host, port, published):
+    if port in published:
+        return False
     probe = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         probe.bind((host, port))
@@ -248,13 +275,18 @@ def _port_is_free(host, port):
 
 
 def _free_ports():
+    published = _published_ports()
     candidates = iter(
         random.SystemRandom().sample(SELECTED_PORT_RANGE, len(SELECTED_PORT_RANGE))
     )
     ports = {}
     for key in PORT_KEYS:
         port = next(
-            (port for port in candidates if _port_is_free(_port_host(key), port)),
+            (
+                port
+                for port in candidates
+                if _port_is_free(_port_host(key), port, published)
+            ),
             None,
         )
         if port is None:
@@ -572,9 +604,10 @@ def _assert_ports_available(config):
                 f"{key} and {seen[port]} use the same host port {port}; configured ports must be distinct."
             )
         seen[port] = key
+    published = _published_ports()
     for key in PORT_KEYS:
         port = int(config[key])
-        if not _port_is_free(_port_host(key), port):
+        if not _port_is_free(_port_host(key), port, published):
             raise BootstrapError(
                 f"Port {port} from {key} is unavailable; no bootstrap resources were changed. Set a free port below {SELECTED_PORT_RANGE.stop} in {COMPOSE_ENV_FILE} and retry only after checking the environment state."
             )
