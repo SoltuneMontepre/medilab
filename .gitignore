@@ -161,6 +161,7 @@ kubeconfig.yml
 ~$*
 
 # Cypress
+src/tests/cypress/downloads/
 src/tests/cypress/screenshots/
 src/tests/cypress/videos/
 src/core/modules/coverage.xml
